@@ -1,51 +1,70 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { CourseCreateRequest, SupportedLanguage } from '@/types'
 import { courseApi } from '@/api/courseApi'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { Loader2 } from 'lucide-react'
 
-const courseCreateSchema = z.object({
-  instructorId: z.string().uuid('Invalid instructor ID'),
-  categoryId: z.number().optional(),
-  title: z.string().min(1, 'Title is required'),
-  slug: z.string().min(1, 'Slug is required'),
-  description: z.string().optional(),
-  thumbnailUrl: z.string().url('Invalid URL').optional().or(z.literal('')),
-  priceMxc: z.number().min(0).optional(),
-  language: z.nativeEnum(SupportedLanguage).optional(),
+const courseSchema = z.object({
+  title: z.string().min(5, 'Title must be at least 5 characters').max(200),
+  slug: z.string().min(3, 'Slug must be at least 3 characters').regex(/^[a-z0-9-]+$/, 'Slug must be lowercase with hyphens only'),
+  description: z.string().min(20, 'Description must be at least 20 characters').optional().or(z.literal('')),
+  priceMxc: z.coerce.number().min(0).optional(),
+  language: z.string().optional(),
   level: z.string().optional(),
   isCertificate: z.boolean().optional(),
-  previewVideoUrl: z.string().url('Invalid URL').optional().or(z.literal('')),
+  thumbnailUrl: z.string().url('Must be a valid URL').optional().or(z.literal('')),
+  previewVideoUrl: z.string().url('Must be a valid URL').optional().or(z.literal('')),
 })
 
-interface CourseCreateFormProps {
-  instructorId: string
-}
+type CourseFormData = z.infer<typeof courseSchema>
 
-export default function CourseCreateForm({ instructorId }: CourseCreateFormProps) {
+export default function CourseCreateForm({ instructorId }: { instructorId: string }) {
   const navigate = useNavigate()
-  const [error, setError] = useState<string>('')
+  const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
   const {
     register,
     handleSubmit,
+    watch,
+    setValue,
     formState: { errors },
-  } = useForm<CourseCreateRequest>({
-    resolver: zodResolver(courseCreateSchema),
+  } = useForm<CourseFormData>({
+    resolver: zodResolver(courseSchema),
     defaultValues: {
-      instructorId,
+      language: 'EN',
+      level: 'Beginner',
       isCertificate: false,
     },
   })
 
-  const onSubmit = async (data: CourseCreateRequest) => {
+  const title = watch('title')
+
+  const generateSlug = () => {
+    if (title) {
+      const slug = title
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .trim()
+      setValue('slug', slug)
+    }
+  }
+
+  const onSubmit = async (data: CourseFormData) => {
     try {
       setLoading(true)
       setError('')
-      const course = await courseApi.create(data)
+      const course = await courseApi.create({
+        ...data,
+        instructorId,
+        description: data.description || undefined,
+        thumbnailUrl: data.thumbnailUrl || undefined,
+        previewVideoUrl: data.previewVideoUrl || undefined,
+      })
       navigate(`/courses/${course.courseId}`)
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to create course. Please try again.')
@@ -54,130 +73,108 @@ export default function CourseCreateForm({ instructorId }: CourseCreateFormProps
     }
   }
 
+  const inputClass = 'w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-sm'
+  const labelClass = 'block text-sm font-medium text-gray-700 mb-1.5'
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       <div>
-        <label htmlFor="title" className="label">
-          Course Title *
-        </label>
+        <label className={labelClass}>Course Title</label>
         <input
-          id="title"
-          type="text"
           {...register('title')}
-          className="input"
-          placeholder="Complete Web Development Bootcamp"
+          className={inputClass}
+          placeholder="e.g., Introduction to Machine Learning"
         />
-        {errors.title && <p className="error-message">{errors.title.message}</p>}
+        {errors.title && <p className="text-xs text-red-500 mt-1">{errors.title.message}</p>}
       </div>
 
       <div>
-        <label htmlFor="slug" className="label">
-          Slug *
+        <label className={labelClass}>
+          URL Slug
+          <button type="button" onClick={generateSlug} className="ml-2 text-xs text-primary-600 hover:text-primary-700">
+            Auto-generate from title
+          </button>
         </label>
         <input
-          id="slug"
-          type="text"
           {...register('slug')}
-          className="input"
-          placeholder="complete-web-development-bootcamp"
+          className={inputClass}
+          placeholder="introduction-to-machine-learning"
         />
-        {errors.slug && <p className="error-message">{errors.slug.message}</p>}
+        {errors.slug && <p className="text-xs text-red-500 mt-1">{errors.slug.message}</p>}
       </div>
 
       <div>
-        <label htmlFor="description" className="label">
-          Description
-        </label>
+        <label className={labelClass}>Description</label>
         <textarea
-          id="description"
           {...register('description')}
-          className="input"
-          rows={6}
-          placeholder="Describe what students will learn in this course..."
+          rows={5}
+          className={inputClass}
+          placeholder="What will students learn in this course? What are the prerequisites?"
         />
-        {errors.description && <p className="error-message">{errors.description.message}</p>}
+        {errors.description && <p className="text-xs text-red-500 mt-1">{errors.description.message}</p>}
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-3 gap-4">
         <div>
-          <label htmlFor="priceMxc" className="label">
-            Price (MXC)
-          </label>
+          <label className={labelClass}>Price (MXC)</label>
           <input
-            id="priceMxc"
             type="number"
             step="0.01"
-            {...register('priceMxc', { valueAsNumber: true })}
-            className="input"
-            placeholder="99.99"
+            {...register('priceMxc')}
+            className={inputClass}
+            placeholder="0.00 = Free"
           />
-          {errors.priceMxc && <p className="error-message">{errors.priceMxc.message}</p>}
         </div>
-
         <div>
-          <label htmlFor="language" className="label">
-            Language
-          </label>
-          <select id="language" {...register('language')} className="input">
-            <option value="">Select language</option>
-            {Object.values(SupportedLanguage).map((lang) => (
-              <option key={lang} value={lang}>
-                {lang}
-              </option>
-            ))}
+          <label className={labelClass}>Language</label>
+          <select {...register('language')} className={inputClass}>
+            <option value="EN">English</option>
+            <option value="VI">Vietnamese</option>
+            <option value="ES">Spanish</option>
+            <option value="FR">French</option>
+            <option value="DE">German</option>
+            <option value="ZH">Chinese</option>
+            <option value="JA">Japanese</option>
+            <option value="KO">Korean</option>
           </select>
-          {errors.language && <p className="error-message">{errors.language.message}</p>}
+        </div>
+        <div>
+          <label className={labelClass}>Level</label>
+          <select {...register('level')} className={inputClass}>
+            <option value="Beginner">Beginner</option>
+            <option value="Intermediate">Intermediate</option>
+            <option value="Advanced">Advanced</option>
+            <option value="Expert">Expert</option>
+          </select>
         </div>
       </div>
 
       <div>
-        <label htmlFor="level" className="label">
-          Level
-        </label>
-        <select id="level" {...register('level')} className="input">
-          <option value="">Select level</option>
-          <option value="Beginner">Beginner</option>
-          <option value="Intermediate">Intermediate</option>
-          <option value="Advanced">Advanced</option>
-          <option value="All Levels">All Levels</option>
-        </select>
-        {errors.level && <p className="error-message">{errors.level.message}</p>}
-      </div>
-
-      <div>
-        <label htmlFor="thumbnailUrl" className="label">
-          Thumbnail URL
-        </label>
+        <label className={labelClass}>Thumbnail URL (optional)</label>
         <input
-          id="thumbnailUrl"
-          type="url"
           {...register('thumbnailUrl')}
-          className="input"
-          placeholder="https://example.com/thumbnail.jpg"
+          className={inputClass}
+          placeholder="https://example.com/image.jpg"
         />
-        {errors.thumbnailUrl && <p className="error-message">{errors.thumbnailUrl.message}</p>}
+        {errors.thumbnailUrl && <p className="text-xs text-red-500 mt-1">{errors.thumbnailUrl.message}</p>}
       </div>
 
       <div>
-        <label htmlFor="previewVideoUrl" className="label">
-          Preview Video URL
-        </label>
+        <label className={labelClass}>Preview Video URL (optional)</label>
         <input
-          id="previewVideoUrl"
-          type="url"
           {...register('previewVideoUrl')}
-          className="input"
+          className={inputClass}
           placeholder="https://youtube.com/watch?v=..."
         />
-        {errors.previewVideoUrl && <p className="error-message">{errors.previewVideoUrl.message}</p>}
+        {errors.previewVideoUrl && <p className="text-xs text-red-500 mt-1">{errors.previewVideoUrl.message}</p>}
       </div>
 
-      <div className="flex items-center">
+      <div className="flex items-center gap-3">
         <input
-          id="isCertificate"
           type="checkbox"
+          id="isCertificate"
           {...register('isCertificate')}
-          className="mr-2"
+          className="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
         />
         <label htmlFor="isCertificate" className="text-sm text-gray-700">
           Offer certificate upon completion
@@ -185,19 +182,28 @@ export default function CourseCreateForm({ instructorId }: CourseCreateFormProps
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+        <div className="flex items-center gap-2 bg-red-50 border border-red-100 text-red-600 px-4 py-3 rounded-xl text-sm">
+          <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
           {error}
         </div>
       )}
 
-      <div className="flex gap-4">
-        <button type="button" onClick={() => navigate('/courses')} className="btn btn-secondary flex-1">
-          Cancel
-        </button>
-        <button type="submit" disabled={loading} className="btn btn-primary flex-1">
-          {loading ? 'Creating...' : 'Create Course'}
-        </button>
-      </div>
+      <button
+        type="submit"
+        disabled={loading}
+        className="w-full flex items-center justify-center gap-2 bg-primary-600 text-white py-3 rounded-xl font-medium hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all text-sm"
+      >
+        {loading ? (
+          <>
+            <Loader2 className="w-4 h-4 animate-spin" />
+            Creating course...
+          </>
+        ) : (
+          'Create Course'
+        )}
+      </button>
     </form>
   )
 }

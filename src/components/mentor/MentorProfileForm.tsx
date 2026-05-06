@@ -1,29 +1,33 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { MentorProfileRequest } from '@/types'
 import { mentorApi } from '@/api/mentorApi'
+import { MentorProfileRequest } from '@/types'
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { Loader2, CheckCircle } from 'lucide-react'
 
-const mentorProfileSchema = z.object({
-  headline: z.string().max(255, 'Headline must not exceed 255 characters').optional(),
-  hourlyRateMxc: z.number().min(0, 'Hourly rate must be positive').optional(),
-  yearsOfExperience: z.number().min(0, 'Years of experience cannot be negative').max(50, 'Years of experience cannot exceed 50').optional(),
-  availability: z.string().max(50, 'Availability must not exceed 50 characters').optional(),
-  responseTimeHours: z.number().min(1, 'Response time must be at least 1 hour').max(168, 'Response time cannot exceed 168 hours').optional(),
-  cvUrl: z.string().url('Invalid URL').optional().or(z.literal('')),
-  portfolioUrl: z.string().url('Invalid URL').optional().or(z.literal('')),
+const mentorSchema = z.object({
+  headline: z.string().min(10, 'Headline must be at least 10 characters').max(200),
+  hourlyRateMxc: z.coerce.number().min(0, 'Rate must be positive').optional(),
+  yearsOfExperience: z.coerce.number().min(0).max(50).optional(),
+  availability: z.string().optional(),
+  responseTimeHours: z.coerce.number().min(1).max(72).optional(),
+  cvUrl: z.string().url('Must be a valid URL').optional().or(z.literal('')),
+  portfolioUrl: z.string().url('Must be a valid URL').optional().or(z.literal('')),
 })
 
-interface MentorProfileFormProps {
+type MentorFormData = z.infer<typeof mentorSchema>
+
+interface Props {
   userId: string
-  initialData?: Partial<MentorProfileRequest>
-  isEdit?: boolean
-  onSuccess?: () => void
+  initialData?: MentorProfileRequest
+  isEdit: boolean
 }
 
-export default function MentorProfileForm({ userId, initialData, isEdit = false, onSuccess }: MentorProfileFormProps) {
-  const [error, setError] = useState<string>('')
+export default function MentorProfileForm({ userId, initialData, isEdit }: Props) {
+  const navigate = useNavigate()
+  const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
 
@@ -31,151 +35,161 @@ export default function MentorProfileForm({ userId, initialData, isEdit = false,
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<MentorProfileRequest>({
-    resolver: zodResolver(mentorProfileSchema),
-    defaultValues: initialData,
+  } = useForm<MentorFormData>({
+    resolver: zodResolver(mentorSchema),
+    defaultValues: {
+      headline: initialData?.headline || '',
+      hourlyRateMxc: initialData?.hourlyRateMxc || undefined,
+      yearsOfExperience: initialData?.yearsOfExperience || undefined,
+      availability: initialData?.availability || 'Part-time',
+      responseTimeHours: initialData?.responseTimeHours || undefined,
+      cvUrl: initialData?.cvUrl || '',
+      portfolioUrl: initialData?.portfolioUrl || '',
+    },
   })
 
-  const onSubmit = async (data: MentorProfileRequest) => {
+  const onSubmit = async (data: MentorFormData) => {
     try {
       setLoading(true)
       setError('')
-      setSuccess(false)
-      
-      if (isEdit) {
-        await mentorApi.updateMentorProfile(userId, data)
-      } else {
-        await mentorApi.createMentorProfile(userId, data)
+      const payload: MentorProfileRequest = {
+        ...data,
+        cvUrl: data.cvUrl || undefined,
+        portfolioUrl: data.portfolioUrl || undefined,
       }
-      
+
+      if (isEdit) {
+        await mentorApi.updateMentorProfile(userId, payload)
+      } else {
+        await mentorApi.createMentorProfile(userId, payload)
+      }
       setSuccess(true)
-      onSuccess?.()
+      setTimeout(() => navigate('/mentors'), 1500)
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Operation failed. Please try again.')
+      setError(err.response?.data?.message || 'Failed to save mentor profile.')
     } finally {
       setLoading(false)
     }
   }
 
+  const inputClass = 'w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-sm'
+  const labelClass = 'block text-sm font-medium text-gray-700 mb-1.5'
+
+  if (success) {
+    return (
+      <div className="text-center py-8">
+        <div className="w-16 h-16 rounded-full bg-green-50 flex items-center justify-center mx-auto mb-4">
+          <CheckCircle className="w-8 h-8 text-green-500" />
+        </div>
+        <h3 className="text-lg font-semibold text-gray-900 mb-1">
+          {isEdit ? 'Profile Updated!' : 'Application Submitted!'}
+        </h3>
+        <p className="text-sm text-gray-500">
+          {isEdit ? 'Your mentor profile has been updated.' : 'Your mentor application is under review.'}
+        </p>
+      </div>
+    )
+  }
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       <div>
-        <label htmlFor="headline" className="label">
-          Headline
-        </label>
+        <label className={labelClass}>Professional Headline</label>
         <input
-          id="headline"
-          type="text"
           {...register('headline')}
-          className="input"
-          placeholder="Senior Software Engineer | Full-Stack Developer"
+          className={inputClass}
+          placeholder="e.g., Senior Full-Stack Developer | 10+ Years in React & Node.js"
         />
-        {errors.headline && <p className="error-message">{errors.headline.message}</p>}
+        {errors.headline && <p className="text-xs text-red-500 mt-1">{errors.headline.message}</p>}
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label htmlFor="hourlyRateMxc" className="label">
-            Hourly Rate (MXC)
-          </label>
+          <label className={labelClass}>Hourly Rate (MXC)</label>
           <input
-            id="hourlyRateMxc"
             type="number"
             step="0.01"
-            {...register('hourlyRateMxc', { valueAsNumber: true })}
-            className="input"
+            {...register('hourlyRateMxc')}
+            className={inputClass}
             placeholder="50.00"
           />
-          {errors.hourlyRateMxc && <p className="error-message">{errors.hourlyRateMxc.message}</p>}
         </div>
-
         <div>
-          <label htmlFor="yearsOfExperience" className="label">
-            Years of Experience
-          </label>
+          <label className={labelClass}>Years of Experience</label>
           <input
-            id="yearsOfExperience"
             type="number"
-            {...register('yearsOfExperience', { valueAsNumber: true })}
-            className="input"
+            {...register('yearsOfExperience')}
+            className={inputClass}
             placeholder="5"
           />
-          {errors.yearsOfExperience && <p className="error-message">{errors.yearsOfExperience.message}</p>}
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label htmlFor="availability" className="label">
-            Availability
-          </label>
-          <input
-            id="availability"
-            type="text"
-            {...register('availability')}
-            className="input"
-            placeholder="Full-time, Part-time"
-          />
-          {errors.availability && <p className="error-message">{errors.availability.message}</p>}
+          <label className={labelClass}>Availability</label>
+          <select {...register('availability')} className={inputClass}>
+            <option value="Full-time">Full-time</option>
+            <option value="Part-time">Part-time</option>
+            <option value="Weekends">Weekends only</option>
+            <option value="Flexible">Flexible</option>
+          </select>
         </div>
-
         <div>
-          <label htmlFor="responseTimeHours" className="label">
-            Response Time (Hours)
-          </label>
+          <label className={labelClass}>Response Time (hours)</label>
           <input
-            id="responseTimeHours"
             type="number"
-            {...register('responseTimeHours', { valueAsNumber: true })}
-            className="input"
+            {...register('responseTimeHours')}
+            className={inputClass}
             placeholder="24"
           />
-          {errors.responseTimeHours && <p className="error-message">{errors.responseTimeHours.message}</p>}
         </div>
       </div>
 
       <div>
-        <label htmlFor="cvUrl" className="label">
-          CV URL
-        </label>
+        <label className={labelClass}>CV / Resume URL (optional)</label>
         <input
-          id="cvUrl"
-          type="url"
           {...register('cvUrl')}
-          className="input"
-          placeholder="https://example.com/cv.pdf"
+          className={inputClass}
+          placeholder="https://drive.google.com/your-cv"
         />
-        {errors.cvUrl && <p className="error-message">{errors.cvUrl.message}</p>}
+        {errors.cvUrl && <p className="text-xs text-red-500 mt-1">{errors.cvUrl.message}</p>}
       </div>
 
       <div>
-        <label htmlFor="portfolioUrl" className="label">
-          Portfolio URL
-        </label>
+        <label className={labelClass}>Portfolio URL (optional)</label>
         <input
-          id="portfolioUrl"
-          type="url"
           {...register('portfolioUrl')}
-          className="input"
-          placeholder="https://portfolio.example.com"
+          className={inputClass}
+          placeholder="https://github.com/username"
         />
-        {errors.portfolioUrl && <p className="error-message">{errors.portfolioUrl.message}</p>}
+        {errors.portfolioUrl && <p className="text-xs text-red-500 mt-1">{errors.portfolioUrl.message}</p>}
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+        <div className="flex items-center gap-2 bg-red-50 border border-red-100 text-red-600 px-4 py-3 rounded-xl text-sm">
+          <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
           {error}
         </div>
       )}
 
-      {success && (
-        <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded">
-          {isEdit ? 'Profile updated successfully!' : 'Mentor profile created successfully!'}
-        </div>
-      )}
-
-      <button type="submit" disabled={loading} className="btn btn-primary w-full">
-        {loading ? 'Saving...' : isEdit ? 'Update Profile' : 'Create Mentor Profile'}
+      <button
+        type="submit"
+        disabled={loading}
+        className="w-full flex items-center justify-center gap-2 bg-primary-600 text-white py-3 rounded-xl font-medium hover:bg-primary-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all text-sm"
+      >
+        {loading ? (
+          <>
+            <Loader2 className="w-4 h-4 animate-spin" />
+            Saving...
+          </>
+        ) : isEdit ? (
+          'Update Profile'
+        ) : (
+          'Submit Application'
+        )}
       </button>
     </form>
   )

@@ -62,4 +62,23 @@ export const jobApi = {
     )
     return response.data.data
   },
+
+  // Admin Methods
+  getAllJobs: async (params: {
+    status?: JobStatus
+    jobType?: JobType
+    categoryId?: number
+    page?: number
+    size?: number
+  }): Promise<PaginatedResponse<JobResponse>> => {
+    const response = await apiClient.get<ApiResponse<PaginatedResponse<JobResponse>>>('/jobs/admin/all', {
+      params,
+    })
+    return response.data.data
+  },
+
+  updateStatus: async (jobId: string, status: JobStatus): Promise<JobResponse> => {
+    const response = await apiClient.patch<ApiResponse<JobResponse>>(`/jobs/${jobId}/status?status=${status}`)
+    return response.data.data
+  },
 }

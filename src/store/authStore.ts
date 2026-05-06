@@ -10,6 +10,7 @@ interface AuthState {
   setUser: (user: UserResponse) => void
   setTokens: (accessToken: string, refreshToken: string) => void
   logout: () => void
+  refreshUser: () => Promise<void>
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -26,11 +27,16 @@ export const useAuthStore = create<AuthState>()(
           isAuthenticated: true,
         }),
 
-      setTokens: (accessToken, refreshToken) =>
+      setTokens: (accessToken, refreshToken) => {
+        if (!accessToken || accessToken === 'undefined' || accessToken === 'null') {
+          console.warn('Attempted to set invalid accessToken:', accessToken);
+          return;
+        }
         set({
           accessToken,
           refreshToken,
-        }),
+        })
+      },
 
       logout: () =>
         set({
@@ -39,6 +45,16 @@ export const useAuthStore = create<AuthState>()(
           refreshToken: null,
           isAuthenticated: false,
         }),
+
+      refreshUser: async () => {
+        try {
+          const { authApi } = await import('@/api/authApi')
+          const user = await authApi.getCurrentUser()
+          set({ user })
+        } catch (error) {
+          console.error('Failed to refresh user:', error)
+        }
+      },
     }),
     {
       name: 'auth-storage',

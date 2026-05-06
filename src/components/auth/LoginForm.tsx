@@ -6,9 +6,10 @@ import { authApi } from '@/api/authApi'
 import { useAuthStore } from '@/store/authStore'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { Eye, EyeOff, Loader2 } from 'lucide-react'
 
 const loginSchema = z.object({
-  email: z.string().email('Invalid email format'),
+  email: z.string().email('Please enter a valid email address'),
   password: z.string().min(1, 'Password is required'),
 })
 
@@ -17,6 +18,7 @@ export default function LoginForm() {
   const { setUser, setTokens } = useAuthStore()
   const [error, setError] = useState<string>('')
   const [loading, setLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
 
   const {
     register,
@@ -35,50 +37,73 @@ export default function LoginForm() {
       setUser(response.user)
       navigate('/dashboard')
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Login failed. Please try again.')
+      setError(err.response?.data?.message || 'Invalid email or password. Please try again.')
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       <div>
-        <label htmlFor="email" className="label">
-          Email
+        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1.5">
+          Email address
         </label>
         <input
           id="email"
           type="email"
           {...register('email')}
-          className="input"
-          placeholder="your@email.com"
+          className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-sm"
+          placeholder="you@example.com"
         />
-        {errors.email && <p className="error-message">{errors.email.message}</p>}
+        {errors.email && <p className="text-xs text-red-500 mt-1.5">{errors.email.message}</p>}
       </div>
 
       <div>
-        <label htmlFor="password" className="label">
+        <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1.5">
           Password
         </label>
-        <input
-          id="password"
-          type="password"
-          {...register('password')}
-          className="input"
-          placeholder="••••••••"
-        />
-        {errors.password && <p className="error-message">{errors.password.message}</p>}
+        <div className="relative">
+          <input
+            id="password"
+            type={showPassword ? 'text' : 'password'}
+            {...register('password')}
+            className="w-full px-4 py-2.5 pr-11 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-sm"
+            placeholder="••••••••"
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+          >
+            {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+          </button>
+        </div>
+        {errors.password && <p className="text-xs text-red-500 mt-1.5">{errors.password.message}</p>}
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+        <div className="flex items-center gap-2 bg-red-50 border border-red-100 text-red-600 px-4 py-3 rounded-xl text-sm">
+          <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
           {error}
         </div>
       )}
 
-      <button type="submit" disabled={loading} className="btn btn-primary w-full">
-        {loading ? 'Logging in...' : 'Login'}
+      <button
+        type="submit"
+        disabled={loading}
+        className="w-full flex items-center justify-center gap-2 bg-primary-600 text-white py-2.5 rounded-xl font-medium hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all text-sm"
+      >
+        {loading ? (
+          <>
+            <Loader2 className="w-4 h-4 animate-spin" />
+            Signing in...
+          </>
+        ) : (
+          'Sign in'
+        )}
       </button>
     </form>
   )

@@ -60,4 +60,23 @@ export const courseApi = {
     )
     return response.data.data
   },
+
+  // Admin Methods
+  getAllCourses: async (params: {
+    status?: CourseStatus
+    instructorId?: string
+    categoryId?: number
+    page?: number
+    size?: number
+  }): Promise<PaginatedResponse<CourseResponse>> => {
+    const response = await apiClient.get<ApiResponse<PaginatedResponse<CourseResponse>>>('/courses/admin/all', {
+      params,
+    })
+    return response.data.data
+  },
+
+  updateStatus: async (courseId: string, status: CourseStatus): Promise<CourseResponse> => {
+    const response = await apiClient.patch<ApiResponse<CourseResponse>>(`/courses/${courseId}/status?status=${status}`)
+    return response.data.data
+  },
 }

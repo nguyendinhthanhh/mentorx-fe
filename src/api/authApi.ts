@@ -43,6 +43,10 @@ export const authApi = {
     await apiClient.post(`/auth/verify-email?token=${token}`)
   },
 
+  devVerifyEmail: async (email: string): Promise<void> => {
+    await apiClient.post(`/auth/dev-verify?email=${email}`)
+  },
+
   enable2FA: async (userId: string): Promise<void> => {
     await apiClient.post(`/auth/2fa/enable?userId=${userId}`)
   },
@@ -55,6 +59,11 @@ export const authApi = {
     const response = await apiClient.post<ApiResponse<boolean>>(
       `/auth/2fa/verify?userId=${userId}&code=${code}`
     )
+    return response.data.data
+  },
+  
+  getCurrentUser: async (): Promise<UserResponse> => {
+    const response = await apiClient.get<ApiResponse<UserResponse>>('/users/me')
     return response.data.data
   },
 }

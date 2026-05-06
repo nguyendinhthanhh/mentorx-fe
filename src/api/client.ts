@@ -16,7 +16,7 @@ const apiClient: AxiosInstance = axios.create({
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const token = useAuthStore.getState().accessToken
-    if (token && config.headers) {
+    if (token && token !== 'undefined' && token !== 'null' && config.headers) {
       config.headers.Authorization = `Bearer ${token}`
     }
     return config
@@ -26,9 +26,41 @@ apiClient.interceptors.request.use(
   }
 )
 
+// Helper to normalize backend data to frontend types
+const normalizeData = (data: any): any => {
+  if (!data || typeof data !== 'object') return data
+
+  if (Array.isArray(data)) {
+    return data.map(normalizeData)
+  }
+
+  const normalized = { ...data }
+
+  // Map 'id' to 'userId', 'jobId', etc. if they are missing
+  if (data.id) {
+    if (!data.userId && (data.email || data.fullName)) normalized.userId = data.id
+    if (!data.jobId && data.title && data.budgetType) normalized.jobId = data.id
+    if (!data.courseId && data.slug && data.instructorId) normalized.courseId = data.id
+    if (!data.walletId && data.accountType) normalized.walletId = data.id
+    if (!data.txnId && data.txnType) normalized.txnId = data.id
+  }
+
+  // Recursively normalize children
+  Object.keys(normalized).forEach(key => {
+    normalized[key] = normalizeData(normalized[key])
+  })
+
+  return normalized
+}
+
 // Response interceptor - Handle errors and token refresh
 apiClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    if (response.data && response.data.data) {
+      response.data.data = normalizeData(response.data.data)
+    }
+    return response
+  },
   async (error: AxiosError) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean }
 

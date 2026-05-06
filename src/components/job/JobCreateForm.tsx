@@ -1,32 +1,29 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { JobCreateRequest, JobType, BudgetType } from '@/types'
 import { jobApi } from '@/api/jobApi'
+import { useAuthStore } from '@/store/authStore'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { Loader2 } from 'lucide-react'
 
-const jobCreateSchema = z.object({
-  clientId: z.string().uuid('Invalid client ID'),
-  categoryId: z.number().optional(),
-  jobType: z.nativeEnum(JobType),
-  title: z.string().min(1, 'Title is required'),
-  description: z.string().min(1, 'Description is required'),
-  budgetType: z.nativeEnum(BudgetType),
-  budgetMinMxc: z.number().min(0).optional(),
-  budgetMaxMxc: z.number().min(0).optional(),
-  hourlyRateMxc: z.number().min(0).optional(),
-  estimatedHours: z.number().min(0).optional(),
+const jobSchema = z.object({
+  title: z.string().min(5, 'Title must be at least 5 characters').max(200),
+  description: z.string().min(20, 'Description must be at least 20 characters'),
+  jobType: z.enum(['FIXED_PRICE', 'HOURLY', 'QUICK_SUPPORT']),
+  budgetType: z.enum(['FIXED', 'HOURLY']),
+  budgetMinMxc: z.coerce.number().min(0).optional(),
+  budgetMaxMxc: z.coerce.number().min(0).optional(),
+  hourlyRateMxc: z.coerce.number().min(0).optional(),
+  estimatedHours: z.coerce.number().min(0).optional(),
   deadlineAt: z.string().optional(),
 })
 
-interface JobCreateFormProps {
-  clientId: string
-}
+type JobFormData = z.infer<typeof jobSchema>
 
-export default function JobCreateForm({ clientId }: JobCreateFormProps) {
+export default function JobCreateForm({ clientId }: { clientId: string }) {
   const navigate = useNavigate()
-  const [error, setError] = useState<string>('')
+  const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
   const {
@@ -34,22 +31,28 @@ export default function JobCreateForm({ clientId }: JobCreateFormProps) {
     handleSubmit,
     watch,
     formState: { errors },
-  } = useForm<JobCreateRequest>({
-    resolver: zodResolver(jobCreateSchema),
+  } = useForm<JobFormData>({
+    resolver: zodResolver(jobSchema),
     defaultValues: {
-      clientId,
-      jobType: JobType.FIXED_PRICE,
-      budgetType: BudgetType.FIXED,
+      jobType: 'FIXED_PRICE',
+      budgetType: 'FIXED',
     },
   })
 
   const budgetType = watch('budgetType')
 
-  const onSubmit = async (data: JobCreateRequest) => {
+  const onSubmit = async (data: JobFormData) => {
     try {
       setLoading(true)
       setError('')
-      const job = await jobApi.create(data)
+      const job = await jobApi.create({
+        ...data,
+        clientId,
+        budgetMinMxc: data.budgetType === 'FIXED' ? data.budgetMinMxc : undefined,
+        budgetMaxMxc: data.budgetType === 'FIXED' ? data.budgetMaxMxc : undefined,
+        hourlyRateMxc: data.budgetType === 'HOURLY' ? data.hourlyRateMxc : undefined,
+        deadlineAt: data.deadlineAt || undefined,
+      })
       navigate(`/jobs/${job.jobId}`)
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to create job. Please try again.')
@@ -58,161 +61,129 @@ export default function JobCreateForm({ clientId }: JobCreateFormProps) {
     }
   }
 
+  const inputClass = 'w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-sm'
+  const labelClass = 'block text-sm font-medium text-gray-700 mb-1.5'
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       <div>
-        <label htmlFor="title" className="label">
-          Job Title *
-        </label>
+        <label className={labelClass}>Job Title</label>
         <input
-          id="title"
-          type="text"
           {...register('title')}
-          className="input"
-          placeholder="Full-Stack Developer Needed"
+          className={inputClass}
+          placeholder="e.g., Need React mentor for 3 months"
         />
-        {errors.title && <p className="error-message">{errors.title.message}</p>}
+        {errors.title && <p className="text-xs text-red-500 mt-1">{errors.title.message}</p>}
       </div>
 
       <div>
-        <label htmlFor="description" className="label">
-          Description *
-        </label>
+        <label className={labelClass}>Description</label>
         <textarea
-          id="description"
           {...register('description')}
-          className="input"
-          rows={6}
-          placeholder="Describe the job requirements, skills needed, and project details..."
+          rows={5}
+          className={inputClass}
+          placeholder="Describe the job requirements, skills needed, and expected deliverables..."
         />
-        {errors.description && <p className="error-message">{errors.description.message}</p>}
+        {errors.description && <p className="text-xs text-red-500 mt-1">{errors.description.message}</p>}
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label htmlFor="jobType" className="label">
-            Job Type *
-          </label>
-          <select id="jobType" {...register('jobType')} className="input">
-            {Object.values(JobType).map((type) => (
-              <option key={type} value={type}>
-                {type.replace('_', ' ')}
-              </option>
-            ))}
+          <label className={labelClass}>Job Type</label>
+          <select {...register('jobType')} className={inputClass}>
+            <option value="FIXED_PRICE">Fixed Price</option>
+            <option value="HOURLY">Hourly</option>
+            <option value="QUICK_SUPPORT">Quick Support</option>
           </select>
-          {errors.jobType && <p className="error-message">{errors.jobType.message}</p>}
         </div>
-
         <div>
-          <label htmlFor="budgetType" className="label">
-            Budget Type *
-          </label>
-          <select id="budgetType" {...register('budgetType')} className="input">
-            {Object.values(BudgetType).map((type) => (
-              <option key={type} value={type}>
-                {type}
-              </option>
-            ))}
+          <label className={labelClass}>Budget Type</label>
+          <select {...register('budgetType')} className={inputClass}>
+            <option value="FIXED">Fixed Budget</option>
+            <option value="HOURLY">Hourly Rate</option>
           </select>
-          {errors.budgetType && <p className="error-message">{errors.budgetType.message}</p>}
         </div>
       </div>
 
-      {budgetType === BudgetType.FIXED && (
+      {budgetType === 'FIXED' ? (
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label htmlFor="budgetMinMxc" className="label">
-              Minimum Budget (MXC)
-            </label>
+            <label className={labelClass}>Min Budget (MXC)</label>
             <input
-              id="budgetMinMxc"
               type="number"
               step="0.01"
-              {...register('budgetMinMxc', { valueAsNumber: true })}
-              className="input"
-              placeholder="1000.00"
+              {...register('budgetMinMxc')}
+              className={inputClass}
+              placeholder="0.00"
             />
-            {errors.budgetMinMxc && <p className="error-message">{errors.budgetMinMxc.message}</p>}
           </div>
-
           <div>
-            <label htmlFor="budgetMaxMxc" className="label">
-              Maximum Budget (MXC)
-            </label>
+            <label className={labelClass}>Max Budget (MXC)</label>
             <input
-              id="budgetMaxMxc"
               type="number"
               step="0.01"
-              {...register('budgetMaxMxc', { valueAsNumber: true })}
-              className="input"
-              placeholder="5000.00"
+              {...register('budgetMaxMxc')}
+              className={inputClass}
+              placeholder="0.00"
             />
-            {errors.budgetMaxMxc && <p className="error-message">{errors.budgetMaxMxc.message}</p>}
           </div>
         </div>
-      )}
-
-      {budgetType === BudgetType.HOURLY && (
+      ) : (
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label htmlFor="hourlyRateMxc" className="label">
-              Hourly Rate (MXC)
-            </label>
+            <label className={labelClass}>Hourly Rate (MXC)</label>
             <input
-              id="hourlyRateMxc"
               type="number"
               step="0.01"
-              {...register('hourlyRateMxc', { valueAsNumber: true })}
-              className="input"
-              placeholder="50.00"
+              {...register('hourlyRateMxc')}
+              className={inputClass}
+              placeholder="0.00"
             />
-            {errors.hourlyRateMxc && <p className="error-message">{errors.hourlyRateMxc.message}</p>}
           </div>
-
           <div>
-            <label htmlFor="estimatedHours" className="label">
-              Estimated Hours
-            </label>
+            <label className={labelClass}>Estimated Hours</label>
             <input
-              id="estimatedHours"
               type="number"
-              step="0.5"
-              {...register('estimatedHours', { valueAsNumber: true })}
-              className="input"
-              placeholder="40"
+              {...register('estimatedHours')}
+              className={inputClass}
+              placeholder="0"
             />
-            {errors.estimatedHours && <p className="error-message">{errors.estimatedHours.message}</p>}
           </div>
         </div>
       )}
 
       <div>
-        <label htmlFor="deadlineAt" className="label">
-          Deadline
-        </label>
+        <label className={labelClass}>Deadline (optional)</label>
         <input
-          id="deadlineAt"
           type="datetime-local"
           {...register('deadlineAt')}
-          className="input"
+          className={inputClass}
         />
-        {errors.deadlineAt && <p className="error-message">{errors.deadlineAt.message}</p>}
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+        <div className="flex items-center gap-2 bg-red-50 border border-red-100 text-red-600 px-4 py-3 rounded-xl text-sm">
+          <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
           {error}
         </div>
       )}
 
-      <div className="flex gap-4">
-        <button type="button" onClick={() => navigate('/jobs')} className="btn btn-secondary flex-1">
-          Cancel
-        </button>
-        <button type="submit" disabled={loading} className="btn btn-primary flex-1">
-          {loading ? 'Creating...' : 'Create Job'}
-        </button>
-      </div>
+      <button
+        type="submit"
+        disabled={loading}
+        className="w-full flex items-center justify-center gap-2 bg-primary-600 text-white py-3 rounded-xl font-medium hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all text-sm"
+      >
+        {loading ? (
+          <>
+            <Loader2 className="w-4 h-4 animate-spin" />
+            Creating job...
+          </>
+        ) : (
+          'Post Job'
+        )}
+      </button>
     </form>
   )
 }
