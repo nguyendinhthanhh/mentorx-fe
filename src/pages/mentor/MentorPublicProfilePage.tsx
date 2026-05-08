@@ -57,34 +57,19 @@ export default function MentorPublicProfilePage() {
 
   const { data: packages = [], isLoading: packagesLoading } = useQuery(
     ['mentor-packages', userId],
-    async () => {
-      console.log('🔵 Fetching packages for userId:', userId)
-      const result = await mentorApi.getActiveMentorPackages(userId!)
-      console.log('📦 Packages result:', result)
-      return result
-    },
+    () => mentorApi.getActiveMentorPackages(userId!),
     { enabled: !!userId }
   )
 
   const { data: courses = [], isLoading: coursesLoading } = useQuery(
     ['mentor-courses', userId],
-    async () => {
-      console.log('🔵 Fetching courses for userId:', userId)
-      const result = await mentorApi.getPublishedMentorCourses(userId!)
-      console.log('📚 Courses result:', result)
-      return result
-    },
+    () => mentorApi.getPublishedMentorCourses(userId!),
     { enabled: !!userId }
   )
 
   const { data: weeklyAvailability, isLoading: availabilityLoading } = useQuery(
     ['mentor-availability', userId],
-    async () => {
-      console.log('🔵 Fetching availability for userId:', userId)
-      const result = await mentorApi.getWeeklyAvailability(userId!)
-      console.log('📅 Availability result:', result)
-      return result
-    },
+    () => mentorApi.getWeeklyAvailability(userId!),
     { enabled: !!userId }
   )
 

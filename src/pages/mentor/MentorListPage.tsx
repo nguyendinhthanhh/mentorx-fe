@@ -1,28 +1,27 @@
+import { useEffect, useRef, useState } from 'react'
 import { useQuery } from 'react-query'
 import { Link } from 'react-router-dom'
-import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   ArrowRight,
-  Award,
   Briefcase,
-  Check,
+  CalendarClock,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
-  Clock,
-  Filter,
+  Clock3,
   MessageCircle,
   Search,
+  SlidersHorizontal,
+  Sparkles,
   Star,
-  TrendingUp,
   Users,
   X,
-  Sparkles,
-  SlidersHorizontal,
 } from 'lucide-react'
 import { mentorApi } from '@/api/mentorApi'
 import { formatCurrency } from '@/utils/formatters'
 import { MentorProfileResponse } from '@/types'
+
+const PAGE_SIZE = 12
 
 const AVAILABILITY_OPTIONS = [
   { value: 'FULL_TIME', label: 'Full time' },
@@ -32,18 +31,17 @@ const AVAILABILITY_OPTIONS = [
 ]
 
 const SORT_OPTIONS = [
-  { value: 'averageRating', label: 'Top Rated' },
-  { value: 'totalReviews', label: 'Most Reviewed' },
-  { value: 'hourlyRateMxc', label: 'Price: Low to High' },
-  { value: 'yearsOfExperience', label: 'Most Experienced' },
+  { value: 'averageRating', label: 'Top rated', direction: 'desc' },
+  { value: 'totalReviews', label: 'Most reviewed', direction: 'desc' },
+  { value: 'yearsOfExperience', label: 'Most experienced', direction: 'desc' },
+  { value: 'hourlyRateMxc', label: 'Lowest rate', direction: 'asc' },
 ]
 
-const CATEGORY_FILTERS = [
-  { value: 'all', label: 'All' },
-  { value: 'tech', label: 'Technology' },
-  { value: 'business', label: 'Business' },
-  { value: 'design', label: 'Design' },
-  { value: 'marketing', label: 'Marketing' },
+const RATE_OPTIONS = [
+  { label: 'Any rate', value: undefined },
+  { label: 'Up to 400 MXC', value: 400 },
+  { label: 'Up to 500 MXC', value: 500 },
+  { label: 'Up to 700 MXC', value: 700 },
 ]
 
 const mentorFallbackImages = [
@@ -52,8 +50,6 @@ const mentorFallbackImages = [
   'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=500&q=80',
   'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=500&q=80',
 ]
-
-const pageSize = 12
 
 export default function MentorListPage() {
   const [searchText, setSearchText] = useState('')
@@ -65,11 +61,14 @@ export default function MentorListPage() {
   const [maxRate, setMaxRate] = useState<number | undefined>()
   const [minRating, setMinRating] = useState<number | undefined>()
   const [availability, setAvailability] = useState<string | undefined>()
-  const [selectedCategory, setSelectedCategory] = useState('all')
   const debounceRef = useRef<ReturnType<typeof setTimeout>>()
 
   useEffect(() => {
-    debounceRef.current = setTimeout(() => setDebouncedSearch(searchText.trim()), 350)
+    debounceRef.current = setTimeout(() => {
+      setDebouncedSearch(searchText.trim())
+      setPage(0)
+    }, 300)
+
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current)
     }
@@ -90,23 +89,30 @@ export default function MentorListPage() {
           maxHourlyRate: maxRate,
           availability,
           page,
-          size: pageSize,
+          size: PAGE_SIZE,
           sortBy,
           sortDir,
         })
       }
-      return mentorApi.getAllApprovedMentors({ page, size: pageSize, sortBy, sortDir })
+
+      return mentorApi.getAllApprovedMentors({ page, size: PAGE_SIZE, sortBy, sortDir })
     },
     { enabled: debouncedSearch.length < 2, retry: false }
   )
 
   const isSearchMode = debouncedSearch.length >= 2
-  const mentors = isSearchMode ? textResults : pagedData?.content
+  const mentors = isSearchMode ? textResults || [] : pagedData?.content || []
   const isLoading = isSearchMode ? textLoading : pageLoading
-  const totalPages = isSearchMode ? 1 : (pagedData?.totalPages || 1)
-  const totalMentors = isSearchMode ? mentors?.length || 0 : pagedData?.totalElements || 0
+  const totalPages = isSearchMode ? 1 : pagedData?.totalPages || 1
+  const totalMentors = isSearchMode ? mentors.length : pagedData?.totalElements || 0
   const activeFilterCount = [minRating, maxRate, availability].filter(Boolean).length
-  const hasActiveFilters = activeFilterCount > 0
+
+  const applySort = (value: string) => {
+    const option = SORT_OPTIONS.find((item) => item.value === value)
+    setSortBy(value)
+    setSortDir(option?.direction || 'desc')
+    setPage(0)
+  }
 
   const clearFilters = () => {
     setMinRating(undefined)
@@ -115,200 +121,136 @@ export default function MentorListPage() {
     setPage(0)
   }
 
+  const clearSearchAndFilters = () => {
+    setSearchText('')
+    clearFilters()
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Hero Section */}
-      <section className="bg-white border-b border-gray-200">
-        <div className="container mx-auto px-6 py-12">
-          <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              Find the Perfect Mentor for You
-            </h1>
-            <p className="text-lg text-gray-600 mb-8">
-              Connect with {totalMentors}+ verified industry experts to accelerate your career growth
-            </p>
-
-            {/* Search Bar */}
-            <div className="relative max-w-2xl mx-auto mb-8">
-              <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+    <div className="min-h-screen bg-[#f6f7fb] text-slate-950">
+      <section className="sticky top-16 z-30 border-b border-slate-200 bg-white/95 backdrop-blur">
+        <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
+          <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto]">
+            <div className="relative">
+              <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
               <input
-                type="text"
                 value={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
-                placeholder="Search by name, skills, or expertise..."
-                className="w-full h-14 pl-14 pr-32 rounded-full border-2 border-gray-200 bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-blue-500 transition-colors shadow-sm"
+                onChange={(event) => setSearchText(event.target.value)}
+                placeholder="Search mentor name, expertise, career goal..."
+                className="h-12 w-full rounded-xl border border-slate-300 bg-white pl-12 pr-12 text-sm font-medium text-slate-950 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
               />
-              {searchText ? (
+              {searchText && (
                 <button
+                  type="button"
                   onClick={() => setSearchText('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full hover:bg-gray-100 flex items-center justify-center transition-colors"
+                  className="absolute right-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+                  aria-label="Clear search"
                 >
-                  <X className="w-4 h-4 text-gray-500" />
-                </button>
-              ) : (
-                <button className="absolute right-3 top-1/2 -translate-y-1/2 h-10 px-6 rounded-full bg-blue-600 text-white font-medium hover:bg-blue-700 transition-colors">
-                  Search
+                  <X className="h-4 w-4" />
                 </button>
               )}
             </div>
 
-            {/* Category Pills */}
-            <div className="flex flex-wrap items-center justify-center gap-2">
-              <span className="text-sm font-medium text-gray-600">Popular:</span>
-              {CATEGORY_FILTERS.map((category) => (
-                <button
-                  key={category.value}
-                  onClick={() => setSelectedCategory(category.value)}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                    selectedCategory === category.value
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  {category.label}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Filters Bar */}
-      <section className="bg-white border-b border-gray-200 sticky top-16 z-40">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <span className="text-sm font-medium text-gray-600">Sort by:</span>
-              <div className="relative">
-                <select
-                  value={sortBy}
-                  onChange={(e) => {
-                    setSortBy(e.target.value)
-                    setPage(0)
-                  }}
-                  className="h-10 pl-4 pr-10 rounded-lg border border-gray-300 bg-white text-sm font-medium text-gray-900 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
-                >
-                  {SORT_OPTIONS.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-              </div>
-
-              <div className="relative">
-                <select
-                  value={minRating || ''}
-                  onChange={(e) => {
-                    setMinRating(e.target.value ? Number(e.target.value) : undefined)
-                    setPage(0)
-                  }}
-                  className="h-10 pl-4 pr-10 rounded-lg border border-gray-300 bg-white text-sm font-medium text-gray-900 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
-                >
-                  <option value="">All Ratings</option>
-                  {[4, 3, 2, 1].map((rating) => (
-                    <option key={rating} value={rating}>
-                      {rating}+ Stars
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-              </div>
-
-              <div className="relative">
-                <select
-                  value={availability || ''}
-                  onChange={(e) => {
-                    setAvailability(e.target.value || undefined)
-                    setPage(0)
-                  }}
-                  className="h-10 pl-4 pr-10 rounded-lg border border-gray-300 bg-white text-sm font-medium text-gray-900 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
-                >
-                  <option value="">All Availability</option>
-                  {AVAILABILITY_OPTIONS.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3">
-              {hasActiveFilters && (
-                <button
-                  onClick={clearFilters}
-                  className="text-sm font-medium text-blue-600 hover:text-blue-700"
-                >
-                  Clear filters
-                </button>
-              )}
+            <div className="flex flex-wrap items-center gap-2">
+              <SelectControl label="Sort" value={sortBy} onChange={applySort} options={SORT_OPTIONS} />
               <button
-                onClick={() => setFilterOpen(!filterOpen)}
-                className="h-10 px-4 rounded-lg border border-gray-300 bg-white flex items-center gap-2 text-sm font-medium text-gray-900 hover:bg-gray-50 transition-colors"
+                type="button"
+                onClick={() => setFilterOpen((open) => !open)}
+                className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 text-sm font-black text-slate-800 transition hover:bg-slate-50"
               >
-                <SlidersHorizontal className="w-4 h-4" />
-                More Filters
-                {hasActiveFilters && (
-                  <span className="px-1.5 py-0.5 rounded-full bg-blue-600 text-white text-xs font-semibold">
-                    {activeFilterCount}
-                  </span>
+                <SlidersHorizontal className="h-4 w-4" />
+                Filters
+                {activeFilterCount > 0 && (
+                  <span className="rounded-full bg-indigo-600 px-2 py-0.5 text-xs text-white">{activeFilterCount}</span>
                 )}
               </button>
             </div>
           </div>
+
+          {filterOpen && (
+            <div className="mt-4 grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 md:grid-cols-4">
+              <SelectControl
+                label="Rating"
+                value={minRating?.toString() || ''}
+                onChange={(value) => {
+                  setMinRating(value ? Number(value) : undefined)
+                  setPage(0)
+                }}
+                options={[
+                  { value: '', label: 'Any rating' },
+                  { value: '4', label: '4+ stars' },
+                  { value: '3', label: '3+ stars' },
+                ]}
+              />
+              <SelectControl
+                label="Budget"
+                value={maxRate?.toString() || ''}
+                onChange={(value) => {
+                  setMaxRate(value ? Number(value) : undefined)
+                  setPage(0)
+                }}
+                options={RATE_OPTIONS.map((item) => ({ value: item.value?.toString() || '', label: item.label }))}
+              />
+              <SelectControl
+                label="Availability"
+                value={availability || ''}
+                onChange={(value) => {
+                  setAvailability(value || undefined)
+                  setPage(0)
+                }}
+                options={[{ value: '', label: 'Any availability' }, ...AVAILABILITY_OPTIONS]}
+              />
+              <div className="flex items-end">
+                <button
+                  type="button"
+                  onClick={clearSearchAndFilters}
+                  className="h-12 w-full rounded-xl border border-slate-300 bg-white text-sm font-black text-slate-700 transition hover:bg-slate-100"
+                >
+                  Reset search
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </section>
 
-      {/* Main Content */}
-      <section className="container mx-auto px-6 py-8">
-        {/* Results Info */}
-        <div className="mb-6">
-          <p className="text-sm text-gray-600">
-            {isSearchMode
-              ? `${totalMentors} results for "${debouncedSearch}"`
-              : `Showing ${totalMentors} mentors`}
-          </p>
+      <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+        <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h1 className="text-2xl font-black tracking-tight text-slate-950">Mentors</h1>
+            <p className="mt-1 text-sm text-slate-600">
+              {isSearchMode ? `${totalMentors} result(s) for "${debouncedSearch}"` : `${totalMentors} approved mentor(s)`}
+            </p>
+          </div>
+          {(isSearchMode || activeFilterCount > 0) && (
+            <button
+              type="button"
+              onClick={clearSearchAndFilters}
+              className="h-10 rounded-xl border border-slate-300 bg-white px-4 text-sm font-black text-slate-700 transition hover:bg-slate-50"
+            >
+              Clear search
+            </button>
+          )}
         </div>
 
-        {/* Mentor Grid */}
         {isLoading ? (
           <MentorGridSkeleton />
-        ) : mentors && mentors.length > 0 ? (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        ) : mentors.length > 0 ? (
+          <div className="grid gap-4 xl:grid-cols-2">
             {mentors.map((mentor, index) => (
               <MentorCard key={mentor.userId} mentor={mentor} index={index} />
             ))}
           </div>
         ) : (
-          <div className="text-center py-20">
-            <Users className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">No mentors found</h3>
-            <p className="text-gray-600 mb-6">
-              {isSearchMode || hasActiveFilters
-                ? 'Try adjusting your search or filters'
-                : 'No mentors available at the moment'}
-            </p>
-            {hasActiveFilters && (
-              <button
-                onClick={clearFilters}
-                className="px-6 py-3 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition-colors"
-              >
-                Clear Filters
-              </button>
-            )}
-          </div>
+          <EmptyState isFiltered={isSearchMode || activeFilterCount > 0} onClear={clearSearchAndFilters} />
         )}
 
-        {/* Pagination */}
-        {!isSearchMode && totalPages > 1 && (
-          <div className="mt-12">
+        {!isSearchMode && (
+          <div className="mt-8 border-t border-slate-200 pt-6">
             <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
           </div>
         )}
-      </section>
+      </main>
     </div>
   )
 }
@@ -317,98 +259,188 @@ function MentorCard({ mentor, index }: { mentor: MentorProfileResponse; index: n
   const name = mentor.user?.displayName || mentor.user?.fullName || 'Mentor'
   const headline = mentor.headline || 'Expert mentor'
   const rating = mentor.averageRating ? mentor.averageRating.toFixed(1) : 'N/A'
+  const reviews = mentor.totalReviews || 0
   const image = mentor.user?.avatarUrl || mentorFallbackImages[index % mentorFallbackImages.length]
+  const rate = mentor.hourlyRateMxc ? formatCurrency(mentor.hourlyRateMxc) : 'Flexible'
+  const responseTime = mentor.responseTimeHours ? `${mentor.responseTimeHours}h response` : 'Fast response'
+  const availability = formatAvailability(mentor.availability)
 
   return (
-    <article className="group bg-white rounded-2xl border border-gray-200 hover:shadow-lg hover:border-gray-300 transition-all duration-300 overflow-hidden">
-      {/* Header */}
-      <div className="p-6 pb-4">
-        <div className="flex items-start gap-4 mb-4">
-          <div className="relative">
-            <img
-              src={image}
-              alt={name}
-              className="w-16 h-16 rounded-xl object-cover"
-            />
+    <article className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-lg">
+      <div className="p-5">
+        <div className="flex gap-4">
+          <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl bg-slate-100">
+            <img src={image} alt={name} className="h-full w-full object-cover" />
             {mentor.isFeatured && (
-              <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center">
-                <Check className="w-4 h-4 text-white" />
+              <div className="absolute bottom-1 right-1 flex h-6 w-6 items-center justify-center rounded-full bg-amber-400 text-slate-950 shadow-sm">
+                <Sparkles className="h-3.5 w-3.5" />
               </div>
             )}
           </div>
-          <div className="flex-1 min-w-0">
-            <h3 className="text-lg font-semibold text-gray-900 mb-1 truncate">{name}</h3>
-            <p className="text-sm text-gray-600 line-clamp-2">{headline}</p>
+
+          <div className="min-w-0 flex-1">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <h2 className="truncate text-lg font-black text-slate-950">{name}</h2>
+                <p className="mt-1 line-clamp-2 text-sm leading-5 text-slate-600">{headline}</p>
+              </div>
+              <div className="shrink-0 rounded-xl border border-amber-200 bg-amber-50 px-2.5 py-1 text-sm font-black text-amber-700">
+                {rating}
+              </div>
+            </div>
+
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Badge icon={Star} label={`${reviews} reviews`} tone="amber" />
+              <Badge icon={Briefcase} label={`${mentor.yearsOfExperience || 0}+ yrs`} tone="blue" />
+              <Badge icon={Clock3} label={responseTime} tone="emerald" />
+              <Badge icon={CalendarClock} label={availability} tone="rose" />
+            </div>
           </div>
         </div>
 
-        {/* Stats Row */}
-        <div className="flex items-center gap-4 text-sm mb-4">
-          <div className="flex items-center gap-1">
-            <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
-            <span className="font-semibold text-gray-900">{rating}</span>
-            <span className="text-gray-500">({mentor.totalReviews || 0})</span>
-          </div>
-          <div className="flex items-center gap-1 text-gray-600">
-            <Briefcase className="w-4 h-4" />
-            <span>{mentor.yearsOfExperience || 0}+ years</span>
-          </div>
+        <div className="mt-5 grid grid-cols-3 gap-3 rounded-2xl bg-slate-50 p-3">
+          <MiniStat label="Rate" value={rate} />
+          <MiniStat label="Success" value={mentor.successRate ? `${Math.round(mentor.successRate)}%` : '98%'} />
+          <MiniStat label="Done" value={(mentor.totalJobsDone || 0).toString()} />
         </div>
 
-        {/* Price */}
-        <div className="mb-4">
-          <div className="text-2xl font-bold text-gray-900">
-            {mentor.hourlyRateMxc ? formatCurrency(mentor.hourlyRateMxc) : 'Flexible'}
-            {mentor.hourlyRateMxc && <span className="text-sm font-normal text-gray-500"> /hour</span>}
-          </div>
-          {mentor.hourlyRateMxc && (
-            <p className="text-xs text-gray-500 mt-1">≈ {formatCurrency(mentor.hourlyRateMxc * 23000)} VND</p>
-          )}
+        <div className="mt-4 flex items-center justify-between gap-3">
+          <Link
+            to={`/mentors/${mentor.userId}`}
+            className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 text-sm font-black text-white transition hover:bg-indigo-700"
+          >
+            View profile
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+          <button
+            type="button"
+            className="flex h-11 w-11 items-center justify-center rounded-xl border border-slate-300 bg-white text-slate-600 transition hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700"
+            aria-label={`Message ${name}`}
+          >
+            <MessageCircle className="h-4 w-4" />
+          </button>
         </div>
-      </div>
-
-      {/* Footer */}
-      <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex gap-2">
-        <Link
-          to={`/mentors/${mentor.userId}`}
-          className="flex-1 h-10 px-4 rounded-lg bg-blue-600 text-white font-medium flex items-center justify-center hover:bg-blue-700 transition-colors text-sm"
-        >
-          View Profile
-        </Link>
-        <button className="w-10 h-10 rounded-lg border border-gray-300 flex items-center justify-center hover:bg-white transition-colors">
-          <MessageCircle className="w-4 h-4 text-gray-600" />
-        </button>
       </div>
     </article>
   )
 }
 
+function SelectControl({
+  label,
+  value,
+  onChange,
+  options,
+}: {
+  label: string
+  value: string
+  onChange: (value: string) => void
+  options: Array<{ value: string; label: string }>
+}) {
+  return (
+    <label className="relative block min-w-[150px]">
+      <span className="sr-only">{label}</span>
+      <select
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className="h-12 w-full appearance-none rounded-xl border border-slate-300 bg-white px-3 pr-9 text-sm font-bold text-slate-800 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+      >
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+      <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+    </label>
+  )
+}
+
+function Badge({
+  icon: Icon,
+  label,
+  tone,
+}: {
+  icon: React.ComponentType<{ className?: string }>
+  label: string
+  tone: 'blue' | 'amber' | 'emerald' | 'rose'
+}) {
+  const toneClass = {
+    blue: 'border-indigo-100 bg-indigo-50 text-indigo-700',
+    amber: 'border-amber-100 bg-amber-50 text-amber-700',
+    emerald: 'border-emerald-100 bg-emerald-50 text-emerald-700',
+    rose: 'border-rose-100 bg-rose-50 text-rose-700',
+  }[tone]
+
+  return (
+    <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-bold ${toneClass}`}>
+      <Icon className="h-3.5 w-3.5" />
+      {label}
+    </span>
+  )
+}
+
+function MiniStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="min-w-0">
+      <p className="truncate text-xs font-bold uppercase tracking-wide text-slate-400">{label}</p>
+      <p className="mt-1 truncate text-sm font-black text-slate-950">{value}</p>
+    </div>
+  )
+}
+
 function MentorGridSkeleton() {
   return (
-    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid gap-4 xl:grid-cols-2">
       {Array.from({ length: 6 }).map((_, index) => (
-        <div key={index} className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
-          <div className="p-6 pb-4">
-            <div className="flex items-start gap-4 mb-4">
-              <div className="w-16 h-16 rounded-xl bg-gray-200 animate-pulse" />
-              <div className="flex-1 space-y-2">
-                <div className="h-5 bg-gray-200 rounded animate-pulse w-3/4" />
-                <div className="h-4 bg-gray-200 rounded animate-pulse w-full" />
-              </div>
+        <div key={index} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="flex gap-4">
+            <div className="h-20 w-20 animate-pulse rounded-2xl bg-slate-200" />
+            <div className="flex-1 space-y-3">
+              <div className="h-5 w-1/2 animate-pulse rounded bg-slate-200" />
+              <div className="h-4 w-full animate-pulse rounded bg-slate-200" />
+              <div className="h-4 w-3/4 animate-pulse rounded bg-slate-200" />
             </div>
-            <div className="h-4 bg-gray-200 rounded animate-pulse w-1/2 mb-4" />
-            <div className="h-8 bg-gray-200 rounded animate-pulse w-1/3 mb-4" />
           </div>
-          <div className="px-6 py-4 bg-gray-50 border-t border-gray-100">
-            <div className="h-10 bg-gray-200 rounded-lg animate-pulse" />
-          </div>
+          <div className="mt-5 h-20 animate-pulse rounded-2xl bg-slate-100" />
+          <div className="mt-4 h-11 animate-pulse rounded-xl bg-slate-200" />
         </div>
       ))}
     </div>
   )
 }
 
-function Pagination({ page, totalPages, onPageChange }: { page: number; totalPages: number; onPageChange: (page: number) => void }) {
+function EmptyState({ isFiltered, onClear }: { isFiltered: boolean; onClear: () => void }) {
+  return (
+    <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center">
+      <Users className="mx-auto h-14 w-14 text-slate-300" />
+      <h3 className="mt-4 text-xl font-black text-slate-950">No mentors found</h3>
+      <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-600">
+        {isFiltered
+          ? 'Try a broader keyword, remove one filter, or search by a common skill.'
+          : 'There are no approved mentors available right now.'}
+      </p>
+      {isFiltered && (
+        <button
+          type="button"
+          onClick={onClear}
+          className="mt-5 inline-flex h-11 items-center justify-center rounded-xl bg-indigo-600 px-5 text-sm font-black text-white transition hover:bg-indigo-700"
+        >
+          Clear search
+        </button>
+      )}
+    </div>
+  )
+}
+
+function Pagination({
+  page,
+  totalPages,
+  onPageChange,
+}: {
+  page: number
+  totalPages: number
+  onPageChange: (page: number) => void
+}) {
   const visiblePages = Array.from({ length: Math.min(totalPages, 7) }).map((_, index) => {
     return totalPages <= 7 ? index : Math.max(0, Math.min(page - 3, totalPages - 7)) + index
   })
@@ -416,21 +448,23 @@ function Pagination({ page, totalPages, onPageChange }: { page: number; totalPag
   return (
     <div className="flex items-center justify-center gap-2">
       <button
+        type="button"
         onClick={() => onPageChange(Math.max(0, page - 1))}
         disabled={page === 0}
-        className="w-10 h-10 rounded-lg border border-gray-300 bg-white flex items-center justify-center hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+        className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-300 bg-white text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
       >
-        <ChevronLeft className="w-4 h-4" />
+        <ChevronLeft className="h-4 w-4" />
       </button>
 
       {visiblePages.map((pageNumber) => (
         <button
           key={pageNumber}
+          type="button"
           onClick={() => onPageChange(pageNumber)}
-          className={`min-w-10 h-10 px-3 rounded-lg font-medium transition-colors ${
+          className={`h-10 min-w-10 rounded-xl px-3 text-sm font-black transition ${
             page === pageNumber
-              ? 'bg-blue-600 text-white'
-              : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+              ? 'bg-indigo-600 text-white'
+              : 'border border-slate-300 bg-white text-slate-700 hover:bg-slate-50'
           }`}
         >
           {pageNumber + 1}
@@ -438,11 +472,12 @@ function Pagination({ page, totalPages, onPageChange }: { page: number; totalPag
       ))}
 
       <button
+        type="button"
         onClick={() => onPageChange(Math.min(totalPages - 1, page + 1))}
         disabled={page >= totalPages - 1}
-        className="w-10 h-10 rounded-lg border border-gray-300 bg-white flex items-center justify-center hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+        className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-300 bg-white text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
       >
-        <ChevronRight className="w-4 h-4" />
+        <ChevronRight className="h-4 w-4" />
       </button>
     </div>
   )

@@ -43,8 +43,8 @@ const navigationSections = [
     items: [
       { to: '/chat', label: 'Messages', icon: MessageSquare, description: 'Chat & conversations' },
       { to: '/profile/notifications', label: 'Notifications', icon: Bell, description: 'Alerts & updates' },
-      { to: '/profile/jobs', label: 'My Jobs', icon: Briefcase, description: 'Posted & applied jobs' },
-      { to: '/profile/proposals', label: 'Proposals', icon: FileText, description: 'Received proposals' },
+      { to: '/profile/jobs', label: 'My Jobs', icon: Briefcase, description: 'Posted jobs & applicants' },
+      { to: '/profile/proposals', label: 'Proposals', icon: FileText, description: 'Proposal activity' },
     ],
   },
   {

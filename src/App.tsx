@@ -26,6 +26,7 @@ import NotificationListPage from './pages/user/NotificationListPage'
 import JobListPage from './pages/job/JobListPage'
 import JobDetailPage from './pages/job/JobDetailPage'
 import JobCreatePage from './pages/job/JobCreatePage'
+import MyJobsPage from './pages/job/MyJobsPage'
 
 // Course Pages
 import CourseListPage from './pages/course/CourseListPage'
@@ -93,6 +94,7 @@ function App() {
             <Route path="/jobs/:jobId" element={<JobDetailPage />} />
             <Route path="/courses" element={<CourseListPage />} />
             <Route path="/courses/:courseId" element={<CourseDetailPage />} />
+            <Route path="/companies" element={<Navigate to="/courses" replace />} />
           </Route>
 
           {/* Protected Routes */}
@@ -119,7 +121,7 @@ function App() {
             <Route path="/profile/dashboard" element={<DiscoveryFeedPage />} />
             <Route path="/profile/settings" element={<div>Settings Page (Coming Soon)</div>} />
             <Route path="/profile/notifications" element={<NotificationListPage />} />
-            <Route path="/profile/jobs" element={<div>My Jobs (Coming Soon)</div>} />
+            <Route path="/profile/jobs" element={<MyJobsPage />} />
             <Route path="/profile/proposals" element={<div>Proposals (Coming Soon)</div>} />
             <Route path="/profile/courses" element={<div>My Courses (Coming Soon)</div>} />
             <Route path="/profile/saved" element={<div>Saved Items (Coming Soon)</div>} />

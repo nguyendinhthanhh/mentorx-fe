@@ -40,6 +40,18 @@ export enum CourseStatus {
   ARCHIVED = "ARCHIVED",
 }
 
+export enum LessonType {
+  VIDEO = "VIDEO",
+  ARTICLE = "ARTICLE",
+  TEXT = "TEXT",
+  QUIZ = "QUIZ",
+  ASSIGNMENT = "ASSIGNMENT",
+  LIVE_SESSION = "LIVE_SESSION",
+  DOWNLOADABLE = "DOWNLOADABLE",
+  INTERACTIVE = "INTERACTIVE",
+  CODE_EXERCISE = "CODE_EXERCISE",
+}
+
 export enum TxnType {
   DEPOSIT = "DEPOSIT",
   WITHDRAWAL = "WITHDRAWAL",
@@ -325,6 +337,7 @@ export interface CourseResponse {
   courseId: string;
   instructorId: string;
   instructor: UserResponse;
+  instructorName?: string;
   categoryId?: number;
   title: string;
   slug: string;
@@ -338,6 +351,9 @@ export interface CourseResponse {
   status: CourseStatus;
   totalEnrollments: number;
   averageRating?: number;
+  totalLessons?: number;
+  totalDurationMin?: number;
+  totalReviews?: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -367,6 +383,39 @@ export interface CourseUpdateRequest {
   isCertificate?: boolean;
   previewVideoUrl?: string;
   status?: CourseStatus;
+}
+
+export interface CourseSectionResponse {
+  id: string;
+  courseId: string;
+  title: string;
+  description?: string;
+  sectionOrder?: number;
+  durationMinutes?: number;
+  isPublished?: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CourseLessonResponse {
+  id: string;
+  sectionId: string;
+  title: string;
+  description?: string;
+  lessonType?: LessonType;
+  lessonOrder?: number;
+  durationMinutes?: number;
+  videoUrl?: string;
+  articleContent?: string;
+  resourceUrl?: string;
+  isFreePreview?: boolean;
+  isPublished?: boolean;
+  isMandatory?: boolean;
+  metadata?: Record<string, unknown>;
+  viewCount?: number;
+  avgCompletionTime?: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 // Wallet Types
@@ -1032,4 +1081,3 @@ export interface PersonalizedFeedResponse {
   source: "CACHE" | "DATABASE" | "REAL_TIME" | "POPULAR_FALLBACK";
   generatedAt: string;
 }
-
