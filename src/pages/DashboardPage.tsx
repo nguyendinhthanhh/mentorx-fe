@@ -27,7 +27,7 @@ export default function DashboardPage() {
         setLoading(true)
         const results = await Promise.allSettled([
           apiClient.get(`/jobs/client/${user?.userId}`, { params: { page: 0, size: 1 } }),
-          apiClient.get(`/wallet/user/${user?.userId}/balance`),
+          apiClient.get(`/v1/wallet/user/${user?.userId}/balance`),
           apiClient.get('/notifications/unread-count', { params: { userId: user?.userId } }),
         ])
 

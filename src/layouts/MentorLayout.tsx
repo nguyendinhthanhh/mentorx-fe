@@ -50,7 +50,7 @@ export default function MentorLayout() {
         } bg-white dark:bg-gray-900 border-r border-gray-100 dark:border-gray-800 flex flex-col transition-all duration-300 sticky top-0 h-screen z-50`}
       >
         <div className="h-20 flex items-center px-8 border-b border-gray-50 dark:border-gray-800/50">
-          <Link to="/mentor/dashboard" className="flex items-center gap-4 overflow-hidden">
+          <Link to="/" className="flex items-center gap-4 overflow-hidden">
             <div className="w-10 h-10 rounded-2xl bg-indigo-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-indigo-200 dark:shadow-none">
               <Award className="w-6 h-6 text-white" />
             </div>

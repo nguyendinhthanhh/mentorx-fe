@@ -1,6 +1,10 @@
-import { Briefcase, Calendar, DollarSign, ArrowLeft, Clock, User, Bookmark, MessageSquare, Send } from 'lucide-react'
+import { Link, useParams } from 'react-router-dom'
+import { useQuery } from 'react-query'
+import { Briefcase, Calendar, DollarSign, ArrowLeft, Clock, User, Bookmark, Send } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { useState } from 'react'
+import { jobApi } from '@/api/jobApi'
+import { formatCurrency, formatDateTime, formatRelativeTime } from '@/utils/formatters'
 import ProposalCreateForm from '@/components/job/ProposalCreateForm'
 import ProposalList from '@/components/job/ProposalList'
 
@@ -173,6 +177,7 @@ export default function JobDetailPage() {
               jobId={job.jobId} 
               mentorId={user!.userId} 
               jobType={job.jobType}
+              budgetType={job.budgetType}
               onSuccess={() => {
                 setTimeout(() => setShowApplyModal(false), 2000)
               }}

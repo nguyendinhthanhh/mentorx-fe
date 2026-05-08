@@ -4,6 +4,7 @@ import MainLayout from './layouts/MainLayout'
 import AuthLayout from './layouts/AuthLayout'
 import AdminLayout from './layouts/AdminLayout'
 import MentorLayout from './layouts/MentorLayout'
+import ProfileLayout from './layouts/ProfileLayout'
 
 // Auth Pages
 import LoginPage from './pages/auth/LoginPage'
@@ -13,11 +14,12 @@ import OnboardingPage from './pages/auth/OnboardingPage'
 import VerifyEmailPage from './pages/auth/VerifyEmailPage'
 
 // Dashboard Pages
-import DashboardPage from './pages/DashboardPage'
 import ProfilePage from './pages/user/ProfilePage'
+import DiscoveryFeedPage from './pages/user/DiscoveryFeedPage'
 import MentorProfilePage from './pages/mentor/MentorProfilePage'
 import MentorListPage from './pages/mentor/MentorListPage'
 import MentorPublicProfilePage from './pages/mentor/MentorPublicProfilePage'
+import RecommendedMentorsPage from './pages/mentor/RecommendedMentorsPage'
 import NotificationListPage from './pages/user/NotificationListPage'
 
 // Job Pages
@@ -54,7 +56,7 @@ import AdminRoute from './components/auth/AdminRoute'
 import MentorRoute from './components/auth/MentorRoute'
 import ThemeProvider from './components/ThemeProvider'
 
-import LandingPage from './pages/LandingPage'
+import HomePage from './pages/HomePage'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -84,7 +86,7 @@ function App() {
 
           {/* Public Routes with MainLayout */}
           <Route element={<MainLayout />}>
-            <Route path="/" element={<LandingPage />} />
+            <Route path="/" element={<HomePage />} />
             <Route path="/mentors" element={<MentorListPage />} />
             <Route path="/mentors/:userId" element={<MentorPublicProfilePage />} />
             <Route path="/jobs" element={<JobListPage />} />
@@ -95,14 +97,8 @@ function App() {
 
           {/* Protected Routes */}
           <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
-            <Route path="/dashboard" element={<DashboardPage />} />
-            
-            {/* User Routes */}
-            <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/notifications" element={<NotificationListPage />} />
-            
-            {/* Mentor Routes */}
-            <Route path="/mentor/profile" element={<MentorProfilePage />} />
+            {/* Recommended Mentors - Protected Route */}
+            <Route path="/mentors/recommended" element={<RecommendedMentorsPage />} />
             
             {/* Job Routes */}
             <Route path="/jobs/create" element={<JobCreatePage />} />
@@ -116,6 +112,26 @@ function App() {
             {/* Chat Routes */}
             <Route path="/chat" element={<ChatListPage />} />
           </Route>
+
+          {/* Profile Routes with ProfileLayout */}
+          <Route element={<ProtectedRoute><ProfileLayout /></ProtectedRoute>}>
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/profile/dashboard" element={<DiscoveryFeedPage />} />
+            <Route path="/profile/settings" element={<div>Settings Page (Coming Soon)</div>} />
+            <Route path="/profile/notifications" element={<NotificationListPage />} />
+            <Route path="/profile/jobs" element={<div>My Jobs (Coming Soon)</div>} />
+            <Route path="/profile/proposals" element={<div>Proposals (Coming Soon)</div>} />
+            <Route path="/profile/courses" element={<div>My Courses (Coming Soon)</div>} />
+            <Route path="/profile/saved" element={<div>Saved Items (Coming Soon)</div>} />
+            <Route path="/profile/reviews" element={<div>Reviews (Coming Soon)</div>} />
+            <Route path="/profile/payments" element={<div>Payment Methods (Coming Soon)</div>} />
+            
+            {/* Mentor Profile */}
+            <Route path="/mentor/profile" element={<MentorProfilePage />} />
+          </Route>
+
+          {/* Legacy Dashboard Route - Redirect to Profile Dashboard */}
+          <Route path="/dashboard" element={<Navigate to="/profile/dashboard" replace />} />
 
           {/* Admin Routes */}
           <Route element={<ProtectedRoute><AdminRoute><AdminLayout /></AdminRoute></ProtectedRoute>}>

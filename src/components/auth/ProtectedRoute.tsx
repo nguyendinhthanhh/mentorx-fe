@@ -19,7 +19,7 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
 
   // Force onboarding if not completed
   const isOnboardingPage = window.location.pathname === '/onboarding'
-  if (user && !user.onboardingCompletedAt && !isOnboardingPage) {
+  if (user && !user.isOnboarded && !isOnboardingPage) {
     return <Navigate to="/onboarding" replace />
   }
 

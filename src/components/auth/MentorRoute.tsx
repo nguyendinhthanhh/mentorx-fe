@@ -1,6 +1,6 @@
 import { Navigate } from 'react-router-dom'
 import { useAuthStore } from '@/store/authStore'
-import { MentorStatus } from '@/types'
+import { isAdmin, isMentor } from '@/utils/roleRedirect'
 
 interface Props {
   children: React.ReactNode
@@ -9,10 +9,13 @@ interface Props {
 export default function MentorRoute({ children }: Props) {
   const { user } = useAuthStore()
 
-  // Check if user is an approved mentor
-  const isMentor = user?.mentorStatus === MentorStatus.APPROVED
+  // Admin can access all mentor routes
+  if (user && isAdmin(user)) {
+    return <>{children}</>
+  }
 
-  if (!user || !isMentor) {
+  // Check if user is an approved mentor
+  if (!user || !isMentor(user)) {
     return <Navigate to="/mentor/profile" replace />
   }
 

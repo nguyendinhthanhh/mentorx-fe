@@ -9,6 +9,7 @@ import {
   WithdrawCreateRequest,
   WithdrawalResponse,
   EscrowRecordResponse,
+  TransferRequest,
   WalletAccountType,
   TxnType,
 } from '@/types'
@@ -16,24 +17,24 @@ import {
 export const walletApi = {
   // Wallet & Balance APIs
   getUserWallets: async (userId: string): Promise<WalletResponse[]> => {
-    const response = await apiClient.get<ApiResponse<WalletResponse[]>>(`/wallet/user/${userId}`)
+    const response = await apiClient.get<ApiResponse<WalletResponse[]>>(`/v1/wallet/user/${userId}`)
     return response.data.data
   },
 
   getUserWallet: async (userId: string, accountType: WalletAccountType): Promise<WalletResponse> => {
-    const response = await apiClient.get<ApiResponse<WalletResponse>>(`/wallet/user/${userId}/type/${accountType}`)
+    const response = await apiClient.get<ApiResponse<WalletResponse>>(`/v1/wallet/user/${userId}/type/${accountType}`)
     return response.data.data
   },
 
   getUserBalance: async (userId: string): Promise<{ total: number; available: number; pending: number }> => {
-    const response = await apiClient.get<ApiResponse<{ total: number; available: number; pending: number }>>(`/wallet/user/${userId}/balance`)
+    const response = await apiClient.get<ApiResponse<{ total: number; available: number; pending: number }>>(`/v1/wallet/user/${userId}/balance`)
     return response.data.data
   },
 
   // Deposit APIs
   createDeposit: async (userId: string, data: DepositCreateRequest): Promise<DepositOrderResponse> => {
     const response = await apiClient.post<ApiResponse<DepositOrderResponse>>(
-      `/wallet/deposit?userId=${userId}`,
+      `/v1/wallet/deposit?userId=${userId}`,
       data
     )
     return response.data.data
@@ -42,7 +43,7 @@ export const walletApi = {
   // Withdrawal APIs
   createWithdrawal: async (userId: string, data: WithdrawCreateRequest): Promise<WithdrawalResponse> => {
     const response = await apiClient.post<ApiResponse<WithdrawalResponse>>(
-      `/wallet/withdraw?userId=${userId}`,
+      `/v1/wallet/withdraw?userId=${userId}`,
       data
     )
     return response.data.data
@@ -50,14 +51,14 @@ export const walletApi = {
 
   transfer: async (userId: string, data: TransferRequest): Promise<WalletTransactionResponse> => {
     const response = await apiClient.post<ApiResponse<WalletTransactionResponse>>(
-      `/wallet/transfer?fromUserId=${userId}`,
+      `/v1/wallet/transfer?fromUserId=${userId}`,
       data
     )
     return response.data.data
   },
 
   getWithdrawalStatus: async (requestId: string): Promise<WithdrawalResponse> => {
-    const response = await apiClient.get<ApiResponse<WithdrawalResponse>>(`/wallet/withdraw/${requestId}`)
+    const response = await apiClient.get<ApiResponse<WithdrawalResponse>>(`/v1/wallet/withdraw/${requestId}`)
     return response.data.data
   },
 
@@ -67,45 +68,45 @@ export const walletApi = {
     params: { page?: number; size?: number; type?: TxnType }
   ): Promise<PaginatedResponse<WalletTransactionResponse>> => {
     const response = await apiClient.get<ApiResponse<PaginatedResponse<WalletTransactionResponse>>>(
-      `/wallet/user/${userId}/transactions`,
+      `/v1/wallet/user/${userId}/transactions`,
       { params }
     )
     return response.data.data
   },
 
   getTransactionById: async (transactionId: string): Promise<WalletTransactionResponse> => {
-    const response = await apiClient.get<ApiResponse<WalletTransactionResponse>>(`/wallet/transactions/${transactionId}`)
+    const response = await apiClient.get<ApiResponse<WalletTransactionResponse>>(`/v1/wallet/transactions/${transactionId}`)
     return response.data.data
   },
 
   getTransactionGroup: async (groupId: string): Promise<WalletTransactionResponse[]> => {
-    const response = await apiClient.get<ApiResponse<WalletTransactionResponse[]>>(`/wallet/transactions/group/${groupId}`)
+    const response = await apiClient.get<ApiResponse<WalletTransactionResponse[]>>(`/v1/wallet/transactions/group/${groupId}`)
     return response.data.data
   },
 
   // Escrow APIs
   getEscrowsByContract: async (contractId: string): Promise<EscrowRecordResponse[]> => {
-    const response = await apiClient.get<ApiResponse<EscrowRecordResponse[]>>(`/wallet/escrow/contract/${contractId}`)
+    const response = await apiClient.get<ApiResponse<EscrowRecordResponse[]>>(`/v1/wallet/escrow/contract/${contractId}`)
     return response.data.data
   },
 
   getEscrowById: async (escrowId: string): Promise<EscrowRecordResponse> => {
-    const response = await apiClient.get<ApiResponse<EscrowRecordResponse>>(`/wallet/escrow/${escrowId}`)
+    const response = await apiClient.get<ApiResponse<EscrowRecordResponse>>(`/v1/wallet/escrow/${escrowId}`)
     return response.data.data
   },
 
   getEscrowLockedByContract: async (contractId: string): Promise<number> => {
-    const response = await apiClient.get<ApiResponse<number>>(`/wallet/escrow/contract/${contractId}/locked`)
+    const response = await apiClient.get<ApiResponse<number>>(`/v1/wallet/escrow/contract/${contractId}/locked`)
     return response.data.data
   },
 
   getEscrowReleasedByContract: async (contractId: string): Promise<number> => {
-    const response = await apiClient.get<ApiResponse<number>>(`/wallet/escrow/contract/${contractId}/released`)
+    const response = await apiClient.get<ApiResponse<number>>(`/v1/wallet/escrow/contract/${contractId}/released`)
     return response.data.data
   },
 
   getTotalEscrowLocked: async (): Promise<number> => {
-    const response = await apiClient.get<ApiResponse<number>>(`/wallet/escrow/total-locked`)
+    const response = await apiClient.get<ApiResponse<number>>(`/v1/wallet/escrow/total-locked`)
     return response.data.data
   },
 }

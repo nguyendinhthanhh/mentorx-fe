@@ -1,67 +1,54 @@
-﻿import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery, useMutation } from 'react-query'
 import { categoryApi } from '@/api/categoryApi'
 import { skillApi } from '@/api/skillApi'
 import { onboardingApi } from '@/api/onboardingApi'
 import { useAuthStore } from '@/store/authStore'
-import { 
-  Check, 
-  ChevronRight, 
-  Loader2, 
-  Sparkles, 
-  User, 
-  Zap, 
-  Target, 
-  Search,
-  Plus,
-  X,
-  Users,
-  Compass,
-  Briefcase,
-  GraduationCap,
-  Rocket,
-  TrendingUp,
-  Code,
-  Clock,
-  DollarSign,
-  Calendar,
-  Upload,
-  Camera,
-  ArrowRight,
-  ArrowLeft,
-  Globe
+import {
+  Check, Loader2, Sparkles, User, Zap, Target, Briefcase,
+  ArrowRight, ArrowLeft, AlertCircle, Bell, Heart, SkipForward
 } from 'lucide-react'
+
+import StepRole from '@/components/onboarding/StepRole'
+import StepExpertise from '@/components/onboarding/StepExpertise'
+import StepSkills from '@/components/onboarding/StepSkills'
+import StepPreferences from '@/components/onboarding/StepPreferences'
+import StepGoals from '@/components/onboarding/StepGoals'
+import StepProfile from '@/components/onboarding/StepProfile'
 import { SupportedLanguage } from '@/types'
 
-type Step = 1 | 2 | 3 | 4
+type Step = 1 | 2 | 3 | 4 | 5 | 6
 
 export default function OnboardingPage() {
   const navigate = useNavigate()
   const { user, refreshUser } = useAuthStore()
   const [currentStep, setCurrentStep] = useState<Step>(1)
-  
-  // Step 1: Role & Purpose
-  const [roleChoice, setRoleChoice] = useState<string>('')
-  const [mainGoal, setMainGoal] = useState<string>('')
-  const [customGoal, setCustomGoal] = useState<string>('')
+  const [animKey, setAnimKey] = useState(0)
+  const [error, setError] = useState<string | null>(null)
+  const [showError, setShowError] = useState(false)
+
+  // Step 1: Role
+  const [roleChoice, setRoleChoice] = useState('')
 
   // Step 2: Expertise
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<number[]>([])
-  const [selectedSkills, setSelectedSkills] = useState<{skillId: number, name: string, level: string}[]>([])
-  const [skillSearch, setSkillSearch] = useState('')
+  const [selectedSkills, setSelectedSkills] = useState<{skillId: number; name: string; level: string}[]>([])
 
-  // Step 3: Preferences
+  // Step 3: Skills (handled in step 2 UI but submitted as separate step)
+
+  // Step 4: Preferences
   const [preferences, setPreferences] = useState({
-    preferredJobTypes: [] as string[],
-    budgetMinMxc: 100,
-    budgetMaxMxc: 1000,
-    hourlyRateMxc: 500,
-    availableDays: [] as string[],
-    preferredMentorLanguages: ['vi'] as string[]
+    emailEnabled: true,
+    pushEnabled: true,
+    inAppEnabled: true
   })
 
-  // Step 4: Profile
+  // Step 5: Goals
+  const [selectedGoals, setSelectedGoals] = useState<string[]>([])
+  const [customGoal, setCustomGoal] = useState('')
+
+  // Step 6: Profile
   const [profileData, setProfileData] = useState({
     displayName: user?.displayName || '',
     avatarUrl: user?.avatarUrl || '',
@@ -72,666 +59,293 @@ export default function OnboardingPage() {
     preferredLanguage: user?.preferredLanguage || SupportedLanguage.VI
   })
 
-  useEffect(() => {
-    if (!user) {
-      navigate('/login')
-    }
-  }, [user, navigate])
-
-  const { data: categories = [] } = useQuery('active-categories', () => categoryApi.getAllActive())
-  const { data: allSkills = [] } = useQuery('active-skills', () => skillApi.getAllActive())
-
-  const completeMutation = useMutation(
-    async () => {
-      const finalGoal = customGoal || mainGoal
-      console.log('Starting onboarding submission...')
-      console.log('Role:', roleChoice)
-      console.log('Categories:', selectedCategoryIds)
-      console.log('Skills:', selectedSkills)
-      console.log('Preferences:', preferences)
-      console.log('Goal:', finalGoal)
-      console.log('Profile:', profileData)
-      
-      await onboardingApi.completeRole(roleChoice)
-      console.log('✓ Role saved')
-      
-      await onboardingApi.completeCategories(selectedCategoryIds)
-      console.log('✓ Categories saved')
-      
-      await onboardingApi.completeSkills(selectedSkills.map(s => ({ skillId: s.skillId, level: s.level })))
-      console.log('✓ Skills saved')
-      
-      await onboardingApi.completePreferences(preferences)
-      console.log('✓ Preferences saved')
-      
-      await onboardingApi.completeGoals(finalGoal)
-      console.log('✓ Goals saved')
-      
-      await onboardingApi.completeProfile(profileData)
-      console.log('✓ Profile saved')
-      
-      console.log('All onboarding steps completed!')
-    },
+  const { data: progressData, isLoading: isProgressLoading } = useQuery(
+    'onboarding-progress',
+    () => onboardingApi.getProgress(),
     {
-      onSuccess: async () => {
-        console.log('Onboarding success! Refreshing user...')
-        await refreshUser()
-        console.log('User refreshed! Navigating to dashboard...')
-        navigate('/dashboard')
-      },
-      onError: (err) => {
-        console.error('Onboarding failed:', err)
-        alert('Onboarding failed: ' + (err as any)?.message || 'Unknown error')
+      onSuccess: (data) => {
+        if (data?.onboarded) {
+          navigate('/')
+        } else if (data?.currentStep) {
+          const stepMap: Record<string, Step> = {
+            'ROLE': 1,
+            'INTERESTS': 2,
+            'SKILLS': 3,
+            'PREFERENCES': 4,
+            'GOALS': 5,
+            'PROFILE': 6
+          }
+          const stepNum = stepMap[data.currentStep]
+          if (stepNum) {
+            setCurrentStep(stepNum)
+            setAnimKey(p => p + 1)
+          }
+        }
       }
     }
   )
 
-  const handleNext = () => {
-    if (currentStep < 4) {
-      setCurrentStep((currentStep + 1) as Step)
-    } else {
-      // Step 4 - Submit all data
-      console.log('Submitting onboarding data...')
-      completeMutation.mutate()
+  useEffect(() => { if (!user) navigate('/login') }, [user, navigate])
+
+  useEffect(() => {
+    if (error) {
+      setShowError(true)
+      const t = setTimeout(() => { setShowError(false); setTimeout(() => setError(null), 300) }, 5000)
+      return () => clearTimeout(t)
     }
+  }, [error])
+
+  const { data: categories = [] } = useQuery('active-categories', () => categoryApi.getAllActive())
+  const { data: allSkills = [] } = useQuery('active-skills', () => skillApi.getAllActive())
+
+  // Submit the current step to backend, then advance
+  const stepMutation = useMutation(
+    async (step: Step) => {
+      switch (step) {
+        case 1:
+          await onboardingApi.submitRole(roleChoice)
+          break
+        case 2:
+          await onboardingApi.submitInterests(selectedCategoryIds)
+          break
+        case 3:
+          await onboardingApi.submitSkills(
+            selectedSkills.map(s => ({ skillId: s.skillId, level: s.level }))
+          )
+          break
+        case 4:
+          await onboardingApi.submitPreferences(preferences)
+          break
+        case 5: {
+          const goals = [...selectedGoals]
+          if (customGoal.trim()) goals.push(customGoal.trim())
+          await onboardingApi.submitGoals(goals.length > 0 ? goals : ['Explore MentorX'])
+          break
+        }
+        case 6:
+          await onboardingApi.submitProfile({
+            displayName: profileData.displayName,
+            avatarUrl: profileData.avatarUrl || undefined
+          })
+          // Finalize
+          await onboardingApi.complete()
+          break
+      }
+    },
+    {
+      onSuccess: async (_data, step) => {
+        if (step === 6) {
+          await refreshUser()
+          navigate('/')
+        } else {
+          changeStep((step + 1) as Step)
+        }
+      },
+      onError: (err: any) => {
+        setError(err?.response?.data?.message || err?.message || 'Something went wrong')
+      }
+    }
+  )
+
+  const changeStep = useCallback((s: Step) => {
+    setAnimKey(p => p + 1)
+    setCurrentStep(s)
+  }, [])
+
+  const handleNext = () => stepMutation.mutate(currentStep)
+  const handleBack = () => { if (currentStep > 1) changeStep((currentStep - 1) as Step) }
+
+  const handleSkip = useMutation(
+    () => onboardingApi.skip(),
+    {
+      onSuccess: async () => {
+        await refreshUser()
+        navigate('/')
+      },
+      onError: (err: any) => setError(err?.response?.data?.message || 'Skip failed')
+    }
+  )
+
+  if (!user || isProgressLoading) {
+    return (
+      <div className="min-h-screen bg-slate-50 dark:bg-gray-950 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="w-10 h-10 text-primary-600 animate-spin" />
+          <p className="text-gray-500 dark:text-gray-400 font-bold animate-pulse">Initializing...</p>
+        </div>
+      </div>
+    )
   }
 
-  const handleBack = () => {
-    if (currentStep > 1) setCurrentStep((currentStep - 1) as Step)
-  }
-
-  if (!user) return null
-
-  const filteredSkills = allSkills.filter(s => 
-    s.labelEn.toLowerCase().includes(skillSearch.toLowerCase()) || 
-    s.labelVi.toLowerCase().includes(skillSearch.toLowerCase())
-  ).filter(s => !selectedSkills.find(ss => ss.skillId === s.id))
-
-  const isNextDisabled = 
+  // Validation per step
+  const isNextDisabled =
     (currentStep === 1 && !roleChoice) ||
     (currentStep === 2 && selectedCategoryIds.length === 0) ||
-    (currentStep === 3 && preferences.preferredJobTypes.length === 0) ||
-    (currentStep === 4 && !profileData.displayName) ||
-    completeMutation.isLoading
-  
-  // Validation messages
-  const getValidationMessage = () => {
-    if (currentStep === 1 && !roleChoice) return 'Please select your role'
-    if (currentStep === 2 && selectedCategoryIds.length === 0) return 'Please select at least 1 field of interest'
-    if (currentStep === 2 && selectedSkills.length === 0) return 'Tip: Add at least 1 skill to get better matches'
-    if (currentStep === 3 && preferences.preferredJobTypes.length === 0) return 'Please select at least 1 work style'
-    if (currentStep === 4 && !profileData.displayName) return 'Please enter your display name'
-    return ''
+    (currentStep === 4 && !preferences.emailEnabled && !preferences.pushEnabled && !preferences.inAppEnabled) ||
+    (currentStep === 6 && !profileData.displayName.trim()) ||
+    stepMutation.isLoading
+
+  const validationMessages: Record<number, string> = {
+    1: !roleChoice ? 'Please select your role' : '',
+    2: selectedCategoryIds.length === 0 ? 'Select at least 1 field' : '',
+    3: '', // Skills are optional
+    4: (!preferences.emailEnabled && !preferences.pushEnabled && !preferences.inAppEnabled) ? 'Enable at least 1 notification' : '',
+    5: '', // Goals optional
+    6: !profileData.displayName.trim() ? 'Display name is required' : '',
   }
+  const validationMsg = validationMessages[currentStep] || ''
 
   const steps = [
-    { id: 1, label: 'Role & Purpose', icon: Target },
-    { id: 2, label: 'Expertise', icon: Zap },
-    { id: 3, label: 'Preferences', icon: Briefcase },
-    { id: 4, label: 'Profile', icon: User }
+    { id: 1, label: 'Role', icon: Target },
+    { id: 2, label: 'Interests', icon: Heart },
+    { id: 3, label: 'Skills', icon: Zap },
+    { id: 4, label: 'Prefs', icon: Bell },
+    { id: 5, label: 'Goals', icon: Briefcase },
+    { id: 6, label: 'Profile', icon: User },
   ]
 
-  const goalOptions = [
-    { id: 'career_switch', label: 'Career Switch to Tech', icon: Rocket },
-    { id: 'skill_up', label: 'Skill Up for Promotion', icon: TrendingUp },
-    { id: 'build_project', label: 'Build a Side Project', icon: Code },
-    { id: 'interview_prep', label: 'Interview Preparation', icon: GraduationCap },
-    { id: 'grow_network', label: 'Grow Professional Network', icon: Users },
-    { id: 'earn_mentor', label: 'Earn Income as Mentor', icon: DollarSign }
-  ]
+  const progress = ((currentStep - 1) / (steps.length - 1)) * 100
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 flex flex-col items-center justify-center p-4 md:p-8">
-      <div className="max-w-5xl w-full">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-3 mb-6">
-            <div className="w-14 h-14 bg-gradient-to-br from-primary-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-2xl rotate-3 hover:rotate-6 transition-transform">
-              <Sparkles className="w-8 h-8 text-white" />
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-sky-50/50 to-indigo-50/50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 flex flex-col items-center justify-start md:justify-center p-4 md:p-8 relative overflow-hidden">
+      {/* BG decoration */}
+      <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary-200/20 dark:bg-primary-900/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-indigo-200/20 dark:bg-indigo-900/10 rounded-full blur-3xl pointer-events-none" />
+
+      {/* Error Toast */}
+      {error && (
+        <div className={`fixed top-6 right-6 z-50 max-w-md transition-all duration-300 ${showError ? 'translate-x-0 opacity-100' : 'translate-x-8 opacity-0'}`}>
+          <div className="bg-red-50 dark:bg-red-950/80 border-2 border-red-200 dark:border-red-800 rounded-xl p-4 shadow-2xl flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className="text-sm font-bold text-red-700 dark:text-red-300">Error</p>
+              <p className="text-sm text-red-600 dark:text-red-400 mt-0.5">{error}</p>
             </div>
-            <h1 className="text-4xl font-black text-gray-900 dark:text-white tracking-tight">MentorX</h1>
+            <button onClick={() => { setShowError(false); setTimeout(() => setError(null), 300) }} className="text-red-400 hover:text-red-600">✕</button>
           </div>
-          
-          {/* Progress Bar */}
-          <div className="max-w-2xl mx-auto">
-            <div className="flex justify-between mb-4">
+        </div>
+      )}
+
+      <div className="max-w-4xl w-full relative z-10">
+        {/* Header */}
+        <div className="text-center mb-6">
+          <div className="flex items-center justify-center gap-2.5 mb-5">
+            <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-xl rotate-3 onb-float">
+              <Sparkles className="w-5 h-5 text-white" />
+            </div>
+            <h1 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">MentorX</h1>
+          </div>
+
+          {/* Step dots */}
+          <div className="max-w-xl mx-auto">
+            <div className="flex justify-between mb-3">
               {steps.map(s => (
-                <div key={s.id} className="flex flex-col items-center gap-2 flex-1">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-black transition-all duration-500 ${
-                    currentStep === s.id ? 'bg-primary-600 text-white ring-4 ring-primary-100 dark:ring-primary-900/30 scale-110' : 
-                    currentStep > s.id ? 'bg-emerald-500 text-white' : 'bg-gray-200 dark:bg-gray-800 text-gray-400'
+                <button
+                  key={s.id}
+                  onClick={() => { if (s.id < currentStep) changeStep(s.id as Step) }}
+                  disabled={s.id >= currentStep}
+                  className="flex flex-col items-center gap-1.5 flex-1 group"
+                >
+                  <div className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-black transition-all duration-500 ${
+                    currentStep === s.id
+                      ? 'bg-gradient-to-br from-primary-500 to-indigo-600 text-white ring-4 ring-primary-100 dark:ring-primary-900/30 scale-110 shadow-lg'
+                      : currentStep > s.id
+                      ? 'bg-emerald-500 text-white shadow-md cursor-pointer group-hover:scale-105'
+                      : 'bg-gray-200 dark:bg-gray-800 text-gray-400'
                   }`}>
-                    {currentStep > s.id ? <Check className="w-5 h-5" /> : s.id}
+                    {currentStep > s.id ? <Check className="w-4 h-4" /> : <s.icon className="w-3.5 h-3.5" />}
                   </div>
-                  <span className={`text-xs font-bold hidden md:block ${currentStep >= s.id ? 'text-gray-900 dark:text-white' : 'text-gray-400'}`}>
+                  <span className={`text-[10px] font-bold hidden md:block ${currentStep >= s.id ? 'text-gray-700 dark:text-gray-300' : 'text-gray-400'}`}>
                     {s.label}
                   </span>
-                </div>
+                </button>
               ))}
             </div>
-            <div className="h-2 w-full bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
-              <div 
-                className="h-full bg-gradient-to-r from-primary-600 to-indigo-600 transition-all duration-700 ease-out"
-                style={{ width: `${((currentStep - 1) / (steps.length - 1)) * 100}%` }}
-              />
+            <div className="h-1.5 w-full bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
+              <div className="h-full bg-gradient-to-r from-primary-500 to-indigo-500 rounded-full transition-all duration-700 ease-out" style={{ width: `${progress}%` }} />
             </div>
           </div>
         </div>
 
         {/* Main Card */}
-        <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-2xl border border-gray-100 dark:border-gray-800 p-8 md:p-12 min-h-[600px] flex flex-col">
-          <div className="flex-1">
-
-            {/* STEP 1: ROLE & PURPOSE */}
-            {currentStep === 1 && (
-              <div className="space-y-10 animate-in fade-in slide-in-from-bottom-8 duration-700">
-                <div className="text-center max-w-2xl mx-auto">
-                  <h2 className="text-4xl md:text-5xl font-black text-gray-900 dark:text-white tracking-tight mb-4">
-                    Welcome! 🎉
-                  </h2>
-                  <p className="text-gray-600 dark:text-gray-400 text-lg font-medium">
-                    Let's personalize your MentorX experience
-                  </p>
-                </div>
-
-                {/* Role Selection */}
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-4">
-                    What brings you here today?
-                  </label>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {[
-                      { id: 'LEARNER', title: 'I want to learn', desc: 'Seeking guidance & mentorship', icon: GraduationCap, gradient: 'from-blue-500 to-cyan-500' },
-                      { id: 'MENTOR', title: 'I want to mentor', desc: 'Share my expertise', icon: Rocket, gradient: 'from-emerald-500 to-teal-500' },
-                      { id: 'BOTH', title: 'Both!', desc: 'Learn and teach', icon: Sparkles, gradient: 'from-violet-500 to-purple-500' }
-                    ].map(role => (
-                      <button
-                        key={role.id}
-                        onClick={() => setRoleChoice(role.id)}
-                        className={`group relative p-6 rounded-2xl text-center transition-all duration-300 border-2 ${
-                          roleChoice === role.id 
-                            ? 'bg-white dark:bg-gray-800 border-primary-500 shadow-xl scale-105' 
-                            : 'bg-gray-50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
-                        }`}
-                      >
-                        <div className={`w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br ${role.gradient} flex items-center justify-center transform transition-transform group-hover:scale-110 group-hover:rotate-3`}>
-                          <role.icon className="w-8 h-8 text-white" />
-                        </div>
-                        <h3 className="font-black text-lg mb-1 text-gray-900 dark:text-white">{role.title}</h3>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">{role.desc}</p>
-                        {roleChoice === role.id && (
-                          <div className="absolute top-3 right-3 w-6 h-6 bg-primary-600 rounded-full flex items-center justify-center">
-                            <Check className="w-4 h-4 text-white" />
-                          </div>
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Goal Selection */}
-                {roleChoice && (
-                  <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                    <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-4">
-                      What's your main goal?
-                    </label>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {goalOptions.map(goal => (
-                        <button
-                          key={goal.id}
-                          onClick={() => {
-                            setMainGoal(goal.label)
-                            setCustomGoal('')
-                          }}
-                          className={`flex items-center gap-4 p-4 rounded-xl text-left transition-all border-2 ${
-                            mainGoal === goal.label 
-                              ? 'bg-primary-50 dark:bg-primary-900/20 border-primary-500 text-primary-700 dark:text-primary-400' 
-                              : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-gray-300 text-gray-700 dark:text-gray-300'
-                          }`}
-                        >
-                          <goal.icon className="w-5 h-5 flex-shrink-0" />
-                          <span className="font-bold text-sm">{goal.label}</span>
-                          {mainGoal === goal.label && <Check className="w-5 h-5 ml-auto text-primary-600" />}
-                        </button>
-                      ))}
-                    </div>
-                    
-                    <div className="mt-4">
-                      <textarea
-                        className="w-full px-4 py-3 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-primary-500 focus:ring-2 focus:ring-primary-200 dark:focus:ring-primary-900/30 transition-all outline-none text-gray-900 dark:text-white resize-none"
-                        placeholder="Or describe your own goal..."
-                        rows={3}
-                        value={customGoal}
-                        onChange={e => {
-                          setCustomGoal(e.target.value)
-                          if (e.target.value) setMainGoal('')
-                        }}
-                      />
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* STEP 2: EXPERTISE */}
+        <div className="onb-glass rounded-2xl md:rounded-3xl shadow-2xl shadow-gray-200/50 dark:shadow-black/20 border border-white/60 dark:border-gray-800/60 p-6 md:p-10 min-h-[480px] md:min-h-[520px] flex flex-col">
+          <div className="flex-1" key={animKey}>
+            {currentStep === 1 && <StepRole roleChoice={roleChoice} setRoleChoice={setRoleChoice} />}
             {currentStep === 2 && (
-              <div className="space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
-                <div>
-                  <h2 className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white tracking-tight mb-2">
-                    Your Expertise
-                  </h2>
-                  <p className="text-gray-600 dark:text-gray-400 text-lg">
-                    Select up to <span className="text-primary-600 font-black">3 fields</span> and add your skills
-                  </p>
-                </div>
-
-                {/* Categories */}
-                <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <label className="text-sm font-bold text-gray-700 dark:text-gray-300">
-                      Fields of Interest
-                    </label>
-                    <span className="text-sm font-bold text-primary-600">
-                      {selectedCategoryIds.length}/3 selected
-                    </span>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {categories.map(cat => (
-                      <button
-                        key={cat.categoryId}
-                        onClick={() => {
-                          if (selectedCategoryIds.includes(cat.categoryId)) {
-                            setSelectedCategoryIds(selectedCategoryIds.filter(id => id !== cat.categoryId))
-                          } else if (selectedCategoryIds.length < 3) {
-                            setSelectedCategoryIds([...selectedCategoryIds, cat.categoryId])
-                          }
-                        }}
-                        disabled={!selectedCategoryIds.includes(cat.categoryId) && selectedCategoryIds.length >= 3}
-                        className={`px-4 py-2 rounded-full text-sm font-bold transition-all border-2 ${
-                          selectedCategoryIds.includes(cat.categoryId)
-                            ? 'bg-primary-600 border-primary-600 text-white shadow-lg'
-                            : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-primary-300 disabled:opacity-50 disabled:cursor-not-allowed'
-                        }`}
-                      >
-                        {cat.name}
-                        {selectedCategoryIds.includes(cat.categoryId) && (
-                          <Check className="w-3 h-3 inline ml-1" />
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Skills */}
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-3">
-                    Add Your Skills
-                  </label>
-                  <div className="relative">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <input
-                      type="text"
-                      className="w-full pl-12 pr-4 py-3 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-primary-500 focus:ring-2 focus:ring-primary-200 dark:focus:ring-primary-900/30 transition-all outline-none text-gray-900 dark:text-white"
-                      placeholder="Search skills (e.g. React, Python, UI Design)..."
-                      value={skillSearch}
-                      onChange={e => setSkillSearch(e.target.value)}
-                    />
-                    {skillSearch && filteredSkills.length > 0 && (
-                      <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 max-h-60 overflow-y-auto z-50">
-                        {filteredSkills.slice(0, 10).map(skill => (
-                          <button
-                            key={skill.id}
-                            onClick={() => {
-                              setSelectedSkills([...selectedSkills, { skillId: skill.id, name: skill.labelEn, level: 'INTERMEDIATE' }])
-                              setSkillSearch('')
-                            }}
-                            className="w-full flex items-center justify-between p-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors text-left"
-                          >
-                            <span className="font-medium text-gray-900 dark:text-white">{skill.labelEn}</span>
-                            <Plus className="w-4 h-4 text-gray-400" />
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Selected Skills */}
-                  {selectedSkills.length > 0 && (
-                    <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {selectedSkills.map((skill, index) => (
-                        <div key={skill.skillId} className="bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 p-4 rounded-xl">
-                          <div className="flex items-center justify-between mb-3">
-                            <span className="font-bold text-gray-900 dark:text-white">{skill.name}</span>
-                            <button
-                              onClick={() => setSelectedSkills(selectedSkills.filter((_, i) => i !== index))}
-                              className="w-6 h-6 flex items-center justify-center bg-gray-100 dark:bg-gray-700 text-gray-500 hover:text-red-500 rounded-lg transition-colors"
-                            >
-                              <X className="w-4 h-4" />
-                            </button>
-                          </div>
-                          <div className="flex gap-1 bg-gray-100 dark:bg-gray-900 p-1 rounded-lg">
-                            {['BEGINNER', 'INTERMEDIATE', 'EXPERT'].map(lvl => (
-                              <button
-                                key={lvl}
-                                onClick={() => {
-                                  const newSkills = [...selectedSkills]
-                                  newSkills[index].level = lvl
-                                  setSelectedSkills(newSkills)
-                                }}
-                                className={`flex-1 py-1.5 rounded-md text-xs font-black transition-all ${
-                                  skill.level === lvl 
-                                    ? 'bg-white dark:bg-gray-800 text-primary-600 shadow-sm' 
-                                    : 'text-gray-500 hover:text-gray-700'
-                                }`}
-                              >
-                                {lvl}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  
-                  {/* Helper message if no skills added */}
-                  {selectedSkills.length === 0 && (
-                    <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-200 dark:border-blue-800 rounded-xl">
-                      <p className="text-sm text-blue-700 dark:text-blue-400 font-medium">
-                        💡 <strong>Tip:</strong> Adding skills helps us match you with the right mentors/learners. You can also add them later in your profile.
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </div>
+              <StepExpertise
+                categories={categories}
+                selectedCategoryIds={selectedCategoryIds} setSelectedCategoryIds={setSelectedCategoryIds}
+              />
             )}
-
-            {/* STEP 3: PREFERENCES */}
             {currentStep === 3 && (
-              <div className="space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
-                <div>
-                  <h2 className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white tracking-tight mb-2">
-                    Work Preferences
-                  </h2>
-                  <p className="text-gray-600 dark:text-gray-400 text-lg">
-                    How do you prefer to collaborate?
-                  </p>
-                </div>
-
-                {/* Work Style */}
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-3">
-                    Work Style (select all that apply)
-                  </label>
-                  <div className="space-y-3">
-                    {[
-                      { id: 'LONG_TERM_MENTORING', label: 'Long-term Mentoring', desc: 'Consistent growth over time', icon: Users },
-                      { id: 'FREELANCE_PROJECT', label: 'Project-based Freelance', desc: 'Milestone-driven delivery', icon: Briefcase },
-                      { id: 'QUICK_FIX', label: 'Quick Consultations', desc: 'Instant 1-on-1 support', icon: Zap }
-                    ].map(type => (
-                      <button
-                        key={type.id}
-                        onClick={() => {
-                          if (preferences.preferredJobTypes.includes(type.id)) {
-                            setPreferences({...preferences, preferredJobTypes: preferences.preferredJobTypes.filter(t => t !== type.id)})
-                          } else {
-                            setPreferences({...preferences, preferredJobTypes: [...preferences.preferredJobTypes, type.id]})
-                          }
-                        }}
-                        className={`w-full flex items-center gap-4 p-4 rounded-xl transition-all border-2 ${
-                          preferences.preferredJobTypes.includes(type.id)
-                            ? 'bg-primary-50 dark:bg-primary-900/20 border-primary-500'
-                            : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-gray-300'
-                        }`}
-                      >
-                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                          preferences.preferredJobTypes.includes(type.id) 
-                            ? 'bg-primary-600 text-white' 
-                            : 'bg-gray-100 dark:bg-gray-700 text-gray-400'
-                        }`}>
-                          <type.icon className="w-6 h-6" />
-                        </div>
-                        <div className="text-left flex-1">
-                          <div className="font-bold text-gray-900 dark:text-white">{type.label}</div>
-                          <div className="text-sm text-gray-500 dark:text-gray-400">{type.desc}</div>
-                        </div>
-                        {preferences.preferredJobTypes.includes(type.id) && (
-                          <Check className="w-5 h-5 text-primary-600" />
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Budget/Rate based on role */}
-                {roleChoice === 'LEARNER' || roleChoice === 'BOTH' ? (
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-3">
-                      Budget Range (MXC)
-                    </label>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-xs text-gray-500 mb-2">Minimum</label>
-                        <input
-                          type="number"
-                          className="w-full px-4 py-3 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-primary-500 transition-all outline-none text-gray-900 dark:text-white font-bold"
-                          value={preferences.budgetMinMxc}
-                          onChange={e => setPreferences({...preferences, budgetMinMxc: parseInt(e.target.value) || 0})}
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs text-gray-500 mb-2">Maximum</label>
-                        <input
-                          type="number"
-                          className="w-full px-4 py-3 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-primary-500 transition-all outline-none text-gray-900 dark:text-white font-bold"
-                          value={preferences.budgetMaxMxc}
-                          onChange={e => setPreferences({...preferences, budgetMaxMxc: parseInt(e.target.value) || 0})}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                ) : null}
-
-                {roleChoice === 'MENTOR' ? (
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-3">
-                      Your Hourly Rate (MXC)
-                    </label>
-                    <input
-                      type="number"
-                      className="w-full px-4 py-3 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-primary-500 transition-all outline-none text-gray-900 dark:text-white font-bold"
-                      value={preferences.hourlyRateMxc}
-                      onChange={e => setPreferences({...preferences, hourlyRateMxc: parseInt(e.target.value) || 0})}
-                      placeholder="500"
-                    />
-                    <p className="text-sm text-gray-500 mt-2">💡 Average rate for your skills: 400-600 MXC</p>
-                  </div>
-                ) : null}
-
-                {/* Languages */}
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-3">
-                    Preferred Languages
-                  </label>
-                  <div className="flex flex-wrap gap-2">
-                    {[
-                      { code: 'vi', label: '🇻🇳 Tiếng Việt' },
-                      { code: 'en', label: '🇬🇧 English' },
-                      { code: 'zh', label: '🇨🇳 Chinese' },
-                      { code: 'ja', label: '🇯🇵 Japanese' }
-                    ].map(lang => (
-                      <button
-                        key={lang.code}
-                        onClick={() => {
-                          if (preferences.preferredMentorLanguages.includes(lang.code)) {
-                            setPreferences({...preferences, preferredMentorLanguages: preferences.preferredMentorLanguages.filter(l => l !== lang.code)})
-                          } else {
-                            setPreferences({...preferences, preferredMentorLanguages: [...preferences.preferredMentorLanguages, lang.code]})
-                          }
-                        }}
-                        className={`px-4 py-2 rounded-full text-sm font-bold transition-all border-2 ${
-                          preferences.preferredMentorLanguages.includes(lang.code)
-                            ? 'bg-gray-900 dark:bg-white border-gray-900 dark:border-white text-white dark:text-gray-900'
-                            : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300'
-                        }`}
-                      >
-                        {lang.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
+              <StepSkills
+                roleChoice={roleChoice}
+                allSkills={allSkills}
+                selectedSkills={selectedSkills} setSelectedSkills={setSelectedSkills}
+              />
             )}
-
-            {/* STEP 4: PROFILE */}
-            {currentStep === 4 && (
-              <div className="space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
-                <div className="text-center">
-                  <h2 className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white tracking-tight mb-2">
-                    Final Touches ✨
-                  </h2>
-                  <p className="text-gray-600 dark:text-gray-400 text-lg">
-                    Complete your public profile
-                  </p>
-                </div>
-
-                <div className="flex flex-col md:flex-row gap-8 items-start">
-                  {/* Avatar */}
-                  <div className="flex-shrink-0 mx-auto md:mx-0">
-                    <div className="relative group">
-                      <div className="w-32 h-32 bg-gradient-to-br from-primary-500 to-indigo-500 rounded-2xl overflow-hidden ring-4 ring-white dark:ring-gray-800 shadow-xl">
-                        <img
-                          src={profileData.avatarUrl || `https://ui-avatars.com/api/?name=${profileData.displayName || user.fullName}&size=256&background=random`}
-                          alt="Avatar"
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <button className="absolute -bottom-2 -right-2 w-10 h-10 bg-primary-600 text-white rounded-xl flex items-center justify-center shadow-lg hover:scale-110 transition-transform">
-                        <Camera className="w-5 h-5" />
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Form */}
-                  <div className="flex-1 w-full space-y-4">
-                    <div>
-                      <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
-                        Display Name *
-                      </label>
-                      <input
-                        type="text"
-                        className="w-full px-4 py-3 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-primary-500 focus:ring-2 focus:ring-primary-200 dark:focus:ring-primary-900/30 transition-all outline-none text-gray-900 dark:text-white font-bold"
-                        placeholder="e.g. Alex.Dev"
-                        value={profileData.displayName}
-                        onChange={e => setProfileData({...profileData, displayName: e.target.value})}
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
-                        Bio (Optional - 160 characters)
-                      </label>
-                      <textarea
-                        className="w-full px-4 py-3 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-primary-500 focus:ring-2 focus:ring-primary-200 dark:focus:ring-primary-900/30 transition-all outline-none text-gray-900 dark:text-white resize-none"
-                        placeholder="Tell us about yourself..."
-                        rows={3}
-                        maxLength={160}
-                        value={profileData.bio}
-                        onChange={e => setProfileData({...profileData, bio: e.target.value})}
-                      />
-                      <div className="text-xs text-gray-500 mt-1 text-right">
-                        {profileData.bio.length}/160
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
-                          LinkedIn (Optional)
-                        </label>
-                        <input
-                          type="url"
-                          className="w-full px-4 py-3 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-primary-500 transition-all outline-none text-gray-900 dark:text-white"
-                          placeholder="linkedin.com/in/..."
-                          value={profileData.linkedinUrl}
-                          onChange={e => setProfileData({...profileData, linkedinUrl: e.target.value})}
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
-                          GitHub (Optional)
-                        </label>
-                        <input
-                          type="url"
-                          className="w-full px-4 py-3 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-primary-500 transition-all outline-none text-gray-900 dark:text-white"
-                          placeholder="github.com/..."
-                          value={profileData.githubUrl}
-                          onChange={e => setProfileData({...profileData, githubUrl: e.target.value})}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+            {currentStep === 4 && <StepPreferences preferences={preferences} setPreferences={setPreferences} />}
+            {currentStep === 5 && (
+              <StepGoals
+                roleChoice={roleChoice}
+                selectedGoals={selectedGoals} setSelectedGoals={setSelectedGoals}
+                customGoal={customGoal} setCustomGoal={setCustomGoal}
+              />
             )}
+            {currentStep === 6 && <StepProfile profileData={profileData} setProfileData={setProfileData} userName={user.fullName} />}
           </div>
 
-          {/* Navigation */}
-          <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-800">
-            {/* Validation Message */}
-            {getValidationMessage() && (
-              <div className={`mb-4 p-4 rounded-xl flex items-center gap-3 ${
-                isNextDisabled 
-                  ? 'bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-200 dark:border-amber-800' 
-                  : 'bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-200 dark:border-blue-800'
-              }`}>
-                <div className={`w-2 h-2 rounded-full ${
-                  isNextDisabled ? 'bg-amber-500' : 'bg-blue-500'
-                } animate-pulse`} />
-                <span className={`text-sm font-bold ${
-                  isNextDisabled 
-                    ? 'text-amber-700 dark:text-amber-400' 
-                    : 'text-blue-700 dark:text-blue-400'
-                }`}>
-                  {getValidationMessage()}
-                </span>
+          {/* Footer */}
+          <div className="mt-6 pt-5 border-t border-gray-200/60 dark:border-gray-800/60">
+            {validationMsg && (
+              <div className="mb-4 px-4 py-3 rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/60 flex items-center gap-2.5">
+                <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse flex-shrink-0" />
+                <span className="text-sm font-semibold text-amber-700 dark:text-amber-400">{validationMsg}</span>
               </div>
             )}
-            
+
             <div className="flex items-center justify-between">
               <button
                 onClick={handleBack}
                 disabled={currentStep === 1}
-                className="flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm text-gray-500 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-0 disabled:pointer-events-none transition-all"
               >
-                <ArrowLeft className="w-5 h-5" />
-                Back
+                <ArrowLeft className="w-4 h-4" /> Back
               </button>
 
-              <button
-                onClick={handleNext}
-                disabled={isNextDisabled}
-                className="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-primary-600 to-indigo-600 text-white rounded-xl font-bold shadow-lg hover:shadow-xl hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all"
-              >
-                {completeMutation.isLoading ? (
-                  <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    Setting up...
-                  </>
-                ) : currentStep === 4 ? (
-                  <>
-                    Finish Setup
-                    <Sparkles className="w-5 h-5" />
-                  </>
-                ) : (
-                  <>
-                    Continue
-                    <ArrowRight className="w-5 h-5" />
-                  </>
+              <div className="flex items-center gap-3">
+                {/* Skip button */}
+                {currentStep <= 3 && (
+                  <button
+                    onClick={() => handleSkip.mutate()}
+                    disabled={handleSkip.isLoading}
+                    className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl font-bold text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-all"
+                  >
+                    <SkipForward className="w-3.5 h-3.5" /> Skip all
+                  </button>
                 )}
-              </button>
+
+                <button
+                  onClick={handleNext}
+                  disabled={isNextDisabled}
+                  className="flex items-center gap-2 px-7 py-3 bg-gradient-to-r from-primary-500 to-indigo-600 text-white rounded-xl font-bold text-sm shadow-lg shadow-primary-500/20 hover:shadow-xl hover:scale-[1.03] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:shadow-none transition-all duration-200"
+                >
+                  {stepMutation.isLoading ? (
+                    <><Loader2 className="w-4 h-4 animate-spin" /> Saving...</>
+                  ) : currentStep === 6 ? (
+                    <><Sparkles className="w-4 h-4" /> Complete Setup</>
+                  ) : (
+                    <>Continue <ArrowRight className="w-4 h-4" /></>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         </div>
+
+        <p className="text-center text-xs text-gray-400 dark:text-gray-500 mt-4">
+          You can update your preferences anytime from your profile settings
+        </p>
       </div>
     </div>
   )

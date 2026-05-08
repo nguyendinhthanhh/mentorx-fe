@@ -6,11 +6,12 @@ import { useAuthStore } from '@/store/authStore'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Loader2 } from 'lucide-react'
+import { BudgetType, JobType } from '@/types'
 
 const jobSchema = z.object({
   title: z.string().min(5, 'Title must be at least 5 characters').max(200),
   description: z.string().min(20, 'Description must be at least 20 characters'),
-  jobType: z.enum(['FIXED_PRICE', 'HOURLY', 'QUICK_SUPPORT']),
+  jobType: z.enum(['LONG_TERM_MENTORING', 'FREELANCE_PROJECT', 'QUICK_FIX']),
   budgetType: z.enum(['FIXED', 'HOURLY']),
   budgetMinMxc: z.coerce.number().min(0).optional(),
   budgetMaxMxc: z.coerce.number().min(0).optional(),
@@ -34,7 +35,7 @@ export default function JobCreateForm({ clientId }: { clientId: string }) {
   } = useForm<JobFormData>({
     resolver: zodResolver(jobSchema),
     defaultValues: {
-      jobType: 'FIXED_PRICE',
+      jobType: JobType.FREELANCE_PROJECT,
       budgetType: 'FIXED',
     },
   })
@@ -48,6 +49,8 @@ export default function JobCreateForm({ clientId }: { clientId: string }) {
       const job = await jobApi.create({
         ...data,
         clientId,
+        jobType: data.jobType as JobType,
+        budgetType: data.budgetType as BudgetType,
         budgetMinMxc: data.budgetType === 'FIXED' ? data.budgetMinMxc : undefined,
         budgetMaxMxc: data.budgetType === 'FIXED' ? data.budgetMaxMxc : undefined,
         hourlyRateMxc: data.budgetType === 'HOURLY' ? data.hourlyRateMxc : undefined,
@@ -91,9 +94,9 @@ export default function JobCreateForm({ clientId }: { clientId: string }) {
         <div>
           <label className={labelClass}>Job Type</label>
           <select {...register('jobType')} className={inputClass}>
-            <option value="FIXED_PRICE">Fixed Price</option>
-            <option value="HOURLY">Hourly</option>
-            <option value="QUICK_SUPPORT">Quick Support</option>
+            <option value={JobType.FREELANCE_PROJECT}>Freelance Project</option>
+            <option value={JobType.LONG_TERM_MENTORING}>Long-term Mentoring</option>
+            <option value={JobType.QUICK_FIX}>Quick Fix</option>
           </select>
         </div>
         <div>

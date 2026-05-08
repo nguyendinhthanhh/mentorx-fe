@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { proposalApi } from '@/api/proposalApi'
 import { useState } from 'react'
 import { Loader2, CheckCircle } from 'lucide-react'
+import { BudgetType, JobType } from '@/types'
 
 const proposalSchema = z.object({
   coverLetter: z.string().min(50, 'Cover letter must be at least 50 characters'),
@@ -18,11 +19,12 @@ type ProposalFormData = z.infer<typeof proposalSchema>
 interface Props {
   jobId: string
   mentorId: string
-  jobType: 'FIXED_PRICE' | 'HOURLY' | 'QUICK_SUPPORT'
+  jobType: JobType
+  budgetType?: BudgetType
   onSuccess?: () => void
 }
 
-export default function ProposalCreateForm({ jobId, mentorId, jobType, onSuccess }: Props) {
+export default function ProposalCreateForm({ jobId, mentorId, jobType, budgetType, onSuccess }: Props) {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
@@ -82,7 +84,7 @@ export default function ProposalCreateForm({ jobId, mentorId, jobType, onSuccess
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        {jobType === 'HOURLY' ? (
+        {budgetType === BudgetType.HOURLY ? (
           <div>
             <label className={labelClass}>Proposed Hourly Rate (MXC)</label>
             <input

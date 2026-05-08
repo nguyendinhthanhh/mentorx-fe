@@ -1,4 +1,4 @@
-// Enums
+﻿// Enums
 export enum UserStatus {
   ACTIVE = "ACTIVE",
   PENDING = "PENDING",
@@ -24,9 +24,9 @@ export enum JobStatus {
 }
 
 export enum JobType {
-  FIXED_PRICE = "FIXED_PRICE",
-  HOURLY = "HOURLY",
-  QUICK_SUPPORT = "QUICK_SUPPORT",
+  LONG_TERM_MENTORING = "LONG_TERM_MENTORING",
+  FREELANCE_PROJECT = "FREELANCE_PROJECT",
+  QUICK_FIX = "QUICK_FIX",
 }
 
 export enum BudgetType {
@@ -95,14 +95,10 @@ export enum PaymentGateway {
 }
 
 export enum SupportedLanguage {
-  EN = "EN",
-  VI = "VI",
-  ES = "ES",
-  FR = "FR",
-  DE = "DE",
-  ZH = "ZH",
-  JA = "JA",
-  KO = "KO",
+  EN = "en",
+  VI = "vi",
+  ZH = "zh",
+  JA = "ja",
 }
 
 export enum ProposalStatus {
@@ -212,7 +208,8 @@ export interface UserResponse {
   mentorStatus?: MentorStatus;
   profileIsPublic: boolean;
   emailVerified: boolean;
-  twoFactorEnabled: boolean;
+  is2faEnabled: boolean;
+  isOnboarded: boolean;
   lastSeenAt?: string;
   createdAt: string;
   updatedAt: string;
@@ -243,6 +240,7 @@ export interface UserUpdateRequest {
 
 // Mentor Types
 export interface MentorProfileResponse {
+  id?: string;
   userId: string;
   user: UserResponse;
   headline?: string;
@@ -250,6 +248,8 @@ export interface MentorProfileResponse {
   yearsOfExperience?: number;
   availability?: string;
   responseTimeHours?: number;
+  totalJobsDone?: number;
+  successRate?: number;
   cvUrl?: string;
   portfolioUrl?: string;
   averageRating?: number;
@@ -814,67 +814,6 @@ export interface ReviewResponse {
   updatedAt: string;
 }
 
-// Moderation Types
-export enum ReportStatus {
-  PENDING = "PENDING",
-  UNDER_REVIEW = "UNDER_REVIEW",
-  ESCALATED = "ESCALATED",
-  RESOLVED = "RESOLVED",
-  DISMISSED = "DISMISSED",
-  ON_HOLD = "ON_HOLD",
-  CLOSED = "CLOSED",
-}
-
-export enum ReportTargetType {
-  USER_PROFILE = "USER_PROFILE",
-  JOB_POSTING = "JOB_POSTING",
-  COURSE = "COURSE",
-  REVIEW = "REVIEW",
-  MESSAGE = "MESSAGE",
-  COMMENT = "COMMENT",
-  MENTOR_PROFILE = "MENTOR_PROFILE",
-  COURSE_CONTENT = "COURSE_CONTENT",
-  CONTRACT = "CONTRACT",
-  PLATFORM_ISSUE = "PLATFORM_ISSUE",
-}
-
-export interface ReportResponse {
-  id: string;
-  reporterId: string;
-  reporterName: string;
-  targetType: ReportTargetType;
-  targetId: string;
-  reportedUserId: string;
-  reportedUserName: string;
-  reportCategory: string;
-  reason: string;
-  status: ReportStatus;
-  priorityLevel: number;
-  assignedToAdminId?: string;
-  assignedAt?: string;
-  reviewedAt?: string;
-  resolvedAt?: string;
-  actionTaken?: string;
-  moderatorNotes?: string;
-  isUpheld?: boolean;
-  isDuplicate?: boolean;
-  originalReportId?: string;
-  similarReportCount?: number;
-  isUrgent: boolean;
-  contentHidden: boolean;
-  contentHiddenAt?: string;
-  evidenceUrls: string[];
-  reportContext?: string;
-  escalationLevel: number;
-  escalatedAt?: string;
-  escalationReason?: string;
-  slaDeadline?: string;
-  slaMet?: boolean;
-  resolutionTimeHours?: number;
-  createdAt: string;
-  updatedAt: string;
-}
-
 // Category Types
 export interface CategoryResponse {
   categoryId: number;
@@ -950,3 +889,147 @@ export interface UserConsentLogResponse {
   consentedAt: string;
   ipAddress?: string;
 }
+
+// Onboarding Types
+export interface OnboardingStepResponse {
+  stepName: string;
+  stepOrder: number;
+  completed: boolean;
+  message?: string;
+  data?: Record<string, any>;
+}
+
+// File Types
+export interface FileResponse {
+  fileName: string;
+  fileUrl: string;
+  fileType: string;
+  size: number;
+}
+
+// Dashboard Types
+export interface OnboardingProgressResponse {
+  isComplete: boolean;
+  currentStep: number;
+  totalSteps: number;
+  completedSteps: string[];
+  nextStep?: string;
+  progressPercentage: number;
+}
+
+export interface WalletBalanceResponse {
+  availableBalance: number;
+  pendingBalance: number;
+  totalBalance: number;
+  currency: string;
+}
+
+export interface UserActivityResponse {
+  activeCoursesCount: number;
+  activeContractsCount: number;
+  unreadMessagesCount: number;
+  pendingProposalsCount: number;
+  recentActivities: ActivityItem[];
+}
+
+export interface ActivityItem {
+  id: string;
+  type: string;
+  title: string;
+  description: string;
+  timestamp: string;
+  actionUrl?: string;
+}
+
+// Feed Types
+export enum FeedItemType {
+  MENTOR = "MENTOR",
+  COURSE = "COURSE",
+  KNOWLEDGE = "KNOWLEDGE",
+  JOB = "JOB",
+}
+
+export interface MentorRecommendationResponse {
+  mentorId: string;
+  userId: string;
+  fullName: string;
+  displayName?: string;
+  avatarUrl?: string;
+  headline?: string;
+  hourlyRateMxc?: number;
+  yearsOfExperience?: number;
+  availability?: string;
+  averageRating?: number;
+  totalReviews: number;
+  totalEarnings?: number;
+  isFeatured: boolean;
+  skills: string[];
+  categories: string[];
+  matchScore: number;
+}
+
+export interface CourseRecommendationResponse {
+  courseId: string;
+  title: string;
+  slug: string;
+  description?: string;
+  thumbnailUrl?: string;
+  priceMxc?: number;
+  language?: SupportedLanguage;
+  level?: string;
+  isCertificate: boolean;
+  instructorId: string;
+  instructorName: string;
+  instructorAvatarUrl?: string;
+  averageRating?: number;
+  totalEnrollments: number;
+  totalDurationMinutes?: number;
+  categoryName?: string;
+  matchScore: number;
+}
+
+export interface KnowledgeRecommendationResponse {
+  id: string;
+  title: string;
+  excerpt: string;
+  thumbnailUrl?: string;
+  authorId: string;
+  authorName: string;
+  authorAvatarUrl?: string;
+  tags: string[];
+  likesCount: number;
+  commentsCount: number;
+  readTimeMinutes: number;
+  publishedAt: string;
+  matchScore: number;
+  skillLevel?: string;
+}
+
+export interface JobRecommendationResponse {
+  jobId: string;
+  title: string;
+  description: string;
+  budgetType: BudgetType;
+  budgetMinMxc?: number;
+  budgetMaxMxc?: number;
+  hourlyRateMxc?: number;
+  estimatedHours?: number;
+  deadlineAt?: string;
+  clientId: string;
+  clientName: string;
+  clientAvatarUrl?: string;
+  categoryName?: string;
+  proposalCount: number;
+  matchScore: number;
+  isFeatured: boolean;
+}
+
+export interface PersonalizedFeedResponse {
+  mentors: MentorRecommendationResponse[];
+  courses: CourseRecommendationResponse[];
+  knowledge: KnowledgeRecommendationResponse[];
+  jobs: JobRecommendationResponse[];
+  source: "CACHE" | "DATABASE" | "REAL_TIME" | "POPULAR_FALLBACK";
+  generatedAt: string;
+}
+

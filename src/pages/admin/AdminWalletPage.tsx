@@ -26,7 +26,7 @@ export default function AdminWalletPage() {
   const { data: withdrawals, isLoading } = useQuery(
     ['adminWithdrawals', filterStatus],
     async () => {
-      const response = await apiClient.get<ApiResponse<WithdrawalResponse[]>>('/wallet/admin/withdrawals')
+      const response = await apiClient.get<ApiResponse<WithdrawalResponse[]>>('/v1/wallet/admin/withdrawals')
       return response.data.data
     }
   )
@@ -35,7 +35,7 @@ export default function AdminWalletPage() {
 
   const approveMutation = useMutation(
     ({ id, txId }: { id: string; txId: string }) => 
-      apiClient.post(`/wallet/admin/withdraw/${id}/approve?gatewayTxnId=${txId}`),
+      apiClient.post(`/v1/wallet/admin/withdraw/${id}/approve?gatewayTxnId=${txId}`),
     {
       onSuccess: () => {
         queryClient.invalidateQueries('adminWithdrawals')
@@ -46,7 +46,7 @@ export default function AdminWalletPage() {
 
   const rejectMutation = useMutation(
     ({ id, reason }: { id: string; reason: string }) => 
-      apiClient.post(`/wallet/admin/withdraw/${id}/reject?reason=${reason}`),
+      apiClient.post(`/v1/wallet/admin/withdraw/${id}/reject?reason=${reason}`),
     {
       onSuccess: () => {
         queryClient.invalidateQueries('adminWithdrawals')

@@ -2,15 +2,16 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { userApi } from '@/api/userApi'
+import { fileApi } from '@/api/fileApi'
 import { useAuthStore } from '@/store/authStore'
-import { UserUpdateRequest } from '@/types'
-import { useState } from 'react'
-import { Loader2, CheckCircle } from 'lucide-react'
+import { SupportedLanguage, UserUpdateRequest } from '@/types'
+import { useState, useRef } from 'react'
+import { Loader2, CheckCircle, Camera, Trash2 } from 'lucide-react'
 
 const profileSchema = z.object({
   fullName: z.string().min(2, 'Name must be at least 2 characters').max(100),
   displayName: z.string().max(50).optional().or(z.literal('')),
-  avatarUrl: z.string().url('Must be a valid URL').optional().or(z.literal('')),
+  avatarUrl: z.string().optional().or(z.literal('')),
   bio: z.string().max(500).optional().or(z.literal('')),
   phone: z.string().max(20).optional().or(z.literal('')),
   countryCode: z.string().max(5).optional().or(z.literal('')),
@@ -39,10 +40,14 @@ export default function UserUpdateForm({ userId, initialData }: Props) {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
+  const [uploading, setUploading] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const {
     register,
     handleSubmit,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
@@ -58,6 +63,24 @@ export default function UserUpdateForm({ userId, initialData }: Props) {
     },
   })
 
+  const avatarUrl = watch('avatarUrl')
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    try {
+      setUploading(true)
+      setError('')
+      const response = await fileApi.upload(file)
+      setValue('avatarUrl', response.fileUrl)
+    } catch (err: any) {
+      setError('Failed to upload image. Please try again.')
+    } finally {
+      setUploading(false)
+    }
+  }
+
   const onSubmit = async (data: ProfileFormData) => {
     try {
       setLoading(true)
@@ -70,6 +93,7 @@ export default function UserUpdateForm({ userId, initialData }: Props) {
         bio: data.bio || undefined,
         phone: data.phone || undefined,
         countryCode: data.countryCode || undefined,
+        preferredLanguage: data.preferredLanguage as SupportedLanguage | undefined,
       } as UserUpdateRequest)
       
       // Update auth store with new user data
@@ -85,29 +109,64 @@ export default function UserUpdateForm({ userId, initialData }: Props) {
     }
   }
 
-  const inputClass = 'w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-sm'
-  const labelClass = 'block text-sm font-medium text-gray-700 mb-1.5'
+  const inputClass = 'w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-sm bg-white'
+  const labelClass = 'block text-sm font-medium text-gray-700 mb-1.5 uppercase tracking-wider'
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-      {/* Avatar Preview */}
-      <div className="flex items-center gap-4 pb-5 border-b border-gray-100">
-        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center flex-shrink-0 overflow-hidden">
-          {initialData.avatarUrl ? (
-            <img src={initialData.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
-          ) : (
-            <span className="text-white text-2xl font-bold">
-              {(initialData.fullName || 'U').charAt(0).toUpperCase()}
-            </span>
-          )}
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      {/* Avatar Section */}
+      <div className="flex flex-col items-center gap-4 pb-6 border-b border-gray-100">
+        <div className="relative group">
+          <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-primary-500 to-indigo-500 flex items-center justify-center flex-shrink-0 overflow-hidden ring-4 ring-white shadow-xl">
+            {uploading ? (
+              <div className="absolute inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-10">
+                <Loader2 className="w-8 h-8 text-white animate-spin" />
+              </div>
+            ) : null}
+            
+            {avatarUrl ? (
+              <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+            ) : (
+              <span className="text-white text-3xl font-bold">
+                {(watch('fullName') || 'U').charAt(0).toUpperCase()}
+              </span>
+            )}
+          </div>
+          
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploading}
+            className="absolute -bottom-2 -right-2 w-10 h-10 bg-white border border-gray-100 text-primary-600 rounded-xl flex items-center justify-center shadow-lg hover:scale-110 transition-transform hover:bg-primary-50"
+          >
+            <Camera className="w-5 h-5" />
+          </button>
+          
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            className="hidden"
+            accept="image/*"
+          />
         </div>
-        <div>
-          <p className="font-semibold text-gray-900">{initialData.fullName}</p>
-          <p className="text-sm text-gray-500">Update your personal information below</p>
+        
+        <div className="text-center">
+          <h3 className="font-bold text-gray-900">{watch('fullName')}</h3>
+          <p className="text-xs text-gray-500 font-medium">PNG, JPG or GIF up to 5MB</p>
+          {avatarUrl && (
+            <button 
+              type="button" 
+              onClick={() => setValue('avatarUrl', '')}
+              className="text-xs text-red-500 font-bold mt-1 hover:underline flex items-center gap-1 justify-center mx-auto"
+            >
+              <Trash2 className="w-3 h-3" /> Remove Photo
+            </button>
+          )}
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div>
           <label className={labelClass}>Full Name</label>
           <input {...register('fullName')} className={inputClass} placeholder="John Doe" />
@@ -116,6 +175,7 @@ export default function UserUpdateForm({ userId, initialData }: Props) {
         <div>
           <label className={labelClass}>Display Name</label>
           <input {...register('displayName')} className={inputClass} placeholder="johndoe" />
+          {errors.displayName && <p className="text-xs text-red-500 mt-1">{errors.displayName.message}</p>}
         </div>
       </div>
 
@@ -124,21 +184,19 @@ export default function UserUpdateForm({ userId, initialData }: Props) {
         <textarea
           {...register('bio')}
           rows={3}
-          className={inputClass}
+          className={`${inputClass} resize-none`}
           placeholder="Tell us about yourself..."
+          maxLength={500}
         />
+        <div className="flex justify-end mt-1">
+          <span className="text-[10px] text-gray-400 font-bold">{watch('bio')?.length || 0}/500</span>
+        </div>
         {errors.bio && <p className="text-xs text-red-500 mt-1">{errors.bio.message}</p>}
       </div>
 
-      <div>
-        <label className={labelClass}>Avatar URL</label>
-        <input {...register('avatarUrl')} className={inputClass} placeholder="https://example.com/avatar.jpg" />
-        {errors.avatarUrl && <p className="text-xs text-red-500 mt-1">{errors.avatarUrl.message}</p>}
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div>
-          <label className={labelClass}>Phone</label>
+          <label className={labelClass}>Phone Number</label>
           <input {...register('phone')} className={inputClass} placeholder="+84 123 456 789" />
         </div>
         <div>
@@ -147,43 +205,40 @@ export default function UserUpdateForm({ userId, initialData }: Props) {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div>
           <label className={labelClass}>Preferred Language</label>
           <select {...register('preferredLanguage')} className={inputClass}>
-            <option value="en">English</option>
-            <option value="vi">Vietnamese</option>
-            <option value="es">Spanish</option>
-            <option value="fr">French</option>
-            <option value="de">German</option>
-            <option value="zh">Chinese</option>
-            <option value="ja">Japanese</option>
-            <option value="ko">Korean</option>
+            <option value={SupportedLanguage.EN}>English</option>
+            <option value={SupportedLanguage.VI}>Vietnamese</option>
+            <option value={SupportedLanguage.ZH}>Chinese</option>
+            <option value={SupportedLanguage.JA}>Japanese</option>
           </select>
         </div>
-        <div className="flex items-end pb-1">
-          <label className="flex items-center gap-3 cursor-pointer">
-            <input
-              type="checkbox"
-              {...register('profileIsPublic')}
-              className="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-            />
-            <span className="text-sm text-gray-700">Public profile</span>
+        <div className="flex items-center pt-6">
+          <label className="flex items-center gap-3 cursor-pointer group">
+            <div className="relative">
+              <input
+                type="checkbox"
+                {...register('profileIsPublic')}
+                className="peer sr-only"
+              />
+              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 dark:peer-focus:ring-primary-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary-600"></div>
+            </div>
+            <span className="text-sm font-bold text-gray-700 group-hover:text-primary-600 transition-colors">Public Profile</span>
           </label>
         </div>
       </div>
 
       {error && (
-        <div className="flex items-center gap-2 bg-red-50 border border-red-100 text-red-600 px-4 py-3 rounded-xl text-sm">
-          <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
+        <div className="flex items-center gap-2 bg-red-50 border border-red-100 text-red-600 px-4 py-3 rounded-xl text-sm font-medium">
+          <Loader2 className="w-4 h-4 flex-shrink-0 animate-spin" />
           {error}
         </div>
       )}
 
       {success && (
-        <div className="flex items-center gap-2 bg-green-50 border border-green-100 text-green-600 px-4 py-3 rounded-xl text-sm">
+        <div className="flex items-center gap-2 bg-green-50 border border-green-100 text-green-600 px-4 py-3 rounded-xl text-sm font-medium">
           <CheckCircle className="w-4 h-4" />
           Profile updated successfully!
         </div>
@@ -191,13 +246,13 @@ export default function UserUpdateForm({ userId, initialData }: Props) {
 
       <button
         type="submit"
-        disabled={loading}
-        className="w-full flex items-center justify-center gap-2 bg-primary-600 text-white py-3 rounded-xl font-medium hover:bg-primary-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all text-sm"
+        disabled={loading || uploading}
+        className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-primary-600 to-indigo-600 text-white py-3.5 rounded-xl font-bold hover:shadow-lg hover:shadow-primary-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm uppercase tracking-widest"
       >
         {loading ? (
           <>
             <Loader2 className="w-4 h-4 animate-spin" />
-            Saving...
+            Saving Changes...
           </>
         ) : (
           'Save Changes'

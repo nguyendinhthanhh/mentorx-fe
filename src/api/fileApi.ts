@@ -1,0 +1,16 @@
+import client from './client'
+import { ApiResponse, FileResponse } from '@/types'
+
+export const fileApi = {
+  upload: async (file: File): Promise<FileResponse> => {
+    const formData = new FormData()
+    formData.append('file', file)
+    
+    const response = await client.post<ApiResponse<FileResponse>>('/v1/files/upload', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
+    return response.data.data
+  },
+}

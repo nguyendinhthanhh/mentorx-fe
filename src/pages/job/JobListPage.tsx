@@ -23,10 +23,12 @@ export default function JobListPage() {
   })
 
   const jobTypeColors: Record<string, string> = {
-    FIXED_PRICE: 'bg-blue-50 text-blue-700 border-blue-200',
-    HOURLY: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-    QUICK_SUPPORT: 'bg-amber-50 text-amber-700 border-amber-200',
+    LONG_TERM_MENTORING: 'bg-blue-50 text-blue-700 border-blue-200',
+    FREELANCE_PROJECT: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    QUICK_FIX: 'bg-amber-50 text-amber-700 border-amber-200',
   }
+
+  const jobTypeFilters = ['ALL', ...Object.values(JobType)]
 
   return (
     <div className="space-y-6">
@@ -58,7 +60,7 @@ export default function JobListPage() {
           />
         </div>
         <div className="flex gap-2">
-          {['ALL', 'FIXED_PRICE', 'HOURLY', 'QUICK_SUPPORT'].map((type) => (
+          {jobTypeFilters.map((type) => (
             <button
               key={type}
               onClick={() => setFilter(type)}

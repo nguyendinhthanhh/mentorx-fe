@@ -5,6 +5,7 @@ import { courseApi } from '@/api/courseApi'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Loader2 } from 'lucide-react'
+import { SupportedLanguage } from '@/types'
 
 const courseSchema = z.object({
   title: z.string().min(5, 'Title must be at least 5 characters').max(200),
@@ -34,7 +35,7 @@ export default function CourseCreateForm({ instructorId }: { instructorId: strin
   } = useForm<CourseFormData>({
     resolver: zodResolver(courseSchema),
     defaultValues: {
-      language: 'EN',
+      language: SupportedLanguage.EN,
       level: 'Beginner',
       isCertificate: false,
     },
@@ -62,6 +63,7 @@ export default function CourseCreateForm({ instructorId }: { instructorId: strin
         ...data,
         instructorId,
         description: data.description || undefined,
+        language: data.language as SupportedLanguage | undefined,
         thumbnailUrl: data.thumbnailUrl || undefined,
         previewVideoUrl: data.previewVideoUrl || undefined,
       })
@@ -128,14 +130,10 @@ export default function CourseCreateForm({ instructorId }: { instructorId: strin
         <div>
           <label className={labelClass}>Language</label>
           <select {...register('language')} className={inputClass}>
-            <option value="EN">English</option>
-            <option value="VI">Vietnamese</option>
-            <option value="ES">Spanish</option>
-            <option value="FR">French</option>
-            <option value="DE">German</option>
-            <option value="ZH">Chinese</option>
-            <option value="JA">Japanese</option>
-            <option value="KO">Korean</option>
+            <option value={SupportedLanguage.EN}>English</option>
+            <option value={SupportedLanguage.VI}>Vietnamese</option>
+            <option value={SupportedLanguage.ZH}>Chinese</option>
+            <option value={SupportedLanguage.JA}>Japanese</option>
           </select>
         </div>
         <div>

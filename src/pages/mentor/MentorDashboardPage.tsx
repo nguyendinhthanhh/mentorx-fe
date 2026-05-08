@@ -7,7 +7,8 @@ import {
   DollarSign,
   ArrowUpRight,
   Clock,
-  MessageSquare
+  MessageSquare,
+  Activity
 } from 'lucide-react'
 import { formatCurrency } from '@/utils/formatters'
 import { useAuthStore } from '@/store/authStore'

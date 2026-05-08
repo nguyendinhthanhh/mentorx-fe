@@ -35,7 +35,17 @@ export default function LoginForm() {
       const response = await authApi.login(data)
       setTokens(response.accessToken, response.refreshToken)
       setUser(response.user)
-      navigate('/dashboard')
+      
+      // Redirect based on user role
+      const userRoles = response.user.roles.map(r => r.roleName.toUpperCase())
+      
+      if (userRoles.includes('ADMIN')) {
+        navigate('/admin/dashboard')
+      } else if (userRoles.includes('MENTOR') || response.user.mentorStatus === 'APPROVED') {
+        navigate('/mentor/dashboard')
+      } else {
+        navigate('/dashboard')
+      }
     } catch (err: any) {
       setError(err.response?.data?.message || 'Invalid email or password. Please try again.')
     } finally {

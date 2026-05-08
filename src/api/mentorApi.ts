@@ -126,4 +126,42 @@ export const mentorApi = {
     const response = await apiClient.get<ApiResponse<number>>('/mentors/statistics/pending')
     return response.data.data
   },
+
+  // Mentor Packages
+  getMentorPackages: async (userId: string): Promise<any[]> => {
+    const response = await apiClient.get<ApiResponse<any[]>>(`/mentors/${userId}/packages`)
+    return response.data.data
+  },
+
+  getActiveMentorPackages: async (userId: string): Promise<any[]> => {
+    const response = await apiClient.get<ApiResponse<any[]>>(`/mentors/${userId}/packages/active`)
+    return response.data.data
+  },
+
+  // Mentor Courses
+  getMentorCourses: async (userId: string): Promise<any[]> => {
+    const response = await apiClient.get<ApiResponse<any[]>>(`/mentors/${userId}/courses`)
+    return response.data.data
+  },
+
+  getPublishedMentorCourses: async (userId: string): Promise<any[]> => {
+    const response = await apiClient.get<ApiResponse<any[]>>(`/mentors/${userId}/courses/published`)
+    return response.data.data
+  },
+
+  // Mentor Availability
+  getMentorAvailability: async (userId: string): Promise<any[]> => {
+    const response = await apiClient.get<ApiResponse<any[]>>(`/mentors/${userId}/availability`)
+    return response.data.data
+  },
+
+  getWeeklyAvailability: async (userId: string): Promise<any> => {
+    const response = await apiClient.get<ApiResponse<any>>(`/mentors/${userId}/availability/week`)
+    return response.data.data
+  },
+
+  getBlockedDates: async (userId: string): Promise<any[]> => {
+    const response = await apiClient.get<ApiResponse<any[]>>(`/mentors/${userId}/blocked-dates`)
+    return response.data.data
+  },
 }

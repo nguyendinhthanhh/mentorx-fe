@@ -7,10 +7,14 @@ import './index.css'
 try {
   const authStorage = localStorage.getItem('auth-storage');
   if (authStorage) {
-    const parsed = JSON.parse(authStorage);
-    if (parsed?.state?.accessToken === 'undefined' || parsed?.state?.accessToken === 'null') {
+    if (authStorage === 'undefined' || authStorage === 'null') {
       localStorage.removeItem('auth-storage');
-      window.location.reload();
+    } else {
+      const parsed = JSON.parse(authStorage);
+      if (parsed?.state?.accessToken === 'undefined' || parsed?.state?.accessToken === 'null') {
+        localStorage.removeItem('auth-storage');
+        window.location.reload();
+      }
     }
   }
 } catch (e) {

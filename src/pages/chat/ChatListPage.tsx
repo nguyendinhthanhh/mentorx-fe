@@ -2,9 +2,9 @@ import { useQuery } from 'react-query'
 import { chatApi } from '@/api/chatApi'
 import { useAuthStore } from '@/store/authStore'
 import { formatRelativeTime } from '@/utils/formatters'
-import { Search, MessageSquare, User, MoreVertical, Send, Paperclip } from 'lucide-react'
+import { Search, MessageSquare, MoreVertical, Send, Paperclip, Loader2 } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
-import { ChatRoomResponse, MessageResponse, MessageType } from '@/types'
+import { MessageResponse, MessageType } from '@/types'
 
 export default function ChatListPage() {
   const { user } = useAuthStore()

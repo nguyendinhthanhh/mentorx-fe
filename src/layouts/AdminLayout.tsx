@@ -61,7 +61,7 @@ export default function AdminLayout() {
         >
           {/* Sidebar Header */}
           <div className="h-20 flex items-center px-8 border-b border-gray-50 dark:border-gray-800 bg-white/50 dark:bg-gray-900/50 backdrop-blur-md">
-            <Link to="/admin/dashboard" className="flex items-center gap-4 overflow-hidden">
+            <Link to="/" className="flex items-center gap-4 overflow-hidden">
               <div className="w-10 h-10 rounded-2xl bg-gray-900 dark:bg-white flex items-center justify-center flex-shrink-0 shadow-lg shadow-gray-200 dark:shadow-none group hover:bg-primary-600 dark:hover:bg-primary-400 transition-colors">
                 <ShieldAlert className="w-6 h-6 text-white dark:text-gray-900" />
               </div>
@@ -76,6 +76,7 @@ export default function AdminLayout() {
 
           {/* Sidebar Nav */}
           <nav className="flex-1 p-6 space-y-2 overflow-y-auto custom-scrollbar">
+            {/* Admin Links */}
             {adminLinks.map((link) => (
               <Link
                 key={link.to}
