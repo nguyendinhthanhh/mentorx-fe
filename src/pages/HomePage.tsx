@@ -2,13 +2,14 @@ import { homeApi } from '@/api/homeApi'
 import { useQuery } from 'react-query'
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useAuthStore } from '@/store/authStore'
 import { 
   Search, MapPin, Star, ChevronRight, LayoutGrid, ChevronDown, 
   Bookmark, Briefcase, Code, Megaphone, PenTool, Users, TrendingUp, 
   Database, Package, Rocket, Handshake, CheckCircle2 
 } from 'lucide-react'
 
-const formatBudget = (job: { budgetMinMxc?: number; budgetMaxMxc?: number; hourlyRateMxc?: number }) => {
+const formatBudget = (job: any) => {
   if (job.budgetMinMxc && job.budgetMaxMxc) {
     return `${job.budgetMinMxc.toLocaleString('en-US')} - ${job.budgetMaxMxc.toLocaleString('en-US')} VND`
   }
@@ -30,8 +31,10 @@ const CATEGORY_ICONS: Record<string, React.ReactNode> = {
 export default function HomePage() {
   const [keyword, setKeyword] = useState('')
   const [location, setLocation] = useState('')
+  const { user } = useAuthStore()
+  const isAuthenticated = !!user
 
-  const { data, isLoading } = useQuery(['home-data'], () => homeApi.getHomeData(), {
+  const { data, isLoading } = useQuery(['home-data', isAuthenticated], () => homeApi.getHomeData(isAuthenticated), {
     staleTime: 2 * 60 * 1000,
     retry: 1,
   })
@@ -214,22 +217,25 @@ export default function HomePage() {
           </div>
         ) : (
           <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
-            {jobs.map((job: any) => (
+            {jobs.map((job: any) => {
+              const clientName = job.clientName || job.client?.displayName || job.client?.fullName || 'Company'
+              const avatarUrl = job.clientAvatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(clientName)}&background=random&color=fff&rounded=true&bold=true`
+              const jobType = job.jobType ? job.jobType.replace(/_/g, ' ') : 'Hybrid'
+              return (
               <Link key={job.jobId} to={`/jobs/${job.jobId}`} className="group flex flex-col justify-between rounded-2xl border border-transparent bg-white p-5 hover:border-[#4f46e5] shadow-sm hover:shadow-xl transition duration-300">
                 <div>
                   <div className="flex items-start justify-between">
                       <div className="flex items-center gap-3">
                         <div className="h-10 w-10 shrink-0 rounded-xl border border-slate-100 flex items-center justify-center bg-white overflow-hidden p-1 shadow-sm">
-                            <img src={`https://ui-avatars.com/api/?name=${job.client?.displayName || 'C'}&background=random&color=fff&rounded=true&bold=true`} alt="logo" className="h-full w-full object-contain rounded-lg" />
+                            <img src={avatarUrl} alt="logo" className="h-full w-full object-contain rounded-lg" />
                         </div>
-                        <span className="text-sm font-bold text-slate-600 line-clamp-1">{job.client?.displayName || job.client?.fullName || 'Company'}</span>
+                        <span className="text-sm font-bold text-slate-600 line-clamp-1">{clientName}</span>
                       </div>
-                      {/* Using job.createdAt to check if it's new (just as example, ignoring for now) */}
                   </div>
                   <p className="mt-4 text-[17px] font-bold text-[#1b2252] group-hover:text-[#4f46e5] transition line-clamp-2">{job.title}</p>
                   <div className="mt-2.5 flex gap-4 text-[13px] text-slate-500 font-medium">
                     <span className="flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5" /> Remote</span>
-                    <span className="flex items-center gap-1.5"><Briefcase className="h-3.5 w-3.5" /> {job.jobType.replace(/_/g, ' ')}</span>
+                    <span className="flex items-center gap-1.5"><Briefcase className="h-3.5 w-3.5" /> {jobType}</span>
                   </div>
                   <p className="mt-3 text-sm font-black text-amber-500">{formatBudget(job)}</p>
                 </div>
@@ -238,7 +244,7 @@ export default function HomePage() {
                   <Bookmark className="h-5 w-5 text-slate-300 group-hover:text-[#4f46e5] transition" />
                 </div>
               </Link>
-            ))}
+            )})}
           </div>
         )}
       </section>
@@ -265,13 +271,15 @@ export default function HomePage() {
         ) : (
           <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
             {mentors.map((mentor: any) => {
-              const mentorName = mentor.user?.displayName || mentor.user?.fullName || 'Mentor'
+              const mentorName = mentor.fullName || mentor.user?.displayName || mentor.user?.fullName || 'Mentor'
+              const avatarUrl = mentor.avatarUrl || mentor.user?.avatarUrl || `https://i.pravatar.cc/150?u=${mentor.userId || mentor.mentorId}`
+              const id = mentor.userId || mentor.mentorId
               return (
-                <Link key={mentor.userId} to={`/mentors/${mentor.userId}`} className="group flex flex-col justify-between rounded-2xl border border-transparent bg-white p-5 hover:border-[#4f46e5] shadow-sm hover:shadow-xl transition duration-300">
+                <Link key={id} to={`/mentors/${id}`} className="group flex flex-col justify-between rounded-2xl border border-transparent bg-white p-5 hover:border-[#4f46e5] shadow-sm hover:shadow-xl transition duration-300">
                   <div>
                     <div className="flex items-center gap-4">
                       <img
-                        src={mentor.user?.avatarUrl || `https://i.pravatar.cc/150?u=${mentor.userId}`}
+                        src={avatarUrl}
                         alt={mentorName}
                         className="h-16 w-16 shrink-0 rounded-full object-cover shadow-sm border border-slate-100"
                       />
