@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from 'react-query'
 import { jobApi } from '@/api/jobApi'
-import { JobStatus, JobType } from '@/types'
+import { JobStatus, JobType, JobResponse } from '@/types'
 import { 
   Search, 
   Filter, 
@@ -12,11 +12,16 @@ import {
   CheckCircle,
   XCircle,
   Star,
-  Eye
+  Eye,
+  Plus,
+  Pencil,
+  Trash2
 } from 'lucide-react'
 import { useState } from 'react'
 import { formatCurrency, formatDateTime } from '@/utils/formatters'
 import { Link } from 'react-router-dom'
+import { toast } from 'react-hot-toast'
+import ArchiveReasonModal from '@/components/admin/ArchiveReasonModal'
 
 export default function AdminJobsPage() {
   const queryClient = useQueryClient()
@@ -24,6 +29,10 @@ export default function AdminJobsPage() {
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<JobStatus | ''>('')
   const [typeFilter, setTypeFilter] = useState<JobType | ''>('')
+
+  // Archive Modal State
+  const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false)
+  const [selectedJobId, setSelectedJobId] = useState<string | null>(null)
 
   const { data, isLoading } = useQuery(
     ['admin-jobs', page, search, statusFilter, typeFilter],
@@ -36,10 +45,40 @@ export default function AdminJobsPage() {
   )
 
   const updateStatusMutation = useMutation(
-    ({ jobId, status }: { jobId: string; status: JobStatus }) => 
-      jobApi.updateStatus(jobId, status),
+    ({ jobId, status, reason }: { jobId: string; status: JobStatus; reason?: string }) => 
+      jobApi.updateStatus(jobId, status, reason),
     {
-      onSuccess: () => queryClient.invalidateQueries('admin-jobs')
+      onSuccess: () => {
+        toast.success('Job status updated')
+        queryClient.invalidateQueries('admin-jobs')
+        setIsArchiveModalOpen(false)
+      }
+    }
+  )
+
+  const deleteMutation = useMutation(
+    (jobId: string) => jobApi.delete(jobId),
+    {
+      onSuccess: () => {
+        toast.success('Job deleted successfully')
+        queryClient.invalidateQueries('admin-jobs')
+      }
+    }
+  )
+
+  const handleArchive = (jobId: string) => {
+    setSelectedJobId(jobId)
+    setIsArchiveModalOpen(true)
+  }
+
+  const toggleFeaturedMutation = useMutation(
+    ({ jobId, isFeatured }: { jobId: string; isFeatured: boolean }) => 
+      jobApi.update(jobId, { isFeatured }),
+    {
+      onSuccess: () => {
+        toast.success('Featured status updated')
+        queryClient.invalidateQueries('admin-jobs')
+      }
     }
   )
 
@@ -56,6 +95,12 @@ export default function AdminJobsPage() {
 
   return (
     <div className="space-y-8">
+      {/* Header */}
+      <div>
+        <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">Job Moderation</h1>
+        <p className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mt-1">Monitor and manage platform-wide job postings</p>
+      </div>
+
       {/* Filters */}
       <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 p-8 shadow-sm">
         <div className="flex flex-col md:flex-row gap-6">
@@ -126,7 +171,7 @@ export default function AdminJobsPage() {
                         </div>
                         <div className="flex flex-col min-w-0">
                           <span className="text-sm font-black text-gray-900 dark:text-white tracking-tight truncate max-w-[250px]">{job.title}</span>
-                          <span className="text-[10px] font-black text-primary-600 dark:text-primary-400 uppercase tracking-[0.1em] mt-0.5">By {job.client.fullName}</span>
+                          <span className="text-[10px] font-black text-primary-600 dark:text-primary-400 uppercase tracking-[0.1em] mt-0.5">By {job.client?.fullName || 'Unknown'}</span>
                         </div>
                       </div>
                     </td>
@@ -151,24 +196,39 @@ export default function AdminJobsPage() {
                     </td>
                     <td className="px-8 py-6 text-right">
                       <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-4 group-hover:translate-x-0">
-                        <Link to={`/jobs/${job.jobId}`} className="p-2.5 rounded-xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-gray-400 hover:text-primary-600 transition-all shadow-sm">
+                        <Link to={`/jobs/${job.jobId}`} className="p-2.5 rounded-xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-gray-400 hover:text-primary-600 transition-all shadow-sm" title="View Details">
                           <Eye className="w-4 h-4" />
                         </Link>
-                        {job.status === JobStatus.OPEN && (
+                        
+                        <button 
+                          onClick={() => toggleFeaturedMutation.mutate({ jobId: job.jobId, isFeatured: !job.isFeatured })}
+                          className={`p-2.5 rounded-xl border transition-all shadow-sm ${
+                            job.isFeatured 
+                              ? 'bg-amber-50 border-amber-200 text-amber-500' 
+                              : 'bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-700 text-gray-400 hover:text-amber-500'
+                          }`}
+                          title={job.isFeatured ? "Unfeature" : "Feature Job"}
+                        >
+                          <Star className={`w-4 h-4 ${job.isFeatured ? 'fill-current' : ''}`} />
+                        </button>
+
+                        {job.status === JobStatus.OPEN ? (
                           <button 
-                            onClick={() => updateStatusMutation.mutate({ jobId: job.jobId, status: JobStatus.CLOSED })}
+                            onClick={() => handleArchive(job.jobId)}
                             className="p-2.5 rounded-xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-gray-400 hover:text-rose-600 transition-all shadow-sm"
-                            title="Close Job"
+                            title="Archive/Hide Job"
                           >
                             <XCircle className="w-4 h-4" />
                           </button>
+                        ) : (
+                          <button 
+                            onClick={() => updateStatusMutation.mutate({ jobId: job.jobId, status: JobStatus.OPEN })}
+                            className="p-2.5 rounded-xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-gray-400 hover:text-emerald-600 transition-all shadow-sm"
+                            title="Approve/Re-open Job"
+                          >
+                            <CheckCircle className="w-4 h-4" />
+                          </button>
                         )}
-                        <button className="p-2.5 rounded-xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-gray-400 hover:text-amber-500 transition-all shadow-sm">
-                          <Star className="w-4 h-4" />
-                        </button>
-                        <button className="p-2.5 rounded-xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-gray-400 hover:text-gray-900 transition-all shadow-sm">
-                          <MoreVertical className="w-4 h-4" />
-                        </button>
                       </div>
                     </td>
                   </tr>
@@ -201,6 +261,21 @@ export default function AdminJobsPage() {
           </div>
         </div>
       </div>
+
+      <ArchiveReasonModal 
+        isOpen={isArchiveModalOpen}
+        onClose={() => setIsArchiveModalOpen(false)}
+        isLoading={updateStatusMutation.isLoading}
+        onConfirm={(reason) => {
+          if (selectedJobId) {
+            updateStatusMutation.mutate({ 
+              jobId: selectedJobId, 
+              status: JobStatus.CLOSED, 
+              reason 
+            })
+          }
+        }}
+      />
     </div>
   )
 }

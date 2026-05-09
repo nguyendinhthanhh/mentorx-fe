@@ -1,4 +1,4 @@
-﻿// Enums
+// Enums
 export enum UserStatus {
   ACTIVE = "ACTIVE",
   PENDING = "PENDING",
@@ -180,6 +180,17 @@ export interface PaginatedResponse<T> {
   last: boolean;
 }
 
+export interface CategoryResponse {
+  id: number;
+  name: string;
+  slug: string;
+  description?: string;
+  icon?: string;
+  parentId?: number;
+  isActive: boolean;
+  displayOrder: number;
+}
+
 // Auth Types
 export interface LoginRequest {
   email: string;
@@ -254,6 +265,33 @@ export interface UserUpdateRequest {
   countryCode?: string;
   preferredLanguage?: SupportedLanguage;
   profileIsPublic?: boolean;
+}
+
+export interface BankAccountResponse {
+  id: string;
+  userId: string;
+  bankName: string;
+  bankCode?: string;
+  accountNumber: string;
+  accountHolderName: string;
+  branchName?: string;
+  isDefault: boolean;
+  isVerified: boolean;
+  verifiedAt?: string;
+  verifiedBy?: string;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface BankAccountRequest {
+  bankName: string;
+  bankCode?: string;
+  accountNumber: string;
+  accountHolderName: string;
+  branchName?: string;
+  isDefault?: boolean;
+  notes?: string;
 }
 
 // Mentor Types
@@ -415,6 +453,7 @@ export interface CourseResponse {
   totalLessons?: number;
   totalDurationMin?: number;
   totalReviews?: number;
+  rejectionReason?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -444,6 +483,20 @@ export interface CourseUpdateRequest {
   isCertificate?: boolean;
   previewVideoUrl?: string;
   status?: CourseStatus;
+}
+
+export interface CourseEnrollmentResponse {
+  id: string;
+  courseId: string;
+  courseTitle: string;
+  studentId: string;
+  studentName: string;
+  amountPaidMxc: number;
+  progressPercent: number;
+  isCompleted: boolean;
+  certificateUrl?: string;
+  enrolledAt: string;
+  completedAt?: string;
 }
 
 export interface CourseSectionResponse {
@@ -843,145 +896,6 @@ export interface CategoryResponse {
   updatedAt: string;
 }
 
-// Matching Preferences
-
-// Notification Types
-export interface NotificationResponse {
-  id: string;
-  userId: string;
-  notificationType: NotificationType;
-  title: string;
-  message: string;
-  referenceId?: string;
-  referenceType?: string;
-  actionUrl?: string;
-  iconUrl?: string;
-  priorityLevel: number;
-  isRead: boolean;
-  readAt?: string;
-  data?: Record<string, any>;
-  category?: string;
-  groupId?: string;
-  isDismissible: boolean;
-  requiresAction: boolean;
-  actionTaken: boolean;
-  actionTakenAt?: string;
-  expiresAt?: string;
-  isExpired: boolean;
-  senderUserId?: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-// Chat Types
-export interface ChatRoomResponse {
-  id: string;
-  roomType: string;
-  roomName: string;
-  description?: string;
-  createdByUserId: string;
-  isActive: boolean;
-  isPrivate: boolean;
-  maxMembers: number;
-  memberCount: number;
-  unreadCount: number;
-  referenceId?: string;
-  referenceType?: string;
-  lastActivityAt?: string;
-  lastMessageId?: string;
-  lastMessagePreview?: string;
-  lastMessageAt?: string;
-  lastMessageSenderId?: string;
-  messageCount: number;
-  roomSettings?: Record<string, any>;
-  avatarUrl?: string;
-  members: ChatRoomMemberSummary[];
-  isArchived: boolean;
-  archivedAt?: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface MessageResponse {
-  id: string;
-  chatRoomId: string;
-  senderId: string;
-  senderName: string;
-  senderAvatarUrl?: string;
-  messageType: MessageType;
-  content: string;
-  sentAt: string;
-  replyToMessageId?: string;
-  isEdited: boolean;
-  editedAt?: string;
-  isDeleted: boolean;
-  attachmentUrl?: string;
-  attachmentFilename?: string;
-  attachmentMimeType?: string;
-  attachmentSize?: number;
-  metadata?: Record<string, any>;
-  readCount: number;
-  isSystemMessage: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
-// Review Types
-export interface ReviewResponse {
-  id: string;
-  reviewerId: string;
-  reviewerName: string;
-  targetType: ReviewTargetType;
-  targetId: string;
-  overallRating: number;
-  communicationRating: number;
-  qualityRating: number;
-  timelinessRating: number;
-  professionalismRating: number;
-  valueRating: number;
-  reviewText: string;
-  reviewTitle?: string;
-  pros?: string;
-  cons?: string;
-  isVerified: boolean;
-  verifiedAt?: string;
-  isAnonymous: boolean;
-  isPublic: boolean;
-  isFeatured: boolean;
-  helpfulCount: number;
-  notHelpfulCount: number;
-  reportCount: number;
-  isModerated: boolean;
-  moderatedAt?: string;
-  moderationNotes?: string;
-  isHidden: boolean;
-  hiddenReason?: string;
-  language?: string;
-  contractId?: string;
-  wouldRecommend: boolean;
-  responseText?: string;
-  responseAt?: string;
-  responseByUserId?: string;
-  helpfulnessRatio: number;
-  canBeEdited: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
-// Category Types
-export interface CategoryResponse {
-  categoryId: number;
-  parentCategoryId?: number;
-  name: string;
-  slug: string;
-  description?: string;
-  iconUrl?: string;
-  displayOrder: number;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
 // Matching Types
 export interface UserInterestProfileRequest {
   userId: string;
@@ -1113,6 +1027,7 @@ export enum MentorProfileAssetType {
   ACHIEVEMENT = "ACHIEVEMENT",
   CERTIFICATE = "CERTIFICATE",
   DOCUMENT = "DOCUMENT",
+  EXPERIENCE = "EXPERIENCE",
 }
 
 export interface MentorProfileAssetResponse {

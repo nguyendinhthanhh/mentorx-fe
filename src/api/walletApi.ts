@@ -12,7 +12,38 @@ import {
   TransferRequest,
   WalletAccountType,
   TxnType,
+  WithdrawalStatus,
 } from '@/types'
+
+export interface FinancialSummary {
+  totalCirculation: number
+  totalDepositToday: number
+  totalWithdrawToday: number
+  balanceDelta: number
+  pendingWithdrawals: number
+  unmatchedDeposits: number
+  totalUnmatchedAmount: number
+  fraudAlerts: number
+  frozenAccountCount: number
+  frozenRatio: number
+  lastReconciledAt: string
+  integrityScore: number
+}
+
+export interface AuditLog {
+  id: string
+  wallet: {
+    id: string
+    user?: {
+      fullName: string
+    }
+  }
+  oldBalanceMxc: number
+  newBalanceMxc: number
+  deltaMxc: number
+  changedAt: string
+  changedByTxn: string
+}
 
 export const walletApi = {
   // Wallet & Balance APIs
@@ -109,4 +140,32 @@ export const walletApi = {
     const response = await apiClient.get<ApiResponse<number>>(`/v1/wallet/escrow/total-locked`)
     return response.data.data
   },
+
+  // Admin APIs
+  getAllWithdrawals: async (): Promise<WithdrawalResponse[]> => {
+    const response = await apiClient.get<ApiResponse<WithdrawalResponse[]>>('/v1/wallet/admin/withdrawals')
+    return response.data.data
+  },
+
+  approveWithdrawal: async (requestId: string, gatewayTxnId?: string): Promise<string> => {
+    let url = `/v1/wallet/admin/withdraw/${requestId}/approve`
+    if (gatewayTxnId) url += `?gatewayTxnId=${gatewayTxnId}`
+    const response = await apiClient.post<ApiResponse<string>>(url)
+    return response.data.data
+  },
+
+  rejectWithdrawal: async (requestId: string, reason: string): Promise<void> => {
+    await apiClient.post(`/v1/wallet/admin/withdraw/${requestId}/reject?reason=${encodeURIComponent(reason)}`)
+  },
+
+  // Admin Overview & Audit
+  getFinancialSummary: async (): Promise<FinancialSummary> => {
+    const response = await apiClient.get<ApiResponse<FinancialSummary>>('/v1/wallet/admin/financial-summary')
+    return response.data.data
+  },
+
+  getAuditLogs: async (page = 0, size = 20): Promise<PaginatedResponse<AuditLog>> => {
+    const response = await apiClient.get<ApiResponse<PaginatedResponse<AuditLog>>>(`/v1/wallet/admin/audit-logs?page=${page}&size=${size}`)
+    return response.data.data
+  }
 }

@@ -48,10 +48,10 @@ import AdminJobsPage from './pages/admin/AdminJobsPage'
 import AdminCoursesPage from './pages/admin/AdminCoursesPage'
 import AdminReportsPage from './pages/admin/AdminReportsPage'
 import AdminWalletPage from './pages/admin/AdminWalletPage'
+import AdminSupportPage from './pages/admin/AdminSupportPage'
 
 // Mentor Pages
 import MentorDashboardPage from './pages/mentor/MentorDashboardPage'
-import MentorProfileSetupPage from './pages/mentor/MentorProfileSetupPage'
 
 // Protected Route Components
 import ProtectedRoute from './components/auth/ProtectedRoute'
@@ -60,6 +60,9 @@ import MentorRoute from './components/auth/MentorRoute'
 import ThemeProvider from './components/ThemeProvider'
 
 import HomePage from './pages/HomePage'
+import AboutPage from './pages/AboutPage'
+import GuidePage from './pages/GuidePage'
+import { Toaster } from 'react-hot-toast'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -70,10 +73,13 @@ const queryClient = new QueryClient({
   },
 })
 
+import MyCoursesPage from './pages/user/MyCoursesPage'
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
+        <Toaster position="top-right" reverseOrder={false} />
         <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <Routes>
           {/* Auth Routes */}
@@ -96,6 +102,8 @@ function App() {
             <Route path="/jobs/:jobId" element={<JobDetailPage />} />
             <Route path="/courses" element={<CourseListPage />} />
             <Route path="/courses/:courseId" element={<CourseDetailPage />} />
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="/blog" element={<GuidePage />} />
             <Route path="/companies" element={<Navigate to="/courses" replace />} />
           </Route>
 
@@ -126,7 +134,7 @@ function App() {
             <Route path="/profile/notifications" element={<NotificationListPage />} />
             <Route path="/profile/jobs" element={<MyJobsPage />} />
             <Route path="/profile/proposals" element={<div>Proposals (Coming Soon)</div>} />
-            <Route path="/profile/courses" element={<div>My Courses (Coming Soon)</div>} />
+            <Route path="/profile/courses" element={<MyCoursesPage />} />
             <Route path="/profile/saved" element={<SavedMentorsPage />} />
             <Route path="/profile/reviews" element={<div>Reviews (Coming Soon)</div>} />
             <Route path="/profile/payments" element={<div>Payment Methods (Coming Soon)</div>} />
@@ -147,8 +155,8 @@ function App() {
             <Route path="/admin/jobs" element={<AdminJobsPage />} />
             <Route path="/admin/courses" element={<AdminCoursesPage />} />
             <Route path="/admin/reports" element={<AdminReportsPage />} />
+            <Route path="/admin/support" element={<AdminSupportPage />} />
             <Route path="/admin/wallet" element={<AdminWalletPage />} />
-            <Route path="/admin/analytics" element={<div>System Analytics (Coming Soon)</div>} />
             <Route path="/admin/settings" element={<div>Platform Settings (Coming Soon)</div>} />
           </Route>
 
@@ -156,7 +164,6 @@ function App() {
           <Route element={<ProtectedRoute><MentorRoute><MentorLayout /></MentorRoute></ProtectedRoute>}>
             <Route path="/mentor" element={<Navigate to="/mentor/dashboard" replace />} />
             <Route path="/mentor/dashboard" element={<MentorDashboardPage />} />
-            <Route path="/mentor/profile-setup" element={<MentorProfileSetupPage />} />
             <Route path="/mentor/proposals" element={<div>My Proposals (Coming Soon)</div>} />
             <Route path="/mentor/contracts" element={<div>Active Contracts (Coming Soon)</div>} />
             <Route path="/mentor/my-courses" element={<div>My Courses (Coming Soon)</div>} />

@@ -1,11 +1,13 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { WithdrawCreateRequest } from '@/types'
+import { WithdrawCreateRequest, BankAccountResponse } from '@/types'
 import { walletApi } from '@/api/walletApi'
-import { useState } from 'react'
+import { bankAccountApi } from '@/api/bankAccountApi'
+import { useState, useEffect } from 'react'
+import { useQuery } from 'react-query'
 import { formatCurrency } from '@/utils/formatters'
-import { AlertCircle, Landmark } from 'lucide-react'
+import { AlertCircle, Landmark, ChevronDown, CheckCircle2 } from 'lucide-react'
 
 const withdrawalSchema = z.object({
   mxcAmount: z.number().min(100, 'Minimum withdrawal is 100 MXC'),
@@ -19,16 +21,27 @@ interface WithdrawalFormProps {
   onSuccess?: () => void
 }
 
+import { useI18n } from '@/i18n/I18nProvider'
+
 export default function WithdrawalForm({ userId, onSuccess }: WithdrawalFormProps) {
+  const { t } = useI18n()
   const [error, setError] = useState<string>('')
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
+  const [showAccountList, setShowAccountList] = useState(false)
+
+  const { data: accounts } = useQuery(
+    ['bankAccounts', userId],
+    () => bankAccountApi.getByUserId(userId),
+    { enabled: !!userId }
+  )
 
   const {
     register,
     handleSubmit,
     watch,
     reset,
+    setValue,
     formState: { errors },
   } = useForm<WithdrawCreateRequest>({
     resolver: zodResolver(withdrawalSchema),
@@ -37,8 +50,27 @@ export default function WithdrawalForm({ userId, onSuccess }: WithdrawalFormProp
     }
   })
 
+  // Auto-fill default account
+  useEffect(() => {
+    if (accounts && accounts.length > 0) {
+      const defaultAccount = accounts.find(a => a.isDefault) || accounts[0]
+      if (defaultAccount) {
+        setValue('bankName', defaultAccount.bankName)
+        setValue('bankAccountNo', defaultAccount.accountNumber)
+        setValue('bankAccountName', defaultAccount.accountHolderName)
+      }
+    }
+  }, [accounts, setValue])
+
+  const selectAccount = (account: BankAccountResponse) => {
+    setValue('bankName', account.bankName)
+    setValue('bankAccountNo', account.accountNumber)
+    setValue('bankAccountName', account.accountHolderName)
+    setShowAccountList(false)
+  }
+
   const mxcAmount = watch('mxcAmount')
-  const feeMxc = mxcAmount ? mxcAmount * 0.02 : 0 // 2% fee as defined in controller
+  const feeMxc = mxcAmount ? mxcAmount * 0.02 : 0
   const netMxc = mxcAmount ? mxcAmount - feeMxc : 0
   const realAmountVnd = netMxc * 1000
 
@@ -47,12 +79,19 @@ export default function WithdrawalForm({ userId, onSuccess }: WithdrawalFormProp
       setLoading(true)
       setError('')
       setSuccess(false)
+      console.log('Creating withdrawal request for userId:', userId, 'data:', data)
       await walletApi.createWithdrawal(userId, data)
       setSuccess(true)
-      reset()
+      // reset() // Don't reset everything so user sees what they withdrew
       onSuccess?.()
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Withdrawal failed. Please try again.')
+      console.error('Withdrawal error:', err)
+      const rawMessage = err.response?.data?.message || err.message || ''
+      if (rawMessage.includes('Số dư MXC không đủ') || rawMessage.includes('Insufficient MXC balance')) {
+        setError(t('wallet.error.insufficientBalance'))
+      } else {
+        setError(rawMessage || 'Withdrawal failed. Please try again.')
+      }
     } finally {
       setLoading(false)
     }
@@ -99,9 +138,45 @@ export default function WithdrawalForm({ userId, onSuccess }: WithdrawalFormProp
 
       {/* Bank Details */}
       <div className="bg-blue-50/50 rounded-2xl p-5 border border-blue-100 space-y-4">
-        <div className="flex items-center gap-2 text-blue-800 mb-1">
-          <Landmark className="w-4 h-4" />
-          <h4 className="text-sm font-bold">Bank Account Details</h4>
+        <div className="flex items-center justify-between mb-1">
+          <div className="flex items-center gap-2 text-blue-800">
+            <Landmark className="w-4 h-4" />
+            <h4 className="text-sm font-bold">Bank Account Details</h4>
+          </div>
+          
+          {accounts && accounts.length > 0 && (
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setShowAccountList(!showAccountList)}
+                className="flex items-center gap-1 text-[10px] font-bold text-primary-600 bg-white px-2 py-1 rounded-lg border border-primary-100 hover:bg-primary-50 transition-colors shadow-sm"
+              >
+                Saved Accounts <ChevronDown className="w-3 h-3" />
+              </button>
+
+              {showAccountList && (
+                <div className="absolute right-0 mt-1 w-64 bg-white border border-gray-100 rounded-xl shadow-xl z-20 py-2 overflow-hidden">
+                  <div className="px-3 py-1.5 border-b border-gray-50 mb-1">
+                    <p className="text-[10px] font-bold text-gray-400 uppercase">Choose Account</p>
+                  </div>
+                  {accounts.map(acc => (
+                    <button
+                      key={acc.id}
+                      type="button"
+                      onClick={() => selectAccount(acc)}
+                      className="w-full px-3 py-2 text-left hover:bg-gray-50 flex flex-col gap-0.5 transition-colors"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] font-bold text-gray-900">{acc.bankName}</span>
+                        {acc.isDefault && <CheckCircle2 className="w-3 h-3 text-primary-500" />}
+                      </div>
+                      <span className="text-[10px] text-gray-500">{acc.accountNumber}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

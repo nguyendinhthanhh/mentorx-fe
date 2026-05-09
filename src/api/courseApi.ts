@@ -8,6 +8,7 @@ import {
   CourseStatus,
   CourseSectionResponse,
   CourseLessonResponse,
+  CourseEnrollmentResponse,
 } from '@/types'
 
 export const courseApi = {
@@ -80,10 +81,10 @@ export const courseApi = {
     return response.data.data
   },
 
-  updateStatus: async (courseId: string, status: CourseStatus): Promise<CourseResponse> => {
-    const response = await apiClient.patch<ApiResponse<CourseResponse>>(
-      `/courses/${courseId}/status?status=${status}`
-    )
+  updateStatus: async (courseId: string, status: CourseStatus, reason?: string): Promise<CourseResponse> => {
+    let url = `/courses/${courseId}/status?status=${status}`
+    if (reason) url += `&reason=${encodeURIComponent(reason)}`
+    const response = await apiClient.patch<ApiResponse<CourseResponse>>(url)
     return response.data.data
   },
 
@@ -126,6 +127,26 @@ export const courseApi = {
     )
     const fileName = extractFileName(response.headers['content-disposition'])
     return { blob: response.data, fileName }
+  },
+
+  getEnrollmentsByStudent: async (
+    studentId: string,
+    params: { page?: number; size?: number } = {}
+  ): Promise<PaginatedResponse<CourseEnrollmentResponse>> => {
+    const response = await apiClient.get<ApiResponse<PaginatedResponse<CourseEnrollmentResponse>>>(
+      `/v1/course-enrollments/student/${studentId}`,
+      { params }
+    )
+    return response.data.data
+  },
+
+  getCompletedEnrollmentsByStudent: async (
+    studentId: string
+  ): Promise<CourseEnrollmentResponse[]> => {
+    const response = await apiClient.get<CourseEnrollmentResponse[]>(
+      `/v1/course-enrollments/student/${studentId}/completed`
+    )
+    return response.data
   },
 }
 

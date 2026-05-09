@@ -29,4 +29,9 @@ export const notificationApi = {
     const response = await apiClient.post<ApiResponse<NotificationResponse>>(`/notifications/${notificationId}/dismiss`)
     return response.data.data
   },
+
+  sendNotification: async (data: { userId: string; title: string; content: string; type?: string }): Promise<NotificationResponse> => {
+    const response = await apiClient.post<ApiResponse<NotificationResponse>>('/notifications/send', data)
+    return response.data.data
+  }
 }

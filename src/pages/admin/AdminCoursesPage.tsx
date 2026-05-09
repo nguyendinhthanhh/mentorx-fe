@@ -16,12 +16,18 @@ import {
 import { useState } from 'react'
 import { formatCurrency, formatDateTime } from '@/utils/formatters'
 import { Link } from 'react-router-dom'
+import ArchiveReasonModal from '@/components/admin/ArchiveReasonModal'
+import { toast } from 'react-hot-toast'
 
 export default function AdminCoursesPage() {
   const queryClient = useQueryClient()
   const [page, setPage] = useState(0)
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<CourseStatus | ''>('')
+
+  // Archive Modal State
+  const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false)
+  const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null)
 
   const { data, isLoading } = useQuery(
     ['admin-courses', page, search, statusFilter],
@@ -33,10 +39,14 @@ export default function AdminCoursesPage() {
   )
 
   const updateStatusMutation = useMutation(
-    ({ courseId, status }: { courseId: string; status: CourseStatus }) => 
-      courseApi.updateStatus(courseId, status),
+    ({ courseId, status, reason }: { courseId: string; status: CourseStatus; reason?: string }) => 
+      courseApi.updateStatus(courseId, status, reason),
     {
-      onSuccess: () => queryClient.invalidateQueries('admin-courses')
+      onSuccess: () => {
+        toast.success('Course status updated')
+        queryClient.invalidateQueries('admin-courses')
+        setIsArchiveModalOpen(false)
+      }
     }
   )
 
@@ -45,8 +55,14 @@ export default function AdminCoursesPage() {
       case CourseStatus.PUBLISHED: return 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400'
       case CourseStatus.DRAFT: return 'bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400'
       case CourseStatus.ARCHIVED: return 'bg-gray-50 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
+      case CourseStatus.REJECTED: return 'bg-rose-50 text-rose-600 dark:bg-rose-900/20 dark:text-rose-400'
       default: return 'bg-gray-50 text-gray-600'
     }
+  }
+
+  const handleArchive = (courseId: string) => {
+    setSelectedCourseId(courseId)
+    setIsArchiveModalOpen(true)
   }
 
   return (
@@ -113,7 +129,7 @@ export default function AdminCoursesPage() {
                         </div>
                         <div className="flex flex-col min-w-0">
                           <span className="text-sm font-black text-gray-900 dark:text-white tracking-tight truncate max-w-[250px]">{course.title}</span>
-                          <span className="text-[10px] font-black text-primary-600 dark:text-primary-400 uppercase tracking-[0.1em] mt-0.5">By {course.instructor.fullName}</span>
+                          <span className="text-[10px] font-black text-primary-600 dark:text-primary-400 uppercase tracking-[0.1em] mt-0.5">By {course.instructor?.fullName || course.instructorName || 'Unknown'}</span>
                         </div>
                       </div>
                     </td>
@@ -134,24 +150,27 @@ export default function AdminCoursesPage() {
                     </td>
                     <td className="px-8 py-6 text-right">
                       <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-4 group-hover:translate-x-0">
-                        <Link to={`/courses/${course.courseId}`} className="p-2.5 rounded-xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-gray-400 hover:text-primary-600 transition-all shadow-sm">
+                        <Link to={`/courses/${course.courseId}`} className="p-2.5 rounded-xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-gray-400 hover:text-primary-600 transition-all shadow-sm" title="View Details">
                           <Eye className="w-4 h-4" />
                         </Link>
-                        {course.status === CourseStatus.DRAFT && (
+                        {course.status !== CourseStatus.PUBLISHED && (
                           <button 
                             onClick={() => updateStatusMutation.mutate({ courseId: course.courseId, status: CourseStatus.PUBLISHED })}
                             className="p-2.5 rounded-xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-gray-400 hover:text-emerald-600 transition-all shadow-sm"
-                            title="Publish Course"
+                            title="Approve & Publish"
                           >
                             <CheckCircle className="w-4 h-4" />
                           </button>
                         )}
-                        <button className="p-2.5 rounded-xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-gray-400 hover:text-rose-500 transition-all shadow-sm">
-                          <XCircle className="w-4 h-4" />
-                        </button>
-                        <button className="p-2.5 rounded-xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-gray-400 hover:text-gray-900 transition-all shadow-sm">
-                          <MoreVertical className="w-4 h-4" />
-                        </button>
+                        {course.status !== CourseStatus.ARCHIVED && (
+                          <button 
+                            onClick={() => handleArchive(course.courseId)}
+                            className="p-2.5 rounded-xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-gray-400 hover:text-rose-500 transition-all shadow-sm"
+                            title="Archive/Reject Course"
+                          >
+                            <XCircle className="w-4 h-4" />
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -184,6 +203,20 @@ export default function AdminCoursesPage() {
           </div>
         </div>
       </div>
+      <ArchiveReasonModal 
+        isOpen={isArchiveModalOpen}
+        onClose={() => setIsArchiveModalOpen(false)}
+        isLoading={updateStatusMutation.isLoading}
+        onConfirm={(reason) => {
+          if (selectedCourseId) {
+            updateStatusMutation.mutate({ 
+              courseId: selectedCourseId, 
+              status: CourseStatus.ARCHIVED, 
+              reason 
+            })
+          }
+        }}
+      />
     </div>
   )
 }

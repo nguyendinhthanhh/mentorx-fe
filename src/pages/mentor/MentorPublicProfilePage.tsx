@@ -21,7 +21,8 @@ import { chatApi } from '@/api/chatApi'
 import { useAuthStore } from '@/store/authStore'
 import ReviewList from '@/components/review/ReviewList'
 import ReviewForm from '@/components/review/ReviewForm'
-import { MentorProfileResponse, MessageType, ReviewTargetType } from '@/types'
+import MentorProfileEditor from './MentorProfileSetupPage'
+import { MentorProfileAssetResponse, MentorProfileAssetType, MentorProfileResponse, MessageType, ReviewTargetType } from '@/types'
 
 const courseImages = [
   'https://images.unsplash.com/photo-1545239351-1141bd82e8a6?auto=format&fit=crop&w=900&q=80',
@@ -45,6 +46,7 @@ export default function MentorPublicProfilePage() {
   const navigate = useNavigate()
   const { user } = useAuthStore()
   const [activeTab, setActiveTab] = useState<ProfileTab>('overview')
+  const [isEditing, setIsEditing] = useState(false)
   const [showReviewForm, setShowReviewForm] = useState(false)
   const [pendingAction, setPendingAction] = useState<string | null>(null)
   const [actionError, setActionError] = useState<string | null>(null)
@@ -70,6 +72,12 @@ export default function MentorPublicProfilePage() {
   const { data: weeklyAvailability, isLoading: availabilityLoading } = useQuery(
     ['mentor-availability', userId],
     () => mentorApi.getWeeklyAvailability(userId!),
+    { enabled: !!userId }
+  )
+
+  const { data: assets = [], isLoading: assetsLoading } = useQuery(
+    ['mentor-profile-assets', userId],
+    () => mentorApi.getProfileAssets(userId!),
     { enabled: !!userId }
   )
 
@@ -106,8 +114,14 @@ export default function MentorPublicProfilePage() {
     return profileFallbacks[index]
   }, [mentor?.user?.avatarUrl, userId])
 
-  if (isLoading || packagesLoading || coursesLoading || availabilityLoading) {
+  if (isLoading || packagesLoading || coursesLoading || availabilityLoading || assetsLoading) {
     return <ProfileSkeleton />
+  }
+
+  const isOwnProfile = user?.userId === mentor?.userId
+
+  if (isEditing && isOwnProfile) {
+    return <MentorProfileEditor onCancelEdit={() => setIsEditing(false)} />
   }
 
   if (!mentor) {
@@ -127,7 +141,6 @@ export default function MentorPublicProfilePage() {
 
   const name = mentor.user?.fullName || mentor.user?.displayName || 'Mentor'
   const title = mentor.headline || 'Senior Product Designer'
-  const isOwnProfile = user?.userId === mentor.userId
   
   const mentoringPackages = packages
   const mentorCourses = courses
@@ -239,11 +252,12 @@ export default function MentorPublicProfilePage() {
           savingMentor={savedLoading || saveMentorMutation.isLoading}
           onMessage={() => openMentorChat(undefined, 'message')}
           onBook={requestBooking}
+          onEdit={() => setIsEditing(true)}
           pendingAction={pendingAction}
           isOwnProfile={isOwnProfile}
         />
 
-        <IntroPanel mentor={mentor} name={name} />
+        <IntroPanel mentor={mentor} name={name} assets={assets} />
       </section>
 
       {actionError && (
@@ -391,6 +405,7 @@ function MentorIdentityCard({
   savingMentor,
   onMessage,
   onBook,
+  onEdit,
   pendingAction,
   isOwnProfile,
 }: {
@@ -403,6 +418,7 @@ function MentorIdentityCard({
   savingMentor: boolean
   onMessage: () => void
   onBook: () => void
+  onEdit: () => void
   pendingAction: string | null
   isOwnProfile: boolean
 }) {
@@ -430,23 +446,35 @@ function MentorIdentityCard({
       </div>
 
       <div className="mt-6 space-y-3">
-        <button
-          type="button"
-          onClick={onBook}
-          disabled={!!pendingAction || isOwnProfile}
-          className="h-12 w-full rounded-2xl bg-blue-600 text-sm font-black text-white shadow-lg shadow-blue-600/20 transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:shadow-none dark:disabled:bg-gray-800"
-        >
-          {pendingAction === 'book-profile' ? 'Đang mở chat...' : 'Đặt lịch 1-1'}
-        </button>
-        <button
-          type="button"
-          onClick={onMessage}
-          disabled={!!pendingAction || isOwnProfile}
-          className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-2xl border border-blue-200 text-sm font-black text-blue-700 transition-colors hover:bg-blue-50 disabled:cursor-not-allowed disabled:border-gray-200 disabled:text-gray-400 disabled:hover:bg-transparent dark:border-blue-900 dark:text-blue-300 dark:hover:bg-blue-950/30 dark:disabled:border-gray-800"
-        >
-          <MessageSquare className="h-4 w-4" />
-          {pendingAction === 'message' ? 'Đang mở...' : 'Nhắn tin'}
-        </button>
+        {isOwnProfile ? (
+          <button
+            type="button"
+            onClick={onEdit}
+            className="h-12 w-full rounded-2xl bg-blue-600 text-sm font-black text-white shadow-lg shadow-blue-600/20 transition-colors hover:bg-blue-700 dark:bg-blue-600 dark:text-white dark:hover:bg-blue-700"
+          >
+            Chỉnh sửa hồ sơ
+          </button>
+        ) : (
+          <>
+            <button
+              type="button"
+              onClick={onBook}
+              disabled={!!pendingAction}
+              className="h-12 w-full rounded-2xl bg-blue-600 text-sm font-black text-white shadow-lg shadow-blue-600/20 transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:shadow-none dark:disabled:bg-gray-800"
+            >
+              {pendingAction === 'book-profile' ? 'Đang mở chat...' : 'Đặt lịch 1-1'}
+            </button>
+            <button
+              type="button"
+              onClick={onMessage}
+              disabled={!!pendingAction}
+              className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-2xl border border-blue-200 text-sm font-black text-blue-700 transition-colors hover:bg-blue-50 disabled:cursor-not-allowed disabled:border-gray-200 disabled:text-gray-400 disabled:hover:bg-transparent dark:border-blue-900 dark:text-blue-300 dark:hover:bg-blue-950/30 dark:disabled:border-gray-800"
+            >
+              <MessageSquare className="h-4 w-4" />
+              {pendingAction === 'message' ? 'Đang mở...' : 'Nhắn tin'}
+            </button>
+          </>
+        )}
       </div>
 
       <div className="mt-7 grid grid-cols-2 gap-4 border-t border-gray-100 pt-5 dark:border-gray-800">
@@ -472,7 +500,10 @@ function MentorIdentityCard({
   )
 }
 
-function IntroPanel({ mentor, name }: { mentor: MentorProfileResponse; name: string }) {
+function IntroPanel({ mentor, name, assets }: { mentor: MentorProfileResponse; name: string; assets: MentorProfileAssetResponse[] }) {
+  const experiences = assets.filter(a => a.type === MentorProfileAssetType.EXPERIENCE)
+  const achievements = assets.filter(a => a.type === MentorProfileAssetType.ACHIEVEMENT)
+
   return (
     <section className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-950 lg:p-8">
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_280px]">
@@ -498,10 +529,18 @@ function IntroPanel({ mentor, name }: { mentor: MentorProfileResponse; name: str
           <div className="mt-6">
             <p className="mb-3 text-sm font-black text-gray-950 dark:text-white">Đã từng làm việc tại:</p>
             <div className="flex flex-wrap items-center gap-5 text-xl font-black text-gray-900 dark:text-gray-100">
-              <span className="text-blue-700">TechCorp</span>
-              <span className="text-amber-600">InnovateHub</span>
-              <span className="tracking-tight text-gray-500">Google</span>
-              <span className="text-sm font-bold text-gray-500">UX Certificate</span>
+              {experiences.length > 0 ? (
+                experiences.map((exp) => (
+                  <span key={exp.id} className="text-blue-700">{exp.title}</span>
+                ))
+              ) : (
+                <>
+                  <span className="text-blue-700">TechCorp</span>
+                  <span className="text-amber-600">InnovateHub</span>
+                  <span className="tracking-tight text-gray-500">Google</span>
+                  <span className="text-sm font-bold text-gray-500">UX Certificate</span>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -512,17 +551,26 @@ function IntroPanel({ mentor, name }: { mentor: MentorProfileResponse; name: str
             Thành tựu nổi bật
           </h3>
           <div className="space-y-3">
-            {[
-              'Vietnam Design Award 2024 - Best UX App',
-              'Top Mentor của năm 2023',
-              'Google UX Certificate Professional',
-              `${mentor.totalReviews} đánh giá từ học viên`,
-            ].map((item) => (
-              <div key={item} className="flex gap-2 text-sm font-medium text-gray-600 dark:text-gray-400">
-                <Award className="mt-0.5 h-4 w-4 flex-none text-amber-500" />
-                <span>{item}</span>
-              </div>
-            ))}
+            {achievements.length > 0 ? (
+              achievements.map((ach) => (
+                <div key={ach.id} className="flex gap-2 text-sm font-medium text-gray-600 dark:text-gray-400">
+                  <Award className="mt-0.5 h-4 w-4 flex-none text-amber-500" />
+                  <span>{ach.title}</span>
+                </div>
+              ))
+            ) : (
+              [
+                'Vietnam Design Award 2024 - Best UX App',
+                'Top Mentor của năm 2023',
+                'Google UX Certificate Professional',
+                `${mentor.totalReviews} đánh giá từ học viên`,
+              ].map((item) => (
+                <div key={item} className="flex gap-2 text-sm font-medium text-gray-600 dark:text-gray-400">
+                  <Award className="mt-0.5 h-4 w-4 flex-none text-amber-500" />
+                  <span>{item}</span>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>

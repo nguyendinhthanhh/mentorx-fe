@@ -17,7 +17,10 @@ interface TransferFormProps {
   onSuccess?: () => void
 }
 
+import { useI18n } from '@/i18n/I18nProvider'
+
 export default function TransferForm({ userId, onSuccess }: TransferFormProps) {
+  const { t } = useI18n()
   const [error, setError] = useState<string>('')
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
@@ -36,12 +39,19 @@ export default function TransferForm({ userId, onSuccess }: TransferFormProps) {
       setLoading(true)
       setError('')
       setSuccess(false)
+      console.log('Creating transfer request for userId:', userId, 'data:', data)
       await walletApi.transfer(userId, data)
       setSuccess(true)
       reset()
       onSuccess?.()
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Transfer failed. Please try again.')
+      console.error('Transfer error:', err)
+      const rawMessage = err.response?.data?.message || err.message || ''
+      if (rawMessage.includes('Số dư MXC không đủ') || rawMessage.includes('Insufficient MXC balance')) {
+        setError(t('wallet.error.insufficientBalance'))
+      } else {
+        setError(rawMessage || 'Transfer failed. Please try again.')
+      }
     } finally {
       setLoading(false)
     }

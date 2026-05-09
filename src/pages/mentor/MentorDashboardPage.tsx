@@ -10,6 +10,7 @@ import {
   MessageSquare,
   Activity
 } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { formatCurrency } from '@/utils/formatters'
 import { useAuthStore } from '@/store/authStore'
 
@@ -31,10 +32,13 @@ export default function MentorDashboardPage() {
           <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">Welcome back, {user?.fullName}!</h1>
           <p className="text-gray-500 dark:text-gray-400 mt-1 font-medium">Here's a summary of your mentoring activities and performance.</p>
         </div>
-        <button className="px-6 py-3 bg-indigo-600 text-white rounded-2xl font-black text-sm shadow-xl shadow-indigo-200 dark:shadow-none hover:bg-indigo-700 transition-all flex items-center gap-2">
+        <Link
+          to="/mentor/profile-setup"
+          className="px-6 py-3 bg-indigo-600 text-white rounded-2xl font-black text-sm shadow-xl shadow-indigo-200 dark:shadow-none hover:bg-indigo-700 transition-all flex items-center gap-2"
+        >
           <TrendingUp className="w-4 h-4" />
-          View Performance
-        </button>
+          Chỉnh hồ sơ mentor
+        </Link>
       </div>
 
       {/* Stats Grid */}
@@ -88,6 +92,27 @@ export default function MentorDashboardPage() {
 
         {/* Quick Actions / Status */}
         <div className="space-y-8">
+          <div className="bg-gradient-to-br from-indigo-600 to-blue-600 rounded-[2.5rem] shadow-xl shadow-indigo-200 dark:shadow-none p-10 text-white">
+            <h3 className="text-lg font-black mb-3 tracking-tight">Hồ sơ công khai của bạn</h3>
+            <p className="text-sm font-medium leading-6 text-indigo-100">
+              Cập nhật ảnh, video giới thiệu, gói mentoring, lịch trống và tài liệu để học viên đặt lịch dễ hơn.
+            </p>
+            <div className="mt-6 grid gap-3">
+              <Link
+                to="/mentor/profile-setup"
+                className="inline-flex w-full items-center justify-center rounded-2xl bg-white px-4 py-3 text-sm font-black text-indigo-700 transition hover:bg-indigo-50"
+              >
+                Chỉnh sửa hồ sơ
+              </Link>
+              <Link
+                to={`/mentors/${user?.userId}`}
+                className="inline-flex w-full items-center justify-center rounded-2xl border border-white/25 px-4 py-3 text-sm font-black text-white transition hover:bg-white/10"
+              >
+                Xem hồ sơ công khai
+              </Link>
+            </div>
+          </div>
+
           <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-sm p-10">
             <h3 className="text-lg font-black text-gray-900 dark:text-white mb-6 tracking-tight">Profile Visibility</h3>
             <div className="space-y-6">

@@ -1,11 +1,21 @@
 import { useAuthStore } from '@/store/authStore'
 import UserUpdateForm from '@/components/user/UserUpdateForm'
 import { User } from 'lucide-react'
+import { useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { isMentor } from '@/utils/roleRedirect'
 
 export default function ProfilePage() {
   const { user } = useAuthStore()
+  const navigate = useNavigate()
 
-  if (!user) return null
+  useEffect(() => {
+    if (user && isMentor(user)) {
+      navigate(`/mentors/${user.userId}`, { replace: true })
+    }
+  }, [user, navigate])
+
+  if (!user || isMentor(user)) return null
 
   return (
     <div className="space-y-6">

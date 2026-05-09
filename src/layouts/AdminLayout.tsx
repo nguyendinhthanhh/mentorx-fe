@@ -19,7 +19,8 @@ import {
   Globe,
   Sun,
   Moon,
-  DollarSign
+  DollarSign,
+  MessageSquare
 } from 'lucide-react'
 import { useState } from 'react'
 import { useThemeStore } from '@/store/themeStore'
@@ -31,8 +32,8 @@ const adminLinks = [
   { to: '/admin/courses', label: 'Courses', icon: BookOpen },
   { to: '/admin/api', label: 'API Functions', icon: Zap },
   { to: '/admin/reports', label: 'Reports', icon: Flag },
-  { to: '/admin/wallet', label: 'Financials', icon: DollarSign },
-  { to: '/admin/analytics', label: 'Analytics', icon: PieChart },
+  { to: '/admin/support', label: 'Support Chat', icon: MessageSquare },
+  { to: '/admin/wallet', label: 'Wallet Moderation', icon: DollarSign },
   { to: '/admin/settings', label: 'Settings', icon: Settings },
 ]
 

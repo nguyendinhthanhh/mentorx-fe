@@ -3,14 +3,15 @@ import { useQuery } from 'react-query'
 import { useAuthStore } from '@/store/authStore'
 import { walletApi } from '@/api/walletApi'
 import { formatCurrency, formatDateTime } from '@/utils/formatters'
-import { Wallet, ArrowDownCircle, ArrowUpCircle, Send, TrendingUp, Clock } from 'lucide-react'
 import DepositForm from '@/components/wallet/DepositForm'
 import WithdrawalForm from '@/components/wallet/WithdrawalForm'
 import TransferForm from '@/components/wallet/TransferForm'
+import BankAccountSettings from '@/components/wallet/BankAccountSettings'
+import { Wallet, ArrowDownCircle, ArrowUpCircle, Send, TrendingUp, Clock, Landmark } from 'lucide-react'
 
 export default function WalletPage() {
   const { user } = useAuthStore()
-  const [activeTab, setActiveTab] = useState<'deposit' | 'withdraw' | 'transfer'>('deposit')
+  const [activeTab, setActiveTab] = useState<'deposit' | 'withdraw' | 'transfer' | 'bank-accounts'>('deposit')
 
   const { data: userBalance, refetch: refetchBalance } = useQuery(
     ['userBalance', user?.userId],
@@ -36,6 +37,7 @@ export default function WalletPage() {
     { key: 'deposit' as const, label: 'Deposit', icon: ArrowDownCircle, color: 'text-green-600' },
     { key: 'withdraw' as const, label: 'Withdraw', icon: ArrowUpCircle, color: 'text-red-600' },
     { key: 'transfer' as const, label: 'Transfer', icon: Send, color: 'text-blue-600' },
+    { key: 'bank-accounts' as const, label: 'Banks', icon: Landmark, color: 'text-purple-600' },
   ]
 
   const txnColors: Record<string, { bg: string; text: string; sign: string }> = {
@@ -54,7 +56,7 @@ export default function WalletPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 space-y-6">
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-gray-900">My Wallet</h1>
@@ -145,6 +147,7 @@ export default function WalletPage() {
           {activeTab === 'deposit' && <DepositForm userId={user.userId} onSuccess={handleSuccess} />}
           {activeTab === 'withdraw' && <WithdrawalForm userId={user.userId} onSuccess={handleSuccess} />}
           {activeTab === 'transfer' && <TransferForm userId={user.userId} onSuccess={handleSuccess} />}
+          {activeTab === 'bank-accounts' && <BankAccountSettings userId={user.userId} />}
         </div>
 
         {/* Transaction History */}

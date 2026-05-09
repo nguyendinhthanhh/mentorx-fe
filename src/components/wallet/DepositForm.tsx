@@ -42,13 +42,18 @@ export default function DepositForm({ userId, onSuccess }: DepositFormProps) {
     try {
       setLoading(true)
       setError('')
+      console.log('Creating deposit order for userId:', userId, 'data:', data)
       const response = await walletApi.createDeposit(userId, data)
+      console.log('Deposit order response:', response)
+      
       // In a real app, the response might contain a redirect URL to the payment gateway
       // For now we simulate success
       alert(`Deposit order created: ${response.gatewayOrderId}. You would be redirected to ${data.gateway} now.`)
       onSuccess?.()
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Deposit failed. Please try again.')
+      console.error('Deposit error:', err)
+      const message = err.response?.data?.message || err.message || 'Deposit failed. Please try again.'
+      setError(message)
     } finally {
       setLoading(false)
     }

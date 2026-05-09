@@ -3,6 +3,7 @@ import { useAuthStore } from '@/store/authStore'
 import { useThemeStore } from '@/store/themeStore'
 import { 
   LayoutDashboard, 
+  UserCog,
   Briefcase, 
   BookOpen, 
   MessageSquare, 
@@ -13,6 +14,7 @@ import {
   X,
   Calendar,
   Award,
+  ExternalLink,
   Sun,
   Moon
 } from 'lucide-react'
@@ -120,6 +122,13 @@ export default function MentorLayout() {
           </div>
 
           <div className="flex items-center gap-6">
+            <Link
+              to={`/mentors/${user?.userId}`}
+              className="hidden items-center gap-2 rounded-xl border border-indigo-100 bg-indigo-50 px-3 py-2 text-xs font-black uppercase tracking-widest text-indigo-600 transition hover:bg-indigo-100 dark:border-indigo-900/40 dark:bg-indigo-900/20 dark:text-indigo-300 lg:inline-flex"
+            >
+              <ExternalLink className="h-4 w-4" />
+              View Public Profile
+            </Link>
             <div className="flex items-center gap-4 px-4 py-2 rounded-2xl border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/50">
               <div className="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-200 dark:shadow-none border-2 border-white dark:border-gray-700">
                 <span className="text-white text-sm font-black uppercase">

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
 import {
   Award,
+  Briefcase,
   Calendar,
   CheckCircle2,
   ExternalLink,
@@ -72,7 +73,11 @@ const inputClass =
   'w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm font-medium text-slate-900 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10'
 const labelClass = 'mb-1.5 block text-xs font-bold uppercase tracking-wide text-slate-500'
 
-export default function MentorProfileSetupPage() {
+interface Props {
+  onCancelEdit?: () => void
+}
+
+export default function MentorProfileSetupPage({ onCancelEdit }: Props = {}) {
   const queryClient = useQueryClient()
   const { user, refreshUser } = useAuthStore()
   const [activeTab, setActiveTab] = useState<SetupTab>('profile')
@@ -215,6 +220,7 @@ export default function MentorProfileSetupPage() {
 
   const achievements = assets.filter((asset) => asset.type === MentorProfileAssetType.ACHIEVEMENT)
   const certificates = assets.filter((asset) => asset.type === MentorProfileAssetType.CERTIFICATE)
+  const experiences = assets.filter((asset) => asset.type === MentorProfileAssetType.EXPERIENCE)
   const documents = assets.filter((asset) => asset.type === MentorProfileAssetType.DOCUMENT)
 
   return (
@@ -279,6 +285,7 @@ export default function MentorProfileSetupPage() {
                   weeklyAvailability={weeklyAvailability}
                   achievements={achievements}
                   certificates={certificates}
+                  experiences={experiences}
                   documents={documents}
                   setActiveTab={setActiveTab}
                 />
@@ -302,6 +309,7 @@ export default function MentorProfileSetupPage() {
                   userId={user.userId}
                   achievements={achievements}
                   certificates={certificates}
+                  experiences={experiences}
                   documents={documents}
                 />
               )}
@@ -331,6 +339,16 @@ export default function MentorProfileSetupPage() {
             </span>
           </div>
           <div className="flex gap-2">
+            {onCancelEdit && (
+              <button
+                type="button"
+                onClick={onCancelEdit}
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-black text-slate-700 hover:bg-slate-50"
+              >
+                <X className="h-4 w-4" />
+                Hủy
+              </button>
+            )}
             <button
               type="button"
               onClick={() => saveMutation.mutate({ requireComplete: false })}
@@ -339,13 +357,24 @@ export default function MentorProfileSetupPage() {
               <Save className="h-4 w-4" />
               Lưu nháp
             </button>
-            <Link
-              to={`/mentors/${user.userId}`}
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-black text-slate-700 hover:bg-slate-50"
-            >
-              <ExternalLink className="h-4 w-4" />
-              Xem trước
-            </Link>
+            {onCancelEdit ? (
+              <button
+                type="button"
+                onClick={onCancelEdit}
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-black text-slate-700 hover:bg-slate-50"
+              >
+                <ExternalLink className="h-4 w-4" />
+                Xem trước
+              </button>
+            ) : (
+              <Link
+                to={`/mentors/${user.userId}`}
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-black text-slate-700 hover:bg-slate-50"
+              >
+                <ExternalLink className="h-4 w-4" />
+                Xem trước
+              </Link>
+            )}
             <button
               type="button"
               disabled={saveMutation.isLoading}
@@ -480,15 +509,18 @@ function AssetsPanel({
   userId,
   achievements,
   certificates,
+  experiences,
   documents,
 }: {
   userId: string
   achievements: MentorProfileAssetResponse[]
   certificates: MentorProfileAssetResponse[]
+  experiences: MentorProfileAssetResponse[]
   documents: MentorProfileAssetResponse[]
 }) {
   return (
     <div className="space-y-5">
+      <AssetSection userId={userId} title="Kinh nghiệm làm việc" type={MentorProfileAssetType.EXPERIENCE} assets={experiences} placeholder="Google, TechCorp..." />
       <AssetSection userId={userId} title="Thành tựu" type={MentorProfileAssetType.ACHIEVEMENT} assets={achievements} />
       <AssetSection userId={userId} title="Chứng chỉ" type={MentorProfileAssetType.CERTIFICATE} assets={certificates} />
       <AssetSection userId={userId} title="Tài liệu hồ sơ" type={MentorProfileAssetType.DOCUMENT} assets={documents} />
@@ -501,11 +533,13 @@ function AssetSection({
   title,
   type,
   assets,
+  placeholder,
 }: {
   userId: string
   title: string
   type: MentorProfileAssetType
   assets: MentorProfileAssetResponse[]
+  placeholder?: string
 }) {
   const queryClient = useQueryClient()
   const [open, setOpen] = useState(false)
@@ -587,7 +621,7 @@ function AssetSection({
         >
           <div className="grid gap-3 md:grid-cols-2">
             <Field label="Tiêu đề">
-              <input className={inputClass} value={form.title} onChange={(e) => setForm((prev) => ({ ...prev, title: e.target.value }))} required />
+              <input className={inputClass} value={form.title} onChange={(e) => setForm((prev) => ({ ...prev, title: e.target.value }))} placeholder={placeholder} required />
             </Field>
             <Field label="Tổ chức / nguồn">
               <input className={inputClass} value={form.issuer || ''} onChange={(e) => setForm((prev) => ({ ...prev, issuer: e.target.value }))} />
@@ -625,12 +659,12 @@ function AssetSection({
   )
 }
 
-function OverviewPanel({ progress, packages, weeklyAvailability, achievements, certificates, documents, setActiveTab }: any) {
+function OverviewPanel({ progress, packages, weeklyAvailability, achievements, certificates, experiences, documents, setActiveTab }: any) {
   const cards = [
     { tab: 'profile', title: 'Thông tin hồ sơ', done: progress.percent >= 50, icon: User },
     { tab: 'packages', title: 'Gói mentoring', done: packages.length > 0, icon: Package },
     { tab: 'availability', title: 'Lịch trống', done: hasAvailability(weeklyAvailability), icon: Calendar },
-    { tab: 'documents', title: 'Tài liệu & chứng chỉ', done: achievements.length + certificates.length + documents.length > 0, icon: Award },
+    { tab: 'documents', title: 'Kinh nghiệm & Chứng chỉ', done: achievements.length + certificates.length + experiences.length + documents.length > 0, icon: Award },
   ]
 
   return (

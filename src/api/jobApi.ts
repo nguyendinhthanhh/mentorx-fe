@@ -77,8 +77,10 @@ export const jobApi = {
     return response.data.data
   },
 
-  updateStatus: async (jobId: string, status: JobStatus): Promise<JobResponse> => {
-    const response = await apiClient.patch<ApiResponse<JobResponse>>(`/jobs/${jobId}/status?status=${status}`)
+  updateStatus: async (jobId: string, status: JobStatus, reason?: string): Promise<JobResponse> => {
+    let url = `/jobs/${jobId}/status?status=${status}`
+    if (reason) url += `&reason=${encodeURIComponent(reason)}`
+    const response = await apiClient.patch<ApiResponse<JobResponse>>(url)
     return response.data.data
   },
 }
