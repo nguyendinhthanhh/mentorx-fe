@@ -1,9 +1,13 @@
-import { Outlet, Link, useNavigate } from 'react-router-dom'
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import { useAuthStore } from '@/store/authStore'
-import { Menu, X, LogOut, Bell, MessageSquare } from 'lucide-react'
+import { Menu, X, LogOut, MessageSquare, GraduationCap, Sparkles } from 'lucide-react'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
+import NotificationDropdown from '@/components/notification/NotificationDropdown'
 import { useI18n } from '@/i18n/I18nProvider'
+import { useQuery } from 'react-query'
+import { chatApi } from '@/api/chatApi'
+import { isMentor } from '@/utils/roleRedirect'
 
 function SiteFooter() {
   const { t } = useI18n()
@@ -64,7 +68,23 @@ export default function MainLayout() {
   const { user, logout } = useAuthStore()
   const { t } = useI18n()
   const navigate = useNavigate()
+  const location = useLocation()
   const [mobileOpen, setMobileOpen] = useState(false)
+  const hideFooter = location.pathname.startsWith('/chat')
+  const mentorApproved = isMentor(user)
+  const inMentorMode = location.pathname.startsWith('/mentor') && !location.pathname.startsWith('/mentors')
+
+  // Get unread message count
+  const { data: rooms } = useQuery(
+    ['chatRooms', user?.userId],
+    () => chatApi.getUserRooms(user!.userId),
+    { 
+      enabled: !!user?.userId,
+      refetchInterval: 30000 // Refresh every 30 seconds
+    }
+  )
+
+  const unreadCount = rooms?.content.reduce((sum, room) => sum + (room.unreadCount || 0), 0) || 0
 
   const navLinks = [
     { to: '/jobs', label: t('nav.jobs') },
@@ -89,27 +109,65 @@ export default function MainLayout() {
           </Link>
 
           <nav className="hidden items-center gap-6 md:flex">
-            {navLinks.map((item) => (
-              <Link key={item.to} to={item.to} className="text-sm font-medium text-slate-600 hover:text-[#4f46e5]">
-                {item.label}
-              </Link>
-            ))}
+            {navLinks.map((item) => {
+              const active = location.pathname === item.to || (item.to !== '/' && location.pathname.startsWith(`${item.to}/`))
+
+              return (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  className={`relative inline-flex h-16 items-center gap-2 border-b-2 text-sm font-medium transition-colors ${
+                    active
+                      ? 'border-[#4f46e5] text-[#4f46e5]'
+                      : 'border-transparent text-slate-600 hover:text-[#4f46e5]'
+                  }`}
+                >
+                  {item.label}
+                </Link>
+              )
+            })}
           </nav>
 
           <div className="hidden items-center gap-3 md:flex">
             <LanguageSwitcher />
             {user ? (
               <>
-                <Link to="/chat" className="rounded-lg p-2 text-slate-500 hover:bg-slate-100" aria-label="Chat">
-                  <MessageSquare className="h-4 w-4" />
-                </Link>
+                {mentorApproved ? (
+                  <Link
+                    to={inMentorMode ? '/profile' : '/mentor/dashboard'}
+                    className="inline-flex h-9 items-center gap-2 rounded-full border border-blue-100 bg-blue-50 px-3 text-xs font-black text-blue-700 transition hover:bg-blue-100"
+                    title={inMentorMode ? 'Chuyển về User Mode' : 'Chuyển sang Mentor Mode'}
+                  >
+                    {inMentorMode ? <Sparkles className="h-3.5 w-3.5" /> : <GraduationCap className="h-3.5 w-3.5" />}
+                    {inMentorMode ? 'Mentor Mode' : 'Student Mode'}
+                  </Link>
+                ) : (
+                  <Link
+                    to="/mentor/profile"
+                    className="inline-flex h-9 items-center gap-2 rounded-full border border-slate-200 bg-white px-3 text-xs font-black text-slate-600 transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
+                  >
+                    <GraduationCap className="h-3.5 w-3.5" />
+                    Trở thành mentor
+                  </Link>
+                )}
                 <Link
-                  to="/profile/notifications"
-                  className="rounded-lg p-2 text-slate-500 hover:bg-slate-100"
-                  aria-label="Notifications"
+                  to="/chat"
+                  className={`relative rounded-lg p-2 transition-colors ${
+                    location.pathname.startsWith('/chat')
+                      ? 'bg-indigo-50 text-[#4f46e5]'
+                      : 'text-slate-500 hover:bg-slate-100'
+                  }`}
+                  aria-label={t('nav.messages')}
+                  title={t('nav.messages')}
                 >
-                  <Bell className="h-4 w-4" />
+                  <MessageSquare className="h-4 w-4" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -right-1 -top-1 inline-flex h-4 min-w-[16px] items-center justify-center rounded-full bg-[#4f46e5] px-1 text-[10px] font-bold leading-none text-white">
+                      {unreadCount > 9 ? '9+' : unreadCount}
+                    </span>
+                  )}
                 </Link>
+                <NotificationDropdown userId={user.userId} />
                 <Link to="/profile" className="text-sm font-semibold text-slate-700">
                   {user.displayName || user.fullName || t('nav.account')}
                 </Link>
@@ -166,13 +224,41 @@ export default function MainLayout() {
                 <LanguageSwitcher compact />
               </div>
               {user ? (
-                <button
-                  type="button"
-                  onClick={handleLogout}
-                  className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700"
-                >
-                  {t('nav.logout')}
-                </button>
+                <div className="grid gap-2">
+                  <Link
+                    to={mentorApproved ? (inMentorMode ? '/profile' : '/mentor/dashboard') : '/mentor/profile'}
+                    onClick={() => setMobileOpen(false)}
+                    className="rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                  >
+                    {mentorApproved ? (inMentorMode ? 'Chuyển về User Mode' : 'Chuyển sang Mentor Mode') : 'Trở thành mentor'}
+                  </Link>
+                  <Link
+                    to="/chat"
+                    onClick={() => setMobileOpen(false)}
+                    className="flex items-center justify-between rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                  >
+                    <span>{t('nav.messages')}</span>
+                    {unreadCount > 0 && (
+                      <span className="inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-[#4f46e5] px-1.5 text-[11px] font-bold text-white">
+                        {unreadCount > 9 ? '9+' : unreadCount}
+                      </span>
+                    )}
+                  </Link>
+                  <Link
+                    to="/profile/notifications"
+                    onClick={() => setMobileOpen(false)}
+                    className="rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                  >
+                    Thông báo
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700"
+                  >
+                    {t('nav.logout')}
+                  </button>
+                </div>
               ) : (
                 <div className="flex gap-2">
                   <Link
@@ -198,7 +284,7 @@ export default function MainLayout() {
         <Outlet />
       </main>
 
-      <SiteFooter />
+      {!hideFooter && <SiteFooter />}
     </div>
   )
 }

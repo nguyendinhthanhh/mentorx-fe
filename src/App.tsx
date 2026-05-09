@@ -15,7 +15,7 @@ import VerifyEmailPage from './pages/auth/VerifyEmailPage'
 
 // Dashboard Pages
 import ProfilePage from './pages/user/ProfilePage'
-import DiscoveryFeedPage from './pages/user/DiscoveryFeedPage'
+import SavedMentorsPage from './pages/user/SavedMentorsPage'
 import MentorProfilePage from './pages/mentor/MentorProfilePage'
 import MentorListPage from './pages/mentor/MentorListPage'
 import MentorPublicProfilePage from './pages/mentor/MentorPublicProfilePage'
@@ -38,6 +38,7 @@ import WalletPage from './pages/wallet/WalletPage'
 
 // Chat Page
 import ChatListPage from './pages/chat/ChatListPage'
+import ChatDemoPage from './pages/chat/ChatDemoPage'
 
 // Admin Pages
 import AdminDashboardPage from './pages/admin/AdminDashboardPage'
@@ -50,6 +51,7 @@ import AdminWalletPage from './pages/admin/AdminWalletPage'
 
 // Mentor Pages
 import MentorDashboardPage from './pages/mentor/MentorDashboardPage'
+import MentorProfileSetupPage from './pages/mentor/MentorProfileSetupPage'
 
 // Protected Route Components
 import ProtectedRoute from './components/auth/ProtectedRoute'
@@ -113,18 +115,19 @@ function App() {
 
             {/* Chat Routes */}
             <Route path="/chat" element={<ChatListPage />} />
+            <Route path="/chat/demo" element={<ChatDemoPage />} />
           </Route>
 
           {/* Profile Routes with ProfileLayout */}
           <Route element={<ProtectedRoute><ProfileLayout /></ProtectedRoute>}>
             <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/profile/dashboard" element={<DiscoveryFeedPage />} />
+            <Route path="/profile/dashboard" element={<Navigate to="/profile" replace />} />
             <Route path="/profile/settings" element={<div>Settings Page (Coming Soon)</div>} />
             <Route path="/profile/notifications" element={<NotificationListPage />} />
             <Route path="/profile/jobs" element={<MyJobsPage />} />
             <Route path="/profile/proposals" element={<div>Proposals (Coming Soon)</div>} />
             <Route path="/profile/courses" element={<div>My Courses (Coming Soon)</div>} />
-            <Route path="/profile/saved" element={<div>Saved Items (Coming Soon)</div>} />
+            <Route path="/profile/saved" element={<SavedMentorsPage />} />
             <Route path="/profile/reviews" element={<div>Reviews (Coming Soon)</div>} />
             <Route path="/profile/payments" element={<div>Payment Methods (Coming Soon)</div>} />
             
@@ -133,7 +136,7 @@ function App() {
           </Route>
 
           {/* Legacy Dashboard Route - Redirect to Profile Dashboard */}
-          <Route path="/dashboard" element={<Navigate to="/profile/dashboard" replace />} />
+          <Route path="/dashboard" element={<Navigate to="/profile" replace />} />
 
           {/* Admin Routes */}
           <Route element={<ProtectedRoute><AdminRoute><AdminLayout /></AdminRoute></ProtectedRoute>}>
@@ -153,6 +156,7 @@ function App() {
           <Route element={<ProtectedRoute><MentorRoute><MentorLayout /></MentorRoute></ProtectedRoute>}>
             <Route path="/mentor" element={<Navigate to="/mentor/dashboard" replace />} />
             <Route path="/mentor/dashboard" element={<MentorDashboardPage />} />
+            <Route path="/mentor/profile-setup" element={<MentorProfileSetupPage />} />
             <Route path="/mentor/proposals" element={<div>My Proposals (Coming Soon)</div>} />
             <Route path="/mentor/contracts" element={<div>Active Contracts (Coming Soon)</div>} />
             <Route path="/mentor/my-courses" element={<div>My Courses (Coming Soon)</div>} />

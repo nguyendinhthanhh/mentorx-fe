@@ -36,10 +36,10 @@ export default function RecommendedMentorsPage() {
     <div className="space-y-8">
       {/* Back Link */}
       <Link
-        to="/profile/dashboard"
+        to="/profile"
         className="inline-flex items-center gap-2 text-sm font-bold text-gray-400 hover:text-indigo-600 transition-colors"
       >
-        <ChevronLeft className="w-4 h-4" /> Back to Dashboard
+        <ChevronLeft className="w-4 h-4" /> Back to Profile
       </Link>
 
       {/* Hero Header */}

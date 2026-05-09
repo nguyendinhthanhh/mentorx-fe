@@ -33,6 +33,7 @@ export const translations = {
 
     "nav.jobs": "Jobs",
     "nav.mentors": "Mentors",
+    "nav.messages": "Messages",
     "nav.companies": "Companies",
     "nav.learning": "Learning",
     "nav.blog": "Guide",
@@ -167,6 +168,7 @@ export const translations = {
 
     "nav.jobs": "Việc làm",
     "nav.mentors": "Mentor",
+    "nav.messages": "Tin nhắn",
     "nav.companies": "Công ty",
     "nav.learning": "Học liệu",
     "nav.blog": "Cẩm nang",

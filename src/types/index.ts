@@ -9,6 +9,7 @@ export enum UserStatus {
 }
 
 export enum MentorStatus {
+  NONE = "NONE",
   PENDING = "PENDING",
   APPROVED = "APPROVED",
   REJECTED = "REJECTED",
@@ -128,6 +129,10 @@ export enum NotificationType {
   SUCCESS = "SUCCESS",
   WARNING = "WARNING",
   ERROR = "ERROR",
+  NEW_MESSAGE = "NEW_MESSAGE",
+  FEATURE_UPDATE = "FEATURE_UPDATE",
+  COURSE_UPDATED = "COURSE_UPDATED",
+  JOB_APPLICATION_RECEIVED = "JOB_APPLICATION_RECEIVED",
   JOB_POSTED = "JOB_POSTED",
   PROPOSAL_SUBMITTED = "PROPOSAL_SUBMITTED",
   PROPOSAL_ACCEPTED = "PROPOSAL_ACCEPTED",
@@ -226,6 +231,7 @@ export interface UserResponse {
   createdAt: string;
   updatedAt: string;
   roles: UserRoleResponse[];
+  badges?: any[];
 }
 
 export interface UserCreateRequest {
@@ -264,6 +270,36 @@ export interface MentorProfileResponse {
   successRate?: number;
   cvUrl?: string;
   portfolioUrl?: string;
+  videoIntroUrl?: string;
+  location?: string;
+  languages?: string[];
+  legalName?: string;
+  dateOfBirth?: string;
+  countryOfResidence?: string;
+  identityDocumentType?: string;
+  identityDocumentUrl?: string;
+  portraitUrl?: string;
+  phoneNumber?: string;
+  phoneVerified?: boolean;
+  currentTitle?: string;
+  currentCompany?: string;
+  primaryDomain?: string;
+  linkedinUrl?: string;
+  githubUrl?: string;
+  portfolioEvidenceUrl?: string;
+  certificateUrl?: string;
+  bankAccountName?: string;
+  bankName?: string;
+  bankAccountNumber?: string;
+  bankBranch?: string;
+  taxId?: string;
+  mentorAgreementAccepted?: boolean;
+  disputePolicyAccepted?: boolean;
+  submittedAt?: string;
+  approvedBy?: string;
+  approvedByName?: string;
+  approvedAt?: string;
+  rejectionReason?: string;
   averageRating?: number;
   totalReviews: number;
   totalEarnings?: number;
@@ -280,6 +316,31 @@ export interface MentorProfileRequest {
   responseTimeHours?: number;
   cvUrl?: string;
   portfolioUrl?: string;
+  videoIntroUrl?: string;
+  location?: string;
+  languages?: string[];
+  legalName?: string;
+  dateOfBirth?: string;
+  countryOfResidence?: string;
+  identityDocumentType?: string;
+  identityDocumentUrl?: string;
+  portraitUrl?: string;
+  phoneNumber?: string;
+  phoneVerified?: boolean;
+  currentTitle?: string;
+  currentCompany?: string;
+  primaryDomain?: string;
+  linkedinUrl?: string;
+  githubUrl?: string;
+  portfolioEvidenceUrl?: string;
+  certificateUrl?: string;
+  bankAccountName?: string;
+  bankName?: string;
+  bankAccountNumber?: string;
+  bankBranch?: string;
+  taxId?: string;
+  mentorAgreementAccepted?: boolean;
+  disputePolicyAccepted?: boolean;
 }
 
 // Job Types
@@ -603,13 +664,40 @@ export interface NotificationResponse {
 }
 
 // Chat Types
+export interface ChatRoomMemberSummary {
+  userId: string;
+  fullName: string;
+  displayName?: string;
+  avatarUrl?: string;
+  memberRole: string;
+  isOnline: boolean;
+  lastSeenAt?: string;
+}
+
 export interface ChatRoomResponse {
   id: string;
-  name?: string;
-  type: string;
-  lastMessage?: MessageResponse;
+  roomType: string;
+  roomName: string;
+  description?: string;
+  createdByUserId: string;
+  isActive: boolean;
+  isPrivate: boolean;
+  maxMembers: number;
+  memberCount: number;
   unreadCount: number;
-  members: UserResponse[];
+  referenceId?: string;
+  referenceType?: string;
+  lastActivityAt?: string;
+  lastMessageId?: string;
+  lastMessagePreview?: string;
+  lastMessageAt?: string;
+  lastMessageSenderId?: string;
+  messageCount: number;
+  roomSettings?: Record<string, any>;
+  avatarUrl?: string;
+  members: ChatRoomMemberSummary[];
+  isArchived: boolean;
+  archivedAt?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -788,11 +876,28 @@ export interface NotificationResponse {
 // Chat Types
 export interface ChatRoomResponse {
   id: string;
-  name?: string;
-  type: string;
-  lastMessage?: MessageResponse;
+  roomType: string;
+  roomName: string;
+  description?: string;
+  createdByUserId: string;
+  isActive: boolean;
+  isPrivate: boolean;
+  maxMembers: number;
+  memberCount: number;
   unreadCount: number;
-  members: UserResponse[];
+  referenceId?: string;
+  referenceType?: string;
+  lastActivityAt?: string;
+  lastMessageId?: string;
+  lastMessagePreview?: string;
+  lastMessageAt?: string;
+  lastMessageSenderId?: string;
+  messageCount: number;
+  roomSettings?: Record<string, any>;
+  avatarUrl?: string;
+  members: ChatRoomMemberSummary[];
+  isArchived: boolean;
+  archivedAt?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -996,6 +1101,46 @@ export enum FeedItemType {
   COURSE = "COURSE",
   KNOWLEDGE = "KNOWLEDGE",
   JOB = "JOB",
+}
+
+export enum PackageType {
+  SINGLE_SESSION = "SINGLE_SESSION",
+  PACKAGE_DEAL = "PACKAGE_DEAL",
+  SUBSCRIPTION = "SUBSCRIPTION",
+}
+
+export enum MentorProfileAssetType {
+  ACHIEVEMENT = "ACHIEVEMENT",
+  CERTIFICATE = "CERTIFICATE",
+  DOCUMENT = "DOCUMENT",
+}
+
+export interface MentorProfileAssetResponse {
+  id: string;
+  mentorProfileId: string;
+  type: MentorProfileAssetType;
+  title: string;
+  description?: string;
+  issuer?: string;
+  fileUrl?: string;
+  iconUrl?: string;
+  issuedAt?: string;
+  isFeatured: boolean;
+  displayOrder: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MentorProfileAssetRequest {
+  type: MentorProfileAssetType;
+  title: string;
+  description?: string;
+  issuer?: string;
+  fileUrl?: string;
+  iconUrl?: string;
+  issuedAt?: string;
+  isFeatured?: boolean;
+  displayOrder?: number;
 }
 
 export interface MentorRecommendationResponse {

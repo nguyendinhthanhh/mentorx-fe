@@ -1,15 +1,12 @@
-import { useParams, Link } from 'react-router-dom'
-import { useQuery } from 'react-query'
+import { useParams, Link, useNavigate } from 'react-router-dom'
+import { useMutation, useQuery } from 'react-query'
 import { useMemo, useState } from 'react'
 import {
   Award,
-  BookOpen,
   Calendar,
   Check,
   ChevronLeft,
   Clock,
-  Download,
-  FileText,
   Heart,
   Mail,
   MessageSquare,
@@ -20,11 +17,11 @@ import {
   Users,
 } from 'lucide-react'
 import { mentorApi } from '@/api/mentorApi'
+import { chatApi } from '@/api/chatApi'
 import { useAuthStore } from '@/store/authStore'
-import { formatCurrency } from '@/utils/formatters'
 import ReviewList from '@/components/review/ReviewList'
 import ReviewForm from '@/components/review/ReviewForm'
-import { MentorProfileResponse, ReviewTargetType } from '@/types'
+import { MentorProfileResponse, MessageType, ReviewTargetType } from '@/types'
 
 const courseImages = [
   'https://images.unsplash.com/photo-1545239351-1141bd82e8a6?auto=format&fit=crop&w=900&q=80',
@@ -41,13 +38,16 @@ const profileFallbacks = [
 const introImage = 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=1000&q=80'
 
 type ProfileTab = 'overview' | 'mentoring' | 'courses' | 'resources' | 'reviews'
+type ScheduleDay = { day: string; date: string; slots: string[]; today?: boolean; off?: boolean }
 
 export default function MentorPublicProfilePage() {
   const { userId } = useParams<{ userId: string }>()
+  const navigate = useNavigate()
   const { user } = useAuthStore()
   const [activeTab, setActiveTab] = useState<ProfileTab>('overview')
   const [showReviewForm, setShowReviewForm] = useState(false)
-  const [saved, setSaved] = useState(false)
+  const [pendingAction, setPendingAction] = useState<string | null>(null)
+  const [actionError, setActionError] = useState<string | null>(null)
 
   const { data: mentor, isLoading } = useQuery(
     ['mentor', userId],
@@ -71,6 +71,33 @@ export default function MentorPublicProfilePage() {
     ['mentor-availability', userId],
     () => mentorApi.getWeeklyAvailability(userId!),
     { enabled: !!userId }
+  )
+
+  const { data: isSaved = false, isLoading: savedLoading, refetch: refetchSavedStatus } = useQuery(
+    ['mentor-saved-status', user?.userId, userId],
+    () => mentorApi.isMentorSaved(user!.userId, userId!),
+    { enabled: !!user?.userId && !!userId }
+  )
+
+  const saveMentorMutation = useMutation(
+    (nextSaved: boolean) => {
+      if (!user?.userId || !userId) {
+        throw new Error('Missing user or mentor id')
+      }
+
+      return nextSaved
+        ? mentorApi.saveMentor(user.userId, userId)
+        : mentorApi.unsaveMentor(user.userId, userId)
+    },
+    {
+      onSuccess: () => {
+        refetchSavedStatus()
+      },
+      onError: (error) => {
+        console.error('Failed to update saved mentor status', error)
+        setActionError('Không thể cập nhật trạng thái lưu mentor lúc này. Vui lòng thử lại.')
+      },
+    }
   )
 
   const profileImage = useMemo(() => {
@@ -102,11 +129,86 @@ export default function MentorPublicProfilePage() {
   const title = mentor.headline || 'Senior Product Designer'
   const isOwnProfile = user?.userId === mentor.userId
   
-  // Use real API data or fallback to empty arrays
-  const mentoringPackages = packages.length > 0 ? packages : buildMentoringPackages(mentor)
-  const mentorCourses = courses.length > 0 ? courses : buildCourses(name)
-  const resources = buildResources()
-  const schedule = weeklyAvailability ? buildScheduleFromAPI(weeklyAvailability) : buildSchedule()
+  const mentoringPackages = packages
+  const mentorCourses = courses
+  const schedule = weeklyAvailability ? buildScheduleFromAPI(weeklyAvailability) : []
+
+  const openMentorChat = async (initialMessage?: string, actionKey = 'message') => {
+    if (!user) {
+      navigate('/login')
+      return
+    }
+
+    if (isOwnProfile) {
+      navigate('/profile')
+      return
+    }
+
+    setActionError(null)
+    setPendingAction(actionKey)
+
+    try {
+      const roomPage = await chatApi.getUserRooms(user.userId, { size: 100 })
+      const existingRoom = roomPage.content.find(
+        (room) =>
+          room.roomType === 'DIRECT_MESSAGE' &&
+          room.members.some((member) => member.userId === mentor.userId)
+      )
+
+      const room =
+        existingRoom ||
+        (await chatApi.createRoom({
+          roomType: 'DIRECT_MESSAGE',
+          roomName: name,
+          description: `Mentoring conversation with ${name}`,
+          createdByUserId: user.userId,
+          isPrivate: true,
+          maxMembers: 2,
+          referenceId: mentor.userId,
+          referenceType: 'MENTOR_PROFILE',
+          memberIds: [user.userId, mentor.userId],
+        }))
+
+      if (initialMessage) {
+        await chatApi.sendMessage({
+          chatRoomId: room.id,
+          senderId: user.userId,
+          content: initialMessage,
+          messageType: MessageType.TEXT,
+          metadata: {
+            source: 'mentor_profile',
+            mentorUserId: mentor.userId,
+            action: actionKey,
+          },
+        })
+      }
+
+      navigate('/chat')
+    } catch (error) {
+      console.error('Failed to open mentor chat', error)
+      setActionError('Không thể mở cuộc trò chuyện với mentor lúc này. Vui lòng thử lại.')
+    } finally {
+      setPendingAction(null)
+    }
+  }
+
+  const requestBooking = () =>
+    openMentorChat(
+      `Chào ${name}, mình muốn đặt lịch mentoring 1-1 với bạn. Bạn có thể tư vấn giúp mình khung giờ phù hợp không?`,
+      'book-profile'
+    )
+
+  const toggleSavedMentor = () => {
+    if (!user) {
+      navigate('/login')
+      return
+    }
+
+    if (isOwnProfile) return
+
+    setActionError(null)
+    saveMentorMutation.mutate(!isSaved)
+  }
 
   const tabs: Array<{ key: ProfileTab; label: string }> = [
     { key: 'overview', label: 'Tổng quan' },
@@ -132,12 +234,23 @@ export default function MentorPublicProfilePage() {
           name={name}
           title={title}
           image={profileImage}
-          saved={saved}
-          onSavedChange={setSaved}
+          saved={isSaved}
+          onToggleSaved={toggleSavedMentor}
+          savingMentor={savedLoading || saveMentorMutation.isLoading}
+          onMessage={() => openMentorChat(undefined, 'message')}
+          onBook={requestBooking}
+          pendingAction={pendingAction}
+          isOwnProfile={isOwnProfile}
         />
 
         <IntroPanel mentor={mentor} name={name} />
       </section>
+
+      {actionError && (
+        <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-bold text-rose-700 dark:border-rose-900 dark:bg-rose-950/30 dark:text-rose-200">
+          {actionError}
+        </div>
+      )}
 
       <nav className="flex gap-6 overflow-x-auto border-b border-gray-200 dark:border-gray-800">
         {tabs.map((tab) => (
@@ -158,11 +271,21 @@ export default function MentorPublicProfilePage() {
 
       {(activeTab === 'overview' || activeTab === 'mentoring') && (
         <>
-          <SectionHeader title="Gói Mentoring 1-1 phổ biến" action="Xem tất cả" />
+          <SectionHeader title="Gói Mentoring 1-1 phổ biến" />
           {mentoringPackages.length > 0 ? (
             <div className="grid gap-5 md:grid-cols-3">
               {mentoringPackages.map((item, index) => (
-                <MentoringPackageCard key={item.id || index} item={item} />
+                <MentoringPackageCard
+                  key={item.id || index}
+                  item={item}
+                  pending={pendingAction === `package-${item.id || index}`}
+                  onBook={() =>
+                    openMentorChat(
+                      `Chào ${name}, mình muốn đặt gói "${item.title}" (${formatPackagePrice(item)}). Bạn hỗ trợ mình bước tiếp theo nhé.`,
+                      `package-${item.id || index}`
+                    )
+                  }
+                />
               ))}
             </div>
           ) : (
@@ -171,7 +294,16 @@ export default function MentorPublicProfilePage() {
             </div>
           )}
 
-          <SchedulePanel schedule={schedule} />
+          <SchedulePanel
+            schedule={schedule}
+            pendingAction={pendingAction}
+            onBookSlot={(slotLabel) =>
+              openMentorChat(
+                `Chào ${name}, mình muốn đặt lịch mentoring vào ${slotLabel}. Khung giờ này còn phù hợp không?`,
+                `slot-${slotLabel}`
+              )
+            }
+          />
         </>
       )}
 
@@ -181,7 +313,17 @@ export default function MentorPublicProfilePage() {
           {mentorCourses.length > 0 ? (
             <div className="grid gap-5 md:grid-cols-3">
               {mentorCourses.map((course, index) => (
-                <CourseCard key={course.id || index} course={course} />
+                <CourseCard
+                  key={course.id || index}
+                  course={course}
+                  pending={pendingAction === `course-${course.id || index}`}
+                  onAsk={() =>
+                    openMentorChat(
+                      `Chào ${name}, mình muốn tìm hiểu thêm về khóa học "${course.title}". Bạn tư vấn giúp mình nhé.`,
+                      `course-${course.id || index}`
+                    )
+                  }
+                />
               ))}
             </div>
           ) : (
@@ -195,10 +337,8 @@ export default function MentorPublicProfilePage() {
       {(activeTab === 'overview' || activeTab === 'resources') && (
         <>
           <SectionHeader title="Tài liệu hữu ích" />
-          <div className="grid gap-5 md:grid-cols-3">
-            {resources.map((resource) => (
-              <ResourceCard key={resource.title} resource={resource} />
-            ))}
+          <div className="rounded-3xl border border-gray-200 bg-gray-50 p-8 text-center dark:border-gray-800 dark:bg-gray-900">
+            <p className="text-sm font-medium text-gray-500">Mentor chưa có tài liệu công khai từ API.</p>
           </div>
         </>
       )}
@@ -247,14 +387,24 @@ function MentorIdentityCard({
   title,
   image,
   saved,
-  onSavedChange,
+  onToggleSaved,
+  savingMentor,
+  onMessage,
+  onBook,
+  pendingAction,
+  isOwnProfile,
 }: {
   mentor: MentorProfileResponse
   name: string
   title: string
   image: string
   saved: boolean
-  onSavedChange: (value: boolean) => void
+  onToggleSaved: () => void
+  savingMentor: boolean
+  onMessage: () => void
+  onBook: () => void
+  pendingAction: string | null
+  isOwnProfile: boolean
 }) {
   return (
     <aside className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-950 lg:sticky lg:top-24 lg:self-start">
@@ -280,12 +430,22 @@ function MentorIdentityCard({
       </div>
 
       <div className="mt-6 space-y-3">
-        <button className="h-12 w-full rounded-2xl bg-blue-600 text-sm font-black text-white shadow-lg shadow-blue-600/20 transition-colors hover:bg-blue-700">
-          Đặt lịch 1-1
+        <button
+          type="button"
+          onClick={onBook}
+          disabled={!!pendingAction || isOwnProfile}
+          className="h-12 w-full rounded-2xl bg-blue-600 text-sm font-black text-white shadow-lg shadow-blue-600/20 transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:shadow-none dark:disabled:bg-gray-800"
+        >
+          {pendingAction === 'book-profile' ? 'Đang mở chat...' : 'Đặt lịch 1-1'}
         </button>
-        <button className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-2xl border border-blue-200 text-sm font-black text-blue-700 transition-colors hover:bg-blue-50 dark:border-blue-900 dark:text-blue-300 dark:hover:bg-blue-950/30">
+        <button
+          type="button"
+          onClick={onMessage}
+          disabled={!!pendingAction || isOwnProfile}
+          className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-2xl border border-blue-200 text-sm font-black text-blue-700 transition-colors hover:bg-blue-50 disabled:cursor-not-allowed disabled:border-gray-200 disabled:text-gray-400 disabled:hover:bg-transparent dark:border-blue-900 dark:text-blue-300 dark:hover:bg-blue-950/30 dark:disabled:border-gray-800"
+        >
           <MessageSquare className="h-4 w-4" />
-          Nhắn tin
+          {pendingAction === 'message' ? 'Đang mở...' : 'Nhắn tin'}
         </button>
       </div>
 
@@ -296,15 +456,17 @@ function MentorIdentityCard({
 
       <button
         type="button"
-        onClick={() => onSavedChange(!saved)}
+        onClick={onToggleSaved}
+        disabled={savingMentor || isOwnProfile}
+        title={saved ? 'Bỏ lưu mentor' : 'Lưu mentor'}
         className={`mt-5 inline-flex h-10 w-full items-center justify-center gap-2 rounded-xl text-sm font-bold transition-colors ${
           saved
             ? 'bg-rose-50 text-rose-700 dark:bg-rose-950/30 dark:text-rose-300'
-            : 'bg-gray-50 text-gray-500 hover:text-rose-600 dark:bg-gray-900 dark:text-gray-400'
+            : 'bg-gray-50 text-gray-500 hover:text-rose-600 disabled:cursor-not-allowed disabled:text-gray-400 dark:bg-gray-900 dark:text-gray-400'
         }`}
       >
         <Heart className={`h-4 w-4 ${saved ? 'fill-current' : ''}`} />
-        {saved ? 'Đã lưu mentor' : 'Lưu mentor'}
+        {savingMentor ? 'Đang cập nhật...' : saved ? 'Đã lưu mentor' : 'Lưu mentor'}
       </button>
     </aside>
   )
@@ -368,12 +530,12 @@ function IntroPanel({ mentor, name }: { mentor: MentorProfileResponse; name: str
   )
 }
 
-function MentoringPackageCard({ item }: { item: any }) {
+function MentoringPackageCard({ item, onBook, pending }: { item: any; onBook: () => void; pending: boolean }) {
   // Handle both API response and mock data structure
   const duration = item.durationHours ? `${item.durationHours * 60} phút` : item.duration || '60 phút'
   const title = item.title
   const description = item.description
-  const price = item.priceMxc ? `${Math.round(item.priceMxc)} MX` : item.price
+  const price = formatPackagePrice(item)
   const features = item.features || []
 
   return (
@@ -397,14 +559,35 @@ function MentoringPackageCard({ item }: { item: any }) {
           ))}
         </ul>
       )}
-      <button className="mt-6 h-11 w-full rounded-2xl bg-blue-600 text-sm font-black text-white transition-colors hover:bg-blue-700">
-        Đặt lịch
+      <button
+        type="button"
+        onClick={onBook}
+        disabled={pending}
+        className="mt-6 h-11 w-full rounded-2xl bg-blue-600 text-sm font-black text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-300 dark:disabled:bg-gray-800"
+      >
+        {pending ? 'Đang mở chat...' : 'Đặt lịch'}
       </button>
     </article>
   )
 }
 
-function SchedulePanel({ schedule }: { schedule: ReturnType<typeof buildSchedule> }) {
+function formatPackagePrice(item: any) {
+  if (item.priceMxc !== undefined && item.priceMxc !== null) {
+    return `${Math.round(Number(item.priceMxc))} MXC`
+  }
+
+  return item.price || 'Liên hệ'
+}
+
+function SchedulePanel({
+  schedule,
+  pendingAction,
+  onBookSlot,
+}: {
+  schedule: ScheduleDay[]
+  pendingAction: string | null
+  onBookSlot: (slotLabel: string) => void
+}) {
   return (
     <section className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-950">
       <div className="mb-5 flex items-center justify-between gap-3">
@@ -415,9 +598,9 @@ function SchedulePanel({ schedule }: { schedule: ReturnType<typeof buildSchedule
           </h2>
           <p className="mt-1 text-sm font-medium text-gray-500">Chọn khung giờ phù hợp để đặt lịch ngay.</p>
         </div>
-        <button className="hidden text-sm font-black text-blue-700 hover:text-blue-800 dark:text-blue-300 sm:block">Xem tất cả lịch</button>
       </div>
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-7">
+      {schedule.length > 0 ? (
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-7">
         {schedule.map((day) => (
           <div
             key={day.day}
@@ -433,7 +616,10 @@ function SchedulePanel({ schedule }: { schedule: ReturnType<typeof buildSchedule
               {day.slots.length ? (
                 day.slots.map((slot) => (
                   <button
+                    type="button"
                     key={slot}
+                    onClick={() => onBookSlot(`${day.day} ${day.date} ${slot}`)}
+                    disabled={pendingAction === `slot-${day.day} ${day.date} ${slot}`}
                     className={`h-7 w-full rounded-full text-xs font-black ${
                       day.today
                         ? 'bg-blue-600 text-white'
@@ -451,12 +637,17 @@ function SchedulePanel({ schedule }: { schedule: ReturnType<typeof buildSchedule
             </div>
           </div>
         ))}
-      </div>
+        </div>
+      ) : (
+        <div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50 p-6 text-center text-sm font-medium text-gray-500 dark:border-gray-800 dark:bg-gray-900">
+          Mentor chưa cấu hình lịch trống công khai.
+        </div>
+      )}
     </section>
   )
 }
 
-function CourseCard({ course }: { course: any }) {
+function CourseCard({ course, onAsk, pending }: { course: any; onAsk: () => void; pending: boolean }) {
   // Handle both API response and mock data structure
   const title = course.title
   const lessonsCount = course.lessonsCount || course.lessons || 0
@@ -472,27 +663,13 @@ function CourseCard({ course }: { course: any }) {
         <Clock className="h-4 w-4" />
         {lessonsCount} bài học · {levelText}
       </p>
-      <button className="mt-4 h-10 w-full rounded-2xl border border-blue-300 text-sm font-black text-blue-700 transition-colors hover:bg-blue-50 dark:border-blue-900 dark:text-blue-300 dark:hover:bg-blue-950/30">
-        Mua khóa học
-      </button>
-    </article>
-  )
-}
-
-function ResourceCard({ resource }: { resource: ReturnType<typeof buildResources>[number] }) {
-  return (
-    <article className="rounded-3xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-950">
-      <div className="flex items-center gap-4">
-        <div className={`flex h-14 w-14 items-center justify-center rounded-2xl ${resource.bg}`}>
-          <resource.icon className={`h-7 w-7 ${resource.iconColor}`} />
-        </div>
-        <div>
-          <h3 className="text-lg font-black text-gray-950 dark:text-white">{resource.title}</h3>
-          <p className="text-sm font-medium text-gray-500">{resource.lessons} bài học</p>
-        </div>
-      </div>
-      <button className="mt-5 h-11 w-full rounded-2xl bg-blue-600 text-sm font-black text-white transition-colors hover:bg-blue-700">
-        Mua ngay
+      <button
+        type="button"
+        onClick={onAsk}
+        disabled={pending}
+        className="mt-4 h-10 w-full rounded-2xl border border-blue-300 text-sm font-black text-blue-700 transition-colors hover:bg-blue-50 disabled:cursor-not-allowed disabled:border-gray-200 disabled:text-gray-400 disabled:hover:bg-transparent dark:border-blue-900 dark:text-blue-300 dark:hover:bg-blue-950/30 dark:disabled:border-gray-800"
+      >
+        {pending ? 'Đang mở chat...' : 'Hỏi về khóa học'}
       </button>
     </article>
   )
@@ -533,67 +710,7 @@ function ProfileSkeleton() {
   )
 }
 
-function buildMentoringPackages(mentor: MentorProfileResponse) {
-  const baseRate = mentor.hourlyRateMxc || 500
-
-  return [
-    {
-      duration: '30 phút',
-      title: 'Trò chuyện ngắn',
-      description: 'Giải đáp thắc mắc chuyên sâu, review CV/portfolio hoặc phỏng vấn nhanh.',
-      price: `${Math.round(baseRate * 0.5)} MX`,
-      subPrice: `≈ ${formatCurrency(baseRate * 0.5)} / 30 phút`,
-      features: ['Video call trực tiếp', 'Ghi âm buổi học', 'Tài liệu tổng kết'],
-    },
-    {
-      duration: '60 phút',
-      title: 'Tư vấn 1:1',
-      description: 'Phiên mentoring cá nhân để phân tích vấn đề và xây dựng lộ trình rõ ràng.',
-      price: `${Math.round(baseRate)} MX`,
-      subPrice: `≈ ${formatCurrency(baseRate)} / 60 phút`,
-      features: ['Video call trực tiếp', 'Ghi âm buổi học', 'Kế hoạch hành động'],
-    },
-    {
-      duration: '90 phút',
-      title: 'Review Project',
-      description: 'Phân tích chi tiết project thực tế, góp ý cải thiện sản phẩm và workflow.',
-      price: `${Math.round(baseRate * 1.6)} MX`,
-      subPrice: `≈ ${formatCurrency(baseRate * 1.6)} / 90 phút`,
-      features: ['Phân tích cấu trúc', 'Gợi ý giải pháp', 'Hỗ trợ sau review'],
-    },
-  ]
-}
-
-function buildCourses(name: string) {
-  return courseImages.map((image, index) => ({
-    title: index === 1 ? 'UX Design Chuyên sâu' : 'UX Design Cơ bản',
-    lessons: index === 2 ? 15 : 12,
-    image,
-    author: name,
-  }))
-}
-
-function buildResources() {
-  return [
-    { title: 'UI Kit Template', lessons: 288, icon: FileText, bg: 'bg-rose-50 dark:bg-rose-950/30', iconColor: 'text-rose-500' },
-    { title: 'UI Kit Toolkit', lessons: 277, icon: Download, bg: 'bg-blue-50 dark:bg-blue-950/30', iconColor: 'text-blue-500' },
-    { title: 'UI Toolkit', lessons: 282, icon: BookOpen, bg: 'bg-amber-50 dark:bg-amber-950/30', iconColor: 'text-amber-500' },
-  ]
-}
-
-function buildSchedule() {
-  return [
-    { day: 'Thứ 2', date: '14/10', slots: [] as string[], off: false },
-    { day: 'Thứ 3', date: '15/10', slots: ['10:00', '20:30'], off: false },
-    { day: 'Hôm nay', date: '16/10', slots: ['20:00'], today: true, off: false },
-    { day: 'Thứ 5', date: '17/10', slots: ['10:30', '20:00'], off: false },
-    { day: 'Thứ 6', date: '18/10', slots: [] as string[], off: false },
-    { day: 'Thứ 7', date: '19/10', slots: ['09:00', '14:00'], off: false },
-    { day: 'CN', date: '20/10', slots: [] as string[], off: true },
-  ]
-}
-
-function buildScheduleFromAPI(weeklyAvailability: any) {
+function buildScheduleFromAPI(weeklyAvailability: any): ScheduleDay[] {
   const today = new Date()
   const dayNames = ['CN', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7']
   const schedule = []
@@ -625,4 +742,3 @@ function buildScheduleFromAPI(weeklyAvailability: any) {
 
   return schedule
 }
-

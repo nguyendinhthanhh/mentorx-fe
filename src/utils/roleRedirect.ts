@@ -18,8 +18,8 @@ export const getDashboardPath = (user: UserResponse | null): string => {
     return '/mentor/dashboard'
   }
 
-  // Default user profile dashboard
-  return '/profile/dashboard'
+  // Regular users land on their profile workspace, not a dashboard.
+  return '/profile'
 }
 
 /**

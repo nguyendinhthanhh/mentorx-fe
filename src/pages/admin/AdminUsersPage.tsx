@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from 'react-query'
 import { userApi } from '@/api/userApi'
+import { mentorApi } from '@/api/mentorApi'
 import { UserStatus, MentorStatus, UserResponse } from '@/types'
 import { 
   Search, 
@@ -20,9 +21,11 @@ import {
 import { useState } from 'react'
 import { formatDateTime } from '@/utils/formatters'
 import AdminUserModal from '@/components/admin/AdminUserModal'
+import { useAuthStore } from '@/store/authStore'
 
 export default function AdminUsersPage() {
   const queryClient = useQueryClient()
+  const { user: currentUser } = useAuthStore()
   const [page, setPage] = useState(0)
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<UserStatus | ''>('')
@@ -58,6 +61,21 @@ export default function AdminUsersPage() {
     }
   )
 
+  const approveMentorMutation = useMutation(
+    (userId: string) => mentorApi.approveMentorApplication(userId, currentUser!.userId),
+    {
+      onSuccess: () => queryClient.invalidateQueries('admin-users')
+    }
+  )
+
+  const rejectMentorMutation = useMutation(
+    ({ userId, reason }: { userId: string; reason: string }) =>
+      mentorApi.requestMentorApplicationRevision(userId, reason, currentUser!.userId),
+    {
+      onSuccess: () => queryClient.invalidateQueries('admin-users')
+    }
+  )
+
   const deleteUserMutation = useMutation(
     (userId: string) => userApi.softDeleteUser(userId),
     {
@@ -68,6 +86,13 @@ export default function AdminUsersPage() {
   const handleDelete = (userId: string) => {
     if (window.confirm('Are you sure you want to delete this user?')) {
       deleteUserMutation.mutate(userId)
+    }
+  }
+
+  const handleRejectMentor = (userId: string) => {
+    const reason = window.prompt('Mentor cần bổ sung/chỉnh sửa thông tin gì?')
+    if (reason && reason.trim()) {
+      rejectMentorMutation.mutate({ userId, reason: reason.trim() })
     }
   }
 
@@ -231,6 +256,26 @@ export default function AdminUsersPage() {
                           >
                             <UserCheck className="w-4 h-4" />
                           </button>
+                        )}
+                        {user.mentorStatus === MentorStatus.PENDING && (
+                          <>
+                            <button
+                              onClick={() => approveMentorMutation.mutate(user.userId)}
+                              disabled={!currentUser || approveMentorMutation.isLoading}
+                              className="p-2.5 rounded-xl bg-emerald-50 border border-emerald-100 text-emerald-600 hover:bg-emerald-100 transition-all shadow-sm disabled:opacity-50"
+                              title="Approve mentor application"
+                            >
+                              <UserCheck className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => handleRejectMentor(user.userId)}
+                              disabled={!currentUser || rejectMentorMutation.isLoading}
+                              className="p-2.5 rounded-xl bg-rose-50 border border-rose-100 text-rose-600 hover:bg-rose-100 transition-all shadow-sm disabled:opacity-50"
+                              title="Request mentor application revision"
+                            >
+                              <UserX className="w-4 h-4" />
+                            </button>
+                          </>
                         )}
                         <button className="p-2.5 rounded-xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-gray-400 hover:text-primary-600 hover:border-primary-200 transition-all shadow-sm">
                           <Shield className="w-4 h-4" />

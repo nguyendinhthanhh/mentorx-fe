@@ -1,7 +1,7 @@
-import { useQuery } from 'react-query'
+import { useQuery, useQueryClient } from 'react-query'
 import { notificationApi } from '@/api/notificationApi'
 import { formatRelativeTime } from '@/utils/formatters'
-import { Bell, CheckCircle, Info, AlertTriangle, XCircle, Briefcase, MessageSquare } from 'lucide-react'
+import { Bell, CheckCircle, Info, AlertTriangle, XCircle, Briefcase, MessageSquare, ArrowRight } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { NotificationType } from '@/types'
@@ -12,8 +12,9 @@ interface Props {
 
 export default function NotificationDropdown({ userId }: Props) {
   const [isOpen, setIsOpen] = useState(false)
+  const queryClient = useQueryClient()
 
-  const { data, refetch } = useQuery(['notifications', userId], () =>
+  const { data, refetch } = useQuery(['notifications-preview', userId], () =>
     notificationApi.getUserNotifications(userId, { unreadOnly: false, size: 5 })
   )
 
@@ -23,7 +24,18 @@ export default function NotificationDropdown({ userId }: Props) {
 
   const handleMarkRead = async (id: string) => {
     await notificationApi.markAsRead(id)
+    refreshNotifications()
+  }
+
+  const handleMarkAllRead = async () => {
+    await notificationApi.markAllAsRead(userId)
+    refreshNotifications()
+  }
+
+  const refreshNotifications = () => {
     refetch()
+    queryClient.invalidateQueries(['unreadCount', userId])
+    queryClient.invalidateQueries(['notifications-page', userId])
   }
 
   const getIcon = (type: NotificationType) => {
@@ -40,6 +52,7 @@ export default function NotificationDropdown({ userId }: Props) {
       case NotificationType.JOB_POSTED:
       case NotificationType.PROPOSAL_SUBMITTED:
         return <Briefcase className="w-4 h-4 text-blue-500" />
+      case NotificationType.NEW_MESSAGE:
       case NotificationType.MESSAGE_RECEIVED:
         return <MessageSquare className="w-4 h-4 text-primary-500" />
       default:
@@ -50,12 +63,15 @@ export default function NotificationDropdown({ userId }: Props) {
   return (
     <div className="relative">
       <button
+        type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-50 transition-colors relative"
+        className="relative flex h-10 w-10 items-center justify-center rounded-xl text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700 dark:text-slate-300 dark:hover:bg-slate-900"
+        aria-label="Notifications"
+        aria-expanded={isOpen}
       >
-        <Bell className="w-5 h-5" />
+        <Bell className="h-5 w-5" />
         {unreadCount ? (
-          <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+          <span className="absolute right-1 top-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-bold leading-none text-white">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         ) : null}
@@ -64,51 +80,64 @@ export default function NotificationDropdown({ userId }: Props) {
       {isOpen && (
         <>
           <div className="fixed inset-0 z-10" onClick={() => setIsOpen(false)} />
-          <div className="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-xl border border-gray-100 z-20 overflow-hidden animate-in fade-in zoom-in duration-200">
-            <div className="px-4 py-3 border-b border-gray-50 flex justify-between items-center">
-              <h3 className="font-semibold text-gray-900">Notifications</h3>
-              <button 
-                onClick={() => notificationApi.markAllAsRead(userId).then(() => refetch())}
-                className="text-xs text-primary-600 hover:text-primary-700 font-medium"
+          <div className="absolute right-0 z-20 mt-2 w-[360px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl shadow-slate-900/10 animate-in fade-in zoom-in duration-200 dark:border-slate-800 dark:bg-slate-950">
+            <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3 dark:border-slate-800">
+              <div>
+                <h3 className="text-sm font-black text-slate-950 dark:text-white">Thông báo</h3>
+                <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
+                  {unreadCount ? `${unreadCount} thông báo chưa đọc` : 'Không có thông báo mới'}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={handleMarkAllRead}
+                disabled={!unreadCount}
+                className="rounded-lg px-2.5 py-1.5 text-xs font-bold text-indigo-600 transition hover:bg-indigo-50 disabled:cursor-not-allowed disabled:text-slate-300 disabled:hover:bg-transparent dark:text-indigo-300 dark:hover:bg-indigo-950/30 dark:disabled:text-slate-700"
               >
-                Mark all as read
+                Đọc hết
               </button>
             </div>
 
             <div className="max-h-96 overflow-y-auto">
               {data?.content.length ? (
                 data.content.map((notif) => (
-                  <div
+                  <button
+                    type="button"
                     key={notif.id}
-                    className={`px-4 py-3 flex gap-3 hover:bg-gray-50 transition-colors cursor-pointer border-b border-gray-50 last:border-0 ${
-                      !notif.isRead ? 'bg-primary-50/30' : ''
+                    className={`flex w-full gap-3 border-b border-slate-100 px-4 py-3 text-left transition-colors last:border-0 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-900 ${
+                      !notif.isRead ? 'bg-indigo-50/50 dark:bg-indigo-950/20' : ''
                     }`}
                     onClick={() => handleMarkRead(notif.id)}
                   >
-                    <div className="mt-1 flex-shrink-0">{getIcon(notif.notificationType)}</div>
+                    <div className="mt-1 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl bg-white shadow-sm ring-1 ring-slate-100 dark:bg-slate-950 dark:ring-slate-800">
+                      {getIcon(notif.notificationType)}
+                    </div>
                     <div className="flex-1 min-w-0">
-                      <p className={`text-sm leading-tight ${!notif.isRead ? 'font-semibold text-gray-900' : 'text-gray-700'}`}>
+                      <p className={`text-sm leading-tight ${!notif.isRead ? 'font-black text-slate-950 dark:text-white' : 'font-semibold text-slate-700 dark:text-slate-300'}`}>
                         {notif.title}
                       </p>
-                      <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{notif.message}</p>
-                      <p className="text-[10px] text-gray-400 mt-1">{formatRelativeTime(notif.createdAt)}</p>
+                      <p className="mt-1 line-clamp-2 text-xs leading-5 text-slate-500 dark:text-slate-400">{notif.message}</p>
+                      <p className="mt-1 text-[10px] font-bold uppercase tracking-wide text-slate-400">{formatRelativeTime(notif.createdAt)}</p>
                     </div>
-                  </div>
+                    {!notif.isRead && <span className="mt-2 h-2 w-2 rounded-full bg-indigo-600" />}
+                  </button>
                 ))
               ) : (
                 <div className="p-8 text-center">
-                  <Bell className="w-8 h-8 text-gray-200 mx-auto mb-2" />
-                  <p className="text-sm text-gray-500">No notifications yet</p>
+                  <Bell className="mx-auto mb-2 h-8 w-8 text-slate-300 dark:text-slate-700" />
+                  <p className="text-sm font-bold text-slate-700 dark:text-slate-300">Chưa có thông báo</p>
+                  <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Các cập nhật quan trọng sẽ xuất hiện ở đây.</p>
                 </div>
               )}
             </div>
 
             <Link
-              to="/notifications"
+              to="/profile/notifications"
               onClick={() => setIsOpen(false)}
-              className="block py-2.5 text-center text-xs font-medium text-gray-500 hover:text-gray-700 bg-gray-50 hover:bg-gray-100 transition-colors"
+              className="flex items-center justify-center gap-2 border-t border-slate-100 bg-slate-50 py-3 text-xs font-black text-slate-600 transition-colors hover:bg-slate-100 hover:text-indigo-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
             >
-              See all notifications
+              Xem tất cả thông báo
+              <ArrowRight className="h-3.5 w-3.5" />
             </Link>
           </div>
         </>
