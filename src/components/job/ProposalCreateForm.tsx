@@ -2,9 +2,9 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { proposalApi } from '@/api/proposalApi'
-import { useState } from 'react'
-import { Loader2, CheckCircle } from 'lucide-react'
-import { BudgetType, JobType } from '@/types'
+import { useState, useEffect } from 'react'
+import { Loader2, CheckCircle, Edit2, Trash2, AlertCircle } from 'lucide-react'
+import { BudgetType, JobType, ProposalResponse } from '@/types'
 
 const proposalSchema = z.object({
   coverLetter: z.string().min(10, 'Cover letter phải có ít nhất 10 ký tự'),
@@ -21,28 +21,60 @@ interface Props {
   jobType: JobType
   budgetType?: BudgetType
   onSuccess?: () => void
+  onCancel?: () => void // New prop for cancel action
+  forceEditMode?: boolean
 }
 
-export default function ProposalCreateForm({ jobId, mentorId, jobType, budgetType, onSuccess }: Props) {
+export default function ProposalCreateForm({ jobId, mentorId, jobType, budgetType, onSuccess, onCancel, forceEditMode = false }: Props) {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
+  const [existingProposal, setExistingProposal] = useState<ProposalResponse | null>(null)
+  const [isEditing, setIsEditing] = useState(forceEditMode) // Initialize with forceEditMode
+  const [checkingExisting, setCheckingExisting] = useState(true)
+  const [showWithdrawConfirm, setShowWithdrawConfirm] = useState(false)
+  const [withdrawing, setWithdrawing] = useState(false)
 
   const {
     register,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm<ProposalFormData>({
     resolver: zodResolver(proposalSchema),
   })
+
+  // Check for existing proposal on mount
+  useEffect(() => {
+    const checkExistingProposal = async () => {
+      try {
+        setCheckingExisting(true)
+        const proposal = await proposalApi.getByJobAndMentor(jobId, mentorId)
+        if (proposal) {
+          setExistingProposal(proposal)
+          // Pre-fill form with existing data
+          reset({
+            coverLetter: proposal.coverLetter,
+            proposedAmount: proposal.proposedAmount,
+            estimatedDurationDays: proposal.estimatedDurationDays || undefined,
+            relevantExperience: proposal.relevantExperience || undefined,
+          })
+        }
+      } catch (err) {
+        console.error('Error checking existing proposal:', err)
+      } finally {
+        setCheckingExisting(false)
+      }
+    }
+
+    checkExistingProposal()
+  }, [jobId, mentorId, reset])
 
   const onSubmit = async (data: ProposalFormData) => {
     try {
       setLoading(true)
       setError('')
       
-      // Always send proposedAmount (required by backend)
-      // If hourly rate, calculate estimated amount
       const payload = {
         jobId,
         mentorId,
@@ -53,8 +85,20 @@ export default function ProposalCreateForm({ jobId, mentorId, jobType, budgetTyp
         relevantExperience: data.relevantExperience,
       }
       
-      await proposalApi.create(payload)
-      setSuccess(true)
+      if (existingProposal && isEditing) {
+        // Update existing proposal
+        await proposalApi.update(existingProposal.id, payload)
+        setSuccess(true)
+        setIsEditing(false)
+        // Refresh existing proposal data
+        const updated = await proposalApi.getByJobAndMentor(jobId, mentorId)
+        setExistingProposal(updated)
+      } else {
+        // Create new proposal
+        await proposalApi.create(payload)
+        setSuccess(true)
+      }
+      
       if (onSuccess) setTimeout(onSuccess, 2000)
     } catch (err: any) {
       setError(err.response?.data?.message || 'Không thể gửi proposal. Vui lòng thử lại.')
@@ -63,14 +107,148 @@ export default function ProposalCreateForm({ jobId, mentorId, jobType, budgetTyp
     }
   }
 
+  const handleWithdraw = async () => {
+    if (!existingProposal) return
+    
+    try {
+      setWithdrawing(true)
+      setError('')
+      await proposalApi.withdraw(existingProposal.id)
+      setExistingProposal(null)
+      setShowWithdrawConfirm(false)
+      reset()
+      if (onSuccess) setTimeout(onSuccess, 1000)
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Không thể thu hồi proposal. Vui lòng thử lại.')
+    } finally {
+      setWithdrawing(false)
+    }
+  }
+
+  if (checkingExisting) {
+    return (
+      <div className="text-center py-8">
+        <Loader2 className="w-8 h-8 animate-spin text-indigo-500 mx-auto mb-3" />
+        <p className="text-sm text-slate-600">Đang kiểm tra proposal hiện có...</p>
+      </div>
+    )
+  }
+
   if (success) {
     return (
       <div className="text-center py-8">
         <div className="w-16 h-16 rounded-full bg-emerald-50 flex items-center justify-center mx-auto mb-4">
           <CheckCircle className="w-8 h-8 text-emerald-500" />
         </div>
-        <h3 className="text-lg font-bold text-slate-900 mb-1">Đã gửi Proposal!</h3>
+        <h3 className="text-lg font-bold text-slate-900 mb-1">
+          {existingProposal && isEditing ? 'Đã cập nhật Proposal!' : 'Đã gửi Proposal!'}
+        </h3>
         <p className="text-sm text-slate-600">Client sẽ nhận được thông báo về đề xuất của bạn.</p>
+      </div>
+    )
+  }
+
+  // Show existing proposal with edit/withdraw options
+  if (existingProposal && !isEditing) {
+    return (
+      <div className="space-y-6">
+        <div className="bg-blue-50 border border-blue-200 rounded-xl p-5">
+          <div className="flex items-start gap-3 mb-4">
+            <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+            <div>
+              <h3 className="font-bold text-blue-900 mb-1">Bạn đã gửi proposal cho job này</h3>
+              <p className="text-sm text-blue-700">
+                Trạng thái: <span className="font-semibold">{existingProposal.status}</span>
+              </p>
+              <p className="text-xs text-blue-600 mt-1">
+                Gửi lúc: {new Date(existingProposal.submittedAt || existingProposal.createdAt).toLocaleString('vi-VN')}
+              </p>
+            </div>
+          </div>
+
+          <div className="space-y-3 mb-4">
+            <div>
+              <p className="text-xs font-bold text-slate-600 mb-1">Cover Letter:</p>
+              <p className="text-sm text-slate-800 bg-white rounded-lg p-3 border border-blue-100">
+                {existingProposal.coverLetter}
+              </p>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <p className="text-xs font-bold text-slate-600 mb-1">Giá đề xuất:</p>
+                <p className="text-sm font-bold text-slate-900">{existingProposal.proposedAmount} MXC</p>
+              </div>
+              {existingProposal.estimatedDurationDays && (
+                <div>
+                  <p className="text-xs font-bold text-slate-600 mb-1">Thời gian:</p>
+                  <p className="text-sm font-bold text-slate-900">{existingProposal.estimatedDurationDays} ngày</p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="flex gap-3">
+            <button
+              onClick={() => setIsEditing(true)}
+              disabled={existingProposal.status === 'ACCEPTED' || existingProposal.status === 'WITHDRAWN'}
+              className="flex-1 flex items-center justify-center gap-2 bg-indigo-600 text-white py-2.5 rounded-lg font-bold hover:bg-indigo-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-all text-sm"
+            >
+              <Edit2 className="w-4 h-4" />
+              Chỉnh sửa
+            </button>
+            <button
+              onClick={() => setShowWithdrawConfirm(true)}
+              disabled={existingProposal.status === 'ACCEPTED' || existingProposal.status === 'WITHDRAWN'}
+              className="flex-1 flex items-center justify-center gap-2 bg-rose-600 text-white py-2.5 rounded-lg font-bold hover:bg-rose-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-all text-sm"
+            >
+              <Trash2 className="w-4 h-4" />
+              Thu hồi
+            </button>
+          </div>
+        </div>
+
+        {/* Withdraw Confirmation Modal */}
+        {showWithdrawConfirm && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl">
+              <div className="w-12 h-12 rounded-full bg-rose-100 flex items-center justify-center mx-auto mb-4">
+                <AlertCircle className="w-6 h-6 text-rose-600" />
+              </div>
+              <h3 className="text-lg font-bold text-slate-900 text-center mb-2">Thu hồi Proposal?</h3>
+              <p className="text-sm text-slate-600 text-center mb-6">
+                Bạn có chắc chắn muốn thu hồi proposal này? Hành động này không thể hoàn tác.
+              </p>
+              {error && (
+                <div className="bg-rose-50 border border-rose-200 text-rose-600 px-4 py-3 rounded-lg text-sm mb-4">
+                  {error}
+                </div>
+              )}
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowWithdrawConfirm(false)}
+                  disabled={withdrawing}
+                  className="flex-1 px-4 py-2.5 border border-slate-300 text-slate-700 rounded-lg font-bold hover:bg-slate-50 disabled:opacity-50 transition-all text-sm"
+                >
+                  Hủy
+                </button>
+                <button
+                  onClick={handleWithdraw}
+                  disabled={withdrawing}
+                  className="flex-1 flex items-center justify-center gap-2 bg-rose-600 text-white py-2.5 rounded-lg font-bold hover:bg-rose-700 disabled:bg-rose-400 transition-all text-sm"
+                >
+                  {withdrawing ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Đang xử lý...
+                    </>
+                  ) : (
+                    'Xác nhận thu hồi'
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     )
   }
@@ -165,15 +343,39 @@ export default function ProposalCreateForm({ jobId, mentorId, jobType, budgetTyp
         {loading ? (
           <>
             <Loader2 className="w-5 h-5 animate-spin" />
-            Đang gửi...
+            {isEditing ? 'Đang cập nhật...' : 'Đang gửi...'}
           </>
         ) : (
           <>
             <CheckCircle className="w-5 h-5" />
-            Gửi Proposal
+            {isEditing ? 'Cập nhật Proposal' : 'Gửi Proposal'}
           </>
         )}
       </button>
+
+      {isEditing && (
+        <button
+          type="button"
+          onClick={() => {
+            if (forceEditMode && onCancel) {
+              // If opened in force edit mode, call onCancel to close modal
+              onCancel()
+            } else {
+              // Normal flow: go back to "already submitted" view
+              setIsEditing(false)
+              reset({
+                coverLetter: existingProposal?.coverLetter,
+                proposedAmount: existingProposal?.proposedAmount,
+                estimatedDurationDays: existingProposal?.estimatedDurationDays || undefined,
+                relevantExperience: existingProposal?.relevantExperience || undefined,
+              })
+            }
+          }}
+          className="w-full flex items-center justify-center gap-2 bg-slate-200 text-slate-700 py-3 rounded-xl font-bold hover:bg-slate-300 transition-all text-sm"
+        >
+          Hủy chỉnh sửa
+        </button>
+      )}
     </form>
   )
 }

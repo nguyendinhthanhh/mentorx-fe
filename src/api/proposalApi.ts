@@ -26,6 +26,11 @@ export const proposalApi = {
     return response.data.data
   },
 
+  getByJobAndMentor: async (jobId: string, mentorId: string): Promise<ProposalResponse | null> => {
+    const response = await apiClient.get<ApiResponse<ProposalResponse>>(`/proposals/job/${jobId}/mentor/${mentorId}`)
+    return response.data.data
+  },
+
   getByMentor: async (mentorId: string, params?: { page?: number; size?: number }): Promise<PaginatedResponse<ProposalResponse>> => {
     const response = await apiClient.get<ApiResponse<PaginatedResponse<ProposalResponse>>>(`/proposals/mentor/${mentorId}`, { params })
     return response.data.data
@@ -34,6 +39,10 @@ export const proposalApi = {
   submit: async (proposalId: string): Promise<ProposalResponse> => {
     const response = await apiClient.post<ApiResponse<ProposalResponse>>(`/proposals/${proposalId}/submit`)
     return response.data.data
+  },
+
+  withdraw: async (proposalId: string): Promise<void> => {
+    await apiClient.post(`/proposals/${proposalId}/withdraw`)
   },
 
   accept: async (proposalId: string): Promise<ProposalResponse> => {

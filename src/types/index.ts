@@ -17,11 +17,15 @@ export enum MentorStatus {
 }
 
 export enum JobStatus {
+  DRAFT = "DRAFT",
+  PENDING_APPROVAL = "PENDING_APPROVAL",
   OPEN = "OPEN",
   IN_PROGRESS = "IN_PROGRESS",
   COMPLETED = "COMPLETED",
   CANCELLED = "CANCELLED",
   CLOSED = "CLOSED",
+  ON_HOLD = "ON_HOLD",
+  EXPIRED = "EXPIRED",
 }
 
 export enum JobType {
@@ -117,10 +121,14 @@ export enum SupportedLanguage {
 export enum ProposalStatus {
   DRAFT = "DRAFT",
   SUBMITTED = "SUBMITTED",
+  UNDER_REVIEW = "UNDER_REVIEW",
+  SHORTLISTED = "SHORTLISTED",
   ACCEPTED = "ACCEPTED",
   REJECTED = "REJECTED",
-  CANCELLED = "CANCELLED",
+  WITHDRAWN = "WITHDRAWN",
   EXPIRED = "EXPIRED",
+  INTERVIEW_REQUESTED = "INTERVIEW_REQUESTED",
+  NEGOTIATING = "NEGOTIATING",
 }
 
 export enum NotificationType {

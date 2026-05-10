@@ -23,8 +23,18 @@ import {
   Sparkles,
   User,
   X,
+  Eye,
+  Edit,
+  Trash2,
+  AlertCircle,
+  Loader2,
+  TrendingUp,
+  ArrowRight,
+  MessageCircle,
 } from 'lucide-react'
 import { jobApi } from '@/api/jobApi'
+import { proposalApi } from '@/api/proposalApi'
+import { negotiationApi } from '@/api/negotiationApi'
 import { useAuthStore } from '@/store/authStore'
 import { BudgetType, JobResponse, JobStatus, JobType } from '@/types'
 import { formatCurrency, formatDate, formatDateTime, formatRelativeTime } from '@/utils/formatters'
@@ -51,17 +61,45 @@ const STATUS_META: Record<string, { label: string; className: string }> = {
   [JobStatus.IN_PROGRESS]: { label: 'In progress', className: 'border-blue-200 bg-blue-50 text-blue-700' },
   [JobStatus.COMPLETED]: { label: 'Completed', className: 'border-slate-200 bg-slate-50 text-slate-700' },
   [JobStatus.CANCELLED]: { label: 'Cancelled', className: 'border-rose-200 bg-rose-50 text-rose-700' },
-  [JobStatus.CLOSED]: { label: 'Closed', className: 'border-slate-200 bg-slate-50 text-slate-500' },
+  [JobStatus.CLOSED]: { label: 'Closed', className: 'border-slate-200 bg-slate-50 text-slate-600' },
 }
 
 export default function JobDetailPage() {
   const { user, isAuthenticated } = useAuthStore()
   const { jobId } = useParams<{ jobId: string }>()
   const [showApplyModal, setShowApplyModal] = useState(false)
+  const [showProposalDetail, setShowProposalDetail] = useState(false)
+  const [forceEditMode, setForceEditMode] = useState(false) // Track if we should force edit mode
+  const [showWithdrawConfirm, setShowWithdrawConfirm] = useState(false)
+  const [withdrawing, setWithdrawing] = useState(false)
   const [saved, setSaved] = useState(() => Boolean(jobId && localStorage.getItem(`saved-job-${jobId}`)))
   const [copied, setCopied] = useState(false)
 
   const { data: job, isLoading } = useQuery(['job', jobId], () => jobApi.getById(jobId!), { enabled: !!jobId })
+  
+  // Check if mentor has already submitted a proposal
+  const { data: existingProposal } = useQuery(
+    ['proposal', jobId, user?.userId],
+    () => proposalApi.getByJobAndMentor(jobId!, user!.userId),
+    { 
+      enabled: !!jobId && !!user?.userId && isAuthenticated,
+      retry: false,
+      // Don't throw error if no proposal found (404 is expected)
+      onError: () => {
+        // Silently handle - no proposal exists
+      }
+    }
+  )
+
+  // Get latest negotiation for the existing proposal
+  const { data: latestNegotiation } = useQuery(
+    ['negotiation-latest', existingProposal?.id],
+    () => negotiationApi.getLatest(existingProposal!.id),
+    { 
+      enabled: !!existingProposal?.id && existingProposal.status === 'NEGOTIATING',
+      retry: false
+    }
+  )
 
   const derived = useMemo(() => {
     if (!job) return null
@@ -111,6 +149,21 @@ export default function JobDetailPage() {
     await navigator.clipboard.writeText(window.location.href)
     setCopied(true)
     window.setTimeout(() => setCopied(false), 1600)
+  }
+
+  const handleWithdraw = async () => {
+    if (!existingProposal) return
+    
+    try {
+      setWithdrawing(true)
+      await proposalApi.withdraw(existingProposal.id)
+      setShowWithdrawConfirm(false)
+      // Refresh to show updated state
+      window.location.reload()
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Không thể thu hồi proposal. Vui lòng thử lại.')
+      setWithdrawing(false)
+    }
   }
 
   return (
@@ -298,15 +351,119 @@ export default function JobDetailPage() {
                     </Link>
                   </>
                 ) : isAuthenticated ? (
-                  <button
-                    type="button"
-                    disabled={!canApply}
-                    onClick={() => setShowApplyModal(true)}
-                    className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 text-sm font-black text-white shadow-sm hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-slate-300"
-                  >
-                    <Send className="h-4 w-4" />
-                    {job.status === JobStatus.OPEN ? 'Submit proposal' : 'Job is not open'}
-                  </button>
+                  <>
+                    {existingProposal ? (
+                      // Mentor has already submitted a proposal
+                      <>
+                        <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 space-y-3">
+                          <div className="flex items-start gap-3">
+                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100">
+                              <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-black text-emerald-900">Đã gửi proposal</p>
+                              <p className="text-xs text-emerald-700 mt-0.5">
+                                {formatRelativeTime(existingProposal.submittedAt || existingProposal.createdAt)}
+                              </p>
+                            </div>
+                          </div>
+                          
+                          <div className="grid grid-cols-2 gap-2 text-xs">
+                            <div className="bg-white rounded-lg p-2 border border-emerald-100">
+                              <p className="text-emerald-600 font-bold mb-0.5">Giá đề xuất</p>
+                              <p className="text-slate-900 font-black">{formatCurrency(existingProposal.proposedAmount)}</p>
+                            </div>
+                            <div className="bg-white rounded-lg p-2 border border-emerald-100">
+                              <p className="text-emerald-600 font-bold mb-0.5">Thời gian</p>
+                              <p className="text-slate-900 font-black">{existingProposal.estimatedDurationDays} ngày</p>
+                            </div>
+                          </div>
+
+                          <div className="bg-white rounded-lg p-3 border border-emerald-100">
+                            <p className="text-xs font-bold text-emerald-600 mb-1">Status</p>
+                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-black ${getProposalStatusColor(existingProposal.status)}`}>
+                              {getProposalStatusLabel(existingProposal.status)}
+                            </span>
+                          </div>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => setShowProposalDetail(true)}
+                          className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 text-sm font-black text-white shadow-sm hover:bg-indigo-700"
+                        >
+                          <Eye className="h-4 w-4" />
+                          Xem chi tiết proposal
+                        </button>
+                        
+                        <div className="grid grid-cols-2 gap-2">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setForceEditMode(true)
+                              setShowApplyModal(true)
+                            }}
+                            disabled={existingProposal.status === 'ACCEPTED' || existingProposal.status === 'REJECTED'}
+                            className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-black text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            <Edit className="h-4 w-4" />
+                            Chỉnh sửa
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setShowWithdrawConfirm(true)}
+                            disabled={existingProposal.status === 'ACCEPTED' || existingProposal.status === 'WITHDRAWN'}
+                            className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-rose-200 bg-white px-3 text-sm font-black text-rose-600 hover:bg-rose-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                            Thu hồi
+                          </button>
+                        </div>
+                        
+                        {(existingProposal.status === 'ACCEPTED' || existingProposal.status === 'REJECTED') && (
+                          <p className="text-xs text-slate-500 text-center">
+                            {existingProposal.status === 'ACCEPTED' 
+                              ? '⚠️ Không thể chỉnh sửa proposal đã được chấp nhận'
+                              : '⚠️ Không thể chỉnh sửa proposal đã bị từ chối'
+                            }
+                          </p>
+                        )}
+                      </>
+                    ) : (
+                      <>
+                        <button
+                          type="button"
+                          disabled={!canApply || job.status === 'CLOSED'}
+                          onClick={() => setShowApplyModal(true)}
+                          className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 text-sm font-black text-white shadow-sm hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+                        >
+                          {job.status === JobStatus.CLOSED ? (
+                            <>
+                              <X className="h-4 w-4" />
+                              Công việc đã đóng
+                            </>
+                          ) : job.status === JobStatus.OPEN ? (
+                            <>
+                              <Send className="h-4 w-4" />
+                              Submit proposal
+                            </>
+                          ) : (
+                            'Job is not open'
+                          )}
+                        </button>
+                        {job.status === JobStatus.CLOSED && (
+                          <div className="mt-3 rounded-xl bg-amber-50 border border-amber-200 p-4 text-center">
+                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-100 mx-auto mb-2">
+                              <AlertCircle className="w-4 h-4 text-amber-600" />
+                            </div>
+                            <p className="text-[11px] font-bold text-amber-800 leading-relaxed">
+                              Dự án này đã tìm được mentor phù hợp và hiện tại không còn chấp nhận đề xuất mới.
+                            </p>
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </>
                 ) : (
                   <Link
                     to="/login"
@@ -355,12 +512,22 @@ export default function JobDetailPage() {
             <div className="mb-5 flex items-start justify-between gap-4">
               <div>
                 <p className="text-sm font-bold text-indigo-600">Proposal</p>
-                <h2 className="mt-1 text-2xl font-black text-slate-950">Submit your offer</h2>
-                <p className="mt-1 text-sm text-slate-500">Send a focused proposal for {clientName}.</p>
+                <h2 className="mt-1 text-2xl font-black text-slate-950">
+                  {existingProposal && forceEditMode ? 'Chỉnh sửa proposal' : 'Submit your offer'}
+                </h2>
+                <p className="mt-1 text-sm text-slate-500">
+                  {existingProposal && forceEditMode
+                    ? 'Cập nhật thông tin proposal của bạn'
+                    : `Send a focused proposal for ${clientName}.`
+                  }
+                </p>
               </div>
               <button
                 type="button"
-                onClick={() => setShowApplyModal(false)}
+                onClick={() => {
+                  setShowApplyModal(false)
+                  setForceEditMode(false)
+                }}
                 className="flex h-10 w-10 items-center justify-center rounded-xl text-slate-400 hover:bg-slate-100 hover:text-slate-700"
                 aria-label="Close proposal form"
               >
@@ -372,8 +539,238 @@ export default function JobDetailPage() {
               mentorId={user.userId}
               jobType={job.jobType}
               budgetType={job.budgetType}
-              onSuccess={() => setShowApplyModal(false)}
+              forceEditMode={forceEditMode}
+              onSuccess={() => {
+                setShowApplyModal(false)
+                setForceEditMode(false)
+                // Refetch proposal data instead of full page reload
+                window.location.reload()
+              }}
+              onCancel={() => {
+                // When user cancels edit in force edit mode, just close modal
+                setShowApplyModal(false)
+                setForceEditMode(false)
+              }}
             />
+          </div>
+        </div>
+      )}
+
+      {showProposalDetail && existingProposal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4 backdrop-blur-sm">
+          <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl sm:p-7">
+            <div className="mb-5 flex items-start justify-between gap-4">
+              <div>
+                <p className="text-sm font-bold text-indigo-600">Your Proposal</p>
+                <h2 className="mt-1 text-2xl font-black text-slate-950">Proposal Details</h2>
+                <p className="mt-1 text-sm text-slate-500">
+                  Submitted {formatRelativeTime(existingProposal.submittedAt || existingProposal.createdAt)}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowProposalDetail(false)}
+                className="flex h-10 w-10 items-center justify-center rounded-xl text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+                aria-label="Close proposal detail"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="space-y-5">
+              {/* Status Badge */}
+              <div className="flex items-center justify-between rounded-xl bg-slate-50 p-4">
+                <div>
+                  <p className="text-xs font-bold uppercase text-slate-500">Status</p>
+                  <span className={`mt-1 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-black ${getProposalStatusColor(existingProposal.status)}`}>
+                    {getProposalStatusLabel(existingProposal.status)}
+                  </span>
+                </div>
+                {existingProposal.viewCount !== undefined && (
+                  <div className="text-right">
+                    <p className="text-xs font-bold uppercase text-slate-500">Lượt xem</p>
+                    <p className="mt-1 text-2xl font-black text-slate-900">{existingProposal.viewCount}</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Budget & Duration */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="rounded-xl bg-slate-50 p-4">
+                  <div className="flex items-center gap-2 text-xs font-bold uppercase text-slate-400 mb-2">
+                    <DollarSign className="h-4 w-4" />
+                    Giá đề xuất
+                  </div>
+                  <p className="text-2xl font-black text-slate-950">{formatCurrency(existingProposal.proposedAmount)}</p>
+                </div>
+                <div className="rounded-xl bg-slate-50 p-4">
+                  <div className="flex items-center gap-2 text-xs font-bold uppercase text-slate-400 mb-2">
+                    <CalendarDays className="h-4 w-4" />
+                    Thời gian
+                  </div>
+                  <p className="text-2xl font-black text-slate-950">{existingProposal.estimatedDurationDays} ngày</p>
+                </div>
+              </div>
+
+              {/* Latest Negotiation Info */}
+              {existingProposal.status === 'NEGOTIATING' && latestNegotiation && (
+                <div className="relative overflow-hidden bg-gradient-to-br from-amber-50 to-white border border-amber-200 rounded-3xl p-6 shadow-sm">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-amber-200/20 rounded-full -mr-16 -mt-16 blur-3xl" />
+                  
+                  <div className="relative flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center shadow-sm">
+                        <MessageCircle className="w-5 h-5 text-amber-600" />
+                      </div>
+                      <div>
+                        <h3 className="font-black text-slate-900">
+                          {latestNegotiation.senderType === 'CLIENT' ? 'Client đề xuất thương lượng' : 'Bạn đã phản hồi thương lượng'}
+                        </h3>
+                        <p className="text-[10px] font-black text-amber-600 uppercase tracking-widest mt-0.5">
+                          {latestNegotiation.senderType === 'CLIENT' ? 'Đang chờ bạn phản hồi' : 'Đang chờ client phản hồi'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="relative bg-white rounded-2xl p-5 border border-amber-100 mb-6 shadow-sm italic text-slate-600 leading-relaxed text-sm">
+                    <span className="text-4xl text-amber-200 absolute -top-2 -left-1 font-serif opacity-50">“</span>
+                    {latestNegotiation.message}
+                    <span className="text-4xl text-amber-200 absolute -bottom-6 -right-1 font-serif opacity-50">”</span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    {latestNegotiation.proposedAmount && (
+                      <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 border border-amber-100 shadow-sm">
+                        <p className="text-[10px] font-black text-amber-600 uppercase mb-2 tracking-wider">Giá thỏa thuận</p>
+                        <div className="flex items-center gap-2">
+                          <span className="text-slate-400 line-through text-xs font-bold">{existingProposal.proposedAmount} MXC</span>
+                          <ArrowRight className="w-3 h-3 text-amber-500" />
+                          <span className="text-lg font-black text-amber-700">{latestNegotiation.proposedAmount} MXC</span>
+                        </div>
+                      </div>
+                    )}
+                    {latestNegotiation.estimatedDurationDays && (
+                      <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 border border-amber-100 shadow-sm">
+                        <p className="text-[10px] font-black text-amber-600 uppercase mb-2 tracking-wider">Thời gian mới</p>
+                        <div className="flex items-center gap-2">
+                          <span className="text-slate-400 line-through text-xs font-bold">{existingProposal.estimatedDurationDays} ngày</span>
+                          <ArrowRight className="w-3 h-3 text-amber-500" />
+                          <span className="text-lg font-black text-amber-700">{latestNegotiation.estimatedDurationDays} ngày</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {latestNegotiation.senderType === 'CLIENT' ? (
+                    <div className="mt-6">
+                      <Link
+                        to="/mentor/proposals"
+                        className="flex w-full h-12 items-center justify-center gap-2 rounded-2xl bg-amber-600 text-sm font-black text-white hover:bg-amber-700 shadow-lg shadow-amber-200 transition-all hover:scale-[1.02] active:scale-95"
+                      >
+                        <TrendingUp className="w-4 h-4" />
+                        Phản hồi ngay
+                      </Link>
+                    </div>
+                  ) : (
+                    <div className="mt-6 p-4 bg-amber-100/30 rounded-2xl border border-dashed border-amber-300 text-center">
+                      <p className="text-xs font-bold text-amber-800 flex items-center justify-center gap-2">
+                        <Clock className="w-4 h-4 animate-pulse" />
+                        Đang chờ client phản hồi đề xuất của bạn
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Cover Letter */}
+              <div>
+                <p className="text-sm font-black text-slate-950 mb-3">Cover Letter</p>
+                <div className="rounded-xl bg-slate-50 p-4 border border-slate-200">
+                  <p className="text-sm leading-7 text-slate-700 whitespace-pre-wrap">{existingProposal.coverLetter}</p>
+                </div>
+              </div>
+
+              {/* Relevant Experience */}
+              {existingProposal.relevantExperience && (
+                <div>
+                  <p className="text-sm font-black text-slate-950 mb-3">Kinh nghiệm liên quan</p>
+                  <div className="rounded-xl bg-indigo-50 p-4 border border-indigo-200">
+                    <p className="text-sm leading-7 text-slate-700 whitespace-pre-wrap">{existingProposal.relevantExperience}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Rejection Reason */}
+              {existingProposal.status === 'REJECTED' && existingProposal.rejectionReason && (
+                <div>
+                  <p className="text-sm font-black text-rose-600 mb-3">Lý do từ chối</p>
+                  <div className="rounded-xl bg-rose-50 p-4 border border-rose-200">
+                    <p className="text-sm leading-7 text-rose-700">{existingProposal.rejectionReason}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Actions */}
+              <div className="flex gap-3 pt-4 border-t border-slate-200">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowProposalDetail(false)
+                    setShowApplyModal(true)
+                  }}
+                  className="flex-1 inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 text-sm font-black text-white hover:bg-indigo-700"
+                >
+                  <Edit className="h-4 w-4" />
+                  Chỉnh sửa
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowProposalDetail(false)}
+                  className="px-6 inline-flex h-11 items-center justify-center rounded-xl border border-slate-200 bg-white text-sm font-black text-slate-700 hover:bg-slate-50"
+                >
+                  Đóng
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Withdraw Confirmation Modal */}
+      {showWithdrawConfirm && existingProposal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+            <div className="w-12 h-12 rounded-full bg-rose-100 flex items-center justify-center mx-auto mb-4">
+              <AlertCircle className="w-6 h-6 text-rose-600" />
+            </div>
+            <h3 className="text-lg font-bold text-slate-900 text-center mb-2">Thu hồi Proposal?</h3>
+            <p className="text-sm text-slate-600 text-center mb-6">
+              Bạn có chắc chắn muốn thu hồi proposal này? Hành động này không thể hoàn tác.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowWithdrawConfirm(false)}
+                disabled={withdrawing}
+                className="flex-1 px-4 py-2.5 border border-slate-300 text-slate-700 rounded-lg font-bold hover:bg-slate-50 disabled:opacity-50 transition-all text-sm"
+              >
+                Hủy
+              </button>
+              <button
+                onClick={handleWithdraw}
+                disabled={withdrawing}
+                className="flex-1 flex items-center justify-center gap-2 bg-rose-600 text-white py-2.5 rounded-lg font-bold hover:bg-rose-700 disabled:bg-rose-400 transition-all text-sm"
+              >
+                {withdrawing ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Đang xử lý...
+                  </>
+                ) : (
+                  'Xác nhận thu hồi'
+                )}
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -541,4 +938,32 @@ function getInitials(name: string) {
   const parts = name.trim().split(/\s+/).filter(Boolean)
   const initials = parts.slice(0, 2).map((part) => part[0]).join('')
   return initials.toUpperCase() || 'C'
+}
+
+function getProposalStatusLabel(status: string): string {
+  const statusLabels: Record<string, string> = {
+    DRAFT: 'Nháp',
+    SUBMITTED: 'Đã gửi',
+    UNDER_REVIEW: 'Đang xem xét',
+    NEGOTIATING: 'Đang thương lượng',
+    SHORTLISTED: 'Được chọn',
+    ACCEPTED: 'Chấp nhận',
+    REJECTED: 'Từ chối',
+    WITHDRAWN: 'Đã thu hồi',
+  }
+  return statusLabels[status] || status
+}
+
+function getProposalStatusColor(status: string): string {
+  const statusColors: Record<string, string> = {
+    DRAFT: 'bg-slate-100 text-slate-700 border border-slate-200',
+    SUBMITTED: 'bg-blue-100 text-blue-700 border border-blue-200',
+    UNDER_REVIEW: 'bg-amber-100 text-amber-700 border border-amber-200',
+    NEGOTIATING: 'bg-amber-100 text-amber-700 border border-amber-200',
+    SHORTLISTED: 'bg-purple-100 text-purple-700 border border-purple-200',
+    ACCEPTED: 'bg-emerald-100 text-emerald-700 border border-emerald-200',
+    REJECTED: 'bg-rose-100 text-rose-700 border border-rose-200',
+    WITHDRAWN: 'bg-gray-100 text-gray-700 border border-gray-200',
+  }
+  return statusColors[status] || 'bg-slate-100 text-slate-700 border border-slate-200'
 }
