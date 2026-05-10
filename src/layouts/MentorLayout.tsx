@@ -16,12 +16,14 @@ import {
   Award,
   ExternalLink,
   Sun,
-  Moon
+  Moon,
+  Search
 } from 'lucide-react'
 import { useState } from 'react'
 
 const mentorLinks = [
   { to: '/mentor/dashboard', label: 'Overview', icon: LayoutDashboard },
+  { to: '/mentor/jobs', label: 'Find Jobs', icon: Search },
   { to: '/mentor/proposals', label: 'My Proposals', icon: MessageSquare },
   { to: '/mentor/contracts', label: 'Active Contracts', icon: Briefcase },
   { to: '/mentor/my-courses', label: 'My Courses', icon: BookOpen },

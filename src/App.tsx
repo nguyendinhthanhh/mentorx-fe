@@ -53,6 +53,7 @@ import AdminSupportPage from './pages/admin/AdminSupportPage'
 
 // Mentor Pages
 import MentorDashboardPage from './pages/mentor/MentorDashboardPage'
+import MentorJobsPage from './pages/mentor/MentorJobsPage'
 
 // Protected Route Components
 import ProtectedRoute from './components/auth/ProtectedRoute'
@@ -166,6 +167,7 @@ function App() {
           <Route element={<ProtectedRoute><MentorRoute><MentorLayout /></MentorRoute></ProtectedRoute>}>
             <Route path="/mentor" element={<Navigate to="/mentor/dashboard" replace />} />
             <Route path="/mentor/dashboard" element={<MentorDashboardPage />} />
+            <Route path="/mentor/jobs" element={<MentorJobsPage />} />
             <Route path="/mentor/proposals" element={<div>My Proposals (Coming Soon)</div>} />
             <Route path="/mentor/contracts" element={<div>Active Contracts (Coming Soon)</div>} />
             <Route path="/mentor/my-courses" element={<div>My Courses (Coming Soon)</div>} />
