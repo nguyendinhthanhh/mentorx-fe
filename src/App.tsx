@@ -48,6 +48,7 @@ import AdminJobsPage from './pages/admin/AdminJobsPage'
 import AdminCoursesPage from './pages/admin/AdminCoursesPage'
 import AdminReportsPage from './pages/admin/AdminReportsPage'
 import AdminWalletPage from './pages/admin/AdminWalletPage'
+import AdminMentorApplicationsPage from './pages/admin/AdminMentorApplicationsPage'
 import AdminSupportPage from './pages/admin/AdminSupportPage'
 
 // Mentor Pages
@@ -139,8 +140,8 @@ function App() {
             <Route path="/profile/reviews" element={<div>Reviews (Coming Soon)</div>} />
             <Route path="/profile/payments" element={<div>Payment Methods (Coming Soon)</div>} />
             
-            {/* Mentor Profile */}
-            <Route path="/mentor/profile" element={<MentorProfilePage />} />
+            {/* Mentor Verification */}
+            <Route path="/become-a-mentor" element={<MentorProfilePage />} />
           </Route>
 
           {/* Legacy Dashboard Route - Redirect to Profile Dashboard */}
@@ -152,6 +153,7 @@ function App() {
             <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
             <Route path="/admin/api" element={<AdminApiPage />} />
             <Route path="/admin/users" element={<AdminUsersPage />} />
+            <Route path="/admin/mentor-applications" element={<AdminMentorApplicationsPage />} />
             <Route path="/admin/jobs" element={<AdminJobsPage />} />
             <Route path="/admin/courses" element={<AdminCoursesPage />} />
             <Route path="/admin/reports" element={<AdminReportsPage />} />

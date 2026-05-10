@@ -184,9 +184,64 @@ export default function JobDetailPage() {
               </div>
             </div>
 
-            <Panel title="Job Description" icon={FileText}>
+            <Panel title="Mô tả công việc" icon={FileText}>
               <div className="whitespace-pre-wrap text-sm leading-7 text-slate-700">{job.description}</div>
             </Panel>
+
+            {(job.attachmentUrl || (job.attachments && job.attachments.length > 0)) && (
+              <Panel title="Tài liệu & Hình ảnh đính kèm" icon={Layers3}>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {/* Gộp tất cả tài liệu vào một danh sách để hiển thị */}
+                  {[
+                    ...(job.attachmentUrl ? [job.attachmentUrl] : []),
+                    ...(job.attachments || [])
+                  ]
+                  .filter((url, index, self) => self.indexOf(url) === index) // Loại bỏ trùng lặp
+                  .map((url, index) => {
+                    const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(url);
+                    return (
+                      <div key={index} className="space-y-2">
+                        {isImage ? (
+                          <div className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 transition-all hover:border-indigo-300">
+                            <img 
+                              src={url} 
+                              alt={`Attachment ${index + 1}`} 
+                              className="aspect-video w-full object-cover transition-transform duration-500 group-hover:scale-[1.05]"
+                            />
+                            <div className="absolute inset-0 flex items-center justify-center bg-slate-950/0 opacity-0 transition-all group-hover:bg-slate-950/20 group-hover:opacity-100">
+                              <a
+                                href={url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex h-10 items-center gap-2 rounded-xl bg-white px-4 text-xs font-black text-slate-900 shadow-xl transition-transform hover:scale-105"
+                              >
+                                <Share2 className="h-3.5 w-3.5" />
+                                Xem ảnh gốc
+                              </a>
+                            </div>
+                          </div>
+                        ) : (
+                          <a
+                            href={url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="group flex items-center gap-3 rounded-2xl border border-indigo-100 bg-indigo-50/50 p-4 transition-all hover:bg-indigo-100 hover:shadow-lg hover:shadow-indigo-100/50 dark:border-indigo-900/30 dark:bg-indigo-900/10 dark:hover:bg-indigo-900/20"
+                          >
+                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-indigo-600 shadow-sm transition-transform group-hover:scale-110 dark:bg-slate-800">
+                              <FileText className="h-5 w-5" />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-[10px] font-black uppercase tracking-wider text-slate-400">TÀI LIỆU {index + 1}</p>
+                              <p className="truncate text-xs font-bold text-slate-900 dark:text-white">Tải tài liệu chi tiết</p>
+                            </div>
+                          </a>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </Panel>
+            )}
 
             <Panel title="What To Prepare" icon={Layers3}>
               <div className="grid gap-3 min-[520px]:grid-cols-3">

@@ -39,6 +39,8 @@ export default function ProfileLayout() {
 
   if (!user) return null
 
+  const isFullWidthPage = location.pathname === '/become-a-mentor'
+
   const displayName = user.displayName || user.fullName || 'User'
   const initials = displayName.charAt(0).toUpperCase()
   const mentorApproved = isMentor(user)
@@ -61,7 +63,7 @@ export default function ProfileLayout() {
     : [
         ...baseTabs.slice(0, 2),
         {
-          to: '/mentor/profile',
+          to: '/become-a-mentor',
           label: 'Trở thành mentor',
           icon: Award,
         },
@@ -130,57 +132,80 @@ export default function ProfileLayout() {
       <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-8 lg:flex-row">
           {/* Sidebar */}
-          <aside className="w-full lg:w-64 flex-none space-y-6">
-            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-              <div className="flex flex-col items-center text-center">
-                <div className="relative mb-4">
-                  <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-2xl bg-indigo-600 shadow-lg shadow-indigo-200 dark:shadow-none">
-                    {user.avatarUrl ? (
-                      <img src={user.avatarUrl} alt={displayName} className="h-full w-full object-cover" />
-                    ) : (
-                      <span className="text-2xl font-black text-white">{initials}</span>
+          {!isFullWidthPage && (
+            <aside className="w-full lg:w-72 flex-none space-y-6">
+              <div className="overflow-hidden rounded-[2rem] border border-slate-200/60 bg-white/80 p-4 shadow-xl shadow-slate-200/40 backdrop-blur-xl dark:border-slate-800/60 dark:bg-slate-900/80 dark:shadow-none">
+                {/* Profile Header */}
+                <div className="mb-6 flex items-center gap-4 px-2 py-3">
+                  <div className="relative shrink-0">
+                    <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg shadow-indigo-200 dark:shadow-none">
+                      {user.avatarUrl ? (
+                        <img src={user.avatarUrl} alt={displayName} className="h-full w-full object-cover" />
+                      ) : (
+                        <span className="text-xl font-black text-white">{initials}</span>
+                      )}
+                    </div>
+                    {mentorApproved && (
+                      <div className="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-lg bg-white p-0.5 shadow-md dark:bg-slate-800">
+                        <div className="flex h-full w-full items-center justify-center rounded-md bg-indigo-50 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400">
+                          <Sparkles className="h-3 w-3" />
+                        </div>
+                      </div>
                     )}
                   </div>
-                  {mentorApproved && (
-                    <div className="absolute -bottom-2 -right-2 flex h-8 w-8 items-center justify-center rounded-full bg-white p-1 shadow-md dark:bg-slate-900">
-                      <div className="flex h-full w-full items-center justify-center rounded-full bg-indigo-50 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400">
-                        <Sparkles className="h-4 w-4" />
-                      </div>
-                    </div>
-                  )}
+                  <div className="min-w-0 flex-1">
+                    <h1 className="truncate text-base font-black tracking-tight text-slate-950 dark:text-white">
+                      {displayName}
+                    </h1>
+                    <p className="truncate text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                      {user.email.split('@')[0]}
+                    </p>
+                  </div>
                 </div>
-                <h1 className="w-full truncate text-base font-black tracking-tight text-slate-950 dark:text-white">
-                  {displayName}
-                </h1>
-                <p className="w-full truncate text-xs font-medium text-slate-500 dark:text-slate-400">
-                  {user.email}
-                </p>
-              </div>
 
-              <div className="mt-8 space-y-1">
-                {tabs.map((item) => {
-                  const active = isActive(item.to)
-                  return (
-                    <Link
-                      key={item.to}
-                      to={item.to}
-                      className={`group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-bold transition ${
-                        active
-                          ? 'bg-indigo-600 text-white shadow-md shadow-indigo-200 dark:shadow-none'
-                          : 'text-slate-600 hover:bg-slate-50 hover:text-slate-950 dark:text-slate-400 dark:hover:bg-slate-900 dark:hover:text-white'
-                      }`}
-                    >
-                      <item.icon className={`h-4 w-4 transition-colors ${active ? 'text-white' : 'text-slate-400 group-hover:text-indigo-600'}`} />
-                      {item.label}
-                    </Link>
-                  )
-                })}
+                <div className="space-y-1.5">
+                  <div className="px-3 pb-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+                    Menu
+                  </div>
+                  {tabs.map((item) => {
+                    const active = isActive(item.to)
+                    return (
+                      <Link
+                        key={item.to}
+                        to={item.to}
+                        className={`group relative flex items-center gap-3.5 rounded-2xl px-4 py-3 text-sm font-bold transition-all duration-300 ${
+                          active
+                            ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200 dark:shadow-indigo-900/20'
+                            : 'text-slate-600 hover:bg-slate-50 hover:text-indigo-600 dark:text-slate-400 dark:hover:bg-slate-800/50 dark:hover:text-white'
+                        }`}
+                      >
+                        <div className={`flex h-8 w-8 items-center justify-center rounded-xl transition-colors duration-300 ${
+                          active 
+                            ? 'bg-white/20 text-white' 
+                            : 'bg-slate-50 text-slate-400 group-hover:bg-indigo-50 group-hover:text-indigo-600 dark:bg-slate-800/50'
+                        }`}>
+                          <item.icon className="h-4 w-4" />
+                        </div>
+                        <span className="flex-1">{item.label}</span>
+                        {active && (
+                          <div className="h-1.5 w-1.5 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.8)]" />
+                        )}
+                      </Link>
+                    )
+                  })}
+                </div>
+
+                <div className="mt-8 px-4 py-4 rounded-2xl bg-slate-50/50 dark:bg-slate-800/30 border border-slate-100 dark:border-slate-800/50">
+                  <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest text-center">
+                    Mentor X v1.0
+                  </p>
+                </div>
               </div>
-            </div>
-          </aside>
+            </aside>
+          )}
 
           {/* Main Content Area */}
-          <div className="min-w-0 flex-1">
+          <div className={`min-w-0 flex-1 ${isFullWidthPage ? 'max-w-4xl mx-auto' : ''}`}>
             <Outlet />
           </div>
         </div>

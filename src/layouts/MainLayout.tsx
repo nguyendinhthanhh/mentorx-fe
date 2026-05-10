@@ -112,15 +112,23 @@ export default function MainLayout() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f7f8fc]">
-      <header className="sticky top-0 z-50 border-b border-[#e2e6f5] bg-white/95 backdrop-blur">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <Link to="/" className="inline-flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-[#4f46e5] to-[#2d6cdf]" />
-            <span className="text-xl font-bold text-[#16204b]">Mentor X</span>
+    <div className="min-h-screen bg-[#f8fafc]">
+      <header className="sticky top-0 z-50 border-b border-slate-200/60 bg-white/70 backdrop-blur-xl transition-all duration-300 dark:border-slate-800/60 dark:bg-slate-950/70">
+        <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+          <Link to="/" className="group flex items-center gap-2.5">
+            <div className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl bg-slate-950 shadow-lg transition-transform group-hover:scale-105 group-active:scale-95 dark:bg-white">
+              <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 opacity-90 transition-opacity group-hover:opacity-100" />
+              <Sparkles className="relative h-5 w-5 text-white mix-blend-overlay" />
+            </div>
+            <div className="flex flex-col leading-none">
+              <span className="text-xl font-black tracking-tight text-slate-900 dark:text-white">
+                Mentor<span className="text-indigo-600">X</span>
+              </span>
+              <span className="mt-1 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Academy</span>
+            </div>
           </Link>
 
-          <nav className="hidden items-center gap-6 md:flex">
+          <nav className="hidden items-center gap-1 md:flex">
             {navLinks.map((item) => {
               const active = location.pathname === item.to || (item.to !== '/' && location.pathname.startsWith(`${item.to}/`))
 
@@ -128,91 +136,102 @@ export default function MainLayout() {
                 <Link
                   key={item.to}
                   to={item.to}
-                  className={`relative inline-flex h-16 items-center gap-2 border-b-2 text-sm font-medium transition-colors ${
+                  className={`group relative px-4 py-2 text-sm font-bold transition-all duration-300 ${
                     active
-                      ? 'border-[#4f46e5] text-[#4f46e5]'
-                      : 'border-transparent text-slate-600 hover:text-[#4f46e5]'
+                      ? 'text-indigo-600'
+                      : 'text-slate-600 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-white'
                   }`}
                 >
-                  {item.label}
+                  <span className="relative z-10">{item.label}</span>
+                  {active ? (
+                    <div className="absolute inset-0 z-0 rounded-full bg-indigo-50/50 dark:bg-indigo-900/20" />
+                  ) : (
+                    <div className="absolute inset-0 z-0 scale-75 rounded-full bg-slate-100 opacity-0 transition-all duration-300 group-hover:scale-100 group-hover:opacity-100 dark:bg-slate-800" />
+                  )}
+                  {active && (
+                    <div className="absolute -bottom-2 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full bg-indigo-600 shadow-[0_0_8px_rgba(79,70,229,0.8)]" />
+                  )}
                 </Link>
               )
             })}
           </nav>
 
-          <div className="hidden items-center gap-3 md:flex">
+          <div className="hidden items-center gap-4 md:flex">
+            <div className="h-8 w-px bg-slate-200 dark:bg-slate-800" />
             <LanguageSwitcher />
+            
             {user ? (
-              <>
+              <div className="flex items-center gap-2">
                 {mentorApproved ? (
                   <Link
                     to={inMentorMode ? '/profile' : '/mentor/dashboard'}
-                    className="inline-flex h-9 items-center gap-2 rounded-full border border-blue-100 bg-blue-50 px-3 text-xs font-black text-blue-700 transition hover:bg-blue-100"
-                    title={inMentorMode ? 'Chuyển về User Mode' : 'Chuyển sang Mentor Mode'}
+                    className={`flex h-10 items-center gap-2 rounded-xl border px-4 text-xs font-black transition-all active:scale-95 ${
+                      inMentorMode 
+                        ? 'border-indigo-200 bg-indigo-50 text-indigo-700 shadow-sm dark:border-indigo-900/30 dark:bg-indigo-900/20 dark:text-indigo-400'
+                        : 'border-slate-200 bg-white text-slate-700 hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400 dark:hover:bg-slate-800'
+                    }`}
                   >
-                    {inMentorMode ? <Sparkles className="h-3.5 w-3.5" /> : <GraduationCap className="h-3.5 w-3.5" />}
-                    {inMentorMode ? 'Mentor Mode' : 'Student Mode'}
+                    {inMentorMode ? <Sparkles className="h-4 w-4" /> : <GraduationCap className="h-4 w-4" />}
+                    <span className="hidden lg:inline">{inMentorMode ? 'Mentor Mode' : 'Student Mode'}</span>
                   </Link>
                 ) : !isAdmin(user) && (
                   <Link
-                    to="/mentor/profile"
-                    className="inline-flex h-9 items-center gap-2 rounded-full border border-slate-200 bg-white px-3 text-xs font-black text-slate-600 transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
+                    to="/become-a-mentor"
+                    className="group relative flex h-10 items-center gap-2 overflow-hidden rounded-xl bg-slate-950 px-5 text-xs font-black text-white shadow-lg transition-all hover:-translate-y-0.5 hover:shadow-indigo-200 active:translate-y-0 dark:bg-white dark:text-slate-950 dark:shadow-none"
                   >
-                    <GraduationCap className="h-3.5 w-3.5" />
-                    Trở thành mentor
+                    <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-600 opacity-0 transition-opacity group-hover:opacity-100" />
+                    <GraduationCap className="relative h-4 w-4" />
+                    <span className="relative">Trở thành mentor</span>
                   </Link>
                 )}
                 
-                {/* Wallet Balance in Header */}
-                <Link
-                  to="/wallet"
-                  className="hidden sm:flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1.5 text-amber-700 transition hover:bg-amber-100"
-                >
-                  <Wallet className="h-3.5 w-3.5" />
-                  <span className="text-xs font-black">
-                    {balance?.available?.toLocaleString('vi-VN') || 0}
-                    <span className="ml-0.5 text-[10px] opacity-70">MXC</span>
-                  </span>
-                </Link>
-
-                <Link
-                  to="/chat"
-                  className={`relative rounded-lg p-2 transition-colors ${
-                    location.pathname.startsWith('/chat')
-                      ? 'bg-indigo-50 text-[#4f46e5]'
-                      : 'text-slate-500 hover:bg-slate-100'
-                  }`}
-                  aria-label={t('nav.messages')}
-                  title={t('nav.messages')}
-                >
-                  <MessageSquare className="h-4 w-4" />
-                  {unreadCount > 0 && (
-                    <span className="absolute -right-1 -top-1 inline-flex h-4 min-w-[16px] items-center justify-center rounded-full bg-[#4f46e5] px-1 text-[10px] font-bold leading-none text-white">
-                      {unreadCount > 9 ? '9+' : unreadCount}
+                <div className="flex items-center gap-1.5 rounded-2xl bg-slate-100 p-1 dark:bg-slate-900">
+                  <Link
+                    to="/wallet"
+                    className="flex h-8 items-center gap-2 rounded-xl bg-white px-3 shadow-sm transition hover:bg-slate-50 dark:bg-slate-800 dark:hover:bg-slate-700"
+                  >
+                    <Wallet className="h-3.5 w-3.5 text-amber-500" />
+                    <span className="text-[11px] font-black text-slate-700 dark:text-slate-200">
+                      {balance?.available?.toLocaleString('vi-VN') || 0}
+                      <span className="ml-1 opacity-50">MXC</span>
                     </span>
-                  )}
-                </Link>
-                <NotificationDropdown userId={user.userId} />
-                
-                {/* User Dropdown */}
+                  </Link>
+
+                  <div className="flex items-center">
+                    <Link
+                      to="/chat"
+                      className={`relative flex h-8 w-8 items-center justify-center rounded-xl transition-colors ${
+                        location.pathname.startsWith('/chat')
+                          ? 'bg-indigo-600 text-white'
+                          : 'text-slate-500 hover:bg-white hover:text-indigo-600 dark:hover:bg-slate-800'
+                      }`}
+                    >
+                      <MessageSquare className="h-4 w-4" />
+                      {unreadCount > 0 && (
+                        <span className="absolute -right-1 -top-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-bold text-white ring-2 ring-slate-100 dark:ring-slate-900">
+                          {unreadCount > 9 ? '9+' : unreadCount}
+                        </span>
+                      )}
+                    </Link>
+                    <NotificationDropdown userId={user.userId} />
+                  </div>
+                </div>
+
                 <div className="relative">
                   <button
                     onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                    className="flex items-center gap-2 rounded-full border border-slate-200 bg-white p-1 pr-3 transition hover:border-blue-200 hover:bg-blue-50"
+                    className="group flex items-center gap-2 rounded-2xl border border-slate-200 bg-white p-1.5 transition-all hover:border-indigo-200 hover:bg-indigo-50/30 dark:border-slate-800 dark:bg-slate-950"
                   >
-                    <div className="h-7 w-7 overflow-hidden rounded-full bg-slate-100">
+                    <div className="h-7 w-7 overflow-hidden rounded-lg bg-indigo-100 ring-2 ring-transparent transition-all group-hover:ring-indigo-200">
                       {user.avatarUrl ? (
                         <img src={user.avatarUrl} alt={user.fullName} className="h-full w-full object-cover" />
                       ) : (
-                        <div className="flex h-full w-full items-center justify-center bg-blue-100 text-[10px] font-bold text-blue-600">
+                        <div className="flex h-full w-full items-center justify-center bg-indigo-600 text-[10px] font-bold text-white">
                           {user.fullName.charAt(0)}
                         </div>
                       )}
                     </div>
-                    <span className="text-sm font-bold text-slate-700">
-                      {user.displayName || user.fullName.split(' ').pop()}
-                    </span>
-                    <ChevronDown className={`h-3 w-3 text-slate-400 transition-transform ${userDropdownOpen ? 'rotate-180' : ''}`} />
+                    <ChevronDown className={`h-3 w-3 text-slate-400 transition-transform duration-300 ${userDropdownOpen ? 'rotate-180 text-indigo-600' : ''}`} />
                   </button>
 
                   {userDropdownOpen && (
@@ -264,6 +283,19 @@ export default function MainLayout() {
                           <UserCog className="h-4 w-4" />
                           Cài đặt
                         </Link>
+                        {mentorApproved && (
+                          <>
+                            <div className="my-1 border-t border-slate-100" />
+                            <Link
+                              to={inMentorMode ? '/profile' : '/mentor/dashboard'}
+                              onClick={() => setUserDropdownOpen(false)}
+                              className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-black text-indigo-600 hover:bg-indigo-50 transition-all active:scale-95"
+                            >
+                              {inMentorMode ? <User className="h-4 w-4" /> : <GraduationCap className="h-4 w-4" />}
+                              {inMentorMode ? 'Chế độ người dùng' : 'Chế độ Mentor'}
+                            </Link>
+                          </>
+                        )}
                         <div className="my-1 border-t border-slate-100" />
                         <button
                           onClick={() => {
@@ -279,7 +311,7 @@ export default function MainLayout() {
                     </>
                   )}
                 </div>
-              </>
+              </div>
             ) : (
               <>
                 <Link to="/login" className="text-sm font-semibold text-slate-600 hover:text-[#4f46e5]">
@@ -335,7 +367,7 @@ export default function MainLayout() {
                     </span>
                   </div>
                   <Link
-                    to={mentorApproved ? (inMentorMode ? '/profile' : '/mentor/dashboard') : '/mentor/profile'}
+                    to={mentorApproved ? (inMentorMode ? '/profile' : '/mentor/dashboard') : '/become-a-mentor'}
                     onClick={() => setMobileOpen(false)}
                     className="rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
                   >

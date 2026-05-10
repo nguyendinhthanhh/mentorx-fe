@@ -20,7 +20,8 @@ import {
   Sun,
   Moon,
   DollarSign,
-  MessageSquare
+  MessageSquare,
+  UserCheck
 } from 'lucide-react'
 import { useState } from 'react'
 import { useThemeStore } from '@/store/themeStore'
@@ -28,6 +29,7 @@ import { useThemeStore } from '@/store/themeStore'
 const adminLinks = [
   { to: '/admin/dashboard', label: 'Overview', icon: LayoutDashboard },
   { to: '/admin/users', label: 'Users', icon: Users },
+  { to: '/admin/mentor-applications', label: 'Mentor Applications', icon: UserCheck },
   { to: '/admin/jobs', label: 'Jobs', icon: Briefcase },
   { to: '/admin/courses', label: 'Courses', icon: BookOpen },
   { to: '/admin/api', label: 'API Functions', icon: Zap },

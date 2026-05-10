@@ -16,7 +16,7 @@ export default function MentorRoute({ children }: Props) {
 
   // Check if user is an approved mentor
   if (!user || !isMentor(user)) {
-    return <Navigate to="/mentor/profile" replace />
+    return <Navigate to="/become-a-mentor" replace />
   }
 
   return <>{children}</>

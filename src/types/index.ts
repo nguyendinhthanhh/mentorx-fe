@@ -398,6 +398,8 @@ export interface JobResponse {
   deadlineAt?: string;
   status: JobStatus;
   isFeatured: boolean;
+  attachmentUrl?: string;
+  attachments?: string[];
   createdAt: string;
   updatedAt: string;
 }
@@ -414,6 +416,8 @@ export interface JobCreateRequest {
   hourlyRateMxc?: number;
   estimatedHours?: number;
   deadlineAt?: string;
+  attachmentUrl?: string;
+  attachments?: string[];
 }
 
 export interface JobUpdateRequest {
@@ -429,6 +433,8 @@ export interface JobUpdateRequest {
   deadlineAt?: string;
   status?: JobStatus;
   isFeatured?: boolean;
+  attachmentUrl?: string;
+  attachments?: string[];
 }
 
 // Course Types

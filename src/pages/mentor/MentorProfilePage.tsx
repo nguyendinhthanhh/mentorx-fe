@@ -22,98 +22,109 @@ export default function MentorProfilePage() {
   const hasSubmitted = status === MentorStatus.PENDING || status === MentorStatus.APPROVED || status === MentorStatus.REJECTED
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+    <div className="mx-auto max-w-6xl space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <Link to="/profile" className="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-500 hover:text-slate-900">
-            <ArrowLeft className="h-4 w-4" />
+          <Link 
+            to="/profile" 
+            className="group inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest text-slate-400 transition-colors hover:text-indigo-600 dark:hover:text-indigo-400"
+          >
+            <ArrowLeft className="h-3.5 w-3.5 transition-transform group-hover:-translate-x-1" />
             Quay lại tài khoản
           </Link>
-          <h1 className="mt-4 text-3xl font-black tracking-tight text-slate-950">Xác minh Mentor</h1>
-          <p className="mt-2 max-w-2xl text-sm font-medium text-slate-500">
-            Hoàn tất các cấp độ xác minh để mở khóa mentor mode, tạo hồ sơ chuyên gia, đăng khóa học và thiết lập lịch tư vấn.
-          </p>
+          <div className="mt-4 flex items-center gap-3">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-600 text-white shadow-lg shadow-indigo-200 dark:shadow-none">
+              <Sparkles className="h-6 w-6" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-black tracking-tight text-slate-950 dark:text-white">Xác minh Mentor</h1>
+              <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Nâng cấp tài khoản để chia sẻ kiến thức và nhận thu nhập.</p>
+            </div>
+          </div>
         </div>
 
         {status === MentorStatus.APPROVED && (
           <Link
             to="/mentor/dashboard"
-            className="inline-flex items-center justify-center gap-2 rounded-2xl bg-blue-600 px-5 py-3 text-sm font-black text-white shadow-lg shadow-blue-600/20 hover:bg-blue-700"
+            className="inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-950 px-6 py-4 text-sm font-black text-white shadow-xl transition-all hover:bg-slate-800 hover:shadow-slate-200 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-100 dark:shadow-none lg:px-8"
           >
-            <Sparkles className="h-4 w-4" />
+            <Sparkles className="h-4 w-4 text-indigo-400" />
             Vào Mentor Mode
           </Link>
         )}
       </div>
 
-      {status === MentorStatus.APPROVED && (
-        <StatusCard
-          tone="success"
-          icon={<BadgeCheck className="h-5 w-5" />}
-          title="Hồ sơ mentor đã được duyệt"
-          description="Bạn có thể switch giữa User Mode và Mentor Mode. Các chức năng học, lưu mentor, mua khóa học vẫn giữ nguyên cho tài khoản này."
-        />
-      )}
+      <div className="mx-auto max-w-4xl space-y-8">
+        {status === MentorStatus.APPROVED && (
+          <StatusCard
+            tone="success"
+            icon={<BadgeCheck className="h-6 w-6" />}
+            title="Hồ sơ mentor đã được duyệt"
+            description="Chúc mừng! Bạn hiện đã có quyền truy cập vào các công cụ dành cho Mentor. Bạn có thể tạo khóa học và quản lý lịch tư vấn ngay bây giờ."
+          />
+        )}
 
-      {status === MentorStatus.PENDING && (
-        <StatusCard
-          tone="pending"
-          icon={<Timer className="h-5 w-5" />}
-          title="Hồ sơ đang chờ duyệt"
-          description="Admin hoặc Moderator sẽ kiểm tra danh tính, kinh nghiệm và thông tin thanh toán trước khi bật mentor mode."
-        />
-      )}
+        {status === MentorStatus.PENDING && (
+          <StatusCard
+            tone="pending"
+            icon={<Timer className="h-6 w-6" />}
+            title="Hồ sơ đang chờ duyệt"
+            description="Chúng tôi đang kiểm tra thông tin của bạn. Quá trình này thường mất từ 24-48 giờ làm việc. Bạn sẽ nhận được thông báo khi có kết quả."
+          />
+        )}
 
-      {status === MentorStatus.REJECTED && (
-        <StatusCard
-          tone="danger"
-          icon={<XCircle className="h-5 w-5" />}
-          title="Hồ sơ cần bổ sung"
-          description={mentorProfile?.rejectionReason || 'Hồ sơ chưa đạt điều kiện duyệt. Bạn có thể cập nhật và gửi lại.'}
-        />
-      )}
+        {status === MentorStatus.REJECTED && (
+          <StatusCard
+            tone="danger"
+            icon={<XCircle className="h-6 w-6" />}
+            title="Cần cập nhật thông tin"
+            description={mentorProfile?.rejectionReason || 'Hồ sơ chưa đạt điều kiện duyệt. Vui lòng kiểm tra lại các thông tin chuyên môn hoặc giấy tờ định danh.'}
+          />
+        )}
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_300px]">
-        <div>
+        <div className="relative overflow-hidden rounded-[2.5rem] border border-slate-200 bg-white shadow-2xl shadow-slate-200/50 dark:border-slate-800 dark:bg-slate-950 dark:shadow-none">
           {isLoading ? (
-            <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
-              <div className="animate-pulse space-y-5">
-                <div className="h-12 rounded-2xl bg-slate-100" />
-                <div className="h-80 rounded-2xl bg-slate-100" />
+            <div className="p-10">
+              <div className="animate-pulse space-y-6">
+                <div className="h-8 w-1/3 rounded-xl bg-slate-100 dark:bg-slate-800" />
+                <div className="h-64 rounded-3xl bg-slate-100 dark:bg-slate-800" />
               </div>
             </div>
           ) : (
-            <MentorProfileForm
-              userId={user.userId}
-              userEmail={user.email}
-              isEmailVerified={user.emailVerified}
-              initialData={mentorProfile}
-              isEdit={Boolean(mentorProfile)}
-            />
+            <div className="p-1">
+              <MentorProfileForm
+                userId={user.userId}
+                userEmail={user.email}
+                isEmailVerified={user.emailVerified}
+                initialData={mentorProfile}
+                isEdit={Boolean(mentorProfile)}
+              />
+            </div>
           )}
         </div>
 
-        <aside className="space-y-4">
-          <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-            <h2 className="text-base font-black text-slate-950">Vì sao cần xác minh?</h2>
-            <div className="mt-5 space-y-4">
-              <Reason icon={<ShieldCheck className="h-4 w-4" />} title="Bảo vệ học viên" text="Tạo môi trường tư vấn an toàn và đáng tin cậy." />
-              <Reason icon={<CheckCircle2 className="h-4 w-4" />} title="Tăng tỉ lệ booking" text="Hồ sơ rõ ràng giúp học viên ra quyết định nhanh hơn." />
-              <Reason icon={<BadgeCheck className="h-4 w-4" />} title="Badge Verified" text="Huy hiệu xác minh hiển thị trên hồ sơ công khai." />
-              <Reason icon={<GraduationCap className="h-4 w-4" />} title="Mở khóa mentor tools" text="Sau khi duyệt, bạn có thể quản lý dịch vụ, lịch và khóa học." />
+        <div className="grid gap-6 md:grid-cols-2">
+          <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+            <h2 className="text-lg font-black text-slate-950 dark:text-white">Quyền lợi Mentor</h2>
+            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+              <Reason icon={<ShieldCheck className="h-5 w-5" />} title="Uy tín & Tin cậy" text="Huy hiệu xác minh giúp bạn nổi bật hơn." />
+              <Reason icon={<CheckCircle2 className="h-5 w-5" />} title="Tăng thu nhập" text="Tự do thiết lập mức phí tư vấn." />
             </div>
           </div>
 
-          <div className="rounded-3xl border border-blue-100 bg-blue-50 p-5">
-            <h2 className="text-sm font-black text-blue-950">Cần hỗ trợ?</h2>
-            <p className="mt-2 text-sm font-medium leading-6 text-blue-800">
-              Nếu thông tin xác minh bị từ chối hoặc file tải lên lỗi, hãy nhắn hỗ trợ qua trang chat.
+          <div className="group relative overflow-hidden rounded-[2rem] bg-indigo-600 p-6 text-white shadow-xl shadow-indigo-200 dark:shadow-none">
+            <h2 className="relative z-10 text-lg font-black">Cần hỗ trợ?</h2>
+            <p className="relative z-10 mt-2 text-xs font-medium leading-relaxed text-indigo-100">
+              Nếu gặp khó khăn trong quá trình xác minh, hãy liên hệ ngay.
             </p>
-            <Link to="/chat" className="mt-4 inline-flex text-sm font-black text-blue-700 hover:text-blue-900">
-              Mở hỗ trợ
+            <Link 
+              to="/chat" 
+              className="relative z-10 mt-4 inline-flex items-center gap-2 rounded-xl bg-white px-5 py-2 text-sm font-black text-indigo-600"
+            >
+              Trò chuyện ngay
             </Link>
           </div>
-        </aside>
+        </div>
       </div>
     </div>
   )
@@ -131,17 +142,25 @@ function StatusCard({
   description: string
 }) {
   const styles = {
-    success: 'border-emerald-200 bg-emerald-50 text-emerald-800',
-    pending: 'border-amber-200 bg-amber-50 text-amber-800',
-    danger: 'border-red-200 bg-red-50 text-red-800',
+    success: 'border-emerald-100 bg-emerald-50/50 text-emerald-950 dark:border-emerald-900/30 dark:bg-emerald-900/10 dark:text-emerald-400',
+    pending: 'border-amber-100 bg-amber-50/50 text-amber-950 dark:border-amber-900/30 dark:bg-amber-900/10 dark:text-amber-400',
+    danger: 'border-rose-100 bg-rose-50/50 text-rose-950 dark:border-rose-900/30 dark:bg-rose-900/10 dark:text-rose-400',
+  }
+
+  const iconStyles = {
+    success: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-400/20 dark:text-emerald-400',
+    pending: 'bg-amber-100 text-amber-600 dark:bg-amber-400/20 dark:text-amber-400',
+    danger: 'bg-rose-100 text-rose-600 dark:bg-rose-400/20 dark:text-rose-400',
   }
 
   return (
-    <div className={`flex items-start gap-3 rounded-3xl border p-5 ${styles[tone]}`}>
-      <div className="mt-0.5">{icon}</div>
-      <div>
-        <h2 className="text-sm font-black">{title}</h2>
-        <p className="mt-1 text-sm font-medium opacity-85">{description}</p>
+    <div className={`flex items-start gap-5 rounded-[2rem] border p-6 transition-all ${styles[tone]}`}>
+      <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${iconStyles[tone]}`}>
+        {icon}
+      </div>
+      <div className="pt-0.5">
+        <h2 className="text-base font-black tracking-tight">{title}</h2>
+        <p className="mt-1.5 text-sm font-medium leading-relaxed opacity-80">{description}</p>
       </div>
     </div>
   )
@@ -149,13 +168,13 @@ function StatusCard({
 
 function Reason({ icon, title, text }: { icon: React.ReactNode; title: string; text: string }) {
   return (
-    <div className="flex gap-3">
-      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+    <div className="flex gap-4 group">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-50 text-slate-400 transition-colors group-hover:bg-indigo-50 group-hover:text-indigo-600 dark:bg-slate-900 dark:text-slate-600 dark:group-hover:text-indigo-400">
         {icon}
       </div>
       <div>
-        <p className="text-sm font-black text-slate-900">{title}</p>
-        <p className="mt-1 text-xs font-medium leading-5 text-slate-500">{text}</p>
+        <p className="text-sm font-black text-slate-950 dark:text-white transition-colors group-hover:text-indigo-600 dark:group-hover:text-indigo-400">{title}</p>
+        <p className="mt-1 text-xs font-medium leading-relaxed text-slate-500 dark:text-slate-400">{text}</p>
       </div>
     </div>
   )
