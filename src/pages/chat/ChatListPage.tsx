@@ -1,4 +1,5 @@
 import { ChangeEvent, FormEvent, useEffect, useMemo, useRef, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { useQuery } from 'react-query'
 import { chatApi } from '@/api/chatApi'
 import { fileApi } from '@/api/fileApi'
@@ -33,6 +34,8 @@ export default function ChatListPage() {
   const [showConversationMobile, setShowConversationMobile] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [searchParams, setSearchParams] = useSearchParams()
+  const targetUserId = searchParams.get('userId')
 
   const { data: rooms, isLoading: roomsLoading, refetch: refetchRooms } = useQuery(
     ['chatRooms', user?.userId],
@@ -65,6 +68,73 @@ export default function ChatListPage() {
   }, [activeFilter, roomList, searchTerm])
 
   useEffect(() => {
+    if (roomsLoading || !user?.userId) return
+
+    if (targetUserId) {
+      const existingRoom = roomList.find(
+        (r) => r.roomType === 'DIRECT_MESSAGE' && r.members?.some((m) => m.userId === targetUserId)
+      )
+
+      if (existingRoom) {
+        setSelectedRoomId(existingRoom.id)
+        
+        const contextMsg = searchParams.get('contextMsg')
+        const linkedJobId = searchParams.get('jobId')
+        
+        if (linkedJobId) {
+          localStorage.setItem(`chat_job_${existingRoom.id}`, linkedJobId)
+        }
+
+        if (contextMsg) {
+          chatApi.sendMessage({
+            chatRoomId: existingRoom.id,
+            senderId: user.userId,
+            content: contextMsg,
+            messageType: 'TEXT'
+          })
+          .then(() => refetchMessages())
+          .catch(e => console.error('Failed to send context msg to existing room', e))
+        }
+
+        setSearchParams({})
+      } else {
+        chatApi
+          .createRoom({
+            roomType: 'DIRECT_MESSAGE',
+            memberIds: [user.userId, targetUserId],
+            createdByUserId: user.userId,
+          })
+          .then(async (newRoom) => {
+            setSelectedRoomId(newRoom.id)
+            
+            const contextMsg = searchParams.get('contextMsg')
+            const linkedJobId = searchParams.get('jobId')
+
+            if (linkedJobId) {
+              localStorage.setItem(`chat_job_${newRoom.id}`, linkedJobId)
+            }
+
+            if (contextMsg) {
+              try {
+                await chatApi.sendMessage({
+                  chatRoomId: newRoom.id,
+                  senderId: user.userId,
+                  content: contextMsg,
+                  messageType: 'TEXT'
+                })
+              } catch (e) {
+                console.error('Failed to send context message', e)
+              }
+            }
+
+            setSearchParams({})
+            refetchRooms()
+          })
+          .catch(console.error)
+      }
+      return
+    }
+
     if (roomList.length === 0) {
       setSelectedRoomId(null)
       return
@@ -83,7 +153,7 @@ export default function ChatListPage() {
     if (!filteredRooms.some((room) => room.id === selectedRoomId)) {
       setSelectedRoomId(filteredRooms[0].id)
     }
-  }, [filteredRooms, roomList, selectedRoomId])
+  }, [filteredRooms, roomList, selectedRoomId, targetUserId, roomsLoading, user?.userId, setSearchParams, refetchRooms])
 
   const selectedRoom = useMemo(
     () => roomList.find((room) => room.id === selectedRoomId) || null,
@@ -144,6 +214,25 @@ export default function ChatListPage() {
       enabled: !!otherMemberId,
       retry: false,
       staleTime: 60_000,
+    }
+  )
+
+  const linkedJobId = useMemo(() => {
+    if (!selectedRoomId) return null
+    return localStorage.getItem(`chat_job_${selectedRoomId}`) || selectedRoom?.referenceId || null
+  }, [selectedRoomId, selectedRoom?.referenceId])
+
+  const { data: linkedJob, isLoading: linkedJobLoading } = useQuery(
+    ['chat-linked-job', linkedJobId],
+    async () => {
+      if (!linkedJobId) return null
+      // Import jobApi first
+      const { jobApi } = await import('@/api/jobApi')
+      return jobApi.getById(linkedJobId).catch(() => null)
+    },
+    {
+      enabled: !!linkedJobId,
+      retry: false,
     }
   )
 
@@ -357,6 +446,8 @@ export default function ChatListPage() {
               isProfileLoading={mentorProfileLoading}
               isCoursesLoading={mentorCoursesLoading}
               isAvailabilityLoading={weeklyAvailabilityLoading}
+              linkedJob={linkedJob}
+              isLinkedJobLoading={linkedJobLoading}
             />
           </div>
         </div>
@@ -382,6 +473,8 @@ export default function ChatListPage() {
               isProfileLoading={mentorProfileLoading}
               isCoursesLoading={mentorCoursesLoading}
               isAvailabilityLoading={weeklyAvailabilityLoading}
+              linkedJob={linkedJob}
+              isLinkedJobLoading={linkedJobLoading}
               onClose={() => setIsDetailsOpen(false)}
               compact
             />

@@ -1,7 +1,7 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import { useAuthStore } from '@/store/authStore'
-import { Menu, X, LogOut, MessageSquare, GraduationCap, Sparkles, ChevronDown, UserCog, User, Wallet, ShoppingBag } from 'lucide-react'
+import { Menu, X, LogOut, MessageSquare, GraduationCap, Sparkles, ChevronDown, UserCog, User, Wallet, ShoppingBag, Briefcase } from 'lucide-react'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
 import NotificationDropdown from '@/components/notification/NotificationDropdown'
 import { useI18n } from '@/i18n/I18nProvider'
@@ -266,6 +266,14 @@ export default function MainLayout() {
                         >
                           <Wallet className="h-4 w-4" />
                           Ví của tôi
+                        </Link>
+                        <Link
+                          to="/my-jobs"
+                          onClick={() => setUserDropdownOpen(false)}
+                          className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50 hover:text-blue-600 transition"
+                        >
+                          <Briefcase className="h-4 w-4" />
+                          Yêu cầu của tôi
                         </Link>
                         <Link
                           to="/profile/courses"

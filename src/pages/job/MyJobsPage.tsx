@@ -46,7 +46,7 @@ export default function MyJobsPage() {
 
   const { data, isLoading } = useQuery(
     ['my-posted-jobs', user?.userId, page],
-    () => jobApi.getByClient(user!.userId, { page, size: PAGE_SIZE }),
+    () => jobApi.getByClient(user!.userId, { page, size: PAGE_SIZE, sort: 'updatedAt,desc' }),
     { enabled: Boolean(user?.userId), keepPreviousData: true }
   )
 
@@ -62,7 +62,7 @@ export default function MyJobsPage() {
         job.jobType.toLowerCase().replace(/_/g, ' ').includes(keyword)
 
       return matchesStatus && matchesKeyword
-    })
+    }).sort((a, b) => new Date(b.updatedAt || b.createdAt).getTime() - new Date(a.updatedAt || a.createdAt).getTime())
   }, [jobs, query, status])
 
   useEffect(() => {
@@ -96,13 +96,13 @@ export default function MyJobsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-6">
       <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div>
-            <h1 className="text-3xl font-black text-slate-950 dark:text-white">My Posted Jobs</h1>
+            <h1 className="text-3xl font-black text-slate-950 dark:text-white">Yêu cầu của tôi</h1>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600 dark:text-slate-400">
-              Manage the jobs you posted, review mentors who applied, and choose the best mentor for each request.
+              Quản lý các yêu cầu hỗ trợ bạn đã đăng, xem xét hồ sơ mentor và lựa chọn chuyên gia phù hợp nhất.
             </p>
           </div>
           <Link
@@ -110,15 +110,15 @@ export default function MyJobsPage() {
             className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 text-sm font-black text-white hover:bg-indigo-700"
           >
             <Plus className="h-4 w-4" />
-            Post new job
+            Tạo yêu cầu mới
           </Link>
         </div>
 
         <div className="mt-6 grid gap-3 min-[520px]:grid-cols-2 xl:grid-cols-4">
-          <MetricCard icon={Briefcase} label="Posted jobs" value={`${totalJobs}`} />
-          <MetricCard icon={Users} label="Open jobs" value={`${statusCounts[JobStatus.OPEN] || 0}`} />
-          <MetricCard icon={Clock3} label="In progress" value={`${statusCounts[JobStatus.IN_PROGRESS] || 0}`} />
-          <MetricCard icon={FileText} label="Completed" value={`${statusCounts[JobStatus.COMPLETED] || 0}`} />
+          <MetricCard icon={Briefcase} label="Đã đăng" value={`${totalJobs}`} />
+          <MetricCard icon={Users} label="Đang mở" value={`${statusCounts[JobStatus.OPEN] || 0}`} />
+          <MetricCard icon={Clock3} label="Đang thực hiện" value={`${statusCounts[JobStatus.IN_PROGRESS] || 0}`} />
+          <MetricCard icon={FileText} label="Đã hoàn thành" value={`${statusCounts[JobStatus.COMPLETED] || 0}`} />
         </div>
       </section>
 
@@ -129,7 +129,7 @@ export default function MyJobsPage() {
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search your posted jobs..."
+              placeholder="Tìm kiếm yêu cầu bạn đã đăng..."
               className="h-12 w-full rounded-xl border border-slate-300 bg-white pl-12 pr-12 text-sm font-bold text-slate-950 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:focus:ring-indigo-950"
             />
             {query && (
@@ -166,10 +166,10 @@ export default function MyJobsPage() {
       <div className="grid gap-6 xl:grid-cols-[minmax(0,430px)_1fr]">
         <section className="space-y-3">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-black uppercase text-slate-500 dark:text-slate-400">Posted jobs</h2>
+            <h2 className="text-sm font-black uppercase text-slate-500 dark:text-slate-400">Danh sách yêu cầu</h2>
             <span className="inline-flex items-center gap-1.5 text-sm font-bold text-slate-500 dark:text-slate-400">
               <SlidersHorizontal className="h-4 w-4" />
-              {filteredJobs.length} shown
+              Đang hiển thị {filteredJobs.length}
             </span>
           </div>
 
@@ -200,19 +200,19 @@ export default function MyJobsPage() {
             <>
               <div className="mb-5 flex flex-col gap-3 border-b border-slate-100 pb-5 min-[760px]:flex-row min-[760px]:items-start min-[760px]:justify-between dark:border-slate-800">
                 <div className="min-w-0">
-                  <p className="text-sm font-black text-indigo-600 dark:text-indigo-400">Applicants for</p>
+                  <p className="text-sm font-black text-indigo-600 dark:text-indigo-400">Danh sách ứng tuyển cho</p>
                   <h2 className="mt-1 text-2xl font-black text-slate-950 dark:text-white">{selectedJob.title}</h2>
                   <div className="mt-2 flex flex-wrap items-center gap-3 text-sm font-bold text-slate-500 dark:text-slate-400">
-                    <span>{getProposalCount(selectedJob)} proposal(s)</span>
+                    <span>{getProposalCount(selectedJob)} đề xuất</span>
                     <span>{formatBudget(selectedJob)}</span>
-                    <span>{selectedJob.deadlineAt ? formatDate(selectedJob.deadlineAt) : 'Flexible deadline'}</span>
+                    <span>{selectedJob.deadlineAt ? formatDate(selectedJob.deadlineAt) : 'Thời gian linh hoạt'}</span>
                   </div>
                 </div>
                 <Link
                   to={`/jobs/${selectedJob.jobId}`}
-                  className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-black text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300 dark:hover:bg-slate-900"
+                  className="inline-flex h-10 items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-slate-200 bg-white px-4 text-sm font-black text-indigo-600 hover:bg-indigo-50 dark:border-slate-700 dark:bg-slate-950 dark:text-indigo-400 dark:hover:bg-slate-900 shadow-sm transition-all hover:-translate-y-0.5"
                 >
-                  Open detail
+                  Mở trang chi tiết
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </div>
@@ -221,9 +221,9 @@ export default function MyJobsPage() {
           ) : (
             <div className="flex min-h-[360px] flex-col items-center justify-center text-center">
               <Users className="h-14 w-14 text-slate-300 dark:text-slate-600" />
-              <h2 className="mt-4 text-xl font-black text-slate-950 dark:text-white">Select a job to review mentors</h2>
+              <h2 className="mt-4 text-xl font-black text-slate-950 dark:text-white">Chọn một yêu cầu</h2>
               <p className="mt-2 max-w-md text-sm leading-6 text-slate-600 dark:text-slate-400">
-                Choose one of your posted jobs on the left to see mentor applications and pick the right mentor.
+                Bấm chọn một yêu cầu của bạn ở danh sách bên trái để kiểm tra danh sách mentor đã nộp hồ sơ.
               </p>
             </div>
           )}
@@ -260,12 +260,12 @@ function PostedJobCard({ job, selected, onSelect }: { job: JobResponse; selected
       <p className="mt-3 line-clamp-2 text-sm leading-6 text-slate-600 dark:text-slate-400">{job.description}</p>
 
       <div className="mt-4 grid grid-cols-2 gap-2">
-        <MiniFact icon={FileText} label="Proposals" value={`${getProposalCount(job)}`} />
-        <MiniFact icon={CalendarDays} label="Deadline" value={job.deadlineAt ? formatDate(job.deadlineAt) : 'Flexible'} />
+        <MiniFact icon={FileText} label="Đề xuất" value={`${getProposalCount(job)}`} />
+        <MiniFact icon={CalendarDays} label="Hạn chót" value={job.deadlineAt ? formatDate(job.deadlineAt) : 'Linh hoạt'} />
       </div>
 
       <div className="mt-4 flex items-center justify-between text-xs font-bold text-slate-500 dark:text-slate-400">
-        <span>Posted {formatRelativeTime(job.createdAt)}</span>
+        <span>Đăng {formatRelativeTime(job.createdAt)}</span>
         <span>{formatBudget(job)}</span>
       </div>
     </button>
@@ -337,9 +337,9 @@ function EmptyJobs({ hasFilters, onClear }: { hasFilters: boolean; onClear: () =
   return (
     <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-12 text-center dark:border-slate-700 dark:bg-slate-950">
       <Briefcase className="mx-auto h-12 w-12 text-slate-300 dark:text-slate-600" />
-      <h3 className="mt-4 text-xl font-black text-slate-950 dark:text-white">No jobs found</h3>
+      <h3 className="mt-4 text-xl font-black text-slate-950 dark:text-white">Không tìm thấy yêu cầu nào</h3>
       <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-slate-600 dark:text-slate-400">
-        {hasFilters ? 'Try clearing filters or searching with a broader keyword.' : 'Post a job to start receiving mentor applications.'}
+        {hasFilters ? 'Thử xóa bộ lọc hoặc tìm kiếm với từ khóa khác.' : 'Đăng yêu cầu ngay để bắt đầu nhận các đề xuất hỗ trợ từ Mentor.'}
       </p>
       {hasFilters ? (
         <button
@@ -347,7 +347,7 @@ function EmptyJobs({ hasFilters, onClear }: { hasFilters: boolean; onClear: () =
           onClick={onClear}
           className="mt-5 inline-flex h-11 items-center justify-center rounded-xl bg-indigo-600 px-5 text-sm font-black text-white hover:bg-indigo-700"
         >
-          Clear filters
+          Xóa bộ lọc
         </button>
       ) : (
         <Link
@@ -355,7 +355,7 @@ function EmptyJobs({ hasFilters, onClear }: { hasFilters: boolean; onClear: () =
           className="mt-5 inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-5 text-sm font-black text-white hover:bg-indigo-700"
         >
           <Plus className="h-4 w-4" />
-          Post job
+          Tạo yêu cầu
         </Link>
       )}
     </div>
@@ -374,7 +374,7 @@ function Pagination({
   return (
     <div className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-3 dark:border-slate-800 dark:bg-slate-950">
       <p className="text-sm font-bold text-slate-500 dark:text-slate-400">
-        Page {page + 1} of {Math.max(totalPages, 1)}
+        Trang {page + 1} / {Math.max(totalPages, 1)}
       </p>
       <div className="flex items-center gap-2">
         <button

@@ -88,6 +88,12 @@ export default function ProposalCreateForm({ jobId, mentorId, jobType, budgetTyp
       if (existingProposal && isEditing) {
         // Update existing proposal
         await proposalApi.update(existingProposal.id, payload)
+        
+        // If it was in DRAFT or WITHDRAWN status, submit it
+        if (existingProposal.status === 'DRAFT' || existingProposal.status === 'WITHDRAWN') {
+          await proposalApi.submit(existingProposal.id)
+        }
+        
         setSuccess(true)
         setIsEditing(false)
         // Refresh existing proposal data
@@ -95,8 +101,16 @@ export default function ProposalCreateForm({ jobId, mentorId, jobType, budgetTyp
         setExistingProposal(updated)
       } else {
         // Create new proposal
-        await proposalApi.create(payload)
+        const newProposal = await proposalApi.create(payload)
+        
+        // Auto-submit the newly created proposal
+        await proposalApi.submit(newProposal.id)
+        
         setSuccess(true)
+        
+        // Refresh existing proposal data so it shows up correctly
+        const submitted = await proposalApi.getByJobAndMentor(jobId, mentorId)
+        setExistingProposal(submitted)
       }
       
       if (onSuccess) setTimeout(onSuccess, 2000)
@@ -190,11 +204,11 @@ export default function ProposalCreateForm({ jobId, mentorId, jobType, budgetTyp
           <div className="flex gap-3">
             <button
               onClick={() => setIsEditing(true)}
-              disabled={existingProposal.status === 'ACCEPTED' || existingProposal.status === 'WITHDRAWN'}
+              disabled={existingProposal.status === 'ACCEPTED' || existingProposal.status === 'REJECTED'}
               className="flex-1 flex items-center justify-center gap-2 bg-indigo-600 text-white py-2.5 rounded-lg font-bold hover:bg-indigo-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-all text-sm"
             >
               <Edit2 className="w-4 h-4" />
-              Chỉnh sửa
+              {existingProposal.status === 'WITHDRAWN' ? 'Apply lại' : 'Chỉnh sửa'}
             </button>
             <button
               onClick={() => setShowWithdrawConfirm(true)}

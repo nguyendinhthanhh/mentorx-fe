@@ -43,7 +43,7 @@ export const jobApi = {
 
   getByClient: async (
     clientId: string,
-    params: { page?: number; size?: number }
+    params: { page?: number; size?: number; sort?: string }
   ): Promise<PaginatedResponse<JobResponse>> => {
     const response = await apiClient.get<ApiResponse<PaginatedResponse<JobResponse>>>(
       `/jobs/client/${clientId}`,

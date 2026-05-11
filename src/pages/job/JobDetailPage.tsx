@@ -407,7 +407,7 @@ export default function JobDetailPage() {
                             className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-black text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             <Edit className="h-4 w-4" />
-                            Chỉnh sửa
+                            {existingProposal.status === 'WITHDRAWN' ? 'Apply lại' : 'Chỉnh sửa'}
                           </button>
                           <button
                             type="button"

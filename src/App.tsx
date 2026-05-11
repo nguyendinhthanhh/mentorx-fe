@@ -127,6 +127,9 @@ function App() {
             {/* Chat Routes */}
             <Route path="/chat" element={<ChatListPage />} />
             <Route path="/chat/demo" element={<ChatDemoPage />} />
+
+            {/* My Jobs Route */}
+            <Route path="/my-jobs" element={<MyJobsPage />} />
           </Route>
 
           {/* Profile Routes with ProfileLayout */}
@@ -135,7 +138,7 @@ function App() {
             <Route path="/profile/dashboard" element={<Navigate to="/profile" replace />} />
             <Route path="/profile/settings" element={<div>Settings Page (Coming Soon)</div>} />
             <Route path="/profile/notifications" element={<NotificationListPage />} />
-            <Route path="/profile/jobs" element={<MyJobsPage />} />
+            <Route path="/profile/jobs" element={<Navigate to="/my-jobs" replace />} />
             <Route path="/profile/proposals" element={<div>Proposals (Coming Soon)</div>} />
             <Route path="/profile/courses" element={<MyCoursesPage />} />
             <Route path="/profile/saved" element={<SavedMentorsPage />} />
