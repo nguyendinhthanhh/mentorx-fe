@@ -19,11 +19,8 @@ export interface KycStatusResponse {
 
 export const kycApi = {
   submitKyc: async (formData: FormData): Promise<KycStatusResponse> => {
-    const response = await apiClient.post('/kyc/submit', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    })
+    // Don't set Content-Type manually - axios will set it automatically with boundary
+    const response = await apiClient.post('/kyc/submit', formData)
     return response.data.data || response.data
   },
 
