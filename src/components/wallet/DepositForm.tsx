@@ -27,6 +27,7 @@ export default function DepositForm({ userId, onSuccess }: DepositFormProps) {
     register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors },
   } = useForm<DepositFormData>({
     resolver: zodResolver(depositSchema),
@@ -37,6 +38,7 @@ export default function DepositForm({ userId, onSuccess }: DepositFormProps) {
   })
 
   const amount = watch('amount')
+  const bankCode = watch('bankCode')
   const mxcAmount = amount ? amount * 0.0001 : 0
 
   const banks = [
@@ -96,10 +98,7 @@ export default function DepositForm({ userId, onSuccess }: DepositFormProps) {
               <button
                 key={amt}
                 type="button"
-                onClick={() => {
-                  const event = { target: { value: amt.toString() } }
-                  register('amount').onChange(event)
-                }}
+                onClick={() => setValue('amount', amt)}
                 className={`px-3 py-2 rounded-lg text-sm font-semibold transition-all ${
                   amount === amt
                     ? 'bg-primary-600 text-white shadow-md'
@@ -164,7 +163,7 @@ export default function DepositForm({ userId, onSuccess }: DepositFormProps) {
               <label
                 key={bank.code}
                 className={`flex items-center gap-2 p-3 rounded-xl border-2 cursor-pointer transition-all ${
-                  selectedBank === bank.code
+                  bankCode === bank.code
                     ? 'border-primary-500 bg-primary-50'
                     : 'border-gray-200 bg-white hover:border-gray-300'
                 }`}
@@ -173,12 +172,11 @@ export default function DepositForm({ userId, onSuccess }: DepositFormProps) {
                   type="radio"
                   value={bank.code}
                   {...register('bankCode')}
-                  onChange={(e) => setSelectedBank(e.target.value)}
                   className="hidden"
                 />
                 <span className="text-xl">{bank.icon}</span>
                 <span className={`text-xs font-semibold ${
-                  selectedBank === bank.code ? 'text-primary-700' : 'text-gray-600'
+                  bankCode === bank.code ? 'text-primary-700' : 'text-gray-600'
                 }`}>
                   {bank.name}
                 </span>
