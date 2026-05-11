@@ -1,16 +1,17 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { DepositCreateRequest } from '@/types'
-import { walletApi } from '@/api/walletApi'
 import { useState } from 'react'
 import { formatCurrency } from '@/utils/formatters'
-import { Info } from 'lucide-react'
+import { Info, CreditCard, Wallet } from 'lucide-react'
+import { paymentApi } from '@/api/paymentApi'
 
 const depositSchema = z.object({
-  amountVnd: z.number().min(10000, 'Minimum deposit is 10,000 VND'),
-  gateway: z.string().min(1, 'Gateway is required'),
+  amount: z.number().min(10000, 'Minimum deposit is 10,000 VND'),
+  bankCode: z.string().optional(),
 })
+
+type DepositFormData = z.infer<typeof depositSchema>
 
 interface DepositFormProps {
   userId: string
@@ -20,123 +21,203 @@ interface DepositFormProps {
 export default function DepositForm({ userId, onSuccess }: DepositFormProps) {
   const [error, setError] = useState<string>('')
   const [loading, setLoading] = useState(false)
-  const [redirectUrl, setRedirectUrl] = useState<string>('')
+  const [selectedBank, setSelectedBank] = useState<string>('')
 
   const {
     register,
     handleSubmit,
     watch,
     formState: { errors },
-  } = useForm<DepositCreateRequest>({
+  } = useForm<DepositFormData>({
     resolver: zodResolver(depositSchema),
     defaultValues: {
-      gateway: 'VNPAY',
-      amountVnd: 50000,
+      amount: 100000,
+      bankCode: '',
     }
   })
 
-  const amountVnd = watch('amountVnd')
-  const mxcAmount = amountVnd ? amountVnd / 1000 : 0
+  const amount = watch('amount')
+  const mxcAmount = amount ? amount * 0.0001 : 0
 
-  const onSubmit = async (data: DepositCreateRequest) => {
+  const banks = [
+    { code: '', name: 'All Banks', icon: '🏦' },
+    { code: 'VNPAYQR', name: 'VNPay QR', icon: '📱' },
+    { code: 'VNBANK', name: 'Local Bank', icon: '🏛️' },
+    { code: 'INTCARD', name: 'International Card', icon: '💳' },
+  ]
+
+  const quickAmounts = [50000, 100000, 200000, 500000, 1000000, 2000000]
+
+  const onSubmit = async (data: DepositFormData) => {
     try {
       setLoading(true)
       setError('')
-      console.log('Creating deposit order for userId:', userId, 'data:', data)
-      const response = await walletApi.createDeposit(userId, data)
-      console.log('Deposit order response:', response)
       
-      // In a real app, the response might contain a redirect URL to the payment gateway
-      // For now we simulate success
-      alert(`Deposit order created: ${response.gatewayOrderId}. You would be redirected to ${data.gateway} now.`)
-      onSuccess?.()
+      // Call VNPay API to create payment URL
+      const response = await paymentApi.createVNPayPayment({
+        amount: data.amount,
+        orderInfo: `Nap tien vao vi MentorX - ${data.amount.toLocaleString('vi-VN')} VND`,
+        bankCode: data.bankCode || undefined,
+      })
+
+      if (response.code === '00' && response.paymentUrl) {
+        // Redirect to VNPay payment page
+        window.location.href = response.paymentUrl
+      } else {
+        setError(response.message || 'Failed to create payment URL')
+      }
     } catch (err: any) {
-      console.error('Deposit error:', err)
-      const message = err.response?.data?.message || err.message || 'Deposit failed. Please try again.'
+      console.error('Payment error:', err)
+      const message = err.response?.data?.message || err.message || 'Payment failed. Please try again.'
       setError(message)
-    } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className="space-y-4">
-      <div className="bg-primary-50 border border-primary-100 rounded-xl p-4 flex gap-3">
+    <div className="space-y-5">
+      {/* Info Banner */}
+      <div className="bg-gradient-to-r from-primary-50 to-blue-50 border border-primary-100 rounded-xl p-4 flex gap-3">
         <Info className="w-5 h-5 text-primary-600 shrink-0 mt-0.5" />
-        <div className="text-sm text-primary-800">
-          <p className="font-semibold">Exchange Rate</p>
-          <p>1 MXC = 1,000 VND. Your deposit will be converted to MXC automatically.</p>
+        <div className="text-sm text-primary-900">
+          <p className="font-semibold mb-1">💱 Exchange Rate</p>
+          <p className="text-primary-700">1 VND = 0.0001 MXC • Minimum: 10,000 VND</p>
         </div>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+        {/* Quick Amount Selection */}
         <div>
-          <label htmlFor="amountVnd" className="block text-sm font-semibold text-gray-700 mb-1">
-            Amount (VND) *
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Quick Select Amount
+          </label>
+          <div className="grid grid-cols-3 gap-2">
+            {quickAmounts.map((amt) => (
+              <button
+                key={amt}
+                type="button"
+                onClick={() => {
+                  const event = { target: { value: amt.toString() } }
+                  register('amount').onChange(event)
+                }}
+                className={`px-3 py-2 rounded-lg text-sm font-semibold transition-all ${
+                  amount === amt
+                    ? 'bg-primary-600 text-white shadow-md'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                {(amt / 1000).toFixed(0)}K
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Custom Amount Input */}
+        <div>
+          <label htmlFor="amount" className="block text-sm font-semibold text-gray-700 mb-2">
+            Or Enter Custom Amount (VND)
           </label>
           <div className="relative">
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+              <Wallet className="w-5 h-5" />
+            </div>
             <input
-              id="amountVnd"
+              id="amount"
               type="number"
               step="1000"
-              {...register('amountVnd', { valueAsNumber: true })}
-              className="block w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
-              placeholder="50,000"
+              {...register('amount', { valueAsNumber: true })}
+              className="block w-full pl-12 pr-16 py-3.5 rounded-xl border-2 border-gray-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all text-lg font-semibold"
+              placeholder="100,000"
             />
-            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 font-medium">
+            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold text-sm">
               VND
             </div>
           </div>
-          {errors.amountVnd && <p className="mt-1 text-xs text-red-500">{errors.amountVnd.message}</p>}
+          {errors.amount && <p className="mt-1.5 text-xs text-red-500 font-medium">{errors.amount.message}</p>}
         </div>
 
-        <div className="bg-gray-50 rounded-xl p-4 border border-dashed border-gray-200 text-center">
-          <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-1">You will receive</p>
-          <p className="text-2xl font-bold text-gray-900">{formatCurrency(mxcAmount)}</p>
+        {/* Conversion Display */}
+        <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-5 border-2 border-green-100">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs text-green-700 uppercase tracking-wider font-bold mb-1">You will receive</p>
+              <p className="text-3xl font-bold text-green-900">{formatCurrency(mxcAmount)}</p>
+            </div>
+            <div className="w-14 h-14 rounded-full bg-green-100 flex items-center justify-center">
+              <CreditCard className="w-7 h-7 text-green-600" />
+            </div>
+          </div>
+          <div className="mt-3 pt-3 border-t border-green-200">
+            <p className="text-xs text-green-700">
+              <span className="font-semibold">{amount?.toLocaleString('vi-VN')} VND</span> = <span className="font-semibold">{mxcAmount.toFixed(4)} MXC</span>
+            </p>
+          </div>
         </div>
 
+        {/* Bank Selection */}
         <div>
-          <label htmlFor="gateway" className="block text-sm font-semibold text-gray-700 mb-1">
-            Payment Gateway
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Payment Method (Optional)
           </label>
-          <div className="grid grid-cols-2 gap-3">
-            {['VNPAY', 'STRIPE'].map((gw) => (
+          <div className="grid grid-cols-2 gap-2">
+            {banks.map((bank) => (
               <label
-                key={gw}
-                className={`flex flex-col items-center justify-center p-3 rounded-xl border-2 cursor-pointer transition-all ${
-                  watch('gateway') === gw
+                key={bank.code}
+                className={`flex items-center gap-2 p-3 rounded-xl border-2 cursor-pointer transition-all ${
+                  selectedBank === bank.code
                     ? 'border-primary-500 bg-primary-50'
-                    : 'border-gray-100 bg-white hover:border-gray-200'
+                    : 'border-gray-200 bg-white hover:border-gray-300'
                 }`}
               >
                 <input
                   type="radio"
-                  value={gw}
-                  {...register('gateway')}
+                  value={bank.code}
+                  {...register('bankCode')}
+                  onChange={(e) => setSelectedBank(e.target.value)}
                   className="hidden"
                 />
-                <span className={`text-sm font-bold ${watch('gateway') === gw ? 'text-primary-700' : 'text-gray-600'}`}>
-                  {gw}
+                <span className="text-xl">{bank.icon}</span>
+                <span className={`text-xs font-semibold ${
+                  selectedBank === bank.code ? 'text-primary-700' : 'text-gray-600'
+                }`}>
+                  {bank.name}
                 </span>
               </label>
             ))}
           </div>
-          {errors.gateway && <p className="mt-1 text-xs text-red-500">{errors.gateway.message}</p>}
         </div>
 
+        {/* Error Message */}
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
-            {error}
+          <div className="bg-red-50 border-2 border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm font-medium flex items-start gap-2">
+            <span className="text-lg">⚠️</span>
+            <span>{error}</span>
           </div>
         )}
 
+        {/* Submit Button */}
         <button 
           type="submit" 
           disabled={loading} 
-          className="w-full bg-primary-600 hover:bg-primary-700 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-primary-200 transition-all disabled:opacity-50 disabled:shadow-none"
+          className="w-full bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-bold py-4 rounded-xl shadow-lg shadow-primary-200 transition-all disabled:opacity-50 disabled:shadow-none flex items-center justify-center gap-2 text-base"
         >
-          {loading ? 'Processing...' : 'Go to Payment'}
+          {loading ? (
+            <>
+              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              <span>Redirecting to VNPay...</span>
+            </>
+          ) : (
+            <>
+              <CreditCard className="w-5 h-5" />
+              <span>Pay with VNPay</span>
+            </>
+          )}
         </button>
+
+        {/* Security Note */}
+        <p className="text-xs text-center text-gray-500">
+          🔒 Secured by VNPay • Your payment information is encrypted
+        </p>
       </form>
     </div>
   )

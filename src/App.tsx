@@ -36,6 +36,9 @@ import CourseCreatePage from './pages/course/CourseCreatePage'
 // Wallet Pages
 import WalletPage from './pages/wallet/WalletPage'
 
+// Payment Pages
+import VNPayReturnPage from './pages/payment/VNPayReturnPage'
+
 // Chat Page
 import ChatListPage from './pages/chat/ChatListPage'
 import ChatDemoPage from './pages/chat/ChatDemoPage'
@@ -123,6 +126,9 @@ function App() {
             
             {/* Wallet Routes */}
             <Route path="/wallet" element={<WalletPage />} />
+
+            {/* Payment Routes */}
+            <Route path="/payment/vnpay-return" element={<VNPayReturnPage />} />
 
             {/* Chat Routes */}
             <Route path="/chat" element={<ChatListPage />} />

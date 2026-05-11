@@ -62,7 +62,11 @@ export default function MyJobsPage() {
         job.jobType.toLowerCase().replace(/_/g, ' ').includes(keyword)
 
       return matchesStatus && matchesKeyword
-    }).sort((a, b) => new Date(b.updatedAt || b.createdAt).getTime() - new Date(a.updatedAt || a.createdAt).getTime())
+    }).sort((a, b) => {
+      const timeA = new Date(a.updatedAt || a.createdAt).getTime()
+      const timeB = new Date(b.updatedAt || b.createdAt).getTime()
+      return timeB - timeA
+    })
   }, [jobs, query, status])
 
   useEffect(() => {
@@ -96,7 +100,7 @@ export default function MyJobsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-6">
+    <div className="mx-auto max-w-screen-2xl px-4 py-8 sm:px-6 lg:px-8 space-y-6">
       <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div>
@@ -163,7 +167,7 @@ export default function MyJobsPage() {
         </div>
       </section>
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,430px)_1fr]">
+      <div className="grid gap-6 xl:grid-cols-[480px_1fr]">
         <section className="space-y-3">
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-black uppercase text-slate-500 dark:text-slate-400">Danh sách yêu cầu</h2>
