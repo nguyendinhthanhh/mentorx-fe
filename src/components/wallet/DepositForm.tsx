@@ -44,6 +44,7 @@ export default function DepositForm({ userId, onSuccess }: DepositFormProps) {
   const banks = [
     { code: '', name: 'All Banks', icon: '🏦' },
     { code: 'VNPAYQR', name: 'VNPay QR', icon: '📱' },
+    { code: 'MOMO', name: 'MoMo Wallet', icon: '💎' },
     { code: 'VNBANK', name: 'Local Bank', icon: '🏛️' },
     { code: 'INTCARD', name: 'International Card', icon: '💳' },
   ]
@@ -55,18 +56,32 @@ export default function DepositForm({ userId, onSuccess }: DepositFormProps) {
       setLoading(true)
       setError('')
       
-      // Call VNPay API to create payment URL
-      const response = await paymentApi.createVNPayPayment({
-        amount: data.amount,
-        orderInfo: `Nap tien vao vi MentorX - ${data.amount.toLocaleString('vi-VN')} VND`,
-        bankCode: data.bankCode || undefined,
-      })
+      if (data.bankCode === 'MOMO') {
+        const response = await paymentApi.createMomoPayment({
+          amount: data.amount,
+          orderInfo: `Nap tien vao vi MentorX - ${data.amount.toLocaleString('vi-VN')} VND`,
+        })
 
-      if (response.code === '00' && response.paymentUrl) {
-        // Redirect to VNPay payment page
-        window.location.href = response.paymentUrl
+        if (response.resultCode === '0' && response.payUrl) {
+          window.location.href = response.payUrl
+        } else {
+          setError(response.message || 'Failed to create MoMo payment URL')
+          setLoading(false)
+        }
       } else {
-        setError(response.message || 'Failed to create payment URL')
+        // Call VNPay API to create payment URL
+        const response = await paymentApi.createVNPayPayment({
+          amount: data.amount,
+          orderInfo: `Nap tien vao vi MentorX - ${data.amount.toLocaleString('vi-VN')} VND`,
+          bankCode: data.bankCode || undefined,
+        })
+
+        if (response.code === '00' && response.paymentUrl) {
+          window.location.href = response.paymentUrl
+        } else {
+          setError(response.message || 'Failed to create payment URL')
+          setLoading(false)
+        }
       }
     } catch (err: any) {
       console.error('Payment error:', err)

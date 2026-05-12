@@ -19,6 +19,12 @@ apiClient.interceptors.request.use(
     if (token && token !== 'undefined' && token !== 'null' && config.headers) {
       config.headers.Authorization = `Bearer ${token}`
     }
+    
+    // If sending FormData, remove Content-Type header to let axios set it with boundary
+    if (config.data instanceof FormData && config.headers) {
+      delete config.headers['Content-Type']
+    }
+    
     return config
   },
   (error: AxiosError) => {
@@ -64,27 +70,34 @@ apiClient.interceptors.response.use(
   async (error: AxiosError) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean }
 
-    // Handle 401 Unauthorized
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    // Handle 401 Unauthorized or 403 Forbidden with expired token
+    if ((error.response?.status === 401 || error.response?.status === 403) && !originalRequest._retry) {
       originalRequest._retry = true
 
       try {
         const refreshToken = useAuthStore.getState().refreshToken
-        if (refreshToken) {
+        console.log('Token expired, attempting refresh...')
+        
+        if (refreshToken && refreshToken !== 'undefined' && refreshToken !== 'null') {
           const response = await axios.post(`${API_BASE_URL}/auth/refresh`, {
             refreshToken,
           })
 
-          const { accessToken } = response.data.data
-          useAuthStore.getState().setTokens(accessToken, refreshToken)
+          const { accessToken: newAccessToken, refreshToken: newRefreshToken } = response.data.data || response.data
+          console.log('Token refreshed successfully')
+          
+          useAuthStore.getState().setTokens(newAccessToken, newRefreshToken || refreshToken)
 
           if (originalRequest.headers) {
-            originalRequest.headers.Authorization = `Bearer ${accessToken}`
+            originalRequest.headers.Authorization = `Bearer ${newAccessToken}`
           }
 
           return apiClient(originalRequest)
+        } else {
+          console.warn('No valid refresh token available')
         }
       } catch (refreshError) {
+        console.error('Token refresh failed:', refreshError)
         useAuthStore.getState().logout()
         window.location.href = '/login'
         return Promise.reject(refreshError)

@@ -32,6 +32,7 @@ export const useAuthStore = create<AuthState>()(
           console.warn('Attempted to set invalid accessToken:', accessToken);
           return;
         }
+        console.log('Setting new tokens in authStore')
         set({
           accessToken,
           refreshToken,

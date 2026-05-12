@@ -324,6 +324,8 @@ export interface MentorProfileResponse {
   countryOfResidence?: string;
   identityDocumentType?: string;
   identityDocumentUrl?: string;
+  identityDocumentBackUrl?: string;
+
   portraitUrl?: string;
   phoneNumber?: string;
   phoneVerified?: boolean;
@@ -370,6 +372,8 @@ export interface MentorProfileRequest {
   countryOfResidence?: string;
   identityDocumentType?: string;
   identityDocumentUrl?: string;
+  identityDocumentBackUrl?: string;
+
   portraitUrl?: string;
   phoneNumber?: string;
   phoneVerified?: boolean;

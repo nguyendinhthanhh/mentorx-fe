@@ -31,9 +31,18 @@ export default function EkycVerification({ onSuccess }: EkycVerificationProps) {
       if (onSuccess) onSuccess(data)
     } catch (err: any) {
       console.error('eKYC error:', err)
-      const msg = err.response?.data?.message || 'Xác thực thất bại. Vui lòng thử lại.'
-      setError(msg)
-      toast.error(msg)
+      
+      // Extract error message from response
+      let errorMsg = 'Xác thực thất bại. Vui lòng thử lại.'
+      
+      if (err.response?.data?.message) {
+        errorMsg = err.response.data.message
+      } else if (err.message) {
+        errorMsg = err.message
+      }
+      
+      setError(errorMsg)
+      toast.error(errorMsg, { duration: 5000 })
     } finally {
       setLoading(false)
     }
@@ -136,9 +145,26 @@ export default function EkycVerification({ onSuccess }: EkycVerificationProps) {
                 )}
                 
                 {error && (
-                  <div className="mt-6 flex items-start gap-3 rounded-2xl border border-rose-100 bg-rose-50 p-4 text-sm font-bold text-rose-600">
-                    <AlertCircle className="h-5 w-5 shrink-0" />
-                    {error}
+                  <div className="mt-6 rounded-2xl border-2 border-rose-200 bg-rose-50 p-6 dark:border-rose-900/30 dark:bg-rose-950/20">
+                    <div className="flex items-start gap-4">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-rose-100 dark:bg-rose-900/30">
+                        <AlertCircle className="h-6 w-6 text-rose-600 dark:text-rose-400" />
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="text-base font-black text-rose-900 dark:text-rose-100">
+                          Xác thực thất bại
+                        </h4>
+                        <p className="mt-2 text-sm font-medium leading-relaxed text-rose-700 dark:text-rose-300">
+                          {error}
+                        </p>
+                        <button
+                          onClick={() => setError(null)}
+                          className="mt-4 rounded-xl bg-rose-600 px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-rose-700"
+                        >
+                          Thử lại
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>

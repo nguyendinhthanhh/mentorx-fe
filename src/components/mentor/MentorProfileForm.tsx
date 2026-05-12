@@ -18,8 +18,10 @@ import {
 } from 'lucide-react'
 import { fileApi } from '@/api/fileApi'
 import { mentorApi } from '@/api/mentorApi'
-import { MentorProfileRequest } from '@/types'
+import { kycApi } from '@/api/kycApi'
+import { MentorProfileRequest, MentorStatus } from '@/types'
 import { useAuthStore } from '@/store/authStore'
+import KycStepWizard from '@/components/kyc/KycStepWizard'
 
 const urlField = z.string().url('URL chưa hợp lệ').optional().or(z.literal(''))
 
@@ -28,8 +30,9 @@ const mentorSchema = z.object({
   dateOfBirth: z.string().min(1, 'Chọn ngày sinh'),
   countryOfResidence: z.string().min(2, 'Nhập quốc gia cư trú'),
   identityDocumentType: z.string().min(1, 'Chọn loại giấy tờ'),
-  identityDocumentUrl: z.string().min(1, 'Tải lên giấy tờ tùy thân'),
-  portraitUrl: z.string().min(1, 'Tải lên ảnh chân dung'),
+  identityDocumentUrl: z.string().min(1, 'Tải lên mặt trước giấy tờ'),
+  identityDocumentBackUrl: z.string().min(1, 'Tải lên mặt sau giấy tờ'),
+  portraitUrl: z.string().min(1, 'Tải lên ảnh chân dung (video liveness)'),
   phoneNumber: z.string().min(8, 'Nhập số điện thoại'),
   headline: z.string().min(10, 'Headline cần tối thiểu 10 ký tự').max(255),
   hourlyRateMxc: z.coerce.number().min(0, 'Rate phải là số dương').optional(),
@@ -65,6 +68,7 @@ const stepFields: Record<number, (keyof MentorFormData)[]> = {
     'countryOfResidence',
     'identityDocumentType',
     'identityDocumentUrl',
+    'identityDocumentBackUrl',
     'portraitUrl',
     'phoneNumber',
   ],
@@ -132,6 +136,7 @@ export default function MentorProfileForm({ userId, userEmail, isEmailVerified, 
       countryOfResidence: initialData?.countryOfResidence || 'Việt Nam',
       identityDocumentType: initialData?.identityDocumentType || 'CCCD/CMND',
       identityDocumentUrl: initialData?.identityDocumentUrl || '',
+      identityDocumentBackUrl: initialData?.identityDocumentBackUrl || '',
       portraitUrl: initialData?.portraitUrl || '',
       phoneNumber: initialData?.phoneNumber || '',
       headline: initialData?.headline || '',
@@ -386,19 +391,75 @@ export default function MentorProfileForm({ userId, userEmail, isEmailVerified, 
               </Field>
             </div>
 
-            <div>
-              <p className={labelClass}>Hồ sơ xác minh</p>
-              <div className="grid gap-6 md:grid-cols-2">
-                <UploadBox field="identityDocumentUrl" title="Giấy tờ tùy thân" description="Mặt trước CCCD hoặc hộ chiếu" />
-                <UploadBox field="portraitUrl" title="Ảnh chân dung" description="Chụp rõ mặt, ánh sáng tốt" />
+            <div className="rounded-[2.5rem] border-2 border-dashed border-indigo-100 bg-indigo-50/20 p-8 dark:border-indigo-900/30 dark:bg-indigo-900/10">
+              <div className="mb-8 flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-black text-slate-900 dark:text-white">Hồ sơ định danh</h3>
+                  <p className="text-xs font-medium text-slate-500">Hoàn thành quy trình 3 bước để xác thực tài khoản.</p>
+                </div>
+                {uploadedValues.identityDocumentUrl && uploadedValues.portraitUrl && (
+                  <div className="flex items-center gap-2 rounded-full bg-emerald-500 px-3 py-1 text-[10px] font-black text-white">
+                    <Check className="h-3 w-3" />
+                    ĐÃ CUNG CẤP
+                  </div>
+                )}
               </div>
-              {(errors.identityDocumentUrl || errors.portraitUrl) && (
-                <p className="mt-3 text-xs font-bold text-rose-500 flex items-center gap-1.5">
-                  <X className="h-3.5 w-3.5" />
-                  Bạn cần tải lên đầy đủ giấy tờ và ảnh chân dung.
-                </p>
+
+              {!uploadedValues.identityDocumentUrl || !uploadedValues.portraitUrl ? (
+                <KycStepWizard 
+                  onComplete={async ({ front, back, video }) => {
+                    try {
+                      setLoading(true)
+                      const formData = new FormData()
+                      formData.append('cccdFront', front)
+                      formData.append('cccdBack', back)
+                      formData.append('livenessVideo', video)
+
+                      const res = await kycApi.submitKyc(formData)
+                      
+                      // Update form with results from OCR/Liveness
+                      if (res.identityDocumentUrl) setValue('identityDocumentUrl', res.identityDocumentUrl)
+                      if (res.identityDocumentBackUrl) setValue('identityDocumentBackUrl', res.identityDocumentBackUrl)
+                      if (res.portraitUrl) setValue('portraitUrl', res.portraitUrl)
+                      if (res.legalName) setValue('legalName', res.legalName)
+                      if (res.dateOfBirth) setValue('dateOfBirth', res.dateOfBirth)
+                      
+                    } catch (err: any) {
+                      setError(err.response?.data?.message || 'Xác thực KYC thất bại. Vui lòng thử lại.')
+                    } finally {
+                      setLoading(false)
+                    }
+                  }}
+                />
+              ) : (
+                <div className="grid gap-4 sm:grid-cols-3">
+                  <div className="relative aspect-video overflow-hidden rounded-2xl border border-emerald-100 bg-white p-1">
+                    <img src={uploadedValues.identityDocumentUrl} className="h-full w-full object-cover rounded-xl" alt="Front" />
+                    <div className="absolute bottom-2 left-2 rounded-lg bg-black/60 px-2 py-1 text-[8px] font-black text-white">MẶT TRƯỚC</div>
+                  </div>
+                  <div className="relative aspect-video overflow-hidden rounded-2xl border border-emerald-100 bg-white p-1">
+                    <img src={uploadedValues.identityDocumentBackUrl} className="h-full w-full object-cover rounded-xl" alt="Back" />
+                    <div className="absolute bottom-2 left-2 rounded-lg bg-black/60 px-2 py-1 text-[8px] font-black text-white">MẶT SAU</div>
+                  </div>
+                  <div className="relative aspect-video overflow-hidden rounded-2xl border border-emerald-100 bg-white p-1">
+                    <img src={uploadedValues.portraitUrl} className="h-full w-full object-cover rounded-xl" alt="Selfie" />
+                    <div className="absolute bottom-2 left-2 rounded-lg bg-black/60 px-2 py-1 text-[8px] font-black text-white">CHÂN DUNG</div>
+                  </div>
+                  <button 
+                    type="button"
+                    onClick={() => {
+                      setValue('identityDocumentUrl', '')
+                      setValue('identityDocumentBackUrl', '')
+                      setValue('portraitUrl', '')
+                    }}
+                    className="col-span-full mt-2 text-center text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-rose-500 transition-colors"
+                  >
+                    Làm lại quy trình xác minh
+                  </button>
+                </div>
               )}
             </div>
+
 
             <div className="grid gap-6 md:grid-cols-2">
               <div className="group rounded-[2rem] border border-emerald-100 bg-emerald-50/30 p-6 transition-colors hover:bg-emerald-50 dark:border-emerald-900/20 dark:bg-emerald-900/10">

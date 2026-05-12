@@ -38,6 +38,7 @@ import WalletPage from './pages/wallet/WalletPage'
 
 // Payment Pages
 import VNPayReturnPage from './pages/payment/VNPayReturnPage'
+import MomoReturnPage from './pages/payment/MomoReturnPage'
 
 // Chat Page
 import ChatListPage from './pages/chat/ChatListPage'
@@ -129,6 +130,7 @@ function App() {
 
             {/* Payment Routes */}
             <Route path="/payment/vnpay-return" element={<VNPayReturnPage />} />
+            <Route path="/payment/momo-return" element={<MomoReturnPage />} />
 
             {/* Chat Routes */}
             <Route path="/chat" element={<ChatListPage />} />
