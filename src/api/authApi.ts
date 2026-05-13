@@ -7,6 +7,11 @@ export const authApi = {
     return response.data.data
   },
 
+  googleLogin: async (credential: string): Promise<AuthResponse> => {
+    const response = await apiClient.post<ApiResponse<AuthResponse>>('/auth/google', { credential })
+    return response.data.data
+  },
+
   register: async (data: RegisterRequest): Promise<AuthResponse> => {
     const response = await apiClient.post<ApiResponse<AuthResponse>>('/auth/register', data)
     return response.data.data

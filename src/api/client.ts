@@ -3,6 +3,12 @@ import { useAuthStore } from '@/store/authStore'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api'
 
+// Do not try to refresh session on auth endpoints (wrong password → 401 is expected)
+function isAuthEndpoint(config: InternalAxiosRequestConfig): boolean {
+  const path = `${config.baseURL ?? ''}${config.url ?? ''}`.replace(/\\/g, '/')
+  return /\/auth\/(login|register|refresh|forgot-password|reset-password)/i.test(path)
+}
+
 // Create axios instance
 const apiClient: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
@@ -72,20 +78,28 @@ apiClient.interceptors.response.use(
 
     // Handle 401 Unauthorized or 403 Forbidden with expired token
     if ((error.response?.status === 401 || error.response?.status === 403) && !originalRequest._retry) {
+      if (isAuthEndpoint(originalRequest)) {
+        return Promise.reject(error)
+      }
+
       originalRequest._retry = true
 
       try {
         const refreshToken = useAuthStore.getState().refreshToken
-        console.log('Token expired, attempting refresh...')
-        
+        if (import.meta.env.DEV) {
+          console.debug('401/403: attempting token refresh...')
+        }
+
         if (refreshToken && refreshToken !== 'undefined' && refreshToken !== 'null') {
           const response = await axios.post(`${API_BASE_URL}/auth/refresh`, {
             refreshToken,
           })
 
           const { accessToken: newAccessToken, refreshToken: newRefreshToken } = response.data.data || response.data
-          console.log('Token refreshed successfully')
-          
+          if (import.meta.env.DEV) {
+            console.debug('Token refreshed')
+          }
+
           useAuthStore.getState().setTokens(newAccessToken, newRefreshToken || refreshToken)
 
           if (originalRequest.headers) {
@@ -93,8 +107,6 @@ apiClient.interceptors.response.use(
           }
 
           return apiClient(originalRequest)
-        } else {
-          console.warn('No valid refresh token available')
         }
       } catch (refreshError) {
         console.error('Token refresh failed:', refreshError)

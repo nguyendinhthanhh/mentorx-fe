@@ -1,6 +1,16 @@
 import apiClient from './client'
 import { ApiResponse, OnboardingStepResponse } from '@/types'
 
+function requireOnboardingPayload<T>(response: { data: ApiResponse<T> }): T {
+  const body = response.data
+  const payload = body?.data
+  if (payload === undefined || payload === null) {
+    const msg = body?.message?.trim() || 'Phản hồi từ máy chủ không hợp lệ (thiếu dữ liệu).'
+    throw new Error(msg)
+  }
+  return payload
+}
+
 /**
  * Onboarding API - matches backend's polymorphic BaseStepRequest pattern.
  * All steps go through POST /onboarding/step with stepEnum discriminator.
@@ -9,7 +19,7 @@ export const onboardingApi = {
   /** Get current onboarding progress */
   getProgress: async () => {
     const response = await apiClient.get<ApiResponse<any>>('/onboarding/progress')
-    return response.data.data
+    return requireOnboardingPayload(response)
   },
 
   /** Step 1: ROLE - Choose role: MENTOR, CLIENT, or BOTH */
@@ -18,7 +28,7 @@ export const onboardingApi = {
       stepEnum: 'ROLE',
       roleChoice
     })
-    return response.data.data
+    return requireOnboardingPayload(response)
   },
 
   /** Step 2: INTERESTS - Select category IDs */
@@ -27,7 +37,7 @@ export const onboardingApi = {
       stepEnum: 'INTERESTS',
       categoryIds
     })
-    return response.data.data
+    return requireOnboardingPayload(response)
   },
 
   /** Step 3: SKILLS - Add skills with levels */
@@ -36,7 +46,7 @@ export const onboardingApi = {
       stepEnum: 'SKILLS',
       skills
     })
-    return response.data.data
+    return requireOnboardingPayload(response)
   },
 
   /** Step 4: PREFERENCES - Notification preferences */
@@ -49,7 +59,7 @@ export const onboardingApi = {
       stepEnum: 'PREFERENCES',
       ...data
     })
-    return response.data.data
+    return requireOnboardingPayload(response)
   },
 
   /** Step 5: GOALS - List of goals */
@@ -58,7 +68,7 @@ export const onboardingApi = {
       stepEnum: 'GOALS',
       goals
     })
-    return response.data.data
+    return requireOnboardingPayload(response)
   },
 
   /** Step 6: PROFILE - Display name and avatar */
@@ -70,18 +80,18 @@ export const onboardingApi = {
       stepEnum: 'PROFILE',
       ...data
     })
-    return response.data.data
+    return requireOnboardingPayload(response)
   },
 
   /** Finalize onboarding after all steps */
   complete: async () => {
     const response = await apiClient.post<ApiResponse<any>>('/onboarding/complete')
-    return response.data.data
+    return requireOnboardingPayload(response)
   },
 
   /** Skip onboarding entirely */
   skip: async () => {
     const response = await apiClient.post<ApiResponse<any>>('/onboarding/skip')
-    return response.data.data
+    return requireOnboardingPayload(response)
   }
 }

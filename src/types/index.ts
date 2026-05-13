@@ -10,10 +10,16 @@ export enum UserStatus {
 
 export enum MentorStatus {
   NONE = "NONE",
+  PENDING_KYC = "PENDING_KYC",
+  KYC_SUBMITTED = "KYC_SUBMITTED",
+  KYC_VERIFIED = "KYC_VERIFIED",
+  KYC_REJECTED = "KYC_REJECTED",
+  ACTIVE = "ACTIVE",
   PENDING = "PENDING",
   APPROVED = "APPROVED",
   REJECTED = "REJECTED",
   SUSPENDED = "SUSPENDED",
+  REVOKED = "REVOKED",
 }
 
 export enum JobStatus {

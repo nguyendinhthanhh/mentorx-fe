@@ -277,8 +277,8 @@ export default function ConversationPane({
         )}
       </div>
 
-      <div className="border-t border-slate-200 bg-white px-6 py-4">
-        <form onSubmit={onSendMessage} className="space-y-3">
+      <div className="bg-white px-6 py-4 border-t border-slate-100">
+        <form onSubmit={onSendMessage} className="relative w-full max-w-4xl mx-auto flex flex-col bg-white border border-gray-200 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-2xl overflow-hidden focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-400 transition-all duration-300">
           <input
             ref={fileInputRef}
             type="file"
@@ -288,68 +288,77 @@ export default function ConversationPane({
             className="hidden"
           />
 
+          {composerError && <p className="text-sm text-rose-500 p-3 pb-0">{composerError}</p>}
+
           {queuedAttachments.length > 0 && (
-            <div className="flex gap-2 overflow-x-auto pb-1">
+            <div className="flex flex-wrap gap-2 p-3 pb-0">
               {queuedAttachments.map((attachment) => (
-                <div key={attachment.id} className="group relative min-w-[112px] rounded-xl border border-slate-200 bg-slate-50 p-2">
+                <div key={attachment.id} className="flex items-center gap-2 bg-slate-50 border border-slate-100 rounded-lg px-2 py-1.5 text-sm group max-w-[200px]">
                   {attachment.previewUrl ? (
-                    <img src={attachment.previewUrl} alt={attachment.file.name} className="h-16 w-full rounded-lg object-cover" />
+                    <img src={attachment.previewUrl} alt={attachment.file.name} className="h-8 w-8 rounded object-cover shrink-0" />
                   ) : (
-                    <div className="flex h-16 items-center justify-center rounded-lg bg-white text-center text-xs font-medium text-[#66729d]">
-                      <span className="line-clamp-2 px-2">{attachment.file.name}</span>
+                    <div className="w-8 h-8 rounded bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+                      <Paperclip className="w-4 h-4" />
                     </div>
                   )}
-
+                  <div className="flex-1 min-w-0">
+                    <p className="text-slate-700 truncate font-medium text-xs">{attachment.file.name}</p>
+                    <p className="text-slate-400 text-[10px]">{(attachment.file.size / 1024).toFixed(1)} KB</p>
+                  </div>
                   <button
                     type="button"
                     onClick={() => onRemoveAttachment(attachment.id)}
-                    className="absolute right-2 top-2 inline-flex h-6 w-6 items-center justify-center rounded-full bg-slate-950/70 text-white opacity-0 transition-opacity group-hover:opacity-100"
+                    className="text-slate-400 hover:text-rose-500 hover:bg-rose-50 p-1 rounded transition-colors shrink-0"
                   >
-                    <X className="h-3.5 w-3.5" />
+                    <X className="w-4 h-4" />
                   </button>
                 </div>
               ))}
             </div>
           )}
 
-          {composerError && <p className="text-sm text-rose-500">{composerError}</p>}
-
-          <div className="rounded-xl border border-[#dce2f2] bg-white px-4 py-3">
+          <div className="flex items-end gap-2 p-3">
             <textarea
               value={messageInput}
-              onChange={(event) => onMessageInputChange(event.target.value)}
+              onChange={(event) => {
+                onMessageInputChange(event.target.value)
+                event.target.style.height = 'auto'
+                event.target.style.height = `${Math.min(event.target.scrollHeight, 200)}px`
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault()
+                  if (!isSending && (messageInput.trim() || queuedAttachments.length > 0)) {
+                    onSendMessage(e as any)
+                    e.currentTarget.style.height = 'auto'
+                  }
+                }
+              }}
               rows={1}
               placeholder="Type a message..."
-              className="max-h-28 min-h-[36px] w-full resize-none bg-transparent text-[15px] text-[#10164a] outline-none placeholder:text-[#8490b5]"
+              className="w-full max-h-[200px] min-h-[44px] bg-transparent border-0 focus:ring-0 resize-none px-3 py-3 text-slate-700 text-[15px] placeholder:text-slate-400"
             />
 
-            <div className="mt-2 flex items-center justify-between gap-3">
-              <div className="flex items-center gap-2">
-                <ComposerIconButton title="Attach file" onClick={onOpenFilePicker}>
-                  <Paperclip className="h-5 w-5" />
-                </ComposerIconButton>
-                <ComposerIconButton title="Emoji">
-                  <Smile className="h-5 w-5" />
-                </ComposerIconButton>
-              </div>
-
-              <div className="flex overflow-hidden rounded-xl bg-indigo-600 text-white shadow-sm shadow-indigo-200">
-                <button
-                  type="submit"
-                  disabled={isSending || (!messageInput.trim() && queuedAttachments.length === 0)}
-                  className="inline-flex h-10 items-center gap-2 px-5 text-sm font-semibold transition-colors hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-slate-300"
-                >
-                  {isSending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-                  Send
-                </button>
-                <button
-                  type="button"
-                  className="inline-flex h-10 w-10 items-center justify-center border-l border-white/20 transition-colors hover:bg-indigo-700"
-                  title="Send options"
-                >
-                  <ChevronDown className="h-4 w-4" />
-                </button>
-              </div>
+            <div className="flex items-center gap-2 shrink-0 pb-1 pr-1">
+              <button
+                type="button"
+                onClick={onOpenFilePicker}
+                className="p-2.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition-colors"
+                title="Attach file"
+              >
+                <Paperclip className="w-5 h-5" />
+              </button>
+              <button
+                type="submit"
+                disabled={isSending || (!messageInput.trim() && queuedAttachments.length === 0)}
+                className={`p-2.5 rounded-xl transition-all duration-300 flex items-center justify-center ${
+                  messageInput.trim() || queuedAttachments.length > 0
+                    ? 'bg-indigo-600 text-white shadow-md hover:bg-indigo-700 hover:shadow-lg'
+                    : 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                }`}
+              >
+                {isSending ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5 ml-0.5" />}
+              </button>
             </div>
           </div>
         </form>

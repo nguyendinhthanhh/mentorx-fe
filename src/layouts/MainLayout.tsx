@@ -1,4 +1,5 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
+import { AiAssistantWidget } from '@/components/ui/AiAssistantWidget'
 import { useState } from 'react'
 import { useAuthStore } from '@/store/authStore'
 import { Menu, X, LogOut, MessageSquare, GraduationCap, Sparkles, ChevronDown, UserCog, User, Wallet, ShoppingBag, Briefcase } from 'lucide-react'
@@ -434,6 +435,7 @@ export default function MainLayout() {
       </main>
 
       {!hideFooter && <SiteFooter />}
+      <AiAssistantWidget />
     </div>
   )
 }

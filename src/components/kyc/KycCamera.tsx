@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { Camera, RefreshCcw, Video, StopCircle, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react'
+import { Video, RefreshCcw, CheckCircle2, AlertCircle, Loader2, X } from 'lucide-react'
 
 interface Props {
   onCapture: (videoBlob: Blob) => void
@@ -17,43 +17,52 @@ export default function KycCamera({ onCapture, onCancel }: Props) {
   const chunksRef = useRef<Blob[]>([])
 
   useEffect(() => {
-    startCamera()
+    void startCamera()
     return () => stopCamera()
   }, [])
 
   const startCamera = async () => {
     try {
       setError(null)
-      const mediaStream = await navigator.mediaDevices.getUserMedia({ 
-        video: { 
+      const mediaStream = await navigator.mediaDevices.getUserMedia({
+        video: {
           facingMode: 'user',
           width: { ideal: 1280 },
-          height: { ideal: 720 }
-        }, 
-        audio: false 
+          height: { ideal: 720 },
+          frameRate: { ideal: 24, max: 30 },
+        },
+        audio: false,
       })
       setStream(mediaStream)
       if (videoRef.current) {
         videoRef.current.srcObject = mediaStream
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error('Camera error:', err)
-      setError('Không thể truy cập camera. Vui lòng cấp quyền và thử lại.')
+      setError('Không thể mở camera. Vui lòng cấp quyền trình duyệt và thử lại.')
     }
   }
 
   const stopCamera = () => {
     if (stream) {
-      stream.getTracks().forEach(track => track.stop())
+      stream.getTracks().forEach((t) => t.stop())
       setStream(null)
     }
   }
 
   const startRecording = () => {
     if (!stream) return
-    
+
     chunksRef.current = []
-    const recorder = new MediaRecorder(stream, { mimeType: 'video/webm' })
+    const mime = MediaRecorder.isTypeSupported('video/webm;codecs=vp8')
+      ? 'video/webm;codecs=vp8'
+      : 'video/webm'
+    let recorder: MediaRecorder
+    try {
+      recorder = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 2_500_000 })
+    } catch {
+      recorder = new MediaRecorder(stream, { mimeType: mime })
+    }
     mediaRecorderRef.current = recorder
 
     recorder.ondataavailable = (e) => {
@@ -67,133 +76,130 @@ export default function KycCamera({ onCapture, onCancel }: Props) {
       setCountdown(null)
     }
 
-    // Start countdown before recording
     setCountdown(3)
     let count = 3
     const countdownInterval = setInterval(() => {
-      count--
+      count -= 1
       setCountdown(count)
       if (count === 0) {
         clearInterval(countdownInterval)
-        // Start actual recording after countdown
-        recorder.start()
+        recorder.start(100)
         setRecording(true)
         setCountdown(null)
-        
-        // Auto stop after 3 seconds of recording
+        // Đủ dài để backend đọc nhiều khung WebM tuần tự (đừng ngắn hơn ~4s).
         setTimeout(() => {
-          if (recorder.state === 'recording') {
-            recorder.stop()
-          }
-        }, 3000)
+          if (recorder.state === 'recording') recorder.stop()
+        }, 5200)
       }
     }, 1000)
   }
 
-
-  const stopRecording = () => {
-    if (mediaRecorderRef.current && recording) {
-      mediaRecorderRef.current.stop()
-      setRecording(false)
-      setCountdown(null)
-    }
-  }
-
   const handleConfirm = () => {
-    if (videoBlob) {
-      onCapture(videoBlob)
-    }
+    if (videoBlob) onCapture(videoBlob)
   }
 
   return (
-    <div className="flex flex-col items-center justify-center space-y-6">
-      <div className="relative aspect-video w-full max-w-xl overflow-hidden rounded-2xl bg-slate-900 shadow-xl">
-        {/* Face Overlay */}
-        <div className="absolute inset-0 z-10 pointer-events-none flex items-center justify-center">
-          <div className="w-[60%] h-[75%] border-4 border-dashed border-white/40 rounded-[100%] shadow-[0_0_0_9999px_rgba(15,23,42,0.5)]" />
+    <div className="flex flex-col items-center gap-6">
+      <div className="relative aspect-video w-full max-w-xl overflow-hidden rounded-2xl bg-slate-900 ring-1 ring-slate-200/60 dark:ring-slate-800">
+        <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
+          <div className="h-[72%] w-[58%] rounded-[999px] border-2 border-dashed border-white/50 shadow-[0_0_0_9999px_rgba(15,23,42,0.45)]" />
         </div>
 
         {error ? (
-          <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center text-white">
-            <AlertCircle className="h-10 w-10 text-rose-500 mb-3" />
-            <p className="text-sm font-bold">{error}</p>
-            <button onClick={startCamera} className="mt-3 rounded-xl bg-white/10 px-4 py-2 text-xs font-black uppercase tracking-widest hover:bg-white/20">
+          <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-slate-950/90 p-6 text-center text-white">
+            <AlertCircle className="h-9 w-9 text-amber-400" />
+            <p className="max-w-xs text-sm">{error}</p>
+            <button
+              type="button"
+              onClick={() => void startCamera()}
+              className="rounded-lg bg-white/10 px-4 py-2 text-xs font-medium hover:bg-white/20"
+            >
               Thử lại
             </button>
           </div>
         ) : (
-          <video
-            ref={videoRef}
-            autoPlay
-            playsInline
-            muted
-            className="h-full w-full object-cover"
-          />
+          <video ref={videoRef} autoPlay playsInline muted className="h-full w-full object-cover" />
         )}
 
         {countdown !== null && countdown > 0 && (
-          <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/30">
+          <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/40">
             <div className="text-center">
-              <span className="text-7xl font-black text-white drop-shadow-lg">{countdown}</span>
-              <p className="mt-2 text-sm font-bold text-white">Chuẩn bị...</p>
+              <span className="text-6xl font-semibold tabular-nums text-white drop-shadow-md">{countdown}</span>
+              <p className="mt-2 text-sm text-white/90">Chuẩn bị quay</p>
             </div>
           </div>
         )}
 
         {recording && (
-          <div className="absolute top-4 left-1/2 z-20 -translate-x-1/2 flex items-center gap-2 rounded-full bg-rose-600 px-3 py-1.5 text-xs font-black uppercase tracking-widest text-white shadow-lg">
-            <div className="h-2 w-2 rounded-full bg-white animate-pulse" />
-            Đang ghi hình
+          <div className="absolute left-1/2 top-4 z-20 flex -translate-x-1/2 items-center gap-2 rounded-full bg-rose-600 px-3 py-1.5 text-xs font-medium text-white shadow-md">
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" />
+            Đang ghi
           </div>
         )}
       </div>
 
-      <div className="w-full max-w-xl space-y-3">
+      <div className="flex w-full max-w-xl flex-col gap-3">
         {!videoBlob ? (
           <button
+            type="button"
             onClick={startRecording}
             disabled={recording || countdown !== null || !!error}
-            className="group flex w-full items-center justify-center gap-3 rounded-xl bg-indigo-600 py-3.5 text-base font-black text-white shadow-lg shadow-indigo-200 transition-all hover:bg-indigo-700 disabled:bg-slate-300 disabled:shadow-none dark:shadow-none"
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 py-3.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-slate-300 dark:disabled:bg-slate-700"
           >
             {countdown !== null ? (
               <>
-                <Loader2 className="h-5 w-5 animate-spin" />
-                Đang chuẩn bị...
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Đang đếm…
               </>
             ) : recording ? (
               <>
-                <Loader2 className="h-5 w-5 animate-spin" />
-                Đang quay...
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Đang quay (~5s)
               </>
             ) : (
               <>
-                <Video className="h-5 w-5" />
-                Bắt đầu ghi hình
+                <Video className="h-4 w-4" />
+                Bắt đầu quay video
               </>
             )}
           </button>
         ) : (
           <div className="flex gap-3">
             <button
-              onClick={() => { setVideoBlob(null); startCamera(); }}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl border-2 border-slate-200 bg-white py-3.5 text-sm font-black text-slate-700 hover:bg-slate-50"
+              type="button"
+              onClick={() => {
+                setVideoBlob(null)
+                void startCamera()
+              }}
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white py-3 text-sm font-medium text-slate-800 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
             >
               <RefreshCcw className="h-4 w-4" />
               Quay lại
             </button>
             <button
+              type="button"
               onClick={handleConfirm}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-emerald-600 py-3.5 text-sm font-black text-white shadow-lg shadow-emerald-100 hover:bg-emerald-700 dark:shadow-none"
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-emerald-600 py-3 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700"
             >
               <CheckCircle2 className="h-4 w-4" />
-              Xác nhận
+              Gửi video này
             </button>
           </div>
         )}
-        
-        <p className="text-center text-xs font-medium text-slate-500">
-          💡 Giữ khuôn mặt trong khung tròn. Video sẽ tự động ghi trong 3 giây.
-        </p>
+
+        <div className="flex items-center justify-between gap-3 text-xs text-slate-500 dark:text-slate-400">
+          <p className="flex-1 leading-relaxed">
+            Video chỉ dùng để kiểm tra có chuyển động thật; không thay thế xác minh thủ công khi cần.
+          </p>
+          <button
+            type="button"
+            onClick={onCancel}
+            className="inline-flex shrink-0 items-center gap-1 rounded-lg px-2 py-1.5 font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+          >
+            <X className="h-3.5 w-3.5" />
+            Hủy
+          </button>
+        </div>
       </div>
     </div>
   )
