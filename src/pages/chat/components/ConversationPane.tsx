@@ -29,6 +29,7 @@ import {
   getPresenceLabel,
   shouldShowDateSeparator,
 } from '../chatShared'
+import { PromptInputBox } from '@/components/ui/ai-prompt-box'
 
 type ConversationPaneProps = {
   selectedRoom: ChatRoomResponse | null
@@ -42,7 +43,7 @@ type ConversationPaneProps = {
   queuedAttachments: QueuedAttachment[]
   onAttachmentSelect: (event: ChangeEvent<HTMLInputElement>) => void
   onRemoveAttachment: (attachmentId: string) => void
-  onSendMessage: (event: FormEvent) => void
+  onSendMessage: (message: string, files: File[]) => void
   fileInputRef: RefObject<HTMLInputElement>
   onOpenFilePicker: () => void
   composerError?: string | null
@@ -278,90 +279,12 @@ export default function ConversationPane({
       </div>
 
       <div className="bg-white px-6 py-4 border-t border-slate-100">
-        <form onSubmit={onSendMessage} className="relative w-full max-w-4xl mx-auto flex flex-col bg-white border border-gray-200 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-2xl overflow-hidden focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-400 transition-all duration-300">
-          <input
-            ref={fileInputRef}
-            type="file"
-            multiple
-            accept={ATTACHMENT_ACCEPT}
-            onChange={onAttachmentSelect}
-            className="hidden"
-          />
-
-          {composerError && <p className="text-sm text-rose-500 p-3 pb-0">{composerError}</p>}
-
-          {queuedAttachments.length > 0 && (
-            <div className="flex flex-wrap gap-2 p-3 pb-0">
-              {queuedAttachments.map((attachment) => (
-                <div key={attachment.id} className="flex items-center gap-2 bg-slate-50 border border-slate-100 rounded-lg px-2 py-1.5 text-sm group max-w-[200px]">
-                  {attachment.previewUrl ? (
-                    <img src={attachment.previewUrl} alt={attachment.file.name} className="h-8 w-8 rounded object-cover shrink-0" />
-                  ) : (
-                    <div className="w-8 h-8 rounded bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
-                      <Paperclip className="w-4 h-4" />
-                    </div>
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-slate-700 truncate font-medium text-xs">{attachment.file.name}</p>
-                    <p className="text-slate-400 text-[10px]">{(attachment.file.size / 1024).toFixed(1)} KB</p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => onRemoveAttachment(attachment.id)}
-                    className="text-slate-400 hover:text-rose-500 hover:bg-rose-50 p-1 rounded transition-colors shrink-0"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-
-          <div className="flex items-end gap-2 p-3">
-            <textarea
-              value={messageInput}
-              onChange={(event) => {
-                onMessageInputChange(event.target.value)
-                event.target.style.height = 'auto'
-                event.target.style.height = `${Math.min(event.target.scrollHeight, 200)}px`
-              }}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault()
-                  if (!isSending && (messageInput.trim() || queuedAttachments.length > 0)) {
-                    onSendMessage(e as any)
-                    e.currentTarget.style.height = 'auto'
-                  }
-                }
-              }}
-              rows={1}
-              placeholder="Type a message..."
-              className="w-full max-h-[200px] min-h-[44px] bg-transparent border-0 focus:ring-0 resize-none px-3 py-3 text-slate-700 text-[15px] placeholder:text-slate-400"
-            />
-
-            <div className="flex items-center gap-2 shrink-0 pb-1 pr-1">
-              <button
-                type="button"
-                onClick={onOpenFilePicker}
-                className="p-2.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition-colors"
-                title="Attach file"
-              >
-                <Paperclip className="w-5 h-5" />
-              </button>
-              <button
-                type="submit"
-                disabled={isSending || (!messageInput.trim() && queuedAttachments.length === 0)}
-                className={`p-2.5 rounded-xl transition-all duration-300 flex items-center justify-center ${
-                  messageInput.trim() || queuedAttachments.length > 0
-                    ? 'bg-indigo-600 text-white shadow-md hover:bg-indigo-700 hover:shadow-lg'
-                    : 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                }`}
-              >
-                {isSending ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5 ml-0.5" />}
-              </button>
-            </div>
-          </div>
-        </form>
+        <PromptInputBox 
+           onSend={(msg, files) => onSendMessage(msg, files || [])} 
+           isLoading={isSending}
+           className="shadow-[0_8px_30px_rgb(0,0,0,0.04)]"
+        />
+        {composerError && <p className="text-sm text-rose-500 p-3 pb-0">{composerError}</p>}
       </div>
     </section>
   )

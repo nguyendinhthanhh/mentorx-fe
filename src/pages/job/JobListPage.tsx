@@ -128,13 +128,25 @@ export default function JobListPage() {
                 ))}
               </div>
 
-              <Link
-                to="/jobs/create"
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 text-sm font-black text-white transition hover:bg-indigo-700"
-              >
-                <Plus className="h-4 w-4" />
-                {t('jobs.post')}
-              </Link>
+              <div className="flex items-center gap-2">
+                <Link
+                  to="/my-jobs"
+                  className="inline-flex h-10 sm:h-12 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 sm:px-4 text-sm font-bold text-slate-700 transition hover:bg-slate-50"
+                >
+                  <Briefcase className="h-4 w-4 text-slate-500" />
+                  <span className="hidden sm:inline">Yêu cầu của tôi</span>
+                  <span className="sm:hidden">Của tôi</span>
+                </Link>
+
+                <Link
+                  to="/jobs/create"
+                  className="inline-flex h-10 sm:h-12 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-3 sm:px-4 text-sm font-black text-white transition hover:bg-indigo-700 shadow-sm"
+                >
+                  <Plus className="h-4 w-4" />
+                  <span className="hidden sm:inline">{t('jobs.post')}</span>
+                  <span className="sm:hidden">Đăng mới</span>
+                </Link>
+              </div>
             </div>
           </div>
         </div>
@@ -217,6 +229,21 @@ function JobCard({ job }: { job: JobResponse }) {
         </div>
 
         <p className="mt-3 line-clamp-2 text-sm leading-6 text-slate-600 min-[760px]:max-w-3xl">{job.description}</p>
+
+        {job.requiredSkills && job.requiredSkills.length > 0 && (
+          <div className="mt-3 flex flex-wrap gap-2">
+            {job.requiredSkills.slice(0, 4).map((skill) => (
+              <span key={skill} className="rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-black text-indigo-700">
+                {skill}
+              </span>
+            ))}
+            {job.requiredSkills.length > 4 && (
+              <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-black text-slate-500">
+                +{job.requiredSkills.length - 4}
+              </span>
+            )}
+          </div>
+        )}
 
         <div className="mt-4 grid grid-cols-1 gap-2 min-[480px]:grid-cols-3 min-[760px]:hidden">
           <JobInfo icon={Briefcase} label={t('jobs.budget')} value={budget} />

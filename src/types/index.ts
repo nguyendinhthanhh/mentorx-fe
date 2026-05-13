@@ -403,11 +403,19 @@ export interface MentorProfileRequest {
 export interface JobResponse {
   jobId: string;
   clientId: string;
-  client: UserResponse;
+  client?: UserResponse;
+  clientName?: string;
   categoryId?: number;
   jobType: JobType;
   title: string;
   description: string;
+  requiredSkills?: string[];
+  experienceLevel?: string;
+  currentLevel?: string;
+  learningGoals?: string;
+  successCriteria?: string;
+  availabilityExpectation?: string;
+  communicationPreference?: string;
   budgetType: BudgetType;
   budgetMinMxc?: number;
   budgetMaxMxc?: number;
@@ -418,6 +426,7 @@ export interface JobResponse {
   isFeatured: boolean;
   attachmentUrl?: string;
   attachments?: string[];
+  statusReason?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -428,6 +437,13 @@ export interface JobCreateRequest {
   jobType: JobType;
   title: string;
   description: string;
+  requiredSkills?: string[];
+  experienceLevel?: string;
+  currentLevel?: string;
+  learningGoals?: string;
+  successCriteria?: string;
+  availabilityExpectation?: string;
+  communicationPreference?: string;
   budgetType: BudgetType;
   budgetMinMxc?: number;
   budgetMaxMxc?: number;
@@ -436,6 +452,7 @@ export interface JobCreateRequest {
   deadlineAt?: string;
   attachmentUrl?: string;
   attachments?: string[];
+  status?: JobStatus;
 }
 
 export interface JobUpdateRequest {
@@ -443,6 +460,13 @@ export interface JobUpdateRequest {
   jobType?: JobType;
   title?: string;
   description?: string;
+  requiredSkills?: string[];
+  experienceLevel?: string;
+  currentLevel?: string;
+  learningGoals?: string;
+  successCriteria?: string;
+  availabilityExpectation?: string;
+  communicationPreference?: string;
   budgetType?: BudgetType;
   budgetMinMxc?: number;
   budgetMaxMxc?: number;
@@ -689,6 +713,8 @@ export interface ProposalResponse {
   terms?: string;
   submittedAt: string;
   isFeatured: boolean;
+  viewCount?: number;
+  rejectionReason?: string;
   score?: number;
   isCounterProposal: boolean;
   createdAt: string;

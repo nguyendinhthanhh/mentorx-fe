@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { useQuery } from 'react-query'
+import { useMutation, useQuery, useQueryClient } from 'react-query'
 import {
   ArrowLeft,
   Bookmark,
@@ -8,6 +8,7 @@ import {
   Briefcase,
   CalendarDays,
   CheckCircle2,
+  Clock,
   Clock3,
   Copy,
   DollarSign,
@@ -31,7 +32,13 @@ import {
   TrendingUp,
   ArrowRight,
   MessageCircle,
+  GraduationCap,
+  ListTree,
+  RefreshCcw,
+  Tags,
+  Target,
 } from 'lucide-react'
+import { categoryApi } from '@/api/categoryApi'
 import { jobApi } from '@/api/jobApi'
 import { proposalApi } from '@/api/proposalApi'
 import { negotiationApi } from '@/api/negotiationApi'
@@ -66,6 +73,7 @@ const STATUS_META: Record<string, { label: string; className: string }> = {
 
 export default function JobDetailPage() {
   const { user, isAuthenticated } = useAuthStore()
+  const queryClient = useQueryClient()
   const { jobId } = useParams<{ jobId: string }>()
   const [showApplyModal, setShowApplyModal] = useState(false)
   const [showProposalDetail, setShowProposalDetail] = useState(false)
@@ -76,6 +84,7 @@ export default function JobDetailPage() {
   const [copied, setCopied] = useState(false)
 
   const { data: job, isLoading } = useQuery(['job', jobId], () => jobApi.getById(jobId!), { enabled: !!jobId })
+  const { data: categories = [] } = useQuery(['active-categories'], categoryApi.getAllActive)
   
   // Check if mentor has already submitted a proposal
   const { data: existingProposal } = useQuery(
@@ -103,8 +112,24 @@ export default function JobDetailPage() {
 
   const derived = useMemo(() => {
     if (!job) return null
-    return getJobDisplayData(job)
-  }, [job])
+    return getJobDisplayData(job, categories)
+  }, [categories, job])
+
+  const ownerStatusMutation = useMutation(
+    (nextStatus: JobStatus) => {
+      if (!jobId) {
+        throw new Error('Missing job id')
+      }
+      return jobApi.update(jobId, { status: nextStatus })
+    },
+    {
+      onSuccess: async (updatedJob) => {
+        await queryClient.invalidateQueries(['job', jobId])
+        await queryClient.invalidateQueries(['my-posted-jobs', user?.userId])
+        queryClient.setQueryData(['job', updatedJob.jobId], updatedJob)
+      },
+    }
+  )
 
   if (isLoading) return <JobDetailSkeleton />
 
@@ -133,6 +158,8 @@ export default function JobDetailPage() {
   const canApply = job.status === JobStatus.OPEN && !isOwner
   const clientName = getClientName(job)
   const proposalCount = getProposalCount(job)
+  const canCloseJob = isOwner && (job.status === JobStatus.OPEN || job.status === JobStatus.IN_PROGRESS)
+  const canReopenJob = isOwner && (job.status === JobStatus.CLOSED || job.status === JobStatus.CANCELLED)
 
   const toggleSaved = () => {
     if (!jobId) return
@@ -199,6 +226,12 @@ export default function JobDetailPage() {
             <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-7">
               <div className="flex flex-wrap items-center gap-2">
                 <Badge className={JOB_TYPE_META[job.jobType]?.className}>{derived.jobTypeLabel}</Badge>
+                {derived.categoryName && (
+                  <Badge className="border-sky-200 bg-sky-50 text-sky-700">
+                    <ListTree className="h-3.5 w-3.5" />
+                    {derived.categoryName}
+                  </Badge>
+                )}
                 <Badge className={STATUS_META[job.status]?.className || 'border-slate-200 bg-slate-50 text-slate-600'}>
                   {STATUS_META[job.status]?.label || job.status}
                 </Badge>
@@ -235,11 +268,65 @@ export default function JobDetailPage() {
                 <SummaryTile icon={Hourglass} label="Estimated time" value={derived.estimatedTime} />
                 <SummaryTile icon={Gauge} label="Updated" value={formatRelativeTime(job.updatedAt)} />
               </div>
+
+              <div className="mt-5 border-t border-slate-100 pt-5">
+                <div className="mb-3 flex items-center justify-between gap-3">
+                  <p className="text-sm font-black text-slate-950">At a glance</p>
+                  <p className="text-xs font-bold uppercase tracking-wide text-slate-400">Quick scan</p>
+                </div>
+                <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                  <QuickMetaCard icon={ListTree} label="Category" value={derived.categoryName || 'Chưa phân loại'} />
+                  <QuickMetaCard icon={Briefcase} label="Work style" value={derived.jobTypeLabel} />
+                  <QuickMetaCard icon={CheckCircle2} label="Status" value={derived.statusLabel} />
+                  <QuickMetaCard icon={MessageCircle} label="Preferred communication" value={derived.communicationPreferenceLabel} />
+                  <QuickMetaCard icon={CalendarDays} label="Availability" value={derived.availabilityLabel} />
+                  <QuickMetaCard icon={GraduationCap} label="Preferred mentor level" value={derived.experienceLevelLabel} />
+                </div>
+              </div>
+
+              {job.statusReason && (
+                <div className="mt-5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-bold text-amber-800">
+                  Lý do trạng thái: {job.statusReason}
+                </div>
+              )}
             </div>
 
             <Panel title="Mô tả công việc" icon={FileText}>
               <div className="whitespace-pre-wrap text-sm leading-7 text-slate-700">{job.description}</div>
             </Panel>
+
+            {hasMentorBrief(job) && (
+              <Panel title="Brief dành cho mentor" icon={Target}>
+                <div className="grid gap-3 md:grid-cols-2">
+                  {job.requiredSkills && job.requiredSkills.length > 0 && (
+                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 md:col-span-2">
+                      <div className="mb-3 flex items-center gap-2 text-sm font-black text-slate-950">
+                        <Tags className="h-4 w-4 text-indigo-600" />
+                        Kỹ năng/chủ đề cần nắm
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {job.requiredSkills.map((skill) => (
+                          <span key={skill} className="rounded-full bg-white px-3 py-1 text-xs font-black text-indigo-700 ring-1 ring-indigo-100">
+                            {skill}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {job.experienceLevel && (
+                    <BriefItem icon={GraduationCap} label="Trình độ mentor mong muốn" value={formatExperienceLevel(job.experienceLevel)} />
+                  )}
+                  {job.currentLevel && <BriefItem icon={Gauge} label="Trình độ hiện tại" value={job.currentLevel} />}
+                  {job.learningGoals && <BriefItem icon={Target} label="Mục tiêu" value={job.learningGoals} wide />}
+                  {job.successCriteria && <BriefItem icon={CheckCircle2} label="Tiêu chí thành công" value={job.successCriteria} wide />}
+                  {job.availabilityExpectation && <BriefItem icon={CalendarDays} label="Lịch mong muốn" value={job.availabilityExpectation} />}
+                  {job.communicationPreference && (
+                    <BriefItem icon={MessageCircle} label="Kênh trao đổi ưu tiên" value={formatCommunicationPreference(job.communicationPreference)} />
+                  )}
+                </div>
+              </Panel>
+            )}
 
             {(job.attachmentUrl || (job.attachments && job.attachments.length > 0)) && (
               <Panel title="Tài liệu & Hình ảnh đính kèm" icon={Layers3}>
@@ -330,6 +417,7 @@ export default function JobDetailPage() {
               <div className="mt-5 grid gap-2">
                 <SideFact icon={ShieldCheck} label="Client status" value={job.client?.emailVerified ? 'Email verified' : 'Verification pending'} />
                 <SideFact icon={Briefcase} label="Job type" value={derived.jobTypeLabel} />
+                <SideFact icon={ListTree} label="Category" value={derived.categoryName || 'Chưa phân loại'} />
                 <SideFact icon={FileText} label="Proposals" value={`${proposalCount} received`} />
               </div>
             </div>
@@ -342,6 +430,35 @@ export default function JobDetailPage() {
                     <div className="rounded-xl border border-indigo-100 bg-indigo-50 p-4 text-sm leading-6 text-indigo-800">
                       You posted this job. Review proposals below and accept the mentor that best fits the work.
                     </div>
+                    <Link
+                      to={`/jobs/${job.jobId}/edit`}
+                      className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-black text-slate-700 shadow-sm hover:bg-slate-50"
+                    >
+                      <Edit className="h-4 w-4" />
+                      Edit job
+                    </Link>
+                    {canCloseJob && (
+                      <button
+                        type="button"
+                        onClick={() => ownerStatusMutation.mutate(JobStatus.CLOSED)}
+                        disabled={ownerStatusMutation.isLoading}
+                        className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-amber-200 bg-white px-4 text-sm font-black text-amber-700 shadow-sm hover:bg-amber-50 disabled:cursor-not-allowed disabled:opacity-70"
+                      >
+                        <X className="h-4 w-4" />
+                        {ownerStatusMutation.isLoading ? 'Updating status...' : 'Close job'}
+                      </button>
+                    )}
+                    {canReopenJob && (
+                      <button
+                        type="button"
+                        onClick={() => ownerStatusMutation.mutate(JobStatus.OPEN)}
+                        disabled={ownerStatusMutation.isLoading}
+                        className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-white px-4 text-sm font-black text-emerald-700 shadow-sm hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-70"
+                      >
+                        <RefreshCcw className="h-4 w-4" />
+                        {ownerStatusMutation.isLoading ? 'Updating status...' : 'Reopen job'}
+                      </button>
+                    )}
                     <Link
                       to="/profile/jobs"
                       className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 text-sm font-black text-white shadow-sm hover:bg-indigo-700"
@@ -371,7 +488,7 @@ export default function JobDetailPage() {
                           <div className="grid grid-cols-2 gap-2 text-xs">
                             <div className="bg-white rounded-lg p-2 border border-emerald-100">
                               <p className="text-emerald-600 font-bold mb-0.5">Giá đề xuất</p>
-                              <p className="text-slate-900 font-black">{formatCurrency(existingProposal.proposedAmount)}</p>
+                              <p className="text-slate-900 font-black">{formatCurrency(existingProposal.proposedAmount || 0)}</p>
                             </div>
                             <div className="bg-white rounded-lg p-2 border border-emerald-100">
                               <p className="text-emerald-600 font-bold mb-0.5">Thời gian</p>
@@ -494,9 +611,10 @@ export default function JobDetailPage() {
             </div>
 
             <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-              <p className="text-sm font-black text-slate-950">Job Details</p>
+              <p className="text-sm font-black text-slate-950">Reference</p>
               <div className="mt-4 space-y-3 text-sm">
                 <DetailRow label="Budget type" value={derived.budgetTypeLabel} />
+                <DetailRow label="Current level" value={derived.currentLevelLabel} />
                 <DetailRow label="Created" value={formatDateTime(job.createdAt)} />
                 <DetailRow label="Last updated" value={formatDateTime(job.updatedAt)} />
                 <DetailRow label="Job ID" value={job.jobId.slice(0, 8)} />
@@ -601,7 +719,7 @@ export default function JobDetailPage() {
                     <DollarSign className="h-4 w-4" />
                     Giá đề xuất
                   </div>
-                  <p className="text-2xl font-black text-slate-950">{formatCurrency(existingProposal.proposedAmount)}</p>
+                  <p className="text-2xl font-black text-slate-950">{formatCurrency(existingProposal.proposedAmount || 0)}</p>
                 </div>
                 <div className="rounded-xl bg-slate-50 p-4">
                   <div className="flex items-center gap-2 text-xs font-bold uppercase text-slate-400 mb-2">
@@ -800,6 +918,28 @@ function Panel({
   )
 }
 
+function BriefItem({
+  icon: Icon,
+  label,
+  value,
+  wide = false,
+}: {
+  icon: React.ComponentType<{ className?: string }>
+  label: string
+  value: string
+  wide?: boolean
+}) {
+  return (
+    <div className={`rounded-xl border border-slate-200 bg-slate-50 p-4 ${wide ? 'md:col-span-2' : ''}`}>
+      <div className="mb-2 flex items-center gap-2 text-xs font-black uppercase tracking-wide text-slate-400">
+        <Icon className="h-4 w-4 text-indigo-600" />
+        {label}
+      </div>
+      <p className="whitespace-pre-wrap text-sm leading-6 text-slate-700">{value}</p>
+    </div>
+  )
+}
+
 function SummaryTile({
   icon: Icon,
   label,
@@ -816,6 +956,26 @@ function SummaryTile({
         {label}
       </div>
       <p className="mt-2 break-words text-sm font-black leading-5 text-slate-950">{value}</p>
+    </div>
+  )
+}
+
+function QuickMetaCard({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: React.ComponentType<{ className?: string }>
+  label: string
+  value: string
+}) {
+  return (
+    <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+      <div className="flex items-center gap-2 text-[11px] font-black uppercase tracking-wide text-slate-400">
+        <Icon className="h-4 w-4 text-slate-500" />
+        {label}
+      </div>
+      <p className="mt-2 break-words text-sm font-black leading-6 text-slate-950">{value}</p>
     </div>
   )
 }
@@ -879,15 +1039,55 @@ function JobDetailSkeleton() {
   )
 }
 
-function getJobDisplayData(job: JobResponse) {
+function getJobDisplayData(job: JobResponse, categories: Array<{ id?: number; categoryId?: number; name: string }>) {
+  const categoryName =
+    categories.find((category) => category.id === job.categoryId || category.categoryId === job.categoryId)?.name || ''
+
   return {
+    categoryName,
+    statusLabel: STATUS_META[job.status]?.label || job.status.replace(/_/g, ' '),
     jobTypeLabel: JOB_TYPE_META[job.jobType]?.label || job.jobType.replace(/_/g, ' '),
     budget: formatBudget(job),
     budgetTypeLabel: job.budgetType === BudgetType.HOURLY ? 'Hourly' : 'Fixed price',
     deadline: job.deadlineAt ? formatDate(job.deadlineAt) : 'Flexible',
     estimatedTime: job.estimatedHours ? `${job.estimatedHours} hour(s)` : getDefaultEstimate(job.jobType),
+    communicationPreferenceLabel: job.communicationPreference ? formatCommunicationPreference(job.communicationPreference) : 'Flexible',
+    availabilityLabel: job.availabilityExpectation || 'Flexible',
+    currentLevelLabel: job.currentLevel || 'Not specified',
+    experienceLevelLabel: job.experienceLevel ? formatExperienceLevel(job.experienceLevel) : 'Open to suggestion',
     prepItems: getPrepItems(job.jobType),
   }
+}
+
+function hasMentorBrief(job: JobResponse) {
+  return Boolean(
+    (job.requiredSkills && job.requiredSkills.length > 0) ||
+      job.experienceLevel ||
+      job.currentLevel ||
+      job.learningGoals ||
+      job.successCriteria ||
+      job.availabilityExpectation ||
+      job.communicationPreference
+  )
+}
+
+function formatExperienceLevel(level: string) {
+  const labels: Record<string, string> = {
+    INTERMEDIATE: 'Mentor trung cấp trở lên',
+    SENIOR: 'Mentor senior',
+    EXPERT: 'Chuyên gia trong lĩnh vực',
+  }
+  return labels[level] || level
+}
+
+function formatCommunicationPreference(preference: string) {
+  const labels: Record<string, string> = {
+    CHAT: 'Chat là chính',
+    VIDEO_CALL: 'Video call',
+    CODE_REVIEW: 'Review code/tài liệu',
+    MIXED: 'Kết hợp nhiều hình thức',
+  }
+  return labels[preference] || preference
 }
 
 function formatBudget(job: JobResponse) {

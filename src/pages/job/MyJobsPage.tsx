@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { useQuery } from 'react-query'
+import { useMutation, useQuery, useQueryClient } from 'react-query'
 import {
   ArrowRight,
   Briefcase,
@@ -8,9 +8,11 @@ import {
   ChevronLeft,
   ChevronRight,
   Clock3,
+  Edit3,
   FileText,
   Plus,
   Search,
+  Send,
   SlidersHorizontal,
   Users,
   X,
@@ -24,11 +26,12 @@ import ProposalList from '@/components/job/ProposalList'
 const PAGE_SIZE = 8
 
 const STATUS_FILTERS = [
-  { value: 'ALL', label: 'All' },
-  { value: JobStatus.OPEN, label: 'Open' },
-  { value: JobStatus.IN_PROGRESS, label: 'In progress' },
-  { value: JobStatus.COMPLETED, label: 'Completed' },
-  { value: JobStatus.CLOSED, label: 'Closed' },
+  { value: 'ALL', label: 'Tất cả' },
+  { value: JobStatus.OPEN, label: 'Đang mở' },
+  { value: JobStatus.IN_PROGRESS, label: 'Đang thực hiện' },
+  { value: JobStatus.COMPLETED, label: 'Hoàn thành' },
+  { value: JobStatus.CLOSED, label: 'Đã đóng' },
+  { value: JobStatus.DRAFT, label: 'Bản nháp' },
 ]
 
 const JOB_TYPE_LABELS: Record<JobType, string> = {
@@ -39,10 +42,12 @@ const JOB_TYPE_LABELS: Record<JobType, string> = {
 
 export default function MyJobsPage() {
   const { user } = useAuthStore()
+  const queryClient = useQueryClient()
   const [page, setPage] = useState(0)
   const [query, setQuery] = useState('')
   const [status, setStatus] = useState<string>('ALL')
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null)
+  const [actionError, setActionError] = useState('')
 
   const { data, isLoading } = useQuery(
     ['my-posted-jobs', user?.userId, page],
@@ -51,6 +56,21 @@ export default function MyJobsPage() {
   )
 
   const jobs = data?.content || []
+  const publishMutation = useMutation(
+    (jobId: string) => jobApi.update(jobId, { status: JobStatus.OPEN }),
+    {
+      onSuccess: async (job) => {
+        setActionError('')
+        setSelectedJobId(job.jobId)
+        await queryClient.invalidateQueries(['my-posted-jobs', user?.userId])
+        await queryClient.invalidateQueries(['job', job.jobId])
+      },
+      onError: (err: any) => {
+        setActionError(err.response?.data?.message || 'Không thể đăng nháp. Vui lòng kiểm tra đủ tiêu đề, mô tả, danh mục và ngân sách.')
+      },
+    }
+  )
+
   const filteredJobs = useMemo(() => {
     const keyword = query.trim().toLowerCase()
     return jobs.filter((job) => {
@@ -94,6 +114,8 @@ export default function MyJobsPage() {
     )
   }, [jobs])
 
+  const publishedCount = jobs.filter((job) => job.status !== JobStatus.DRAFT).length
+
   const clearFilters = () => {
     setQuery('')
     setStatus('ALL')
@@ -119,10 +141,10 @@ export default function MyJobsPage() {
         </div>
 
         <div className="mt-6 grid gap-3 min-[520px]:grid-cols-2 xl:grid-cols-4">
-          <MetricCard icon={Briefcase} label="Đã đăng" value={`${totalJobs}`} />
+          <MetricCard icon={Briefcase} label="Đã đăng" value={`${publishedCount}`} />
           <MetricCard icon={Users} label="Đang mở" value={`${statusCounts[JobStatus.OPEN] || 0}`} />
           <MetricCard icon={Clock3} label="Đang thực hiện" value={`${statusCounts[JobStatus.IN_PROGRESS] || 0}`} />
-          <MetricCard icon={FileText} label="Đã hoàn thành" value={`${statusCounts[JobStatus.COMPLETED] || 0}`} />
+          <MetricCard icon={FileText} label="Bản nháp" value={`${statusCounts[JobStatus.DRAFT] || 0}`} />
         </div>
       </section>
 
@@ -165,6 +187,11 @@ export default function MyJobsPage() {
             ))}
           </div>
         </div>
+        {actionError && (
+          <div className="mt-3 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-bold text-rose-700">
+            {actionError}
+          </div>
+        )}
       </section>
 
       <div className="grid gap-6 xl:grid-cols-[480px_1fr]">
@@ -187,6 +214,8 @@ export default function MyJobsPage() {
                   job={job}
                   selected={job.jobId === selectedJobId}
                   onSelect={() => setSelectedJobId(job.jobId)}
+                  onPublish={() => publishMutation.mutate(job.jobId)}
+                  publishing={publishMutation.isLoading && publishMutation.variables === job.jobId}
                 />
               ))}
             </div>
@@ -204,7 +233,9 @@ export default function MyJobsPage() {
             <>
               <div className="mb-5 flex flex-col gap-3 border-b border-slate-100 pb-5 min-[760px]:flex-row min-[760px]:items-start min-[760px]:justify-between dark:border-slate-800">
                 <div className="min-w-0">
-                  <p className="text-sm font-black text-indigo-600 dark:text-indigo-400">Danh sách ứng tuyển cho</p>
+                  <p className="text-sm font-black text-indigo-600 dark:text-indigo-400">
+                    {selectedJob.status === JobStatus.DRAFT ? 'Bản nháp yêu cầu' : 'Danh sách ứng tuyển cho'}
+                  </p>
                   <h2 className="mt-1 text-2xl font-black text-slate-950 dark:text-white">{selectedJob.title}</h2>
                   <div className="mt-2 flex flex-wrap items-center gap-3 text-sm font-bold text-slate-500 dark:text-slate-400">
                     <span>{getProposalCount(selectedJob)} đề xuất</span>
@@ -212,15 +243,55 @@ export default function MyJobsPage() {
                     <span>{selectedJob.deadlineAt ? formatDate(selectedJob.deadlineAt) : 'Thời gian linh hoạt'}</span>
                   </div>
                 </div>
-                <Link
-                  to={`/jobs/${selectedJob.jobId}`}
-                  className="inline-flex h-10 items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-slate-200 bg-white px-4 text-sm font-black text-indigo-600 hover:bg-indigo-50 dark:border-slate-700 dark:bg-slate-950 dark:text-indigo-400 dark:hover:bg-slate-900 shadow-sm transition-all hover:-translate-y-0.5"
-                >
-                  Mở trang chi tiết
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
+                <div className="flex flex-wrap gap-2">
+                  <Link
+                    to={selectedJob.status === JobStatus.DRAFT ? `/jobs/${selectedJob.jobId}/edit` : `/jobs/${selectedJob.jobId}`}
+                    className="inline-flex h-10 items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-slate-200 bg-white px-4 text-sm font-black text-indigo-600 shadow-sm transition-all hover:-translate-y-0.5 hover:bg-indigo-50 dark:border-slate-700 dark:bg-slate-950 dark:text-indigo-400 dark:hover:bg-slate-900"
+                  >
+                    {selectedJob.status === JobStatus.DRAFT ? 'Chỉnh sửa nháp' : 'Mở trang chi tiết'}
+                    {selectedJob.status === JobStatus.DRAFT ? <Edit3 className="h-4 w-4" /> : <ArrowRight className="h-4 w-4" />}
+                  </Link>
+                  {selectedJob.status === JobStatus.DRAFT && (
+                    <button
+                      type="button"
+                      onClick={() => publishMutation.mutate(selectedJob.jobId)}
+                      disabled={publishMutation.isLoading && publishMutation.variables === selectedJob.jobId}
+                      className="inline-flex h-10 items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-indigo-600 px-4 text-sm font-black text-white shadow-sm transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-70"
+                    >
+                      <Send className="h-4 w-4" />
+                      Đăng nháp
+                    </button>
+                  )}
+                </div>
               </div>
-              <ProposalList jobId={selectedJob.jobId} />
+              {selectedJob.status === JobStatus.DRAFT ? (
+                <div className="rounded-2xl border border-dashed border-indigo-200 bg-indigo-50/50 p-6">
+                  <h3 className="text-lg font-black text-slate-950 dark:text-white">Nháp này chưa hiển thị với mentor</h3>
+                  <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400">
+                    Bạn có thể tiếp tục chỉnh sửa nội dung, hoặc đăng nháp khi đã đủ mô tả, danh mục, ngân sách và thời gian hoàn thành.
+                  </p>
+                  <div className="mt-5 flex flex-wrap gap-3">
+                    <Link
+                      to={`/jobs/${selectedJob.jobId}/edit`}
+                      className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-black text-indigo-600 hover:bg-indigo-50"
+                    >
+                      <Edit3 className="h-4 w-4" />
+                      Chỉnh sửa
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={() => publishMutation.mutate(selectedJob.jobId)}
+                      disabled={publishMutation.isLoading && publishMutation.variables === selectedJob.jobId}
+                      className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 text-sm font-black text-white hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-70"
+                    >
+                      <Send className="h-4 w-4" />
+                      Đăng yêu cầu
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <ProposalList jobId={selectedJob.jobId} />
+              )}
             </>
           ) : (
             <div className="flex min-h-[360px] flex-col items-center justify-center text-center">
@@ -237,42 +308,77 @@ export default function MyJobsPage() {
   )
 }
 
-function PostedJobCard({ job, selected, onSelect }: { job: JobResponse; selected: boolean; onSelect: () => void }) {
+function PostedJobCard({
+  job,
+  selected,
+  onSelect,
+  onPublish,
+  publishing,
+}: {
+  job: JobResponse
+  selected: boolean
+  onSelect: () => void
+  onPublish: () => void
+  publishing: boolean
+}) {
+  const isDraft = job.status === JobStatus.DRAFT
+
   return (
-    <button
-      type="button"
-      onClick={onSelect}
+    <div
       className={`w-full rounded-2xl border p-4 text-left shadow-sm transition ${
         selected
           ? 'border-indigo-300 bg-indigo-50 ring-2 ring-indigo-100 dark:border-indigo-700 dark:bg-indigo-950/30 dark:ring-indigo-950'
           : 'border-slate-200 bg-white hover:border-indigo-200 hover:shadow-md dark:border-slate-800 dark:bg-slate-950'
       }`}
     >
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <div className="mb-2 flex flex-wrap items-center gap-2">
-            <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-black text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
-              {JOB_TYPE_LABELS[job.jobType]}
-            </span>
-            <StatusBadge status={job.status} />
+      <button type="button" onClick={onSelect} className="w-full text-left">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <div className="mb-2 flex flex-wrap items-center gap-2">
+              <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-black text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
+                {JOB_TYPE_LABELS[job.jobType]}
+              </span>
+              <StatusBadge status={job.status} />
+            </div>
+            <h3 className="line-clamp-2 text-lg font-black text-slate-950 dark:text-white">{job.title}</h3>
           </div>
-          <h3 className="line-clamp-2 text-lg font-black text-slate-950 dark:text-white">{job.title}</h3>
+          <ArrowRight className={`mt-1 h-5 w-5 shrink-0 ${selected ? 'text-indigo-600' : 'text-slate-300'}`} />
         </div>
-        <ArrowRight className={`mt-1 h-5 w-5 shrink-0 ${selected ? 'text-indigo-600' : 'text-slate-300'}`} />
-      </div>
 
-      <p className="mt-3 line-clamp-2 text-sm leading-6 text-slate-600 dark:text-slate-400">{job.description}</p>
+        <p className="mt-3 line-clamp-2 text-sm leading-6 text-slate-600 dark:text-slate-400">{job.description}</p>
 
-      <div className="mt-4 grid grid-cols-2 gap-2">
-        <MiniFact icon={FileText} label="Đề xuất" value={`${getProposalCount(job)}`} />
-        <MiniFact icon={CalendarDays} label="Hạn chót" value={job.deadlineAt ? formatDate(job.deadlineAt) : 'Linh hoạt'} />
-      </div>
+        <div className="mt-4 grid grid-cols-2 gap-2">
+          <MiniFact icon={FileText} label="Đề xuất" value={`${getProposalCount(job)}`} />
+          <MiniFact icon={CalendarDays} label="Hạn chót" value={job.deadlineAt ? formatDate(job.deadlineAt) : 'Linh hoạt'} />
+        </div>
 
-      <div className="mt-4 flex items-center justify-between text-xs font-bold text-slate-500 dark:text-slate-400">
-        <span>Đăng {formatRelativeTime(job.createdAt)}</span>
-        <span>{formatBudget(job)}</span>
-      </div>
-    </button>
+        <div className="mt-4 flex items-center justify-between text-xs font-bold text-slate-500 dark:text-slate-400">
+          <span>{isDraft ? 'Lưu' : 'Đăng'} {formatRelativeTime(job.updatedAt || job.createdAt)}</span>
+          <span>{formatBudget(job)}</span>
+        </div>
+      </button>
+
+      {isDraft && (
+        <div className="mt-4 flex flex-wrap gap-2 border-t border-slate-100 pt-4 dark:border-slate-800">
+          <Link
+            to={`/jobs/${job.jobId}/edit`}
+            className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-black text-indigo-600 hover:bg-indigo-50 dark:border-slate-700 dark:bg-slate-950 dark:text-indigo-400"
+          >
+            <Edit3 className="h-4 w-4" />
+            Sửa nháp
+          </Link>
+          <button
+            type="button"
+            onClick={onPublish}
+            disabled={publishing}
+            className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-3 text-sm font-black text-white hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-70"
+          >
+            <Send className="h-4 w-4" />
+            Đăng
+          </button>
+        </div>
+      )}
+    </div>
   )
 }
 

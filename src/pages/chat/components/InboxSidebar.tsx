@@ -7,6 +7,7 @@ import {
   getRoomPreview,
   InboxFilter,
 } from '../chatShared'
+import SegmentedButton from '@/components/ui/segmented-button'
 
 type InboxSidebarProps = {
   rooms: ChatRoomResponse[]
@@ -84,37 +85,35 @@ export default function InboxSidebar({
         </label>
 
         <div className="mt-4 flex flex-wrap gap-2">
-          {(Object.keys(FILTER_LABELS) as InboxFilter[]).map((filter) => {
-            const active = filter === activeFilter
-
-            return (
-              <button
-                key={filter}
-                type="button"
-                onClick={() => onFilterChange(filter)}
-                className={`inline-flex h-9 items-center gap-2 rounded-lg border px-3 text-[13px] font-medium transition-colors ${
-                  active
-                    ? 'border-indigo-200 bg-indigo-50 text-indigo-700'
-                    : 'border-slate-200 bg-[#f6f7ff] text-[#52608b] hover:border-indigo-200 hover:text-indigo-700'
-                }`}
-              >
-                {FILTER_LABELS[filter]}
-                {(filter === 'unread' || filter === 'archived') && (
-                  <span
-                    className={`inline-flex min-w-[20px] items-center justify-center rounded-full px-1.5 text-xs ${
-                      counts[filter] > 0
-                        ? 'bg-indigo-600 text-white'
-                        : active
-                          ? 'bg-indigo-100 text-indigo-700'
-                          : 'bg-white text-slate-400'
-                    }`}
-                  >
-                    {counts[filter]}
-                  </span>
-                )}
-              </button>
-            )
-          })}
+          <SegmentedButton
+            className="w-full overflow-x-auto scrollbar-hide py-1"
+            defaultActive={activeFilter}
+            onChange={(id) => onFilterChange(id as InboxFilter)}
+            buttons={(Object.keys(FILTER_LABELS) as InboxFilter[]).map((filter) => {
+              const active = filter === activeFilter
+              return {
+                id: filter,
+                label: (
+                  <div className="flex items-center gap-1.5 px-2">
+                    {FILTER_LABELS[filter]}
+                    {(filter === 'unread' || filter === 'archived') && (
+                      <span
+                        className={`inline-flex min-w-[20px] items-center justify-center rounded-full px-1.5 text-[10px] font-bold ${
+                          counts[filter] > 0
+                            ? 'bg-indigo-600 text-white'
+                            : active
+                              ? 'bg-indigo-100 text-indigo-700'
+                              : 'bg-slate-200 text-slate-500'
+                        }`}
+                      >
+                        {counts[filter]}
+                      </span>
+                    )}
+                  </div>
+                ),
+              }
+            })}
+          />
         </div>
       </div>
 

@@ -26,14 +26,11 @@ export default function ChatListPage() {
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null)
   const [activeFilter, setActiveFilter] = useState<InboxFilter>('all')
   const [searchTerm, setSearchTerm] = useState('')
-  const [messageInput, setMessageInput] = useState('')
-  const [queuedAttachments, setQueuedAttachments] = useState<QueuedAttachment[]>([])
   const [composerError, setComposerError] = useState<string | null>(null)
   const [isSending, setIsSending] = useState(false)
   const [isDetailsOpen, setIsDetailsOpen] = useState(false)
   const [showConversationMobile, setShowConversationMobile] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
-  const fileInputRef = useRef<HTMLInputElement>(null)
   const [searchParams, setSearchParams] = useSearchParams()
   const targetUserId = searchParams.get('userId')
 
@@ -266,16 +263,6 @@ export default function ChatListPage() {
     }
   }, [latestMessage, refetchRooms, selectedRoom, user?.userId])
 
-  useEffect(() => {
-    return () => {
-      queuedAttachments.forEach((attachment) => {
-        if (attachment.previewUrl) {
-          URL.revokeObjectURL(attachment.previewUrl)
-        }
-      })
-    }
-  }, [queuedAttachments])
-
   if (!user) return null
 
   const handleSelectRoom = (roomId: string) => {
@@ -289,71 +276,16 @@ export default function ChatListPage() {
     setIsDetailsOpen(false)
   }
 
-  const handleAttachmentSelect = (event: ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(event.target.files || [])
-    if (files.length === 0) return
+  const handleSendMessage = async (message: string, files: File[] = []) => {
+    const trimmedMessage = message.trim()
 
-    const nextAttachments: QueuedAttachment[] = []
-    let nextError: string | null = null
-
-    for (const file of files) {
-      if (queuedAttachments.length + nextAttachments.length >= MAX_ATTACHMENTS) {
-        nextError = `You can attach up to ${MAX_ATTACHMENTS} files per message.`
-        break
-      }
-
-      if (file.size > MAX_FILE_SIZE_BYTES) {
-        nextError = `${file.name} is larger than 15 MB.`
-        continue
-      }
-
-      nextAttachments.push({
-        id: `${file.name}-${file.lastModified}-${file.size}`,
-        file,
-        previewUrl: file.type.startsWith('image/') ? URL.createObjectURL(file) : undefined,
-      })
-    }
-
-    if (nextAttachments.length > 0) {
-      setQueuedAttachments((current) => [...current, ...nextAttachments])
-    }
-
-    setComposerError(nextError)
-    event.target.value = ''
-  }
-
-  const handleRemoveAttachment = (attachmentId: string) => {
-    setQueuedAttachments((current) => {
-      const target = current.find((item) => item.id === attachmentId)
-      if (target?.previewUrl) {
-        URL.revokeObjectURL(target.previewUrl)
-      }
-      return current.filter((item) => item.id !== attachmentId)
-    })
-  }
-
-  const clearQueuedAttachments = () => {
-    setQueuedAttachments((current) => {
-      current.forEach((attachment) => {
-        if (attachment.previewUrl) {
-          URL.revokeObjectURL(attachment.previewUrl)
-        }
-      })
-      return []
-    })
-  }
-
-  const handleSendMessage = async (event: FormEvent) => {
-    event.preventDefault()
-    const trimmedMessage = messageInput.trim()
-
-    if ((!trimmedMessage && queuedAttachments.length === 0) || !selectedRoomId || isSending) return
+    if ((!trimmedMessage && files.length === 0) || !selectedRoomId || isSending) return
 
     setComposerError(null)
     setIsSending(true)
 
     try {
-      if (queuedAttachments.length === 0) {
+      if (files.length === 0) {
         await chatApi.sendMessage({
           chatRoomId: selectedRoomId,
           senderId: user.userId,
@@ -361,9 +293,9 @@ export default function ChatListPage() {
           messageType: MessageType.TEXT,
         })
       } else {
-        for (const [index, attachment] of queuedAttachments.entries()) {
-          const uploadedFile = await fileApi.upload(attachment.file)
-          const isImage = attachment.file.type.startsWith('image/')
+        for (const [index, file] of files.entries()) {
+          const uploadedFile = await fileApi.upload(file)
+          const isImage = file.type.startsWith('image/')
 
           await chatApi.sendMessage({
             chatRoomId: selectedRoomId,
@@ -371,19 +303,17 @@ export default function ChatListPage() {
             content: index === 0 ? trimmedMessage : '',
             messageType: isImage ? MessageType.IMAGE : MessageType.FILE,
             attachmentUrl: uploadedFile.fileUrl,
-            attachmentFilename: attachment.file.name,
-            attachmentMimeType: attachment.file.type || uploadedFile.fileType,
-            attachmentSize: attachment.file.size,
+            attachmentFilename: file.name,
+            attachmentMimeType: file.type || uploadedFile.fileType,
+            attachmentSize: file.size,
             metadata: {
               uploadedFileName: uploadedFile.fileName,
-              originalFileName: attachment.file.name,
+              originalFileName: file.name,
             },
           })
         }
       }
 
-      setMessageInput('')
-      clearQueuedAttachments()
       await Promise.all([refetchMessages(), refetchRooms()])
     } catch {
       setComposerError('Failed to send the message or upload attachment.')
@@ -417,14 +347,14 @@ export default function ChatListPage() {
               otherMember={otherMember}
               messagesLoading={messagesLoading}
               scrollRef={scrollRef}
-              messageInput={messageInput}
-              onMessageInputChange={setMessageInput}
-              queuedAttachments={queuedAttachments}
-              onAttachmentSelect={handleAttachmentSelect}
-              onRemoveAttachment={handleRemoveAttachment}
+              messageInput=""
+              onMessageInputChange={() => {}}
+              queuedAttachments={[]}
+              onAttachmentSelect={() => {}}
+              onRemoveAttachment={() => {}}
               onSendMessage={handleSendMessage}
-              fileInputRef={fileInputRef}
-              onOpenFilePicker={() => fileInputRef.current?.click()}
+              fileInputRef={{ current: null }}
+              onOpenFilePicker={() => {}}
               composerError={composerError}
               isSending={isSending}
               onShowDetails={() => setIsDetailsOpen(true)}

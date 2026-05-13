@@ -26,6 +26,7 @@ import NotificationListPage from './pages/user/NotificationListPage'
 import JobListPage from './pages/job/JobListPage'
 import JobDetailPage from './pages/job/JobDetailPage'
 import JobCreatePage from './pages/job/JobCreatePage'
+import JobEditPage from './pages/job/JobEditPage'
 import MyJobsPage from './pages/job/MyJobsPage'
 
 // Course Pages
@@ -121,6 +122,7 @@ function App() {
             
             {/* Job Routes */}
             <Route path="/jobs/create" element={<JobCreatePage />} />
+            <Route path="/jobs/:jobId/edit" element={<JobEditPage />} />
             
             {/* Course Routes */}
             <Route path="/courses/create" element={<CourseCreatePage />} />
