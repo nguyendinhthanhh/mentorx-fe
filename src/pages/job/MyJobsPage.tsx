@@ -17,6 +17,7 @@ import {
   Users,
   X,
 } from 'lucide-react'
+import { Skeleton, SkeletonCircle } from '@/components/ui/Skeleton'
 import { jobApi } from '@/api/jobApi'
 import { useAuthStore } from '@/store/authStore'
 import { JobResponse, JobStatus, JobType } from '@/types'
@@ -436,8 +437,24 @@ function StatusBadge({ status }: { status: JobStatus }) {
 function JobListSkeleton() {
   return (
     <div className="space-y-3">
-      {Array.from({ length: 3 }).map((_, index) => (
-        <div key={index} className="h-56 animate-pulse rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950" />
+      {Array.from({ length: 4 }).map((_, index) => (
+        <div key={index} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0 flex-1">
+              <div className="mb-2 flex items-center gap-2">
+                <Skeleton className="h-5 w-16 rounded-full" />
+                <Skeleton className="h-5 w-20 rounded-full" />
+              </div>
+              <Skeleton className="h-6 w-3/4 mb-3" />
+              <Skeleton className="h-4 w-full mb-1" />
+              <Skeleton className="h-4 w-2/3" />
+            </div>
+          </div>
+          <div className="mt-4 grid grid-cols-2 gap-2">
+            <Skeleton className="h-12 rounded-xl" />
+            <Skeleton className="h-12 rounded-xl" />
+          </div>
+        </div>
       ))}
     </div>
   )

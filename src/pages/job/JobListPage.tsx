@@ -15,6 +15,7 @@ import {
   Timer,
   X,
 } from 'lucide-react'
+import { Skeleton, SkeletonCircle } from '@/components/ui/Skeleton'
 import { jobApi } from '@/api/jobApi'
 import { formatCurrency, formatRelativeTime } from '@/utils/formatters'
 import { JobResponse, JobType } from '@/types'
@@ -300,17 +301,17 @@ function JobListSkeleton() {
       {Array.from({ length: 4 }).map((_, index) => (
         <div key={index} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm min-[760px]:flex min-[760px]:gap-5 lg:gap-6">
           <div className="flex-1">
-            <div className="h-6 w-28 animate-pulse rounded-full bg-slate-200" />
-            <div className="mt-5 h-6 w-3/4 animate-pulse rounded bg-slate-200" />
-            <div className="mt-3 h-4 w-1/3 animate-pulse rounded bg-slate-200" />
+            <Skeleton className="h-6 w-28 rounded-full" />
+            <Skeleton className="mt-5 h-6 w-3/4" />
+            <Skeleton className="mt-3 h-4 w-1/3" />
             <div className="mt-5 space-y-2">
-              <div className="h-4 w-full animate-pulse rounded bg-slate-200" />
-              <div className="h-4 w-5/6 animate-pulse rounded bg-slate-200" />
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-5/6" />
             </div>
           </div>
           <div className="mt-5 grid grid-cols-1 gap-2 min-[480px]:grid-cols-3 min-[760px]:mt-0 min-[760px]:w-[390px] min-[760px]:grid-cols-2 min-[760px]:border-l min-[760px]:border-slate-100 min-[760px]:pl-5 lg:w-[440px] lg:pl-6">
             {Array.from({ length: 4 }).map((__, itemIndex) => (
-              <div key={itemIndex} className="h-14 animate-pulse rounded-xl bg-slate-100" />
+              <Skeleton key={itemIndex} className="h-14 rounded-xl" />
             ))}
           </div>
         </div>

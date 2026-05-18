@@ -1,27 +1,25 @@
-import { useEffect, useState } from 'react'
-import { proposalApi } from '@/api/proposalApi'
-import { negotiationApi } from '@/api/negotiationApi'
-import { useAuthStore } from '@/store/authStore'
-import { ProposalResponse } from '@/types'
-import { 
-  Loader2, 
-  FileText, 
-  Clock, 
-  CheckCircle, 
-  XCircle, 
-  AlertCircle,
-  DollarSign,
-  Calendar,
-  Eye,
-  ExternalLink,
-  Filter,
+import { useEffect, useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
+import {
+  ArrowRight,
+  BellRing,
+  CheckCircle2,
+  Circle,
+  Clock3,
+  Loader2,
+  MessageCircleMore,
+  RefreshCw,
   Search,
-  MessageCircle,
-  TrendingUp,
-  ArrowRight
 } from 'lucide-react'
-import { Link, useSearchParams } from 'react-router-dom'
-import toast from 'react-hot-toast'
+import { Skeleton, SkeletonCircle, SkeletonText } from '@/components/ui/Skeleton'
+import { categoryApi } from '@/api/categoryApi'
+import { jobApi } from '@/api/jobApi'
+import { mentorApi } from '@/api/mentorApi'
+import { negotiationApi } from '@/api/negotiationApi'
+import { proposalApi } from '@/api/proposalApi'
+import { useAuthStore } from '@/store/authStore'
+import { CategoryResponse, JobResponse, MentorProfileResponse, ProposalResponse } from '@/types'
+import { formatCurrency, formatDate, formatRelativeTime } from '@/utils/formatters'
 
 interface NegotiationInfo {
   id: string
@@ -33,766 +31,793 @@ interface NegotiationInfo {
   createdAt: string
 }
 
-type ProposalStatusFilter = 'ALL' | 'DRAFT' | 'SUBMITTED' | 'UNDER_REVIEW' | 'SHORTLISTED' | 'ACCEPTED' | 'REJECTED' | 'WITHDRAWN'
+type TabKey = 'ALL' | 'AWAITING' | 'NEGOTIATING' | 'ACCEPTED' | 'REJECTED' | 'ARCHIVED'
 
-const statusConfig = {
-  DRAFT: { 
-    label: 'Nháp', 
-    color: 'bg-slate-100 text-slate-700 border-slate-200',
-    icon: FileText,
-    iconColor: 'text-slate-500'
-  },
-  SUBMITTED: { 
-    label: 'Đã gửi', 
-    color: 'bg-blue-100 text-blue-700 border-blue-200',
-    icon: Clock,
-    iconColor: 'text-blue-500'
-  },
-  UNDER_REVIEW: { 
-    label: 'Đang xem xét', 
-    color: 'bg-amber-100 text-amber-700 border-amber-200',
-    icon: Eye,
-    iconColor: 'text-amber-500'
-  },
-  SHORTLISTED: { 
-    label: 'Được chọn', 
-    color: 'bg-purple-100 text-purple-700 border-purple-200',
-    icon: CheckCircle,
-    iconColor: 'text-purple-500'
-  },
-  ACCEPTED: { 
-    label: 'Chấp nhận', 
-    color: 'bg-emerald-100 text-emerald-700 border-emerald-200',
-    icon: CheckCircle,
-    iconColor: 'text-emerald-500'
-  },
-  REJECTED: { 
-    label: 'Từ chối', 
-    color: 'bg-rose-100 text-rose-700 border-rose-200',
-    icon: XCircle,
-    iconColor: 'text-rose-500'
-  },
-  WITHDRAWN: { 
-    label: 'Đã thu hồi', 
-    color: 'bg-gray-100 text-gray-700 border-gray-200',
-    icon: AlertCircle,
-    iconColor: 'text-gray-500'
-  },
-  EXPIRED: { 
-    label: 'Hết hạn', 
-    color: 'bg-gray-100 text-gray-600 border-gray-200',
-    icon: Clock,
-    iconColor: 'text-gray-400'
-  },
-  INTERVIEW_REQUESTED: { 
-    label: 'Yêu cầu phỏng vấn', 
-    color: 'bg-indigo-100 text-indigo-700 border-indigo-200',
-    icon: Calendar,
-    iconColor: 'text-indigo-500'
-  },
-  NEGOTIATING: { 
-    label: 'Đang thương lượng', 
-    color: 'bg-cyan-100 text-cyan-700 border-cyan-200',
-    icon: DollarSign,
-    iconColor: 'text-cyan-500'
-  },
-}
+const tabs: Array<{ key: TabKey; label: string }> = [
+  { key: 'ALL', label: 'All' },
+  { key: 'AWAITING', label: 'Awaiting Response' },
+  { key: 'NEGOTIATING', label: 'Negotiating' },
+  { key: 'ACCEPTED', label: 'Accepted' },
+  { key: 'REJECTED', label: 'Rejected' },
+  { key: 'ARCHIVED', label: 'Archived' },
+]
 
 export default function MentorProposalsPage() {
   const { user } = useAuthStore()
-  const [proposals, setProposals] = useState<ProposalResponse[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [statusFilter, setStatusFilter] = useState<ProposalStatusFilter>('ALL')
-  const [searchQuery, setSearchQuery] = useState('')
+  const [proposals, setProposals] = useState<ProposalResponse[]>([])
+  const [jobMap, setJobMap] = useState<Record<string, JobResponse>>({})
+  const [categories, setCategories] = useState<CategoryResponse[]>([])
   const [negotiations, setNegotiations] = useState<Record<string, NegotiationInfo>>({})
-  
-  // Modal states
-  const [isCounterModalOpen, setIsCounterModalOpen] = useState(false)
-  const [searchParams] = useSearchParams()
-  const targetProposalId = searchParams.get('proposalId')
+  const [recommendedMentors, setRecommendedMentors] = useState<MentorProfileResponse[]>([])
+  const [recommendedJobs, setRecommendedJobs] = useState<JobResponse[]>([])
 
-  // Effect to scroll to target proposal
-  useEffect(() => {
-    if (targetProposalId && proposals.length > 0) {
-      setTimeout(() => {
-        const element = document.getElementById(`proposal-${targetProposalId}`)
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth', block: 'center' })
-          element.classList.add('ring-4', 'ring-indigo-500/30', 'border-indigo-500')
-          setTimeout(() => {
-            element.classList.remove('ring-4', 'ring-indigo-500/30', 'border-indigo-500')
-          }, 3000)
-        }
-      }, 500)
-    }
-  }, [targetProposalId, proposals])
-  const [selectedProposal, setSelectedProposal] = useState<ProposalResponse | null>(null)
-  const [counterForm, setCounterForm] = useState({
-    message: '',
-    amount: 0,
-    duration: 0
-  })
-  const [submitting, setSubmitting] = useState(false)
+  const [activeTab, setActiveTab] = useState<TabKey>('ALL')
+  const [searchQuery, setSearchQuery] = useState('')
+  const [statusFilter, setStatusFilter] = useState('ALL')
+  const [negotiationFilter, setNegotiationFilter] = useState('ALL')
+  const [budgetFilter, setBudgetFilter] = useState('ALL')
+  const [categoryFilter, setCategoryFilter] = useState('ALL')
+  const [dateFilter, setDateFilter] = useState('ALL')
 
   useEffect(() => {
-    loadProposals()
-  }, [user])
+    void loadData()
+  }, [user?.userId])
 
-  const loadProposals = async () => {
+  const loadData = async () => {
     if (!user?.userId) return
 
     try {
       setLoading(true)
       setError('')
-      const response = await proposalApi.getByMentor(user.userId, { page: 0, size: 100 })
-      setProposals(response.content)
-      
-      // Load negotiations for NEGOTIATING proposals
-      const negotiatingProposals = response.content.filter(p => p.status === 'NEGOTIATING')
-      await loadNegotiations(negotiatingProposals)
+
+      const [proposalPage, categoryList, mentorsPage, jobsPage] = await Promise.all([
+        proposalApi.getByMentor(user.userId, { page: 0, size: 100 }),
+        categoryApi.getAllActive().catch(() => [] as CategoryResponse[]),
+        mentorApi.getAllApprovedMentors({ page: 0, size: 3, sortBy: 'averageRating', sortDir: 'desc' }).catch(() => ({
+          content: [] as MentorProfileResponse[],
+        })),
+        jobApi.getOpenJobs({ page: 0, size: 4 }).catch(() => ({ content: [] as JobResponse[] })),
+      ])
+
+      setProposals(proposalPage.content)
+      setCategories(categoryList)
+      setRecommendedMentors(mentorsPage.content || [])
+      setRecommendedJobs(jobsPage.content || [])
+
+      const latestNegotiationMap: Record<string, NegotiationInfo> = {}
+      for (const proposal of proposalPage.content.filter((item) => item.status === 'NEGOTIATING')) {
+        try {
+          const latest = await negotiationApi.getLatest(proposal.id)
+          latestNegotiationMap[proposal.id] = latest
+        } catch {
+          continue
+        }
+      }
+      setNegotiations(latestNegotiationMap)
+
+      const uniqueJobIds = Array.from(new Set(proposalPage.content.map((proposal) => proposal.jobId)))
+      const jobEntries = await Promise.all(
+        uniqueJobIds.map(async (jobId) => {
+          try {
+            const job = await jobApi.getById(jobId)
+            return [jobId, job] as const
+          } catch {
+            return null
+          }
+        })
+      )
+
+      setJobMap(
+        jobEntries.reduce<Record<string, JobResponse>>((acc, entry) => {
+          if (entry) acc[entry[0]] = entry[1]
+          return acc
+        }, {})
+      )
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Không thể tải proposals')
+      setError(err.response?.data?.message || 'Khong the tai proposals')
     } finally {
       setLoading(false)
     }
   }
 
-  const loadNegotiations = async (negotiatingProposals: ProposalResponse[]) => {
-    const negotiationsMap: Record<string, NegotiationInfo> = {}
-    
-    console.log('Loading negotiations for', negotiatingProposals.length, 'proposals')
-    
-    for (const proposal of negotiatingProposals) {
-      try {
-        const latestNegotiation = await negotiationApi.getLatest(proposal.id)
-        console.log('Loaded negotiation for proposal', proposal.id, latestNegotiation)
-        negotiationsMap[proposal.id] = latestNegotiation
-      } catch (err) {
-        console.error(`Failed to load negotiation for proposal ${proposal.id}`, err)
-      }
-    }
-    
-    console.log('Final negotiations map:', negotiationsMap)
-    setNegotiations(negotiationsMap)
-  }
+  const tabCounts = useMemo(() => {
+    const archived = proposals.filter((proposal) => proposal.status === 'WITHDRAWN' || proposal.status === 'DRAFT').length
+    const awaiting = proposals.filter((proposal) => {
+      if (proposal.status === 'NEGOTIATING') return negotiations[proposal.id]?.senderType !== 'CLIENT'
+      return proposal.status === 'SUBMITTED' || proposal.status === 'UNDER_REVIEW'
+    }).length
 
-  const openCounterModal = (proposal: ProposalResponse, currentNegotiation?: NegotiationInfo) => {
-    setSelectedProposal(proposal)
-    setCounterForm({
-      message: '',
-      amount: currentNegotiation?.proposedAmount || proposal.proposedAmount,
-      duration: currentNegotiation?.estimatedDurationDays || proposal.estimatedDurationDays || 0
+    return {
+      ALL: proposals.length,
+      AWAITING: awaiting,
+      NEGOTIATING: proposals.filter((proposal) => proposal.status === 'NEGOTIATING').length,
+      ACCEPTED: proposals.filter((proposal) => proposal.status === 'ACCEPTED').length,
+      REJECTED: proposals.filter((proposal) => proposal.status === 'REJECTED').length,
+      ARCHIVED: archived,
+    }
+  }, [negotiations, proposals])
+
+  const activeNegotiations = useMemo(
+    () => proposals.filter((proposal) => proposal.status === 'NEGOTIATING' && negotiations[proposal.id]?.senderType === 'CLIENT'),
+    [negotiations, proposals]
+  )
+
+  const stats = useMemo(() => {
+    const total = proposals.length
+    const awaitingResponse = tabCounts.AWAITING
+    const negotiating = tabCounts.NEGOTIATING
+    const accepted = tabCounts.ACCEPTED
+    const rejected = tabCounts.REJECTED
+    const responseRate = total > 0 ? Math.round(((accepted + negotiating) / total) * 100) : 0
+    const potentialEarnings = proposals
+      .filter((proposal) => proposal.status === 'ACCEPTED' || proposal.status === 'NEGOTIATING')
+      .reduce((sum, proposal) => sum + (proposal.proposedAmount || proposal.proposedHourlyRate || 0), 0)
+
+    return {
+      total,
+      awaitingResponse,
+      negotiating,
+      accepted,
+      rejected,
+      responseRate,
+      potentialEarnings,
+    }
+  }, [proposals, tabCounts])
+
+  const filteredProposals = useMemo(() => {
+    return proposals.filter((proposal) => {
+      const job = jobMap[proposal.jobId]
+      const categoryId = job?.categoryId ? String(job.categoryId) : ''
+      const query = searchQuery.trim().toLowerCase()
+
+      const tabMatch =
+        activeTab === 'ALL' ? true :
+        activeTab === 'AWAITING' ? (proposal.status === 'SUBMITTED' || proposal.status === 'UNDER_REVIEW' || (proposal.status === 'NEGOTIATING' && negotiations[proposal.id]?.senderType !== 'CLIENT')) :
+        activeTab === 'NEGOTIATING' ? proposal.status === 'NEGOTIATING' :
+        activeTab === 'ACCEPTED' ? proposal.status === 'ACCEPTED' :
+        activeTab === 'REJECTED' ? proposal.status === 'REJECTED' :
+        proposal.status === 'WITHDRAWN' || proposal.status === 'DRAFT'
+
+      const statusMatch = statusFilter === 'ALL' || proposal.status === statusFilter
+      const negotiationMatch =
+        negotiationFilter === 'ALL' ||
+        (negotiationFilter === 'ACTIVE' && proposal.status === 'NEGOTIATING') ||
+        (negotiationFilter === 'CLIENT_WAITING' && proposal.status === 'NEGOTIATING' && negotiations[proposal.id]?.senderType === 'CLIENT') ||
+        (negotiationFilter === 'MENTOR_WAITING' && proposal.status === 'NEGOTIATING' && negotiations[proposal.id]?.senderType !== 'CLIENT')
+      const budgetMatch =
+        budgetFilter === 'ALL' ||
+        (budgetFilter === 'FIXED' && Boolean(proposal.proposedAmount || job?.budgetMinMxc || job?.budgetMaxMxc)) ||
+        (budgetFilter === 'HOURLY' && Boolean(proposal.proposedHourlyRate || job?.hourlyRateMxc))
+      const categoryMatch = categoryFilter === 'ALL' || categoryId === categoryFilter
+      const dateMatch =
+        dateFilter === 'ALL' ||
+        (dateFilter === 'TODAY' && isWithinDays(proposal.updatedAt || proposal.createdAt, 1)) ||
+        (dateFilter === 'WEEK' && isWithinDays(proposal.updatedAt || proposal.createdAt, 7)) ||
+        (dateFilter === 'MONTH' && isWithinDays(proposal.updatedAt || proposal.createdAt, 30))
+      const searchMatch =
+        query === '' ||
+        proposal.jobTitle.toLowerCase().includes(query) ||
+        (job?.description || proposal.coverLetter).toLowerCase().includes(query)
+
+      return tabMatch && statusMatch && negotiationMatch && budgetMatch && categoryMatch && dateMatch && searchMatch
+    }).sort((a, b) => {
+      const aPriority = a.status === 'NEGOTIATING' && negotiations[a.id]?.senderType === 'CLIENT' ? 1 : 0
+      const bPriority = b.status === 'NEGOTIATING' && negotiations[b.id]?.senderType === 'CLIENT' ? 1 : 0
+      if (aPriority !== bPriority) return bPriority - aPriority
+      return new Date(b.updatedAt || b.createdAt).getTime() - new Date(a.updatedAt || a.createdAt).getTime()
     })
-    setIsCounterModalOpen(true)
-  }
+  }, [activeTab, budgetFilter, categoryFilter, dateFilter, jobMap, negotiationFilter, negotiations, proposals, searchQuery, statusFilter])
 
-  const handleCounterOffer = async () => {
-    if (!selectedProposal || !user?.userId) return
-    
-    const trimmedMessage = counterForm.message.trim()
-    if (!trimmedMessage) {
-      toast.error('Vui lòng nhập lời nhắn')
-      return
-    }
-
-    if (trimmedMessage.length < 10) {
-      toast.error('Lời nhắn phải có ít nhất 10 ký tự')
-      return
-    }
-    
-    try {
-      setSubmitting(true)
-      await negotiationApi.mentorCounterOffer({
-        proposalId: selectedProposal.id,
-        senderId: user.userId,
-        message: trimmedMessage,
-        proposedAmount: counterForm.amount,
-        estimatedDurationDays: counterForm.duration
-      })
-      
-      toast.success('Gửi đề xuất thương lượng thành công!')
-      setIsCounterModalOpen(false)
-      loadProposals()
-    } catch (err: any) {
-      // Check for validation errors from backend
-      if (err.response?.data?.data && typeof err.response.data.data === 'object') {
-        const errors = err.response.data.data
-        const firstError = Object.values(errors)[0] as string
-        toast.error(firstError)
-      } else {
-        toast.error(err.response?.data?.message || 'Không thể gửi đề xuất')
-      }
-    } finally {
-      setSubmitting(false)
-    }
-  }
-
-  const handleAccept = async (proposalId: string, negotiationId: string) => {
-    if (!user?.userId) return
-    
-    if (!window.confirm('Bạn có chắc chắn muốn chấp nhận đề xuất thương lượng này?')) return
-
-    try {
-      setLoading(true)
-      await negotiationApi.acceptNegotiation(negotiationId, user.userId)
-      toast.success('Đã chấp nhận đề xuất thương lượng!')
-      loadProposals()
-    } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Không thể chấp nhận đề xuất')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleReject = async (proposalId: string, negotiationId: string) => {
-    if (!user?.userId) return
-    
-    if (!window.confirm('Bạn có chắc chắn muốn từ chối đề xuất thương lượng này?')) return
-
-    try {
-      setLoading(true)
-      await negotiationApi.rejectNegotiation(negotiationId, user.userId)
-      toast.success('Đã từ chối đề xuất thương lượng!')
-      loadProposals()
-    } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Không thể từ chối đề xuất')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const filteredProposals = proposals.filter(proposal => {
-    const matchesStatus = statusFilter === 'ALL' || proposal.status === statusFilter
-    const matchesSearch = searchQuery === '' || 
-      proposal.jobTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      proposal.coverLetter.toLowerCase().includes(searchQuery.toLowerCase())
-    return matchesStatus && matchesSearch
-  })
-
-  // Sort proposals: NEGOTIATING with new counter-offer first, then by date
-  const sortedProposals = [...filteredProposals].sort((a, b) => {
-    // Priority 1: NEGOTIATING proposals with unread negotiations come first
-    const aIsNegotiating = a.status === 'NEGOTIATING' && negotiations[a.id]
-    const bIsNegotiating = b.status === 'NEGOTIATING' && negotiations[b.id]
-    
-    if (aIsNegotiating && !bIsNegotiating) return -1
-    if (!aIsNegotiating && bIsNegotiating) return 1
-    
-    // Priority 2: Sort by updated date (newest first)
-    const aDate = new Date(a.updatedAt || a.createdAt).getTime()
-    const bDate = new Date(b.updatedAt || b.createdAt).getTime()
-    return bDate - aDate
-  })
-
-  const stats = {
-    total: proposals.length,
-    submitted: proposals.filter(p => p.status === 'SUBMITTED' || p.status === 'UNDER_REVIEW').length,
-    shortlisted: proposals.filter(p => p.status === 'SHORTLISTED').length,
-    accepted: proposals.filter(p => p.status === 'ACCEPTED').length,
-    rejected: proposals.filter(p => p.status === 'REJECTED').length,
-    negotiating: proposals.filter(p => p.status === 'NEGOTIATING').length,
-    newNegotiations: proposals.filter(p => p.status === 'NEGOTIATING' && negotiations[p.id]).length,
-  }
+  const inboxItems = useMemo(
+    () =>
+      proposals
+        .filter((proposal) => proposal.status === 'NEGOTIATING' && negotiations[proposal.id])
+        .sort((a, b) => new Date(negotiations[b.id].createdAt).getTime() - new Date(negotiations[a.id].createdAt).getTime())
+        .slice(0, 3),
+    [negotiations, proposals]
+  )
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <div className="text-center">
-          <Loader2 className="w-12 h-12 animate-spin text-indigo-500 mx-auto mb-4" />
-          <p className="text-slate-600 font-medium">Đang tải proposals...</p>
+      <div className="mx-auto max-w-7xl space-y-6">
+        <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <Skeleton className="h-8 w-48" />
+              <Skeleton className="h-9 w-32" />
+            </div>
+            <Skeleton className="h-12 w-full rounded-2xl" />
+            <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-4">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <ProposalCardSkeleton key={i} />
+              ))}
+            </div>
+          </div>
+          <div className="hidden space-y-6 xl:block">
+            <Skeleton className="h-64 w-full rounded-2xl" />
+            <Skeleton className="h-48 w-full rounded-2xl" />
+          </div>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-black text-slate-900 mb-2">My Proposals</h1>
-        <p className="text-slate-600">Quản lý và theo dõi tất cả proposals bạn đã gửi</p>
-      </div>
-
-      {/* New Negotiations Alert */}
-      {stats.newNegotiations > 0 && (
-        <div className="bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-300 rounded-2xl p-5 shadow-lg">
-          <div className="flex items-start gap-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-amber-500 shadow-lg">
-              <MessageCircle className="h-6 w-6 text-white" />
-            </div>
-            <div className="flex-1">
-              <h3 className="text-lg font-black text-amber-900 mb-1">
-                🔔 Bạn có {stats.newNegotiations} đề xuất thương lượng mới!
-              </h3>
-              <p className="text-sm text-amber-800">
-                Client đã gửi counter-offer cho proposals của bạn. Hãy xem và phản hồi ngay.
-              </p>
-            </div>
-            <button
-              onClick={() => setStatusFilter('NEGOTIATING')}
-              className="shrink-0 px-4 py-2 bg-amber-600 text-white rounded-lg font-bold hover:bg-amber-700 transition-all text-sm shadow-lg"
-            >
-              Xem ngay
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-        <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-bold text-slate-600">Tổng số</span>
-            <FileText className="w-5 h-5 text-slate-400" />
-          </div>
-          <p className="text-3xl font-black text-slate-900">{stats.total}</p>
-        </div>
-
-        <div className="bg-white rounded-2xl p-6 border border-blue-200 shadow-sm">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-bold text-blue-600">Đang chờ</span>
-            <Clock className="w-5 h-5 text-blue-400" />
-          </div>
-          <p className="text-3xl font-black text-blue-600">{stats.submitted}</p>
-        </div>
-
-        <div className="bg-white rounded-2xl p-6 border border-purple-200 shadow-sm">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-bold text-purple-600">Được chọn</span>
-            <CheckCircle className="w-5 h-5 text-purple-400" />
-          </div>
-          <p className="text-3xl font-black text-purple-600">{stats.shortlisted}</p>
-        </div>
-
-        <div className="bg-white rounded-2xl p-6 border border-emerald-200 shadow-sm">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-bold text-emerald-600">Chấp nhận</span>
-            <CheckCircle className="w-5 h-5 text-emerald-400" />
-          </div>
-          <p className="text-3xl font-black text-emerald-600">{stats.accepted}</p>
-        </div>
-
-        <div className="bg-white rounded-2xl p-6 border border-rose-200 shadow-sm">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-bold text-rose-600">Từ chối</span>
-            <XCircle className="w-5 h-5 text-rose-400" />
-          </div>
-          <p className="text-3xl font-black text-rose-600">{stats.rejected}</p>
-        </div>
-      </div>
-
-      {/* Filters */}
-      <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
-        <div className="flex flex-col lg:flex-row gap-4">
-          {/* Search */}
-          <div className="flex-1">
-            <div className="relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-              <input
-                type="text"
-                placeholder="Tìm kiếm theo tên job hoặc nội dung..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all text-sm font-medium"
-              />
-            </div>
-          </div>
-
-          {/* Status Filter */}
-          <div className="flex items-center gap-2 flex-wrap">
-            <Filter className="w-5 h-5 text-slate-400" />
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value as ProposalStatusFilter)}
-              className="px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all text-sm font-bold bg-white"
-            >
-              <option value="ALL">Tất cả trạng thái</option>
-              <option value="DRAFT">Nháp</option>
-              <option value="SUBMITTED">Đã gửi</option>
-              <option value="UNDER_REVIEW">Đang xem xét</option>
-              <option value="SHORTLISTED">Được chọn</option>
-              <option value="ACCEPTED">Chấp nhận</option>
-              <option value="REJECTED">Từ chối</option>
-              <option value="WITHDRAWN">Đã thu hồi</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      {/* Error Message */}
-      {error && (
-        <div className="bg-rose-50 border border-rose-200 text-rose-600 px-6 py-4 rounded-xl flex items-start gap-3">
-          <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
-          <div>
-            <p className="font-bold">Lỗi khi tải proposals</p>
-            <p className="text-sm mt-1">{error}</p>
-          </div>
-        </div>
-      )}
-
-      {/* Proposals List */}
-      {sortedProposals.length === 0 ? (
-        <div className="bg-white rounded-2xl p-12 border border-slate-200 text-center">
-          <FileText className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-          <h3 className="text-lg font-bold text-slate-900 mb-2">
-            {searchQuery || statusFilter !== 'ALL' ? 'Không tìm thấy proposals' : 'Chưa có proposals'}
-          </h3>
-          <p className="text-slate-600 mb-6">
-            {searchQuery || statusFilter !== 'ALL' 
-              ? 'Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm'
-              : 'Bắt đầu tìm kiếm jobs và gửi proposals để nhận được dự án'
-            }
-          </p>
-          {!searchQuery && statusFilter === 'ALL' && (
-            <Link
-              to="/mentor/jobs"
-              className="inline-flex items-center gap-2 bg-indigo-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200"
-            >
-              <Search className="w-5 h-5" />
-              Tìm Jobs
-            </Link>
-          )}
-        </div>
-      ) : (
+    <div className="mx-auto max-w-7xl space-y-6">
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
         <div className="space-y-4">
-          {sortedProposals.map((proposal) => {
-            const config = statusConfig[proposal.status as keyof typeof statusConfig] || statusConfig.SUBMITTED
-            const StatusIcon = config.icon
+          {/* Compact header: title + inline stats + action */}
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex items-center gap-5">
+              <h1 className="text-xl font-black tracking-tight text-slate-950">My Proposals</h1>
+              <div className="hidden items-center gap-2 lg:flex">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-bold text-indigo-600">
+                  <BellRing className="h-3 w-3" /> {stats.total}
+                </span>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-600">
+                  <Clock3 className="h-3 w-3" /> {stats.awaitingResponse} awaiting
+                </span>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-600">
+                  <MessageCircleMore className="h-3 w-3" /> {stats.negotiating} negotiating
+                </span>
+                {stats.accepted > 0 ? (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-600">
+                    <CheckCircle2 className="h-3 w-3" /> {stats.accepted} accepted
+                  </span>
+                ) : null}
+              </div>
+            </div>
 
-            return (
-              <div
-                key={proposal.id}
-                id={`proposal-${proposal.id}`}
-                className={`rounded-2xl border bg-white p-6 shadow-sm hover:shadow-md transition-all duration-500 ${
-                  proposal.status === 'NEGOTIATING' && negotiations[proposal.id]
-                    ? 'border-amber-300 ring-2 ring-amber-100'
-                    : 'border-slate-200'
-                }`}
+            <div className="flex items-center gap-2">
+              {activeNegotiations.length > 0 ? (
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('NEGOTIATING')}
+                  className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-amber-200 bg-amber-50 px-3 text-xs font-bold text-amber-700 transition hover:bg-amber-100"
+                >
+                  <MessageCircleMore className="h-3.5 w-3.5" />
+                  {activeNegotiations.length} pending reply
+                </button>
+              ) : null}
+              <Link
+                to="/mentor/jobs"
+                className="inline-flex h-9 items-center gap-1.5 rounded-xl bg-indigo-600 px-4 text-xs font-bold text-white shadow-sm transition hover:bg-indigo-700"
               >
-                <div className="flex flex-col lg:flex-row lg:items-start gap-6">
-                  {/* Left: Job Info */}
-                  <div className="flex-1 min-w-0">
-                    {/* New Negotiation Badge */}
-                    {proposal.status === 'NEGOTIATING' && negotiations[proposal.id] && (
-                      <div className="mb-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-100 border border-amber-300">
-                        <span className="relative flex h-2 w-2">
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                          <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
-                        </span>
-                        <span className="text-xs font-black text-amber-900">
-                          {negotiations[proposal.id].senderType === 'CLIENT' 
-                            ? 'Có đề xuất mới từ client' 
-                            : 'Đang chờ client phản hồi'}
-                        </span>
-                      </div>
-                    )}
-                    
-                    <div className="flex items-start gap-3 mb-3">
-                      <div className={`w-10 h-10 rounded-xl ${config.color} border flex items-center justify-center flex-shrink-0`}>
-                        <StatusIcon className={`w-5 h-5 ${config.iconColor}`} />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <Link
-                          to={`/jobs/${proposal.jobId}`}
-                          className="text-lg font-bold text-slate-900 hover:text-indigo-600 transition-colors line-clamp-1 flex items-center gap-2"
-                        >
-                          {proposal.jobTitle}
-                          <ExternalLink className="w-4 h-4 flex-shrink-0" />
-                        </Link>
-                        <div className="flex items-center gap-3 mt-1 flex-wrap">
-                          <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold border ${config.color}`}>
-                            <StatusIcon className="w-3.5 h-3.5" />
-                            {config.label}
-                          </span>
-                          <span className="text-xs text-slate-500">
-                            Gửi lúc: {new Date(proposal.submittedAt || proposal.createdAt).toLocaleDateString('vi-VN', {
-                              day: '2-digit',
-                              month: '2-digit',
-                              year: 'numeric',
-                              hour: '2-digit',
-                              minute: '2-digit'
-                            })}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
+                + New Proposal
+              </Link>
+            </div>
+          </div>
 
-                    {/* Cover Letter Preview */}
-                    <div className="bg-slate-50 rounded-xl p-4 mb-3">
-                      <p className="text-sm text-slate-700 line-clamp-2">
-                        {proposal.coverLetter}
-                      </p>
-                    </div>
-
-                    {/* Details */}
-                    <div className="flex items-center gap-6 flex-wrap text-sm">
-                      <div className="flex items-center gap-2">
-                        <DollarSign className="w-4 h-4 text-slate-400" />
-                        <span className="font-bold text-slate-900">{proposal.proposedAmount} MXC</span>
-                      </div>
-                      {proposal.estimatedDurationDays && (
-                        <div className="flex items-center gap-2">
-                          <Calendar className="w-4 h-4 text-slate-400" />
-                          <span className="text-slate-600">{proposal.estimatedDurationDays} ngày</span>
-                        </div>
-                      )}
-                      {proposal.viewCount !== undefined && proposal.viewCount > 0 && (
-                        <div className="flex items-center gap-2">
-                          <Eye className="w-4 h-4 text-slate-400" />
-                          <span className="text-slate-600">Đã xem {proposal.viewCount} lần</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Right: Actions */}
-                  <div className="flex lg:flex-col gap-2">
-                    <Link
-                      to={`/jobs/${proposal.jobId}`}
-                      className="flex-1 lg:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-all text-sm shadow-lg shadow-indigo-200"
+          {/* Compact filter toolbar */}
+          <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
+            <div className="flex flex-wrap items-center gap-2 px-4 py-2.5">
+              {/* Tab pills */}
+              <div className="flex items-center gap-1">
+                {tabs.map((tab) => {
+                  const count = tabCounts[tab.key]
+                  const isActive = activeTab === tab.key
+                  return (
+                    <button
+                      key={tab.key}
+                      type="button"
+                      onClick={() => setActiveTab(tab.key)}
+                      className={`inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-[11px] font-bold transition ${
+                        isActive
+                          ? 'bg-indigo-600 text-white shadow-sm'
+                          : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700'
+                      }`}
                     >
-                      <Eye className="w-4 h-4" />
-                      Xem chi tiết
-                    </Link>
-                  </div>
+                      {tab.label}
+                      <span className={`rounded-full px-1.5 py-0 text-[9px] font-black ${isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'}`}>
+                        {count}
+                      </span>
+                    </button>
+                  )
+                })}
+              </div>
+
+              {/* Separator */}
+              <div className="hidden h-5 w-px bg-slate-200 lg:block" />
+
+              {/* Search */}
+              <div className="relative ml-auto lg:ml-0">
+                <Search className="absolute left-2.5 top-1/2 h-3 w-3 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(event) => setSearchQuery(event.target.value)}
+                  placeholder="Search..."
+                  className="h-7 w-36 rounded-lg border border-slate-200 bg-slate-50 pl-7 pr-2 text-[11px] text-slate-700 outline-none transition focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-500/10 lg:w-44"
+                />
+              </div>
+
+              {/* Filters */}
+              <div className="hidden items-center gap-1.5 lg:flex">
+                <MiniSelect value={statusFilter} onChange={setStatusFilter} options={[['ALL', 'Status'], ['SUBMITTED', 'Submitted'], ['UNDER_REVIEW', 'In Review'], ['NEGOTIATING', 'Negotiation'], ['ACCEPTED', 'Accepted'], ['REJECTED', 'Rejected']]} />
+                <MiniSelect value={categoryFilter} onChange={setCategoryFilter} options={[['ALL', 'Category'], ...categories.map((item) => [String(item.id), item.name] as [string, string])]} />
+                {(statusFilter !== 'ALL' || categoryFilter !== 'ALL' || searchQuery) ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setStatusFilter('ALL')
+                      setNegotiationFilter('ALL')
+                      setBudgetFilter('ALL')
+                      setCategoryFilter('ALL')
+                      setDateFilter('ALL')
+                      setSearchQuery('')
+                    }}
+                    className="inline-flex h-7 items-center gap-1 rounded-lg px-2 text-[10px] font-bold text-slate-400 transition hover:bg-slate-50 hover:text-slate-600"
+                  >
+                    <RefreshCw className="h-2.5 w-2.5" />
+                    Reset
+                  </button>
+                ) : null}
+              </div>
+            </div>
+
+            <div className="space-y-4 px-4 py-4">
+              {error ? (
+                <div className="rounded-2xl border border-rose-200 bg-rose-50 px-5 py-4 text-sm text-rose-700">{error}</div>
+              ) : null}
+
+              {filteredProposals.length === 0 ? (
+                <div className="rounded-2xl border border-dashed border-slate-200 px-6 py-14 text-center">
+                  <p className="text-lg font-black text-slate-900">No proposals match the current view</p>
+                  <p className="mt-2 text-sm text-slate-500">Adjust the filters or submit a new proposal from the jobs marketplace.</p>
                 </div>
+              ) : (
+                filteredProposals.map((proposal) => {
+                  const job = jobMap[proposal.jobId]
+                  const categoryName = categories.find((item) => item.id === job?.categoryId)?.name || 'General'
+                  const negotiation = negotiations[proposal.id]
+                  const rowTone = getRowTone(proposal.status)
+                  const currentOffer = getCurrentOffer(proposal, negotiation)
+                  const clientName = job?.clientName || job?.client?.fullName || 'Client'
+                  const clientAvatar = job?.client?.avatarUrl
+                  const footerText = negotiation?.senderType === 'CLIENT' ? 'Counter-offer received' : negotiation ? 'Waiting for client' : proposal.status === 'ACCEPTED' ? 'Ready to start contract' : 'Proposal submitted'
 
-                {/* Rejection Reason (if rejected) */}
-                {proposal.status === 'REJECTED' && proposal.rejectionReason && (
-                  <div className="mt-4 pt-4 border-t border-slate-100">
-                    <div className="flex items-start gap-2 text-sm">
-                      <AlertCircle className="w-4 h-4 text-rose-500 flex-shrink-0 mt-0.5" />
-                      <div>
-                        <p className="font-bold text-rose-600 mb-1">Lý do từ chối:</p>
-                        <p className="text-slate-600">{proposal.rejectionReason}</p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Negotiation Info (if negotiating) */}
-                {proposal.status === 'NEGOTIATING' && (
-                  <div className="mt-4 pt-4 border-t border-slate-100">
-                    {negotiations[proposal.id] ? (
-                      <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
-                        <div className="flex items-start gap-3">
-                          <MessageCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
-                          <div className="flex-1">
-                            <div className="flex items-center justify-between mb-2">
-                              <p className="font-black text-amber-900">
-                                {negotiations[proposal.id].senderType === 'CLIENT' 
-                                  ? '💬 Client đề xuất thương lượng' 
-                                  : '💬 Bạn đã gửi phản hồi'}
-                              </p>
-                              <span className="text-xs text-amber-600">
-                                {new Date(negotiations[proposal.id].createdAt).toLocaleDateString('vi-VN', {
-                                  day: '2-digit',
-                                  month: '2-digit',
-                                  hour: '2-digit',
-                                  minute: '2-digit'
-                                })}
-                              </span>
-                            </div>
-                            
-                            <p className="text-sm text-slate-700 mb-3 bg-white rounded-lg p-3 border border-amber-100 italic">
-                              "{negotiations[proposal.id].message}"
-                            </p>
-
-                            <div className="grid grid-cols-2 gap-3 mb-3">
-                              {negotiations[proposal.id].proposedAmount && (
-                                <div className="bg-white rounded-lg p-3 border border-amber-100">
-                                  <p className="text-xs font-bold text-amber-600 mb-1">Giá đề xuất</p>
-                                  <div className="flex items-center gap-2">
-                                    <span className="text-slate-400 line-through text-sm">{proposal.proposedAmount} MXC</span>
-                                    <ArrowRight className="w-3 h-3 text-amber-500" />
-                                    <span className="text-lg font-black text-amber-700">{negotiations[proposal.id].proposedAmount} MXC</span>
-                                  </div>
-                                </div>
-                              )}
-                              
-                              {negotiations[proposal.id].estimatedDurationDays && (
-                                <div className="bg-white rounded-lg p-3 border border-amber-100">
-                                  <p className="text-xs font-bold text-amber-600 mb-1">Thời gian đề xuất</p>
-                                  <div className="flex items-center gap-2">
-                                    <span className="text-slate-400 line-through text-sm">{proposal.estimatedDurationDays} ngày</span>
-                                    <ArrowRight className="w-3 h-3 text-amber-500" />
-                                    <span className="text-lg font-black text-amber-700">{negotiations[proposal.id].estimatedDurationDays} ngày</span>
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-
-                            {negotiations[proposal.id].senderType === 'CLIENT' ? (
-                              <div className="flex gap-2">
-                                <button
-                                  onClick={() => handleAccept(proposal.id, negotiations[proposal.id].id)}
-                                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 text-white rounded-lg font-bold hover:bg-emerald-700 transition-all text-sm shadow-sm"
-                                >
-                                  <CheckCircle className="w-4 h-4" />
-                                  Chấp nhận
-                                </button>
-                                <button
-                                  onClick={() => openCounterModal(proposal, negotiations[proposal.id])}
-                                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-amber-600 text-white rounded-lg font-bold hover:bg-amber-700 transition-all text-sm shadow-sm"
-                                >
-                                  <TrendingUp className="w-4 h-4" />
-                                  Đề xuất lại
-                                </button>
-                                <button
-                                  onClick={() => handleReject(proposal.id, negotiations[proposal.id].id)}
-                                  className="px-4 py-2.5 border border-slate-200 bg-white rounded-lg font-bold hover:bg-slate-50 transition-all text-sm text-slate-700"
-                                >
-                                  <XCircle className="w-4 h-4 inline mr-1" />
-                                  Từ chối
-                                </button>
-                              </div>
+                  return (
+                    <article key={proposal.id} className={`overflow-hidden rounded-2xl border bg-white shadow-sm transition hover:shadow-md ${rowTone.border}`}>
+                      <div className="px-4 py-3">
+                        {/* Row 1: Avatar + Title + Badges + Actions */}
+                        <div className="flex items-center gap-3">
+                          <div className="h-8 w-8 shrink-0 overflow-hidden rounded-full bg-slate-100">
+                            {clientAvatar ? (
+                              <img src={clientAvatar} alt={clientName} className="h-full w-full object-cover" />
                             ) : (
-                              <div className="bg-amber-100/50 rounded-xl p-3 border border-dashed border-amber-300 text-center">
-                                <p className="text-xs font-bold text-amber-800 flex items-center justify-center gap-2">
-                                  <Clock className="w-3.5 h-3.5 animate-pulse" />
-                                  Đang chờ Client xem xét đề xuất của bạn...
-                                </p>
+                              <div className="flex h-full w-full items-center justify-center bg-indigo-100 text-[10px] font-black text-indigo-600">
+                                {clientName.charAt(0)}
                               </div>
                             )}
                           </div>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
-                        <div className="flex items-start gap-3">
-                          <MessageCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
-                          <div className="flex-1">
-                            <p className="font-black text-amber-900 mb-1">💬 Đang thương lượng</p>
-                            <p className="text-sm text-amber-700">
-                              Client đang thương lượng về giá và thời gian. Vào trang job để xem chi tiết.
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2">
+                              <h2 className="truncate text-sm font-bold text-slate-950">{proposal.jobTitle}</h2>
+                              <span className={`inline-flex shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold ${rowTone.badge}`}>{getStatusLabel(proposal.status)}</span>
+                            </div>
+                            <p className="mt-0.5 text-[11px] text-slate-500">
+                              {clientName} · {categoryName} · {formatRelativeTime(proposal.updatedAt || proposal.createdAt)}
+                              {proposal.estimatedDurationDays ? ` · ${proposal.estimatedDurationDays} days` : ''}
                             </p>
-                            <Link
-                              to={`/jobs/${proposal.jobId}`}
-                              className="mt-3 inline-flex items-center gap-2 px-4 py-2 bg-amber-600 text-white rounded-lg font-bold hover:bg-amber-700 transition-all text-sm"
-                            >
-                              <ExternalLink className="w-4 h-4" />
-                              Xem chi tiết
-                            </Link>
                           </div>
+                          <Link
+                            to={`/mentor/proposals/${proposal.id}`}
+                            className={`inline-flex h-8 shrink-0 items-center gap-1 rounded-lg px-3 text-[11px] font-bold text-white transition ${proposal.status === 'ACCEPTED' ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-indigo-600 hover:bg-indigo-700'}`}
+                          >
+                            {proposal.status === 'ACCEPTED' ? 'View' : 'Open'}
+                            <ArrowRight className="h-3 w-3" />
+                          </Link>
+                        </div>
+
+                        {/* Row 2: Budget flow + Step progress */}
+                        <div className="mt-2 flex items-center gap-4 rounded-lg bg-slate-50/80 px-3 py-2">
+                          {/* Budget flow */}
+                          <div className="flex items-center gap-2 text-[11px]">
+                            <span className="text-slate-400">Budget</span>
+                            <span className="font-bold text-slate-600">{getClientBudget(job)}</span>
+                            <span className="text-slate-300">→</span>
+                            <span className="text-slate-400">Yours</span>
+                            <span className="font-bold text-slate-700">{getProposalValue(proposal)}</span>
+                            {currentOffer.primary !== getProposalValue(proposal) ? (
+                              <>
+                                <span className="text-slate-300">→</span>
+                                <span className={`font-bold ${currentOffer.highlight === 'amber' ? 'text-amber-600' : currentOffer.highlight === 'green' ? 'text-emerald-600' : 'text-slate-700'}`}>
+                                  {currentOffer.primary}
+                                </span>
+                              </>
+                            ) : null}
+                          </div>
+
+                          {/* Separator */}
+                          <div className="hidden h-4 w-px bg-slate-200 md:block" />
+
+                          {/* Mini labeled step progress */}
+                          <div className="hidden items-center gap-0 md:flex">
+                            {stageLabels.map((label, index) => {
+                              const step = index + 1
+                              const currentStep = getCurrentStep(proposal.status)
+                              const reached = step <= currentStep
+                              const active = step === currentStep
+
+                              let dotCls = 'bg-slate-200'
+                              if (reached) dotCls = 'bg-indigo-500'
+
+                              return (
+                                <div key={label} className="flex items-center">
+                                  <div className="flex items-center gap-0.5">
+                                    <div className={`h-1.5 w-1.5 rounded-full ${dotCls}`} />
+                                    {active ? (
+                                      <span className="whitespace-nowrap text-[9px] font-bold text-indigo-600">{label}</span>
+                                    ) : null}
+                                  </div>
+                                  {step < stageLabels.length ? <div className={`mx-0.5 h-[1px] w-2 ${step < currentStep ? 'bg-indigo-400' : 'bg-slate-200'}`} /> : null}
+                                </div>
+                              )
+                            })}
+                          </div>
+
+                          {/* Footer status text (mobile) */}
+                          <span className={`ml-auto text-[10px] font-bold md:hidden ${rowTone.message}`}>{footerText}</span>
                         </div>
                       </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            )
-          })}
-        </div>
-      )}
-
-      {/* Results Count */}
-      {sortedProposals.length > 0 && (
-        <div className="text-center text-sm text-slate-500">
-          Hiển thị {sortedProposals.length} / {proposals.length} proposals
-        </div>
-      )}
-      {/* Counter Offer Modal */}
-      {isCounterModalOpen && selectedProposal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-          <div className="bg-white rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
-            <div className="p-8">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-2xl font-black text-slate-900">Đề xuất thương lượng mới</h3>
-                <button 
-                  onClick={() => setIsCounterModalOpen(false)}
-                  className="p-2 hover:bg-slate-100 rounded-full transition-colors"
-                >
-                  <XCircle className="w-6 h-6 text-slate-400" />
-                </button>
-              </div>
-
-              <div className="space-y-6">
-                <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-2">
-                    Lời nhắn đến Client
-                  </label>
-                  <textarea
-                    value={counterForm.message}
-                    onChange={(e) => setCounterForm({ ...counterForm, message: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none min-h-[120px] text-sm"
-                    placeholder="Giải thích lý do bạn đề xuất mức giá/thời gian này..."
-                  />
-                  <div className="flex justify-end mt-1">
-                    <span className={`text-xs font-bold ${counterForm.message.trim().length < 10 ? 'text-amber-500' : 'text-slate-400'}`}>
-                      {counterForm.message.trim().length} / 10 ký tự tối thiểu
-                    </span>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-bold text-slate-700 mb-2">
-                      Mức giá đề xuất (MXC)
-                    </label>
-                    <div className="relative">
-                      <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                      <input
-                        type="number"
-                        value={counterForm.amount}
-                        onChange={(e) => setCounterForm({ ...counterForm, amount: Number(e.target.value) })}
-                        className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none text-sm font-bold"
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-slate-700 mb-2">
-                      Thời gian hoàn thành (ngày)
-                    </label>
-                    <div className="relative">
-                      <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                      <input
-                        type="number"
-                        value={counterForm.duration}
-                        onChange={(e) => setCounterForm({ ...counterForm, duration: Number(e.target.value) })}
-                        className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none text-sm font-bold"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-amber-50 rounded-2xl p-4 border border-amber-100">
-                  <p className="text-xs text-amber-800 font-medium leading-relaxed">
-                    <AlertCircle className="w-4 h-4 inline mr-1 mb-0.5" />
-                    Lưu ý: Sau khi bạn gửi đề xuất, Client sẽ nhận được thông báo và có thể chấp nhận, từ chối hoặc tiếp tục thương lượng với bạn.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex gap-3 mt-8">
-                <button
-                  onClick={() => setIsCounterModalOpen(false)}
-                  className="flex-1 px-6 py-3 border border-slate-200 rounded-xl font-bold text-slate-600 hover:bg-slate-50 transition-all"
-                >
-                  Hủy bỏ
-                </button>
-                <button
-                  onClick={handleCounterOffer}
-                  disabled={submitting}
-                  className="flex-[2] px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-indigo-200 flex items-center justify-center gap-2"
-                >
-                  {submitting ? (
-                    <>
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                      Đang gửi...
-                    </>
-                  ) : (
-                    <>
-                      <TrendingUp className="w-5 h-5" />
-                      Gửi đề xuất
-                    </>
-                  )}
-                </button>
-              </div>
+                    </article>
+                  )
+                })
+              )}
             </div>
-          </div>
+          </section>
         </div>
-      )}
+
+        <aside className="space-y-4">
+          <aside className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="flex items-center justify-between">
+              <h3 className="text-base font-black text-slate-950">Negotiation Inbox</h3>
+              <span className="inline-flex h-7 min-w-7 items-center justify-center rounded-full bg-rose-100 px-2 text-xs font-black text-rose-600">
+                {activeNegotiations.length}
+              </span>
+            </div>
+            <div className="mt-4 space-y-4">
+              {inboxItems.map((proposal) => {
+                const negotiation = negotiations[proposal.id]
+                const clientName = jobMap[proposal.jobId]?.clientName || jobMap[proposal.jobId]?.client?.fullName || 'Client'
+                const avatarUrl = jobMap[proposal.jobId]?.client?.avatarUrl
+                return (
+                  <Link key={proposal.id} to={`/mentor/proposals/${proposal.id}`} className="flex items-start gap-3">
+                    <div className="h-10 w-10 overflow-hidden rounded-full bg-slate-100">
+                      {avatarUrl ? (
+                        <img src={avatarUrl} alt={clientName} className="h-full w-full object-cover" />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center bg-indigo-100 text-xs font-black text-indigo-600">
+                          {clientName.charAt(0)}
+                        </div>
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <p className="truncate text-sm font-black text-slate-950">{clientName}</p>
+                          <p className={`mt-1 text-xs font-medium ${negotiation?.senderType === 'CLIENT' ? 'text-amber-600' : 'text-slate-500'}`}>
+                            {negotiation?.senderType === 'CLIENT' ? 'Counter-offer received' : 'Waiting for your reply'}
+                          </p>
+                        </div>
+                        <p className="whitespace-nowrap text-xs text-slate-400">{formatRelativeTime(negotiation?.createdAt || proposal.updatedAt)}</p>
+                      </div>
+                    </div>
+                  </Link>
+                )
+              })}
+            </div>
+            <Link
+              to="/mentor/proposals"
+              className="mt-5 inline-flex h-11 w-full items-center justify-center gap-2 rounded-2xl border border-indigo-200 bg-indigo-50 text-sm font-bold text-indigo-700 transition hover:bg-indigo-100"
+            >
+              View all conversations
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </aside>
+
+          <aside className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="flex items-center justify-between">
+              <h3 className="text-base font-black text-slate-950">Earnings Forecast</h3>
+              <span className="rounded-xl border border-slate-200 px-3 py-1 text-xs font-bold text-slate-500">This Month</span>
+            </div>
+            <p className="mt-5 text-[36px] font-black tracking-tight text-slate-950">{formatCompactMxc(stats.potentialEarnings)} MXC</p>
+            <div className="mt-1 flex items-center justify-between text-sm">
+              <span className="text-slate-500">Potential Earnings</span>
+              <span className="font-bold text-emerald-500">+18% vs last month</span>
+            </div>
+            <MiniChart />
+          </aside>
+
+          <aside className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="flex items-center justify-between">
+              <h3 className="text-base font-black text-slate-950">AI Suggestions</h3>
+              <span className="rounded-full bg-violet-100 px-2.5 py-1 text-xs font-black text-violet-700">New</span>
+            </div>
+            <div className="mt-4 space-y-4">
+              <SuggestionRow tone="blue" title="This proposal has high acceptance probability" text="80% match" />
+              <SuggestionRow tone="indigo" title="Client usually responds within 2 hours" text="High responsiveness" />
+              <SuggestionRow tone="amber" title="Consider reducing delivery time" text="May improve acceptance rate" />
+            </div>
+          </aside>
+
+          <aside className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="flex items-center justify-between">
+              <h3 className="text-base font-black text-slate-950">Recommended Jobs</h3>
+              <Link to="/mentor/jobs" className="text-sm font-bold text-indigo-600">
+                View all
+              </Link>
+            </div>
+            <div className="mt-4 space-y-3">
+              {recommendedJobs.slice(0, 2).map((job) => (
+                <div key={job.jobId} className="rounded-2xl border border-slate-200 p-4">
+                  <p className="text-sm font-black text-slate-950">{job.title}</p>
+                  <p className="mt-2 text-sm font-bold text-slate-900">{getClientBudget(job)}</p>
+                  <p className="mt-1 text-xs text-emerald-600">{getRecommendedMatch(job)}% match</p>
+                  <Link
+                    to={`/jobs/${job.jobId}`}
+                    className="mt-3 inline-flex h-9 items-center justify-center rounded-xl bg-indigo-600 px-4 text-xs font-bold text-white transition hover:bg-indigo-700"
+                  >
+                    View Job
+                  </Link>
+                </div>
+              ))}
+            </div>
+          </aside>
+        </aside>
+      </div>
+    </div>
+  )
+}
+
+function MiniSelect({
+  value,
+  onChange,
+  options,
+}: {
+  value: string
+  onChange: (value: string) => void
+  options: Array<[string, string]>
+}) {
+  return (
+    <select
+      value={value}
+      onChange={(event) => onChange(event.target.value)}
+      className="h-8 rounded-lg border border-slate-200 bg-slate-50 px-2.5 text-xs font-bold text-slate-600 outline-none transition focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-500/10"
+    >
+      {options.map(([optionValue, label]) => (
+        <option key={optionValue} value={optionValue}>
+          {label}
+        </option>
+      ))}
+    </select>
+  )
+}
+
+
+
+function MiniChart() {
+  const points = '6,50 38,40 70,62 102,45 134,52 166,33 198,29 230,18'
+  return (
+    <div className="mt-5">
+      <div className="flex items-end gap-2 text-[10px] text-slate-400">
+        <span>0</span>
+        <span>1K</span>
+        <span>2K</span>
+        <span>3K</span>
+      </div>
+      <svg viewBox="0 0 236 72" className="mt-2 h-24 w-full">
+        <path d="M6 50 L38 40 L70 62 L102 45 L134 52 L166 33 L198 29 L230 18" fill="none" stroke="#5b4df6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+        <polyline points={points} fill="url(#forecastFill)" opacity="0.18" />
+        <defs>
+          <linearGradient id="forecastFill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#5b4df6" />
+            <stop offset="100%" stopColor="#5b4df6" stopOpacity="0" />
+          </linearGradient>
+        </defs>
+      </svg>
+      <div className="mt-1 flex justify-between text-[10px] text-slate-400">
+        <span>1 May</span>
+        <span>15 May</span>
+        <span>31 May</span>
+      </div>
+    </div>
+  )
+}
+
+function SuggestionRow({
+  tone,
+  title,
+  text,
+}: {
+  tone: 'blue' | 'indigo' | 'amber'
+  title: string
+  text: string
+}) {
+  const toneClass = {
+    blue: 'bg-blue-50 text-blue-500',
+    indigo: 'bg-indigo-50 text-indigo-500',
+    amber: 'bg-amber-50 text-amber-500',
+  }
+
+  return (
+    <div className="flex items-start gap-3">
+      <div className={`mt-0.5 flex h-6 w-6 items-center justify-center rounded-full ${toneClass[tone]}`}>
+        <Circle className="h-3 w-3 fill-current" />
+      </div>
+      <div>
+        <p className="text-sm font-medium text-slate-700">{title}</p>
+        <p className="mt-1 text-xs text-slate-500">{text}</p>
+      </div>
+    </div>
+  )
+}
+
+function getStatusLabel(status: string) {
+  switch (status) {
+    case 'NEGOTIATING':
+      return 'Negotiating'
+    case 'SUBMITTED':
+      return 'Awaiting Response'
+    case 'UNDER_REVIEW':
+      return 'In Review'
+    case 'ACCEPTED':
+      return 'Accepted'
+    case 'REJECTED':
+      return 'Rejected'
+    default:
+      return status
+  }
+}
+
+function getRowTone(status: string) {
+  switch (status) {
+    case 'NEGOTIATING':
+      return {
+        border: 'border-l-4 border-l-amber-400 border-slate-200',
+        badge: 'bg-amber-50 text-amber-700',
+        cta: 'bg-indigo-600 hover:bg-indigo-700',
+        message: 'text-indigo-600',
+      }
+    case 'SUBMITTED':
+    case 'UNDER_REVIEW':
+      return {
+        border: 'border-l-4 border-l-blue-400 border-slate-200',
+        badge: 'bg-blue-50 text-blue-700',
+        cta: 'bg-indigo-600 hover:bg-indigo-700',
+        message: 'text-emerald-500',
+      }
+    case 'ACCEPTED':
+      return {
+        border: 'border-l-4 border-l-emerald-400 border-slate-200',
+        badge: 'bg-emerald-50 text-emerald-700',
+        cta: 'bg-violet-100 text-violet-700 hover:bg-violet-200',
+        message: 'text-emerald-500',
+      }
+    default:
+      return {
+        border: 'border-l-4 border-l-slate-300 border-slate-200',
+        badge: 'bg-slate-100 text-slate-600',
+        cta: 'bg-slate-900 hover:bg-slate-800',
+        message: 'text-slate-500',
+      }
+  }
+}
+
+function getClientBudget(job?: JobResponse) {
+  if (!job) return 'Budget TBD'
+  if (job.budgetMinMxc && job.budgetMaxMxc) return `${formatCurrency(job.budgetMinMxc)} - ${formatCurrency(job.budgetMaxMxc)}`
+  if (job.hourlyRateMxc) return `${formatCurrency(job.hourlyRateMxc)} / hr`
+  return 'Budget TBD'
+}
+
+function getBudgetType(job: JobResponse | undefined, proposal: ProposalResponse) {
+  if (proposal.proposedHourlyRate || job?.hourlyRateMxc) return 'Hourly Rate'
+  return 'Fixed Price'
+}
+
+function getProposalValue(proposal: ProposalResponse) {
+  if (proposal.proposedHourlyRate) return `${formatCurrency(proposal.proposedHourlyRate)} / hr`
+  if (proposal.proposedAmount) return formatCurrency(proposal.proposedAmount)
+  return 'Not set'
+}
+
+function getTimelineLabel(proposal: ProposalResponse) {
+  if (proposal.estimatedDurationDays) return `${proposal.estimatedDurationDays} days`
+  return 'Flexible timeline'
+}
+
+function getCurrentOffer(proposal: ProposalResponse, negotiation?: NegotiationInfo) {
+  if (proposal.status === 'ACCEPTED') {
+    return {
+      primary: proposal.proposedHourlyRate ? `${formatCurrency(proposal.proposedHourlyRate)} / hr` : proposal.proposedAmount ? formatCurrency(proposal.proposedAmount) : 'Accepted',
+      secondary: 'Agreement reached',
+      highlight: 'green' as const,
+    }
+  }
+
+  if (negotiation?.proposedAmount) {
+    return {
+      primary: formatCurrency(negotiation.proposedAmount),
+      secondary: negotiation.senderType === 'CLIENT' ? 'Counter-offer received' : 'Waiting for client',
+      highlight: negotiation.senderType === 'CLIENT' ? ('amber' as const) : ('blue' as const),
+    }
+  }
+
+  if (proposal.proposedHourlyRate) {
+    return {
+      primary: `${formatCurrency(proposal.proposedHourlyRate)} / hr`,
+      secondary: proposal.status === 'NEGOTIATING' ? 'Negotiation started' : 'Current proposal',
+      highlight: proposal.status === 'NEGOTIATING' ? ('blue' as const) : undefined,
+    }
+  }
+
+  if (proposal.proposedAmount) {
+    return {
+      primary: formatCurrency(proposal.proposedAmount),
+      secondary: proposal.status === 'NEGOTIATING' ? 'Waiting for reply' : 'Current proposal',
+      highlight: proposal.status === 'NEGOTIATING' ? ('blue' as const) : undefined,
+    }
+  }
+
+  return {
+    primary: 'TBD',
+    secondary: 'No offer yet',
+    highlight: undefined,
+  }
+}
+
+const stageLabels = ['Sent', 'Viewed', 'Counter', 'Negotiating', 'Agreement', 'Contract'] as const
+
+
+
+function getCurrentStep(status: string) {
+  switch (status) {
+    case 'SUBMITTED':
+      return 2
+    case 'UNDER_REVIEW':
+      return 3
+    case 'NEGOTIATING':
+      return 4
+    case 'ACCEPTED':
+      return 6
+    case 'REJECTED':
+      return 3
+    default:
+      return 1
+  }
+}
+
+function isWithinDays(date: string, days: number) {
+  return Date.now() - new Date(date).getTime() <= days * 24 * 60 * 60 * 1000
+}
+
+function formatCompactMxc(value: number) {
+  return value.toLocaleString('en-US', { maximumFractionDigits: 0 })
+}
+
+function getRecommendedMatch(job: JobResponse) {
+  if (job.requiredSkills?.length) {
+    return Math.min(92, 70 + job.requiredSkills.length * 4)
+  }
+  return 76
+}
+function ProposalCardSkeleton() {
+  return (
+    <div className="rounded-2xl border border-slate-100 bg-white p-4">
+      <div className="flex items-center gap-3">
+        <SkeletonCircle size="h-8 w-8" />
+        <div className="flex-1 space-y-2">
+          <Skeleton className="h-4 w-1/3" />
+          <Skeleton className="h-3 w-1/4" />
+        </div>
+      </div>
+      <div className="mt-4 flex gap-4">
+        <Skeleton className="h-8 flex-1" />
+        <Skeleton className="h-8 w-24" />
+      </div>
     </div>
   )
 }

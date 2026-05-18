@@ -406,6 +406,7 @@ export interface JobResponse {
   client?: UserResponse;
   clientName?: string;
   categoryId?: number;
+  customCategoryName?: string;
   jobType: JobType;
   title: string;
   description: string;
@@ -415,12 +416,15 @@ export interface JobResponse {
   learningGoals?: string;
   successCriteria?: string;
   availabilityExpectation?: string;
+  availabilityStartTime?: string;
+  availabilityEndTime?: string;
   communicationPreference?: string;
   budgetType: BudgetType;
   budgetMinMxc?: number;
   budgetMaxMxc?: number;
   hourlyRateMxc?: number;
   estimatedHours?: number;
+  startDate?: string;
   deadlineAt?: string;
   status: JobStatus;
   isFeatured: boolean;
@@ -434,6 +438,7 @@ export interface JobResponse {
 export interface JobCreateRequest {
   clientId: string;
   categoryId?: number;
+  customCategoryName?: string;
   jobType: JobType;
   title: string;
   description: string;
@@ -443,12 +448,15 @@ export interface JobCreateRequest {
   learningGoals?: string;
   successCriteria?: string;
   availabilityExpectation?: string;
+  availabilityStartTime?: string;
+  availabilityEndTime?: string;
   communicationPreference?: string;
   budgetType: BudgetType;
   budgetMinMxc?: number;
   budgetMaxMxc?: number;
   hourlyRateMxc?: number;
   estimatedHours?: number;
+  startDate?: string;
   deadlineAt?: string;
   attachmentUrl?: string;
   attachments?: string[];
@@ -457,6 +465,7 @@ export interface JobCreateRequest {
 
 export interface JobUpdateRequest {
   categoryId?: number;
+  customCategoryName?: string;
   jobType?: JobType;
   title?: string;
   description?: string;
@@ -466,12 +475,15 @@ export interface JobUpdateRequest {
   learningGoals?: string;
   successCriteria?: string;
   availabilityExpectation?: string;
+  availabilityStartTime?: string;
+  availabilityEndTime?: string;
   communicationPreference?: string;
   budgetType?: BudgetType;
   budgetMinMxc?: number;
   budgetMaxMxc?: number;
   hourlyRateMxc?: number;
   estimatedHours?: number;
+  startDate?: string;
   deadlineAt?: string;
   status?: JobStatus;
   isFeatured?: boolean;
@@ -713,7 +725,7 @@ export interface ProposalResponse {
   terms?: string;
   submittedAt: string;
   isFeatured: boolean;
-  viewCount?: number;
+  viewCount: number;
   rejectionReason?: string;
   score?: number;
   isCounterProposal: boolean;
