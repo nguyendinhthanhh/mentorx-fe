@@ -1,13 +1,13 @@
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { useQuery } from 'react-query'
 import { useAuthStore } from '@/store/authStore'
 import { walletApi } from '@/api/walletApi'
-import { formatCurrency, formatDateTime } from '@/utils/formatters'
+import { formatDateTime, formatExchangeRate, formatFiatCurrency, formatMxc } from '@/utils/formatters'
 import DepositForm from '@/components/wallet/DepositForm'
 import WithdrawalForm from '@/components/wallet/WithdrawalForm'
 import TransferForm from '@/components/wallet/TransferForm'
 import BankAccountSettings from '@/components/wallet/BankAccountSettings'
-import { Wallet, ArrowDownCircle, ArrowUpCircle, Send, TrendingUp, Clock, Landmark } from 'lucide-react'
+import { Wallet, ArrowDownCircle, ArrowUpCircle, Send, Clock, Landmark, ArrowRightLeft, ShieldCheck } from 'lucide-react'
 
 export default function WalletPage() {
   const { user } = useAuthStore()
@@ -25,13 +25,17 @@ export default function WalletPage() {
     { enabled: !!user?.userId }
   )
 
-  const { data: transactions } = useQuery(
+  const { data: transactions, refetch: refetchTransactions } = useQuery(
     ['transactions', user?.userId],
     () => walletApi.getUserTransactions(user!.userId, { page: 0, size: 10 }),
     { enabled: !!user?.userId }
   )
 
   if (!user) return null
+
+  const availableWallet = wallets?.find((wallet) => wallet.accountType === 'USER_AVAILABLE')
+  const pendingWallet = wallets?.find((wallet) => wallet.accountType === 'USER_PENDING')
+  const escrowWallet = wallets?.find((wallet) => wallet.accountType === 'ESCROW')
 
   const tabs = [
     { key: 'deposit' as const, label: 'Deposit', icon: ArrowDownCircle, color: 'text-green-600' },
@@ -53,6 +57,7 @@ export default function WalletPage() {
   const handleSuccess = () => {
     refetchBalance()
     refetchWallets()
+    refetchTransactions()
   }
 
   return (
@@ -73,16 +78,19 @@ export default function WalletPage() {
               <h3 className="text-sm font-medium text-primary-100">Total Balance</h3>
               <Wallet className="w-6 h-6 text-primary-200" />
             </div>
-            <p className="text-3xl font-bold">{formatCurrency(userBalance?.total || 0)}</p>
-            <div className="flex gap-4 mt-4">
+            <p className="text-3xl font-bold">{formatMxc(userBalance?.total || 0)}</p>
+            <div className="mt-4 grid grid-cols-3 gap-3">
               <div>
                 <p className="text-[10px] text-primary-200 uppercase tracking-wider font-semibold">Available</p>
-                <p className="text-lg font-bold">{formatCurrency(userBalance?.available || 0)}</p>
+                <p className="text-base font-bold">{formatMxc(availableWallet?.balanceMxc ?? userBalance?.available ?? 0)}</p>
               </div>
-              <div className="w-px h-8 bg-white/20 my-auto" />
               <div>
                 <p className="text-[10px] text-primary-200 uppercase tracking-wider font-semibold">Pending</p>
-                <p className="text-lg font-bold">{formatCurrency(userBalance?.pending || 0)}</p>
+                <p className="text-base font-bold">{formatMxc(pendingWallet?.balanceMxc ?? userBalance?.pending ?? 0)}</p>
+              </div>
+              <div>
+                <p className="text-[10px] text-primary-200 uppercase tracking-wider font-semibold">Escrow</p>
+                <p className="text-base font-bold">{formatMxc(escrowWallet?.balanceMxc ?? 0)}</p>
               </div>
             </div>
           </div>
@@ -100,7 +108,7 @@ export default function WalletPage() {
                 wallet.accountType === 'USER_PENDING' ? 'bg-amber-500' : 'bg-blue-500'
               }`} />
             </div>
-            <p className="text-2xl font-bold text-gray-900 mb-1">{formatCurrency(wallet.balanceMxc)}</p>
+            <p className="text-2xl font-bold text-gray-900 mb-1">{formatMxc(wallet.balanceMxc)}</p>
             <p className="text-[10px] text-gray-400">
               Last updated: {formatDateTime(wallet.updatedAt)}
             </p>
@@ -158,37 +166,71 @@ export default function WalletPage() {
           </div>
           
           {transactions?.content && transactions.content.length > 0 ? (
-            <div className="space-y-1">
+            <div className="space-y-3">
               {transactions.content.map((txn) => {
                 const style = txnColors[txn.txnType] || { bg: 'bg-gray-50', text: 'text-gray-600', sign: '' }
                 return (
-                  <div key={txn.id} className="flex items-center justify-between py-3 border-b border-gray-50 last:border-0 hover:bg-gray-50/50 transition-colors px-2 rounded-lg">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-10 h-10 rounded-xl ${style.bg} flex items-center justify-center shadow-sm`}>
-                        {txn.direction === 'CREDIT' ? (
-                          <ArrowDownCircle className={`w-5 h-5 ${style.text}`} />
-                        ) : (
-                          <ArrowUpCircle className={`w-5 h-5 ${style.text}`} />
-                        )}
+                  <div key={txn.id} className="rounded-2xl border border-gray-100 p-4 transition-colors hover:bg-gray-50/60">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex items-start gap-3">
+                        <div className={`mt-0.5 w-10 h-10 rounded-xl ${style.bg} flex items-center justify-center shadow-sm`}>
+                          {txn.direction === 'CREDIT' ? (
+                            <ArrowDownCircle className={`w-5 h-5 ${style.text}`} />
+                          ) : (
+                            <ArrowUpCircle className={`w-5 h-5 ${style.text}`} />
+                          )}
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-gray-900">{txn.txnType.replace(/_/g, ' ')}</p>
+                          <p className="mt-1 text-[11px] text-gray-400 flex items-center gap-1">
+                            <Clock className="w-3 h-3" />
+                            {formatDateTime(txn.createdAt)}
+                          </p>
+                          {txn.note && (
+                            <p className="mt-2 text-xs text-slate-500">{txn.note}</p>
+                          )}
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-sm font-semibold text-gray-900">{txn.txnType.replace(/_/g, ' ')}</p>
-                        <p className="text-[11px] text-gray-400 flex items-center gap-1">
-                          <Clock className="w-3 h-3" />
-                          {formatDateTime(txn.createdAt)}
+                      <div className="text-right">
+                        <p className={`text-sm font-bold ${style.text}`}>
+                          {txn.direction === 'CREDIT' ? '+' : '-'}{formatMxc(txn.amountMxc)}
+                        </p>
+                        <p className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                          txn.txnStatus === 'COMPLETED' ? 'bg-green-100 text-green-700' :
+                          txn.txnStatus === 'PENDING' ? 'bg-amber-100 text-amber-700' : 'bg-gray-100 text-gray-600'
+                        }`}>
+                          {txn.txnStatus}
                         </p>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <p className={`text-sm font-bold ${style.text}`}>
-                        {txn.direction === 'CREDIT' ? '+' : '-'}{formatCurrency(txn.amountMxc)}
-                      </p>
-                      <p className={`text-[10px] font-bold px-2 py-0.5 rounded-full inline-block ${
-                        txn.txnStatus === 'COMPLETED' ? 'bg-green-100 text-green-700' :
-                        txn.txnStatus === 'PENDING' ? 'bg-amber-100 text-amber-700' : 'bg-gray-100 text-gray-600'
-                      }`}>
-                        {txn.txnStatus}
-                      </p>
+
+                    <div className="mt-4 grid gap-2 rounded-2xl bg-slate-50 p-3 text-xs text-slate-600">
+                      <MetaRow
+                        icon={<ArrowRightLeft className="h-3.5 w-3.5 text-slate-400" />}
+                        label="Original amount"
+                        value={txn.originalAmount && txn.originalCurrency
+                          ? formatFiatCurrency(txn.originalAmount, txn.originalCurrency)
+                          : 'Not recorded'}
+                      />
+                      <MetaRow
+                        icon={<ShieldCheck className="h-3.5 w-3.5 text-slate-400" />}
+                        label="Exchange rate"
+                        value={txn.exchangeRateToVnd && txn.originalCurrency
+                          ? formatExchangeRate(txn.exchangeRateToVnd, txn.originalCurrency, 'VND')
+                          : 'Not recorded'}
+                      />
+                      <MetaRow
+                        icon={<Wallet className="h-3.5 w-3.5 text-slate-400" />}
+                        label="Converted amount"
+                        value={txn.convertedAmountVnd
+                          ? formatFiatCurrency(txn.convertedAmountVnd, 'VND')
+                          : 'Not recorded'}
+                      />
+                      <MetaRow
+                        icon={<Landmark className="h-3.5 w-3.5 text-slate-400" />}
+                        label="Gateway"
+                        value={txn.gateway || 'Internal ledger'}
+                      />
                     </div>
                   </div>
                 )
@@ -205,6 +247,26 @@ export default function WalletPage() {
           )}
         </div>
       </div>
+    </div>
+  )
+}
+
+function MetaRow({
+  icon,
+  label,
+  value,
+}: {
+  icon: ReactNode
+  label: string
+  value: string
+}) {
+  return (
+    <div className="flex items-center justify-between gap-3">
+      <div className="flex items-center gap-2">
+        {icon}
+        <span>{label}</span>
+      </div>
+      <span className="font-semibold text-slate-900">{value}</span>
     </div>
   )
 }

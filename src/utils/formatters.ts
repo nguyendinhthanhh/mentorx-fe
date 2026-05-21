@@ -1,8 +1,52 @@
-export const formatCurrency = (amount: number, currency: string = 'MXC'): string => {
-  return `${amount.toLocaleString('en-US', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })} ${currency}`
+type DisplayAmount = number | string | null | undefined
+
+const toNumericValue = (value: DisplayAmount): number => {
+  if (typeof value === 'number') {
+    return Number.isFinite(value) ? value : 0
+  }
+
+  if (typeof value === 'string') {
+    const normalized = value.replace(/,/g, '').trim()
+    if (!normalized) return 0
+    const parsed = Number(normalized)
+    return Number.isFinite(parsed) ? parsed : 0
+  }
+
+  return 0
+}
+
+export const formatMxc = (amount: DisplayAmount): string => {
+  const numeric = toNumericValue(amount)
+  return `${new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 3,
+  }).format(numeric)} MXC`
+}
+
+export const formatFiatCurrency = (amount: DisplayAmount, currency: string = 'VND'): string => {
+  const numeric = toNumericValue(amount)
+  const normalizedCurrency = currency.toUpperCase()
+  const fractionDigits = normalizedCurrency === 'VND' ? 0 : 2
+
+  return `${new Intl.NumberFormat(normalizedCurrency === 'VND' ? 'vi-VN' : 'en-US', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: fractionDigits,
+  }).format(numeric)} ${normalizedCurrency}`
+}
+
+export const formatExchangeRate = (
+  rate: DisplayAmount,
+  fromCurrency: string,
+  toCurrency: string = 'VND'
+): string => {
+  const numeric = toNumericValue(rate)
+  return `1 ${fromCurrency.toUpperCase()} = ${formatFiatCurrency(numeric, toCurrency)}`
+}
+
+export const formatCurrency = (amount: DisplayAmount, currency: string = 'MXC'): string => {
+  return currency.toUpperCase() === 'MXC'
+    ? formatMxc(amount)
+    : formatFiatCurrency(amount, currency)
 }
 
 export const formatDate = (date: string | Date): string => {

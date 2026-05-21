@@ -10,6 +10,8 @@ import {
   WithdrawalResponse,
   EscrowRecordResponse,
   TransferRequest,
+  WalletConversionPreviewRequest,
+  WalletConversionPreviewResponse,
   WalletAccountType,
   TxnType,
   WithdrawalStatus,
@@ -57,8 +59,8 @@ export const walletApi = {
     return response.data.data
   },
 
-  getUserBalance: async (userId: string): Promise<{ total: number; available: number; pending: number }> => {
-    const response = await apiClient.get<ApiResponse<{ total: number; available: number; pending: number }>>(`/v1/wallet/user/${userId}/balance`)
+  getUserBalance: async (userId: string): Promise<{ total: number; available: number; pending: number; escrow?: number }> => {
+    const response = await apiClient.get<ApiResponse<{ total: number; available: number; pending: number; escrow?: number }>>(`/v1/wallet/user/${userId}/balance`)
     return response.data.data
   },
 
@@ -66,6 +68,14 @@ export const walletApi = {
   createDeposit: async (userId: string, data: DepositCreateRequest): Promise<DepositOrderResponse> => {
     const response = await apiClient.post<ApiResponse<DepositOrderResponse>>(
       `/v1/wallet/deposit?userId=${userId}`,
+      data
+    )
+    return response.data.data
+  },
+
+  getConversionPreview: async (data: WalletConversionPreviewRequest): Promise<WalletConversionPreviewResponse> => {
+    const response = await apiClient.post<ApiResponse<WalletConversionPreviewResponse>>(
+      '/v1/wallet/conversion-preview',
       data
     )
     return response.data.data
