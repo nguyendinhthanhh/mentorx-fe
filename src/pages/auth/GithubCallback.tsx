@@ -1,12 +1,15 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { authApi } from '@/api/authApi'
 import { Loader2 } from 'lucide-react'
 
 export default function GithubCallback() {
   const [searchParams] = useSearchParams()
+  const calledRef = useRef(false)
 
   useEffect(() => {
+    if (calledRef.current) return
+    calledRef.current = true
     const code = searchParams.get('code')
     if (!code) {
       window.opener?.postMessage(
@@ -26,6 +29,7 @@ export default function GithubCallback() {
         window.close()
       })
       .catch((err: any) => {
+        console.log(err);
         window.opener?.postMessage(
           { type: 'github-login-result', error: err.response?.data?.message || 'GitHub login failed. Please try again.' },
           window.location.origin
