@@ -1,43 +1,96 @@
-import React from 'react'
-import { Mail, ArrowLeft, RefreshCw, CheckCircle2, ShieldCheck } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import React, { useEffect, useState, useCallback } from 'react'
+import {
+  ArrowLeft,
+  CheckCircle2,
+  ExternalLink,
+  Loader2,
+  Mail,
+  RefreshCw,
+  XCircle,
+} from 'lucide-react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuthStore } from '@/store/authStore'
 
 export default function VerifyEmailPage() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const { user, logout, refreshUser } = useAuthStore()
-  const [isVerifying, setIsVerifying] = React.useState(false)
-  const [isResending, setIsResending] = React.useState(false)
+  const [isVerifying, setIsVerifying] = useState(false)
+  const [isResending, setIsResending] = useState(false)
+  const [verifyMessage, setVerifyMessage] = useState('')
+  const [verifyError, setVerifyError] = useState('')
+  const [resendMessage, setResendMessage] = useState('')
+  const [resendError, setResendError] = useState('')
 
-  const handleDevVerify = async () => {
-    if (!user?.email) return
-    
-    setIsVerifying(true)
-    try {
-      const { authApi } = await import('@/api/authApi')
-      // Use the newly created devVerifyEmail endpoint for instant activation in dev
-      await authApi.devVerifyEmail(user.email)
-      await refreshUser()
-      alert('Email verified successfully (Dev Bypass)! Welcome to MentorX.')
-      navigate('/')
-    } catch (error) {
-      console.error('Verification failed:', error)
-      alert('Failed to verify email. Please try again.')
-    } finally {
-      setIsVerifying(false)
+  const email = user?.email || 'your email'
+
+  const extractApiErrorMessage = useCallback((error: unknown, fallback: string): string => {
+    if (typeof error === 'object' && error !== null) {
+      const candidate = error as {
+        message?: string
+        response?: { data?: { message?: string } }
+      }
+      return candidate.response?.data?.message || candidate.message || fallback
     }
-  }
+    return fallback
+  }, [])
+
+  const verifyAttempted = React.useRef(false)
+
+  useEffect(() => {
+    const token = searchParams.get('token')
+    if (!token) return
+
+    // Prevent React 18 Strict Mode from calling this twice
+    if (verifyAttempted.current) return
+    verifyAttempted.current = true
+
+    let isMounted = true
+
+    const verifyWithToken = async () => {
+      setIsVerifying(true)
+      setVerifyError('')
+      setVerifyMessage('')
+      try {
+        const { authApi } = await import('@/api/authApi')
+        await authApi.verifyEmail(token)
+        
+        try {
+          await refreshUser()
+        } catch (e) {
+          // Ignore 403 if user is verifying from a new incognito window / email client
+          console.warn('Could not refresh user, user might not be logged in this session.')
+        }
+
+        if (!isMounted) return
+        setVerifyMessage('Account verified successfully. You are ready to go.')
+        window.setTimeout(() => navigate('/onboarding'), 2000)
+      } catch (error: unknown) {
+        if (!isMounted) return
+        setVerifyError(extractApiErrorMessage(error, 'Verification link is invalid or expired.'))
+      } finally {
+        if (isMounted) setIsVerifying(false)
+      }
+    }
+
+    verifyWithToken()
+
+    return () => {
+      isMounted = false
+    }
+  }, [extractApiErrorMessage, refreshUser, searchParams, navigate])
 
   const handleResendEmail = async () => {
     if (!user?.email) return
     setIsResending(true)
+    setResendMessage('')
+    setResendError('')
     try {
       const { authApi } = await import('@/api/authApi')
       await authApi.sendEmailVerification(user.email)
-      alert('Verification link resent! Please check your inbox.')
-    } catch (error) {
-      console.error('Resend failed:', error)
-      alert('Failed to resend verification email.')
+      setResendMessage('A fresh verification link has been sent to your inbox.')
+    } catch (error: unknown) {
+      setResendError(extractApiErrorMessage(error, 'Failed to resend verification email.'))
     } finally {
       setIsResending(false)
     }
@@ -49,68 +102,87 @@ export default function VerifyEmailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-6 relative overflow-hidden">
-      {/* Premium Dynamic Background Elements */}
-      <div className="absolute top-[-15%] left-[-15%] w-[60%] h-[60%] bg-gradient-to-br from-blue-100/40 to-transparent rounded-full blur-[140px] animate-pulse" />
-      <div className="absolute bottom-[-15%] right-[-15%] w-[60%] h-[60%] bg-gradient-to-tr from-indigo-100/40 to-transparent rounded-full blur-[140px] animate-pulse delay-1000" />
-
-      <div className="max-w-[520px] w-full bg-white/70 backdrop-blur-2xl rounded-[48px] shadow-[0_40px_80px_-20px_rgba(0,0,0,0.08)] border border-white/50 p-10 md:p-16 text-center relative z-10 transition-all hover:shadow-[0_48px_96px_-24px_rgba(0,0,0,0.12)]">
-        <div className="relative mb-12 inline-block">
-          <div className="w-28 h-28 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-[38px] flex items-center justify-center mx-auto shadow-2xl shadow-blue-500/30 transform hover:rotate-6 transition-transform duration-500">
-            <Mail className="w-12 h-12 text-white" />
-          </div>
-          <div className="absolute -bottom-3 -right-3 bg-white rounded-2xl p-2.5 shadow-xl ring-8 ring-[#F8FAFC]">
-            <ShieldCheck className="w-7 h-7 text-blue-600" />
-          </div>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-md">
+        
+        {/* Logo / Branding */}
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-primary-600 mb-1">MentorX</h1>
+          <p className="text-gray-500 text-sm">Verify your email address</p>
         </div>
 
-        <div className="space-y-5 mb-12">
-          <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight leading-[1.1]">
-            Verify your <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">account</span>
-          </h1>
-          <p className="text-slate-500 text-lg leading-relaxed max-w-[360px] mx-auto">
-            We've sent a secure verification link to <br />
-            <span className="font-bold text-slate-900 decoration-blue-200 decoration-4 underline-offset-4 underline">{user?.email}</span>
-          </p>
-        </div>
-
-        <div className="space-y-5">
-          <button
-            onClick={handleDevVerify}
-            disabled={isVerifying}
-            className="group w-full relative px-8 py-5 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-2xl transition-all duration-300 shadow-2xl shadow-slate-900/30 active:scale-[0.98] disabled:opacity-70 overflow-hidden"
-          >
-            <div className="flex items-center justify-center gap-3 relative z-10">
-              {isVerifying ? <RefreshCw className="w-5 h-5 animate-spin" /> : <CheckCircle2 className="w-5 h-5" />}
-              <span>{isVerifying ? 'Activating Account...' : 'Instant Verify (Dev Bypass)'}</span>
-            </div>
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-indigo-600/20 opacity-0 group-hover:opacity-100 transition-opacity" />
-          </button>
+        {/* Card matches AuthLayout right panel */}
+        <div className="bg-white rounded-2xl shadow-xl shadow-gray-200/50 p-8 border border-gray-100 text-center">
           
-          <div className="grid grid-cols-2 gap-4">
+          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-primary-50">
+            <Mail className="h-8 w-8 text-primary-600" />
+          </div>
+
+          <h2 className="text-xl font-bold text-gray-900 mb-2">
+            Check your inbox
+          </h2>
+          <p className="text-sm text-gray-500 mb-6">
+            We've sent a verification link to <br />
+            <span className="font-medium text-gray-900">{email}</span>
+          </p>
+
+          <div className="mb-6">
+            {verifyMessage && (
+              <div className="flex flex-col items-center justify-center gap-2 rounded-xl bg-green-50 px-4 py-3 text-sm font-medium text-green-700 border border-green-100">
+                <CheckCircle2 className="h-6 w-6 text-green-500" />
+                <span>{verifyMessage}</span>
+              </div>
+            )}
+            {verifyError && (
+              <div className="flex items-center justify-center gap-2 rounded-xl bg-red-50 px-4 py-3 text-sm font-medium text-red-700 border border-red-100">
+                <XCircle className="h-5 w-5 text-red-500" />
+                <span>{verifyError}</span>
+              </div>
+            )}
+            {resendMessage && !verifyMessage && !verifyError && (
+              <div className="flex items-center justify-center gap-2 rounded-xl bg-blue-50 px-4 py-3 text-sm font-medium text-blue-700 border border-blue-100">
+                <CheckCircle2 className="h-5 w-5 text-blue-500" />
+                <span>{resendMessage}</span>
+              </div>
+            )}
+            {resendError && !verifyMessage && !verifyError && (
+              <div className="flex items-center justify-center gap-2 rounded-xl bg-red-50 px-4 py-3 text-sm font-medium text-red-700 border border-red-100">
+                <XCircle className="h-5 w-5 text-red-500" />
+                <span>{resendError}</span>
+              </div>
+            )}
+          </div>
+
+          <div className="space-y-3">
+            <button
+              onClick={() => window.open('https://mail.google.com', '_blank', 'noopener,noreferrer')}
+              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-colors text-sm font-medium"
+            >
+              Open Email Client
+              <ExternalLink className="h-4 w-4" />
+            </button>
+
             <button
               onClick={handleResendEmail}
-              disabled={isResending}
-              className="flex items-center justify-center gap-2 px-6 py-4 border-2 border-slate-100 hover:border-blue-200 hover:bg-blue-50/50 text-slate-600 font-bold rounded-2xl transition-all active:scale-[0.98] disabled:opacity-50"
+              disabled={isResending || !user?.email}
+              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors text-sm font-medium disabled:opacity-50"
             >
-              <RefreshCw className={`w-4 h-4 ${isResending ? 'animate-spin' : ''}`} />
-              <span className="text-sm tracking-wide uppercase">Resend</span>
-            </button>
-            
-            <button
-              onClick={handleLogout}
-              className="flex items-center justify-center gap-2 px-6 py-4 bg-slate-100 hover:bg-slate-200 text-slate-500 font-bold rounded-2xl transition-all active:scale-[0.98]"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              <span className="text-sm tracking-wide uppercase">Logout</span>
+              {isResending ? (
+                <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
+              ) : (
+                <RefreshCw className="h-4 w-4 text-gray-400" />
+              )}
+              Resend link
             </button>
           </div>
-        </div>
 
-        <div className="mt-14 pt-10 border-t border-slate-100">
-          <p className="text-sm text-slate-400 font-medium">
-            Can't find the email? Please check your <span className="text-slate-500">Spam or Promotions</span> folder.
-          </p>
+          <button
+            onClick={handleLogout}
+            className="mt-6 flex w-full items-center justify-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to sign in
+          </button>
         </div>
       </div>
     </div>

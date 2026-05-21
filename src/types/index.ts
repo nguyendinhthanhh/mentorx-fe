@@ -610,12 +610,18 @@ export interface WalletTransactionResponse {
   transactionGroupId: string;
   txnType: TxnType;
   direction: "DEBIT" | "CREDIT";
-  amountMxc: number;
-  balanceAfterMxc: number;
+  originalAmount?: number | string;
+  originalCurrency?: string;
+  exchangeRateToVnd?: number | string;
+  convertedAmountVnd?: number | string;
+  amountMxc: number | string;
+  balanceAfterMxc: number | string;
   referenceId?: string;
   referenceType?: string;
   note?: string;
   txnStatus: TxnStatus;
+  gateway?: string;
+  gatewayTransactionId?: string;
   entryHash?: string;
   prevEntryHash?: string;
   createdAt: string;
@@ -627,10 +633,11 @@ export interface DepositOrderResponse {
   userId: string;
   gateway: PaymentGateway;
   gatewayOrderId: string;
-  realAmount: number;
+  realAmount: number | string;
   realCurrency: string;
-  mxcAmount: number;
-  exchangeRate: number;
+  convertedAmountVnd?: number | string;
+  mxcAmount: number | string;
+  exchangeRate: number | string;
   txnStatus: TxnStatus;
   reconciledAt?: string;
   createdAt: string;
@@ -671,8 +678,23 @@ export interface EscrowRecordResponse {
 }
 
 export interface DepositCreateRequest {
-  amountVnd: number;
+  amount?: string;
+  amountVnd?: string;
+  currency?: string;
   gateway: string;
+}
+
+export interface WalletConversionPreviewRequest {
+  originalAmount: string;
+  originalCurrency: string;
+}
+
+export interface WalletConversionPreviewResponse {
+  originalAmount: string | number;
+  originalCurrency: string;
+  exchangeRateToVnd: string | number;
+  convertedAmountVnd: string | number;
+  amountMxc: string | number;
 }
 
 export interface WithdrawCreateRequest {

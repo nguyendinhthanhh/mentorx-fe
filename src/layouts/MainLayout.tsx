@@ -10,6 +10,7 @@ import { useQuery } from 'react-query'
 import { chatApi } from '@/api/chatApi'
 import { isMentor, isAdmin } from '@/utils/roleRedirect'
 import { walletApi } from '@/api/walletApi'
+import { formatMxc } from '@/utils/formatters'
 
 function SiteFooter() {
   const { t } = useI18n()
@@ -193,8 +194,7 @@ export default function MainLayout() {
                   >
                     <Wallet className="h-3.5 w-3.5 text-amber-500" />
                     <span className="text-[11px] font-black text-slate-700 dark:text-slate-200">
-                      {balance?.available?.toLocaleString('vi-VN') || 0}
-                      <span className="ml-1 opacity-50">MXC</span>
+                      {formatMxc(balance?.available || 0)}
                     </span>
                   </Link>
 
@@ -248,7 +248,7 @@ export default function MainLayout() {
                                 SỐ DƯ
                              </div>
                              <span className="text-xs font-black text-amber-600">
-                               {balance?.available?.toLocaleString('vi-VN') || 0} MXC
+                               {formatMxc(balance?.available || 0)}
                              </span>
                           </div>
                         </div>
@@ -372,7 +372,7 @@ export default function MainLayout() {
                       Số dư ví
                     </div>
                     <span className="font-black">
-                      {balance?.available?.toLocaleString('vi-VN') || 0} MXC
+                      {formatMxc(balance?.available || 0)}
                     </span>
                   </div>
                   <Link
