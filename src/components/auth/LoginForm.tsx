@@ -7,7 +7,8 @@ import { useAuthStore } from '@/store/authStore'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Eye, EyeOff, Loader2 } from 'lucide-react'
-import { GoogleLogin } from '@react-oauth/google'
+import GoogleLoginButton from './GoogleLoginButton'
+import GithubLoginButton from './GithubLoginButton'
 
 const loginSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -127,37 +128,40 @@ export default function LoginForm() {
       </div>
 
       <div className="flex justify-center">
-        <GoogleLogin
-          onSuccess={async (credentialResponse) => {
-            if (credentialResponse.credential) {
-              try {
-                setLoading(true)
-                setError('')
-                const response = await authApi.googleLogin(credentialResponse.credential)
-                setTokens(response.accessToken, response.refreshToken)
-                setUser(response.user)
-                
-                // Redirect based on user role
-                const userRoles = response.user.roles.map(r => r.roleName.toUpperCase())
-                
-                if (userRoles.includes('ADMIN')) {
-                  navigate('/admin/dashboard')
-                } else if (userRoles.includes('MENTOR') || response.user.mentorStatus === 'APPROVED') {
-                  navigate('/mentor/dashboard')
-                } else {
-                  navigate('/dashboard')
-                }
-              } catch (err: any) {
-                setError(err.response?.data?.message || 'Google login failed. Please try again.')
-              } finally {
-                setLoading(false)
-              }
+        <GoogleLoginButton
+          onSuccess={(response) => {
+            setTokens(response.accessToken, response.refreshToken)
+            setUser(response.user)
+
+            const userRoles = response.user.roles.map(r => r.roleName.toUpperCase())
+            if (userRoles.includes('ADMIN')) {
+              navigate('/admin/dashboard')
+            } else if (userRoles.includes('MENTOR') || response.user.mentorStatus === 'APPROVED') {
+              navigate('/mentor/dashboard')
+            } else {
+              navigate('/dashboard')
             }
           }}
-          onError={() => {
-            setError('Google login failed.')
+          onError={(error) => setError(error)}
+        />
+      </div>
+
+      <div className="flex justify-center">
+        <GithubLoginButton
+          onSuccess={(response) => {
+            setTokens(response.accessToken, response.refreshToken)
+            setUser(response.user)
+
+            const userRoles = response.user.roles.map(r => r.roleName.toUpperCase())
+            if (userRoles.includes('ADMIN')) {
+              navigate('/admin/dashboard')
+            } else if (userRoles.includes('MENTOR') || response.user.mentorStatus === 'APPROVED') {
+              navigate('/mentor/dashboard')
+            } else {
+              navigate('/dashboard')
+            }
           }}
-          useOneTap
+          onError={(error) => setError(error)}
         />
       </div>
     </form>
