@@ -2,7 +2,8 @@ import apiClient from './client'
 import { ApiResponse } from '@/types'
 
 export interface VNPayPaymentRequest {
-  amount: number
+  amount: string
+  currency: string
   orderInfo?: string
   bankCode?: string
 }
@@ -17,14 +18,15 @@ export interface VNPayCallbackResponse {
   code: string
   message: string
   orderId: string
-  amount: number
+  amount: number | string
   transactionNo?: string
   bankCode?: string
   payDate?: string
 }
 
 export interface MomoPaymentRequest {
-  amount: number
+  amount: string
+  currency: string
   orderInfo?: string
   extraData?: string
 }
@@ -46,7 +48,7 @@ export interface MomoCallbackResponse {
   resultCode: string
   message: string
   orderId: string
-  amount: number
+  amount: number | string
   transId: string
   payType: string
 }

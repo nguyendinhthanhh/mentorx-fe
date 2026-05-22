@@ -56,7 +56,6 @@ type ProfileForm = {
   linkedinUrl: string
   githubUrl: string
   portfolioUrl: string
-  responseTimeHours: number
   hourlyRateMxc: number
   yearsOfExperience: number
 }
@@ -75,12 +74,13 @@ const labelClass = 'mb-1.5 block text-xs font-bold uppercase tracking-wide text-
 
 interface Props {
   onCancelEdit?: () => void
+  initialTab?: SetupTab
 }
 
-export default function MentorProfileSetupPage({ onCancelEdit }: Props = {}) {
+export default function MentorProfileSetupPage({ onCancelEdit, initialTab = 'profile' }: Props = {}) {
   const queryClient = useQueryClient()
   const { user, refreshUser } = useAuthStore()
-  const [activeTab, setActiveTab] = useState<SetupTab>('profile')
+  const [activeTab, setActiveTab] = useState<SetupTab>(initialTab)
   const [form, setForm] = useState<ProfileForm>(emptyProfileForm())
   const [draftState, setDraftState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
   const [formError, setFormError] = useState('')
@@ -113,6 +113,10 @@ export default function MentorProfileSetupPage({ onCancelEdit }: Props = {}) {
   )
 
   useEffect(() => {
+    setActiveTab(initialTab)
+  }, [initialTab])
+
+  useEffect(() => {
     if (!user || !mentorProfile) return
     setForm({
       fullName: user.fullName || '',
@@ -129,7 +133,6 @@ export default function MentorProfileSetupPage({ onCancelEdit }: Props = {}) {
       linkedinUrl: mentorProfile.linkedinUrl || '',
       githubUrl: mentorProfile.githubUrl || '',
       portfolioUrl: mentorProfile.portfolioUrl || '',
-      responseTimeHours: mentorProfile.responseTimeHours || 12,
       hourlyRateMxc: mentorProfile.hourlyRateMxc || 0,
       yearsOfExperience: mentorProfile.yearsOfExperience || 0,
     })
@@ -160,7 +163,6 @@ export default function MentorProfileSetupPage({ onCancelEdit }: Props = {}) {
         linkedinUrl: form.linkedinUrl || undefined,
         githubUrl: form.githubUrl || undefined,
         portfolioUrl: form.portfolioUrl || undefined,
-        responseTimeHours: Number(form.responseTimeHours) || undefined,
         hourlyRateMxc: Number(form.hourlyRateMxc) || undefined,
         yearsOfExperience: Number(form.yearsOfExperience) || undefined,
       }
@@ -470,13 +472,10 @@ function ProfileEditPanel({
           <Field label="Rate mặc định (MXC)">
             <input type="number" className={inputClass} value={form.hourlyRateMxc} onChange={(e) => update('hourlyRateMxc', Number(e.target.value))} />
           </Field>
-          <Field label="Thời gian phản hồi">
-            <select className={inputClass} value={form.responseTimeHours} onChange={(e) => update('responseTimeHours', Number(e.target.value))}>
-              <option value={2}>Trong 2 giờ</option>
-              <option value={6}>Trong 6 giờ</option>
-              <option value={12}>Trong 12 giờ</option>
-              <option value={24}>Trong 24 giờ</option>
-            </select>
+          <Field label="Response time">
+            <div className="rounded-xl border border-sky-100 bg-sky-50 px-3 py-2 text-sm text-sky-900">
+              Response time is automatically calculated from real message activity.
+            </div>
           </Field>
           <Field label="Ngôn ngữ">
             <input
@@ -712,7 +711,7 @@ function PreviewCard({ form, mentorProfile, userEmail }: { form: ProfileForm; me
       </div>
       <div className="mt-5 grid grid-cols-3 gap-2 text-center">
         <MiniStat label="Tỷ lệ phản hồi" value={`${Math.round(Number(mentorProfile?.successRate || 98))}%`} />
-        <MiniStat label="Phản hồi" value={form.responseTimeHours ? `${form.responseTimeHours} giờ` : '12 giờ'} />
+        <MiniStat label="Response" value={mentorProfile?.responseTimeHours ? `${mentorProfile.responseTimeHours} hours` : "Response time will be calculated after more activity."} />
         <MiniStat label="Mentoring" value={`${mentorProfile?.totalJobsDone || 0} job`} />
       </div>
       <Link
@@ -860,7 +859,6 @@ function emptyProfileForm(): ProfileForm {
     linkedinUrl: '',
     githubUrl: '',
     portfolioUrl: '',
-    responseTimeHours: 12,
     hourlyRateMxc: 0,
     yearsOfExperience: 0,
   }

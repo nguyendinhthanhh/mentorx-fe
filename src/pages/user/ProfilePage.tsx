@@ -2,22 +2,13 @@ import { useAuthStore } from '@/store/authStore'
 import UserUpdateForm from '@/components/user/UserUpdateForm'
 import EkycVerification from '@/components/user/EkycVerification'
 import { User, ShieldCheck } from 'lucide-react'
-import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { isMentor } from '@/utils/roleRedirect'
+import { useState } from 'react'
 
 export default function ProfilePage() {
   const { user } = useAuthStore()
-  const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState<'profile' | 'ekyc'>('profile')
 
-  useEffect(() => {
-    if (user && isMentor(user)) {
-      navigate(`/mentors/${user.userId}`, { replace: true })
-    }
-  }, [user, navigate])
-
-  if (!user || isMentor(user)) return null
+  if (!user) return null
 
   return (
     <div className="space-y-6">
@@ -28,7 +19,7 @@ export default function ProfilePage() {
           </div>
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Account Settings</h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-0.5">Manage your identity and profile information</p>
+            <p className="text-gray-500 dark:text-gray-400 mt-0.5">Manage your profile, trust settings, and verification state</p>
           </div>
         </div>
       </div>
@@ -55,7 +46,7 @@ export default function ProfilePage() {
           }`}
         >
           <ShieldCheck className="w-4 h-4" />
-          Identity Verification
+          Trust & Verification
         </button>
       </div>
       

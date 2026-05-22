@@ -4,12 +4,23 @@ import {
   PaginatedResponse,
   MentorProfileResponse,
   MentorProfileRequest,
+  UserResponse,
   MentorProfileAssetRequest,
   MentorProfileAssetResponse,
   MentorProfileAssetType,
 } from '@/types'
 
 export const mentorApi = {
+  applyToBecomeMentor: async (data: MentorProfileRequest): Promise<MentorProfileResponse> => {
+    const response = await apiClient.post<ApiResponse<MentorProfileResponse>>('/mentors/apply', data)
+    return response.data.data
+  },
+
+  getCurrentApplicationStatus: async (): Promise<UserResponse> => {
+    const response = await apiClient.get<ApiResponse<UserResponse>>('/mentors/application/status')
+    return response.data.data
+  },
+
   createMentorProfile: async (userId: string, data: MentorProfileRequest): Promise<MentorProfileResponse> => {
     const response = await apiClient.post<ApiResponse<MentorProfileResponse>>(
       `/mentors/${userId}/profile`,
@@ -81,17 +92,6 @@ export const mentorApi = {
     return response.data.data
   },
 
-  getPendingApplications: async (params: {
-    page?: number
-    size?: number
-  }): Promise<PaginatedResponse<MentorProfileResponse>> => {
-    const response = await apiClient.get<ApiResponse<PaginatedResponse<MentorProfileResponse>>>(
-      '/mentors/pending',
-      { params }
-    )
-    return response.data.data
-  },
-
   searchMentors: async (params: {
     minRating?: number
     maxHourlyRate?: number
@@ -131,9 +131,9 @@ export const mentorApi = {
     return response.data.data
   },
 
-  approveMentorApplication: async (userId: string, approvedBy: string): Promise<MentorProfileResponse> => {
+  approveMentorApplication: async (userId: string, approvedBy?: string): Promise<MentorProfileResponse> => {
     const response = await apiClient.post<ApiResponse<MentorProfileResponse>>(
-      `/mentors/${userId}/approve?approvedBy=${approvedBy}`
+      approvedBy ? `/mentors/${userId}/approve?approvedBy=${approvedBy}` : `/mentors/${userId}/approve`
     )
     return response.data.data
   },
@@ -141,10 +141,13 @@ export const mentorApi = {
   rejectMentorApplication: async (
     userId: string,
     reason: string,
-    rejectedBy: string
+    rejectedBy?: string
   ): Promise<MentorProfileResponse> => {
+    const query = rejectedBy
+      ? `reason=${encodeURIComponent(reason)}&rejectedBy=${rejectedBy}`
+      : `reason=${encodeURIComponent(reason)}`
     const response = await apiClient.post<ApiResponse<MentorProfileResponse>>(
-      `/mentors/${userId}/reject?reason=${encodeURIComponent(reason)}&rejectedBy=${rejectedBy}`
+      `/mentors/${userId}/reject?${query}`
     )
     return response.data.data
   },
@@ -152,10 +155,27 @@ export const mentorApi = {
   requestMentorApplicationRevision: async (
     userId: string,
     reason: string,
-    requestedBy: string
+    requestedBy?: string
   ): Promise<MentorProfileResponse> => {
+    const query = requestedBy
+      ? `reason=${encodeURIComponent(reason)}&requestedBy=${requestedBy}`
+      : `reason=${encodeURIComponent(reason)}`
     const response = await apiClient.post<ApiResponse<MentorProfileResponse>>(
-      `/mentors/${userId}/request-revision?reason=${encodeURIComponent(reason)}&requestedBy=${requestedBy}`
+      `/mentors/${userId}/request-revision?${query}`
+    )
+    return response.data.data
+  },
+
+  suspendMentorApplication: async (
+    userId: string,
+    reason: string,
+    suspendedBy?: string
+  ): Promise<MentorProfileResponse> => {
+    const query = suspendedBy
+      ? `reason=${encodeURIComponent(reason)}&suspendedBy=${suspendedBy}`
+      : `reason=${encodeURIComponent(reason)}`
+    const response = await apiClient.post<ApiResponse<MentorProfileResponse>>(
+      `/mentors/${userId}/suspend?${query}`
     )
     return response.data.data
   },

@@ -1,204 +1,278 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
+import { useQuery } from 'react-query'
 import {
-  ShieldCheck,
-  CheckCircle2,
-  Loader2,
   AlertCircle,
-  X,
+  BadgeCheck,
+  Clock3,
+  FileBadge2,
+  Loader2,
   Lock,
-  FileCheck2,
-  Clock,
+  ScanFace,
+  ShieldCheck,
+  X,
 } from 'lucide-react'
-import { kycApi, KycStatusResponse } from '@/api/kycApi'
 import { toast } from 'react-hot-toast'
+
+import { kycApi, KycStatusResponse } from '@/api/kycApi'
 import KycStepWizard from '@/components/kyc/KycStepWizard'
-import { MentorStatus } from '@/types'
+import { IdentityDocumentType, VerificationStatus } from '@/types'
 
 interface EkycVerificationProps {
   onSuccess?: (data: KycStatusResponse) => void
 }
 
+const DOCUMENT_OPTIONS: Record<string, IdentityDocumentType[]> = {
+  VN: [IdentityDocumentType.CCCD, IdentityDocumentType.CMND, IdentityDocumentType.PASSPORT],
+  DEFAULT: [IdentityDocumentType.PASSPORT, IdentityDocumentType.NATIONAL_ID, IdentityDocumentType.DRIVER_LICENSE],
+}
+
 export default function EkycVerification({ onSuccess }: EkycVerificationProps) {
   const [loading, setLoading] = useState(false)
-  const [result, setResult] = useState<KycStatusResponse | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [isOpen, setIsOpen] = useState(false)
+  const [country, setCountry] = useState('VN')
+  const [documentType, setDocumentType] = useState<IdentityDocumentType>(IdentityDocumentType.CCCD)
+  const [documentNumber, setDocumentNumber] = useState('')
 
-  const handleKycComplete = async ({ front, back, video }: { front: File; back: File; video: File }) => {
+  const { data: status, refetch, isLoading } = useQuery(['kyc-status'], () => kycApi.getKycStatus(), {
+    retry: false,
+  })
+
+  const documentOptions = useMemo(
+    () => (country === 'VN' ? DOCUMENT_OPTIONS.VN : DOCUMENT_OPTIONS.DEFAULT),
+    [country]
+  )
+
+  const activeStatus = status?.identityStatus ?? VerificationStatus.NOT_SUBMITTED
+  const requiresBackImage = documentType !== IdentityDocumentType.PASSPORT
+  const badgeCopy = status?.identityRequired ? 'Required before withdrawal' : 'Optional now'
+
+  const handleKycComplete = async ({
+    front,
+    back,
+    video,
+  }: {
+    front: File
+    back?: File
+    video: File
+  }) => {
     try {
       setLoading(true)
       setError(null)
 
       const formData = new FormData()
       formData.append('cccdFront', front)
-      formData.append('cccdBack', back)
+      if (back) formData.append('cccdBack', back)
       formData.append('livenessVideo', video)
+      formData.append('country', country)
+      formData.append('documentType', documentType)
+      if (documentNumber.trim()) formData.append('documentNumber', documentNumber.trim())
 
       const data = await kycApi.submitKyc(formData)
-      setResult(data)
-      toast.success('Đã gửi hồ sơ định danh.')
-      if (onSuccess) onSuccess(data)
+      await refetch()
+      setIsOpen(false)
+      toast.success('Identity verification was submitted.')
+      onSuccess?.(data)
     } catch (err: unknown) {
-      console.error('eKYC error:', err)
-
-      let errorMsg = 'Xác thực thất bại. Vui lòng thử lại.'
-      if (err && typeof err === 'object' && 'code' in err && (err as { code?: string }).code === 'ECONNABORTED') {
-        errorMsg =
-          'Xử lý định danh mất quá nhiều thời gian (video/OCR). Vui lòng thử lại; nếu vẫn lỗi, hãy thử video ngắn hơn hoặc liên hệ hỗ trợ.'
-      } else if (err && typeof err === 'object' && 'message' in err) {
-        const m = String((err as { message?: string }).message || '')
-        if (/timeout/i.test(m)) {
-          errorMsg =
-            'Hết thời gian chờ máy chủ. Quá trình xử lý video có thể lâu — vui lòng thử lại (hoặc dùng video ngắn hơn, mạng ổn định).'
-        }
-      }
-      if (err && typeof err === 'object' && 'response' in err) {
-        const ax = err as { response?: { data?: { message?: string; error?: string } } }
-        const d = ax.response?.data
-        errorMsg = d?.message || d?.error || errorMsg
-      } else if (err instanceof Error && err.message) {
-        errorMsg = err.message
-      }
-
-      setError(errorMsg)
-      toast.error(errorMsg, { duration: 5000 })
+      let message = 'Identity verification failed. Please try again.'
+      if (err instanceof Error && err.message) message = err.message
+      setError(message)
+      toast.error(message)
     } finally {
       setLoading(false)
     }
   }
 
-  if (result) {
-    const submitted = result.mentorStatus === MentorStatus.KYC_SUBMITTED
-    const verified = result.mentorStatus === MentorStatus.KYC_VERIFIED
-    const livenessLabel =
-      result.livenessResult === 'LIVE' || result.livenessResult === 'PROBABLE'
-        ? 'Hợp lệ'
-        : result.livenessResult === 'FAKE'
-          ? 'Không hợp lệ'
-          : result.livenessResult || '—'
-
-    return (
-      <div className="mx-auto max-w-2xl animate-in fade-in zoom-in-95 duration-300">
-        <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-lg dark:border-slate-800 dark:bg-slate-950">
-          <div
-            className={`px-8 py-10 text-center text-white ${
-              verified ? 'bg-emerald-600' : 'bg-slate-800'
-            }`}
-          >
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-white/15 ring-1 ring-white/20">
-              {verified ? (
-                <CheckCircle2 className="h-8 w-8" />
-              ) : (
-                <FileCheck2 className="h-8 w-8" />
-              )}
+  return (
+    <div className="space-y-6">
+      <div className="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+          <div className="max-w-2xl">
+            <div className="flex items-center gap-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600">
+              <ShieldCheck className="h-5 w-5" />
+              </div>
+              <div>
+                <span className="inline-flex rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+                  Identity verification
+                </span>
+                <h2 className="mt-2 text-2xl font-black tracking-tight text-slate-950">
+                  Verify identity for trust and payout
+                </h2>
+              </div>
             </div>
-            <h2 className="mt-6 text-2xl font-semibold tracking-tight">
-              {verified ? 'Định danh đã được xác nhận' : 'Đã gửi hồ sơ định danh'}
-            </h2>
-            <p className="mt-2 text-sm text-white/85">
-              {verified
-                ? 'Tài khoản mentor của bạn đã được xác minh.'
-                : submitted
-                  ? 'Hồ sơ đang chờ kiểm tra. Bạn sẽ nhận thông báo khi có kết quả.'
-                  : 'Chúng tôi đã lưu kết quả xử lý tự động.'}
+            <p className="mt-4 text-sm leading-7 text-slate-600">
+              We only request identity verification when it is needed for trust, payouts, fraud prevention,
+              or compliance. You can apply as a mentor without uploading identity documents first.
             </p>
           </div>
 
-          <div className="space-y-6 p-8">
-            <div className="grid gap-3 sm:grid-cols-2">
-              <InfoTile label="Họ và tên (OCR)" value={result.legalName || '—'} />
-              <InfoTile label="Ngày sinh" value={result.dateOfBirth || '—'} />
-              <InfoTile label="Video (liveness)" value={livenessLabel} />
-              <InfoTile
-                label="So khớp khuôn mặt"
-                value={
-                  result.faceMatchingSimilarity != null
-                    ? `${(result.faceMatchingSimilarity * 100).toFixed(1)}%`
-                    : '—'
-                }
-              />
-            </div>
-
-            <div className="flex gap-3 rounded-xl border border-slate-100 bg-slate-50/80 p-4 text-xs text-slate-600 dark:border-slate-800 dark:bg-slate-900/50 dark:text-slate-400">
-              <Lock className="mt-0.5 h-4 w-4 shrink-0 text-slate-500" />
-              <p>
-                Dữ liệu được mã hóa khi truyền. Ảnh giấy tờ chỉ dùng cho mục đích tuân thủ và chống gian lận; không
-                hiển thị công khai trên hồ sơ.
-              </p>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => setResult(null)}
-              className="w-full rounded-xl border border-slate-200 py-3.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-900"
-            >
-              Đóng
-            </button>
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+            <p className="font-semibold text-slate-900">Current policy</p>
+            <p className="mt-1">{badgeCopy}</p>
           </div>
         </div>
       </div>
-    )
-  }
 
-  return (
-    <div className="mx-auto max-w-2xl">
-      {!isOpen ? (
-        <div className="rounded-2xl border border-slate-200 bg-white p-10 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-          <div className="flex flex-col items-center text-center sm:block sm:text-left">
-            <div className="mx-auto mb-6 flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950/50 dark:text-indigo-400 sm:mx-0 sm:mb-0 sm:inline-flex sm:mr-5 sm:align-middle">
-              <ShieldCheck className="h-7 w-7" />
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.3fr)_320px]">
+        <div className="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+          {isLoading ? (
+            <div className="flex items-center gap-3 text-sm text-slate-500">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Loading verification status...
             </div>
-            <div className="sm:inline-block sm:max-w-none sm:align-middle">
-              <h2 className="text-xl font-semibold tracking-tight text-slate-900 dark:text-white">
-                Xác minh danh tính (eKYC)
-              </h2>
-              <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
-                Tải ảnh CCCD hai mặt và quay video ngắn bằng camera thiết bị. Hệ thống đối chiếu khuôn mặt và kiểm tra
-                video có chuyển động thật.
-              </p>
-              <ul className="mt-4 space-y-2 text-left text-xs text-slate-500 dark:text-slate-400">
-                <li className="flex gap-2">
-                  <Clock className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-400" />
-                  Khoảng 2–3 phút; chuẩn bị CCCD và chỗ có ánh sáng tốt.
-                </li>
-                <li className="flex gap-2">
-                  <Lock className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-400" />
-                  Chỉ bạn được quyền hoàn tất bước này trên tài khoản đã đăng nhập.
-                </li>
-              </ul>
-              <button
-                type="button"
-                onClick={() => setIsOpen(true)}
-                className="mt-8 w-full rounded-xl bg-indigo-600 py-3.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 sm:w-auto sm:px-8"
-              >
-                Bắt đầu
-              </button>
-            </div>
-          </div>
+          ) : (
+            <>
+              <div className="flex flex-col gap-4 border-b border-slate-100 pb-5 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-slate-900">Current status</p>
+                  <div className="mt-2 inline-flex rounded-full border px-3 py-1.5 text-xs font-semibold">
+                    {getIdentityStatusLabel(activeStatus, !!status?.identityRequired)}
+                  </div>
+                </div>
+                <div className="text-sm text-slate-500">
+                  {status?.documentType && <p>Document type: {formatDocumentType(status.documentType)}</p>}
+                  {status?.documentNumberMasked && <p className="mt-1">Reference: {status.documentNumberMasked}</p>}
+                </div>
+              </div>
+
+              <div className="mt-6 grid gap-4 md:grid-cols-2">
+                <InfoBlock
+                  icon={<FileBadge2 className="h-4 w-4" />}
+                  title="Trusted badge"
+                  text="Approved identity can be used later to support a Verified Mentor badge."
+                />
+                <InfoBlock
+                  icon={<Lock className="h-4 w-4" />}
+                  title="Withdrawal policy"
+                  text="When payout or compliance policy requires it, identity must be approved before withdrawal."
+                />
+              </div>
+
+              {status?.rejectionReason && (
+                <div className="mt-5 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
+                  <p className="font-semibold">Review note</p>
+                  <p className="mt-1 leading-6">{status.rejectionReason}</p>
+                </div>
+              )}
+
+              <div className="mt-6 rounded-[1.5rem] border border-slate-200 bg-slate-50 p-5">
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div>
+                    <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+                      Country
+                    </label>
+                    <select
+                      value={country}
+                      onChange={(event) => {
+                        const nextCountry = event.target.value
+                        setCountry(nextCountry)
+                        const nextOptions = nextCountry === 'VN' ? DOCUMENT_OPTIONS.VN : DOCUMENT_OPTIONS.DEFAULT
+                        setDocumentType(nextOptions[0])
+                      }}
+                      className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+                    >
+                      <option value="VN">Vietnam</option>
+                      <option value="US">United States</option>
+                      <option value="SG">Singapore</option>
+                      <option value="JP">Japan</option>
+                      <option value="OTHER">Other</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+                      Document type
+                    </label>
+                    <select
+                      value={documentType}
+                      onChange={(event) => setDocumentType(event.target.value as IdentityDocumentType)}
+                      className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+                    >
+                      {documentOptions.map((option) => (
+                        <option key={option} value={option}>
+                          {formatDocumentType(option)}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="mt-4">
+                  <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+                    Document number
+                  </label>
+                  <input
+                    value={documentNumber}
+                    onChange={(event) => setDocumentNumber(event.target.value)}
+                    placeholder="Used for masked reference and manual review if needed"
+                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+                  />
+                </div>
+
+                <div className="mt-4 flex flex-wrap gap-2 text-xs text-slate-500">
+                  <span className="rounded-full bg-white px-3 py-1.5">Video liveness check required</span>
+                  <span className="rounded-full bg-white px-3 py-1.5">
+                    {requiresBackImage ? 'Front and back images required' : 'Single document image supported'}
+                  </span>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setError(null)
+                    setIsOpen(true)
+                  }}
+                  className="mt-5 inline-flex items-center gap-2 rounded-2xl bg-slate-950 px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-slate-800"
+                >
+                  Start identity verification
+                </button>
+              </div>
+
+              {error && (
+                <div className="mt-5 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
+                  {error}
+                </div>
+              )}
+            </>
+          )}
         </div>
-      ) : (
+
+        <div className="space-y-4">
+          <InfoRailCard
+            icon={<BadgeCheck className="h-4 w-4" />}
+            title="Not required for Mentor Mode"
+            body="Professional profile and expertise approval unlock Mentor Mode. Identity is a separate trust and payout step."
+          />
+          <InfoRailCard
+            icon={<ScanFace className="h-4 w-4" />}
+            title="Country-aware documents"
+            body="Vietnam mentors can use CCCD, CMND, or Passport. International mentors can use Passport, National ID, or Driver License when supported."
+          />
+          <InfoRailCard
+            icon={<Clock3 className="h-4 w-4" />}
+            title="Manual review may apply"
+            body="Higher-risk cases, large payouts, or repeated reports can trigger additional review even after an automatic pass."
+          />
+        </div>
+      </div>
+
+      {isOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-sm">
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="kyc-dialog-title"
-            className="relative flex max-h-[92vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-slate-950"
-          >
-            <div className="flex items-start justify-between gap-4 border-b border-slate-100 px-6 py-4 dark:border-slate-800">
+          <div className="flex max-h-[92vh] w-full max-w-3xl flex-col overflow-hidden rounded-[2rem] bg-white shadow-2xl">
+            <div className="flex items-start justify-between border-b border-slate-100 px-6 py-4">
               <div>
-                <p className="text-[11px] font-medium uppercase tracking-wider text-slate-500">Bước bảo mật</p>
-                <h2 id="kyc-dialog-title" className="text-lg font-semibold text-slate-900 dark:text-white">
-                  Xác minh danh tính
-                </h2>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+                  Secure verification
+                </p>
+                <h3 className="mt-1 text-lg font-black text-slate-950">
+                  {formatDocumentType(documentType)} verification
+                </h3>
               </div>
               <button
                 type="button"
-                onClick={() => {
-                  setIsOpen(false)
-                  setError(null)
-                }}
-                className="rounded-lg p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-800 dark:hover:bg-slate-900 dark:hover:text-slate-200"
-                aria-label="Đóng"
+                onClick={() => setIsOpen(false)}
+                className="rounded-xl p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-800"
+                aria-label="Close"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -206,37 +280,21 @@ export default function EkycVerification({ onSuccess }: EkycVerificationProps) {
 
             <div className="min-h-0 flex-1 overflow-y-auto px-6 py-6">
               {loading ? (
-                <div className="flex min-h-[320px] flex-col items-center justify-center gap-4 py-12 text-center">
-                  <div className="relative">
-                    <div className="h-14 w-14 animate-spin rounded-full border-2 border-slate-200 border-t-indigo-600" />
-                    <ShieldCheck className="absolute inset-0 m-auto h-6 w-6 text-indigo-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-slate-900 dark:text-white">Đang xử lý</p>
-                    <p className="mt-1 text-xs text-slate-500">So khớp khuôn mặt và phân tích video, vui lòng đợi…</p>
+                <div className="flex min-h-[320px] flex-col items-center justify-center gap-4">
+                  <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
+                  <div className="text-center">
+                    <p className="text-sm font-semibold text-slate-900">Processing verification</p>
+                    <p className="mt-1 text-xs text-slate-500">
+                      We are validating the document, liveness, and face match results.
+                    </p>
                   </div>
                 </div>
               ) : (
-                <KycStepWizard onComplete={handleKycComplete} />
-              )}
-
-              {error && (
-                <div className="mt-5 rounded-xl border border-rose-200 bg-rose-50 p-4 dark:border-rose-900/40 dark:bg-rose-950/30">
-                  <div className="flex gap-3">
-                    <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-rose-600 dark:text-rose-400" />
-                    <div>
-                      <p className="text-sm font-medium text-rose-900 dark:text-rose-100">Không thể hoàn tất</p>
-                      <p className="mt-1 text-sm text-rose-800/90 dark:text-rose-200/90">{error}</p>
-                      <button
-                        type="button"
-                        onClick={() => setError(null)}
-                        className="mt-3 text-sm font-medium text-rose-700 underline dark:text-rose-300"
-                      >
-                        Thử lại
-                      </button>
-                    </div>
-                  </div>
-                </div>
+                <KycStepWizard
+                  onComplete={handleKycComplete}
+                  documentLabel={formatDocumentType(documentType)}
+                  requiresBackImage={requiresBackImage}
+                />
               )}
             </div>
           </div>
@@ -246,11 +304,76 @@ export default function EkycVerification({ onSuccess }: EkycVerificationProps) {
   )
 }
 
-function InfoTile({ label, value }: { label: string; value: string }) {
+function InfoBlock({
+  icon,
+  title,
+  text,
+}: {
+  icon: React.ReactNode
+  title: string
+  text: string
+}) {
   return (
-    <div className="rounded-xl border border-slate-100 bg-slate-50/60 px-4 py-3 dark:border-slate-800 dark:bg-slate-900/40">
-      <p className="text-[11px] font-medium uppercase tracking-wide text-slate-500">{label}</p>
-      <p className="mt-1 text-sm font-medium text-slate-900 dark:text-slate-100">{value}</p>
+    <div className="rounded-[1.25rem] border border-slate-200 bg-white p-4">
+      <div className="flex items-center gap-2 text-slate-900">
+        {icon}
+        <p className="text-sm font-semibold">{title}</p>
+      </div>
+      <p className="mt-2 text-sm leading-6 text-slate-500">{text}</p>
     </div>
   )
+}
+
+function InfoRailCard({
+  icon,
+  title,
+  body,
+}: {
+  icon: React.ReactNode
+  title: string
+  body: string
+}) {
+  return (
+    <div className="rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-sm">
+      <div className="flex items-center gap-3 text-slate-900">
+        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+          {icon}
+        </div>
+        <h3 className="text-sm font-black">{title}</h3>
+      </div>
+      <p className="mt-3 text-sm leading-6 text-slate-500">{body}</p>
+    </div>
+  )
+}
+
+function formatDocumentType(type: IdentityDocumentType) {
+  switch (type) {
+    case IdentityDocumentType.CCCD:
+      return 'CCCD'
+    case IdentityDocumentType.CMND:
+      return 'CMND'
+    case IdentityDocumentType.PASSPORT:
+      return 'Passport'
+    case IdentityDocumentType.NATIONAL_ID:
+      return 'National ID'
+    case IdentityDocumentType.DRIVER_LICENSE:
+      return 'Driver License'
+    default:
+      return type
+  }
+}
+
+function getIdentityStatusLabel(status: VerificationStatus, required: boolean) {
+  switch (status) {
+    case VerificationStatus.PENDING:
+      return 'Pending review'
+    case VerificationStatus.APPROVED:
+      return 'Approved'
+    case VerificationStatus.REJECTED:
+      return 'Rejected'
+    case VerificationStatus.NEEDS_MORE_INFO:
+      return 'Needs more info'
+    default:
+      return required ? 'Required before withdrawal' : 'Optional'
+  }
 }

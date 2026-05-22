@@ -29,40 +29,36 @@ export const authApi = {
   },
 
   logoutAll: async (userId: string): Promise<void> => {
-    await apiClient.post(`/auth/logout-all?userId=${userId}`)
+    await apiClient.post(`/auth/logout-all?userId=${encodeURIComponent(userId)}`)
   },
 
   forgotPassword: async (email: string): Promise<void> => {
-    await apiClient.post(`/auth/forgot-password?email=${email}`)
+    await apiClient.post(`/auth/forgot-password?email=${encodeURIComponent(email)}`)
   },
 
   resetPassword: async (token: string, newPassword: string): Promise<void> => {
-    await apiClient.post(`/auth/reset-password?token=${token}&newPassword=${newPassword}`)
+    await apiClient.post('/auth/reset-password', { token, newPassword })
   },
 
   sendEmailVerification: async (email: string): Promise<void> => {
-    await apiClient.post(`/auth/send-verification?email=${email}`)
+    await apiClient.post(`/auth/send-verification?email=${encodeURIComponent(email)}`)
   },
 
   verifyEmail: async (token: string): Promise<void> => {
-    await apiClient.post(`/auth/verify-email?token=${token}`)
-  },
-
-  devVerifyEmail: async (email: string): Promise<void> => {
-    await apiClient.post(`/auth/dev-verify?email=${email}`)
+    await apiClient.post(`/auth/verify-email?token=${encodeURIComponent(token)}`)
   },
 
   enable2FA: async (userId: string): Promise<void> => {
-    await apiClient.post(`/auth/2fa/enable?userId=${userId}`)
+    await apiClient.post(`/auth/2fa/enable?userId=${encodeURIComponent(userId)}`)
   },
 
   disable2FA: async (userId: string): Promise<void> => {
-    await apiClient.post(`/auth/2fa/disable?userId=${userId}`)
+    await apiClient.post(`/auth/2fa/disable?userId=${encodeURIComponent(userId)}`)
   },
 
   verify2FA: async (userId: string, code: string): Promise<boolean> => {
     const response = await apiClient.post<ApiResponse<boolean>>(
-      `/auth/2fa/verify?userId=${userId}&code=${code}`
+      `/auth/2fa/verify?userId=${encodeURIComponent(userId)}&code=${encodeURIComponent(code)}`
     )
     return response.data.data
   },
