@@ -12,7 +12,7 @@ export default function GoogleLoginButton({ onSuccess, onError, text = 'Sign in 
   const login = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       try {
-        const credential = tokenResponse.id_token
+        const credential = tokenResponse.code
         if (!credential) {
           onError('Google login failed.')
           return
@@ -24,8 +24,7 @@ export default function GoogleLoginButton({ onSuccess, onError, text = 'Sign in 
       }
     },
     onError: () => onError('Google login failed.'),
-    scope: 'openid profile email',
-    flow: 'implicit',
+    flow: 'auth-code',
   })
 
   return (
