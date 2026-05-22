@@ -24,6 +24,9 @@ import {
 import { formatCurrency } from '@/utils/formatters'
 import { useQuery } from 'react-query'
 import { walletApi } from '@/api/walletApi'
+import { adminMentorVerificationApi } from '@/api/adminMentorVerificationApi'
+import { useAuthStore } from '@/store/authStore'
+import { isAdmin } from '@/utils/roleRedirect'
 import { 
   AreaChart, 
   Area, 
@@ -58,8 +61,87 @@ const userSegmentData = [
 ]
 
 export default function AdminDashboardPage() {
-  const { data: walletSummary } = useQuery(['admin-financial-summary'], () => walletApi.getFinancialSummary())
+  const { user } = useAuthStore()
+  const financeAdmin = isAdmin(user)
+  const { data: walletSummary } = useQuery(['admin-financial-summary'], () => walletApi.getFinancialSummary(), {
+    enabled: financeAdmin,
+  })
+  const { data: expertiseQueue } = useQuery(['admin-dashboard-expertise-queue'], () =>
+    adminMentorVerificationApi.getExpertiseQueue({ page: 0, size: 1 })
+  )
+  const { data: identityQueue } = useQuery(['admin-dashboard-identity-queue'], () =>
+    adminMentorVerificationApi.getIdentityQueue({ page: 0, size: 1 })
+  )
   const pendingWithdrawalsCount = walletSummary?.pendingWithdrawals || 0
+
+  if (!financeAdmin) {
+    const moderationCards = [
+      { label: 'Expertise reviews', value: expertiseQueue?.totalElements || 0, icon: ShieldCheck, color: 'bg-indigo-50 text-indigo-600 dark:bg-indigo-900/20 dark:text-indigo-400' },
+      { label: 'Identity reviews', value: identityQueue?.totalElements || 0, icon: Users, color: 'bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400' },
+      { label: 'Content moderation', value: 'Live', icon: BookOpen, color: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400' },
+      { label: 'Support inbox', value: 'Active', icon: Activity, color: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200' },
+    ]
+
+    return (
+      <div className="space-y-10 pb-20">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div>
+            <h1 className="text-4xl font-black text-gray-900 dark:text-white tracking-tighter">Moderation Center</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1 font-medium italic">
+              Review mentor expertise, trust signals, and content quality without exposing finance controls.
+            </p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {moderationCards.map((stat, i) => (
+            <div key={i} className="bg-white dark:bg-gray-900 p-8 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-sm">
+              <div className={`inline-flex p-4 rounded-2xl ${stat.color}`}>
+                <stat.icon className="w-6 h-6" />
+              </div>
+              <p className="mt-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">{stat.label}</p>
+              <h3 className="text-3xl font-black text-gray-900 dark:text-white mt-1">{stat.value}</h3>
+            </div>
+          ))}
+        </div>
+
+        <div className="grid gap-8 lg:grid-cols-2">
+          <div className="bg-white dark:bg-gray-900 p-8 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-sm">
+            <h3 className="text-lg font-black text-gray-900 dark:text-white tracking-tight">Primary moderation workflows</h3>
+            <div className="mt-6 space-y-4">
+              {[
+                { title: 'Mentor verification queue', detail: 'Approve expertise, request more info, and handle identity review.', href: '/admin/mentor-applications' },
+                { title: 'Jobs moderation', detail: 'Inspect public jobs and moderate risky or low-quality postings.', href: '/admin/jobs' },
+                { title: 'Courses moderation', detail: 'Review mentor-created courses before or after publication.', href: '/admin/courses' },
+                { title: 'Support operations', detail: 'Respond to user issues and route abuse or trust cases.', href: '/admin/support' },
+              ].map((item) => (
+                <a
+                  key={item.href}
+                  href={item.href}
+                  className="flex items-center justify-between rounded-3xl bg-gray-50 dark:bg-gray-800/50 p-4 border border-transparent hover:border-gray-100 dark:hover:border-gray-700 transition-all group"
+                >
+                  <div>
+                    <p className="text-sm font-black text-gray-900 dark:text-white">{item.title}</p>
+                    <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mt-1">{item.detail}</p>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-gray-300 group-hover:text-primary-500 transition-all" />
+                </a>
+              ))}
+            </div>
+          </div>
+
+          <div className="bg-white dark:bg-gray-900 p-8 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-sm">
+            <h3 className="text-lg font-black text-gray-900 dark:text-white tracking-tight">Policy note</h3>
+            <div className="mt-6 rounded-[2rem] border border-amber-100 bg-amber-50 p-6 dark:border-amber-900/30 dark:bg-amber-900/10">
+              <p className="text-sm font-semibold leading-7 text-amber-900 dark:text-amber-100">
+                Mentors can unlock Mentor Mode through professional profile approval alone. Identity verification and payout approval stay in separate queues because they are risk-based, not application prerequisites.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   const stats = [
     { label: 'Total Users', value: '2,840', change: '+12.5%', icon: Users, color: 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400', trend: 'up' },

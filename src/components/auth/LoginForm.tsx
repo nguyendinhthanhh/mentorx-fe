@@ -4,10 +4,11 @@ import { z } from 'zod'
 import { LoginRequest } from '@/types'
 import { authApi } from '@/api/authApi'
 import { useAuthStore } from '@/store/authStore'
-import { useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Eye, EyeOff, Loader2 } from 'lucide-react'
-import { GoogleLogin } from '@react-oauth/google'
+import { CredentialResponse, GoogleLogin } from '@react-oauth/google'
+import { canAccessAdminWorkspace } from '@/utils/roleRedirect'
 
 const loginSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -20,6 +21,7 @@ export default function LoginForm() {
   const [error, setError] = useState<string>('')
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
+  const isGoogleAuthInProgressRef = useRef(false)
 
   const {
     register,
@@ -37,15 +39,10 @@ export default function LoginForm() {
       setTokens(response.accessToken, response.refreshToken)
       setUser(response.user)
       
-      // Redirect based on user role
-      const userRoles = response.user.roles.map(r => r.roleName.toUpperCase())
-      
-      if (userRoles.includes('ADMIN')) {
+      if (canAccessAdminWorkspace(response.user)) {
         navigate('/admin/dashboard')
-      } else if (userRoles.includes('MENTOR') || response.user.mentorStatus === 'APPROVED') {
-        navigate('/mentor/dashboard')
       } else {
-        navigate('/dashboard')
+        navigate('/profile')
       }
     } catch (err: any) {
       setError(err.response?.data?.message || 'Invalid email or password. Please try again.')
@@ -53,6 +50,39 @@ export default function LoginForm() {
       setLoading(false)
     }
   }
+
+  const handleGoogleSuccess = useCallback(
+    async (credentialResponse: CredentialResponse) => {
+      if (!credentialResponse.credential || isGoogleAuthInProgressRef.current) {
+        return
+      }
+
+      try {
+        isGoogleAuthInProgressRef.current = true
+        setLoading(true)
+        setError('')
+        const response = await authApi.googleLogin(credentialResponse.credential)
+        setTokens(response.accessToken, response.refreshToken)
+        setUser(response.user)
+
+        if (canAccessAdminWorkspace(response.user)) {
+          navigate('/admin/dashboard')
+        } else {
+          navigate('/profile')
+        }
+      } catch (err: any) {
+        setError(err.response?.data?.message || 'Google login failed. Please try again.')
+      } finally {
+        isGoogleAuthInProgressRef.current = false
+        setLoading(false)
+      }
+    },
+    [navigate, setTokens, setUser],
+  )
+
+  const handleGoogleError = useCallback(() => {
+    setError('Google login failed.')
+  }, [])
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
@@ -128,36 +158,8 @@ export default function LoginForm() {
 
       <div className="flex justify-center">
         <GoogleLogin
-          onSuccess={async (credentialResponse) => {
-            if (credentialResponse.credential) {
-              try {
-                setLoading(true)
-                setError('')
-                const response = await authApi.googleLogin(credentialResponse.credential)
-                setTokens(response.accessToken, response.refreshToken)
-                setUser(response.user)
-                
-                // Redirect based on user role
-                const userRoles = response.user.roles.map(r => r.roleName.toUpperCase())
-                
-                if (userRoles.includes('ADMIN')) {
-                  navigate('/admin/dashboard')
-                } else if (userRoles.includes('MENTOR') || response.user.mentorStatus === 'APPROVED') {
-                  navigate('/mentor/dashboard')
-                } else {
-                  navigate('/dashboard')
-                }
-              } catch (err: any) {
-                setError(err.response?.data?.message || 'Google login failed. Please try again.')
-              } finally {
-                setLoading(false)
-              }
-            }
-          }}
-          onError={() => {
-            setError('Google login failed.')
-          }}
-          useOneTap
+          onSuccess={handleGoogleSuccess}
+          onError={handleGoogleError}
         />
       </div>
     </form>

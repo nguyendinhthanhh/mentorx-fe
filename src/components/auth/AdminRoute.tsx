@@ -1,6 +1,6 @@
 import { Navigate } from 'react-router-dom'
 import { useAuthStore } from '@/store/authStore'
-import { isAdmin } from '@/utils/roleRedirect'
+import { canAccessAdminWorkspace } from '@/utils/roleRedirect'
 
 interface Props {
   children: React.ReactNode
@@ -9,9 +9,8 @@ interface Props {
 export default function AdminRoute({ children }: Props) {
   const { user } = useAuthStore()
 
-  // Check if user has ADMIN role
-  if (!user || !isAdmin(user)) {
-    return <Navigate to="/dashboard" replace />
+  if (!user || !canAccessAdminWorkspace(user)) {
+    return <Navigate to="/profile" replace />
   }
 
   return <>{children}</>

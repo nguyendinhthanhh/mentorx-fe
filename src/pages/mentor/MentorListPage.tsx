@@ -262,7 +262,7 @@ function MentorCard({ mentor, index }: { mentor: MentorProfileResponse; index: n
   const reviews = mentor.totalReviews || 0
   const image = mentor.user?.avatarUrl || mentorFallbackImages[index % mentorFallbackImages.length]
   const rate = mentor.hourlyRateMxc ? formatCurrency(mentor.hourlyRateMxc) : 'Flexible'
-  const responseTime = mentor.responseTimeHours ? `${mentor.responseTimeHours}h response` : 'Fast response'
+  const responseTime = mentor.responseTimeHours ? `Usually responds within ${mentor.responseTimeHours} hours` : 'Response time will be calculated after more activity.'
   const availability = formatAvailability(mentor.availability)
 
   return (

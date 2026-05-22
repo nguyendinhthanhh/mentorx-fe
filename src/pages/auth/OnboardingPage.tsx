@@ -22,7 +22,7 @@ type Step = 1 | 2 | 3 | 4 | 5 | 6
 
 export default function OnboardingPage() {
   const navigate = useNavigate()
-  const { user, refreshUser } = useAuthStore()
+  const { user, refreshUser, skipOnboardingForSession, clearSkippedOnboarding } = useAuthStore()
   const [currentStep, setCurrentStep] = useState<Step>(1)
   const [animKey, setAnimKey] = useState(0)
   const [error, setError] = useState<string | null>(null)
@@ -135,6 +135,7 @@ export default function OnboardingPage() {
     {
       onSuccess: async (_data, step) => {
         if (step === 6) {
+          clearSkippedOnboarding()
           await refreshUser()
           navigate('/')
         } else {
@@ -159,6 +160,7 @@ export default function OnboardingPage() {
     () => onboardingApi.skip(),
     {
       onSuccess: async () => {
+        skipOnboardingForSession()
         await refreshUser()
         navigate('/')
       },
