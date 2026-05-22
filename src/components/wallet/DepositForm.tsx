@@ -1,14 +1,53 @@
+import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { useState } from 'react'
-import { formatCurrency } from '@/utils/formatters'
-import { Info, CreditCard, Wallet } from 'lucide-react'
+import { AlertCircle, CreditCard, Info, Loader2, RefreshCw, Wallet } from 'lucide-react'
 import { paymentApi } from '@/api/paymentApi'
+import { walletApi } from '@/api/walletApi'
+import {
+  formatExchangeRate,
+  formatFiatCurrency,
+  formatMxc,
+} from '@/utils/formatters'
+import type { WalletConversionPreviewResponse } from '@/types'
+
+const CURRENCY_OPTIONS = ['VND', 'USD', 'EUR', 'SGD', 'JPY'] as const
+const GATEWAY_OPTIONS = [
+  { value: 'VNPAY', label: 'VNPay', description: 'Internet banking, QR, local card' },
+  { value: 'MOMO', label: 'MoMo', description: 'MoMo wallet redirect payment' },
+] as const
+
+const VNPAY_CHANNELS = [
+  { value: '', label: 'Auto select', description: 'Let VNPay show all available methods' },
+  { value: 'VNPAYQR', label: 'VNPay QR', description: 'Pay by QR flow in VNPay' },
+  { value: 'VNBANK', label: 'Local bank', description: 'Redirect to domestic banking flow' },
+  { value: 'INTCARD', label: 'International card', description: 'Use card flow inside VNPay' },
+] as const
+
+const quickAmounts = ['50000', '100000', '200000', '500000', '1000000', '2000000']
+
+const isPositiveDecimalString = (value: string) => /^\d+(\.\d{1,6})?$/.test(value.trim()) && Number(value) > 0
 
 const depositSchema = z.object({
-  amount: z.number().min(10000, 'Minimum deposit is 10,000 VND'),
+  originalAmount: z
+    .string()
+    .trim()
+    .min(1, 'Enter an amount')
+    .refine(isPositiveDecimalString, 'Enter a valid amount greater than 0'),
+  originalCurrency: z.enum(CURRENCY_OPTIONS, {
+    errorMap: () => ({ message: 'Choose a currency' }),
+  }),
+  gateway: z.enum(['VNPAY', 'MOMO']).optional(),
   bankCode: z.string().optional(),
+}).superRefine((value, ctx) => {
+  if (value.originalCurrency === 'VND' && Number(value.originalAmount) < 10000) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['originalAmount'],
+      message: 'Minimum deposit is 10,000 VND',
+    })
+  }
 })
 
 type DepositFormData = z.infer<typeof depositSchema>
@@ -18,220 +57,364 @@ interface DepositFormProps {
   onSuccess?: () => void
 }
 
-export default function DepositForm({ userId, onSuccess }: DepositFormProps) {
-  const [error, setError] = useState<string>('')
+export default function DepositForm({ userId: _userId, onSuccess }: DepositFormProps) {
+  const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const [selectedBank, setSelectedBank] = useState<string>('')
+  const [preview, setPreview] = useState<WalletConversionPreviewResponse | null>(null)
+  const [previewLoading, setPreviewLoading] = useState(false)
+  const [previewError, setPreviewError] = useState('')
 
   const {
     register,
     handleSubmit,
     watch,
     setValue,
+    resetField,
     formState: { errors },
   } = useForm<DepositFormData>({
     resolver: zodResolver(depositSchema),
     defaultValues: {
-      amount: 100000,
+      originalAmount: '100000',
+      originalCurrency: 'VND',
+      gateway: 'VNPAY',
       bankCode: '',
-    }
+    },
   })
 
-  const amount = watch('amount')
+  const originalAmount = watch('originalAmount')
+  const originalCurrency = watch('originalCurrency')
+  const selectedGateway = watch('gateway')
   const bankCode = watch('bankCode')
-  const mxcAmount = amount ? amount * 0.0001 : 0
 
-  const banks = [
-    { code: '', name: 'All Banks', icon: '🏦' },
-    { code: 'VNPAYQR', name: 'VNPay QR', icon: '📱' },
-    { code: 'MOMO', name: 'MoMo Wallet', icon: '💎' },
-    { code: 'VNBANK', name: 'Local Bank', icon: '🏛️' },
-    { code: 'INTCARD', name: 'International Card', icon: '💳' },
-  ]
+  const isForeignCurrency = originalCurrency !== 'VND'
+  const hasValidAmount = isPositiveDecimalString(originalAmount || '')
 
-  const quickAmounts = [50000, 100000, 200000, 500000, 1000000, 2000000]
+  useEffect(() => {
+    if (originalCurrency !== 'VND') {
+      resetField('gateway', { defaultValue: undefined })
+      resetField('bankCode', { defaultValue: '' })
+    } else if (!selectedGateway) {
+      setValue('gateway', 'VNPAY')
+    }
+  }, [originalCurrency, resetField, selectedGateway, setValue])
+
+  useEffect(() => {
+    if (!hasValidAmount || !originalCurrency) {
+      setPreview(null)
+      setPreviewError('')
+      setPreviewLoading(false)
+      return
+    }
+
+    const timer = window.setTimeout(async () => {
+      try {
+        setPreviewLoading(true)
+        setPreviewError('')
+        const result = await walletApi.getConversionPreview({
+          originalAmount: originalAmount.trim(),
+          originalCurrency,
+        })
+        setPreview(result)
+      } catch (_err: any) {
+        setPreview(null)
+        setPreviewError('Exchange rate is temporarily unavailable. Please try again later.')
+      } finally {
+        setPreviewLoading(false)
+      }
+    }, 450)
+
+    return () => window.clearTimeout(timer)
+  }, [hasValidAmount, originalAmount, originalCurrency])
+
+  const canSubmit = useMemo(() => {
+    if (loading || previewLoading || !hasValidAmount) return false
+    if (!originalCurrency) return false
+    if (isForeignCurrency) return false
+    if (!selectedGateway) return false
+    if (previewError) return false
+    return Boolean(preview)
+  }, [
+    hasValidAmount,
+    isForeignCurrency,
+    loading,
+    originalCurrency,
+    preview,
+    previewError,
+    previewLoading,
+    selectedGateway,
+  ])
 
   const onSubmit = async (data: DepositFormData) => {
     try {
       setLoading(true)
       setError('')
-      
-      if (data.bankCode === 'MOMO') {
+
+      const orderInfo = `MentorX wallet top-up - ${formatFiatCurrency(data.originalAmount, data.originalCurrency)}`
+
+      if (data.gateway === 'MOMO') {
         const response = await paymentApi.createMomoPayment({
-          amount: data.amount,
-          orderInfo: `Nap tien vao vi MentorX - ${data.amount.toLocaleString('vi-VN')} VND`,
+          amount: data.originalAmount.trim(),
+          currency: data.originalCurrency,
+          orderInfo,
         })
 
         if (response.resultCode === '0' && response.payUrl) {
+          onSuccess?.()
           window.location.href = response.payUrl
-        } else {
-          setError(response.message || 'Failed to create MoMo payment URL')
-          setLoading(false)
+          return
         }
-      } else {
-        // Call VNPay API to create payment URL
-        const response = await paymentApi.createVNPayPayment({
-          amount: data.amount,
-          orderInfo: `Nap tien vao vi MentorX - ${data.amount.toLocaleString('vi-VN')} VND`,
-          bankCode: data.bankCode || undefined,
-        })
 
-        if (response.code === '00' && response.paymentUrl) {
-          window.location.href = response.paymentUrl
-        } else {
-          setError(response.message || 'Failed to create payment URL')
-          setLoading(false)
-        }
+        setError(response.message || 'Failed to create MoMo payment URL')
+        return
       }
+
+      const response = await paymentApi.createVNPayPayment({
+        amount: data.originalAmount.trim(),
+        currency: data.originalCurrency,
+        orderInfo,
+        bankCode: data.bankCode || undefined,
+      })
+
+      if (response.code === '00' && response.paymentUrl) {
+        onSuccess?.()
+        window.location.href = response.paymentUrl
+        return
+      }
+
+      setError(response.message || 'Failed to create payment URL')
     } catch (err: any) {
-      console.error('Payment error:', err)
-      const message = err.response?.data?.message || err.message || 'Payment failed. Please try again.'
-      setError(message)
+      const backendMessage = err?.response?.data?.message
+      setError(backendMessage || 'Payment failed. Please try again.')
+    } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className="space-y-5">
-      {/* Info Banner */}
-      <div className="bg-gradient-to-r from-primary-50 to-blue-50 border border-primary-100 rounded-xl p-4 flex gap-3">
-        <Info className="w-5 h-5 text-primary-600 shrink-0 mt-0.5" />
-        <div className="text-sm text-primary-900">
-          <p className="font-semibold mb-1">💱 Exchange Rate</p>
-          <p className="text-primary-700">1 VND = 0.0001 MXC • Minimum: 10,000 VND</p>
-        </div>
-      </div>
-
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-        {/* Quick Amount Selection */}
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
-            Quick Select Amount
-          </label>
-          <div className="grid grid-cols-3 gap-2">
-            {quickAmounts.map((amt) => (
-              <button
-                key={amt}
-                type="button"
-                onClick={() => setValue('amount', amt)}
-                className={`px-3 py-2 rounded-lg text-sm font-semibold transition-all ${
-                  amount === amt
-                    ? 'bg-primary-600 text-white shadow-md'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                {(amt / 1000).toFixed(0)}K
-              </button>
-            ))}
+    <div className="space-y-6">
+      <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
+        <div className="flex items-start gap-3">
+          <div className="mt-0.5 rounded-xl bg-white p-2 shadow-sm">
+            <Info className="h-4 w-4 text-slate-600" />
           </div>
-        </div>
-
-        {/* Custom Amount Input */}
-        <div>
-          <label htmlFor="amount" className="block text-sm font-semibold text-gray-700 mb-2">
-            Or Enter Custom Amount (VND)
-          </label>
-          <div className="relative">
-            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
-              <Wallet className="w-5 h-5" />
-            </div>
-            <input
-              id="amount"
-              type="number"
-              step="1000"
-              {...register('amount', { valueAsNumber: true })}
-              className="block w-full pl-12 pr-16 py-3.5 rounded-xl border-2 border-gray-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all text-lg font-semibold"
-              placeholder="100,000"
-            />
-            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold text-sm">
-              VND
-            </div>
-          </div>
-          {errors.amount && <p className="mt-1.5 text-xs text-red-500 font-medium">{errors.amount.message}</p>}
-        </div>
-
-        {/* Conversion Display */}
-        <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-5 border-2 border-green-100">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs text-green-700 uppercase tracking-wider font-bold mb-1">You will receive</p>
-              <p className="text-3xl font-bold text-green-900">{formatCurrency(mxcAmount)}</p>
-            </div>
-            <div className="w-14 h-14 rounded-full bg-green-100 flex items-center justify-center">
-              <CreditCard className="w-7 h-7 text-green-600" />
-            </div>
-          </div>
-          <div className="mt-3 pt-3 border-t border-green-200">
-            <p className="text-xs text-green-700">
-              <span className="font-semibold">{amount?.toLocaleString('vi-VN')} VND</span> = <span className="font-semibold">{mxcAmount.toFixed(4)} MXC</span>
+          <div className="space-y-1">
+            <p className="text-sm font-semibold text-slate-900">Backend-settled deposit flow</p>
+            <p className="text-sm text-slate-600">
+              You enter the original amount and currency. Mentor X backend computes the exchange rate, converted VND amount, and final MXC credit.
             </p>
           </div>
         </div>
+      </div>
 
-        {/* Bank Selection */}
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
-            Payment Method (Optional)
-          </label>
-          <div className="grid grid-cols-2 gap-2">
-            {banks.map((bank) => (
-              <label
-                key={bank.code}
-                className={`flex items-center gap-2 p-3 rounded-xl border-2 cursor-pointer transition-all ${
-                  bankCode === bank.code
-                    ? 'border-primary-500 bg-primary-50'
-                    : 'border-gray-200 bg-white hover:border-gray-300'
-                }`}
-              >
-                <input
-                  type="radio"
-                  value={bank.code}
-                  {...register('bankCode')}
-                  className="hidden"
-                />
-                <span className="text-xl">{bank.icon}</span>
-                <span className={`text-xs font-semibold ${
-                  bankCode === bank.code ? 'text-primary-700' : 'text-gray-600'
-                }`}>
-                  {bank.name}
-                </span>
-              </label>
-            ))}
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <div className="grid gap-4 md:grid-cols-[1.35fr_0.65fr]">
+          <div>
+            <label htmlFor="originalAmount" className="mb-2 block text-sm font-semibold text-slate-700">
+              Amount
+            </label>
+            <div className="relative">
+              <div className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                <Wallet className="h-5 w-5" />
+              </div>
+              <input
+                id="originalAmount"
+                inputMode="decimal"
+                autoComplete="off"
+                {...register('originalAmount')}
+                className="block w-full rounded-2xl border border-slate-200 bg-white py-3 pl-12 pr-4 text-base font-semibold text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+                placeholder={originalCurrency === 'VND' ? '100000' : '10'}
+              />
+            </div>
+            {errors.originalAmount && (
+              <p className="mt-2 text-xs font-medium text-rose-600">{errors.originalAmount.message}</p>
+            )}
+          </div>
+
+          <div>
+            <label htmlFor="originalCurrency" className="mb-2 block text-sm font-semibold text-slate-700">
+              Currency
+            </label>
+            <select
+              id="originalCurrency"
+              {...register('originalCurrency')}
+              className="block w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base font-semibold text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+            >
+              {CURRENCY_OPTIONS.map((currency) => (
+                <option key={currency} value={currency}>
+                  {currency}
+                </option>
+              ))}
+            </select>
+            {errors.originalCurrency && (
+              <p className="mt-2 text-xs font-medium text-rose-600">{errors.originalCurrency.message}</p>
+            )}
           </div>
         </div>
 
-        {/* Error Message */}
-        {error && (
-          <div className="bg-red-50 border-2 border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm font-medium flex items-start gap-2">
-            <span className="text-lg">⚠️</span>
-            <span>{error}</span>
+        {originalCurrency === 'VND' && (
+          <div>
+            <label className="mb-2 block text-sm font-semibold text-slate-700">Quick amounts</label>
+            <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
+              {quickAmounts.map((amount) => (
+                <button
+                  key={amount}
+                  type="button"
+                  onClick={() => setValue('originalAmount', amount, { shouldValidate: true })}
+                  className={`rounded-xl border px-3 py-2 text-sm font-semibold transition ${
+                    originalAmount === amount
+                      ? 'border-indigo-600 bg-indigo-600 text-white shadow-sm'
+                      : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50'
+                  }`}
+                >
+                  {formatFiatCurrency(amount, 'VND')}
+                </button>
+              ))}
+            </div>
           </div>
         )}
 
-        {/* Submit Button */}
-        <button 
-          type="submit" 
-          disabled={loading} 
-          className="w-full bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-bold py-4 rounded-xl shadow-lg shadow-primary-200 transition-all disabled:opacity-50 disabled:shadow-none flex items-center justify-center gap-2 text-base"
+        <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">Conversion preview</p>
+              <h3 className="mt-1 text-lg font-bold text-slate-900">Settlement handled by backend</h3>
+            </div>
+            {previewLoading && <Loader2 className="h-5 w-5 animate-spin text-indigo-600" />}
+          </div>
+
+          <div className="mt-4">
+            {previewLoading ? (
+              <div className="grid gap-3">
+                {[0, 1, 2, 3].map((item) => (
+                  <div key={item} className="h-12 animate-pulse rounded-2xl bg-slate-100" />
+                ))}
+              </div>
+            ) : preview ? (
+              <div className="grid gap-3">
+                <PreviewRow label="You pay" value={formatFiatCurrency(preview.originalAmount, preview.originalCurrency)} />
+                <PreviewRow label="Exchange rate" value={formatExchangeRate(preview.exchangeRateToVnd, preview.originalCurrency, 'VND')} />
+                <PreviewRow label="Converted amount" value={formatFiatCurrency(preview.convertedAmountVnd, 'VND')} />
+                <PreviewRow label="You receive" value={formatMxc(preview.amountMxc)} highlight />
+              </div>
+            ) : previewError ? (
+              <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+                {previewError}
+              </div>
+            ) : (
+              <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-500">
+                Enter an amount and select a currency to load the backend conversion preview.
+              </div>
+            )}
+          </div>
+        </div>
+
+        {isForeignCurrency ? (
+          <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-4 text-sm text-amber-800">
+            <div className="flex items-start gap-2">
+              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+              <div>
+                <p className="font-semibold">Current online gateways still support VND only</p>
+                <p className="mt-1 text-amber-700">
+                  This frontend now sends only the original amount and currency, but the current backend payment gateways are VNPay and MoMo, both VND-only. Foreign-currency deposits still need an international gateway before this flow can complete end-to-end.
+                </p>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <div>
+              <label className="mb-2 block text-sm font-semibold text-slate-700">Payment gateway</label>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {GATEWAY_OPTIONS.map((gateway) => (
+                  <label
+                    key={gateway.value}
+                    className={`cursor-pointer rounded-2xl border p-4 transition ${
+                      selectedGateway === gateway.value
+                        ? 'border-indigo-500 bg-indigo-50 shadow-sm'
+                        : 'border-slate-200 bg-white hover:border-slate-300'
+                    }`}
+                  >
+                    <input type="radio" value={gateway.value} {...register('gateway')} className="hidden" />
+                    <p className="text-sm font-semibold text-slate-900">{gateway.label}</p>
+                    <p className="mt-1 text-xs text-slate-500">{gateway.description}</p>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {selectedGateway === 'VNPAY' && (
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-slate-700">VNPay channel</label>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {VNPAY_CHANNELS.map((channel) => (
+                    <label
+                      key={channel.value || 'AUTO'}
+                      className={`cursor-pointer rounded-2xl border p-4 transition ${
+                        bankCode === channel.value
+                          ? 'border-slate-900 bg-slate-900 text-white'
+                          : 'border-slate-200 bg-white hover:border-slate-300'
+                      }`}
+                    >
+                      <input type="radio" value={channel.value} {...register('bankCode')} className="hidden" />
+                      <p className={`text-sm font-semibold ${bankCode === channel.value ? 'text-white' : 'text-slate-900'}`}>
+                        {channel.label}
+                      </p>
+                      <p className={`mt-1 text-xs ${bankCode === channel.value ? 'text-slate-200' : 'text-slate-500'}`}>
+                        {channel.description}
+                      </p>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {error && (
+          <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-700">
+            {error}
+          </div>
+        )}
+
+        <button
+          type="submit"
+          disabled={!canSubmit}
+          className="flex w-full items-center justify-center gap-2 rounded-2xl bg-slate-950 px-4 py-3.5 text-sm font-semibold text-white transition hover:bg-indigo-600 disabled:cursor-not-allowed disabled:bg-slate-300"
         >
           {loading ? (
             <>
-              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              <span>Redirecting to VNPay...</span>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              <span>Redirecting to payment gateway...</span>
             </>
           ) : (
             <>
-              <CreditCard className="w-5 h-5" />
-              <span>Pay with VNPay</span>
+              <CreditCard className="h-4 w-4" />
+              <span>Confirm deposit</span>
             </>
           )}
         </button>
 
-        {/* Security Note */}
-        <p className="text-xs text-center text-gray-500">
-          🔒 Secured by VNPay • Your payment information is encrypted
+        <p className="text-center text-xs text-slate-500">
+          Wallet balances are refreshed from backend after payment confirmation. Frontend never calculates or credits MXC directly.
         </p>
       </form>
+    </div>
+  )
+}
+
+function PreviewRow({
+  label,
+  value,
+  highlight = false,
+}: {
+  label: string
+  value: string
+  highlight?: boolean
+}) {
+  return (
+    <div className={`flex items-center justify-between rounded-2xl px-4 py-3 ${highlight ? 'bg-indigo-50' : 'bg-slate-50'}`}>
+      <span className="text-sm font-medium text-slate-600">{label}</span>
+      <span className={`text-sm font-semibold ${highlight ? 'text-indigo-700' : 'text-slate-900'}`}>{value}</span>
     </div>
   )
 }
