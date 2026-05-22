@@ -12,6 +12,7 @@ import RegisterPage from './pages/auth/RegisterPage'
 import ForgotPasswordPage from './pages/auth/ForgotPasswordPage'
 import OnboardingPage from './pages/auth/OnboardingPage'
 import VerifyEmailPage from './pages/auth/VerifyEmailPage'
+import GithubCallback from './pages/auth/GithubCallback'
 
 // Dashboard Pages
 import ProfilePage from './pages/user/ProfilePage'
@@ -97,6 +98,7 @@ function App() {
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/verify-email" element={<VerifyEmailPage />} />
+            <Route path="/auth/github/callback" element={<GithubCallback />} />
           </Route>
 
           {/* Protected Onboarding Route */}

@@ -7,6 +7,8 @@ import { useAuthStore } from '@/store/authStore'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Eye, EyeOff, Loader2 } from 'lucide-react'
+import GoogleLoginButton from './GoogleLoginButton'
+import GithubLoginButton from './GithubLoginButton'
 
 const registerSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -140,6 +142,39 @@ export default function RegisterForm() {
           'Create account'
         )}
       </button>
+
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-gray-200"></div>
+        </div>
+        <div className="relative flex justify-center text-sm">
+          <span className="px-2 bg-white text-gray-500">Or continue with</span>
+        </div>
+      </div>
+
+      <div className="flex justify-center">
+        <GoogleLoginButton
+          onSuccess={(response) => {
+            setTokens(response.accessToken, response.refreshToken)
+            setUser(response.user)
+            navigate('/onboarding')
+          }}
+          onError={(error) => setError(error)}
+          text="Sign up with Google"
+        />
+      </div>
+
+      <div className="flex justify-center">
+        <GithubLoginButton
+          onSuccess={(response) => {
+            setTokens(response.accessToken, response.refreshToken)
+            setUser(response.user)
+            navigate('/onboarding')
+          }}
+          onError={(error) => setError(error)}
+          text="Sign up with GitHub"
+        />
+      </div>
     </form>
   )
 }
