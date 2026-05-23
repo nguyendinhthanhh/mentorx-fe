@@ -135,6 +135,9 @@ function filterProfiles(items: MentorProfileResponse[], searchQuery: string) {
       profile.currentTitle,
       profile.currentCompany,
       profile.primaryDomain,
+      profile.skills?.join(', '),
+      profile.professionalBio,
+      profile.helpDescription,
       profile.legalName,
       profile.countryOfResidence,
       profile.payoutCountry,
@@ -614,8 +617,11 @@ function QueueDetailsPanel({
       <div className="space-y-4 rounded-2xl border border-gray-100 p-4 dark:border-gray-800">
         <SectionBlock title="Profile review">
           <DetailLine label="Domain" value={profile.primaryDomain || 'Not provided'} />
+          <DetailLine label="Skills" value={profile.skills?.join(', ') || 'Not provided'} />
           <DetailLine label="Current role" value={profile.currentTitle || 'Not provided'} />
           <DetailLine label="Company" value={profile.currentCompany || 'Not provided'} />
+          <DetailLine label="Professional bio" value={profile.professionalBio || 'Not provided'} />
+          <DetailLine label="Learner support" value={profile.helpDescription || 'Not provided'} />
           <DetailLine label="Portfolio" value={profile.portfolioEvidenceUrl || profile.portfolioUrl || 'Not provided'} mono />
           <DetailLine label="LinkedIn" value={profile.linkedinUrl || 'Not provided'} mono />
           <DetailLine label="GitHub" value={profile.githubUrl || 'Not provided'} mono />

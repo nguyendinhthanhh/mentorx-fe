@@ -18,6 +18,8 @@ import {
   X,
 } from 'lucide-react'
 import { mentorApi } from '@/api/mentorApi'
+import { categoryApi } from '@/api/categoryApi'
+import { skillApi } from '@/api/skillApi'
 import { formatCurrency } from '@/utils/formatters'
 import { MentorProfileResponse } from '@/types'
 
@@ -61,7 +63,16 @@ export default function MentorListPage() {
   const [maxRate, setMaxRate] = useState<number | undefined>()
   const [minRating, setMinRating] = useState<number | undefined>()
   const [availability, setAvailability] = useState<string | undefined>()
+  const [primaryDomain, setPrimaryDomain] = useState<string | undefined>()
+  const [skillKeyword, setSkillKeyword] = useState<string | undefined>()
   const debounceRef = useRef<ReturnType<typeof setTimeout>>()
+
+  const { data: categories = [] } = useQuery('mentor-search-categories', categoryApi.getAllActive, {
+    staleTime: 5 * 60 * 1000,
+  })
+  const { data: skills = [] } = useQuery('mentor-search-skills', skillApi.getAllActive, {
+    staleTime: 5 * 60 * 1000,
+  })
 
   useEffect(() => {
     debounceRef.current = setTimeout(() => {
@@ -81,13 +92,15 @@ export default function MentorListPage() {
   )
 
   const { data: pagedData, isLoading: pageLoading } = useQuery(
-    ['mentors', page, sortBy, sortDir, minRating, maxRate, availability],
+    ['mentors', page, sortBy, sortDir, minRating, maxRate, availability, primaryDomain, skillKeyword],
     () => {
-      if (minRating || maxRate || availability) {
+      if (minRating || maxRate || availability || primaryDomain || skillKeyword) {
         return mentorApi.searchMentors({
           minRating,
           maxHourlyRate: maxRate,
           availability,
+          primaryDomain,
+          skill: skillKeyword,
           page,
           size: PAGE_SIZE,
           sortBy,
@@ -105,7 +118,7 @@ export default function MentorListPage() {
   const isLoading = isSearchMode ? textLoading : pageLoading
   const totalPages = isSearchMode ? 1 : pagedData?.totalPages || 1
   const totalMentors = isSearchMode ? mentors.length : pagedData?.totalElements || 0
-  const activeFilterCount = [minRating, maxRate, availability].filter(Boolean).length
+  const activeFilterCount = [minRating, maxRate, availability, primaryDomain, skillKeyword].filter(Boolean).length
 
   const applySort = (value: string) => {
     const option = SORT_OPTIONS.find((item) => item.value === value)
@@ -118,6 +131,8 @@ export default function MentorListPage() {
     setMinRating(undefined)
     setMaxRate(undefined)
     setAvailability(undefined)
+    setPrimaryDomain(undefined)
+    setSkillKeyword(undefined)
     setPage(0)
   }
 
@@ -168,7 +183,31 @@ export default function MentorListPage() {
           </div>
 
           {filterOpen && (
-            <div className="mt-4 grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 md:grid-cols-4">
+            <div className="mt-4 grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 md:grid-cols-6">
+              <SelectControl
+                label="Domain"
+                value={primaryDomain || ''}
+                onChange={(value) => {
+                  setPrimaryDomain(value || undefined)
+                  setPage(0)
+                }}
+                options={[
+                  { value: '', label: 'Any domain' },
+                  ...categories.map((category) => ({ value: category.name, label: category.name })),
+                ]}
+              />
+              <SelectControl
+                label="Skill"
+                value={skillKeyword || ''}
+                onChange={(value) => {
+                  setSkillKeyword(value || undefined)
+                  setPage(0)
+                }}
+                options={[
+                  { value: '', label: 'Any skill' },
+                  ...skills.slice(0, 60).map((skill) => ({ value: skill.labelEn, label: skill.labelEn })),
+                ]}
+              />
               <SelectControl
                 label="Rating"
                 value={minRating?.toString() || ''}

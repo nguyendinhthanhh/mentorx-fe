@@ -17,6 +17,7 @@ import {
 } from 'lucide-react'
 import { Skeleton, SkeletonCircle } from '@/components/ui/Skeleton'
 import { jobApi } from '@/api/jobApi'
+import { skillApi } from '@/api/skillApi'
 import { formatCurrency, formatRelativeTime } from '@/utils/formatters'
 import { JobResponse, JobType } from '@/types'
 import { useI18n } from '@/i18n/I18nProvider'
@@ -51,13 +52,23 @@ export default function JobListPage() {
   const [searchParams] = useSearchParams()
   const [search, setSearch] = useState(searchParams.get('q') || '')
   const [jobType, setJobType] = useState<string>('ALL')
+  const [skillFilter, setSkillFilter] = useState('')
   const [page, setPage] = useState(0)
 
   const apiJobType = jobType === 'ALL' ? undefined : (jobType as JobType)
+  const { data: skills = [] } = useQuery('job-filter-skills', skillApi.getAllActive, {
+    staleTime: 5 * 60 * 1000,
+  })
 
   const { data, isLoading } = useQuery(
-    ['jobs', page, apiJobType],
-    () => jobApi.getOpenJobs({ page, size: PAGE_SIZE, jobType: apiJobType }),
+    ['jobs', page, apiJobType, skillFilter],
+    () =>
+      jobApi.getOpenJobs({
+        page,
+        size: PAGE_SIZE,
+        jobType: apiJobType,
+        skill: skillFilter.trim() || undefined,
+      }),
     { keepPreviousData: true }
   )
 
@@ -72,7 +83,8 @@ export default function JobListPage() {
         job.title.toLowerCase().includes(keyword) ||
         job.description.toLowerCase().includes(keyword) ||
         clientName.includes(keyword) ||
-        job.jobType.toLowerCase().replace(/_/g, ' ').includes(keyword)
+        job.jobType.toLowerCase().replace(/_/g, ' ').includes(keyword) ||
+        (job.requiredSkills || []).some((skill) => skill.toLowerCase().includes(keyword))
       )
     })
   }, [jobs, search])
@@ -80,6 +92,7 @@ export default function JobListPage() {
   const totalPages = data?.totalPages || 1
   const totalJobs = data?.totalElements || 0
   const hasSearch = search.trim().length > 0
+  const hasActiveFilters = hasSearch || jobType !== 'ALL' || !!skillFilter
 
   const updateType = (value: string) => {
     setJobType(value)
@@ -128,6 +141,24 @@ export default function JobListPage() {
                   </button>
                 ))}
               </div>
+              <label className="relative">
+                <select
+                  value={skillFilter}
+                  onChange={(event) => {
+                    setSkillFilter(event.target.value)
+                    setPage(0)
+                  }}
+                  className="h-10 appearance-none rounded-xl border border-slate-200 bg-white px-3 pr-8 text-xs font-bold text-slate-700 outline-none transition hover:border-indigo-300 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 sm:h-12 sm:text-sm"
+                >
+                  <option value="">All skills</option>
+                  {skills.slice(0, 80).map((skill) => (
+                    <option key={skill.id} value={skill.labelEn}>
+                      {skill.labelEn}
+                    </option>
+                  ))}
+                </select>
+                <ChevronRight className="pointer-events-none absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 rotate-90 text-slate-400" />
+              </label>
 
               <div className="flex items-center gap-2">
                 <Link
@@ -178,9 +209,10 @@ export default function JobListPage() {
             ))}
           </div>
         ) : (
-          <EmptyState hasSearch={hasSearch || jobType !== 'ALL'} onClear={() => {
+          <EmptyState hasSearch={hasActiveFilters} onClear={() => {
             setSearch('')
             updateType('ALL')
+            setSkillFilter('')
           }} />
         )}
 
