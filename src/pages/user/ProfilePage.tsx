@@ -1,23 +1,15 @@
 import { useAuthStore } from '@/store/authStore'
 import UserUpdateForm from '@/components/user/UserUpdateForm'
 import EkycVerification from '@/components/user/EkycVerification'
-import { User, ShieldCheck } from 'lucide-react'
-import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { isMentor } from '@/utils/roleRedirect'
+import UserPreferenceForm from '@/components/user/UserPreferenceForm'
+import { User, ShieldCheck, SlidersHorizontal } from 'lucide-react'
+import { useState } from 'react'
 
 export default function ProfilePage() {
   const { user } = useAuthStore()
-  const navigate = useNavigate()
-  const [activeTab, setActiveTab] = useState<'profile' | 'ekyc'>('profile')
+  const [activeTab, setActiveTab] = useState<'profile' | 'preferences' | 'ekyc'>('profile')
 
-  useEffect(() => {
-    if (user && isMentor(user)) {
-      navigate(`/mentors/${user.userId}`, { replace: true })
-    }
-  }, [user, navigate])
-
-  if (!user || isMentor(user)) return null
+  if (!user) return null
 
   return (
     <div className="space-y-6">
@@ -28,7 +20,7 @@ export default function ProfilePage() {
           </div>
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Account Settings</h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-0.5">Manage your identity and profile information</p>
+            <p className="text-gray-500 dark:text-gray-400 mt-0.5">Manage your profile, trust settings, and verification state</p>
           </div>
         </div>
       </div>
@@ -47,6 +39,17 @@ export default function ProfilePage() {
           Personal Info
         </button>
         <button
+          onClick={() => setActiveTab('preferences')}
+          className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${
+            activeTab === 'preferences'
+              ? 'bg-white dark:bg-slate-800 text-primary-600 shadow-sm'
+              : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'
+          }`}
+        >
+          <SlidersHorizontal className="w-4 h-4" />
+          Interests & Matching
+        </button>
+        <button
           onClick={() => setActiveTab('ekyc')}
           className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${
             activeTab === 'ekyc'
@@ -55,7 +58,7 @@ export default function ProfilePage() {
           }`}
         >
           <ShieldCheck className="w-4 h-4" />
-          Identity Verification
+          Trust & Verification
         </button>
       </div>
       
@@ -74,6 +77,8 @@ export default function ProfilePage() {
               profileIsPublic: user.profileIsPublic,
             }}
           />
+        ) : activeTab === 'preferences' ? (
+          <UserPreferenceForm />
         ) : (
           <EkycVerification />
         )}

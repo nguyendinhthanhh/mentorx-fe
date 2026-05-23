@@ -1,34 +1,35 @@
-import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom'
+import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { useState } from 'react'
+import {
+  Bell,
+  BookOpen,
+  Briefcase,
+  Calendar,
+  ChevronDown,
+  CreditCard,
+  LayoutDashboard,
+  LogOut,
+  MessageCircle,
+  Moon,
+  Search,
+  Settings,
+  Star,
+  Wallet,
+} from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { useThemeStore } from '@/store/themeStore'
-import { 
-  LayoutDashboard, 
-  UserCog,
-  Briefcase, 
-  BookOpen, 
-  MessageSquare, 
-  Wallet, 
-  LogOut, 
-  ChevronRight, 
-  Menu, 
-  X,
-  Calendar,
-  Award,
-  ExternalLink,
-  Sun,
-  Moon,
-  Search
-} from 'lucide-react'
-import { useState } from 'react'
 
-const mentorLinks = [
+const navigationItems = [
   { to: '/mentor/dashboard', label: 'Overview', icon: LayoutDashboard },
   { to: '/mentor/jobs', label: 'Find Jobs', icon: Search },
-  { to: '/mentor/proposals', label: 'My Proposals', icon: MessageSquare },
+  { to: '/mentor/proposals', label: 'My Proposals', icon: CreditCard, badge: 3 },
   { to: '/mentor/contracts', label: 'Active Contracts', icon: Briefcase },
   { to: '/mentor/my-courses', label: 'My Courses', icon: BookOpen },
   { to: '/mentor/schedule', label: 'Schedule', icon: Calendar },
   { to: '/mentor/wallet', label: 'Earnings', icon: Wallet },
+  { to: '/profile/reviews', label: 'Reviews', icon: Star },
+  { to: '/chat', label: 'Messages', icon: MessageCircle, badge: 2 },
+  { to: '/profile/settings', label: 'Settings', icon: Settings },
 ]
 
 export default function MentorLayout() {
@@ -36,121 +37,175 @@ export default function MentorLayout() {
   const location = useLocation()
   const { user, logout } = useAuthStore()
   const { isDarkMode, toggleTheme } = useThemeStore()
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true)
+  const [availability] = useState('Available')
 
   const handleLogout = () => {
     logout()
     navigate('/login')
   }
 
-  const isActive = (path: string) => location.pathname === path
+  const isActive = (path: string) => location.pathname === path || location.pathname.startsWith(`${path}/`)
+  const initials = user?.fullName
+    ?.split(' ')
+    .map((part) => part[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase()
 
   return (
-    <div className={`min-h-screen flex transition-colors duration-300 ${isDarkMode ? 'dark bg-gray-950' : 'bg-gray-50'}`}>
-      {/* Sidebar */}
-      <aside 
-        className={`${
-          isSidebarOpen ? 'w-72' : 'w-24'
-        } bg-white dark:bg-gray-900 border-r border-gray-100 dark:border-gray-800 flex flex-col transition-all duration-300 sticky top-0 h-screen z-50`}
-      >
-        <div className="h-20 flex items-center px-8 border-b border-gray-50 dark:border-gray-800/50">
-          <Link to="/" className="flex items-center gap-4 overflow-hidden">
-            <div className="w-10 h-10 rounded-2xl bg-indigo-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-indigo-200 dark:shadow-none">
-              <Award className="w-6 h-6 text-white" />
-            </div>
-            {isSidebarOpen && (
-              <div className="leading-none">
-                <span className="text-xl font-black text-gray-900 dark:text-white whitespace-nowrap block tracking-tight">MentorHub</span>
-                <span className="text-[10px] font-black text-indigo-500 uppercase tracking-widest">Premium Expert</span>
+    <div className={`min-h-screen ${isDarkMode ? 'dark bg-slate-950' : 'bg-[#faf9ff]'}`}>
+      <div className="flex min-h-screen">
+        <aside className="hidden w-[248px] shrink-0 border-r border-slate-200/80 bg-white xl:flex xl:flex-col">
+          <div className="flex h-[88px] items-center border-b border-slate-100 px-6">
+            <Link to="/" className="flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 shadow-lg shadow-violet-200">
+                <span className="text-lg font-black text-white">M</span>
               </div>
-            )}
-          </Link>
-        </div>
-
-        <nav className="flex-1 p-6 space-y-2 overflow-y-auto">
-          {mentorLinks.map((link) => (
-            <Link
-              key={link.to}
-              to={link.to}
-              className={`flex items-center gap-4 px-4 py-4 rounded-[1.25rem] text-sm font-bold transition-all group ${
-                isActive(link.to)
-                  ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-200 dark:shadow-none translate-x-2'
-                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800/50'
-              }`}
-            >
-              <link.icon className={`w-5 h-5 flex-shrink-0 transition-transform group-hover:scale-110 ${isActive(link.to) ? 'text-white' : 'text-gray-400 dark:text-gray-600 group-hover:text-indigo-600 dark:group-hover:text-indigo-400'}`} />
-              {isSidebarOpen && <span>{link.label}</span>}
-              {isSidebarOpen && isActive(link.to) && (
-                <ChevronRight className="w-4 h-4 ml-auto opacity-50" />
-              )}
-            </Link>
-          ))}
-        </nav>
-
-        <div className="p-6 border-t border-gray-50 dark:border-gray-800/50 space-y-4">
-          <button
-            onClick={toggleTheme}
-            className={`w-full flex items-center gap-4 px-4 py-4 rounded-[1.25rem] text-sm font-bold transition-all ${
-              isDarkMode ? 'text-amber-400 hover:bg-gray-800' : 'text-gray-500 hover:bg-gray-50'
-            }`}
-          >
-            {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-            {isSidebarOpen && <span>{isDarkMode ? 'Light Mode' : 'Dark Mode'}</span>}
-          </button>
-
-          <button
-            onClick={handleLogout}
-            className={`w-full flex items-center gap-4 px-4 py-4 rounded-[1.25rem] text-sm font-bold text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/10 transition-all overflow-hidden`}
-          >
-            <LogOut className="w-5 h-5 flex-shrink-0" />
-            {isSidebarOpen && <span>Logout</span>}
-          </button>
-        </div>
-
-        <button 
-          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          className="absolute -right-3 top-24 w-7 h-7 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-full flex items-center justify-center shadow-lg text-gray-400 hover:text-indigo-600 transition-all z-[60]"
-        >
-          {isSidebarOpen ? <X className="w-3.5 h-3.5" /> : <Menu className="w-3.5 h-3.5" />}
-        </button>
-      </aside>
-
-      <div className="flex-1 flex flex-col min-w-0">
-        <header className="h-20 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-b border-gray-100 dark:border-gray-800 flex items-center justify-between px-10 sticky top-0 z-40">
-          <div className="flex items-center gap-4">
-            <h2 className="text-xl font-black text-gray-900 dark:text-white tracking-tight">
-              {mentorLinks.find(l => isActive(l.to))?.label || 'Dashboard'}
-            </h2>
-          </div>
-
-          <div className="flex items-center gap-6">
-            <Link
-              to={`/mentors/${user?.userId}`}
-              className="hidden items-center gap-2 rounded-xl border border-indigo-100 bg-indigo-50 px-3 py-2 text-xs font-black uppercase tracking-widest text-indigo-600 transition hover:bg-indigo-100 dark:border-indigo-900/40 dark:bg-indigo-900/20 dark:text-indigo-300 lg:inline-flex"
-            >
-              <ExternalLink className="h-4 w-4" />
-              View Public Profile
-            </Link>
-            <div className="flex items-center gap-4 px-4 py-2 rounded-2xl border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/50">
-              <div className="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-200 dark:shadow-none border-2 border-white dark:border-gray-700">
-                <span className="text-white text-sm font-black uppercase">
-                  {user?.fullName.charAt(0)}
-                </span>
+              <div className="min-w-0">
+                <p className="text-[22px] font-black leading-none tracking-tight text-slate-950">MentorHub</p>
+                <p className="mt-1 text-[10px] font-black uppercase tracking-[0.2em] text-indigo-500">Premium Mentor</p>
               </div>
-              <div className="text-left hidden sm:block">
-                <p className="text-sm font-black text-gray-900 dark:text-white leading-none tracking-tight">{user?.fullName}</p>
-                <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-1 uppercase tracking-widest font-black">Expert Mentor</p>
-              </div>
-            </div>
-            <Link to="/" className="text-xs font-black text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 uppercase tracking-widest border-b-2 border-indigo-100 dark:border-indigo-900 pb-0.5">
-              Go to Website →
             </Link>
           </div>
-        </header>
 
-        <main className="p-10 w-full max-w-7xl mx-auto">
-          <Outlet />
-        </main>
+          <nav className="flex-1 space-y-2 px-4 py-5">
+            {navigationItems.map((item) => {
+              const active = isActive(item.to)
+              return (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  className={`group flex h-12 items-center gap-3 rounded-2xl px-4 text-[14px] font-bold transition ${
+                    active ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                  }`}
+                >
+                  <item.icon className={`h-4 w-4 ${active ? 'text-white' : 'text-slate-400 group-hover:text-slate-700'}`} />
+                  <span className="flex-1">{item.label}</span>
+                  {item.badge ? (
+                    <span className={`inline-flex h-6 min-w-6 items-center justify-center rounded-full px-1.5 text-xs font-black ${active ? 'bg-white/20 text-white' : 'bg-violet-100 text-violet-700'}`}>
+                      {item.badge}
+                    </span>
+                  ) : null}
+                </Link>
+              )
+            })}
+          </nav>
+
+          <div className="px-4 pb-4">
+            <div className="rounded-[24px] border border-slate-200 bg-gradient-to-br from-white to-violet-50 p-5 shadow-sm">
+              <div className="mb-4 flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-sm font-black text-slate-900">Complete your profile</p>
+                  <p className="mt-1 text-xs leading-5 text-slate-500">Higher chance of getting hired</p>
+                </div>
+                <div className="flex h-12 w-12 items-center justify-center rounded-full border-4 border-violet-200 text-[11px] font-black text-indigo-600">
+                  85%
+                </div>
+              </div>
+              <Link
+                to="/become-a-mentor"
+                className="inline-flex h-11 w-full items-center justify-center rounded-2xl bg-indigo-600 px-4 text-sm font-bold text-white transition hover:bg-indigo-700"
+              >
+                Improve Profile
+              </Link>
+            </div>
+          </div>
+
+          <div className="border-t border-slate-100 px-4 py-4">
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="flex h-12 w-full items-center justify-between rounded-2xl px-4 text-sm font-bold text-slate-600 transition hover:bg-slate-50 hover:text-slate-900"
+            >
+              <span className="inline-flex items-center gap-3">
+                <Moon className="h-4 w-4 text-slate-400" />
+                Dark Mode
+              </span>
+              <span className={`relative h-6 w-11 rounded-full transition ${isDarkMode ? 'bg-indigo-600' : 'bg-slate-200'}`}>
+                <span className={`absolute top-1 h-4 w-4 rounded-full bg-white transition ${isDarkMode ? 'left-6' : 'left-1'}`} />
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="mt-2 flex h-12 w-full items-center gap-3 rounded-2xl px-4 text-sm font-bold text-rose-500 transition hover:bg-rose-50"
+            >
+              <LogOut className="h-4 w-4" />
+              Logout
+            </button>
+          </div>
+        </aside>
+
+        <div className="min-w-0 flex-1">
+          <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/95 backdrop-blur">
+            <div className="flex h-[80px] items-center justify-between gap-4 px-6 lg:px-8">
+              <div className="flex min-w-0 flex-1 items-center gap-4">
+                <div className="relative hidden max-w-[420px] flex-1 md:block">
+                  <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="text"
+                    placeholder="Search jobs, clients, skills..."
+                    className="h-11 w-full rounded-2xl border border-slate-200 bg-slate-50 pl-11 pr-14 text-sm text-slate-700 outline-none transition focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10"
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg border border-slate-200 bg-white px-2 py-1 text-[11px] font-bold text-slate-400">
+                    K
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  className="hidden h-11 items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-700 lg:inline-flex"
+                >
+                  <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
+                  {availability}
+                  <ChevronDown className="h-4 w-4 text-slate-400" />
+                </button>
+
+                <button type="button" className="relative flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-500 transition hover:bg-slate-50 hover:text-slate-900">
+                  <Bell className="h-4 w-4" />
+                  <span className="absolute right-2 top-2 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-black text-white">
+                    3
+                  </span>
+                </button>
+
+                <button type="button" className="flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-500 transition hover:bg-slate-50 hover:text-slate-900">
+                  <MessageCircle className="h-4 w-4" />
+                </button>
+
+                <Link
+                  to={`/mentors/${user?.userId}`}
+                  className="hidden h-11 items-center rounded-2xl border border-indigo-200 bg-indigo-50 px-4 text-sm font-bold text-indigo-700 transition hover:bg-indigo-100 lg:inline-flex"
+                >
+                  Public Profile
+                </Link>
+
+                <div className="flex items-center gap-3 rounded-2xl bg-white pl-2 pr-1">
+                  <div className="h-10 w-10 overflow-hidden rounded-2xl bg-slate-100">
+                    {user?.avatarUrl ? (
+                      <img src={user.avatarUrl} alt={user.fullName} className="h-full w-full object-cover" />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center bg-indigo-100 text-sm font-black text-indigo-600">
+                        {initials || 'M'}
+                      </div>
+                    )}
+                  </div>
+                  <div className="hidden text-left lg:block">
+                    <p className="text-sm font-black text-slate-950">{user?.fullName || 'Mentor'}</p>
+                    <p className="mt-0.5 text-xs font-medium text-slate-500">Expert Mentor</p>
+                  </div>
+                  <ChevronDown className="hidden h-4 w-4 text-slate-400 lg:inline" />
+                </div>
+              </div>
+            </div>
+          </header>
+
+          <main className="px-4 py-6 md:px-4 lg:px-4">
+            <Outlet />
+          </main>
+        </div>
       </div>
     </div>
   )

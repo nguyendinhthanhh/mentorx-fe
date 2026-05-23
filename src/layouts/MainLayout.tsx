@@ -1,15 +1,30 @@
-import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
-import { AiAssistantWidget } from '@/components/ui/AiAssistantWidget'
 import { useState } from 'react'
-import { useAuthStore } from '@/store/authStore'
-import { Menu, X, LogOut, MessageSquare, GraduationCap, Sparkles, ChevronDown, UserCog, User, Wallet, ShoppingBag, Briefcase } from 'lucide-react'
+import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { useQuery } from 'react-query'
+import {
+  Briefcase,
+  ChevronDown,
+  GraduationCap,
+  LogOut,
+  Menu,
+  MessageSquare,
+  ShoppingBag,
+  Sparkles,
+  User,
+  UserCog,
+  Wallet,
+  X,
+} from 'lucide-react'
+import { AiAssistantWidget } from '@/components/ui/AiAssistantWidget'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
 import NotificationDropdown from '@/components/notification/NotificationDropdown'
-import { useI18n } from '@/i18n/I18nProvider'
-import { useQuery } from 'react-query'
+import { useAuthStore } from '@/store/authStore'
 import { chatApi } from '@/api/chatApi'
-import { isMentor, isAdmin } from '@/utils/roleRedirect'
 import { walletApi } from '@/api/walletApi'
+import { useI18n } from '@/i18n/I18nProvider'
+import { formatMxc } from '@/utils/formatters'
+import { canAccessAdminWorkspace, canSwitchToMentorMode, isAdmin } from '@/utils/roleRedirect'
+import { MentorStatus, UserMode } from '@/types'
 
 function SiteFooter() {
   const { t } = useI18n()
@@ -66,38 +81,45 @@ function SiteFooter() {
   )
 }
 
+function getMentorCtaLabel(status?: MentorStatus) {
+  switch (status) {
+    case MentorStatus.PENDING:
+      return 'Mentor application pending'
+    case MentorStatus.REJECTED:
+      return 'Update mentor application'
+    case MentorStatus.SUSPENDED:
+      return 'Mentor access suspended'
+    default:
+      return 'Become a mentor'
+  }
+}
+
 export default function MainLayout() {
-  const { user, logout } = useAuthStore()
   const { t } = useI18n()
   const navigate = useNavigate()
   const location = useLocation()
+  const { user, logout, currentMode, setCurrentMode } = useAuthStore()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [userDropdownOpen, setUserDropdownOpen] = useState(false)
-  const hideFooter = location.pathname.startsWith('/chat')
-  const mentorApproved = isMentor(user)
-  const inMentorMode = location.pathname.startsWith('/mentor') && !location.pathname.startsWith('/mentors')
 
-  // Get unread message count
+  const hideFooter = location.pathname.startsWith('/chat')
+  const mentorApproved = canSwitchToMentorMode(user)
+  const inMentorMode = currentMode === UserMode.MENTOR
+
   const { data: rooms } = useQuery(
     ['chatRooms', user?.userId],
     () => chatApi.getUserRooms(user!.userId),
-    { 
-      enabled: !!user?.userId,
-      refetchInterval: 30000 // Refresh every 30 seconds
-    }
+    { enabled: !!user?.userId, refetchInterval: 30000 }
   )
 
-  const unreadCount = rooms?.content.reduce((sum, room) => sum + (room.unreadCount || 0), 0) || 0
-  
-  // Get wallet balance
   const { data: balance } = useQuery(
     ['userBalance', user?.userId],
     () => walletApi.getUserBalance(user!.userId),
-    { 
-      enabled: !!user?.userId,
-      refetchInterval: 30000 // Refresh every 30 seconds
-    }
+    { enabled: !!user?.userId, refetchInterval: 30000 }
   )
+
+  const unreadCount = rooms?.content.reduce((sum, room) => sum + (room.unreadCount || 0), 0) || 0
+  const mentorCtaLabel = getMentorCtaLabel(user?.mentorStatus)
 
   const navLinks = [
     { to: '/jobs', label: t('nav.jobs') },
@@ -110,6 +132,19 @@ export default function MainLayout() {
   const handleLogout = () => {
     logout()
     navigate('/login')
+  }
+
+  const handleModeSwitch = () => {
+    if (!user || !mentorApproved) return
+
+    if (inMentorMode) {
+      setCurrentMode(UserMode.USER)
+      navigate('/profile')
+      return
+    }
+
+    setCurrentMode(UserMode.MENTOR)
+    navigate('/mentor/dashboard')
   }
 
   return (
@@ -132,7 +167,6 @@ export default function MainLayout() {
           <nav className="hidden items-center gap-1 md:flex">
             {navLinks.map((item) => {
               const active = location.pathname === item.to || (item.to !== '/' && location.pathname.startsWith(`${item.to}/`))
-
               return (
                 <Link
                   key={item.to}
@@ -149,9 +183,6 @@ export default function MainLayout() {
                   ) : (
                     <div className="absolute inset-0 z-0 scale-75 rounded-full bg-slate-100 opacity-0 transition-all duration-300 group-hover:scale-100 group-hover:opacity-100 dark:bg-slate-800" />
                   )}
-                  {active && (
-                    <div className="absolute -bottom-2 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full bg-indigo-600 shadow-[0_0_8px_rgba(79,70,229,0.8)]" />
-                  )}
                 </Link>
               )
             })}
@@ -160,32 +191,43 @@ export default function MainLayout() {
           <div className="hidden items-center gap-4 md:flex">
             <div className="h-8 w-px bg-slate-200 dark:bg-slate-800" />
             <LanguageSwitcher />
-            
+
             {user ? (
               <div className="flex items-center gap-2">
                 {mentorApproved ? (
-                  <Link
-                    to={inMentorMode ? '/profile' : '/mentor/dashboard'}
+                  <button
+                    type="button"
+                    onClick={handleModeSwitch}
                     className={`flex h-10 items-center gap-2 rounded-xl border px-4 text-xs font-black transition-all active:scale-95 ${
-                      inMentorMode 
+                      inMentorMode
                         ? 'border-indigo-200 bg-indigo-50 text-indigo-700 shadow-sm dark:border-indigo-900/30 dark:bg-indigo-900/20 dark:text-indigo-400'
                         : 'border-slate-200 bg-white text-slate-700 hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400 dark:hover:bg-slate-800'
                     }`}
                   >
                     {inMentorMode ? <Sparkles className="h-4 w-4" /> : <GraduationCap className="h-4 w-4" />}
-                    <span className="hidden lg:inline">{inMentorMode ? 'Mentor Mode' : 'Student Mode'}</span>
-                  </Link>
-                ) : !isAdmin(user) && (
+                    <span className="hidden lg:inline">{inMentorMode ? 'Mentor Mode' : 'User Mode'}</span>
+                  </button>
+                ) : !canAccessAdminWorkspace(user) && (
                   <Link
                     to="/become-a-mentor"
                     className="group relative flex h-10 items-center gap-2 overflow-hidden rounded-xl bg-slate-950 px-5 text-xs font-black text-white shadow-lg transition-all hover:-translate-y-0.5 hover:shadow-indigo-200 active:translate-y-0 dark:bg-white dark:text-slate-950 dark:shadow-none"
                   >
                     <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-600 opacity-0 transition-opacity group-hover:opacity-100" />
                     <GraduationCap className="relative h-4 w-4" />
-                    <span className="relative">Trở thành mentor</span>
+                    <span className="relative">{mentorCtaLabel}</span>
                   </Link>
                 )}
-                
+
+                {canAccessAdminWorkspace(user) && (
+                  <Link
+                    to="/admin/dashboard"
+                    className="inline-flex h-10 items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-xs font-black text-slate-700 transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
+                  >
+                    <UserCog className="h-4 w-4" />
+                    <span className="hidden lg:inline">{isAdmin(user) ? 'Admin Console' : 'Moderator Console'}</span>
+                  </Link>
+                )}
+
                 <div className="flex items-center gap-1.5 rounded-2xl bg-slate-100 p-1 dark:bg-slate-900">
                   <Link
                     to="/wallet"
@@ -193,8 +235,7 @@ export default function MainLayout() {
                   >
                     <Wallet className="h-3.5 w-3.5 text-amber-500" />
                     <span className="text-[11px] font-black text-slate-700 dark:text-slate-200">
-                      {balance?.available?.toLocaleString('vi-VN') || 0}
-                      <span className="ml-1 opacity-50">MXC</span>
+                      {formatMxc(balance?.available || 0)}
                     </span>
                   </Link>
 
@@ -238,83 +279,87 @@ export default function MainLayout() {
                   {userDropdownOpen && (
                     <>
                       <div className="fixed inset-0 z-10" onClick={() => setUserDropdownOpen(false)} />
-                      <div className="absolute right-0 mt-2 w-56 origin-top-right rounded-2xl border border-slate-200 bg-white p-2 shadow-xl ring-1 ring-black ring-opacity-5 focus:outline-none z-20">
-                        <div className="px-3 py-2 border-b border-slate-100 mb-1">
-                          <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Tài khoản</p>
-                          <p className="text-sm font-black text-slate-900 truncate">{user.fullName}</p>
+                      <div className="absolute right-0 z-20 mt-2 w-60 origin-top-right rounded-2xl border border-slate-200 bg-white p-2 shadow-xl ring-1 ring-black ring-opacity-5 focus:outline-none">
+                        <div className="mb-1 border-b border-slate-100 px-3 py-2">
+                          <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Account</p>
+                          <p className="truncate text-sm font-black text-slate-900">{user.fullName}</p>
                           <div className="mt-2 flex items-center justify-between rounded-lg bg-slate-50 p-2">
-                             <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-500">
-                                <Wallet className="h-3 w-3" />
-                                SỐ DƯ
-                             </div>
-                             <span className="text-xs font-black text-amber-600">
-                               {balance?.available?.toLocaleString('vi-VN') || 0} MXC
-                             </span>
+                            <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-500">
+                              <Wallet className="h-3 w-3" />
+                              Balance
+                            </div>
+                            <span className="text-xs font-black text-amber-600">{formatMxc(balance?.available || 0)}</span>
                           </div>
                         </div>
+
                         <Link
                           to={mentorApproved ? `/mentors/${user.userId}` : '/profile'}
                           onClick={() => setUserDropdownOpen(false)}
-                          className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50 hover:text-blue-600 transition"
+                          className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50 hover:text-blue-600"
                         >
                           <User className="h-4 w-4" />
-                          Xem hồ sơ
+                          View profile
                         </Link>
                         <Link
                           to="/wallet"
                           onClick={() => setUserDropdownOpen(false)}
-                          className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50 hover:text-blue-600 transition"
+                          className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50 hover:text-blue-600"
                         >
                           <Wallet className="h-4 w-4" />
-                          Ví của tôi
+                          My wallet
                         </Link>
                         <Link
                           to="/my-jobs"
                           onClick={() => setUserDropdownOpen(false)}
-                          className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50 hover:text-blue-600 transition"
+                          className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50 hover:text-blue-600"
                         >
                           <Briefcase className="h-4 w-4" />
-                          Yêu cầu của tôi
+                          My jobs
                         </Link>
                         <Link
                           to="/profile/courses"
                           onClick={() => setUserDropdownOpen(false)}
-                          className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50 hover:text-blue-600 transition"
+                          className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50 hover:text-blue-600"
                         >
                           <ShoppingBag className="h-4 w-4" />
-                          Khóa học
+                          Courses
                         </Link>
                         <Link
                           to="/profile/settings"
                           onClick={() => setUserDropdownOpen(false)}
-                          className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50 hover:text-blue-600 transition"
+                          className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50 hover:text-blue-600"
                         >
                           <UserCog className="h-4 w-4" />
-                          Cài đặt
+                          Settings
                         </Link>
+
                         {mentorApproved && (
                           <>
                             <div className="my-1 border-t border-slate-100" />
-                            <Link
-                              to={inMentorMode ? '/profile' : '/mentor/dashboard'}
-                              onClick={() => setUserDropdownOpen(false)}
-                              className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-black text-indigo-600 hover:bg-indigo-50 transition-all active:scale-95"
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setUserDropdownOpen(false)
+                                handleModeSwitch()
+                              }}
+                              className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm font-black text-indigo-600 transition hover:bg-indigo-50 active:scale-95"
                             >
                               {inMentorMode ? <User className="h-4 w-4" /> : <GraduationCap className="h-4 w-4" />}
-                              {inMentorMode ? 'Chế độ người dùng' : 'Chế độ Mentor'}
-                            </Link>
+                              {inMentorMode ? 'Switch to User Mode' : 'Switch to Mentor Mode'}
+                            </button>
                           </>
                         )}
+
                         <div className="my-1 border-t border-slate-100" />
                         <button
                           onClick={() => {
                             setUserDropdownOpen(false)
                             handleLogout()
                           }}
-                          className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-red-600 hover:bg-red-50 transition"
+                          className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-red-600 transition hover:bg-red-50"
                         >
                           <LogOut className="h-4 w-4" />
-                          Đăng xuất
+                          Sign out
                         </button>
                       </div>
                     </>
@@ -366,21 +411,24 @@ export default function MainLayout() {
               </div>
               {user ? (
                 <div className="grid gap-2">
-                  <div className="flex items-center justify-between rounded-lg bg-amber-50 px-3 py-3 text-amber-700 mb-2">
+                  <div className="mb-2 flex items-center justify-between rounded-lg bg-amber-50 px-3 py-3 text-amber-700">
                     <div className="flex items-center gap-2 text-sm font-bold">
                       <Wallet className="h-4 w-4" />
-                      Số dư ví
+                      Wallet balance
                     </div>
-                    <span className="font-black">
-                      {balance?.available?.toLocaleString('vi-VN') || 0} MXC
-                    </span>
+                    <span className="font-black">{formatMxc(balance?.available || 0)}</span>
                   </div>
                   <Link
                     to={mentorApproved ? (inMentorMode ? '/profile' : '/mentor/dashboard') : '/become-a-mentor'}
-                    onClick={() => setMobileOpen(false)}
+                    onClick={() => {
+                      setMobileOpen(false)
+                      if (mentorApproved) {
+                        setCurrentMode(inMentorMode ? UserMode.USER : UserMode.MENTOR)
+                      }
+                    }}
                     className="rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
                   >
-                    {mentorApproved ? (inMentorMode ? 'Chuyển về User Mode' : 'Chuyển sang Mentor Mode') : 'Trở thành mentor'}
+                    {mentorApproved ? (inMentorMode ? 'Switch to User Mode' : 'Switch to Mentor Mode') : mentorCtaLabel}
                   </Link>
                   <Link
                     to="/chat"
@@ -399,7 +447,7 @@ export default function MainLayout() {
                     onClick={() => setMobileOpen(false)}
                     className="rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
                   >
-                    Thông báo
+                    Notifications
                   </Link>
                   <button
                     type="button"

@@ -27,7 +27,7 @@ import {
   CheckCircle2,
   Layers,
 } from 'lucide-react'
-import { JobType, BudgetType, JobStatus } from '@/types'
+import { JobType, BudgetType, JobResponse } from '@/types'
 import { formatCurrency, formatDate, formatRelativeTime } from '@/utils/formatters'
 
 const JOB_TYPE_LABELS: Record<JobType, string> = {
@@ -89,8 +89,12 @@ export default function MentorJobsPage() {
 
   // Get recommended jobs (matching mentor's category)
   const recommendedJobs = useMemo(() => {
-    if (!mentorProfile?.user?.categoryId || !jobsData?.content) return []
-    return jobsData.content.filter((job) => job.categoryId === mentorProfile.user.categoryId)
+    if (!mentorProfile?.primaryDomain || !jobsData?.content) return []
+    const domain = mentorProfile.primaryDomain.toLowerCase()
+    return jobsData.content.filter((job) =>
+      job.title.toLowerCase().includes(domain) ||
+      job.description.toLowerCase().includes(domain)
+    )
   }, [mentorProfile, jobsData])
 
   const totalPages = jobsData?.totalPages || 0
@@ -151,7 +155,7 @@ export default function MentorJobsPage() {
                 <div className="mt-2 flex flex-wrap items-center gap-4 text-sm">
                   <span className="flex items-center gap-1.5 text-slate-600">
                     <Briefcase className="h-4 w-4" />
-                    <span className="font-medium">{mentorProfile.expertise || 'Chưa cập nhật'}</span>
+                    <span className="font-medium">{mentorProfile.primaryDomain || 'Chưa cập nhật'}</span>
                   </span>
                   <span className="flex items-center gap-1.5 text-slate-600">
                     <DollarSign className="h-4 w-4" />
@@ -294,7 +298,7 @@ export default function MentorJobsPage() {
   )
 }
 
-function JobCard({ job, isRecommended = false }: { job: any; isRecommended?: boolean }) {
+function JobCard({ job, isRecommended = false }: { job: JobResponse; isRecommended?: boolean }) {
   const budgetDisplay = useMemo(() => {
     if (job.budgetType === BudgetType.HOURLY && job.hourlyRateMxc) {
       return `${formatCurrency(job.hourlyRateMxc)}/giờ`

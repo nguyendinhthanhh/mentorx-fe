@@ -4,11 +4,16 @@ import { z } from 'zod'
 import { LoginRequest } from '@/types'
 import { authApi } from '@/api/authApi'
 import { useAuthStore } from '@/store/authStore'
-import { useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Eye, EyeOff, Loader2 } from 'lucide-react'
+
 import GoogleLoginButton from './GoogleLoginButton'
 import GithubLoginButton from './GithubLoginButton'
+
+import { CredentialResponse, GoogleLogin } from '@react-oauth/google'
+import { canAccessAdminWorkspace } from '@/utils/roleRedirect'
+
 
 const loginSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -21,6 +26,7 @@ export default function LoginForm() {
   const [error, setError] = useState<string>('')
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
+  const isGoogleAuthInProgressRef = useRef(false)
 
   const {
     register,
@@ -38,15 +44,10 @@ export default function LoginForm() {
       setTokens(response.accessToken, response.refreshToken)
       setUser(response.user)
       
-      // Redirect based on user role
-      const userRoles = response.user.roles.map(r => r.roleName.toUpperCase())
-      
-      if (userRoles.includes('ADMIN')) {
+      if (canAccessAdminWorkspace(response.user)) {
         navigate('/admin/dashboard')
-      } else if (userRoles.includes('MENTOR') || response.user.mentorStatus === 'APPROVED') {
-        navigate('/mentor/dashboard')
       } else {
-        navigate('/dashboard')
+        navigate('/profile')
       }
     } catch (err: any) {
       setError(err.response?.data?.message || 'Invalid email or password. Please try again.')
@@ -54,6 +55,7 @@ export default function LoginForm() {
       setLoading(false)
     }
   }
+
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">

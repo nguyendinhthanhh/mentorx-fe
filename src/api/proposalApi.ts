@@ -54,4 +54,8 @@ export const proposalApi = {
     const response = await apiClient.post<ApiResponse<ProposalResponse>>(`/proposals/${proposalId}/reject?reason=${encodeURIComponent(reason)}`)
     return response.data.data
   },
+  
+  markAsViewed: async (proposalId: string): Promise<void> => {
+    await apiClient.post(`/proposals/${proposalId}/view`)
+  },
 }

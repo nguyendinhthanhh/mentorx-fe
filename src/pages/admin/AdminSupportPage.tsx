@@ -28,7 +28,7 @@ export default function AdminSupportPage() {
 
   const filteredRooms = data?.content.filter(room => 
     room.roomName?.toLowerCase().includes(search.toLowerCase()) ||
-    room.lastMessage?.content.toLowerCase().includes(search.toLowerCase())
+    room.lastMessagePreview?.toLowerCase().includes(search.toLowerCase())
   )
 
   return (
@@ -119,7 +119,7 @@ export default function AdminSupportPage() {
                               <span className="px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-600 text-[8px] font-black uppercase tracking-widest">{room.roomType}</span>
                            </div>
                            <p className="text-xs font-bold text-gray-500 truncate max-w-md mt-1 italic">
-                              {room.lastMessage?.content || 'No messages yet...'}
+                              {room.lastMessagePreview || 'No messages yet...'}
                            </p>
                            <div className="flex items-center gap-3 mt-2">
                               <span className="text-[10px] font-bold text-gray-400 flex items-center gap-1">

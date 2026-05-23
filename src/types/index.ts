@@ -9,6 +9,7 @@ export enum UserStatus {
 }
 
 export enum MentorStatus {
+  NOT_APPLIED = "NOT_APPLIED",
   NONE = "NONE",
   PENDING_KYC = "PENDING_KYC",
   KYC_SUBMITTED = "KYC_SUBMITTED",
@@ -20,6 +21,35 @@ export enum MentorStatus {
   REJECTED = "REJECTED",
   SUSPENDED = "SUSPENDED",
   REVOKED = "REVOKED",
+}
+
+export enum VerificationStatus {
+  NOT_SUBMITTED = "NOT_SUBMITTED",
+  PENDING = "PENDING",
+  APPROVED = "APPROVED",
+  REJECTED = "REJECTED",
+  NEEDS_MORE_INFO = "NEEDS_MORE_INFO",
+}
+
+export enum IdentityDocumentType {
+  CCCD = "CCCD",
+  CMND = "CMND",
+  PASSPORT = "PASSPORT",
+  NATIONAL_ID = "NATIONAL_ID",
+  DRIVER_LICENSE = "DRIVER_LICENSE",
+}
+
+export enum PayoutMethod {
+  LOCAL_BANK = "LOCAL_BANK",
+  INTERNATIONAL_BANK = "INTERNATIONAL_BANK",
+  PAYPAL = "PAYPAL",
+  WISE = "WISE",
+  STRIPE_CONNECT = "STRIPE_CONNECT",
+}
+
+export enum UserMode {
+  USER = "USER",
+  MENTOR = "MENTOR",
 }
 
 export enum JobStatus {
@@ -49,6 +79,7 @@ export enum CourseStatus {
   DRAFT = "DRAFT",
   PUBLISHED = "PUBLISHED",
   ARCHIVED = "ARCHIVED",
+  REJECTED = "REJECTED",
 }
 
 export enum LessonType {
@@ -109,6 +140,7 @@ export enum WithdrawalStatus {
   COMPLETED = "COMPLETED",
   FAILED = "FAILED",
   CANCELLED = "CANCELLED",
+  REJECTED = "REJECTED",
 }
 
 export enum PaymentGateway {
@@ -196,13 +228,18 @@ export interface PaginatedResponse<T> {
 
 export interface CategoryResponse {
   id: number;
+  categoryId: number;
   name: string;
   slug: string;
   description?: string;
   icon?: string;
+  iconUrl?: string;
   parentId?: number;
+  parentCategoryId?: number;
   isActive: boolean;
   displayOrder: number;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 // Auth Types
@@ -248,6 +285,12 @@ export interface UserResponse {
   preferredLanguage?: SupportedLanguage;
   status: UserStatus;
   mentorStatus?: MentorStatus;
+  expertiseStatus?: VerificationStatus;
+  identityStatus?: VerificationStatus;
+  payoutStatus?: VerificationStatus;
+  verifiedMentorBadge?: boolean;
+  canSwitchToMentorMode?: boolean;
+  canRequestWithdrawal?: boolean;
   profileIsPublic: boolean;
   emailVerified: boolean;
   is2faEnabled: boolean;
@@ -257,6 +300,8 @@ export interface UserResponse {
   updatedAt: string;
   roles: UserRoleResponse[];
   badges?: any[];
+  availableModes?: UserMode[];
+  currentMode?: UserMode;
 }
 
 export interface UserCreateRequest {
@@ -289,6 +334,13 @@ export interface BankAccountResponse {
   accountNumber: string;
   accountHolderName: string;
   branchName?: string;
+  payoutCountry?: string;
+  payoutMethod?: PayoutMethod;
+  iban?: string;
+  swiftCode?: string;
+  paypalEmail?: string;
+  wiseEmail?: string;
+  stripeConnectAccountId?: string;
   isDefault: boolean;
   isVerified: boolean;
   verifiedAt?: string;
@@ -304,6 +356,13 @@ export interface BankAccountRequest {
   accountNumber: string;
   accountHolderName: string;
   branchName?: string;
+  payoutCountry: string;
+  payoutMethod?: PayoutMethod;
+  iban?: string;
+  swiftCode?: string;
+  paypalEmail?: string;
+  wiseEmail?: string;
+  stripeConnectAccountId?: string;
   isDefault?: boolean;
   notes?: string;
 }
@@ -325,28 +384,52 @@ export interface MentorProfileResponse {
   videoIntroUrl?: string;
   location?: string;
   languages?: string[];
+  expertiseStatus?: VerificationStatus;
+  expertiseReviewNote?: string;
+  expertiseRejectionReason?: string;
+  expertiseReviewedBy?: string;
+  expertiseReviewedByName?: string;
+  expertiseReviewedAt?: string;
+  resubmissionAllowed?: boolean;
   legalName?: string;
   dateOfBirth?: string;
   countryOfResidence?: string;
-  identityDocumentType?: string;
-  identityDocumentUrl?: string;
-  identityDocumentBackUrl?: string;
-
-  portraitUrl?: string;
+  identityStatus?: VerificationStatus;
+  identityRequired?: boolean;
+  identityDocumentType?: IdentityDocumentType;
+  documentNumberMasked?: string;
+  identityVerifiedAt?: string;
+  identityVerifiedBy?: string;
+  identityVerifiedByName?: string;
+  identityRejectionReason?: string;
+  verificationProvider?: string;
   phoneNumber?: string;
   phoneVerified?: boolean;
   currentTitle?: string;
   currentCompany?: string;
   primaryDomain?: string;
+  skills?: string[];
+  professionalBio?: string;
+  helpDescription?: string;
   linkedinUrl?: string;
   githubUrl?: string;
   portfolioEvidenceUrl?: string;
   certificateUrl?: string;
-  bankAccountName?: string;
-  bankName?: string;
-  bankAccountNumber?: string;
-  bankBranch?: string;
-  taxId?: string;
+  payoutStatus?: VerificationStatus;
+  payoutAccountHolderName?: string;
+  payoutBankName?: string;
+  payoutAccountNumberMasked?: string;
+  payoutCountry?: string;
+  payoutMethod?: PayoutMethod;
+  iban?: string;
+  swiftCode?: string;
+  paypalEmail?: string;
+  wiseEmail?: string;
+  stripeConnectAccountId?: string;
+  payoutRejectionReason?: string;
+  payoutReviewedBy?: string;
+  payoutReviewedByName?: string;
+  payoutReviewedAt?: string;
   mentorAgreementAccepted?: boolean;
   disputePolicyAccepted?: boolean;
   submittedAt?: string;
@@ -367,34 +450,21 @@ export interface MentorProfileRequest {
   hourlyRateMxc?: number;
   yearsOfExperience?: number;
   availability?: string;
-  responseTimeHours?: number;
   cvUrl?: string;
   portfolioUrl?: string;
   videoIntroUrl?: string;
   location?: string;
   languages?: string[];
-  legalName?: string;
-  dateOfBirth?: string;
-  countryOfResidence?: string;
-  identityDocumentType?: string;
-  identityDocumentUrl?: string;
-  identityDocumentBackUrl?: string;
-
-  portraitUrl?: string;
-  phoneNumber?: string;
-  phoneVerified?: boolean;
   currentTitle?: string;
   currentCompany?: string;
   primaryDomain?: string;
+  skills?: string[];
+  professionalBio?: string;
+  helpDescription?: string;
   linkedinUrl?: string;
   githubUrl?: string;
   portfolioEvidenceUrl?: string;
   certificateUrl?: string;
-  bankAccountName?: string;
-  bankName?: string;
-  bankAccountNumber?: string;
-  bankBranch?: string;
-  taxId?: string;
   mentorAgreementAccepted?: boolean;
   disputePolicyAccepted?: boolean;
 }
@@ -406,6 +476,7 @@ export interface JobResponse {
   client?: UserResponse;
   clientName?: string;
   categoryId?: number;
+  customCategoryName?: string;
   jobType: JobType;
   title: string;
   description: string;
@@ -415,12 +486,15 @@ export interface JobResponse {
   learningGoals?: string;
   successCriteria?: string;
   availabilityExpectation?: string;
+  availabilityStartTime?: string;
+  availabilityEndTime?: string;
   communicationPreference?: string;
   budgetType: BudgetType;
   budgetMinMxc?: number;
   budgetMaxMxc?: number;
   hourlyRateMxc?: number;
   estimatedHours?: number;
+  startDate?: string;
   deadlineAt?: string;
   status: JobStatus;
   isFeatured: boolean;
@@ -434,6 +508,7 @@ export interface JobResponse {
 export interface JobCreateRequest {
   clientId: string;
   categoryId?: number;
+  customCategoryName?: string;
   jobType: JobType;
   title: string;
   description: string;
@@ -443,12 +518,15 @@ export interface JobCreateRequest {
   learningGoals?: string;
   successCriteria?: string;
   availabilityExpectation?: string;
+  availabilityStartTime?: string;
+  availabilityEndTime?: string;
   communicationPreference?: string;
   budgetType: BudgetType;
   budgetMinMxc?: number;
   budgetMaxMxc?: number;
   hourlyRateMxc?: number;
   estimatedHours?: number;
+  startDate?: string;
   deadlineAt?: string;
   attachmentUrl?: string;
   attachments?: string[];
@@ -457,6 +535,7 @@ export interface JobCreateRequest {
 
 export interface JobUpdateRequest {
   categoryId?: number;
+  customCategoryName?: string;
   jobType?: JobType;
   title?: string;
   description?: string;
@@ -466,12 +545,15 @@ export interface JobUpdateRequest {
   learningGoals?: string;
   successCriteria?: string;
   availabilityExpectation?: string;
+  availabilityStartTime?: string;
+  availabilityEndTime?: string;
   communicationPreference?: string;
   budgetType?: BudgetType;
   budgetMinMxc?: number;
   budgetMaxMxc?: number;
   hourlyRateMxc?: number;
   estimatedHours?: number;
+  startDate?: string;
   deadlineAt?: string;
   status?: JobStatus;
   isFeatured?: boolean;
@@ -486,6 +568,7 @@ export interface CourseResponse {
   instructor: UserResponse;
   instructorName?: string;
   categoryId?: number;
+  skills?: string[];
   title: string;
   slug: string;
   description?: string;
@@ -508,7 +591,8 @@ export interface CourseResponse {
 
 export interface CourseCreateRequest {
   instructorId: string;
-  categoryId?: number;
+  categoryId: number;
+  skills: string[];
   title: string;
   slug: string;
   description?: string;
@@ -522,6 +606,7 @@ export interface CourseCreateRequest {
 
 export interface CourseUpdateRequest {
   categoryId?: number;
+  skills?: string[];
   title?: string;
   description?: string;
   thumbnailUrl?: string;
@@ -598,12 +683,18 @@ export interface WalletTransactionResponse {
   transactionGroupId: string;
   txnType: TxnType;
   direction: "DEBIT" | "CREDIT";
-  amountMxc: number;
-  balanceAfterMxc: number;
+  originalAmount?: number | string;
+  originalCurrency?: string;
+  exchangeRateToVnd?: number | string;
+  convertedAmountVnd?: number | string;
+  amountMxc: number | string;
+  balanceAfterMxc: number | string;
   referenceId?: string;
   referenceType?: string;
   note?: string;
   txnStatus: TxnStatus;
+  gateway?: string;
+  gatewayTransactionId?: string;
   entryHash?: string;
   prevEntryHash?: string;
   createdAt: string;
@@ -615,10 +706,11 @@ export interface DepositOrderResponse {
   userId: string;
   gateway: PaymentGateway;
   gatewayOrderId: string;
-  realAmount: number;
+  realAmount: number | string;
   realCurrency: string;
-  mxcAmount: number;
-  exchangeRate: number;
+  convertedAmountVnd?: number | string;
+  mxcAmount: number | string;
+  exchangeRate: number | string;
   txnStatus: TxnStatus;
   reconciledAt?: string;
   createdAt: string;
@@ -636,8 +728,15 @@ export interface WithdrawalResponse {
   bankName: string;
   bankAccountNo: string;
   bankAccountName: string;
+  payoutCountry?: string;
+  payoutMethod?: PayoutMethod;
+  payoutReference?: string;
   status: WithdrawalStatus;
   gatewayTxnId?: string;
+  user?: {
+    fullName: string;
+  };
+  rejectionReason?: string;
   reviewedAt?: string;
   payoutAt?: string;
   createdAt: string;
@@ -659,8 +758,23 @@ export interface EscrowRecordResponse {
 }
 
 export interface DepositCreateRequest {
-  amountVnd: number;
+  amount?: string;
+  amountVnd?: string;
+  currency?: string;
   gateway: string;
+}
+
+export interface WalletConversionPreviewRequest {
+  originalAmount: string;
+  originalCurrency: string;
+}
+
+export interface WalletConversionPreviewResponse {
+  originalAmount: string | number;
+  originalCurrency: string;
+  exchangeRateToVnd: string | number;
+  convertedAmountVnd: string | number;
+  amountMxc: string | number;
 }
 
 export interface WithdrawCreateRequest {
@@ -668,6 +782,9 @@ export interface WithdrawCreateRequest {
   bankName: string;
   bankAccountNo: string;
   bankAccountName: string;
+  payoutCountry?: string;
+  payoutMethod?: PayoutMethod;
+  payoutReference?: string;
 }
 
 export interface TransferRequest {
@@ -713,7 +830,7 @@ export interface ProposalResponse {
   terms?: string;
   submittedAt: string;
   isFeatured: boolean;
-  viewCount?: number;
+  viewCount: number;
   rejectionReason?: string;
   score?: number;
   isCounterProposal: boolean;
@@ -932,20 +1049,6 @@ export interface ReportResponse {
   updatedAt: string;
 }
 
-// Category Types
-export interface CategoryResponse {
-  categoryId: number;
-  parentCategoryId?: number;
-  name: string;
-  slug: string;
-  description?: string;
-  iconUrl?: string;
-  displayOrder: number;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
 // Matching Types
 export interface UserInterestProfileRequest {
   userId: string;
@@ -958,18 +1061,20 @@ export interface UserInterestProfileRequest {
 }
 
 export interface UserMatchingPreferenceRequest {
-  preferredJobTypes?: string[];
-  budgetMinMxc?: number;
-  budgetMaxMxc?: number;
-  preferredMentorLang?: string;
+  interestedDomainIds?: number[];
+  preferredSkillIds?: number[];
+  learningGoals?: string[];
+  preferredLanguages?: string[];
+  onboardingCompleted?: boolean;
 }
 
 export interface UserMatchingPreferenceResponse {
   userId: string;
-  preferredJobTypes: string[];
-  budgetMinMxc?: number;
-  budgetMaxMxc?: number;
-  preferredMentorLang?: string;
+  interestedDomainIds: number[];
+  preferredSkillIds: number[];
+  learningGoals: string[];
+  preferredLanguages: string[];
+  onboardingCompleted: boolean;
 }
 
 // Skill Types

@@ -30,7 +30,7 @@ const TEMPLATES = {
   ]
 }
 
-export default function AdminNotifyModal({ isOpen, onClose, userId, referenceId, referenceType, actionType }: AdminNotifyModalProps) {
+export default function AdminNotifyModal({ isOpen, onClose, userId, referenceId, referenceType, actionType, onConfirm }: AdminNotifyModalProps) {
   const [selectedTemplate, setSelectedTemplate] = useState<number | null>(null)
   const [customMessage, setCustomMessage] = useState('')
   const [isSending, setIsSending] = useState(false)

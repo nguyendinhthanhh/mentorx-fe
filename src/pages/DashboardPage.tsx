@@ -2,7 +2,9 @@ import { useEffect, useState } from 'react'
 import { useAuthStore } from '@/store/authStore'
 import { Link } from 'react-router-dom'
 import { Briefcase, BookOpen, Users, Wallet, TrendingUp, ArrowUpRight, Bell, Clock, Plus } from 'lucide-react'
+import { Skeleton } from '@/components/ui/Skeleton'
 import apiClient from '@/api/client'
+import { formatMxc } from '@/utils/formatters'
 
 interface DashboardStats {
   activeJobs: number
@@ -82,7 +84,7 @@ export default function DashboardPage() {
     },
     {
       label: 'Wallet Balance',
-      value: `${stats.walletBalance.toLocaleString()} MXC`,
+      value: formatMxc(stats.walletBalance),
       icon: Wallet,
       color: 'from-violet-500 to-violet-600',
       bgLight: 'bg-violet-50 dark:bg-violet-900/20',
@@ -142,7 +144,7 @@ export default function DashboardPage() {
             <div>
               <p className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] mb-2">{card.label}</p>
               {loading ? (
-                <div className="h-10 w-24 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse" />
+                <Skeleton className="h-10 w-32" />
               ) : (
                 <p className="text-3xl font-black text-gray-900 dark:text-white tracking-tighter">
                   {card.isString ? card.value : Number(card.value).toLocaleString()}

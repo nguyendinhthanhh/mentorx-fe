@@ -32,7 +32,7 @@ export default function JobModal({ job, isOpen, onClose }: JobModalProps) {
       deadlineAt: job.deadlineAt ? new Date(job.deadlineAt).toISOString().split('T')[0] : ''
     } : {
       jobType: JobType.FREELANCE_PROJECT,
-      budgetType: BudgetType.FIXED_PRICE,
+      budgetType: BudgetType.FIXED,
       status: JobStatus.OPEN
     }
   })
@@ -48,7 +48,7 @@ export default function JobModal({ job, isOpen, onClose }: JobModalProps) {
     } else {
       reset({
         jobType: JobType.FREELANCE_PROJECT,
-        budgetType: BudgetType.FIXED_PRICE,
+        budgetType: BudgetType.FIXED,
         status: JobStatus.OPEN
       })
     }
@@ -175,7 +175,7 @@ export default function JobModal({ job, isOpen, onClose }: JobModalProps) {
 
             {/* Budget Details */}
             <div className="bg-gray-50 dark:bg-gray-800/50 p-6 rounded-[2rem] border border-gray-100 dark:border-gray-800 space-y-6">
-              {budgetType === BudgetType.FIXED_PRICE ? (
+              {budgetType === BudgetType.FIXED ? (
                 <div className="grid grid-cols-2 gap-6">
                   <div>
                     <label className="block text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] mb-2 ml-1">Min Budget (MXC)</label>

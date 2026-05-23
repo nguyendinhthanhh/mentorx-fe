@@ -479,7 +479,10 @@ function MentorIdentityCard({
 
       <div className="mt-7 grid grid-cols-2 gap-4 border-t border-gray-100 pt-5 dark:border-gray-800">
         <ProfileMiniStat label="Tỷ lệ phản hồi" value={`${mentor.successRate || 98}%`} />
-        <ProfileMiniStat label="Thời gian trả lời" value={mentor.responseTimeHours ? `Trong ${mentor.responseTimeHours} giờ` : 'Trong 2 giờ'} />
+        <ProfileMiniStat
+          label="Response time"
+          value={mentor.responseTimeHours ? `Usually responds within ${mentor.responseTimeHours} hours` : 'Response time will be calculated after more activity.'}
+        />
       </div>
 
       <button

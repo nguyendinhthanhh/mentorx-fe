@@ -1,30 +1,57 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useNavigate } from 'react-router-dom'
 import {
   AlertCircle,
+  CalendarDays,
   ChevronDown,
+  Clock,
+  FileIcon,
   Info,
   Loader2,
-  X,
-  Send,
-  FileIcon,
-  Upload,
   Save,
-  Clock,
-  CalendarDays
+  Send,
+  Upload,
+  X,
 } from 'lucide-react'
-import { jobApi } from '@/api/jobApi'
 import { categoryApi } from '@/api/categoryApi'
 import { fileApi } from '@/api/fileApi'
-import { BudgetType, CategoryResponse, JobResponse, JobStatus, JobType } from '@/types'
+import { jobApi } from '@/api/jobApi'
+import { BudgetType, CategoryResponse, FileResponse, JobResponse, JobStatus, JobType } from '@/types'
+
+const OTHER_CATEGORY_VALUE = -1
+const EXPERIENCE_CUSTOM = 'CUSTOM'
+const COMMUNICATION_CUSTOM = 'CUSTOM'
+
+const experienceOptions = [
+  { value: '', label: 'Open to suggestion' },
+  { value: 'INTERMEDIATE', label: 'Intermediate mentor or above' },
+  { value: 'SENIOR', label: 'Senior mentor' },
+  { value: 'EXPERT', label: 'Domain expert' },
+  { value: EXPERIENCE_CUSTOM, label: 'Other' },
+]
+
+const communicationOptions = [
+  { value: '', label: 'Flexible' },
+  { value: 'CHAT', label: 'Chat' },
+  { value: 'VIDEO_CALL', label: 'Video call' },
+  { value: 'CODE_REVIEW', label: 'Code review' },
+  { value: 'MIXED', label: 'Mixed' },
+  { value: COMMUNICATION_CUSTOM, label: 'Other' },
+]
 
 const optionalNumber = z.preprocess(
   (value) => (value === '' || value === null ? undefined : value),
   z.coerce.number().min(0).optional()
 )
+
+const optionalCategory = z.preprocess((value) => {
+  if (value === '' || value === null || value === undefined) return undefined
+  const parsed = Number(value)
+  return Number.isNaN(parsed) ? undefined : parsed
+}, z.number().optional())
 
 const optionalText = (max = 1200) =>
   z
@@ -36,73 +63,137 @@ const optionalText = (max = 1200) =>
       return trimmed ? trimmed : undefined
     })
 
-const jobSchema = z.object({
-  title: z.string().trim().min(5, 'Tiêu đề phải có ít nhất 5 ký tự').max(200),
-  description: z.string().trim(),
-  categoryId: z.coerce.number().min(1, 'Vui lòng chọn danh mục'),
-  
-  deadlineDays: z.string().optional(),
-  deadlineDate: z.string().optional(),
-  isUrgent: z.boolean().default(false),
-  
-  budgetType: z.enum(['FIXED', 'HOURLY']).default('FIXED'),
-  budgetAmount: optionalNumber,
-  hourlyRate: optionalNumber,
-  estimatedHours: optionalNumber,
+const jobSchema = z
+  .object({
+    title: z.string().trim().min(5, 'Title must be at least 5 characters').max(200),
+    description: z.string().trim(),
+    categoryId: optionalCategory,
+    customCategoryName: optionalText(120),
+    startDate: z.string().optional(),
+    deadlineDate: z.string().optional(),
 
-  requiredSkillsInput: optionalText(500),
-  currentLevel: optionalText(120),
-  learningGoals: optionalText(1200),
-  successCriteria: optionalText(1200),
-  jobType: z.enum(['LONG_TERM_MENTORING', 'FREELANCE_PROJECT', 'QUICK_FIX']).optional(),
-  experienceLevel: optionalText(80),
-  communicationPreference: optionalText(120),
-  availabilityExpectation: optionalText(255),
-}).superRefine((data, ctx) => {
-  if (data.description) {
-    const wordCount = data.description.trim().split(/\s+/).filter((word) => word.length > 0).length
-    if (wordCount < 10) {
+    budgetType: z.enum(['FIXED', 'HOURLY']).default('FIXED'),
+    budgetAmount: optionalNumber,
+    hourlyRate: optionalNumber,
+    estimatedHours: optionalNumber,
+
+    requiredSkillsInput: optionalText(500),
+    currentLevel: optionalText(120),
+    learningGoals: optionalText(1200),
+    successCriteria: optionalText(1200),
+    jobType: z.enum(['LONG_TERM_MENTORING', 'FREELANCE_PROJECT', 'QUICK_FIX']).optional(),
+
+    experiencePreset: optionalText(80),
+    customExperienceLevel: optionalText(80),
+
+    communicationPreset: optionalText(120),
+    customCommunicationPreference: optionalText(120),
+
+    availabilityExpectation: optionalText(255),
+    availabilityStartTime: optionalText(20),
+    availabilityEndTime: optionalText(20),
+  })
+  .superRefine((data, ctx) => {
+    if (data.description) {
+      const wordCount = data.description.trim().split(/\s+/).filter(Boolean).length
+      if (wordCount < 10) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `Description needs at least 10 words. Current: ${wordCount}.`,
+          path: ['description'],
+        })
+      }
+    }
+
+    if (!data.categoryId && !data.customCategoryName) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: `Mô tả cần ít nhất 10 từ. Hiện tại: ${wordCount} từ.`,
-        path: ['description'],
+        message: 'Please choose a category or enter your own category.',
+        path: ['categoryId'],
       })
     }
-  }
 
-  if (data.budgetType === 'FIXED' && !data.budgetAmount) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: 'Vui lòng nhập ngân sách dự kiến',
-      path: ['budgetAmount'],
-    })
-  }
-
-  if (data.budgetType === 'HOURLY') {
-    if (!data.hourlyRate) {
+    if (!data.requiredSkillsInput || data.requiredSkillsInput.split(/[,;\n]/).map((item) => item.trim()).filter(Boolean).length === 0) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'Vui lòng nhập mức giá theo giờ',
-        path: ['hourlyRate'],
+        message: 'Please add at least one required skill or topic.',
+        path: ['requiredSkillsInput'],
       })
     }
-    if (!data.estimatedHours) {
+
+    if (data.categoryId === OTHER_CATEGORY_VALUE && !data.customCategoryName) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'Vui lòng nhập số giờ dự kiến',
-        path: ['estimatedHours'],
+        message: 'Please enter a custom category.',
+        path: ['customCategoryName'],
       })
     }
-  }
 
-  if (!data.isUrgent && !data.deadlineDate && !data.deadlineDays) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: 'Vui lòng chọn thời gian hoàn thành',
-      path: ['deadlineDate'],
-    })
-  }
-})
+    if (data.budgetType === 'FIXED' && !data.budgetAmount) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Please enter a fixed budget.',
+        path: ['budgetAmount'],
+      })
+    }
+
+    if (data.budgetType === 'HOURLY') {
+      if (!data.hourlyRate) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Please enter an hourly rate.',
+          path: ['hourlyRate'],
+        })
+      }
+      if (!data.estimatedHours) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Please enter estimated hours.',
+          path: ['estimatedHours'],
+        })
+      }
+    }
+
+    if ((data.startDate && !data.deadlineDate) || (!data.startDate && data.deadlineDate)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Please provide both start and end date, or leave both empty.',
+        path: ['deadlineDate'],
+      })
+    }
+
+    if (data.startDate && data.deadlineDate && new Date(data.startDate) >= new Date(data.deadlineDate)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'End date must be after start date.',
+        path: ['deadlineDate'],
+      })
+    }
+
+    if (data.experiencePreset === EXPERIENCE_CUSTOM && !data.customExperienceLevel) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Please enter the mentor level you want.',
+        path: ['customExperienceLevel'],
+      })
+    }
+
+    if (data.communicationPreset === COMMUNICATION_CUSTOM && !data.customCommunicationPreference) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Please enter a communication preference.',
+        path: ['customCommunicationPreference'],
+      })
+    }
+
+    if ((data.availabilityStartTime && !data.availabilityEndTime) || (!data.availabilityStartTime && data.availabilityEndTime)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Please provide both start and end time.',
+        path: ['availabilityEndTime'],
+      })
+    }
+  })
 
 type JobFormData = z.infer<typeof jobSchema>
 
@@ -112,20 +203,17 @@ type JobCreateFormProps = {
   mode?: 'create' | 'edit'
 }
 
+type UploadedAttachment = FileResponse
+
 export default function JobCreateForm({ clientId, initialJob, mode = 'create' }: JobCreateFormProps) {
   const navigate = useNavigate()
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [categories, setCategories] = useState<CategoryResponse[]>([])
-  
+  const [attachments, setAttachments] = useState<UploadedAttachment[]>([])
   const [uploading, setUploading] = useState(false)
-  const [attachmentUrl, setAttachmentUrl] = useState('')
-  const [fileName, setFileName] = useState('')
-  
   const [showAdvanced, setShowAdvanced] = useState(false)
   const [agreeTerms, setAgreeTerms] = useState(false)
-  
-  // Status is DRAFT when "Lưu nháp" is clicked
   const [submitStatus, setSubmitStatus] = useState<'OPEN' | 'DRAFT'>('OPEN')
 
   const {
@@ -141,14 +229,16 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
     defaultValues: {
       jobType: JobType.FREELANCE_PROJECT,
       budgetType: BudgetType.FIXED,
-      isUrgent: true,
-      deadlineDays: "7"
+      experiencePreset: '',
+      communicationPreset: '',
     },
   })
 
-  const budgetType = watch('budgetType')
-  const isUrgent = watch('isUrgent')
   const isEditing = mode === 'edit' && Boolean(initialJob)
+  const budgetType = watch('budgetType')
+  const selectedCategoryId = Number(watch('categoryId') ?? '')
+  const experiencePreset = watch('experiencePreset')
+  const communicationPreset = watch('communicationPreset')
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -159,16 +249,24 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
         console.error('Failed to fetch categories', err)
       }
     }
-    fetchCategories()
+    void fetchCategories()
   }, [])
 
   useEffect(() => {
     if (!initialJob) return
 
+    const initialExperiencePreset = isKnownExperienceValue(initialJob.experienceLevel) ? initialJob.experienceLevel : initialJob.experienceLevel ? EXPERIENCE_CUSTOM : ''
+    const initialCommunicationPreset = isKnownCommunicationValue(initialJob.communicationPreference)
+      ? initialJob.communicationPreference
+      : initialJob.communicationPreference
+        ? COMMUNICATION_CUSTOM
+        : ''
+
     reset({
       title: initialJob.title || '',
       description: initialJob.description || '',
-      categoryId: initialJob.categoryId as any,
+      categoryId: initialJob.categoryId ?? (initialJob.customCategoryName ? OTHER_CATEGORY_VALUE : undefined),
+      customCategoryName: initialJob.customCategoryName,
       jobType: initialJob.jobType || JobType.FREELANCE_PROJECT,
       budgetType: initialJob.budgetType || BudgetType.FIXED,
       budgetAmount: initialJob.budgetMinMxc,
@@ -178,86 +276,116 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
       currentLevel: initialJob.currentLevel,
       learningGoals: initialJob.learningGoals,
       successCriteria: initialJob.successCriteria,
-      experienceLevel: initialJob.experienceLevel,
-      communicationPreference: initialJob.communicationPreference,
+      experiencePreset: initialExperiencePreset,
+      customExperienceLevel: initialExperiencePreset === EXPERIENCE_CUSTOM ? initialJob.experienceLevel : undefined,
+      communicationPreset: initialCommunicationPreset,
+      customCommunicationPreference: initialCommunicationPreset === COMMUNICATION_CUSTOM ? initialJob.communicationPreference : undefined,
       availabilityExpectation: initialJob.availabilityExpectation,
-      isUrgent: !initialJob.deadlineAt,
+      availabilityStartTime: initialJob.availabilityStartTime,
+      availabilityEndTime: initialJob.availabilityEndTime,
+      startDate: initialJob.startDate ? initialJob.startDate.slice(0, 16) : undefined,
       deadlineDate: initialJob.deadlineAt ? initialJob.deadlineAt.slice(0, 16) : undefined,
-      deadlineDays: initialJob.deadlineAt ? undefined : '7',
     })
 
-    const existingAttachment = initialJob.attachmentUrl || initialJob.attachments?.[0] || ''
-    setAttachmentUrl(existingAttachment)
-    setFileName(existingAttachment ? 'Tệp đã đính kèm' : '')
+    const initialAttachments = [...(initialJob.attachments || []), ...(initialJob.attachmentUrl ? [initialJob.attachmentUrl] : [])]
+      .filter((value, index, self) => Boolean(value) && self.indexOf(value) === index)
+      .map((fileUrl, index) => ({
+        fileName: decodeURIComponent(fileUrl.split('/').pop() || `Attachment ${index + 1}`),
+        fileUrl,
+        fileType: 'FILE',
+        size: 0,
+      }))
+
+    setAttachments(initialAttachments)
     setSubmitStatus(initialJob.status === JobStatus.DRAFT ? 'DRAFT' : 'OPEN')
   }, [initialJob, reset])
 
+  const attachmentSummary = useMemo(() => {
+    if (attachments.length === 0) return 'No files uploaded yet.'
+    return `${attachments.length} file(s) ready to send`
+  }, [attachments])
+
+  const buildExperienceLevel = (data: JobFormData) => {
+    if (data.experiencePreset === EXPERIENCE_CUSTOM) return data.customExperienceLevel
+    return data.experiencePreset || undefined
+  }
+
+  const buildCommunicationPreference = (data: JobFormData) => {
+    if (data.communicationPreset === COMMUNICATION_CUSTOM) return data.customCommunicationPreference
+    return data.communicationPreset || undefined
+  }
+
   const buildJobPayload = (data: JobFormData, status: JobStatus) => {
-    let deadlineAt: string | undefined = undefined
-    if (data.isUrgent) {
-      const date = new Date()
-      date.setDate(date.getDate() + 7)
-      deadlineAt = date.toISOString().slice(0, 16)
-    } else if (data.deadlineDate) {
-      deadlineAt = new Date(data.deadlineDate).toISOString().slice(0, 16)
-    } else if (data.deadlineDays) {
-      const days = parseInt(data.deadlineDays, 10)
-      if (!Number.isNaN(days)) {
-        const date = new Date()
-        date.setDate(date.getDate() + days)
-        deadlineAt = date.toISOString().slice(0, 16)
-      }
-    }
+    const safeCategoryId =
+      data.categoryId && data.categoryId !== OTHER_CATEGORY_VALUE ? data.categoryId : undefined
+    const normalizedAttachments = attachments.map((item) => item.fileUrl)
 
     return {
       title: data.title,
       description: data.description || '',
-      categoryId: data.categoryId || undefined,
+      categoryId: safeCategoryId,
+      customCategoryName: data.categoryId === OTHER_CATEGORY_VALUE || !safeCategoryId ? data.customCategoryName : undefined,
       jobType: (data.jobType || JobType.FREELANCE_PROJECT) as JobType,
-      requiredSkills: data.requiredSkillsInput ? data.requiredSkillsInput.split(/[,;\n]/).map((skill) => skill.trim()).filter(Boolean) : [],
-      experienceLevel: data.experienceLevel,
+      requiredSkills: data.requiredSkillsInput
+        ? data.requiredSkillsInput
+            .split(/[,;\n]/)
+            .map((skill) => skill.trim())
+            .filter(Boolean)
+        : [],
+      experienceLevel: buildExperienceLevel(data),
       currentLevel: data.currentLevel,
       learningGoals: data.learningGoals,
       successCriteria: data.successCriteria,
       availabilityExpectation: data.availabilityExpectation,
-      communicationPreference: data.communicationPreference,
-      attachmentUrl: attachmentUrl || undefined,
-      attachments: attachmentUrl ? [attachmentUrl] : undefined,
+      availabilityStartTime: data.availabilityStartTime,
+      availabilityEndTime: data.availabilityEndTime,
+      communicationPreference: buildCommunicationPreference(data),
+      attachmentUrl: normalizedAttachments[0],
+      attachments: normalizedAttachments.length > 0 ? normalizedAttachments : undefined,
       budgetType: data.budgetType as BudgetType,
       budgetMinMxc: data.budgetType === 'FIXED' ? data.budgetAmount : undefined,
       budgetMaxMxc: data.budgetType === 'FIXED' ? data.budgetAmount : undefined,
       hourlyRateMxc: data.budgetType === 'HOURLY' ? data.hourlyRate : undefined,
       estimatedHours: data.budgetType === 'HOURLY' ? data.estimatedHours : undefined,
-      deadlineAt,
+      startDate: data.startDate ? new Date(data.startDate).toISOString().slice(0, 16) : undefined,
+      deadlineAt: data.deadlineDate ? new Date(data.deadlineDate).toISOString().slice(0, 16) : undefined,
       status,
     }
   }
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (!file) return
+  const handleFilesUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || [])
+    if (files.length === 0) return
 
     try {
       setUploading(true)
       setError('')
-      const res = await fileApi.upload(file)
-      setAttachmentUrl(res.fileUrl)
-      setFileName(file.name)
-    } catch (err) {
-      setError('Tải file thất bại. Vui lòng thử lại.')
+
+      const uploaded = await Promise.all(files.map((file) => fileApi.upload(file)))
+      setAttachments((current) => {
+        const merged = [...current, ...uploaded]
+        return merged.filter((item, index, self) => self.findIndex((candidate) => candidate.fileUrl === item.fileUrl) === index)
+      })
+    } catch {
+      setError('File upload failed. Please try again.')
     } finally {
       setUploading(false)
+      event.target.value = ''
     }
+  }
+
+  const handleRemoveAttachment = (fileUrl: string) => {
+    setAttachments((current) => current.filter((item) => item.fileUrl !== fileUrl))
   }
 
   const handleSaveDraft = async () => {
     const data = getValues()
-    
+
     if (!data.title || data.title.trim().length < 5) {
-      setError('Cần ít nhất 5 ký tự tiêu đề để lưu nháp.')
+      setError('Please enter at least 5 characters for the title before saving a draft.')
       return
     }
-    
+
     try {
       setSubmitStatus('DRAFT')
       setLoading(true)
@@ -271,7 +399,7 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
       }
       navigate('/my-jobs')
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Không thể lưu nháp. Vui lòng thử lại.')
+      setError(err.response?.data?.message || 'Could not save draft.')
     } finally {
       setLoading(false)
     }
@@ -279,21 +407,22 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
 
   const onSubmit = async (data: JobFormData) => {
     if (!agreeTerms && submitStatus !== 'DRAFT') {
-      setError('Bạn cần đồng ý với Điều khoản dịch vụ và Chính sách bảo mật.')
+      setError('Please agree to the terms before posting.')
       return
     }
 
     try {
       setLoading(true)
       setError('')
-      
+
       const payload = buildJobPayload(data, submitStatus as JobStatus)
       const job = isEditing && initialJob
         ? await jobApi.update(initialJob.jobId, payload)
         : await jobApi.create({ clientId, ...payload })
+
       navigate(`/jobs/${job.jobId}`)
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Không thể tạo công việc. Vui lòng thử lại.')
+      setError(err.response?.data?.message || 'Could not create job.')
     } finally {
       setLoading(false)
     }
@@ -301,169 +430,203 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 rounded-[20px] bg-white p-6 shadow-[0_2px_12px_rgba(0,0,0,0.04)] sm:p-8">
-      
       <div>
-        <label className="mb-2 block text-sm font-bold text-slate-800">Tiêu đề yêu cầu</label>
+        <label className="mb-2 block text-sm font-bold text-slate-800">Job title</label>
         <input
           {...register('title')}
           className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition"
-          placeholder="VD: Cần tìm mentor hướng dẫn UI/UX cho người mới bắt đầu"
+          placeholder="Example: Need a React Native mentor to review booking app architecture"
         />
         {errors.title && <p className="mt-1.5 text-xs font-medium text-rose-500">{errors.title.message}</p>}
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label className="mb-2 block text-sm font-bold text-slate-800">Danh mục</label>
+          <label className="mb-2 block text-sm font-bold text-slate-800">Category</label>
           <div className="relative">
             <select
               {...register('categoryId')}
               className="w-full appearance-none rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition"
             >
-              <option value="">Chọn lĩnh vực hỗ trợ</option>
-              {categories.map((c) => (
-                <option key={c.id} value={c.id}>{c.name}</option>
+              <option value="">Choose a category</option>
+              {categories.map((category) => (
+                <option key={category.id} value={category.id}>{category.name}</option>
               ))}
+              <option value={OTHER_CATEGORY_VALUE}>Other</option>
             </select>
             <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
           </div>
           {errors.categoryId && <p className="mt-1.5 text-xs font-medium text-rose-500">{errors.categoryId.message}</p>}
+          {selectedCategoryId === OTHER_CATEGORY_VALUE && (
+            <div className="mt-3">
+              <input
+                {...register('customCategoryName')}
+                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition"
+                placeholder="Enter your own category"
+              />
+              {errors.customCategoryName && <p className="mt-1.5 text-xs font-medium text-rose-500">{errors.customCategoryName.message}</p>}
+            </div>
+          )}
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-bold text-slate-800">Thời gian làm việc mong muốn</label>
-          <div className="flex flex-col gap-3">
-            <label className="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
-              <input type="checkbox" {...register('isUrgent')} className="rounded border-slate-300 text-blue-500 focus:ring-blue-500" />
-              <Clock className="h-4 w-4 text-amber-500" />
-              Làm ngay (Càng sớm càng tốt)
-            </label>
-            
-            {!isUrgent && (
-              <div className="relative">
+          <label className="mb-2 block text-sm font-bold text-slate-800">Deadline</label>
+          <div className="grid gap-3">
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div>
+                <label className="mb-2 block text-xs font-bold text-slate-700">Start date and time</label>
+                <input
+                  type="datetime-local"
+                  {...register('startDate')}
+                  className="w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition"
+                />
+              </div>
+              <div>
+                <label className="mb-2 block text-xs font-bold text-slate-700">End date and time</label>
                 <input
                   type="datetime-local"
                   {...register('deadlineDate')}
-                  className="w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 py-3 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition"
+                  className="w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition"
                 />
-                <CalendarDays className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
               </div>
-            )}
+            </div>
           </div>
+          {errors.startDate && <p className="mt-1.5 text-xs font-medium text-rose-500">{errors.startDate.message}</p>}
+          {errors.deadlineDate && <p className="mt-1.5 text-xs font-medium text-rose-500">{errors.deadlineDate.message}</p>}
         </div>
       </div>
 
       <div>
-        <label className="mb-2 block text-sm font-bold text-slate-800">Mô tả chi tiết</label>
+        <label className="mb-2 block text-sm font-bold text-slate-800">Description</label>
         <textarea
           {...register('description')}
           rows={5}
           className="w-full resize-none rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm leading-6 text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition"
-          placeholder="Hãy mô tả cụ thể vấn đề, mục tiêu và yêu cầu của bạn đối với mentor..."
+          placeholder="Describe the problem, goal, scope, and what kind of mentor support you need."
         />
         {errors.description && <p className="mt-1.5 text-xs font-medium text-rose-500">{errors.description.message}</p>}
       </div>
 
-      <div className="rounded-xl border border-slate-100 bg-slate-50/80 overflow-hidden transition-all">
+      <div className="overflow-hidden rounded-xl border border-slate-100 bg-slate-50/80 transition-all">
         <button
           type="button"
-          onClick={() => setShowAdvanced(!showAdvanced)}
+          onClick={() => setShowAdvanced((value) => !value)}
           className="flex w-full items-center justify-between px-5 py-4 text-left text-sm font-bold text-slate-700 hover:bg-slate-100/50"
         >
-          <span>Tùy chọn chi tiết (Kỹ năng, Brief, Mục tiêu)</span>
+          <span>Advanced details</span>
           <ChevronDown className={`h-4 w-4 text-slate-400 transition-transform ${showAdvanced ? 'rotate-180' : ''}`} />
         </button>
-        
+
         {showAdvanced && (
-          <div className="p-5 pt-2 grid gap-4 border-t border-slate-100 sm:grid-cols-2">
+          <div className="grid gap-4 border-t border-slate-100 p-5 pt-4 sm:grid-cols-2">
             <div className="sm:col-span-2">
-              <label className="mb-2 block text-xs font-bold text-slate-700">Kỹ năng/chủ đề cần mentor nắm</label>
+              <label className="mb-2 block text-xs font-bold text-slate-700">Required skills or topics</label>
               <input
                 {...register('requiredSkillsInput')}
                 className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-                placeholder="VD: React, Spring Boot, system design..."
+                placeholder="React Native, Expo, performance optimization..."
               />
             </div>
+
             <div>
-              <label className="mb-2 block text-xs font-bold text-slate-700">Trình độ hiện tại của bạn</label>
+              <label className="mb-2 block text-xs font-bold text-slate-700">Your current level</label>
               <input
                 {...register('currentLevel')}
                 className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-                placeholder="VD: Đã biết React cơ bản..."
+                placeholder="Example: I can build screens but need architecture help"
               />
             </div>
+
             <div>
-              <label className="mb-2 block text-xs font-bold text-slate-700">Trình độ mentor mong muốn</label>
+              <label className="mb-2 block text-xs font-bold text-slate-700">Preferred mentor level</label>
               <select
-                {...register('experienceLevel')}
+                {...register('experiencePreset')}
                 className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
               >
-                <option value="">Chưa chắc, để mentor đề xuất</option>
-                <option value="INTERMEDIATE">Mentor trung cấp trở lên</option>
-                <option value="SENIOR">Mentor senior</option>
-                <option value="EXPERT">Chuyên gia trong lĩnh vực</option>
+                {experienceOptions.map((option) => (
+                  <option key={option.value || 'default'} value={option.value}>{option.label}</option>
+                ))}
               </select>
+              {experiencePreset === EXPERIENCE_CUSTOM && (
+                <input
+                  {...register('customExperienceLevel')}
+                  className="mt-3 w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  placeholder="Enter your own preferred mentor level"
+                />
+              )}
+              {errors.customExperienceLevel && <p className="mt-1.5 text-xs font-medium text-rose-500">{errors.customExperienceLevel.message}</p>}
             </div>
+
             <div className="sm:col-span-2">
-              <label className="mb-2 block text-xs font-bold text-slate-700">Mục tiêu sau khi làm việc</label>
+              <label className="mb-2 block text-xs font-bold text-slate-700">Learning goals</label>
               <textarea
                 {...register('learningGoals')}
                 rows={2}
                 className="w-full resize-none rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-                placeholder="VD: Tự tin deploy MVP..."
+                placeholder="What should change after working with the mentor?"
               />
             </div>
+
             <div className="sm:col-span-2">
-              <label className="mb-2 block text-xs font-bold text-slate-700">Tiêu chí thành công</label>
+              <label className="mb-2 block text-xs font-bold text-slate-700">Success criteria</label>
               <textarea
                 {...register('successCriteria')}
                 rows={2}
                 className="w-full resize-none rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-                placeholder="VD: Mentor review xong 5 PRs..."
+                placeholder="How will you know this job is done well?"
               />
             </div>
+
             <div>
-              <label className="mb-2 block text-xs font-bold text-slate-700">Kênh trao đổi ưu tiên</label>
+              <label className="mb-2 block text-xs font-bold text-slate-700">Preferred communication</label>
               <select
-                {...register('communicationPreference')}
+                {...register('communicationPreset')}
                 className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
               >
-                <option value="">Linh hoạt, để mentor đề xuất</option>
-                <option value="CHAT">Chat</option>
-                <option value="VIDEO_CALL">Video call</option>
-                <option value="CODE_REVIEW">Review code/tài liệu</option>
-                <option value="MIXED">Kết hợp nhiều hình thức</option>
+                {communicationOptions.map((option) => (
+                  <option key={option.value || 'default'} value={option.value}>{option.label}</option>
+                ))}
               </select>
+              {communicationPreset === COMMUNICATION_CUSTOM && (
+                <input
+                  {...register('customCommunicationPreference')}
+                  className="mt-3 w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  placeholder="Enter your own communication preference"
+                />
+              )}
+              {errors.customCommunicationPreference && <p className="mt-1.5 text-xs font-medium text-rose-500">{errors.customCommunicationPreference.message}</p>}
             </div>
+
             <div>
-              <label className="mb-2 block text-xs font-bold text-slate-700">Lịch mong muốn</label>
+              <label className="mb-2 block text-xs font-bold text-slate-700">Availability note</label>
               <input
                 {...register('availabilityExpectation')}
                 className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-                placeholder="VD: Buổi tối T2-T4 hoặc cuối tuần"
+                placeholder="Example: Weeknights or weekends"
               />
             </div>
+
           </div>
         )}
       </div>
 
       <div>
         <div className="mb-4 flex items-center justify-between">
-          <label className="block text-sm font-bold text-slate-800">Ngân sách dự kiến</label>
+          <label className="block text-sm font-bold text-slate-800">Budget</label>
           <div className="flex items-center rounded-lg border border-slate-200 bg-slate-50 p-1">
             <button
               type="button"
               onClick={() => setValue('budgetType', 'FIXED')}
               className={`rounded-md px-3 py-1.5 text-xs font-bold transition ${budgetType === 'FIXED' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
             >
-              Cố định
+              Fixed
             </button>
             <button
               type="button"
               onClick={() => setValue('budgetType', 'HOURLY')}
               className={`rounded-md px-3 py-1.5 text-xs font-bold transition ${budgetType === 'HOURLY' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
             >
-              Theo giờ
+              Hourly
             </button>
           </div>
         </div>
@@ -474,11 +637,12 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
               type="number"
               {...register('budgetAmount')}
               className="w-full rounded-xl border border-slate-200 bg-white pl-4 pr-24 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition"
-              placeholder="Tổng ngân sách tối đa"
+              placeholder="Total budget"
             />
             <div className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-bold text-slate-700">
-              MX COIN
+              MXC
             </div>
+            {errors.budgetAmount && <p className="mt-1.5 text-xs font-medium text-rose-500">{errors.budgetAmount.message}</p>}
           </div>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2">
@@ -487,126 +651,137 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
                 type="number"
                 {...register('hourlyRate')}
                 className="w-full rounded-xl border border-slate-200 bg-white pl-4 pr-24 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition"
-                placeholder="Mức giá / giờ"
+                placeholder="Hourly rate"
               />
               <div className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-bold text-slate-700">
                 MXC/h
               </div>
+              {errors.hourlyRate && <p className="mt-1.5 text-xs font-medium text-rose-500">{errors.hourlyRate.message}</p>}
             </div>
+
             <div className="relative">
               <input
                 type="number"
                 {...register('estimatedHours')}
                 className="w-full rounded-xl border border-slate-200 bg-white pl-4 pr-16 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition"
-                placeholder="Số giờ dự kiến"
+                placeholder="Estimated hours"
               />
               <div className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-bold text-slate-700">
-                Giờ
+                hrs
               </div>
+              {errors.estimatedHours && <p className="mt-1.5 text-xs font-medium text-rose-500">{errors.estimatedHours.message}</p>}
             </div>
           </div>
         )}
       </div>
 
-      <div className="flex items-start gap-3 rounded-xl bg-[#f4f8ff] px-4 py-3 text-[13px] leading-relaxed text-blue-900 border border-[#e5eeff]">
+      <div className="flex items-start gap-3 rounded-xl border border-[#e5eeff] bg-[#f4f8ff] px-4 py-3 text-[13px] leading-relaxed text-blue-900">
         <Info className="mt-[3px] h-4 w-4 shrink-0 text-blue-500" />
-        <p>Khoản thanh toán sẽ được hệ thống <strong>tạm giữ (Escrow)</strong> để đảm bảo an toàn cho cả hai bên cho đến khi công việc hoàn thành.</p>
+        <p>
+          Payment stays protected in escrow until the work is completed and accepted.
+        </p>
       </div>
 
       <div>
-        <label className="mb-2 block text-sm font-bold text-slate-800">Đính kèm file (tối đa 25MB)</label>
-        
-        {attachmentUrl ? (
-          <div className="overflow-hidden rounded-xl border border-indigo-100 bg-indigo-50/50">
-            {attachmentUrl.match(/\.(jpeg|jpg|gif|png)$/i) ? (
-              <div className="relative h-48 w-full bg-slate-100">
-                <img src={attachmentUrl} alt="Preview" className="h-full w-full object-contain" />
-              </div>
-            ) : null}
-            <div className="flex items-center justify-between gap-3 p-4">
-              <div className="flex min-w-0 items-center gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white text-indigo-500 shadow-sm border border-indigo-100/50">
-                  <FileIcon className="h-5 w-5" />
-                </div>
-                <span className="truncate text-sm font-bold text-indigo-950">{fileName}</span>
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  setAttachmentUrl('')
-                  setFileName('')
-                }}
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-indigo-400 hover:bg-white hover:text-rose-500 transition"
-              >
-                <X className="h-4 w-4" />
-              </button>
+        <label className="mb-2 block text-sm font-bold text-slate-800">Attachments (multiple files supported)</label>
+        <p className="mb-3 text-xs font-medium text-slate-500">{attachmentSummary}</p>
+
+        <label className="group flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 bg-[#fafafa] px-6 py-8 transition hover:border-blue-400 hover:bg-blue-50/30">
+          <input type="file" multiple onChange={handleFilesUpload} className="hidden" disabled={uploading} />
+          {uploading ? (
+            <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+          ) : (
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f1f5f9] text-[#94a3b8] transition-all group-hover:scale-110 group-hover:text-blue-500">
+              <Upload className="h-6 w-6" />
             </div>
-          </div>
-        ) : (
-          <label className="group flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 bg-[#fafafa] px-6 py-8 transition hover:border-blue-400 hover:bg-blue-50/30">
-            <input type="file" onChange={handleFileUpload} className="hidden" disabled={uploading} />
-            {uploading ? (
-              <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
-            ) : (
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f1f5f9] text-[#94a3b8] group-hover:scale-110 group-hover:text-blue-500 transition-all">
-                <Upload className="h-6 w-6" />
+          )}
+          <p className="mt-4 text-[13px] font-medium text-slate-500">
+            {uploading ? 'Uploading files...' : 'Drop files here or browse from your device'}
+          </p>
+          <p className="mt-1 text-[11px] font-medium uppercase tracking-wide text-slate-400">PDF, DOCX, JPG, PNG, or ZIP</p>
+        </label>
+
+        {attachments.length > 0 && (
+          <div className="mt-4 space-y-3">
+            {attachments.map((attachment) => (
+              <div key={attachment.fileUrl} className="flex items-center justify-between gap-3 rounded-xl border border-indigo-100 bg-indigo-50/50 p-4">
+                <div className="flex min-w-0 items-center gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-indigo-100/50 bg-white text-indigo-500 shadow-sm">
+                    <FileIcon className="h-5 w-5" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-bold text-indigo-950">{attachment.fileName}</p>
+                    <p className="mt-1 text-xs font-medium text-indigo-600/80">
+                      {attachment.fileType} {attachment.size ? `- ${Math.max(1, Math.round(attachment.size / 1024))} KB` : ''}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleRemoveAttachment(attachment.fileUrl)}
+                  className="flex h-8 w-8 items-center justify-center rounded-lg text-indigo-400 transition hover:bg-white hover:text-rose-500"
+                >
+                  <X className="h-4 w-4" />
+                </button>
               </div>
-            )}
-            <p className="mt-4 text-[13px] font-medium text-slate-500">
-              {uploading ? 'Đang tải file lên...' : (
-                <>Kéo và thả file tại đây hoặc <span className="text-blue-600 font-semibold underline decoration-blue-200 underline-offset-2">Duyệt file</span></>
-              )}
-            </p>
-            <p className="mt-1 text-[11px] font-medium text-slate-400 uppercase tracking-wide">PDF, DOCX, JPG, PNG HOẶC ZIP</p>
-          </label>
+            ))}
+          </div>
         )}
       </div>
 
-      <label className="flex items-start gap-3 cursor-pointer group py-2">
-        <div className="relative flex h-5 w-5 items-center justify-center shrink-0">
+      <label className="group flex cursor-pointer items-start gap-3 py-2">
+        <div className="relative flex h-5 w-5 shrink-0 items-center justify-center">
           <input
             type="checkbox"
             className="peer h-5 w-5 cursor-pointer appearance-none rounded border border-slate-300 bg-white transition checked:border-[#3b82f6] checked:bg-[#3b82f6] hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
             checked={agreeTerms}
-            onChange={(e) => setAgreeTerms(e.target.checked)}
+            onChange={(event) => setAgreeTerms(event.target.checked)}
           />
           <svg className="pointer-events-none absolute h-3.5 w-3.5 text-white opacity-0 peer-checked:opacity-100" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
           </svg>
         </div>
-        <span className="text-[13px] text-slate-600 leading-relaxed">
-          Tôi đồng ý với các <a href="#" className="font-semibold text-blue-600 hover:text-blue-700">Điều khoản dịch vụ</a> và <a href="#" className="font-semibold text-blue-600 hover:text-blue-700">Chính sách bảo mật</a> của Mentor X.
+        <span className="text-[13px] leading-relaxed text-slate-600">
+          I agree with the Terms of Service and Privacy Policy.
         </span>
       </label>
 
       {error && (
-        <div className="flex items-start gap-3 rounded-xl bg-rose-50 px-4 py-3 text-sm text-rose-800 border border-rose-100">
+        <div className="flex items-start gap-3 rounded-xl border border-rose-100 bg-rose-50 px-4 py-3 text-sm text-rose-800">
           <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-rose-500" />
           <p className="font-medium">{error}</p>
         </div>
       )}
 
-      <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end border-t border-slate-100 pt-6">
+      <div className="flex flex-col-reverse gap-3 border-t border-slate-100 pt-6 sm:flex-row sm:justify-end">
         <button
           type="button"
           disabled={loading || uploading}
           onClick={handleSaveDraft}
-          className="flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-6 py-3.5 text-[15px] font-bold text-slate-700 shadow-sm transition-all hover:bg-slate-50 hover:shadow focus:outline-none focus:ring-4 focus:ring-slate-500/10 disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:shadow-none"
+          className="flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-6 py-3.5 text-[15px] font-bold text-slate-700 shadow-sm transition-all hover:bg-slate-50 hover:shadow focus:outline-none focus:ring-4 focus:ring-slate-500/10 disabled:cursor-not-allowed disabled:opacity-70"
         >
           {loading && submitStatus === 'DRAFT' ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4 text-slate-400" />}
-          {isEditing ? 'Cập nhật nháp' : 'Lưu nháp'}
+          {isEditing ? 'Update draft' : 'Save draft'}
         </button>
 
         <button
           type="submit"
           disabled={loading || uploading}
           onClick={() => setSubmitStatus('OPEN')}
-          className="flex flex-1 sm:flex-none items-center justify-center gap-2 rounded-xl bg-[#3b82f6] px-8 py-3.5 text-[15px] font-bold text-white shadow-sm transition-all hover:bg-blue-600 hover:shadow focus:outline-none focus:ring-4 focus:ring-blue-500/20 disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:shadow-none"
+          className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[#3b82f6] px-8 py-3.5 text-[15px] font-bold text-white shadow-sm transition-all hover:bg-blue-600 hover:shadow focus:outline-none focus:ring-4 focus:ring-blue-500/20 disabled:cursor-not-allowed disabled:opacity-70 sm:flex-none"
         >
-          {loading && submitStatus === 'OPEN' ? <Loader2 className="h-5 w-5 animate-spin" /> : isEditing ? 'Cập nhật và đăng' : 'Đăng yêu cầu'}
+          {loading && submitStatus === 'OPEN' ? <Loader2 className="h-5 w-5 animate-spin" /> : isEditing ? 'Update and publish' : 'Post job'}
           {(!loading || submitStatus !== 'OPEN') && <Send className="h-[18px] w-[18px] -mr-1" />}
         </button>
       </div>
     </form>
   )
+}
+
+function isKnownExperienceValue(value?: string) {
+  return experienceOptions.some((option) => option.value && option.value === value)
+}
+
+function isKnownCommunicationValue(value?: string) {
+  return communicationOptions.some((option) => option.value && option.value === value)
 }

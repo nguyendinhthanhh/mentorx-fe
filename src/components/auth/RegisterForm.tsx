@@ -43,7 +43,7 @@ export default function RegisterForm() {
       const response = await authApi.register(data)
       setTokens(response.accessToken, response.refreshToken)
       setUser(response.user)
-      navigate('/onboarding')
+      navigate('/verify-email')
     } catch (err: any) {
       setError(err.response?.data?.message || 'Registration failed. Please try again.')
     } finally {

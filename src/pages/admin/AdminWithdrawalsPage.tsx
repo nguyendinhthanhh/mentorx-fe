@@ -62,7 +62,7 @@ export default function AdminWithdrawalsPage() {
   const filteredData = data?.filter(req => {
     const matchesSearch = req.bankAccountName.toLowerCase().includes(search.toLowerCase()) || 
                          req.bankAccountNo.includes(search) ||
-                         req.user.fullName.toLowerCase().includes(search.toLowerCase())
+                         req.user?.fullName?.toLowerCase().includes(search.toLowerCase())
     const matchesStatus = statusFilter ? req.status === statusFilter : true
     return matchesSearch && matchesStatus
   })
@@ -182,7 +182,7 @@ export default function AdminWithdrawalsPage() {
                   <tr key={request.id} className="group hover:bg-gray-50/30 dark:hover:bg-gray-800/30 transition-all">
                     <td className="px-8 py-6">
                       <div className="flex flex-col">
-                        <span className="text-sm font-black text-gray-900 dark:text-white tracking-tight">{request.user.fullName}</span>
+                        <span className="text-sm font-black text-gray-900 dark:text-white tracking-tight">{request.user?.fullName || `User #${request.userId.slice(0, 6)}`}</span>
                         <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mt-0.5">ID: {request.id.substring(0, 8)}...</span>
                         <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 mt-0.5">{formatDateTime(request.createdAt)}</span>
                       </div>

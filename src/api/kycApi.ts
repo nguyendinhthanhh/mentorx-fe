@@ -1,9 +1,11 @@
 import type { AxiosError } from 'axios'
 import apiClient from './client'
-import { MentorStatus } from '@/types'
+import { IdentityDocumentType, VerificationStatus } from '@/types'
 
 export interface KycStatusResponse {
-  mentorStatus: MentorStatus
+  identityStatus: VerificationStatus
+  identityRequired?: boolean
+  documentType?: IdentityDocumentType
   livenessResult?: string
   livenessScore?: number
   faceMatchingResult?: string
@@ -11,11 +13,11 @@ export interface KycStatusResponse {
   submittedAt?: string
   approvedAt?: string
   rejectionReason?: string
-  identityDocumentUrl?: string
-  identityDocumentBackUrl?: string
-  portraitUrl?: string
   legalName?: string
   dateOfBirth?: string
+  countryOfResidence?: string
+  documentNumberMasked?: string
+  verificationProvider?: string
 }
 
 /** OCR + nhiều lần FFmpeg/OpenCV + so khớp mặt + liveness — có thể > 30s */
