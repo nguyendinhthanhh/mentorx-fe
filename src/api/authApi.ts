@@ -12,6 +12,11 @@ export const authApi = {
     return response.data.data
   },
 
+  githubLogin: async (code: string): Promise<AuthResponse> => {
+    const response = await apiClient.post<ApiResponse<AuthResponse>>('/auth/github', { code })
+    return response.data.data
+  },
+
   register: async (data: RegisterRequest): Promise<AuthResponse> => {
     const response = await apiClient.post<ApiResponse<AuthResponse>>('/auth/register', data)
     return response.data.data
