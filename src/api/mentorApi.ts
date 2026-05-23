@@ -96,6 +96,8 @@ export const mentorApi = {
     minRating?: number
     maxHourlyRate?: number
     availability?: string
+    primaryDomain?: string
+    skill?: string
     page?: number
     size?: number
     sortBy?: string

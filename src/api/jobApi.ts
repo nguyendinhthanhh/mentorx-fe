@@ -32,6 +32,7 @@ export const jobApi = {
   getOpenJobs: async (params: {
     jobType?: JobType
     categoryId?: number
+    skill?: string
     page?: number
     size?: number
   }): Promise<PaginatedResponse<JobResponse>> => {
@@ -68,6 +69,7 @@ export const jobApi = {
     status?: JobStatus
     jobType?: JobType
     categoryId?: number
+    skill?: string
     page?: number
     size?: number
   }): Promise<PaginatedResponse<JobResponse>> => {

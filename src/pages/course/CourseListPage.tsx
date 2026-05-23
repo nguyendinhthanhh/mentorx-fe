@@ -1,20 +1,43 @@
 import { useQueries, useQuery } from 'react-query'
 import { courseApi } from '@/api/courseApi'
+import { categoryApi } from '@/api/categoryApi'
 import { Link } from 'react-router-dom'
 import { formatCurrency } from '@/utils/formatters'
 import { Plus, BookOpen, Star, Search, Users } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useI18n } from '@/i18n/I18nProvider'
-import { CourseLessonResponse } from '@/types'
+import { CourseLessonResponse, SupportedLanguage } from '@/types'
 
 export default function CourseListPage() {
   const { t } = useI18n()
   const [search, setSearch] = useState('')
   const [typeFilter, setTypeFilter] = useState<'all' | 'course' | 'document'>('all')
+  const [categoryFilter, setCategoryFilter] = useState('')
+  const [skillFilter, setSkillFilter] = useState('')
+  const [languageFilter, setLanguageFilter] = useState<'' | SupportedLanguage>('')
+  const [levelFilter, setLevelFilter] = useState('')
 
-  const { data, isLoading } = useQuery('courses', () =>
-    courseApi.getPublished({ page: 0, size: 20 })
+  const selectedCategoryId = useMemo(() => {
+    if (!categoryFilter) return undefined
+    const parsed = Number(categoryFilter)
+    return Number.isNaN(parsed) ? undefined : parsed
+  }, [categoryFilter])
+
+  const { data, isLoading } = useQuery(
+    ['courses', selectedCategoryId, skillFilter, languageFilter, levelFilter],
+    () =>
+      courseApi.getPublished({
+        page: 0,
+        size: 20,
+        categoryId: selectedCategoryId,
+        skill: skillFilter.trim() || undefined,
+        language: languageFilter || undefined,
+        level: levelFilter.trim() || undefined,
+      })
   )
+  const { data: categories = [] } = useQuery('course-filter-categories', categoryApi.getAllActive, {
+    staleTime: 5 * 60 * 1000,
+  })
 
   const lessonQueries = useQueries(
     (data?.content ?? []).map((course) => ({
@@ -82,10 +105,11 @@ export default function CourseListPage() {
   }
 
   const filteredCourses = data?.content.filter((course) => {
+    const keyword = search.toLowerCase()
     const matchesSearch =
       !search ||
-      course.title.toLowerCase().includes(search.toLowerCase()) ||
-      course.description?.toLowerCase().includes(search.toLowerCase())
+      course.title.toLowerCase().includes(keyword) ||
+      course.description?.toLowerCase().includes(keyword)
 
     if (!matchesSearch) return false
     if (typeFilter === 'all') return true
@@ -149,6 +173,45 @@ export default function CourseListPage() {
                 {item.label}
               </button>
             ))}
+            <select
+              value={categoryFilter}
+              onChange={(event) => setCategoryFilter(event.target.value)}
+              className="rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-700 outline-none transition hover:border-indigo-300 focus:border-indigo-500"
+            >
+              <option value="">All domains</option>
+              {categories.map((category) => (
+                <option key={category.id} value={String(category.id)}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
+            <input
+              value={skillFilter}
+              onChange={(event) => setSkillFilter(event.target.value)}
+              placeholder="Filter by skill"
+              className="rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-700 outline-none transition hover:border-indigo-300 focus:border-indigo-500"
+            />
+            <select
+              value={languageFilter}
+              onChange={(event) => setLanguageFilter(event.target.value as '' | SupportedLanguage)}
+              className="rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-700 outline-none transition hover:border-indigo-300 focus:border-indigo-500"
+            >
+              <option value="">All languages</option>
+              <option value={SupportedLanguage.VI}>Vietnamese</option>
+              <option value={SupportedLanguage.EN}>English</option>
+              <option value={SupportedLanguage.JA}>Japanese</option>
+              <option value={SupportedLanguage.ZH}>Chinese</option>
+            </select>
+            <select
+              value={levelFilter}
+              onChange={(event) => setLevelFilter(event.target.value)}
+              className="rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-700 outline-none transition hover:border-indigo-300 focus:border-indigo-500"
+            >
+              <option value="">All levels</option>
+              <option value="beginner">Beginner</option>
+              <option value="intermediate">Intermediate</option>
+              <option value="advanced">Advanced</option>
+            </select>
           </div>
         </div>
       </section>

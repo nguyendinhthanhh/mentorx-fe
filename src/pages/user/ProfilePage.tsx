@@ -1,12 +1,13 @@
 import { useAuthStore } from '@/store/authStore'
 import UserUpdateForm from '@/components/user/UserUpdateForm'
 import EkycVerification from '@/components/user/EkycVerification'
-import { User, ShieldCheck } from 'lucide-react'
+import UserPreferenceForm from '@/components/user/UserPreferenceForm'
+import { User, ShieldCheck, SlidersHorizontal } from 'lucide-react'
 import { useState } from 'react'
 
 export default function ProfilePage() {
   const { user } = useAuthStore()
-  const [activeTab, setActiveTab] = useState<'profile' | 'ekyc'>('profile')
+  const [activeTab, setActiveTab] = useState<'profile' | 'preferences' | 'ekyc'>('profile')
 
   if (!user) return null
 
@@ -38,6 +39,17 @@ export default function ProfilePage() {
           Personal Info
         </button>
         <button
+          onClick={() => setActiveTab('preferences')}
+          className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${
+            activeTab === 'preferences'
+              ? 'bg-white dark:bg-slate-800 text-primary-600 shadow-sm'
+              : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'
+          }`}
+        >
+          <SlidersHorizontal className="w-4 h-4" />
+          Interests & Matching
+        </button>
+        <button
           onClick={() => setActiveTab('ekyc')}
           className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${
             activeTab === 'ekyc'
@@ -65,6 +77,8 @@ export default function ProfilePage() {
               profileIsPublic: user.profileIsPublic,
             }}
           />
+        ) : activeTab === 'preferences' ? (
+          <UserPreferenceForm />
         ) : (
           <EkycVerification />
         )}

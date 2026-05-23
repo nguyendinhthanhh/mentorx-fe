@@ -228,13 +228,18 @@ export interface PaginatedResponse<T> {
 
 export interface CategoryResponse {
   id: number;
+  categoryId: number;
   name: string;
   slug: string;
   description?: string;
   icon?: string;
+  iconUrl?: string;
   parentId?: number;
+  parentCategoryId?: number;
   isActive: boolean;
   displayOrder: number;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 // Auth Types
@@ -403,6 +408,9 @@ export interface MentorProfileResponse {
   currentTitle?: string;
   currentCompany?: string;
   primaryDomain?: string;
+  skills?: string[];
+  professionalBio?: string;
+  helpDescription?: string;
   linkedinUrl?: string;
   githubUrl?: string;
   portfolioEvidenceUrl?: string;
@@ -450,6 +458,9 @@ export interface MentorProfileRequest {
   currentTitle?: string;
   currentCompany?: string;
   primaryDomain?: string;
+  skills?: string[];
+  professionalBio?: string;
+  helpDescription?: string;
   linkedinUrl?: string;
   githubUrl?: string;
   portfolioEvidenceUrl?: string;
@@ -557,6 +568,7 @@ export interface CourseResponse {
   instructor: UserResponse;
   instructorName?: string;
   categoryId?: number;
+  skills?: string[];
   title: string;
   slug: string;
   description?: string;
@@ -579,7 +591,8 @@ export interface CourseResponse {
 
 export interface CourseCreateRequest {
   instructorId: string;
-  categoryId?: number;
+  categoryId: number;
+  skills: string[];
   title: string;
   slug: string;
   description?: string;
@@ -593,6 +606,7 @@ export interface CourseCreateRequest {
 
 export interface CourseUpdateRequest {
   categoryId?: number;
+  skills?: string[];
   title?: string;
   description?: string;
   thumbnailUrl?: string;
@@ -1035,20 +1049,6 @@ export interface ReportResponse {
   updatedAt: string;
 }
 
-// Category Types
-export interface CategoryResponse {
-  categoryId: number;
-  parentCategoryId?: number;
-  name: string;
-  slug: string;
-  description?: string;
-  iconUrl?: string;
-  displayOrder: number;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
 // Matching Types
 export interface UserInterestProfileRequest {
   userId: string;
@@ -1061,18 +1061,20 @@ export interface UserInterestProfileRequest {
 }
 
 export interface UserMatchingPreferenceRequest {
-  preferredJobTypes?: string[];
-  budgetMinMxc?: number;
-  budgetMaxMxc?: number;
-  preferredMentorLang?: string;
+  interestedDomainIds?: number[];
+  preferredSkillIds?: number[];
+  learningGoals?: string[];
+  preferredLanguages?: string[];
+  onboardingCompleted?: boolean;
 }
 
 export interface UserMatchingPreferenceResponse {
   userId: string;
-  preferredJobTypes: string[];
-  budgetMinMxc?: number;
-  budgetMaxMxc?: number;
-  preferredMentorLang?: string;
+  interestedDomainIds: number[];
+  preferredSkillIds: number[];
+  learningGoals: string[];
+  preferredLanguages: string[];
+  onboardingCompleted: boolean;
 }
 
 // Skill Types
