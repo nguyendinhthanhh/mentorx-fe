@@ -37,6 +37,10 @@ export const authApi = {
     await apiClient.post(`/auth/logout-all?userId=${encodeURIComponent(userId)}`)
   },
 
+  changePassword: async (userId: string, currentPassword: string, newPassword: string): Promise<void> => {
+    await apiClient.post(`/auth/change-password?userId=${encodeURIComponent(userId)}`, { currentPassword, newPassword })
+  },
+
   forgotPassword: async (email: string): Promise<void> => {
     await apiClient.post(`/auth/forgot-password?email=${encodeURIComponent(email)}`)
   },
