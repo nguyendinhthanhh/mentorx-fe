@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useQuery } from 'react-query'
 import { proposalApi } from '@/api/proposalApi'
-import { negotiationApi } from '@/api/negotiationApi'
+import { negotiationApi, type NegotiationResponse } from '@/api/negotiationApi'
 import { chatApi } from '@/api/chatApi'
 import { useAuthStore } from '@/store/authStore'
 import { useSearchParams, Link } from 'react-router-dom'

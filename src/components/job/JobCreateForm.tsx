@@ -113,6 +113,14 @@ const jobSchema = z
       })
     }
 
+    if (!data.requiredSkillsInput || data.requiredSkillsInput.split(/[,;\n]/).map((item) => item.trim()).filter(Boolean).length === 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Please add at least one required skill or topic.',
+        path: ['requiredSkillsInput'],
+      })
+    }
+
     if (data.categoryId === OTHER_CATEGORY_VALUE && !data.customCategoryName) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,

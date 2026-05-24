@@ -6,6 +6,7 @@ import {
   CourseCreateRequest,
   CourseUpdateRequest,
   CourseStatus,
+  SupportedLanguage,
   CourseSectionResponse,
   CourseLessonResponse,
   CourseEnrollmentResponse,
@@ -34,6 +35,10 @@ export const courseApi = {
   getPublished: async (params: {
     page?: number
     size?: number
+    categoryId?: number
+    skill?: string
+    language?: SupportedLanguage
+    level?: string
   }): Promise<PaginatedResponse<CourseResponse>> => {
     const response = await apiClient.get<ApiResponse<PaginatedResponse<CourseResponse>>>(
       '/courses/published',
@@ -69,6 +74,9 @@ export const courseApi = {
     status?: CourseStatus
     instructorId?: string
     categoryId?: number
+    skill?: string
+    language?: SupportedLanguage
+    level?: string
     page?: number
     size?: number
   }): Promise<PaginatedResponse<CourseResponse>> => {

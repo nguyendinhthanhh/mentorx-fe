@@ -276,7 +276,7 @@ export default function JobDetailPage() {
               )}
             </div>
 
-            <Panel title="MÃ´ táº£ cÃ´ng viá»‡c" icon={FileText}>
+            <Panel title="Mô tả công việc" icon={FileText}>
               <div className="rounded-2xl border border-slate-100 bg-slate-50/80 px-5 py-5 sm:px-6">
                 <div className="mb-3 text-[11px] font-black uppercase tracking-[0.16em] text-indigo-500">
                   Job description
@@ -321,7 +321,7 @@ export default function JobDetailPage() {
             )}
 
             {(job.attachmentUrl || (job.attachments && job.attachments.length > 0)) && (
-              <Panel title="TÃ i liá»‡u & HÃ¬nh áº£nh Ä‘Ã­nh kÃ¨m" icon={Layers3}>
+              <Panel title="Tài liệu & Hình ảnh đính kèm" icon={Layers3}>
                 <div className="grid gap-4 sm:grid-cols-2">
                   {/* Gá»™p táº¥t cáº£ tÃ i liá»‡u vÃ o má»™t danh sÃ¡ch Ä‘á»ƒ hiá»ƒn thá»‹ */}
                   {[

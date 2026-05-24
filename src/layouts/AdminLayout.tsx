@@ -25,11 +25,12 @@ import {
 } from 'lucide-react'
 import { useState } from 'react'
 import { useThemeStore } from '@/store/themeStore'
+import { isAdmin, isModerator } from '@/utils/roleRedirect'
 
 const adminLinks = [
   { to: '/admin/dashboard', label: 'Overview', icon: LayoutDashboard },
   { to: '/admin/users', label: 'Users', icon: Users },
-  { to: '/admin/mentor-applications', label: 'Mentor Applications', icon: UserCheck },
+  { to: '/admin/mentor-applications', label: 'Mentor Verification', icon: UserCheck },
   { to: '/admin/jobs', label: 'Jobs', icon: Briefcase },
   { to: '/admin/courses', label: 'Courses', icon: BookOpen },
   { to: '/admin/api', label: 'API Functions', icon: Zap },
@@ -45,6 +46,12 @@ export default function AdminLayout() {
   const { user, logout } = useAuthStore()
   const { isDarkMode, toggleTheme } = useThemeStore()
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
+  const isFinanceAdmin = isAdmin(user)
+  const userRoleLabel = isAdmin(user) ? 'Admin' : isModerator(user) ? 'Moderator' : 'Operations'
+  const visibleAdminLinks = adminLinks.filter((link) => {
+    if (isFinanceAdmin) return true
+    return !['/admin/wallet', '/admin/users', '/admin/api', '/admin/settings'].includes(link.to)
+  })
 
   const handleLogout = () => {
     logout()
@@ -80,7 +87,7 @@ export default function AdminLayout() {
           {/* Sidebar Nav */}
           <nav className="flex-1 p-6 space-y-2 overflow-y-auto custom-scrollbar">
             {/* Admin Links */}
-            {adminLinks.map((link) => (
+            {visibleAdminLinks.map((link) => (
               <Link
                 key={link.to}
                 to={link.to}
@@ -153,7 +160,7 @@ export default function AdminLayout() {
               <div className="flex items-center gap-4">
                 <div className="text-right hidden lg:block">
                   <p className="text-sm font-black text-gray-900 dark:text-white leading-none">{user?.fullName}</p>
-                  <p className="text-[10px] text-primary-600 dark:text-primary-400 mt-1 font-black uppercase tracking-[0.2em]">Super Admin</p>
+                  <p className="text-[10px] text-primary-600 dark:text-primary-400 mt-1 font-black uppercase tracking-[0.2em]">{userRoleLabel}</p>
                 </div>
                 <div className="w-12 h-12 rounded-[1.25rem] bg-gray-900 dark:bg-gray-700 border-4 border-gray-50 dark:border-gray-800 flex items-center justify-center shadow-lg shadow-gray-200 dark:shadow-none overflow-hidden">
                   <span className="text-white text-sm font-black">

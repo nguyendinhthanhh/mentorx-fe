@@ -7,7 +7,7 @@ interface ProtectedRouteProps {
 }
 
 export default function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { isAuthenticated, user } = useAuthStore()
+  const { isAuthenticated, user, skippedOnboardingThisSession } = useAuthStore()
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />
@@ -19,7 +19,7 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
 
   // Force onboarding if not completed
   const isOnboardingPage = window.location.pathname === '/onboarding'
-  if (user && !user.isOnboarded && !isOnboardingPage) {
+  if (user && !user.isOnboarded && !skippedOnboardingThisSession && !isOnboardingPage) {
     return <Navigate to="/onboarding" replace />
   }
 

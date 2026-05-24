@@ -201,11 +201,18 @@ export default function HomePage() {
       {/* FEATURED JOBS */}
       <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-2xl font-black text-[#1b2252] md:text-3xl">{t('home.featuredJobs.title')}</h2>
+          <h2 className="text-2xl font-black text-[#1b2252] md:text-3xl">
+            {isAuthenticated ? 'Recommended jobs for you' : t('home.featuredJobs.title')}
+          </h2>
           <Link to="/jobs" className="inline-flex items-center gap-1 text-sm font-bold text-[#4f46e5] hover:underline">
-            {t('home.featuredJobs.viewAll')} <ChevronRight className="h-4 w-4" />
+            {isAuthenticated ? 'Explore all jobs' : t('home.featuredJobs.viewAll')} <ChevronRight className="h-4 w-4" />
           </Link>
         </div>
+        {isAuthenticated && (
+          <p className="-mt-3 mb-5 text-sm text-slate-600">
+            Prioritized by your selected domains and skills.
+          </p>
+        )}
         
         {isLoading ? (
           <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
@@ -215,7 +222,22 @@ export default function HomePage() {
           </div>
         ) : jobs.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-[#e2e6f5] bg-white p-10 text-center">
-            <p className="text-slate-500">{t('home.featuredJobs.empty')}</p>
+            {isAuthenticated ? (
+              <div className="space-y-3">
+                <p className="text-slate-600 font-semibold">No strong matches yet.</p>
+                <p className="text-sm text-slate-500">Update your interests or explore all jobs across Mentor X.</p>
+                <div className="flex items-center justify-center gap-3">
+                  <Link to="/profile" className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+                    Update interests
+                  </Link>
+                  <Link to="/jobs" className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">
+                    Explore all jobs
+                  </Link>
+                </div>
+              </div>
+            ) : (
+              <p className="text-slate-500">{t('home.featuredJobs.empty')}</p>
+            )}
           </div>
         ) : (
           <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
@@ -254,11 +276,18 @@ export default function HomePage() {
       {/* FEATURED MENTORS */}
       <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-2xl font-black text-[#1b2252] md:text-3xl">{t('home.featuredMentors.title')}</h2>
+          <h2 className="text-2xl font-black text-[#1b2252] md:text-3xl">
+            {isAuthenticated ? 'Recommended mentors for you' : t('home.featuredMentors.title')}
+          </h2>
           <Link to="/mentors" className="inline-flex items-center gap-1 text-sm font-bold text-[#4f46e5] hover:underline">
-            {t('home.featuredMentors.viewAll')} <ChevronRight className="h-4 w-4" />
+            {isAuthenticated ? 'Explore all mentors' : t('home.featuredMentors.viewAll')} <ChevronRight className="h-4 w-4" />
           </Link>
         </div>
+        {isAuthenticated && (
+          <p className="-mt-3 mb-5 text-sm text-slate-600">
+            Based on your interests and current learning goals.
+          </p>
+        )}
         
         {isLoading ? (
           <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
@@ -268,7 +297,22 @@ export default function HomePage() {
           </div>
         ) : mentors.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-[#e2e6f5] bg-white p-10 text-center">
-            <p className="text-slate-500">{t('home.featuredMentors.empty')}</p>
+            {isAuthenticated ? (
+              <div className="space-y-3">
+                <p className="text-slate-600 font-semibold">No strong matches yet.</p>
+                <p className="text-sm text-slate-500">Update your interests or explore all mentors across Mentor X.</p>
+                <div className="flex items-center justify-center gap-3">
+                  <Link to="/profile" className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+                    Update interests
+                  </Link>
+                  <Link to="/mentors" className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">
+                    Explore all mentors
+                  </Link>
+                </div>
+              </div>
+            ) : (
+              <p className="text-slate-500">{t('home.featuredMentors.empty')}</p>
+            )}
           </div>
         ) : (
           <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
