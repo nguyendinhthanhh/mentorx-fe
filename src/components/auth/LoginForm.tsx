@@ -10,6 +10,7 @@ import { Eye, EyeOff, Loader2 } from 'lucide-react'
 
 import GoogleLoginButton from './GoogleLoginButton'
 import GithubLoginButton from './GithubLoginButton'
+import EmailVerificationPending from './EmailVerificationPending'
 
 import { CredentialResponse, GoogleLogin } from '@react-oauth/google'
 import { canAccessAdminWorkspace } from '@/utils/roleRedirect'
@@ -24,9 +25,10 @@ export default function LoginForm() {
   const navigate = useNavigate()
   const { setUser, setTokens } = useAuthStore()
   const [error, setError] = useState<string>('')
+  const [showVerification, setShowVerification] = useState(false)
+  const [verificationEmail, setVerificationEmail] = useState<string>('')
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
-  const isGoogleAuthInProgressRef = useRef(false)
 
   const {
     register,
@@ -50,12 +52,21 @@ export default function LoginForm() {
         navigate('/profile')
       }
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Invalid email or password. Please try again.')
+      const message = err.response?.data?.message || ''
+      if (message.includes('verify your email')) {
+        setVerificationEmail(data.email)
+        setShowVerification(true)
+      } else {
+        setError(message || 'Invalid email or password. Please try again.')
+      }
     } finally {
       setLoading(false)
     }
   }
 
+  if (showVerification) {
+    return <EmailVerificationPending email={verificationEmail} />
+  }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">

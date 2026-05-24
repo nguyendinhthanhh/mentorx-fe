@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom'
 import { Eye, EyeOff, Loader2 } from 'lucide-react'
 import GoogleLoginButton from './GoogleLoginButton'
 import GithubLoginButton from './GithubLoginButton'
+import EmailVerificationPending from './EmailVerificationPending'
 
 const registerSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -27,6 +28,8 @@ export default function RegisterForm() {
   const [error, setError] = useState<string>('')
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
+  const [registered, setRegistered] = useState(false)
+  const [registeredEmail, setRegisteredEmail] = useState('')
 
   const {
     register,
@@ -43,12 +46,17 @@ export default function RegisterForm() {
       const response = await authApi.register(data)
       setTokens(response.accessToken, response.refreshToken)
       setUser(response.user)
-      navigate('/verify-email')
+      setRegisteredEmail(data.email)
+      setRegistered(true)
     } catch (err: any) {
       setError(err.response?.data?.message || 'Registration failed. Please try again.')
     } finally {
       setLoading(false)
     }
+  }
+
+  if (registered) {
+    return <EmailVerificationPending email={registeredEmail} />
   }
 
   return (
