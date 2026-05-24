@@ -19,6 +19,7 @@ export default function PasswordChangeForm() {
     { label: 'Minimum 8 characters', valid: newPassword.length >= 8 },
     { label: 'At least one uppercase letter', valid: /[A-Z]/.test(newPassword) },
     { label: 'At least one number', valid: /[0-9]/.test(newPassword) },
+    { label: 'At least one special character', valid: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/.test(newPassword) },
     { label: 'Passwords match', valid: newPassword === confirmPassword && confirmPassword.length > 0 },
   ]
 
@@ -83,7 +84,7 @@ export default function PasswordChangeForm() {
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
             className={`${inputClass} pr-11`}
-            placeholder="At least 8 characters, 1 uppercase, 1 number"
+            placeholder="At least 8 characters, 1 uppercase, 1 number, 1 special"
             autoComplete="new-password"
             required
           />

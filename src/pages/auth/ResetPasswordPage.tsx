@@ -16,6 +16,7 @@ function validatePassword(password: string, confirmPassword: string): string {
   if (password.length < 8) return 'Password must be at least 8 characters long.'
   if (!/[A-Z]/.test(password)) return 'Password must contain at least one uppercase letter.'
   if (!/[0-9]/.test(password)) return 'Password must contain at least one number.'
+  if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/.test(password)) return 'Password must contain at least one special character.'
   if (password !== confirmPassword) return 'Passwords do not match.'
   return ''
 }
@@ -39,6 +40,7 @@ export default function ResetPasswordPage() {
       { label: 'Minimum 8 characters', valid: password.length >= 8 },
       { label: 'At least one uppercase letter', valid: /[A-Z]/.test(password) },
       { label: 'At least one number', valid: /[0-9]/.test(password) },
+      { label: 'At least one special character', valid: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/.test(password) },
     ],
     [password]
   )
@@ -119,7 +121,7 @@ export default function ResetPasswordPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3.5 pr-11 text-sm text-slate-900 outline-none transition focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10"
-                  placeholder="At least 8 characters, 1 uppercase, 1 number"
+                  placeholder="At least 8 characters, 1 uppercase, 1 number, 1 special"
                   autoComplete="new-password"
                   required
                 />

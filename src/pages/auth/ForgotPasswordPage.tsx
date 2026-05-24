@@ -4,11 +4,11 @@ import { authApi } from '@/api/authApi'
 import {
   AlertCircle,
   ArrowLeft,
-  ArrowUpRight,
   CheckCircle2,
   Loader2,
   Mail,
   ShieldCheck,
+  RefreshCw,
 } from 'lucide-react'
 
 export default function ForgotPasswordPage() {
@@ -108,11 +108,16 @@ export default function ForgotPasswordPage() {
           <div className="flex flex-col gap-3 sm:flex-row">
             <button
               type="button"
-              onClick={() => window.open('https://mail.google.com', '_blank', 'noopener,noreferrer')}
-              className="inline-flex flex-1 items-center justify-center gap-2 rounded-2xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
+              disabled={loading}
+              onClick={handleSubmit}
+              className="inline-flex flex-1 items-center justify-center gap-2 rounded-2xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Open inbox
-              <ArrowUpRight className="h-4 w-4" />
+              {loading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <RefreshCw className="h-4 w-4" />
+              )}
+              {loading ? 'Sending...' : 'Send another email'}
             </button>
             <button
               type="button"
