@@ -2,15 +2,18 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { courseApi } from '@/api/courseApi'
-import { useState } from 'react'
+import { categoryApi } from '@/api/categoryApi'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Loader2 } from 'lucide-react'
-import { SupportedLanguage } from '@/types'
+import { CategoryResponse, SupportedLanguage } from '@/types'
 
 const courseSchema = z.object({
   title: z.string().min(5, 'Title must be at least 5 characters').max(200),
   slug: z.string().min(3, 'Slug must be at least 3 characters').regex(/^[a-z0-9-]+$/, 'Slug must be lowercase with hyphens only'),
   description: z.string().min(20, 'Description must be at least 20 characters').optional().or(z.literal('')),
+  categoryId: z.coerce.number().int().positive('Please choose a domain/category'),
+  skillsInput: z.string().min(2, 'Please provide at least one skill'),
   priceMxc: z.coerce.number().min(0).optional(),
   language: z.string().optional(),
   level: z.string().optional(),
@@ -25,6 +28,11 @@ export default function CourseCreateForm({ instructorId }: { instructorId: strin
   const navigate = useNavigate()
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [categories, setCategories] = useState<CategoryResponse[]>([])
+
+  useEffect(() => {
+    void categoryApi.getAllActive().then(setCategories).catch(() => setCategories([]))
+  }, [])
 
   const {
     register,
@@ -62,6 +70,8 @@ export default function CourseCreateForm({ instructorId }: { instructorId: strin
       const course = await courseApi.create({
         ...data,
         instructorId,
+        categoryId: data.categoryId,
+        skills: data.skillsInput.split(/[,;\n]/).map((item) => item.trim()).filter(Boolean),
         description: data.description || undefined,
         language: data.language as SupportedLanguage | undefined,
         thumbnailUrl: data.thumbnailUrl || undefined,
@@ -103,6 +113,30 @@ export default function CourseCreateForm({ instructorId }: { instructorId: strin
           placeholder="introduction-to-machine-learning"
         />
         {errors.slug && <p className="text-xs text-red-500 mt-1">{errors.slug.message}</p>}
+      </div>
+
+      <div>
+        <label className={labelClass}>Domain</label>
+        <select {...register('categoryId')} className={inputClass}>
+          <option value="">Select a domain</option>
+          {categories.map((category) => (
+            <option key={category.id} value={category.id}>
+              {category.name}
+            </option>
+          ))}
+        </select>
+        {errors.categoryId && <p className="text-xs text-red-500 mt-1">{errors.categoryId.message}</p>}
+      </div>
+
+      <div>
+        <label className={labelClass}>Skills</label>
+        <input
+          {...register('skillsInput')}
+          className={inputClass}
+          placeholder="React, Spring Boot, Data Analysis..."
+        />
+        <p className="mt-1 text-xs text-gray-500">Separate multiple skills with commas.</p>
+        {errors.skillsInput && <p className="text-xs text-red-500 mt-1">{errors.skillsInput.message}</p>}
       </div>
 
       <div>

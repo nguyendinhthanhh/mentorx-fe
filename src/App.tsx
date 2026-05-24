@@ -11,6 +11,7 @@ import LoginPage from './pages/auth/LoginPage'
 import RegisterPage from './pages/auth/RegisterPage'
 import ForgotPasswordPage from './pages/auth/ForgotPasswordPage'
 import OnboardingPage from './pages/auth/OnboardingPage'
+import ResetPasswordPage from './pages/auth/ResetPasswordPage'
 import VerifyEmailPage from './pages/auth/VerifyEmailPage'
 import GithubCallback from './pages/auth/GithubCallback'
 
@@ -62,10 +63,12 @@ import MentorDashboardPage from './pages/mentor/MentorDashboardPage'
 import MentorJobsPage from './pages/mentor/MentorJobsPage'
 import MentorProposalsPage from './pages/mentor/MentorProposalsPage'
 import MentorProposalDetailPage from './pages/mentor/MentorProposalDetailPage'
+import MentorProfileSetupPage from './pages/mentor/MentorProfileSetupPage'
 
 // Protected Route Components
 import ProtectedRoute from './components/auth/ProtectedRoute'
 import AdminRoute from './components/auth/AdminRoute'
+import AdminOnlyRoute from './components/auth/AdminOnlyRoute'
 import MentorRoute from './components/auth/MentorRoute'
 import ThemeProvider from './components/ThemeProvider'
 
@@ -97,9 +100,14 @@ function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+
             <Route path="/verify-email" element={<VerifyEmailPage />} />
             <Route path="/auth/github/callback" element={<GithubCallback />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
+
           </Route>
+
+          <Route path="/verify-email" element={<VerifyEmailPage />} />
 
           {/* Protected Onboarding Route */}
           <Route path="/onboarding" element={<ProtectedRoute><OnboardingPage /></ProtectedRoute>} />
@@ -126,9 +134,6 @@ function App() {
             {/* Job Routes */}
             <Route path="/jobs/create" element={<JobCreatePage />} />
             <Route path="/jobs/:jobId/edit" element={<JobEditPage />} />
-            
-            {/* Course Routes */}
-            <Route path="/courses/create" element={<CourseCreatePage />} />
             
             {/* Wallet Routes */}
             <Route path="/wallet" element={<WalletPage />} />
@@ -169,21 +174,26 @@ function App() {
           <Route element={<ProtectedRoute><AdminRoute><AdminLayout /></AdminRoute></ProtectedRoute>}>
             <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
             <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
-            <Route path="/admin/api" element={<AdminApiPage />} />
-            <Route path="/admin/users" element={<AdminUsersPage />} />
+            <Route path="/admin/api" element={<AdminOnlyRoute><AdminApiPage /></AdminOnlyRoute>} />
+            <Route path="/admin/users" element={<AdminOnlyRoute><AdminUsersPage /></AdminOnlyRoute>} />
             <Route path="/admin/mentor-applications" element={<AdminMentorApplicationsPage />} />
             <Route path="/admin/jobs" element={<AdminJobsPage />} />
             <Route path="/admin/courses" element={<AdminCoursesPage />} />
             <Route path="/admin/reports" element={<AdminReportsPage />} />
             <Route path="/admin/support" element={<AdminSupportPage />} />
-            <Route path="/admin/wallet" element={<AdminWalletPage />} />
-            <Route path="/admin/settings" element={<div>Platform Settings (Coming Soon)</div>} />
+            <Route path="/admin/wallet" element={<AdminOnlyRoute><AdminWalletPage /></AdminOnlyRoute>} />
+            <Route path="/admin/settings" element={<AdminOnlyRoute><div>Platform Settings (Coming Soon)</div></AdminOnlyRoute>} />
           </Route>
 
           {/* Mentor Routes */}
           <Route element={<ProtectedRoute><MentorRoute><MentorLayout /></MentorRoute></ProtectedRoute>}>
+            <Route path="/courses/create" element={<CourseCreatePage />} />
             <Route path="/mentor" element={<Navigate to="/mentor/dashboard" replace />} />
             <Route path="/mentor/dashboard" element={<MentorDashboardPage />} />
+            <Route path="/mentor/profile" element={<MentorProfileSetupPage initialTab="profile" />} />
+            <Route path="/mentor/profile-setup" element={<MentorProfileSetupPage initialTab="profile" />} />
+            <Route path="/mentor/packages" element={<MentorProfileSetupPage initialTab="packages" />} />
+            <Route path="/mentor/availability" element={<MentorProfileSetupPage initialTab="availability" />} />
             <Route path="/mentor/jobs" element={<MentorJobsPage />} />
             <Route path="/mentor/proposals" element={<MentorProposalsPage />} />
             <Route path="/mentor/proposals/:proposalId" element={<MentorProposalDetailPage />} />
@@ -191,6 +201,8 @@ function App() {
             <Route path="/mentor/my-courses" element={<div>My Courses (Coming Soon)</div>} />
             <Route path="/mentor/schedule" element={<div>Schedule (Coming Soon)</div>} />
             <Route path="/mentor/wallet" element={<div>Earnings (Coming Soon)</div>} />
+            <Route path="/mentor/earnings" element={<Navigate to="/mentor/wallet" replace />} />
+            <Route path="/mentor/withdraw" element={<Navigate to="/wallet" replace />} />
           </Route>
 
           {/* 404 */}

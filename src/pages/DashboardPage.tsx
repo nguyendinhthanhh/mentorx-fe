@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import { Briefcase, BookOpen, Users, Wallet, TrendingUp, ArrowUpRight, Bell, Clock, Plus } from 'lucide-react'
 import { Skeleton } from '@/components/ui/Skeleton'
 import apiClient from '@/api/client'
+import { formatMxc } from '@/utils/formatters'
 
 interface DashboardStats {
   activeJobs: number
@@ -83,7 +84,7 @@ export default function DashboardPage() {
     },
     {
       label: 'Wallet Balance',
-      value: `${stats.walletBalance.toLocaleString()} MXC`,
+      value: formatMxc(stats.walletBalance),
       icon: Wallet,
       color: 'from-violet-500 to-violet-600',
       bgLight: 'bg-violet-50 dark:bg-violet-900/20',

@@ -51,6 +51,7 @@ export default function AdminWalletPage() {
   })
 
   const [selectedRequestId, setSelectedRequestId] = useState<string | null>(null)
+  const [isRejectModalOpen, setIsRejectModalOpen] = useState(false)
 
   // Data Fetching
   const { data: summary, isLoading: isLoadingSummary } = useQuery(
@@ -78,7 +79,9 @@ export default function AdminWalletPage() {
         queryClient.invalidateQueries('admin-withdrawals')
         queryClient.invalidateQueries('admin-financial-summary')
       },
-      onError: (err: any) => toast.error(err.response?.data?.message || 'Approval failed')
+      onError: (err: any) => {
+        toast.error(err.response?.data?.message || 'Approval failed')
+      }
     }
   )
 
@@ -90,6 +93,7 @@ export default function AdminWalletPage() {
         toast.success('Withdrawal rejected & Refunded')
         queryClient.invalidateQueries('admin-withdrawals')
         queryClient.invalidateQueries('admin-financial-summary')
+        setIsRejectModalOpen(false)
       }
     }
   )
@@ -668,6 +672,19 @@ export default function AdminWalletPage() {
         referenceId={notifyModal.referenceId}
         referenceType="TRANSACTION"
         actionType={notifyModal.actionType}
+      />
+      <AdminNotifyModal
+        isOpen={isRejectModalOpen}
+        onClose={() => setIsRejectModalOpen(false)}
+        userId=""
+        referenceId={selectedRequestId || undefined}
+        referenceType="TRANSACTION"
+        actionType="REJECT"
+        onConfirm={(message) => {
+          if (selectedRequestId) {
+            rejectMutation.mutate({ requestId: selectedRequestId, reason: message })
+          }
+        }}
       />
     </div>
   )

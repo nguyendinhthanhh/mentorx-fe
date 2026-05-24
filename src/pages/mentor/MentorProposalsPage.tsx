@@ -245,14 +245,16 @@ export default function MentorProposalsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6">
+    <div className="-ml-2 mx-auto max-w-[1560px] space-y-7">
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
-        <div className="space-y-4">
-          {/* Compact header: title + inline stats + action */}
-          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-            <div className="flex items-center gap-5">
-              <h1 className="text-xl font-black tracking-tight text-slate-950">My Proposals</h1>
-              <div className="hidden items-center gap-2 lg:flex">
+        <div className="space-y-5">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+            <div>
+              <h1 className="text-[32px] font-black tracking-tight text-slate-950">My Proposals</h1>
+              <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">
+                Track submitted proposals, ongoing negotiations, and client responses in one place.
+              </p>
+              <div className="mt-4 hidden items-center gap-2 lg:flex">
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-bold text-indigo-600">
                   <BellRing className="h-3 w-3" /> {stats.total}
                 </span>
@@ -270,12 +272,12 @@ export default function MentorProposalsPage() {
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               {activeNegotiations.length > 0 ? (
                 <button
                   type="button"
                   onClick={() => setActiveTab('NEGOTIATING')}
-                  className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-amber-200 bg-amber-50 px-3 text-xs font-bold text-amber-700 transition hover:bg-amber-100"
+                  className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-amber-200 bg-amber-50 px-4 text-sm font-bold text-amber-700 transition hover:bg-amber-100"
                 >
                   <MessageCircleMore className="h-3.5 w-3.5" />
                   {activeNegotiations.length} pending reply
@@ -283,18 +285,16 @@ export default function MentorProposalsPage() {
               ) : null}
               <Link
                 to="/mentor/jobs"
-                className="inline-flex h-9 items-center gap-1.5 rounded-xl bg-indigo-600 px-4 text-xs font-bold text-white shadow-sm transition hover:bg-indigo-700"
+                className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-indigo-600 px-4 text-sm font-bold text-white shadow-sm transition hover:bg-indigo-700"
               >
                 + New Proposal
               </Link>
             </div>
           </div>
 
-          {/* Compact filter toolbar */}
           <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
-            <div className="flex flex-wrap items-center gap-2 px-4 py-2.5">
-              {/* Tab pills */}
-              <div className="flex items-center gap-1">
+            <div className="flex flex-wrap items-center gap-3 border-b border-slate-100 px-5 py-4">
+              <div className="flex flex-wrap items-center gap-2">
                 {tabs.map((tab) => {
                   const count = tabCounts[tab.key]
                   const isActive = activeTab === tab.key
@@ -303,14 +303,14 @@ export default function MentorProposalsPage() {
                       key={tab.key}
                       type="button"
                       onClick={() => setActiveTab(tab.key)}
-                      className={`inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-[11px] font-bold transition ${
+                      className={`inline-flex h-10 items-center gap-2 rounded-xl px-3.5 text-xs font-bold transition ${
                         isActive
                           ? 'bg-indigo-600 text-white shadow-sm'
                           : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700'
                       }`}
                     >
                       {tab.label}
-                      <span className={`rounded-full px-1.5 py-0 text-[9px] font-black ${isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'}`}>
+                      <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-black ${isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'}`}>
                         {count}
                       </span>
                     </button>
@@ -318,23 +318,20 @@ export default function MentorProposalsPage() {
                 })}
               </div>
 
-              {/* Separator */}
-              <div className="hidden h-5 w-px bg-slate-200 lg:block" />
-
-              {/* Search */}
-              <div className="relative ml-auto lg:ml-0">
-                <Search className="absolute left-2.5 top-1/2 h-3 w-3 -translate-y-1/2 text-slate-400" />
+              <div className="relative ml-auto min-w-[240px] flex-1 lg:max-w-[360px]">
+                <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(event) => setSearchQuery(event.target.value)}
-                  placeholder="Search..."
-                  className="h-7 w-36 rounded-lg border border-slate-200 bg-slate-50 pl-7 pr-2 text-[11px] text-slate-700 outline-none transition focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-500/10 lg:w-44"
+                  placeholder="Search proposals or job titles..."
+                  className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-3 text-sm text-slate-700 outline-none transition focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10"
                 />
               </div>
+            </div>
 
-              {/* Filters */}
-              <div className="hidden items-center gap-1.5 lg:flex">
+            <div className="flex flex-wrap items-center gap-2 px-5 py-4">
+              <div className="hidden items-center gap-2 lg:flex">
                 <MiniSelect value={statusFilter} onChange={setStatusFilter} options={[['ALL', 'Status'], ['SUBMITTED', 'Submitted'], ['UNDER_REVIEW', 'In Review'], ['NEGOTIATING', 'Negotiation'], ['ACCEPTED', 'Accepted'], ['REJECTED', 'Rejected']]} />
                 <MiniSelect value={categoryFilter} onChange={setCategoryFilter} options={[['ALL', 'Category'], ...categories.map((item) => [String(item.id), item.name] as [string, string])]} />
                 {(statusFilter !== 'ALL' || categoryFilter !== 'ALL' || searchQuery) ? (
@@ -348,9 +345,9 @@ export default function MentorProposalsPage() {
                       setDateFilter('ALL')
                       setSearchQuery('')
                     }}
-                    className="inline-flex h-7 items-center gap-1 rounded-lg px-2 text-[10px] font-bold text-slate-400 transition hover:bg-slate-50 hover:text-slate-600"
+                    className="inline-flex h-10 items-center gap-2 rounded-xl px-3 text-xs font-bold text-slate-400 transition hover:bg-slate-50 hover:text-slate-600"
                   >
-                    <RefreshCw className="h-2.5 w-2.5" />
+                    <RefreshCw className="h-3.5 w-3.5" />
                     Reset
                   </button>
                 ) : null}
@@ -379,11 +376,11 @@ export default function MentorProposalsPage() {
                   const footerText = negotiation?.senderType === 'CLIENT' ? 'Counter-offer received' : negotiation ? 'Waiting for client' : proposal.status === 'ACCEPTED' ? 'Ready to start contract' : 'Proposal submitted'
 
                   return (
-                    <article key={proposal.id} className={`overflow-hidden rounded-2xl border bg-white shadow-sm transition hover:shadow-md ${rowTone.border}`}>
-                      <div className="px-4 py-3">
+                    <article key={proposal.id} className={`overflow-hidden rounded-[26px] border bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg ${rowTone.border}`}>
+                      <div className="px-5 py-5">
                         {/* Row 1: Avatar + Title + Badges + Actions */}
-                        <div className="flex items-center gap-3">
-                          <div className="h-8 w-8 shrink-0 overflow-hidden rounded-full bg-slate-100">
+                        <div className="flex items-start gap-4">
+                          <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full bg-slate-100 ring-1 ring-slate-200">
                             {clientAvatar ? (
                               <img src={clientAvatar} alt={clientName} className="h-full w-full object-cover" />
                             ) : (
@@ -489,9 +486,9 @@ export default function MentorProposalsPage() {
                       {avatarUrl ? (
                         <img src={avatarUrl} alt={clientName} className="h-full w-full object-cover" />
                       ) : (
-                        <div className="flex h-full w-full items-center justify-center bg-indigo-100 text-xs font-black text-indigo-600">
-                          {clientName.charAt(0)}
-                        </div>
+                              <div className="flex h-full w-full items-center justify-center bg-indigo-100 text-xs font-black text-indigo-600">
+                                {clientName.charAt(0)}
+                              </div>
                       )}
                     </div>
                     <div className="min-w-0 flex-1">

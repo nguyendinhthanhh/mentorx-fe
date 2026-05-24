@@ -1,351 +1,303 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useQuery, useMutation } from 'react-query'
+import { useMutation, useQuery, useQueryClient } from 'react-query'
+import { Loader2, Sparkles, X } from 'lucide-react'
+import { useAuthStore } from '@/store/authStore'
 import { categoryApi } from '@/api/categoryApi'
 import { skillApi } from '@/api/skillApi'
+import { matchingApi } from '@/api/matchingApi'
 import { onboardingApi } from '@/api/onboardingApi'
-import { useAuthStore } from '@/store/authStore'
-import {
-  Check, Loader2, Sparkles, User, Zap, Target, Briefcase,
-  ArrowRight, ArrowLeft, AlertCircle, Bell, Heart, SkipForward
-} from 'lucide-react'
 
-import StepRole from '@/components/onboarding/StepRole'
-import StepExpertise from '@/components/onboarding/StepExpertise'
-import StepSkills from '@/components/onboarding/StepSkills'
-import StepPreferences from '@/components/onboarding/StepPreferences'
-import StepGoals from '@/components/onboarding/StepGoals'
-import StepProfile from '@/components/onboarding/StepProfile'
-import { SupportedLanguage } from '@/types'
-
-type Step = 1 | 2 | 3 | 4 | 5 | 6
+const LANGUAGE_OPTIONS = ['Vietnamese', 'English', 'Japanese', 'Chinese', 'Korean']
 
 export default function OnboardingPage() {
   const navigate = useNavigate()
-  const { user, refreshUser } = useAuthStore()
-  const [currentStep, setCurrentStep] = useState<Step>(1)
-  const [animKey, setAnimKey] = useState(0)
-  const [error, setError] = useState<string | null>(null)
-  const [showError, setShowError] = useState(false)
+  const queryClient = useQueryClient()
+  const { user, refreshUser, skipOnboardingForSession, clearSkippedOnboarding } = useAuthStore()
+  const [error, setError] = useState('')
+  const [domainIds, setDomainIds] = useState<number[]>([])
+  const [skillIds, setSkillIds] = useState<number[]>([])
+  const [learningGoals, setLearningGoals] = useState<string[]>([])
+  const [goalInput, setGoalInput] = useState('')
+  const [preferredLanguages, setPreferredLanguages] = useState<string[]>([])
 
-  // Step 1: Role
-  const [roleChoice, setRoleChoice] = useState('')
+  const categoriesQuery = useQuery('onboarding-categories', categoryApi.getAllActive)
+  const skillsQuery = useQuery('onboarding-skills', skillApi.getAllActive)
 
-  // Step 2: Expertise
-  const [selectedCategoryIds, setSelectedCategoryIds] = useState<number[]>([])
-  const [selectedSkills, setSelectedSkills] = useState<{skillId: number; name: string; level: string}[]>([])
-
-  // Step 3: Skills (handled in step 2 UI but submitted as separate step)
-
-  // Step 4: Preferences
-  const [preferences, setPreferences] = useState({
-    emailEnabled: true,
-    pushEnabled: true,
-    inAppEnabled: true
-  })
-
-  // Step 5: Goals
-  const [selectedGoals, setSelectedGoals] = useState<string[]>([])
-  const [customGoal, setCustomGoal] = useState('')
-
-  // Step 6: Profile
-  const [profileData, setProfileData] = useState({
-    displayName: user?.displayName || '',
-    avatarUrl: user?.avatarUrl || '',
-    bio: '',
-    linkedinUrl: '',
-    githubUrl: '',
-    countryCode: user?.countryCode || 'VN',
-    preferredLanguage: user?.preferredLanguage || SupportedLanguage.VI
-  })
-
-  const { data: progressData, isLoading: isProgressLoading } = useQuery(
-    'onboarding-progress',
-    () => onboardingApi.getProgress(),
-    {
-      onSuccess: (data) => {
-        if (data?.onboarded) {
-          navigate('/')
-        } else if (data?.currentStep) {
-          const stepMap: Record<string, Step> = {
-            'ROLE': 1,
-            'INTERESTS': 2,
-            'SKILLS': 3,
-            'PREFERENCES': 4,
-            'GOALS': 5,
-            'PROFILE': 6
-          }
-          const stepNum = stepMap[data.currentStep]
-          if (stepNum) {
-            setCurrentStep(stepNum)
-            setAnimKey(p => p + 1)
-          }
-        }
+  const filteredSkills = useMemo(() => {
+    if (!skillsQuery.data) return []
+    if (!categoriesQuery.data || domainIds.length === 0) return skillsQuery.data
+    const selectedDomainNames = new Set(
+      categoriesQuery.data
+        .filter((item) => domainIds.includes(item.id))
+        .map((item) => item.name.toLowerCase())
+    )
+    return skillsQuery.data.filter((skill) => {
+      const label = `${skill.labelEn} ${skill.labelVi}`.toLowerCase()
+      for (const domainName of selectedDomainNames) {
+        if (label.includes(domainName)) return true
       }
-    }
-  )
+      return false
+    })
+  }, [skillsQuery.data, categoriesQuery.data, domainIds])
 
-  useEffect(() => { if (!user) navigate('/login') }, [user, navigate])
+  const finishMutation = useMutation(matchingApi.updatePreferences, {
+    onSuccess: async () => {
+      queryClient.invalidateQueries(['home-data', true])
+      queryClient.invalidateQueries('my-matching-preferences')
+      clearSkippedOnboarding()
+      await refreshUser()
+      navigate('/')
+    },
+    onError: (err: any) => {
+      const message = err?.response?.data?.message || err?.message || 'Could not save onboarding preferences.'
+      setError(message)
+    },
+  })
 
-  useEffect(() => {
-    if (error) {
-      setShowError(true)
-      const t = setTimeout(() => { setShowError(false); setTimeout(() => setError(null), 300) }, 5000)
-      return () => clearTimeout(t)
-    }
-  }, [error])
-
-  const { data: categories = [] } = useQuery('active-categories', () => categoryApi.getAllActive())
-  const { data: allSkills = [] } = useQuery('active-skills', () => skillApi.getAllActive())
-
-  // Submit the current step to backend, then advance
-  const stepMutation = useMutation(
-    async (step: Step) => {
-      switch (step) {
-        case 1:
-          await onboardingApi.submitRole(roleChoice)
-          break
-        case 2:
-          await onboardingApi.submitInterests(selectedCategoryIds)
-          break
-        case 3:
-          await onboardingApi.submitSkills(
-            selectedSkills.map(s => ({ skillId: s.skillId, level: s.level }))
-          )
-          break
-        case 4:
-          await onboardingApi.submitPreferences(preferences)
-          break
-        case 5: {
-          const goals = [...selectedGoals]
-          if (customGoal.trim()) goals.push(customGoal.trim())
-          await onboardingApi.submitGoals(goals.length > 0 ? goals : ['Explore MentorX'])
-          break
-        }
-        case 6:
-          await onboardingApi.submitProfile({
-            displayName: profileData.displayName,
-            avatarUrl: profileData.avatarUrl || undefined
-          })
-          // Finalize
-          await onboardingApi.complete()
-          break
+  const skipMutation = useMutation(
+    async () => {
+      try {
+        await onboardingApi.skip()
+      } catch {
+        // Fallback if onboarding skip endpoint is unavailable in this environment.
       }
     },
     {
-      onSuccess: async (_data, step) => {
-        if (step === 6) {
-          await refreshUser()
-          navigate('/')
-        } else {
-          changeStep((step + 1) as Step)
-        }
-      },
-      onError: (err: any) => {
-        setError(err?.response?.data?.message || err?.message || 'Something went wrong')
-      }
-    }
-  )
-
-  const changeStep = useCallback((s: Step) => {
-    setAnimKey(p => p + 1)
-    setCurrentStep(s)
-  }, [])
-
-  const handleNext = () => stepMutation.mutate(currentStep)
-  const handleBack = () => { if (currentStep > 1) changeStep((currentStep - 1) as Step) }
-
-  const handleSkip = useMutation(
-    () => onboardingApi.skip(),
-    {
       onSuccess: async () => {
+        skipOnboardingForSession()
         await refreshUser()
         navigate('/')
       },
-      onError: (err: any) => setError(err?.response?.data?.message || 'Skip failed')
+      onError: () => {
+        skipOnboardingForSession()
+        navigate('/')
+      },
     }
   )
 
-  if (!user || isProgressLoading) {
-    return (
-      <div className="min-h-screen bg-slate-50 dark:bg-gray-950 flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 className="w-10 h-10 text-primary-600 animate-spin" />
-          <p className="text-gray-500 dark:text-gray-400 font-bold animate-pulse">Initializing...</p>
-        </div>
-      </div>
+  const isLoading = categoriesQuery.isLoading || skillsQuery.isLoading
+
+  useEffect(() => {
+    if (!user) {
+      navigate('/login')
+    }
+  }, [user, navigate])
+
+  if (!user) {
+    return null
+  }
+
+  const toggleDomain = (id: number) => {
+    setDomainIds((prev) => (prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]))
+  }
+
+  const toggleSkill = (id: number) => {
+    setSkillIds((prev) => (prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]))
+  }
+
+  const toggleLanguage = (language: string) => {
+    setPreferredLanguages((prev) =>
+      prev.includes(language) ? prev.filter((item) => item !== language) : [...prev, language]
     )
   }
 
-  // Validation per step
-  const isNextDisabled =
-    (currentStep === 1 && !roleChoice) ||
-    (currentStep === 2 && selectedCategoryIds.length === 0) ||
-    (currentStep === 4 && !preferences.emailEnabled && !preferences.pushEnabled && !preferences.inAppEnabled) ||
-    (currentStep === 6 && !profileData.displayName.trim()) ||
-    stepMutation.isLoading
-
-  const validationMessages: Record<number, string> = {
-    1: !roleChoice ? 'Please select your role' : '',
-    2: selectedCategoryIds.length === 0 ? 'Select at least 1 field' : '',
-    3: '', // Skills are optional
-    4: (!preferences.emailEnabled && !preferences.pushEnabled && !preferences.inAppEnabled) ? 'Enable at least 1 notification' : '',
-    5: '', // Goals optional
-    6: !profileData.displayName.trim() ? 'Display name is required' : '',
+  const addGoal = () => {
+    const value = goalInput.trim()
+    if (!value) return
+    if (learningGoals.includes(value)) {
+      setGoalInput('')
+      return
+    }
+    setLearningGoals((prev) => [...prev, value].slice(0, 12))
+    setGoalInput('')
   }
-  const validationMsg = validationMessages[currentStep] || ''
 
-  const steps = [
-    { id: 1, label: 'Role', icon: Target },
-    { id: 2, label: 'Interests', icon: Heart },
-    { id: 3, label: 'Skills', icon: Zap },
-    { id: 4, label: 'Prefs', icon: Bell },
-    { id: 5, label: 'Goals', icon: Briefcase },
-    { id: 6, label: 'Profile', icon: User },
-  ]
-
-  const progress = ((currentStep - 1) / (steps.length - 1)) * 100
+  const handleContinue = () => {
+    setError('')
+    finishMutation.mutate({
+      interestedDomainIds: domainIds,
+      preferredSkillIds: skillIds,
+      learningGoals,
+      preferredLanguages,
+      onboardingCompleted: true,
+    })
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-sky-50/50 to-indigo-50/50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 flex flex-col items-center justify-start md:justify-center p-4 md:p-8 relative overflow-hidden">
-      {/* BG decoration */}
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary-200/20 dark:bg-primary-900/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-indigo-200/20 dark:bg-indigo-900/10 rounded-full blur-3xl pointer-events-none" />
-
-      {/* Error Toast */}
-      {error && (
-        <div className={`fixed top-6 right-6 z-50 max-w-md transition-all duration-300 ${showError ? 'translate-x-0 opacity-100' : 'translate-x-8 opacity-0'}`}>
-          <div className="bg-red-50 dark:bg-red-950/80 border-2 border-red-200 dark:border-red-800 rounded-xl p-4 shadow-2xl flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
-            <div className="flex-1">
-              <p className="text-sm font-bold text-red-700 dark:text-red-300">Error</p>
-              <p className="text-sm text-red-600 dark:text-red-400 mt-0.5">{error}</p>
+    <div className="min-h-screen bg-[#f6f7fb] px-4 py-8 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-4xl">
+        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">
+          <div className="mb-6 flex items-start justify-between gap-4">
+            <div>
+              <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-indigo-50 px-3 py-1 text-xs font-bold text-indigo-700">
+                <Sparkles className="h-3.5 w-3.5" />
+                Mentor X onboarding
+              </div>
+              <h1 className="text-2xl font-black tracking-tight text-slate-950 md:text-3xl">
+                Set your interests (optional)
+              </h1>
+              <p className="mt-2 text-sm text-slate-600 md:text-base">
+                Pick domains and skills to improve recommendations. You can skip now and update later in Profile.
+              </p>
             </div>
-            <button onClick={() => { setShowError(false); setTimeout(() => setError(null), 300) }} className="text-red-400 hover:text-red-600">✕</button>
-          </div>
-        </div>
-      )}
-
-      <div className="max-w-4xl w-full relative z-10">
-        {/* Header */}
-        <div className="text-center mb-6">
-          <div className="flex items-center justify-center gap-2.5 mb-5">
-            <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-xl rotate-3 onb-float">
-              <Sparkles className="w-5 h-5 text-white" />
-            </div>
-            <h1 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">MentorX</h1>
+            <button
+              type="button"
+              onClick={() => skipMutation.mutate()}
+              disabled={skipMutation.isLoading || finishMutation.isLoading}
+              className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50 disabled:opacity-60"
+            >
+              {skipMutation.isLoading ? 'Skipping...' : 'Skip for now'}
+            </button>
           </div>
 
-          {/* Step dots */}
-          <div className="max-w-xl mx-auto">
-            <div className="flex justify-between mb-3">
-              {steps.map(s => (
-                <button
-                  key={s.id}
-                  onClick={() => { if (s.id < currentStep) changeStep(s.id as Step) }}
-                  disabled={s.id >= currentStep}
-                  className="flex flex-col items-center gap-1.5 flex-1 group"
-                >
-                  <div className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-black transition-all duration-500 ${
-                    currentStep === s.id
-                      ? 'bg-gradient-to-br from-primary-500 to-indigo-600 text-white ring-4 ring-primary-100 dark:ring-primary-900/30 scale-110 shadow-lg'
-                      : currentStep > s.id
-                      ? 'bg-emerald-500 text-white shadow-md cursor-pointer group-hover:scale-105'
-                      : 'bg-gray-200 dark:bg-gray-800 text-gray-400'
-                  }`}>
-                    {currentStep > s.id ? <Check className="w-4 h-4" /> : <s.icon className="w-3.5 h-3.5" />}
+          {error && (
+            <div className="mb-5 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+              {error}
+            </div>
+          )}
+
+          {isLoading ? (
+            <div className="flex items-center justify-center py-16">
+              <Loader2 className="h-6 w-6 animate-spin text-indigo-600" />
+            </div>
+          ) : (
+            <div className="space-y-6">
+              <section className="space-y-3">
+                <h2 className="text-sm font-bold uppercase tracking-wide text-slate-700">Interested domains</h2>
+                <div className="flex flex-wrap gap-2">
+                  {(categoriesQuery.data || []).map((category) => {
+                    const active = domainIds.includes(category.id)
+                    return (
+                      <button
+                        key={category.id}
+                        type="button"
+                        onClick={() => toggleDomain(category.id)}
+                        className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
+                          active
+                            ? 'border-indigo-500 bg-indigo-600 text-white'
+                            : 'border-slate-200 bg-white text-slate-700 hover:border-indigo-300'
+                        }`}
+                      >
+                        {category.name}
+                      </button>
+                    )
+                  })}
+                </div>
+              </section>
+
+              <section className="space-y-3">
+                <h2 className="text-sm font-bold uppercase tracking-wide text-slate-700">Preferred skills</h2>
+                <div className="max-h-44 overflow-y-auto rounded-xl border border-slate-200 p-3">
+                  <div className="flex flex-wrap gap-2">
+                    {(filteredSkills || []).map((skill) => {
+                      const active = skillIds.includes(skill.id)
+                      return (
+                        <button
+                          key={skill.id}
+                          type="button"
+                          onClick={() => toggleSkill(skill.id)}
+                          className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
+                            active
+                              ? 'border-indigo-500 bg-indigo-600 text-white'
+                              : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-indigo-300'
+                          }`}
+                        >
+                          {skill.labelEn}
+                        </button>
+                      )
+                    })}
                   </div>
-                  <span className={`text-[10px] font-bold hidden md:block ${currentStep >= s.id ? 'text-gray-700 dark:text-gray-300' : 'text-gray-400'}`}>
-                    {s.label}
-                  </span>
-                </button>
-              ))}
-            </div>
-            <div className="h-1.5 w-full bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
-              <div className="h-full bg-gradient-to-r from-primary-500 to-indigo-500 rounded-full transition-all duration-700 ease-out" style={{ width: `${progress}%` }} />
-            </div>
-          </div>
-        </div>
+                </div>
+              </section>
 
-        {/* Main Card */}
-        <div className="onb-glass rounded-2xl md:rounded-3xl shadow-2xl shadow-gray-200/50 dark:shadow-black/20 border border-white/60 dark:border-gray-800/60 p-6 md:p-10 min-h-[480px] md:min-h-[520px] flex flex-col">
-          <div className="flex-1" key={animKey}>
-            {currentStep === 1 && <StepRole roleChoice={roleChoice} setRoleChoice={setRoleChoice} />}
-            {currentStep === 2 && (
-              <StepExpertise
-                categories={categories}
-                selectedCategoryIds={selectedCategoryIds} setSelectedCategoryIds={setSelectedCategoryIds}
-              />
-            )}
-            {currentStep === 3 && (
-              <StepSkills
-                roleChoice={roleChoice}
-                allSkills={allSkills}
-                selectedSkills={selectedSkills} setSelectedSkills={setSelectedSkills}
-              />
-            )}
-            {currentStep === 4 && <StepPreferences preferences={preferences} setPreferences={setPreferences} />}
-            {currentStep === 5 && (
-              <StepGoals
-                roleChoice={roleChoice}
-                selectedGoals={selectedGoals} setSelectedGoals={setSelectedGoals}
-                customGoal={customGoal} setCustomGoal={setCustomGoal}
-              />
-            )}
-            {currentStep === 6 && <StepProfile profileData={profileData} setProfileData={setProfileData} userName={user.fullName} />}
-          </div>
-
-          {/* Footer */}
-          <div className="mt-6 pt-5 border-t border-gray-200/60 dark:border-gray-800/60">
-            {validationMsg && (
-              <div className="mb-4 px-4 py-3 rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/60 flex items-center gap-2.5">
-                <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse flex-shrink-0" />
-                <span className="text-sm font-semibold text-amber-700 dark:text-amber-400">{validationMsg}</span>
-              </div>
-            )}
-
-            <div className="flex items-center justify-between">
-              <button
-                onClick={handleBack}
-                disabled={currentStep === 1}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm text-gray-500 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-0 disabled:pointer-events-none transition-all"
-              >
-                <ArrowLeft className="w-4 h-4" /> Back
-              </button>
-
-              <div className="flex items-center gap-3">
-                {/* Skip button */}
-                {currentStep <= 3 && (
+              <section className="space-y-3">
+                <h2 className="text-sm font-bold uppercase tracking-wide text-slate-700">Learning goals</h2>
+                <div className="flex gap-2">
+                  <input
+                    value={goalInput}
+                    onChange={(event) => setGoalInput(event.target.value)}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter') {
+                        event.preventDefault()
+                        addGoal()
+                      }
+                    }}
+                    className="flex-1 rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-4 focus:ring-indigo-500/10"
+                    placeholder="e.g. Improve interview readiness"
+                  />
                   <button
-                    onClick={() => handleSkip.mutate()}
-                    disabled={handleSkip.isLoading}
-                    className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl font-bold text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-all"
+                    type="button"
+                    onClick={addGoal}
+                    className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800"
                   >
-                    <SkipForward className="w-3.5 h-3.5" /> Skip all
+                    Add
                   </button>
-                )}
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {learningGoals.map((goal) => (
+                    <span
+                      key={goal}
+                      className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs text-slate-700"
+                    >
+                      {goal}
+                      <button
+                        type="button"
+                        className="text-slate-400 hover:text-rose-500"
+                        onClick={() => setLearningGoals((prev) => prev.filter((item) => item !== goal))}
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              </section>
 
-                <button
-                  onClick={handleNext}
-                  disabled={isNextDisabled}
-                  className="flex items-center gap-2 px-7 py-3 bg-gradient-to-r from-primary-500 to-indigo-600 text-white rounded-xl font-bold text-sm shadow-lg shadow-primary-500/20 hover:shadow-xl hover:scale-[1.03] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:shadow-none transition-all duration-200"
-                >
-                  {stepMutation.isLoading ? (
-                    <><Loader2 className="w-4 h-4 animate-spin" /> Saving...</>
-                  ) : currentStep === 6 ? (
-                    <><Sparkles className="w-4 h-4" /> Complete Setup</>
-                  ) : (
-                    <>Continue <ArrowRight className="w-4 h-4" /></>
-                  )}
-                </button>
-              </div>
+              <section className="space-y-3">
+                <h2 className="text-sm font-bold uppercase tracking-wide text-slate-700">Preferred languages</h2>
+                <div className="flex flex-wrap gap-2">
+                  {LANGUAGE_OPTIONS.map((language) => {
+                    const active = preferredLanguages.includes(language)
+                    return (
+                      <button
+                        key={language}
+                        type="button"
+                        onClick={() => toggleLanguage(language)}
+                        className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
+                          active
+                            ? 'border-emerald-500 bg-emerald-600 text-white'
+                            : 'border-slate-200 bg-white text-slate-700 hover:border-emerald-300'
+                        }`}
+                      >
+                        {language}
+                      </button>
+                    )
+                  })}
+                </div>
+              </section>
             </div>
+          )}
+
+          <div className="mt-8 flex items-center justify-end gap-3 border-t border-slate-200 pt-6">
+            <button
+              type="button"
+              onClick={() => skipMutation.mutate()}
+              disabled={skipMutation.isLoading || finishMutation.isLoading}
+              className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-60"
+            >
+              Skip
+            </button>
+            <button
+              type="button"
+              onClick={handleContinue}
+              disabled={finishMutation.isLoading || skipMutation.isLoading}
+              className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-bold text-white transition hover:bg-indigo-700 disabled:opacity-60"
+            >
+              {finishMutation.isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+              Continue
+            </button>
           </div>
         </div>
-
-        <p className="text-center text-xs text-gray-400 dark:text-gray-500 mt-4">
-          You can update your preferences anytime from your profile settings
-        </p>
       </div>
     </div>
   )

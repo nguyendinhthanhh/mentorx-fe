@@ -91,7 +91,7 @@ function SavedMentorCard({
   const headline = mentor.headline || 'Expert mentor'
   const image = mentor.user?.avatarUrl || mentorFallbackImages[index % mentorFallbackImages.length]
   const rating = mentor.averageRating ? mentor.averageRating.toFixed(1) : 'N/A'
-  const responseTime = mentor.responseTimeHours ? `Trong ${mentor.responseTimeHours} giờ` : 'Phản hồi nhanh'
+  const responseTime = mentor.responseTimeHours ? `Usually responds within ${mentor.responseTimeHours} hours` : 'Response time will be calculated after more activity.'
   const rate = mentor.hourlyRateMxc ? formatCurrency(mentor.hourlyRateMxc) : 'Linh hoạt'
 
   return (
