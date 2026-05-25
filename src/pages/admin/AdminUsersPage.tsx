@@ -17,12 +17,15 @@ import {
   Edit,
   Trash2,
   Loader2,
-  Eye
+  Eye,
+  AlertCircle,
+  XCircle
 } from 'lucide-react'
 import { useState } from 'react'
 import { formatDateTime } from '@/utils/formatters'
 import AdminUserModal from '@/components/admin/AdminUserModal'
 import AdminUserDetailsModal from '@/components/admin/AdminUserDetailsModal'
+import { adminMentorVerificationApi } from '@/api/adminMentorVerificationApi'
 import { useAuthStore } from '@/store/authStore'
 import { toast } from 'react-hot-toast'
 
@@ -37,6 +40,8 @@ export default function AdminUsersPage() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isDetailsOpen, setIsDetailsOpen] = useState(false)
   const [selectedUser, setSelectedUser] = useState<UserResponse | null>(null)
+  const [suspendTarget, setSuspendTarget] = useState<string | null>(null)
+  const [suspendReason, setSuspendReason] = useState('')
 
   const { data, isLoading } = useQuery(
     ['admin-users', page, search, statusFilter, mentorStatusFilter],
@@ -76,6 +81,40 @@ export default function AdminUsersPage() {
     {
       onSuccess: () => {
         toast.success('Revision requested')
+        queryClient.invalidateQueries('admin-users')
+      }
+    }
+  )
+
+  const suspendMentorMutation = useMutation(
+    ({ userId, reason }: { userId: string; reason: string }) =>
+      adminMentorVerificationApi.suspendMentor(userId, reason),
+    {
+      onSuccess: () => {
+        toast.success('Mentor mode suspended')
+        queryClient.invalidateQueries('admin-users')
+      }
+    }
+  )
+
+  const handleSuspendMentor = (userId: string) => {
+    setSuspendTarget(userId)
+    setSuspendReason('')
+  }
+
+  const handleSuspendConfirm = () => {
+    if (suspendTarget && suspendReason.trim()) {
+      suspendMentorMutation.mutate({ userId: suspendTarget, reason: suspendReason.trim() })
+      setSuspendTarget(null)
+      setSuspendReason('')
+    }
+  }
+
+  const restoreMentorMutation = useMutation(
+    (userId: string) => userApi.updateMentorStatus(userId, MentorStatus.APPROVED),
+    {
+      onSuccess: () => {
+        toast.success('Mentor mode restored')
         queryClient.invalidateQueries('admin-users')
       }
     }
@@ -260,7 +299,7 @@ export default function AdminUsersPage() {
                           <Eye className="w-4 h-4" />
                         </button>
                         
-                         {user.mentorStatus === MentorStatus.PENDING && (
+                          {user.mentorStatus === MentorStatus.PENDING && (
                           <>
                             <button
                               onClick={() => approveMentorMutation.mutate(user.userId)}
@@ -277,6 +316,26 @@ export default function AdminUsersPage() {
                               <UserX className="w-4 h-4" />
                             </button>
                           </>
+                        )}
+
+                        {user.mentorStatus === MentorStatus.APPROVED && (
+                          <button 
+                            onClick={() => handleSuspendMentor(user.userId)}
+                            className="p-2.5 rounded-xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-all shadow-sm"
+                            title="Suspend Mentor Mode"
+                          >
+                            <AlertCircle className="w-4 h-4" />
+                          </button>
+                        )}
+
+                        {user.mentorStatus === MentorStatus.SUSPENDED && (
+                          <button 
+                            onClick={() => restoreMentorMutation.mutate(user.userId)}
+                            className="p-2.5 rounded-xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all shadow-sm"
+                            title="Restore Mentor Mode"
+                          >
+                            <UserCheck className="w-4 h-4" />
+                          </button>
                         )}
                         
                         {user.status === UserStatus.ACTIVE ? (
@@ -355,6 +414,59 @@ export default function AdminUsersPage() {
         onClose={() => setIsDetailsOpen(false)}
         user={selectedUser}
       />
+
+      {suspendTarget && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-gray-950/55 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-xl rounded-[2rem] border border-white/10 bg-white p-6 shadow-2xl dark:bg-gray-900">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.16em] text-rose-600 dark:text-rose-400">
+                  Moderation action
+                </p>
+                <h3 className="mt-2 text-xl font-black text-gray-950 dark:text-white">Suspend mentor</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSuspendTarget(null)}
+                className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-gray-200 text-gray-500 hover:text-gray-950 dark:border-gray-700 dark:text-gray-300 dark:hover:text-white"
+              >
+                <XCircle className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="mt-6 space-y-3">
+              <p className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+                Suspension removes Mentor Mode access but preserves the user account and user features.
+              </p>
+              <textarea
+                rows={5}
+                value={suspendReason}
+                onChange={(e) => setSuspendReason(e.target.value)}
+                placeholder="Enter reason for suspending mentor mode..."
+                className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm font-medium text-gray-900 outline-none transition focus:border-rose-300 focus:bg-white focus:ring-4 focus:ring-rose-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+              />
+            </div>
+
+            <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+              <button
+                type="button"
+                onClick={() => setSuspendTarget(null)}
+                className="inline-flex h-11 items-center justify-center rounded-2xl border border-gray-200 px-5 text-sm font-bold text-gray-600 transition hover:border-gray-300 hover:text-gray-950 dark:border-gray-700 dark:text-gray-300 dark:hover:text-white"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleSuspendConfirm}
+                disabled={!suspendReason.trim() || suspendMentorMutation.isLoading}
+                className="inline-flex h-11 items-center justify-center rounded-2xl bg-rose-600 px-5 text-sm font-bold text-white transition hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {suspendMentorMutation.isLoading ? 'Submitting...' : 'Suspend mentor'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
