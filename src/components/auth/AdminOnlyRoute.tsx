@@ -9,7 +9,7 @@ interface Props {
 export default function AdminOnlyRoute({ children }: Props) {
   const { user } = useAuthStore()
 
-  if (!user || !isAdmin(user)) {
+  if (!user || !isAdmin(user) || (user.status && !['ACTIVE', 'PENDING'].includes(user.status))) {
     return <Navigate to="/admin/dashboard" replace />
   }
 

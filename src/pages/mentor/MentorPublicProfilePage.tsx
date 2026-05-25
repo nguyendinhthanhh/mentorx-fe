@@ -7,6 +7,8 @@ import {
   Check,
   ChevronLeft,
   Clock,
+  ExternalLink,
+  Globe,
   Heart,
   Mail,
   MessageSquare,
@@ -484,6 +486,47 @@ function MentorIdentityCard({
           value={mentor.responseTimeHours ? `Usually responds within ${mentor.responseTimeHours} hours` : 'Response time will be calculated after more activity.'}
         />
       </div>
+
+      {(mentor.linkedinUrl || mentor.githubUrl || mentor.portfolioUrl) && (
+        <div className="mt-7 space-y-2 border-t border-gray-100 pt-5 dark:border-gray-800">
+          <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Social</p>
+          <div className="flex flex-wrap gap-2">
+            {mentor.linkedinUrl && (
+              <a
+                href={mentor.linkedinUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-blue-50 px-3 py-2 text-xs font-bold text-blue-700 transition-colors hover:bg-blue-100 dark:bg-blue-950/30 dark:text-blue-300"
+              >
+                <ExternalLink className="h-3.5 w-3.5" />
+                LinkedIn
+              </a>
+            )}
+            {mentor.githubUrl && (
+              <a
+                href={mentor.githubUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-gray-100 px-3 py-2 text-xs font-bold text-gray-700 transition-colors hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300"
+              >
+                <ExternalLink className="h-3.5 w-3.5" />
+                GitHub
+              </a>
+            )}
+            {mentor.portfolioUrl && (
+              <a
+                href={mentor.portfolioUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-50 px-3 py-2 text-xs font-bold text-emerald-700 transition-colors hover:bg-emerald-100 dark:bg-emerald-950/30 dark:text-emerald-300"
+              >
+                <Globe className="h-3.5 w-3.5" />
+                Portfolio
+              </a>
+            )}
+          </div>
+        </div>
+      )}
 
       <button
         type="button"

@@ -9,7 +9,7 @@ interface Props {
 export default function AdminRoute({ children }: Props) {
   const { user } = useAuthStore()
 
-  if (!user || !canAccessAdminWorkspace(user)) {
+  if (!user || !canAccessAdminWorkspace(user) || (user.status && !['ACTIVE', 'PENDING'].includes(user.status))) {
     return <Navigate to="/profile" replace />
   }
 

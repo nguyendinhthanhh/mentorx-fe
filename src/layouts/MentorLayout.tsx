@@ -13,11 +13,15 @@ import {
   Moon,
   Search,
   Settings,
+  ShoppingBag,
   Star,
+  Sun,
+  User,
   Wallet,
 } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { useThemeStore } from '@/store/themeStore'
+import { UserMode } from '@/types'
 
 const navigationItems = [
   { to: '/mentor/dashboard', label: 'Overview', icon: LayoutDashboard },
@@ -35,9 +39,10 @@ const navigationItems = [
 export default function MentorLayout() {
   const navigate = useNavigate()
   const location = useLocation()
-  const { user, logout } = useAuthStore()
+  const { user, logout, setCurrentMode } = useAuthStore()
   const { isDarkMode, toggleTheme } = useThemeStore()
   const [availability] = useState('Available')
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false)
 
   const handleLogout = () => {
     logout()
@@ -55,8 +60,8 @@ export default function MentorLayout() {
   return (
     <div className={`min-h-screen ${isDarkMode ? 'dark bg-slate-950' : 'bg-[#faf9ff]'}`}>
       <div className="flex min-h-screen">
-        <aside className="hidden w-[248px] shrink-0 border-r border-slate-200/80 bg-white xl:flex xl:flex-col">
-          <div className="flex h-[88px] items-center border-b border-slate-100 px-6">
+        <aside className="hidden w-[248px] shrink-0 border-r border-slate-200/80 bg-white xl:flex xl:flex-col max-h-screen overflow-hidden">
+          <div className="flex h-[88px] shrink-0 items-center border-b border-slate-100 px-6">
             <Link to="/" className="flex items-center gap-3">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 shadow-lg shadow-violet-200">
                 <span className="text-lg font-black text-white">M</span>
@@ -68,7 +73,7 @@ export default function MentorLayout() {
             </Link>
           </div>
 
-          <nav className="flex-1 space-y-2 px-4 py-5">
+          <nav className="flex-1 overflow-y-auto space-y-2 px-4 py-5">
             {navigationItems.map((item) => {
               const active = isActive(item.to)
               return (
@@ -114,22 +119,8 @@ export default function MentorLayout() {
           <div className="border-t border-slate-100 px-4 py-4">
             <button
               type="button"
-              onClick={toggleTheme}
-              className="flex h-12 w-full items-center justify-between rounded-2xl px-4 text-sm font-bold text-slate-600 transition hover:bg-slate-50 hover:text-slate-900"
-            >
-              <span className="inline-flex items-center gap-3">
-                <Moon className="h-4 w-4 text-slate-400" />
-                Dark Mode
-              </span>
-              <span className={`relative h-6 w-11 rounded-full transition ${isDarkMode ? 'bg-indigo-600' : 'bg-slate-200'}`}>
-                <span className={`absolute top-1 h-4 w-4 rounded-full bg-white transition ${isDarkMode ? 'left-6' : 'left-1'}`} />
-              </span>
-            </button>
-
-            <button
-              type="button"
               onClick={handleLogout}
-              className="mt-2 flex h-12 w-full items-center gap-3 rounded-2xl px-4 text-sm font-bold text-rose-500 transition hover:bg-rose-50"
+              className="flex h-12 w-full items-center gap-3 rounded-2xl px-4 text-sm font-bold text-rose-500 transition hover:bg-rose-50"
             >
               <LogOut className="h-4 w-4" />
               Logout
@@ -137,7 +128,7 @@ export default function MentorLayout() {
           </div>
         </aside>
 
-        <div className="min-w-0 flex-1">
+        <div className="min-w-0 flex-1 max-h-screen overflow-y-auto">
           <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/95 backdrop-blur">
             <div className="flex h-[80px] items-center justify-between gap-4 px-6 lg:px-8">
               <div className="flex min-w-0 flex-1 items-center gap-4">
@@ -155,6 +146,15 @@ export default function MentorLayout() {
               </div>
 
               <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={toggleTheme}
+                  className="flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-500 transition hover:bg-slate-50 hover:text-slate-900"
+                  aria-label="Toggle theme"
+                >
+                  {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                </button>
+
                 <button
                   type="button"
                   className="hidden h-11 items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-700 lg:inline-flex"
@@ -175,28 +175,82 @@ export default function MentorLayout() {
                   <MessageCircle className="h-4 w-4" />
                 </button>
 
-                <Link
-                  to={`/mentors/${user?.userId}`}
-                  className="hidden h-11 items-center rounded-2xl border border-indigo-200 bg-indigo-50 px-4 text-sm font-bold text-indigo-700 transition hover:bg-indigo-100 lg:inline-flex"
-                >
-                  Public Profile
-                </Link>
+                <div className="relative">
+                  <button
+                    onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                    className="flex items-center gap-3 rounded-2xl bg-white pl-2 pr-1 border border-slate-200 transition hover:border-indigo-200"
+                  >
+                    <div className="h-10 w-10 overflow-hidden rounded-2xl bg-slate-100">
+                      {user?.avatarUrl ? (
+                        <img src={user.avatarUrl} alt={user?.fullName} className="h-full w-full object-cover" />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center bg-indigo-100 text-sm font-black text-indigo-600">
+                          {initials || 'M'}
+                        </div>
+                      )}
+                    </div>
+                    <div className="hidden text-left lg:block">
+                      <p className="text-sm font-black text-slate-950">{user?.fullName || 'Mentor'}</p>
+                      <p className="mt-0.5 text-xs font-medium text-slate-500">Expert Mentor</p>
+                    </div>
+                    <ChevronDown className={`h-4 w-4 text-slate-400 transition-transform duration-300 ${userDropdownOpen ? 'rotate-180 text-indigo-600' : ''}`} />
+                  </button>
 
-                <div className="flex items-center gap-3 rounded-2xl bg-white pl-2 pr-1">
-                  <div className="h-10 w-10 overflow-hidden rounded-2xl bg-slate-100">
-                    {user?.avatarUrl ? (
-                      <img src={user.avatarUrl} alt={user.fullName} className="h-full w-full object-cover" />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center bg-indigo-100 text-sm font-black text-indigo-600">
-                        {initials || 'M'}
+                  {userDropdownOpen && (
+                    <>
+                      <div className="fixed inset-0 z-10" onClick={() => setUserDropdownOpen(false)} />
+                      <div className="absolute right-0 z-20 mt-2 w-64 origin-top-right rounded-2xl border border-slate-200 bg-white p-2 shadow-xl ring-1 ring-black ring-opacity-5 focus:outline-none">
+                        <div className="mb-1 border-b border-slate-100 px-3 py-2">
+                          <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Account</p>
+                          <p className="truncate text-sm font-black text-slate-950">{user?.fullName || 'Mentor'}</p>
+                          <p className="truncate text-[11px] font-medium text-slate-500">Expert Mentor</p>
+                        </div>
+
+                        <Link
+                          to="/profile"
+                          onClick={() => setUserDropdownOpen(false)}
+                          className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50 hover:text-blue-600"
+                        >
+                          <User className="h-4 w-4" />
+                          View Profile
+                        </Link>
+                        <Link
+                          to={`/mentors/${user?.userId}`}
+                          onClick={() => setUserDropdownOpen(false)}
+                          className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50 hover:text-blue-600"
+                        >
+                          <Star className="h-4 w-4" />
+                          View Mentor Profile
+                        </Link>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setUserDropdownOpen(false)
+                            setCurrentMode(UserMode.USER)
+                            navigate('/')
+                          }}
+                          className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50 hover:text-blue-600"
+                        >
+                          <ShoppingBag className="h-4 w-4" />
+                          Back to Market
+                        </button>
+
+                        <div className="my-1 border-t border-slate-100" />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setUserDropdownOpen(false)
+                            handleLogout()
+                          }}
+                          className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-red-600 transition hover:bg-red-50"
+                        >
+                          <LogOut className="h-4 w-4" />
+                          Sign out
+                        </button>
                       </div>
-                    )}
-                  </div>
-                  <div className="hidden text-left lg:block">
-                    <p className="text-sm font-black text-slate-950">{user?.fullName || 'Mentor'}</p>
-                    <p className="mt-0.5 text-xs font-medium text-slate-500">Expert Mentor</p>
-                  </div>
-                  <ChevronDown className="hidden h-4 w-4 text-slate-400 lg:inline" />
+                    </>
+                  )}
                 </div>
               </div>
             </div>
