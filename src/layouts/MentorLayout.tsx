@@ -215,7 +215,7 @@ export default function MentorLayout() {
                           View Profile
                         </Link>
                         <Link
-                          to={`/mentors/${user?.userId}`}
+                          to="/mentor/profile-setup"
                           onClick={() => setUserDropdownOpen(false)}
                           className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50 hover:text-blue-600"
                         >

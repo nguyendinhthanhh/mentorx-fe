@@ -279,7 +279,8 @@ export default function MentorProfileSetupPage({ onCancelEdit, initialTab = 'pro
               <CompletionPanel progress={progress} />
             </aside>
 
-            <main className="min-w-0 p-5">
+            <main className="min-w-0 p-5 flex flex-col">
+              <div className="flex-1">
               {activeTab === 'overview' && (
                 <OverviewPanel
                   progress={progress}
@@ -315,77 +316,77 @@ export default function MentorProfileSetupPage({ onCancelEdit, initialTab = 'pro
                   documents={documents}
                 />
               )}
+              </div>
+            <div className="sticky bottom-0 -mx-5 -mb-5 mt-6 border-t border-slate-200 bg-white/95 px-5 py-3 shadow-2xl backdrop-blur z-10">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-center gap-2 text-sm font-semibold">
+                  {draftState === 'saving' ? (
+                    <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
+                  ) : draftState === 'error' ? (
+                    <X className="h-4 w-4 text-red-600" />
+                  ) : (
+                    <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                  )}
+                  <span className={draftState === 'error' ? 'text-red-600' : 'text-slate-600'}>
+                    {draftState === 'saving'
+                      ? 'Đang lưu...'
+                      : draftState === 'saved'
+                        ? 'Đã lưu thay đổi'
+                        : draftState === 'error'
+                          ? formError
+                          : 'Sẵn sàng cập nhật hồ sơ'}
+                  </span>
+                </div>
+                <div className="flex gap-2">
+                  {onCancelEdit && (
+                    <button
+                      type="button"
+                      onClick={onCancelEdit}
+                      className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-black text-slate-700 hover:bg-slate-50"
+                    >
+                      <X className="h-4 w-4" />
+                      Hủy
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => saveMutation.mutate({ requireComplete: false })}
+                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-black text-slate-700 hover:bg-slate-50"
+                  >
+                    <Save className="h-4 w-4" />
+                    Lưu nháp
+                  </button>
+                  {onCancelEdit ? (
+                    <button
+                      type="button"
+                      onClick={onCancelEdit}
+                      className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-black text-slate-700 hover:bg-slate-50"
+                    >
+                      <ExternalLink className="h-4 w-4" />
+                      Xem trước
+                    </button>
+                  ) : (
+                    <Link
+                      to={`/mentors/${user.userId}`}
+                      className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-black text-slate-700 hover:bg-slate-50"
+                    >
+                      <ExternalLink className="h-4 w-4" />
+                      Xem trước
+                    </Link>
+                  )}
+                  <button
+                    type="button"
+                    disabled={saveMutation.isLoading}
+                    onClick={() => saveMutation.mutate({ requireComplete: true })}
+                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-black text-white shadow-lg shadow-blue-600/20 hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+                  >
+                    {saveMutation.isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+                    Cập nhật hồ sơ
+                  </button>
+                </div>
+              </div>
+            </div>
             </main>
-          </div>
-        </div>
-      </div>
-
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 px-4 py-3 shadow-2xl backdrop-blur">
-        <div className="mx-auto flex max-w-7xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-2 text-sm font-semibold">
-            {draftState === 'saving' ? (
-              <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
-            ) : draftState === 'error' ? (
-              <X className="h-4 w-4 text-red-600" />
-            ) : (
-              <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-            )}
-            <span className={draftState === 'error' ? 'text-red-600' : 'text-slate-600'}>
-              {draftState === 'saving'
-                ? 'Đang lưu...'
-                : draftState === 'saved'
-                  ? 'Đã lưu thay đổi'
-                  : draftState === 'error'
-                    ? formError
-                    : 'Sẵn sàng cập nhật hồ sơ'}
-            </span>
-          </div>
-          <div className="flex gap-2">
-            {onCancelEdit && (
-              <button
-                type="button"
-                onClick={onCancelEdit}
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-black text-slate-700 hover:bg-slate-50"
-              >
-                <X className="h-4 w-4" />
-                Hủy
-              </button>
-            )}
-            <button
-              type="button"
-              onClick={() => saveMutation.mutate({ requireComplete: false })}
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-black text-slate-700 hover:bg-slate-50"
-            >
-              <Save className="h-4 w-4" />
-              Lưu nháp
-            </button>
-            {onCancelEdit ? (
-              <button
-                type="button"
-                onClick={onCancelEdit}
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-black text-slate-700 hover:bg-slate-50"
-              >
-                <ExternalLink className="h-4 w-4" />
-                Xem trước
-              </button>
-            ) : (
-              <Link
-                to={`/mentors/${user.userId}`}
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-black text-slate-700 hover:bg-slate-50"
-              >
-                <ExternalLink className="h-4 w-4" />
-                Xem trước
-              </Link>
-            )}
-            <button
-              type="button"
-              disabled={saveMutation.isLoading}
-              onClick={() => saveMutation.mutate({ requireComplete: true })}
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-black text-white shadow-lg shadow-blue-600/20 hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-300"
-            >
-              {saveMutation.isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
-              Cập nhật hồ sơ
-            </button>
           </div>
         </div>
       </div>
