@@ -255,14 +255,14 @@ export default function AppHeader() {
                         <Briefcase className="h-4 w-4" />
                         My jobs
                       </Link>
-                      {/* <Link
+                      <Link
                         to="/quick-support"
                         onClick={() => setUserDropdownOpen(false)}
                         className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50 hover:text-blue-600"
                       >
                         <Zap className="h-4 w-4" />
                         Quick Support
-                      </Link> */}
+                      </Link>
                       <Link
                         to="/profile/courses"
                         onClick={() => setUserDropdownOpen(false)}

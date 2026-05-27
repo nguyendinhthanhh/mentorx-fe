@@ -94,6 +94,107 @@ export enum LessonType {
   CODE_EXERCISE = "CODE_EXERCISE",
 }
 
+export enum QuickSupportStatus {
+  PENDING = "PENDING",
+  MATCHED = "MATCHED",
+  IN_PROGRESS = "IN_PROGRESS",
+  COMPLETED = "COMPLETED",
+  CANCELLED = "CANCELLED",
+  EXPIRED = "EXPIRED",
+  DECLINED = "DECLINED",
+  NO_MENTOR_AVAILABLE = "NO_MENTOR_AVAILABLE",
+}
+
+export interface QuickSupportResponse {
+  id: string;
+  clientId: string;
+  clientName: string;
+  clientAvatarUrl?: string;
+  mentorId?: string;
+  mentorName?: string;
+  mentorAvatarUrl?: string;
+  categoryId: number;
+  categoryName: string;
+  status: QuickSupportStatus;
+  issueDescription: string;
+  detailedDescription?: string;
+  urgencyLevel: number;
+  estimatedDurationMinutes: number;
+  maxRateMxc?: number;
+  agreedRateMxc?: number;
+  totalAmount?: number;
+  matchedAt?: string;
+  sessionStartedAt?: string;
+  sessionEndedAt?: string;
+  actualDurationMinutes?: number;
+  expiresAt?: string;
+  chatRoomId?: string;
+  sessionNotes?: string;
+  clientFeedback?: string;
+  clientRating?: number;
+  issueResolved?: boolean;
+  preferredLanguage?: string;
+  screenSharingRequired: boolean;
+  voiceCallRequired: boolean;
+  cancellationReason?: string;
+  cancelledAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface QuickSupportCreateRequest {
+  clientId: string;
+  categoryId: number;
+  issueDescription: string;
+  detailedDescription?: string;
+  urgencyLevel?: number;
+  estimatedDurationMinutes?: number;
+  maxRateMxc?: number;
+  preferredLanguage?: string;
+  screenSharingRequired?: boolean;
+  voiceCallRequired?: boolean;
+}
+
+export interface QuickSupportRatingRequest {
+  rating: number;
+  feedback?: string;
+  issueResolved?: boolean;
+}
+
+export interface QuickSupportCompleteRequest {
+  sessionNotes?: string;
+  totalAmount?: number;
+}
+
+export interface QuickMatchQueueResponse {
+  id: string;
+  userId: string;
+  userName: string;
+  categoryId: number;
+  categoryName: string;
+  status: string;
+  priorityScore: number;
+  helpDescription: string;
+  estimatedDurationMinutes: number;
+  maxRateMxc?: number;
+  preferredLanguage?: string;
+  expiresAt: string;
+  matchedMentorId?: string;
+  matchedMentorName?: string;
+  matchedAt?: string;
+  createdAt: string;
+}
+
+export interface QuickMatchJoinRequest {
+  userId: string;
+  categoryId: number;
+  helpDescription: string;
+  estimatedDurationMinutes?: number;
+  maxRateMxc?: number;
+  preferredLanguage?: string;
+  userTimezone?: string;
+}
+
 export enum TxnType {
   DEPOSIT = "DEPOSIT",
   WITHDRAWAL = "WITHDRAWAL",

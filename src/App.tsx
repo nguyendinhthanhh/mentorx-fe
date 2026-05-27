@@ -24,6 +24,10 @@ import MentorPublicProfilePage from './pages/mentor/MentorPublicProfilePage'
 import RecommendedMentorsPage from './pages/mentor/RecommendedMentorsPage'
 import NotificationListPage from './pages/user/NotificationListPage'
 
+// Quick Support Pages
+import QuickSupportPage from './pages/quick-support/QuickSupportPage'
+import QuickSupportDetailPage from './pages/quick-support/QuickSupportDetailPage'
+
 // Job Pages
 import JobListPage from './pages/job/JobListPage'
 import JobDetailPage from './pages/job/JobDetailPage'
@@ -145,6 +149,10 @@ function App() {
             {/* Chat Routes */}
             <Route path="/chat" element={<ChatListPage />} />
             <Route path="/chat/demo" element={<ChatDemoPage />} />
+
+            {/* Quick Support Routes */}
+            <Route path="/quick-support" element={<QuickSupportPage />} />
+            <Route path="/quick-support/:requestId" element={<QuickSupportDetailPage />} />
 
             {/* My Jobs Route */}
             <Route path="/my-jobs" element={<MyJobsPage />} />
