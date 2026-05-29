@@ -31,8 +31,10 @@ export const chatApi = {
     return response.data.data
   },
 
-  getRoomById: async (roomId: string): Promise<ChatRoomResponse> => {
-    const response = await apiClient.get<ApiResponse<ChatRoomResponse>>(`/chat/rooms/${roomId}`)
+  getRoomById: async (roomId: string, userId: string): Promise<ChatRoomResponse> => {
+    const response = await apiClient.get<ApiResponse<ChatRoomResponse>>(`/chat/rooms/${roomId}`, {
+      params: { userId },
+    })
     return response.data.data
   },
 

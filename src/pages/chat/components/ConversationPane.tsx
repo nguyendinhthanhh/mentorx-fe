@@ -51,6 +51,7 @@ type ConversationPaneProps = {
   onShowDetails: () => void
   onBackToList: () => void
   showBackButton: boolean
+  heightClassName?: string
 }
 
 export default function ConversationPane({
@@ -73,12 +74,13 @@ export default function ConversationPane({
   onShowDetails,
   onBackToList,
   showBackButton,
+  heightClassName = 'h-[calc(100vh-73px)]',
 }: ConversationPaneProps) {
   const banner = buildContextBanner(selectedRoom)
 
   if (!selectedRoom) {
     return (
-      <section className="hidden h-[calc(100vh-73px)] flex-1 items-center justify-center bg-white lg:flex">
+      <section className={`hidden ${heightClassName} flex-1 items-center justify-center bg-white lg:flex`}>
         <div className="max-w-sm text-center">
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-indigo-50 text-indigo-500">
             <Sparkles className="h-6 w-6" />
@@ -95,7 +97,7 @@ export default function ConversationPane({
   const goalLink = selectedRoom.referenceType === 'JOB' && selectedRoom.referenceId ? `/jobs/${selectedRoom.referenceId}` : undefined
 
   return (
-    <section className="flex h-[calc(100vh-73px)] flex-1 flex-col bg-white">
+    <section className={`flex ${heightClassName} flex-1 flex-col bg-white`}>
       <header className="sticky top-0 z-10 border-b border-slate-200 bg-white">
         <div className="flex items-center justify-between gap-4 px-6 py-4">
           <div className="flex min-w-0 items-center gap-4">

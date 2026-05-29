@@ -25,6 +25,7 @@ import ReviewList from '@/components/review/ReviewList'
 import ReviewForm from '@/components/review/ReviewForm'
 import MentorProfileEditor from './MentorProfileSetupPage'
 import { MentorProfileAssetResponse, MentorProfileAssetType, MentorProfileResponse, MessageType, ReviewTargetType } from '@/types'
+import { getMentorProofLinks } from '@/utils/proofLinks'
 
 const courseImages = [
   'https://images.unsplash.com/photo-1545239351-1141bd82e8a6?auto=format&fit=crop&w=900&q=80',
@@ -424,6 +425,8 @@ function MentorIdentityCard({
   pendingAction: string | null
   isOwnProfile: boolean
 }) {
+  const proofLinks = getMentorProofLinks(mentor)
+
   return (
     <aside className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-950 lg:sticky lg:top-24 lg:self-start">
       <div className="relative mx-auto h-32 w-32">
@@ -487,43 +490,22 @@ function MentorIdentityCard({
         />
       </div>
 
-      {(mentor.linkedinUrl || mentor.githubUrl || mentor.portfolioUrl) && (
+      {proofLinks.length > 0 && (
         <div className="mt-7 space-y-2 border-t border-gray-100 pt-5 dark:border-gray-800">
-          <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Social</p>
+          <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Proof links</p>
           <div className="flex flex-wrap gap-2">
-            {mentor.linkedinUrl && (
+            {proofLinks.map((link) => (
               <a
-                href={mentor.linkedinUrl}
+                key={`${link.label}-${link.url}`}
+                href={link.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 rounded-xl bg-blue-50 px-3 py-2 text-xs font-bold text-blue-700 transition-colors hover:bg-blue-100 dark:bg-blue-950/30 dark:text-blue-300"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-slate-100 px-3 py-2 text-xs font-bold text-slate-700 transition-colors hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200"
               >
                 <ExternalLink className="h-3.5 w-3.5" />
-                LinkedIn
+                {link.label}
               </a>
-            )}
-            {mentor.githubUrl && (
-              <a
-                href={mentor.githubUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 rounded-xl bg-gray-100 px-3 py-2 text-xs font-bold text-gray-700 transition-colors hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300"
-              >
-                <ExternalLink className="h-3.5 w-3.5" />
-                GitHub
-              </a>
-            )}
-            {mentor.portfolioUrl && (
-              <a
-                href={mentor.portfolioUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-50 px-3 py-2 text-xs font-bold text-emerald-700 transition-colors hover:bg-emerald-100 dark:bg-emerald-950/30 dark:text-emerald-300"
-              >
-                <Globe className="h-3.5 w-3.5" />
-                Portfolio
-              </a>
-            )}
+            ))}
           </div>
         </div>
       )}

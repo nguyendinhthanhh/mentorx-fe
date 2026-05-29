@@ -32,6 +32,7 @@ const STATUS_FILTERS = [
   { value: JobStatus.IN_PROGRESS, label: 'Đang thực hiện' },
   { value: JobStatus.COMPLETED, label: 'Hoàn thành' },
   { value: JobStatus.CLOSED, label: 'Đã đóng' },
+  { value: JobStatus.EXPIRED, label: 'Hết hạn' },
   { value: JobStatus.DRAFT, label: 'Bản nháp' },
 ]
 
@@ -532,5 +533,5 @@ function formatBudget(job: JobResponse) {
 }
 
 function getProposalCount(job: JobResponse) {
-  return (job as JobResponse & { proposalCount?: number }).proposalCount || 0
+  return job.proposalCount || 0
 }

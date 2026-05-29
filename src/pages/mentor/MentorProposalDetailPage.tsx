@@ -26,6 +26,7 @@ import { proposalApi } from '@/api/proposalApi'
 import { useAuthStore } from '@/store/authStore'
 import { CategoryResponse, JobResponse, MentorProfileResponse, ProposalResponse, ProposalStatus } from '@/types'
 import { formatCurrency, formatDate, formatDateTime } from '@/utils/formatters'
+import { getJobChatRoute } from '@/utils/jobWorkspace'
 
 type CounterMode = 'COUNTER' | 'REQUEST_CHANGES'
 
@@ -113,6 +114,10 @@ export default function MentorProposalDetailPage() {
 
   const latestNegotiation = negotiations.length > 0 ? negotiations[negotiations.length - 1] : null
   const isClientOffer = latestNegotiation?.senderType === 'CLIENT'
+  const isEditingOwnPendingCounter =
+    latestNegotiation?.senderType === 'MENTOR' &&
+    latestNegotiation?.status === 'PENDING' &&
+    latestNegotiation?.senderId === user?.userId
   const isFinalized = proposal?.status === 'ACCEPTED' || proposal?.status === 'REJECTED' || proposal?.status === 'WITHDRAWN'
   
   const currentOffer = latestNegotiation || proposal
@@ -247,13 +252,19 @@ export default function MentorProposalDetailPage() {
 
     try {
       setSubmitting(true)
-      await negotiationApi.mentorCounterOffer({
+      const negotiationPayload = {
         proposalId: proposal.id,
         senderId: user.userId,
         message: finalMessage,
         proposedAmount: counterAmount ? Number(counterAmount) : undefined,
         estimatedDurationDays: counterDays ? Number(counterDays) : undefined,
-      })
+      }
+
+      if (isEditingOwnPendingCounter && latestNegotiation) {
+        await negotiationApi.updatePendingNegotiation(latestNegotiation.id, negotiationPayload)
+      } else {
+        await negotiationApi.mentorCounterOffer(negotiationPayload)
+      }
       setShowCounterModal(false)
       setMessage('')
       setCounterAmount('')
@@ -551,6 +562,15 @@ export default function MentorProposalDetailPage() {
                     ))}
                   </div>
                 </div>
+
+                {currentStatus === ProposalStatus.ACCEPTED && (
+                  <Link
+                    to={getJobChatRoute(job.jobId, job.clientId)}
+                    className="mt-5 inline-flex h-10 w-full items-center justify-center rounded-xl border border-indigo-200 bg-indigo-50 text-xs font-bold text-indigo-700 transition hover:bg-indigo-100"
+                  >
+                    Open chat
+                  </Link>
+                )}
 
                 {/* Action buttons */}
                 {!isFinalized && (

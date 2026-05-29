@@ -439,9 +439,9 @@ function formatDeadline(deadline: string) {
 }
 
 function getClientName(job: JobResponse) {
-  return (job as JobResponse & { clientName?: string }).clientName || job.client?.displayName || job.client?.fullName || 'Company'
+  return job.clientName || job.client?.displayName || job.client?.fullName || 'Company'
 }
 
 function getProposalCount(job: JobResponse) {
-  return (job as JobResponse & { proposalCount?: number }).proposalCount || 0
+  return job.proposalCount || 0
 }

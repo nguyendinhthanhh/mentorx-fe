@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react'
-import { useQuery } from 'react-query'
+import { useQuery, useQueryClient } from 'react-query'
+import { toast } from 'react-hot-toast'
 import { proposalApi } from '@/api/proposalApi'
 import { negotiationApi, type NegotiationResponse } from '@/api/negotiationApi'
 import { chatApi } from '@/api/chatApi'
 import { useAuthStore } from '@/store/authStore'
-import { useSearchParams, Link } from 'react-router-dom'
+import { useSearchParams, Link, useNavigate } from 'react-router-dom'
 import { formatCurrency, formatRelativeTime } from '@/utils/formatters'
 import { ProposalResponse } from '@/types'
+import { ensureDirectJobChat, getJobChatRoute } from '@/utils/jobWorkspace'
 import { 
   CalendarDays, 
   CheckCircle, 
@@ -32,9 +34,17 @@ interface Props {
 
 type StatusFilter = 'ALL' | 'SUBMITTED' | 'NEGOTIATING' | 'SHORTLISTED' | 'ACCEPTED' | 'REJECTED'
 
+type AcceptCandidate = ProposalResponse & {
+  acceptedAmount?: number | null
+  acceptedDurationDays?: number | null
+}
+
 export default function ProposalList({ jobId }: Props) {
   const { user } = useAuthStore()
+  const queryClient = useQueryClient()
+  const navigate = useNavigate()
   const [actionLoading, setActionLoading] = useState<string | null>(null)
+  const [acceptCandidate, setAcceptCandidate] = useState<AcceptCandidate | null>(null)
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('ALL')
   const [searchParams] = useSearchParams()
   const targetProposalId = searchParams.get('proposalId')
@@ -42,6 +52,31 @@ export default function ProposalList({ jobId }: Props) {
   const { data, isLoading, refetch } = useQuery(['proposals', jobId], () =>
     proposalApi.getByJob(jobId, { page: 0, size: 50 })
   )
+
+  const proposals = data?.content || []
+  const acceptedProposal = proposals.find((proposal) => proposal.status === 'ACCEPTED')
+  const hasAcceptedProposal = Boolean(acceptedProposal)
+
+  const { data: acceptedLatestNegotiation } = useQuery(
+    ['negotiation-latest', acceptedProposal?.id, 'accepted-summary'],
+    () => negotiationApi.getLatest(acceptedProposal!.id),
+    {
+      enabled: !!acceptedProposal?.id,
+      retry: false,
+    }
+  )
+
+  const refreshProposalViews = async () => {
+    await Promise.all([
+      refetch(),
+      queryClient.invalidateQueries(['negotiation-latest']),
+      queryClient.invalidateQueries(['negotiation-history']),
+      queryClient.invalidateQueries(['job', jobId]),
+      queryClient.invalidateQueries(['job-contracts', jobId]),
+      queryClient.invalidateQueries(['my-posted-jobs']),
+      queryClient.invalidateQueries(['userBalance']),
+    ])
+  }
 
   // Effect to scroll to target proposal
   useEffect(() => {
@@ -65,7 +100,7 @@ export default function ProposalList({ jobId }: Props) {
       setActionLoading(proposalId)
       await proposalApi.accept(proposalId)
 
-      // Auto-setup workspace (Chat Room & Initial Message)
+      // Auto-setup direct chat and kickoff message.
       const proposalToAccept = data?.content.find((p) => p.id === proposalId)
       if (proposalToAccept && user) {
         try {
@@ -82,10 +117,10 @@ export default function ProposalList({ jobId }: Props) {
             // Ignore error
           }
 
-          const room = await chatApi.createRoom({
-            roomType: 'DIRECT_MESSAGE',
-            memberIds: [user.userId, proposalToAccept.mentorId],
-            createdByUserId: user.userId,
+          const room = await ensureDirectJobChat({
+            currentUserId: user.userId,
+            peerUserId: proposalToAccept.mentorId,
+            jobId,
           })
 
           const msg = `🎉 **Dự án đã chính thức được bắt đầu!**\n\nChào mentor **${proposalToAccept.mentorName}**, tôi vừa chấp nhận đề xuất của bạn. Dưới đây là thông tin chốt:\n- **Giá thỏa thuận**: ${finalAmount} MXC\n- **Thời gian**: ${finalDays} ngày\n\nChúng ta sẽ sử dụng không gian này để trao đổi tiến độ và tài liệu công việc nhé!`
@@ -101,7 +136,7 @@ export default function ProposalList({ jobId }: Props) {
         }
       }
 
-      refetch()
+      await refreshProposalViews()
     } catch (error: any) {
       alert(error.response?.data?.message || 'Không thể chấp nhận proposal')
     } finally {
@@ -115,9 +150,127 @@ export default function ProposalList({ jobId }: Props) {
     try {
       setActionLoading(proposalId)
       await proposalApi.reject(proposalId, reason || 'Not selected for this project')
-      refetch()
+      await refreshProposalViews()
     } catch (error: any) {
       alert(error.response?.data?.message || 'Không thể từ chối proposal')
+    } finally {
+      setActionLoading(null)
+    }
+  }
+
+  const legacyOpenAcceptConfirm = (proposalId: string) => {
+    const proposalToAccept = data?.content.find((proposal) => proposal.id === proposalId)
+    if (!proposalToAccept) return
+    setAcceptCandidate(proposalToAccept)
+  }
+
+  const legacyConfirmAccept = async () => {
+    if (!acceptCandidate) return
+
+    try {
+      setActionLoading(acceptCandidate.id)
+      await proposalApi.accept(acceptCandidate.id)
+
+      if (user) {
+        try {
+          let finalAmount = acceptCandidate.acceptedAmount ?? acceptCandidate.proposedAmount
+          let finalDays = acceptCandidate.acceptedDurationDays ?? acceptCandidate.estimatedDurationDays
+
+          try {
+            const latestNeg = await negotiationApi.getLatest(acceptCandidate.id)
+            if (latestNeg) {
+              finalAmount = latestNeg.proposedAmount || finalAmount
+              finalDays = latestNeg.estimatedDurationDays || finalDays
+            }
+          } catch (e) {
+            // Ignore error
+          }
+
+          const room = await ensureDirectJobChat({
+            currentUserId: user.userId,
+            peerUserId: acceptCandidate.mentorId,
+            jobId,
+          })
+
+          const msg = `🎉 **Dự án đã chính thức được bắt đầu!**\n\nChào mentor **${acceptCandidate.mentorName}**, tôi vừa chấp nhận đề xuất của bạn. Dưới đây là thông tin chốt:\n- **Giá thỏa thuận**: ${finalAmount} MXC\n- **Thời gian**: ${finalDays} ngày\n\nChúng ta sẽ sử dụng không gian này để trao đổi tiến độ và tài liệu công việc nhé!`
+
+          await chatApi.sendMessage({
+            chatRoomId: room.id,
+            senderId: user.userId,
+            content: msg,
+            messageType: 'TEXT',
+          })
+          toast.success('Deal accepted. Chat is ready.')
+          navigate(getJobChatRoute(jobId, acceptCandidate.mentorId))
+        } catch (chatError) {
+          console.error('Lỗi khi setup không gian làm việc:', chatError)
+        }
+      }
+
+      await refreshProposalViews()
+      setAcceptCandidate(null)
+    } catch (error: any) {
+      alert(error.response?.data?.message || 'Không thể chấp nhận proposal')
+    } finally {
+      setActionLoading(null)
+    }
+  }
+
+  const openAcceptConfirm = (proposal: ProposalResponse, latestNegotiation?: NegotiationResponse) => {
+    setAcceptCandidate({
+      ...proposal,
+      acceptedAmount: latestNegotiation?.proposedAmount ?? proposal.proposedAmount ?? null,
+      acceptedDurationDays: latestNegotiation?.estimatedDurationDays ?? proposal.estimatedDurationDays ?? null,
+    })
+  }
+
+  const confirmAccept = async () => {
+    if (!acceptCandidate) return
+
+    try {
+      setActionLoading(acceptCandidate.id)
+      await proposalApi.accept(acceptCandidate.id)
+
+      if (user) {
+        try {
+          let finalAmount = acceptCandidate.proposedAmount
+          let finalDays = acceptCandidate.estimatedDurationDays
+
+          try {
+            const latestNeg = await negotiationApi.getLatest(acceptCandidate.id)
+            if (latestNeg) {
+              finalAmount = latestNeg.proposedAmount || finalAmount
+              finalDays = latestNeg.estimatedDurationDays || finalDays
+            }
+          } catch (e) {
+            // Ignore error
+          }
+
+          const room = await ensureDirectJobChat({
+            currentUserId: user.userId,
+            peerUserId: acceptCandidate.mentorId,
+            jobId,
+          })
+
+          const msg = `🎉 **Dự án đã chính thức được bắt đầu!**\n\nChào mentor **${acceptCandidate.mentorName}**, tôi vừa chấp nhận đề xuất của bạn. Dưới đây là thông tin chốt:\n- **Giá thỏa thuận**: ${finalAmount} MXC\n- **Thời gian**: ${finalDays} ngày\n\nChúng ta sẽ sử dụng không gian này để trao đổi tiến độ và tài liệu công việc nhé!`
+
+          await chatApi.sendMessage({
+            chatRoomId: room.id,
+            senderId: user.userId,
+            content: msg,
+            messageType: 'TEXT',
+          })
+          toast.success('Deal accepted. Chat is ready.')
+          navigate(getJobChatRoute(jobId, acceptCandidate.mentorId))
+        } catch (chatError) {
+          console.error('Lỗi khi setup không gian làm việc:', chatError)
+        }
+      }
+
+      await refreshProposalViews()
+      setAcceptCandidate(null)
+    } catch (error: any) {
+      alert(error.response?.data?.message || 'Không thể chấp nhận proposal')
     } finally {
       setActionLoading(null)
     }
@@ -145,7 +298,6 @@ export default function ProposalList({ jobId }: Props) {
     )
   }
 
-  const proposals = data.content
   const filteredProposals = statusFilter === 'ALL' 
     ? proposals 
     : proposals.filter(p => p.status === statusFilter)
@@ -159,9 +311,6 @@ export default function ProposalList({ jobId }: Props) {
     accepted: proposals.filter(p => p.status === 'ACCEPTED').length,
     rejected: proposals.filter(p => p.status === 'REJECTED').length,
   }
-
-  const acceptedProposal = proposals.find(p => p.status === 'ACCEPTED')
-  const hasAcceptedProposal = Boolean(acceptedProposal)
 
   return (
     <div className="space-y-6">
@@ -179,15 +328,25 @@ export default function ProposalList({ jobId }: Props) {
       {acceptedProposal && (
         <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5 flex items-start gap-3">
           <CheckCircle className="w-6 h-6 text-emerald-600 flex-shrink-0 mt-0.5" />
-          <div>
+          <div className="flex-1">
             <p className="text-sm font-bold text-emerald-900">
               Đã chọn mentor: <span className="font-black">{acceptedProposal.mentorName}</span>
             </p>
-            <p className="text-xs text-emerald-700 mt-1">
+            <p className="hidden">
               Giá thỏa thuận: {formatCurrency(acceptedProposal.proposedAmount)} • 
               Thời gian: {acceptedProposal.estimatedDurationDays} ngày
             </p>
+            <p className="mt-1 text-xs text-emerald-700">
+              Final amount: {formatCurrency(acceptedLatestNegotiation?.proposedAmount || acceptedProposal.proposedAmount)} | Timeline:{' '}
+              {acceptedLatestNegotiation?.estimatedDurationDays || acceptedProposal.estimatedDurationDays} days
+            </p>
           </div>
+          <Link
+            to={getJobChatRoute(jobId, acceptedProposal.mentorId)}
+            className="inline-flex h-10 shrink-0 items-center justify-center rounded-xl bg-emerald-600 px-4 text-sm font-black text-white hover:bg-emerald-700"
+          >
+            Open chat
+          </Link>
         </div>
       )}
 
@@ -226,8 +385,9 @@ export default function ProposalList({ jobId }: Props) {
               proposal={proposal}
               actionLoading={actionLoading}
               hasAcceptedProposal={hasAcceptedProposal}
-              onAccept={handleAccept}
+              onAccept={openAcceptConfirm}
               onReject={handleReject}
+              onNegotiated={refreshProposalViews}
             />
           ))}
         </div>
@@ -237,6 +397,72 @@ export default function ProposalList({ jobId }: Props) {
       {filteredProposals.length > 0 && (
         <div className="text-center text-sm text-slate-500">
           Hiển thị {filteredProposals.length} / {proposals.length} proposals
+        </div>
+      )}
+
+      {acceptCandidate && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/45 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl">
+            <div className="flex items-start gap-4">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700">
+                <CheckCircle className="h-6 w-6" />
+              </div>
+              <div className="min-w-0">
+                <h3 className="text-lg font-black text-slate-950">Chấp nhận đề xuất này?</h3>
+                <p className="mt-2 text-sm leading-6 text-slate-600">
+                  Bạn sắp chọn <span className="font-black text-slate-900">{acceptCandidate.mentorName}</span> cho công việc này.
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-5 grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm">
+              <div className="flex items-center justify-between gap-4">
+                <span className="font-bold text-slate-500">Mentor</span>
+                <span className="text-right font-black text-slate-950">{acceptCandidate.mentorName}</span>
+              </div>
+              <div className="flex items-center justify-between gap-4">
+                <span className="font-bold text-slate-500">Giá đề xuất</span>
+                <span className="text-right font-black text-slate-950">
+                  {formatCurrency(acceptCandidate.acceptedAmount || 0)}
+                </span>
+              </div>
+              <div className="flex items-center justify-between gap-4">
+                <span className="font-bold text-slate-500">Thời gian</span>
+                <span className="text-right font-black text-slate-950">
+                  {acceptCandidate.acceptedDurationDays ? `${acceptCandidate.acceptedDurationDays} ngày` : 'Chưa xác định'}
+                </span>
+              </div>
+            </div>
+
+            <div className="mt-6 flex gap-3">
+              <button
+                type="button"
+                onClick={() => setAcceptCandidate(null)}
+                disabled={actionLoading === acceptCandidate.id}
+                className="flex-1 inline-flex h-11 items-center justify-center rounded-xl border border-slate-200 bg-white text-sm font-black text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+              >
+                Hủy
+              </button>
+              <button
+                type="button"
+                onClick={confirmAccept}
+                disabled={actionLoading === acceptCandidate.id}
+                className="flex-1 inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-emerald-600 text-sm font-black text-white hover:bg-emerald-700 disabled:bg-slate-300"
+              >
+                {actionLoading === acceptCandidate.id ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Đang xử lý...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle className="h-4 w-4" />
+                    Xác nhận chấp nhận
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
@@ -294,13 +520,15 @@ function ProposalCard({
   hasAcceptedProposal,
   onAccept,
   onReject,
+  onNegotiated,
 }: {
   id?: string
   proposal: ProposalResponse
   actionLoading: string | null
   hasAcceptedProposal: boolean
-  onAccept: (proposalId: string) => void
+  onAccept: (proposal: ProposalResponse, latestNegotiation?: NegotiationResponse) => void
   onReject: (proposalId: string) => void
+  onNegotiated: () => void | Promise<unknown>
 }) {
   const isPending = proposal.status === 'SUBMITTED' || proposal.status === 'DRAFT' || proposal.status === 'UNDER_REVIEW'
   const isAccepted = proposal.status === 'ACCEPTED'
@@ -504,8 +732,15 @@ function ProposalCard({
                  </div>
                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mt-4 sm:mt-0 w-full sm:w-auto">
                    <Link
-                     to={`/chat?userId=${proposal.mentorId}&jobId=${proposal.jobId}&contextMsg=${encodeURIComponent(`🎉 **Dự án đã chính thức được bắt đầu!**\n\nChào mentor **${proposal.mentorName}**, tôi vừa chấp nhận đề xuất của bạn. Dưới đây là thông tin chốt:\n- **Giá thỏa thuận**: ${latestNegotiation?.proposedAmount || proposal.proposedAmount} MXC\n- **Thời gian**: ${latestNegotiation?.estimatedDurationDays || proposal.estimatedDurationDays} ngày\n\nChúng ta sẽ sử dụng không gian này để trao đổi tiến độ và tài liệu công việc nhé!`)}`}
+                     to={getJobChatRoute(proposal.jobId, proposal.mentorId)}
                      className="flex-1 sm:flex-none inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 text-sm font-black text-white hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-200 hover:scale-[1.02] active:scale-95 whitespace-nowrap"
+                   >
+                     <MessageSquare className="w-4 h-4" />
+                     Open chat
+                   </Link>
+                   <Link
+                     to={`/chat?userId=${proposal.mentorId}&jobId=${proposal.jobId}&contextMsg=${encodeURIComponent(`🎉 **Dự án đã chính thức được bắt đầu!**\n\nChào mentor **${proposal.mentorName}**, tôi vừa chấp nhận đề xuất của bạn. Dưới đây là thông tin chốt:\n- **Giá thỏa thuận**: ${latestNegotiation?.proposedAmount || proposal.proposedAmount} MXC\n- **Thời gian**: ${latestNegotiation?.estimatedDurationDays || proposal.estimatedDurationDays} ngày\n\nChúng ta sẽ sử dụng không gian này để trao đổi tiến độ và tài liệu công việc nhé!`)}`}
+                     className="hidden flex-1 sm:flex-none h-11 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 text-sm font-black text-white hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-200 hover:scale-[1.02] active:scale-95 whitespace-nowrap"
                    >
                      <MessageSquare className="w-4 h-4" />
                      Bắt đầu làm việc
@@ -542,6 +777,7 @@ function ProposalCard({
           actionLoading={actionLoading}
           onAccept={onAccept}
           onReject={onReject}
+          onNegotiated={onNegotiated}
         />
       </div>
     </article>
@@ -601,8 +837,9 @@ interface ProposalActionsProps {
   isNegotiating: boolean
   hasAcceptedProposal: boolean
   actionLoading: string | null
-  onAccept: (proposalId: string) => void
+  onAccept: (proposal: ProposalResponse, latestNegotiation?: NegotiationResponse) => void
   onReject: (proposalId: string) => void
+  onNegotiated: () => void | Promise<unknown>
 }
 
 function ProposalActions({
@@ -614,6 +851,7 @@ function ProposalActions({
   actionLoading,
   onAccept,
   onReject,
+  onNegotiated,
 }: ProposalActionsProps) {
   const { user } = useAuthStore()
   const [showNegotiateForm, setShowNegotiateForm] = useState(false)
@@ -621,47 +859,74 @@ function ProposalActions({
   const [negotiateAmount, setNegotiateAmount] = useState(proposal.proposedAmount?.toString() || '')
   const [negotiateDays, setNegotiateDays] = useState(proposal.estimatedDurationDays?.toString() || '')
   const [negotiating, setNegotiating] = useState(false)
+  const isEditingOwnPendingOffer =
+    latestNegotiation?.senderType === 'CLIENT' &&
+    latestNegotiation?.status === 'PENDING' &&
+    latestNegotiation?.senderId === user?.userId
+
+  const openNegotiateForm = (options?: { preserveClientMessage?: boolean }) => {
+    const preserveClientMessage = options?.preserveClientMessage ?? false
+    const draftAmount = latestNegotiation?.proposedAmount ?? proposal.proposedAmount
+    const draftDays = latestNegotiation?.estimatedDurationDays ?? proposal.estimatedDurationDays
+    const draftMessage = preserveClientMessage && latestNegotiation?.senderType === 'CLIENT'
+      ? latestNegotiation.message || ''
+      : ''
+
+    setNegotiateMessage(draftMessage)
+    setNegotiateAmount(draftAmount != null ? draftAmount.toString() : '')
+    setNegotiateDays(draftDays != null ? draftDays.toString() : '')
+    setShowNegotiateForm(true)
+  }
+
+  const closeNegotiateForm = () => {
+    setShowNegotiateForm(false)
+  }
 
   const handleNegotiate = async () => {
     if (!negotiateMessage.trim() || negotiateMessage.length < 10) {
-      alert('Vui lòng nhập message ít nhất 10 ký tự')
+      toast.error('Vui long nhap noi dung it nhat 10 ky tu.')
       return
     }
 
     if (!negotiateAmount && !negotiateDays) {
-      alert('Vui lòng nhập ít nhất giá hoặc thời gian')
+      toast.error('Vui long nhap it nhat gia hoac thoi gian.')
       return
     }
 
     if (!user?.userId) {
-      alert('Vui lòng đăng nhập')
+      toast.error('Vui long dang nhap.')
       return
     }
 
     try {
       setNegotiating(true)
-      
-      // Call API
-      await negotiationApi.clientCounterOffer({
+
+      const negotiationPayload = {
         proposalId: proposal.id,
         senderId: user.userId,
         message: negotiateMessage,
         proposedAmount: negotiateAmount ? parseFloat(negotiateAmount) : undefined,
         estimatedDurationDays: negotiateDays ? parseInt(negotiateDays) : undefined,
-      })
-      
-      // Success
-      alert('✅ Đã gửi đề xuất thương lượng thành công! Mentor sẽ nhận được thông báo.')
+      }
+
+      if (isEditingOwnPendingOffer && latestNegotiation) {
+        await negotiationApi.updatePendingNegotiation(latestNegotiation.id, negotiationPayload)
+        toast.success('Da cap nhat de xuat thuong luong.')
+      } else {
+        await negotiationApi.clientCounterOffer(negotiationPayload)
+        toast.success('Da gui de xuat thuong luong.')
+      }
+
       setShowNegotiateForm(false)
       setNegotiateMessage('')
       
       // Refresh page to see updated status
-      window.location.reload()
+      await onNegotiated()
       
     } catch (error: any) {
       console.error('Negotiation error:', error)
-      const errorMessage = error.response?.data?.message || 'Không thể gửi counter-offer. Vui lòng thử lại.'
-      alert('❌ ' + errorMessage)
+      const errorMessage = error.response?.data?.message || 'Khong the gui de xuat thuong luong. Vui long thu lai.'
+      toast.error(errorMessage)
     } finally {
       setNegotiating(false)
     }
@@ -675,7 +940,7 @@ function ProposalActions({
           <div className="flex items-center justify-between">
             <h4 className="text-sm font-black text-indigo-900">💬 Gửi đề xuất thương lượng</h4>
             <button
-              onClick={() => setShowNegotiateForm(false)}
+              onClick={closeNegotiateForm}
               className="text-indigo-600 hover:text-indigo-700"
             >
               <XCircle className="w-5 h-5" />
@@ -742,7 +1007,7 @@ function ProposalActions({
               )}
             </button>
             <button
-              onClick={() => setShowNegotiateForm(false)}
+              onClick={closeNegotiateForm}
               disabled={negotiating}
               className="px-4 py-2 border border-slate-200 rounded-lg text-sm font-bold text-slate-700 hover:bg-slate-50"
             >
@@ -758,7 +1023,7 @@ function ProposalActions({
           <>
             <button
               type="button"
-              onClick={() => onAccept(proposal.id)}
+              onClick={() => onAccept(proposal, latestNegotiation)}
               disabled={Boolean(actionLoading)}
               className="flex-1 sm:flex-none inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 text-sm font-black text-white hover:bg-emerald-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-all"
             >
@@ -771,7 +1036,7 @@ function ProposalActions({
             </button>
             <button
               type="button"
-              onClick={() => setShowNegotiateForm(!showNegotiateForm)}
+              onClick={() => openNegotiateForm()}
               className="flex-1 sm:flex-none inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-amber-600 px-5 text-sm font-black text-white hover:bg-amber-700 transition-all"
             >
               <MessageCircle className="h-4 w-4" />
@@ -795,7 +1060,7 @@ function ProposalActions({
               <div className="flex flex-wrap gap-2.5 w-full">
                 <button
                   type="button"
-                  onClick={() => onAccept(proposal.id)}
+                  onClick={() => onAccept(proposal, latestNegotiation)}
                   disabled={Boolean(actionLoading)}
                   className="flex-1 sm:flex-none inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 text-sm font-black text-white hover:bg-emerald-700 disabled:bg-slate-300 transition-all shadow-lg shadow-emerald-200 hover:scale-[1.02] active:scale-95"
                 >
@@ -804,7 +1069,7 @@ function ProposalActions({
                 </button>
                 <button
                   type="button"
-                  onClick={() => setShowNegotiateForm(!showNegotiateForm)}
+                  onClick={() => openNegotiateForm()}
                   className="flex-1 sm:flex-none inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-amber-600 px-6 text-sm font-black text-white hover:bg-amber-700 transition-all shadow-lg shadow-amber-200 hover:scale-[1.02] active:scale-95"
                 >
                   <TrendingUp className="h-4 w-4" />
@@ -830,7 +1095,7 @@ function ProposalActions({
                 </div>
                 <button
                   type="button"
-                  onClick={() => setShowNegotiateForm(!showNegotiateForm)}
+                  onClick={() => openNegotiateForm({ preserveClientMessage: true })}
                   className="flex-1 sm:flex-none inline-flex h-11 items-center justify-center gap-2 rounded-xl border-2 border-amber-200 bg-white px-6 text-sm font-black text-amber-700 hover:bg-amber-50 transition-all hover:border-amber-400"
                 >
                   <Edit className="h-4 w-4" />

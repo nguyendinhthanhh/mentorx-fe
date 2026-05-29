@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useFieldArray, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useNavigate } from 'react-router-dom'
@@ -17,6 +17,7 @@ import { fileApi } from '@/api/fileApi'
 import { mentorApi } from '@/api/mentorApi'
 import { MentorProfileRequest } from '@/types'
 import { useAuthStore } from '@/store/authStore'
+import { deriveLegacyProofFields, getMentorProofLinks, normalizeProofLinks } from '@/utils/proofLinks'
 
 const isDevEnvironment = import.meta.env.DEV
 
@@ -103,11 +104,12 @@ const schema = z
     locationCustom: z.string().optional(),
     languagesOption: z.string().optional(),
     languagesCustom: z.string().optional(),
-    linkedinUrl: z.string().optional(),
-    githubUrl: z.string().optional(),
-    portfolioUrl: z.string().optional(),
-    portfolioEvidenceUrl: z.string().optional(),
-    videoIntroUrl: z.string().optional(),
+    proofLinks: z.array(
+      z.object({
+        label: z.string().optional(),
+        url: z.string().optional(),
+      })
+    ).default([]),
     cvUrl: z.string().optional(),
     certificateUrl: z.string().optional(),
     mentorAgreementAccepted: z.boolean().refine(Boolean, 'You must accept the mentor terms.'),
@@ -158,105 +160,66 @@ const schema = z
       })
     }
 
-    const linkedinUrl = parseUrl(value.linkedinUrl)
-    if (value.linkedinUrl?.trim() && !linkedinUrl) {
-      context.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Please enter a valid LinkedIn URL.',
-        path: ['linkedinUrl'],
-      })
-    }
-    if (
-      linkedinUrl &&
-      !(
-        linkedinUrl.hostname.toLowerCase() === 'linkedin.com'
-        || linkedinUrl.hostname.toLowerCase().endsWith('.linkedin.com')
-      )
-    ) {
-      context.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'LinkedIn URL must use linkedin.com.',
-        path: ['linkedinUrl'],
-      })
-    }
+    const normalizedProofLinks = normalizeProofLinks(value.proofLinks)
+    for (let index = 0; index < value.proofLinks.length; index += 1) {
+      const item = value.proofLinks[index]
+      const label = item.label?.trim() || ''
+      const url = item.url?.trim() || ''
 
-    const githubUrl = parseUrl(value.githubUrl)
-    if (value.githubUrl?.trim() && !githubUrl) {
-      context.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Please enter a valid GitHub URL.',
-        path: ['githubUrl'],
-      })
-    }
-    if (
-      githubUrl &&
-      !(
-        githubUrl.hostname.toLowerCase() === 'github.com'
-        || githubUrl.hostname.toLowerCase().endsWith('.github.com')
-      )
-    ) {
-      context.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'GitHub URL must use github.com.',
-        path: ['githubUrl'],
-      })
-    }
-
-    const genericUrlFields: Array<keyof typeof value> = ['portfolioUrl', 'portfolioEvidenceUrl', 'videoIntroUrl']
-    for (const field of genericUrlFields) {
-      const raw = value[field]
-      if (typeof raw === 'string' && raw.trim()) {
-        const parsed = parseUrl(raw)
-        if (!parsed) {
-          context.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: 'Please enter a valid URL.',
-            path: [field],
-          })
-        } else if (
-          !isDevEnvironment &&
-          ['localhost', '127.0.0.1'].includes(parsed.hostname.toLowerCase())
-        ) {
-          context.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: 'Localhost URLs are not allowed outside development.',
-            path: [field],
-          })
-        }
+      if (!label && !url) {
+        continue
       }
-    }
 
-    const strictHostFields: Array<{ parsed: URL | null; path: 'linkedinUrl' | 'githubUrl' }> = [
-      { parsed: linkedinUrl, path: 'linkedinUrl' },
-      { parsed: githubUrl, path: 'githubUrl' },
-    ]
-    for (const strictField of strictHostFields) {
-      if (
-        strictField.parsed &&
+      if (!label) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Please enter a label.',
+          path: ['proofLinks', index, 'label'],
+        })
+      }
+
+      if (!url) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Please enter a URL.',
+          path: ['proofLinks', index, 'url'],
+        })
+        continue
+      }
+
+      if (label.length > 80) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Label must be 80 characters or fewer.',
+          path: ['proofLinks', index, 'label'],
+        })
+      }
+
+      const parsed = parseUrl(url)
+      if (!parsed) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Please enter a valid URL.',
+          path: ['proofLinks', index, 'url'],
+        })
+      } else if (
         !isDevEnvironment &&
-        ['localhost', '127.0.0.1'].includes(strictField.parsed.hostname.toLowerCase())
+        ['localhost', '127.0.0.1'].includes(parsed.hostname.toLowerCase())
       ) {
         context.addIssue({
           code: z.ZodIssueCode.custom,
           message: 'Localhost URLs are not allowed outside development.',
-          path: [strictField.path],
+          path: ['proofLinks', index, 'url'],
         })
       }
     }
 
-    const hasProof = Boolean(
-      value.linkedinUrl?.trim()
-      || value.githubUrl?.trim()
-      || value.portfolioUrl?.trim()
-      || value.portfolioEvidenceUrl?.trim()
-      || value.cvUrl?.trim()
-      || value.certificateUrl?.trim()
-    )
+    const hasProof = normalizedProofLinks.length > 0 || Boolean(value.cvUrl?.trim() || value.certificateUrl?.trim())
     if (!hasProof) {
       context.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'Add at least one proof item: LinkedIn, GitHub, Portfolio, CV, Certificate, or Proof of work.',
-        path: ['linkedinUrl'],
+        message: 'Add at least one proof item: a link, CV, or certificate.',
+        path: ['proofLinks'],
       })
     }
   })
@@ -270,12 +233,14 @@ interface Props {
   isEmailVerified?: boolean
   initialData?: MentorProfileRequest
   isEdit: boolean
+  isLocked?: boolean
+  lockedMessage?: string
 }
 
 const inputClass =
   'w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:border-slate-800 dark:bg-slate-950 dark:text-white'
 
-export default function MentorProfileForm({ userId, initialData, isEdit }: Props) {
+export default function MentorProfileForm({ userId, initialData, isEdit, isLocked = false, lockedMessage }: Props) {
   const navigate = useNavigate()
   const { refreshUser } = useAuthStore()
   const [uploading, setUploading] = useState<Record<string, boolean>>({})
@@ -296,6 +261,7 @@ export default function MentorProfileForm({ userId, initialData, isEdit }: Props
     : (initialLanguagesText ? 'Other' : '')
 
   const {
+    control,
     register,
     handleSubmit,
     setValue,
@@ -319,16 +285,17 @@ export default function MentorProfileForm({ userId, initialData, isEdit }: Props
       locationCustom: resolvedLocation === 'Other' ? initialLocation : '',
       languagesOption: resolvedLanguages,
       languagesCustom: resolvedLanguages === 'Other' ? initialLanguagesText : '',
-      linkedinUrl: initialData?.linkedinUrl || '',
-      githubUrl: initialData?.githubUrl || '',
-      portfolioUrl: initialData?.portfolioUrl || '',
-      portfolioEvidenceUrl: initialData?.portfolioEvidenceUrl || '',
-      videoIntroUrl: initialData?.videoIntroUrl || '',
+      proofLinks: getMentorProofLinks(initialData).map((item) => ({ label: item.label, url: item.url })),
       cvUrl: initialData?.cvUrl || '',
       certificateUrl: initialData?.certificateUrl || '',
       mentorAgreementAccepted: Boolean(initialData?.mentorAgreementAccepted),
       disputePolicyAccepted: Boolean(initialData?.disputePolicyAccepted),
     },
+  })
+
+  const { fields: proofLinkFields, append: appendProofLink, remove: removeProofLink } = useFieldArray({
+    control,
+    name: 'proofLinks',
   })
 
   const values = watch()
@@ -365,6 +332,7 @@ export default function MentorProfileForm({ userId, initialData, isEdit }: Props
   }
 
   const uploadFile = async (field: UploadField, file?: File) => {
+    if (isLocked) return
     if (!file) return
     const extension = file.name?.toLowerCase().slice(file.name.lastIndexOf('.')) || ''
     if (!allowedMimeTypes.has(file.type) || !allowedExtensions.includes(extension)) {
@@ -389,6 +357,7 @@ export default function MentorProfileForm({ userId, initialData, isEdit }: Props
   }
 
   const addSkill = (rawSkill: string) => {
+    if (isLocked) return
     const normalizedSkill = rawSkill.trim()
     if (!normalizedSkill) return
     const currentSkills = values.skills || []
@@ -401,11 +370,18 @@ export default function MentorProfileForm({ userId, initialData, isEdit }: Props
   }
 
   const removeSkill = (skillToRemove: string) => {
+    if (isLocked) return
     const nextSkills = (values.skills || []).filter((item) => item !== skillToRemove)
     setValue('skills', nextSkills, { shouldDirty: true, shouldValidate: true })
   }
 
+  const addProofLinkTemplate = (label = '') => {
+    if (isLocked) return
+    appendProofLink({ label, url: '' })
+  }
+
   const onSubmit = async (data: FormValues) => {
+    if (isLocked) return
     try {
       setLoading(true)
       setError('')
@@ -415,6 +391,8 @@ export default function MentorProfileForm({ userId, initialData, isEdit }: Props
       const resolvedLanguagesValue = data.languagesOption === 'Other'
         ? (data.languagesCustom || '').trim()
         : (data.languagesOption || '').trim()
+      const proofLinks = normalizeProofLinks(data.proofLinks)
+      const legacyProofFields = deriveLegacyProofFields(proofLinks)
 
       const payload: MentorProfileRequest = {
         headline: data.headline,
@@ -433,11 +411,12 @@ export default function MentorProfileForm({ userId, initialData, isEdit }: Props
         languages: resolvedLanguagesValue
           ? resolvedLanguagesValue.split(',').map((item) => item.trim()).filter(Boolean)
           : undefined,
-        linkedinUrl: data.linkedinUrl,
-        githubUrl: data.githubUrl || undefined,
-        portfolioUrl: data.portfolioUrl || undefined,
-        portfolioEvidenceUrl: data.portfolioEvidenceUrl || undefined,
-        videoIntroUrl: data.videoIntroUrl || undefined,
+        linkedinUrl: legacyProofFields.linkedinUrl,
+        githubUrl: legacyProofFields.githubUrl,
+        portfolioUrl: legacyProofFields.portfolioUrl,
+        portfolioEvidenceUrl: legacyProofFields.portfolioEvidenceUrl,
+        videoIntroUrl: legacyProofFields.videoIntroUrl,
+        proofLinks: proofLinks.length > 0 ? proofLinks : undefined,
         cvUrl: data.cvUrl || undefined,
         certificateUrl: data.certificateUrl || undefined,
         mentorAgreementAccepted: data.mentorAgreementAccepted,
@@ -479,6 +458,12 @@ export default function MentorProfileForm({ userId, initialData, isEdit }: Props
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      {isLocked && (
+        <section className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-900">
+          {lockedMessage || 'Your profile is currently under review. Editing is locked until moderators request updates.'}
+        </section>
+      )}
+      <fieldset disabled={isLocked} className="space-y-6 disabled:cursor-not-allowed disabled:opacity-70">
       <section className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
         <div className="flex items-start gap-4">
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950/40 dark:text-indigo-400">
@@ -637,21 +622,83 @@ export default function MentorProfileForm({ userId, initialData, isEdit }: Props
         </div>
 
         <div className="mt-6 grid gap-4">
-          <Field label="LinkedIn profile" error={errors.linkedinUrl?.message}>
-            <input {...register('linkedinUrl')} className={inputClass} placeholder="https://linkedin.com/in/..." />
-          </Field>
-          <Field label="GitHub profile (optional)" error={errors.githubUrl?.message}>
-            <input {...register('githubUrl')} className={inputClass} placeholder="https://github.com/..." />
-          </Field>
-          <Field label="Portfolio (optional)" error={errors.portfolioUrl?.message}>
-            <input {...register('portfolioUrl')} className={inputClass} placeholder="https://your-portfolio.com" />
-          </Field>
-          <Field label="Proof of work (optional)" error={errors.portfolioEvidenceUrl?.message}>
-            <input {...register('portfolioEvidenceUrl')} className={inputClass} placeholder="Case study, PDF, article, deck..." />
-          </Field>
-          <Field label="Intro video URL (optional)" error={errors.videoIntroUrl?.message}>
-            <input {...register('videoIntroUrl')} className={inputClass} placeholder="https://youtube.com/..." />
-          </Field>
+          <div>
+            <div className="mb-2 flex items-center justify-between gap-3">
+              <label className="block text-[11px] font-black uppercase tracking-[0.16em] text-slate-500">
+                Proof links
+              </label>
+              <button
+                type="button"
+                onClick={() => addProofLinkTemplate()}
+                className="rounded-full border border-slate-200 px-3 py-1 text-[11px] font-black uppercase tracking-[0.12em] text-slate-700 hover:border-indigo-300 hover:text-indigo-700"
+              >
+                Add link
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex flex-wrap gap-2">
+                {['LinkedIn', 'GitHub', 'Portfolio', 'Proof of work', 'Intro video'].map((preset) => (
+                  <button
+                    key={preset}
+                    type="button"
+                    onClick={() => addProofLinkTemplate(preset)}
+                    className="rounded-full border border-slate-200 px-2.5 py-1 text-[11px] font-semibold text-slate-600 hover:border-indigo-300 hover:text-indigo-700"
+                  >
+                    + {preset}
+                  </button>
+                ))}
+              </div>
+
+              {proofLinkFields.length === 0 && (
+                <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/70 px-4 py-4 text-sm text-slate-500">
+                  Add any proof you want, for example GitHub, Behance, Medium article, case study deck, YouTube intro, portfolio site.
+                </div>
+              )}
+
+              {proofLinkFields.map((field, index) => (
+                <div key={field.id} className="rounded-2xl border border-slate-200 bg-slate-50/60 p-4">
+                  <div className="grid gap-3 md:grid-cols-[minmax(0,220px)_minmax(0,1fr)_auto] md:items-start">
+                    <div>
+                      <input
+                        {...register(`proofLinks.${index}.label` as const)}
+                        className={inputClass}
+                        placeholder="e.g. GitHub, Behance, Article"
+                      />
+                      {errors.proofLinks?.[index]?.label?.message && (
+                        <p className="mt-1.5 text-xs font-semibold text-rose-500">
+                          {errors.proofLinks?.[index]?.label?.message}
+                        </p>
+                      )}
+                    </div>
+                    <div>
+                      <input
+                        {...register(`proofLinks.${index}.url` as const)}
+                        className={inputClass}
+                        placeholder="https://..."
+                      />
+                      {errors.proofLinks?.[index]?.url?.message && (
+                        <p className="mt-1.5 text-xs font-semibold text-rose-500">
+                          {errors.proofLinks?.[index]?.url?.message}
+                        </p>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => removeProofLink(index)}
+                      className="rounded-xl border border-slate-200 px-3 py-3 text-sm font-bold text-slate-600 hover:bg-white"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              ))}
+
+              {typeof errors.proofLinks?.message === 'string' && (
+                <p className="text-xs font-semibold text-rose-500">{errors.proofLinks.message}</p>
+              )}
+            </div>
+          </div>
           <Field label="Languages" error={errors.languagesOption?.message}>
             <select {...register('languagesOption')} className={inputClass}>
               <option value="">Select languages</option>
@@ -742,13 +789,14 @@ export default function MentorProfileForm({ userId, initialData, isEdit }: Props
 
         <button
           type="submit"
-          disabled={loading}
+          disabled={loading || isLocked}
           className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-slate-300"
         >
           {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowRight className="h-4 w-4" />}
           {isEdit ? 'Update profile for review' : 'Submit for mentor review'}
         </button>
       </section>
+      </fieldset>
     </form>
   )
 }
@@ -768,17 +816,21 @@ function UploadFieldCard({
   description,
   value,
   busy,
+  disabled,
   onSelect,
 }: {
   title: string
   description: string
   value?: string
   busy: boolean
+  disabled?: boolean
   onSelect: (file?: File) => void
 }) {
   return (
-    <label className="group flex min-h-[170px] cursor-pointer flex-col items-center justify-center rounded-[1.75rem] border-2 border-dashed border-slate-200 bg-slate-50/60 p-5 text-center transition hover:border-indigo-300 hover:bg-indigo-50/40 dark:border-slate-800 dark:bg-slate-900/60">
-      <input type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png,.webp" onChange={(event) => onSelect(event.target.files?.[0])} />
+    <label
+      className={`group flex min-h-[170px] flex-col items-center justify-center rounded-[1.75rem] border-2 border-dashed border-slate-200 bg-slate-50/60 p-5 text-center transition dark:border-slate-800 dark:bg-slate-900/60 ${disabled ? 'cursor-not-allowed opacity-70' : 'cursor-pointer hover:border-indigo-300 hover:bg-indigo-50/40'}`}
+    >
+      <input type="file" disabled={disabled} className="hidden" accept=".pdf,.jpg,.jpeg,.png,.webp" onChange={(event) => onSelect(event.target.files?.[0])} />
       {busy ? (
         <>
           <Loader2 className="h-7 w-7 animate-spin text-indigo-600" />

@@ -53,6 +53,20 @@ export const negotiationApi = {
   },
 
   /**
+   * Update an existing pending negotiation without creating a new round
+   */
+  updatePendingNegotiation: async (
+    negotiationId: string,
+    data: NegotiationRequest
+  ): Promise<NegotiationResponse> => {
+    const response = await apiClient.put<ApiResponse<NegotiationResponse>>(
+      `/negotiations/${negotiationId}`,
+      data
+    )
+    return response.data.data
+  },
+
+  /**
    * Accept a negotiation offer
    */
   acceptNegotiation: async (negotiationId: string, userId: string): Promise<NegotiationResponse> => {

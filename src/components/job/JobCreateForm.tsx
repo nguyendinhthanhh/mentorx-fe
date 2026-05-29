@@ -507,6 +507,16 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
         {errors.description && <p className="mt-1.5 text-xs font-medium text-rose-500">{errors.description.message}</p>}
       </div>
 
+      <div>
+        <label className="mb-2 block text-sm font-bold text-slate-800">Required skills or topics</label>
+        <input
+          {...register('requiredSkillsInput')}
+          className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition"
+          placeholder="React Native, Expo, performance optimization..."
+        />
+        {errors.requiredSkillsInput && <p className="mt-1.5 text-xs font-medium text-rose-500">{errors.requiredSkillsInput.message}</p>}
+      </div>
+
       <div className="overflow-hidden rounded-xl border border-slate-100 bg-slate-50/80 transition-all">
         <button
           type="button"
@@ -519,15 +529,6 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
 
         {showAdvanced && (
           <div className="grid gap-4 border-t border-slate-100 p-5 pt-4 sm:grid-cols-2">
-            <div className="sm:col-span-2">
-              <label className="mb-2 block text-xs font-bold text-slate-700">Required skills or topics</label>
-              <input
-                {...register('requiredSkillsInput')}
-                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-                placeholder="React Native, Expo, performance optimization..."
-              />
-            </div>
-
             <div>
               <label className="mb-2 block text-xs font-bold text-slate-700">Your current level</label>
               <input
