@@ -2,9 +2,10 @@ import { ChangeEvent, FormEvent, useEffect, useMemo, useRef, useState } from 're
 import { useSearchParams } from 'react-router-dom'
 import { useQuery } from 'react-query'
 import { chatApi } from '@/api/chatApi'
+import { contractApi } from '@/api/contractApi'
 import { fileApi } from '@/api/fileApi'
 import { mentorApi } from '@/api/mentorApi'
-import { CourseResponse, MessageType } from '@/types'
+import { ContractResponse, CourseResponse, MessageType } from '@/types'
 import { useAuthStore } from '@/store/authStore'
 import ConversationPane from './components/ConversationPane'
 import ContextRail from './components/ContextRail'
@@ -233,6 +234,26 @@ export default function ChatListPage() {
     }
   )
 
+  const { data: linkedContract, isLoading: linkedContractLoading } = useQuery(
+    ['chat-linked-contract', linkedJobId],
+    async () => {
+      if (!linkedJobId) return null
+      const result = await contractApi.getByJob(linkedJobId, { page: 0, size: 10 }).catch(() => null)
+      const contracts = result?.content || []
+      return (
+        contracts.find((contract) => contract.status === 'ACTIVE') ||
+        contracts.find((contract) => contract.status === 'PENDING_PAYMENT') ||
+        contracts.find((contract) => contract.status === 'COMPLETED') ||
+        contracts[0] ||
+        null
+      ) as ContractResponse | null
+    },
+    {
+      enabled: !!linkedJobId,
+      retry: false,
+    }
+  )
+
   const sharedImages = useMemo(() => buildSharedImages(selectedMessages), [selectedMessages])
   const sharedFiles = useMemo(() => buildSharedFiles(selectedMessages), [selectedMessages])
   const sharedLinks = useMemo(() => buildSharedLinks(selectedMessages), [selectedMessages])
@@ -378,6 +399,8 @@ export default function ChatListPage() {
               isAvailabilityLoading={weeklyAvailabilityLoading}
               linkedJob={linkedJob}
               isLinkedJobLoading={linkedJobLoading}
+              linkedContract={linkedContract}
+              isLinkedContractLoading={linkedContractLoading}
             />
           </div>
         </div>
@@ -405,6 +428,8 @@ export default function ChatListPage() {
               isAvailabilityLoading={weeklyAvailabilityLoading}
               linkedJob={linkedJob}
               isLinkedJobLoading={linkedJobLoading}
+              linkedContract={linkedContract}
+              isLinkedContractLoading={linkedContractLoading}
               onClose={() => setIsDetailsOpen(false)}
               compact
             />

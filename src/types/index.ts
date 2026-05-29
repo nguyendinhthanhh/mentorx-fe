@@ -169,6 +169,20 @@ export enum ProposalStatus {
   NEGOTIATING = "NEGOTIATING",
 }
 
+export enum ContractStatus {
+  DRAFT = "DRAFT",
+  PENDING_SIGNATURE = "PENDING_SIGNATURE",
+  ACTIVE = "ACTIVE",
+  PAUSED = "PAUSED",
+  COMPLETED = "COMPLETED",
+  CANCELLED = "CANCELLED",
+  TERMINATED = "TERMINATED",
+  IN_DISPUTE = "IN_DISPUTE",
+  EXPIRED = "EXPIRED",
+  PENDING_PAYMENT = "PENDING_PAYMENT",
+  UNDER_REVIEW = "UNDER_REVIEW",
+}
+
 export enum NotificationType {
   SYSTEM = "SYSTEM",
   INFO = "INFO",
@@ -368,8 +382,14 @@ export interface BankAccountRequest {
 }
 
 // Mentor Types
+export interface ProofLink {
+  label: string;
+  url: string;
+}
+
 export interface MentorProfileResponse {
   id?: string;
+  proofLinks?: ProofLink[];
   userId: string;
   user: UserResponse;
   headline?: string;
@@ -446,6 +466,7 @@ export interface MentorProfileResponse {
 }
 
 export interface MentorProfileRequest {
+  proofLinks?: ProofLink[];
   headline?: string;
   hourlyRateMxc?: number;
   yearsOfExperience?: number;
@@ -501,6 +522,52 @@ export interface JobResponse {
   attachmentUrl?: string;
   attachments?: string[];
   statusReason?: string;
+  proposalCount?: number;
+  viewCount?: number;
+  publishedAt?: string;
+  closedAt?: string;
+  deletedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ContractResponse {
+  id: string;
+  jobId: string;
+  jobTitle: string;
+  proposalId?: string;
+  clientId: string;
+  clientName: string;
+  mentorId: string;
+  mentorName: string;
+  status: ContractStatus;
+  title: string;
+  description: string;
+  totalAmount: number;
+  hourlyRate?: number;
+  startDate?: string;
+  endDate?: string;
+  actualStartDate?: string;
+  actualCompletionDate?: string;
+  termsAndConditions?: string;
+  paymentTerms?: string;
+  deliverables?: string;
+  clientSignedAt?: string;
+  mentorSignedAt?: string;
+  activatedAt?: string;
+  completedAt?: string;
+  cancelledAt?: string;
+  milestoneCount: number;
+  completedMilestoneCount: number;
+  amountPaid: number;
+  amountInEscrow: number;
+  fundsInEscrow: boolean;
+  progressPercentage: number;
+  isRenewable?: boolean;
+  autoRenewal?: boolean;
+  renewalTerms?: string;
+  ndaRequired?: boolean;
+  ndaSigned?: boolean;
   createdAt: string;
   updatedAt: string;
 }

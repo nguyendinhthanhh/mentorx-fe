@@ -2,14 +2,16 @@ import { Link } from 'react-router-dom'
 import {
   BookOpen,
   CalendarDays,
+  CheckCircle2,
   ChevronUp,
   FileImage,
   FileText,
   Link as LinkIcon,
+  Lock,
   Star,
   X,
 } from 'lucide-react'
-import { ChatRoomMemberSummary, ChatRoomResponse, CourseResponse, MentorProfileResponse, JobResponse } from '@/types'
+import { ChatRoomMemberSummary, ChatRoomResponse, ContractResponse, CourseResponse, MentorProfileResponse, JobResponse } from '@/types'
 import { formatCurrency, formatRelativeTime } from '@/utils/formatters'
 import {
   EmptySharedState,
@@ -34,6 +36,8 @@ type ContextRailProps = {
   isAvailabilityLoading: boolean
   linkedJob?: JobResponse | null
   isLinkedJobLoading?: boolean
+  linkedContract?: ContractResponse | null
+  isLinkedContractLoading?: boolean
   onClose?: () => void
   compact?: boolean
 }
@@ -52,6 +56,8 @@ export default function ContextRail({
   isAvailabilityLoading,
   linkedJob,
   isLinkedJobLoading,
+  linkedContract,
+  isLinkedContractLoading,
   onClose,
   compact,
 }: ContextRailProps) {
@@ -201,6 +207,70 @@ export default function ContextRail({
                     <p className="text-[10px] font-bold text-emerald-600 uppercase mb-0.5">Deadline</p>
                     <p className="text-[12px] font-black text-slate-900 truncate">
                       {linkedJob.deadlineAt ? new Date(linkedJob.deadlineAt).toLocaleDateString('vi-VN') : 'N/A'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ) : null}
+          </section>
+        )}
+
+        {(linkedContract || isLinkedContractLoading) && (
+          <section className="rounded-lg border border-indigo-200 bg-white p-4 shadow-sm">
+            <div className="flex items-center justify-between gap-3 mb-3">
+              <h3 className="text-[14px] font-bold text-[#10164a] flex items-center gap-1.5">
+                <span className="w-5 h-5 rounded-md bg-indigo-100 flex items-center justify-center">
+                  <Lock className="w-3 h-3 text-indigo-600" />
+                </span>
+                Work status
+              </h3>
+            </div>
+
+            {isLinkedContractLoading ? (
+              <div className="space-y-2 animate-pulse">
+                <div className="h-4 w-2/3 bg-slate-100 rounded-full" />
+                <div className="h-10 w-full bg-slate-100 rounded-xl" />
+              </div>
+            ) : linkedContract ? (
+              <div className="space-y-3">
+                <div className="rounded-xl bg-indigo-50 px-3 py-3 border border-indigo-100">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-indigo-500">Progress</p>
+                      <p className="mt-1 text-[18px] font-black text-slate-900">{Math.max(0, Math.min(100, linkedContract.progressPercentage || 0))}%</p>
+                    </div>
+                    <span className="rounded-full bg-white px-2.5 py-1 text-[10px] font-bold text-indigo-700 border border-indigo-100">
+                      {formatContractStatus(linkedContract.status)}
+                    </span>
+                  </div>
+                  <div className="mt-3 h-2 overflow-hidden rounded-full bg-indigo-100">
+                    <div
+                      className="h-full rounded-full bg-indigo-600"
+                      style={{ width: `${Math.max(0, Math.min(100, linkedContract.progressPercentage || 0))}%` }}
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="bg-slate-50 rounded-md p-2 border border-slate-100 shadow-sm">
+                    <p className="text-[10px] font-bold text-slate-500 uppercase mb-0.5">Deadline</p>
+                    <p className="text-[12px] font-black text-slate-900 truncate">
+                      {linkedContract.endDate ? new Date(linkedContract.endDate).toLocaleDateString('vi-VN') : linkedJob?.deadlineAt ? new Date(linkedJob.deadlineAt).toLocaleDateString('vi-VN') : 'N/A'}
+                    </p>
+                  </div>
+                  <div className="bg-slate-50 rounded-md p-2 border border-slate-100 shadow-sm">
+                    <p className="text-[10px] font-bold text-slate-500 uppercase mb-0.5">Escrow</p>
+                    <p className="text-[12px] font-black text-slate-900 truncate">
+                      {linkedContract.fundsInEscrow ? formatCurrency(linkedContract.amountInEscrow || 0) : 'Released'}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="rounded-xl bg-slate-50 px-3 py-3 border border-slate-100">
+                  <div className="flex items-start gap-2">
+                    <CheckCircle2 className="h-4 w-4 mt-0.5 text-emerald-500" />
+                    <p className="text-[12px] leading-5 text-slate-600">
+                      {buildDeadlineHelper(linkedContract, linkedJob)}
                     </p>
                   </div>
                 </div>
@@ -395,6 +465,42 @@ function formatAvailability(value: string) {
     .split('_')
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(' ')
+}
+
+function formatContractStatus(value: string) {
+  return value
+    .toLowerCase()
+    .split('_')
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ')
+}
+
+function buildDeadlineHelper(contract: ContractResponse, linkedJob?: JobResponse | null) {
+  const rawDeadline = contract.endDate || linkedJob?.deadlineAt
+  if (!rawDeadline) {
+    return 'No deadline is set yet. Keep the chat focused on the next concrete delivery.'
+  }
+
+  const deadline = new Date(rawDeadline)
+  const today = new Date()
+  const deadlineStart = new Date(deadline.getFullYear(), deadline.getMonth(), deadline.getDate())
+  const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate())
+  const dayDiff = Math.round((deadlineStart.getTime() - todayStart.getTime()) / 86400000)
+
+  if (contract.status === 'COMPLETED') {
+    return 'This job is already completed. Use the thread for follow-up notes or handoff details.'
+  }
+
+  if (dayDiff < 0) {
+    const overdueDays = Math.abs(dayDiff)
+    return `This delivery is overdue by ${overdueDays} day${overdueDays === 1 ? '' : 's'}. Agree the next checkpoint in chat.`
+  }
+
+  if (dayDiff === 0) {
+    return 'This delivery is due today. Keep updates tight and confirm the final handoff clearly.'
+  }
+
+  return `${dayDiff} day${dayDiff === 1 ? '' : 's'} left before the current deadline.`
 }
 
 function imageToFileLike(image: SharedImage) {

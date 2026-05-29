@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
+import { toast } from 'react-hot-toast'
 import {
   ArrowLeft,
   Bookmark,
@@ -42,12 +43,14 @@ import {
 } from 'lucide-react'
 import { Skeleton, SkeletonCircle, SkeletonText } from '@/components/ui/Skeleton'
 import { categoryApi } from '@/api/categoryApi'
+import { contractApi } from '@/api/contractApi'
 import { jobApi } from '@/api/jobApi'
 import { proposalApi } from '@/api/proposalApi'
 import { negotiationApi } from '@/api/negotiationApi'
 import { useAuthStore } from '@/store/authStore'
 import { BudgetType, JobResponse, JobStatus, JobType } from '@/types'
 import { formatCurrency, formatDate, formatDateTime, formatRelativeTime } from '@/utils/formatters'
+import { getJobChatRoute } from '@/utils/jobWorkspace'
 import ProposalCreateForm from '@/components/job/ProposalCreateForm'
 import ProposalList from '@/components/job/ProposalList'
 
@@ -72,6 +75,7 @@ const STATUS_META: Record<string, { label: string; className: string }> = {
   [JobStatus.COMPLETED]: { label: 'Completed', className: 'border-slate-200 bg-slate-50 text-slate-700' },
   [JobStatus.CANCELLED]: { label: 'Cancelled', className: 'border-rose-200 bg-rose-50 text-rose-700' },
   [JobStatus.CLOSED]: { label: 'Closed', className: 'border-slate-200 bg-slate-50 text-slate-600' },
+  [JobStatus.EXPIRED]: { label: 'Expired', className: 'border-slate-200 bg-slate-50 text-slate-500' },
 }
 
 export default function JobDetailPage() {
@@ -82,6 +86,7 @@ export default function JobDetailPage() {
   const [showProposalDetail, setShowProposalDetail] = useState(false)
   const [forceEditMode, setForceEditMode] = useState(false) // Track if we should force edit mode
   const [showWithdrawConfirm, setShowWithdrawConfirm] = useState(false)
+  const [showCompleteContractConfirm, setShowCompleteContractConfirm] = useState(false)
   const [withdrawing, setWithdrawing] = useState(false)
   const [saved, setSaved] = useState(() => Boolean(jobId && localStorage.getItem(`saved-job-${jobId}`)))
   const [copied, setCopied] = useState(false)
@@ -113,6 +118,12 @@ export default function JobDetailPage() {
     }
   )
 
+  const { data: contractPage } = useQuery(
+    ['job-contracts', jobId],
+    () => contractApi.getByJob(jobId!, { page: 0, size: 10 }),
+    { enabled: !!jobId && !!user?.userId }
+  )
+
   const derived = useMemo(() => {
     if (!job) return null
     return getJobDisplayData(job, categories)
@@ -130,6 +141,25 @@ export default function JobDetailPage() {
         await queryClient.invalidateQueries(['job', jobId])
         await queryClient.invalidateQueries(['my-posted-jobs', user?.userId])
         queryClient.setQueryData(['job', updatedJob.jobId], updatedJob)
+      },
+    }
+  )
+
+  const completeContractMutation = useMutation(
+    (contractId: string) => contractApi.complete(contractId),
+    {
+      onSuccess: async () => {
+        setShowCompleteContractConfirm(false)
+        toast.success('Job marked as completed. Escrow has been released to the mentor.')
+        await Promise.all([
+          queryClient.invalidateQueries(['job', jobId]),
+          queryClient.invalidateQueries(['job-contracts', jobId]),
+          queryClient.invalidateQueries(['my-posted-jobs']),
+          queryClient.invalidateQueries(['userBalance', user?.userId]),
+        ])
+      },
+      onError: (err: any) => {
+        toast.error(err.response?.data?.message || 'Unable to complete this job right now.')
       },
     }
   )
@@ -158,11 +188,28 @@ export default function JobDetailPage() {
   }
 
   const isOwner = job.clientId === user?.userId
+  const jobContract =
+    contractPage?.content.find((contract) => contract.proposalId) ||
+    contractPage?.content[0] ||
+    null
   const canApply = job.status === JobStatus.OPEN && !isOwner
   const clientName = getClientName(job)
   const proposalCount = getProposalCount(job)
-  const canCloseJob = isOwner && (job.status === JobStatus.OPEN || job.status === JobStatus.IN_PROGRESS)
+  const canCloseJob = isOwner && job.status === JobStatus.OPEN
   const canReopenJob = isOwner && (job.status === JobStatus.CLOSED || job.status === JobStatus.CANCELLED)
+  const canCompleteContract = Boolean(
+    isOwner &&
+    jobContract &&
+    jobContract.status !== 'COMPLETED' &&
+    job.status === JobStatus.IN_PROGRESS
+  )
+  const canEditSubmittedProposal = Boolean(
+    existingProposal &&
+    existingProposal.status !== 'ACCEPTED' &&
+    existingProposal.status !== 'REJECTED' &&
+    existingProposal.status !== 'WITHDRAWN' &&
+    latestNegotiation?.senderType !== 'CLIENT'
+  )
 
   const toggleSaved = () => {
     if (!jobId) return
@@ -191,7 +238,7 @@ export default function JobDetailPage() {
       // Refresh to show updated state
       window.location.reload()
     } catch (err: any) {
-      alert(err.response?.data?.message || 'KhÃ´ng thá»ƒ thu há»“i proposal. Vui lÃ²ng thá»­ láº¡i.')
+      alert(err.response?.data?.message || 'Không thể thu hồi proposal. Vui lòng thử lại.')
       setWithdrawing(false)
     }
   }
@@ -271,7 +318,7 @@ export default function JobDetailPage() {
 
               {job.statusReason && (
                 <div className="mt-5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-bold text-amber-800">
-                  LÃ½ do tráº¡ng thÃ¡i: {job.statusReason}
+                  Lý do trạng thái: {job.statusReason}
                 </div>
               )}
             </div>
@@ -288,13 +335,13 @@ export default function JobDetailPage() {
             </Panel>
 
             {hasMentorBrief(job) && (
-              <Panel title="Brief dÃ nh cho mentor" icon={Target}>
+              <Panel title="Brief dành cho mentor" icon={Target}>
                 <div className="grid gap-3 md:grid-cols-2">
                   {job.requiredSkills && job.requiredSkills.length > 0 && (
                     <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 md:col-span-2">
                       <div className="mb-3 flex items-center gap-2 text-sm font-black text-slate-950">
                         <Tags className="h-4 w-4 text-indigo-600" />
-                        Ká»¹ nÄƒng/chá»§ Ä‘á» cáº§n náº¯m
+                        Kỹ năng/chủ đề cần nắm
                       </div>
                       <div className="flex flex-wrap gap-2">
                         {job.requiredSkills.map((skill) => (
@@ -307,14 +354,14 @@ export default function JobDetailPage() {
                   )}
 
                   {job.experienceLevel && (
-                    <BriefItem icon={GraduationCap} label="TrÃ¬nh Ä‘á»™ mentor mong muá»‘n" value={formatExperienceLevel(job.experienceLevel)} />
+                    <BriefItem icon={GraduationCap} label="Trình độ mentor mong muốn" value={formatExperienceLevel(job.experienceLevel)} />
                   )}
-                  {job.currentLevel && <BriefItem icon={Gauge} label="TrÃ¬nh Ä‘á»™ hiá»‡n táº¡i" value={job.currentLevel} />}
-                  {job.learningGoals && <BriefItem icon={Target} label="Má»¥c tiÃªu" value={job.learningGoals} wide />}
-                  {job.successCriteria && <BriefItem icon={CheckCircle2} label="TiÃªu chÃ­ thÃ nh cÃ´ng" value={job.successCriteria} wide />}
-                  {job.availabilityExpectation && <BriefItem icon={CalendarDays} label="Lá»‹ch mong muá»‘n" value={job.availabilityExpectation} />}
+                  {job.currentLevel && <BriefItem icon={Gauge} label="Trình độ hiện tại" value={job.currentLevel} />}
+                  {job.learningGoals && <BriefItem icon={Target} label="Mục tiêu" value={job.learningGoals} wide />}
+                  {job.successCriteria && <BriefItem icon={CheckCircle2} label="Tiêu chí thành công" value={job.successCriteria} wide />}
+                  {job.availabilityExpectation && <BriefItem icon={CalendarDays} label="Lịch mong muốn" value={job.availabilityExpectation} />}
                   {job.communicationPreference && (
-                    <BriefItem icon={MessageCircle} label="KÃªnh trao Ä‘á»•i Æ°u tiÃªn" value={formatCommunicationPreference(job.communicationPreference)} />
+                    <BriefItem icon={MessageCircle} label="Kênh trao đổi ưu tiên" value={formatCommunicationPreference(job.communicationPreference)} />
                   )}
                 </div>
               </Panel>
@@ -323,12 +370,12 @@ export default function JobDetailPage() {
             {(job.attachmentUrl || (job.attachments && job.attachments.length > 0)) && (
               <Panel title="Tài liệu & Hình ảnh đính kèm" icon={Layers3}>
                 <div className="grid gap-4 sm:grid-cols-2">
-                  {/* Gá»™p táº¥t cáº£ tÃ i liá»‡u vÃ o má»™t danh sÃ¡ch Ä‘á»ƒ hiá»ƒn thá»‹ */}
+                  {/* Gộp tất cả tài liệu vào một danh sách để hiển thị */}
                   {[
                     ...(job.attachmentUrl ? [job.attachmentUrl] : []),
                     ...(job.attachments || [])
                   ]
-                  .filter((url, index, self) => self.indexOf(url) === index) // Loáº¡i bá» trÃ¹ng láº·p
+                  .filter((url, index, self) => self.indexOf(url) === index) // Loại bỏ trùng lặp
                   .map((url, index) => {
                     const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(url);
                     const attachmentMeta = getAttachmentMeta(url, index)
@@ -349,7 +396,7 @@ export default function JobDetailPage() {
                                 className="flex h-10 items-center gap-2 rounded-xl bg-white px-4 text-xs font-black text-slate-900 shadow-xl transition-transform hover:scale-105"
                               >
                                 <Share2 className="h-3.5 w-3.5" />
-                                Xem áº£nh gá»‘c
+                                Xem ảnh gốc
                               </a>
                             </div>
                           </div>
@@ -412,6 +459,34 @@ export default function JobDetailPage() {
                     <div className="rounded-xl border border-indigo-100 bg-indigo-50 p-4 text-sm leading-6 text-indigo-800">
                       You posted this job. Review proposals below and accept the mentor that best fits the work.
                     </div>
+                    {jobContract?.fundsInEscrow && (
+                      <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm leading-6 text-emerald-900">
+                        <p className="font-black">Escrow secured</p>
+                        <p className="mt-1">
+                          {formatCurrency(jobContract.amountInEscrow || 0)} is being held by MentorX until you confirm the work is completed.
+                        </p>
+                      </div>
+                    )}
+                    {jobContract && (
+                      <Link
+                        to={getJobChatRoute(job.jobId, jobContract.mentorId)}
+                        className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-indigo-200 bg-indigo-50 px-4 text-sm font-black text-indigo-700 shadow-sm hover:bg-indigo-100"
+                      >
+                        <MessageSquare className="h-4 w-4" />
+                        Open chat
+                      </Link>
+                    )}
+                    {canCompleteContract && jobContract && (
+                      <button
+                        type="button"
+                        onClick={() => setShowCompleteContractConfirm(true)}
+                        disabled={completeContractMutation.isLoading}
+                        className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-black text-white shadow-sm hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+                      >
+                        <CheckCircle2 className="h-4 w-4" />
+                        {completeContractMutation.isLoading ? 'Releasing escrow...' : 'Confirm completion & release escrow'}
+                      </button>
+                    )}
                     <Link
                       to={`/jobs/${job.jobId}/edit`}
                       className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-black text-slate-700 shadow-sm hover:bg-slate-50"
@@ -461,7 +536,7 @@ export default function JobDetailPage() {
                                 <CheckCircle2 className="h-5 w-5 text-emerald-600" />
                               </div>
                               <div className="flex-1 min-w-0">
-                                <p className="text-sm font-black text-emerald-900">ÄÃ£ gá»­i proposal</p>
+                                <p className="text-sm font-black text-emerald-900">Đã gửi proposal</p>
                                 <p className="mt-0.5 text-xs text-emerald-700">
                                   {formatRelativeTime(existingProposal.submittedAt || existingProposal.createdAt)}
                                 </p>
@@ -474,12 +549,12 @@ export default function JobDetailPage() {
                           
                           <div className="mt-4 grid grid-cols-2 gap-3">
                             <div className="rounded-xl border border-emerald-100 bg-white p-3">
-                              <p className="text-emerald-600 font-bold mb-0.5">GiÃ¡ Ä‘á» xuáº¥t</p>
+                              <p className="text-emerald-600 font-bold mb-0.5">Giá đề xuất</p>
                               <p className="text-slate-900 font-black">{formatCurrency(existingProposal.proposedAmount || 0)}</p>
                             </div>
                             <div className="rounded-xl border border-emerald-100 bg-white p-3">
-                              <p className="text-emerald-600 font-bold mb-0.5">Thá»i gian</p>
-                              <p className="text-slate-900 font-black">{existingProposal.estimatedDurationDays} ngÃ y</p>
+                              <p className="text-emerald-600 font-bold mb-0.5">Thời gian</p>
+                              <p className="text-slate-900 font-black">{existingProposal.estimatedDurationDays} ngày</p>
                             </div>
                           </div>
 
@@ -495,7 +570,7 @@ export default function JobDetailPage() {
                                   </p>
                                   <p className="mt-1 text-xs leading-5 text-amber-800">
                                     {latestNegotiation.senderType === 'CLIENT'
-                                      ? `Latest counter: ${latestNegotiation.proposedAmount ? formatCurrency(latestNegotiation.proposedAmount) : 'price update'}${latestNegotiation.estimatedDurationDays ? ` â€¢ ${latestNegotiation.estimatedDurationDays} days` : ''}`
+                                      ? `Latest counter: ${latestNegotiation.proposedAmount ? formatCurrency(latestNegotiation.proposedAmount) : 'price update'}${latestNegotiation.estimatedDurationDays ? ` • ${latestNegotiation.estimatedDurationDays} days` : ''}`
                                       : 'Your latest negotiation update has been sent.'}
                                   </p>
                                 </div>
@@ -510,8 +585,17 @@ export default function JobDetailPage() {
                           className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 text-sm font-black text-white shadow-sm hover:bg-indigo-700"
                         >
                           <Eye className="h-4 w-4" />
-                          Xem chi tiáº¿t proposal
+                          Xem chi tiết proposal
                         </button>
+                        {existingProposal.status === 'ACCEPTED' && (
+                          <Link
+                            to={getJobChatRoute(job.jobId, job.clientId)}
+                            className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-indigo-200 bg-indigo-50 px-4 text-sm font-black text-indigo-700 shadow-sm hover:bg-indigo-100"
+                          >
+                            <MessageSquare className="h-4 w-4" />
+                            Open chat
+                          </Link>
+                        )}
                         
                         <div className="grid grid-cols-2 gap-2">
                           <button
@@ -524,7 +608,7 @@ export default function JobDetailPage() {
                             className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-black text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             <Edit className="h-4 w-4" />
-                            {existingProposal.status === 'WITHDRAWN' ? 'Apply láº¡i' : 'Chá»‰nh sá»­a'}
+                            {existingProposal.status === 'WITHDRAWN' ? 'Apply lại' : 'Chỉnh sửa'}
                           </button>
                           <button
                             type="button"
@@ -533,15 +617,15 @@ export default function JobDetailPage() {
                             className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-rose-200 bg-white px-3 text-sm font-black text-rose-600 hover:bg-rose-50 disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             <Trash2 className="h-4 w-4" />
-                            Thu há»“i
+                            Thu hồi
                           </button>
                         </div>
                         
                         {(existingProposal.status === 'ACCEPTED' || existingProposal.status === 'REJECTED') && (
                           <p className="text-xs text-slate-500 text-center">
                             {existingProposal.status === 'ACCEPTED' 
-                              ? 'âš ï¸ KhÃ´ng thá»ƒ chá»‰nh sá»­a proposal Ä‘Ã£ Ä‘Æ°á»£c cháº¥p nháº­n'
-                              : 'âš ï¸ KhÃ´ng thá»ƒ chá»‰nh sá»­a proposal Ä‘Ã£ bá»‹ tá»« chá»‘i'
+                              ? '⚠️ Không thể chỉnh sửa proposal đã được chấp nhận'
+                              : '⚠️ Không thể chỉnh sửa proposal đã bị từ chối'
                             }
                           </p>
                         )}
@@ -557,7 +641,7 @@ export default function JobDetailPage() {
                           {job.status === JobStatus.CLOSED ? (
                             <>
                               <X className="h-4 w-4" />
-                              CÃ´ng viá»‡c Ä‘Ã£ Ä‘Ã³ng
+                              Công việc đã đóng
                             </>
                           ) : job.status === JobStatus.OPEN ? (
                             <>
@@ -574,7 +658,7 @@ export default function JobDetailPage() {
                               <AlertCircle className="w-4 h-4 text-amber-600" />
                             </div>
                             <p className="text-[11px] font-bold text-amber-800 leading-relaxed">
-                              Dá»± Ã¡n nÃ y Ä‘Ã£ tÃ¬m Ä‘Æ°á»£c mentor phÃ¹ há»£p vÃ  hiá»‡n táº¡i khÃ´ng cÃ²n cháº¥p nháº­n Ä‘á» xuáº¥t má»›i.
+                              Dự án này đã tìm được mentor phù hợp và hiện tại không còn chấp nhận đề xuất mới.
                             </p>
                           </div>
                         )}
@@ -621,11 +705,11 @@ export default function JobDetailPage() {
               <div>
                 <p className="text-sm font-bold text-indigo-600">Proposal</p>
                 <h2 className="mt-1 text-2xl font-black text-slate-950">
-                  {existingProposal && forceEditMode ? 'Chá»‰nh sá»­a proposal' : 'Submit your offer'}
+                  {existingProposal && forceEditMode ? 'Chỉnh sửa proposal' : 'Submit your offer'}
                 </h2>
                 <p className="mt-1 text-sm text-slate-500">
                   {existingProposal && forceEditMode
-                    ? 'Cáº­p nháº­t thÃ´ng tin proposal cá»§a báº¡n'
+                    ? 'Cập nhật thông tin proposal của bạn'
                     : `Send a focused proposal for ${clientName}.`
                   }
                 </p>
@@ -696,7 +780,7 @@ export default function JobDetailPage() {
                 </div>
                 {existingProposal.viewCount !== undefined && (
                   <div className="text-right">
-                    <p className="text-xs font-bold uppercase text-slate-500">LÆ°á»£t xem</p>
+                    <p className="text-xs font-bold uppercase text-slate-500">Lượt xem</p>
                     <p className="mt-1 text-2xl font-black text-slate-900">{existingProposal.viewCount}</p>
                   </div>
                 )}
@@ -707,16 +791,16 @@ export default function JobDetailPage() {
                 <div className="rounded-xl bg-slate-50 p-4">
                   <div className="flex items-center gap-2 text-xs font-bold uppercase text-slate-400 mb-2">
                     <DollarSign className="h-4 w-4" />
-                    GiÃ¡ Ä‘á» xuáº¥t
+                    Giá đề xuất
                   </div>
                   <p className="text-2xl font-black text-slate-950">{formatCurrency(existingProposal.proposedAmount || 0)}</p>
                 </div>
                 <div className="rounded-xl bg-slate-50 p-4">
                   <div className="flex items-center gap-2 text-xs font-bold uppercase text-slate-400 mb-2">
                     <CalendarDays className="h-4 w-4" />
-                    Thá»i gian
+                    Thời gian
                   </div>
-                  <p className="text-2xl font-black text-slate-950">{existingProposal.estimatedDurationDays} ngÃ y</p>
+                  <p className="text-2xl font-black text-slate-950">{existingProposal.estimatedDurationDays} ngày</p>
                 </div>
               </div>
 
@@ -732,25 +816,25 @@ export default function JobDetailPage() {
                       </div>
                       <div>
                         <h3 className="font-black text-slate-900">
-                          {latestNegotiation.senderType === 'CLIENT' ? 'Client Ä‘á» xuáº¥t thÆ°Æ¡ng lÆ°á»£ng' : 'Báº¡n Ä‘Ã£ pháº£n há»“i thÆ°Æ¡ng lÆ°á»£ng'}
+                          {latestNegotiation.senderType === 'CLIENT' ? 'Client đề xuất thương lượng' : 'Bạn đã phản hồi thương lượng'}
                         </h3>
                         <p className="text-[10px] font-black text-amber-600 uppercase tracking-widest mt-0.5">
-                          {latestNegotiation.senderType === 'CLIENT' ? 'Äang chá» báº¡n pháº£n há»“i' : 'Äang chá» client pháº£n há»“i'}
+                          {latestNegotiation.senderType === 'CLIENT' ? 'Đang chờ bạn phản hồi' : 'Đang chờ client phản hồi'}
                         </p>
                       </div>
                     </div>
                   </div>
 
                   <div className="relative bg-white rounded-2xl p-5 border border-amber-100 mb-6 shadow-sm italic text-slate-600 leading-relaxed text-sm">
-                    <span className="text-4xl text-amber-200 absolute -top-2 -left-1 font-serif opacity-50">â€œ</span>
+                    <span className="text-4xl text-amber-200 absolute -top-2 -left-1 font-serif opacity-50">“</span>
                     {latestNegotiation.message}
-                    <span className="text-4xl text-amber-200 absolute -bottom-6 -right-1 font-serif opacity-50">â€</span>
+                    <span className="text-4xl text-amber-200 absolute -bottom-6 -right-1 font-serif opacity-50">”</span>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
                     {latestNegotiation.proposedAmount && (
                       <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 border border-amber-100 shadow-sm">
-                        <p className="text-[10px] font-black text-amber-600 uppercase mb-2 tracking-wider">GiÃ¡ thá»a thuáº­n</p>
+                        <p className="text-[10px] font-black text-amber-600 uppercase mb-2 tracking-wider">Giá thỏa thuận</p>
                         <div className="flex items-center gap-2">
                           <span className="text-slate-400 line-through text-xs font-bold">{existingProposal.proposedAmount} MXC</span>
                           <ArrowRight className="w-3 h-3 text-amber-500" />
@@ -760,11 +844,11 @@ export default function JobDetailPage() {
                     )}
                     {latestNegotiation.estimatedDurationDays && (
                       <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 border border-amber-100 shadow-sm">
-                        <p className="text-[10px] font-black text-amber-600 uppercase mb-2 tracking-wider">Thá»i gian má»›i</p>
+                        <p className="text-[10px] font-black text-amber-600 uppercase mb-2 tracking-wider">Thời gian mới</p>
                         <div className="flex items-center gap-2">
-                          <span className="text-slate-400 line-through text-xs font-bold">{existingProposal.estimatedDurationDays} ngÃ y</span>
+                          <span className="text-slate-400 line-through text-xs font-bold">{existingProposal.estimatedDurationDays} ngày</span>
                           <ArrowRight className="w-3 h-3 text-amber-500" />
-                          <span className="text-lg font-black text-amber-700">{latestNegotiation.estimatedDurationDays} ngÃ y</span>
+                          <span className="text-lg font-black text-amber-700">{latestNegotiation.estimatedDurationDays} ngày</span>
                         </div>
                       </div>
                     )}
@@ -777,14 +861,14 @@ export default function JobDetailPage() {
                         className="flex w-full h-12 items-center justify-center gap-2 rounded-2xl bg-amber-600 text-sm font-black text-white hover:bg-amber-700 shadow-lg shadow-amber-200 transition-all hover:scale-[1.02] active:scale-95"
                       >
                         <TrendingUp className="w-4 h-4" />
-                        Pháº£n há»“i ngay
+                        Phản hồi ngay
                       </Link>
                     </div>
                   ) : (
                     <div className="mt-6 p-4 bg-amber-100/30 rounded-2xl border border-dashed border-amber-300 text-center">
                       <p className="text-xs font-bold text-amber-800 flex items-center justify-center gap-2">
                         <Clock className="w-4 h-4 animate-pulse" />
-                        Äang chá» client pháº£n há»“i Ä‘á» xuáº¥t cá»§a báº¡n
+                        Đang chờ client phản hồi đề xuất của bạn
                       </p>
                     </div>
                   )}
@@ -802,7 +886,7 @@ export default function JobDetailPage() {
               {/* Relevant Experience */}
               {existingProposal.relevantExperience && (
                 <div>
-                  <p className="text-sm font-black text-slate-950 mb-3">Kinh nghiá»‡m liÃªn quan</p>
+                  <p className="text-sm font-black text-slate-950 mb-3">Kinh nghiệm liên quan</p>
                   <div className="rounded-xl bg-indigo-50 p-4 border border-indigo-200">
                     <p className="text-sm leading-7 text-slate-700 whitespace-pre-wrap">{existingProposal.relevantExperience}</p>
                   </div>
@@ -812,7 +896,7 @@ export default function JobDetailPage() {
               {/* Rejection Reason */}
               {existingProposal.status === 'REJECTED' && existingProposal.rejectionReason && (
                 <div>
-                  <p className="text-sm font-black text-rose-600 mb-3">LÃ½ do tá»« chá»‘i</p>
+                  <p className="text-sm font-black text-rose-600 mb-3">Lý do từ chối</p>
                   <div className="rounded-xl bg-rose-50 p-4 border border-rose-200">
                     <p className="text-sm leading-7 text-rose-700">{existingProposal.rejectionReason}</p>
                   </div>
@@ -821,6 +905,7 @@ export default function JobDetailPage() {
 
               {/* Actions */}
               <div className="flex gap-3 pt-4 border-t border-slate-200">
+                {canEditSubmittedProposal && (
                 <button
                   type="button"
                   onClick={() => {
@@ -830,16 +915,56 @@ export default function JobDetailPage() {
                   className="flex-1 inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 text-sm font-black text-white hover:bg-indigo-700"
                 >
                   <Edit className="h-4 w-4" />
-                  Chá»‰nh sá»­a
+                  Chỉnh sửa
                 </button>
+                )}
                 <button
                   type="button"
                   onClick={() => setShowProposalDetail(false)}
-                  className="px-6 inline-flex h-11 items-center justify-center rounded-xl border border-slate-200 bg-white text-sm font-black text-slate-700 hover:bg-slate-50"
+                  className={`${canEditSubmittedProposal ? 'px-6' : 'flex-1'} inline-flex h-11 items-center justify-center rounded-xl border border-slate-200 bg-white text-sm font-black text-slate-700 hover:bg-slate-50`}
                 >
-                  ÄÃ³ng
+                  Đóng
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showCompleteContractConfirm && jobContract && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100">
+              <CheckCircle2 className="h-6 w-6 text-emerald-600" />
+            </div>
+            <h3 className="text-lg font-bold text-slate-900 text-center mb-2">Confirm job completion?</h3>
+            <p className="text-sm text-slate-600 text-center mb-6">
+              Once confirmed, {formatCurrency(jobContract.amountInEscrow || 0)} will be released from escrow and credited to the mentor wallet.
+            </p>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setShowCompleteContractConfirm(false)}
+                disabled={completeContractMutation.isLoading}
+                className="flex-1 px-4 py-2.5 border border-slate-300 text-slate-700 rounded-lg font-bold hover:bg-slate-50 disabled:opacity-50 transition-all text-sm"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => completeContractMutation.mutate(jobContract.id)}
+                disabled={completeContractMutation.isLoading}
+                className="flex-1 flex items-center justify-center gap-2 bg-emerald-600 text-white py-2.5 rounded-lg font-bold hover:bg-emerald-700 disabled:bg-emerald-400 transition-all text-sm"
+              >
+                {completeContractMutation.isLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Processing...
+                  </>
+                ) : (
+                  'Release escrow'
+                )}
+              </button>
             </div>
           </div>
         </div>
@@ -852,9 +977,9 @@ export default function JobDetailPage() {
             <div className="w-12 h-12 rounded-full bg-rose-100 flex items-center justify-center mx-auto mb-4">
               <AlertCircle className="w-6 h-6 text-rose-600" />
             </div>
-            <h3 className="text-lg font-bold text-slate-900 text-center mb-2">Thu há»“i Proposal?</h3>
+            <h3 className="text-lg font-bold text-slate-900 text-center mb-2">Thu hồi Proposal?</h3>
             <p className="text-sm text-slate-600 text-center mb-6">
-              Báº¡n cÃ³ cháº¯c cháº¯n muá»‘n thu há»“i proposal nÃ y? HÃ nh Ä‘á»™ng nÃ y khÃ´ng thá»ƒ hoÃ n tÃ¡c.
+              Bạn có chắc chắn muốn thu hồi proposal này? Hành động này không thể hoàn tác.
             </p>
             <div className="flex gap-3">
               <button
@@ -862,7 +987,7 @@ export default function JobDetailPage() {
                 disabled={withdrawing}
                 className="flex-1 px-4 py-2.5 border border-slate-300 text-slate-700 rounded-lg font-bold hover:bg-slate-50 disabled:opacity-50 transition-all text-sm"
               >
-                Há»§y
+                Hủy
               </button>
               <button
                 onClick={handleWithdraw}
@@ -872,10 +997,10 @@ export default function JobDetailPage() {
                 {withdrawing ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    Äang xá»­ lÃ½...
+                    Đang xử lý...
                   </>
                 ) : (
-                  'XÃ¡c nháº­n thu há»“i'
+                  'Xác nhận thu hồi'
                 )}
               </button>
             </div>
@@ -1066,19 +1191,19 @@ function hasMentorBrief(job: JobResponse) {
 
 function formatExperienceLevel(level: string) {
   const labels: Record<string, string> = {
-    INTERMEDIATE: 'Mentor trung cáº¥p trá»Ÿ lÃªn',
+    INTERMEDIATE: 'Mentor trung cấp trở lên',
     SENIOR: 'Mentor senior',
-    EXPERT: 'ChuyÃªn gia trong lÄ©nh vá»±c',
+    EXPERT: 'Chuyên gia trong lĩnh vực',
   }
   return labels[level] || level
 }
 
 function formatCommunicationPreference(preference: string) {
   const labels: Record<string, string> = {
-    CHAT: 'Chat lÃ  chÃ­nh',
+    CHAT: 'Chat là chính',
     VIDEO_CALL: 'Video call',
-    CODE_REVIEW: 'Review code/tÃ i liá»‡u',
-    MIXED: 'Káº¿t há»£p nhiá»u hÃ¬nh thá»©c',
+    CODE_REVIEW: 'Review code/tài liệu',
+    MIXED: 'Kết hợp nhiều hình thức',
   }
   return labels[preference] || preference
 }
@@ -1120,11 +1245,11 @@ function getPrepItems(jobType: JobType) {
 }
 
 function getClientName(job: JobResponse) {
-  return (job as JobResponse & { clientName?: string }).clientName || job.client?.displayName || job.client?.fullName || 'Client'
+  return job.clientName || job.client?.displayName || job.client?.fullName || 'Client'
 }
 
 function getProposalCount(job: JobResponse) {
-  return (job as JobResponse & { proposalCount?: number }).proposalCount || 0
+  return job.proposalCount || 0
 }
 
 function getInitials(name: string) {
@@ -1135,14 +1260,14 @@ function getInitials(name: string) {
 
 function getProposalStatusLabel(status: string): string {
   const statusLabels: Record<string, string> = {
-    DRAFT: 'NhÃ¡p',
-    SUBMITTED: 'ÄÃ£ gá»­i',
-    UNDER_REVIEW: 'Äang xem xÃ©t',
-    NEGOTIATING: 'Äang thÆ°Æ¡ng lÆ°á»£ng',
-    SHORTLISTED: 'ÄÆ°á»£c chá»n',
-    ACCEPTED: 'Cháº¥p nháº­n',
-    REJECTED: 'Tá»« chá»‘i',
-    WITHDRAWN: 'ÄÃ£ thu há»“i',
+    DRAFT: 'Nháp',
+    SUBMITTED: 'Đã gửi',
+    UNDER_REVIEW: 'Đang xem xét',
+    NEGOTIATING: 'Đang thương lượng',
+    SHORTLISTED: 'Được chọn',
+    ACCEPTED: 'Chấp nhận',
+    REJECTED: 'Từ chối',
+    WITHDRAWN: 'Đã thu hồi',
   }
   return statusLabels[status] || status
 }

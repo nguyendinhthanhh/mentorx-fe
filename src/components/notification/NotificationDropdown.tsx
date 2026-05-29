@@ -3,7 +3,7 @@ import { notificationApi } from '@/api/notificationApi'
 import { formatRelativeTime } from '@/utils/formatters'
 import { Bell, CheckCircle, Info, AlertTriangle, XCircle, Briefcase, MessageSquare, ArrowRight } from 'lucide-react'
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { NotificationType } from '@/types'
 
 interface Props {
@@ -13,6 +13,7 @@ interface Props {
 export default function NotificationDropdown({ userId }: Props) {
   const [isOpen, setIsOpen] = useState(false)
   const queryClient = useQueryClient()
+  const navigate = useNavigate()
 
   const { data, refetch } = useQuery(['notifications-preview', userId], () =>
     notificationApi.getUserNotifications(userId, { unreadOnly: false, size: 5 })
@@ -30,6 +31,16 @@ export default function NotificationDropdown({ userId }: Props) {
   const handleMarkAllRead = async () => {
     await notificationApi.markAllAsRead(userId)
     refreshNotifications()
+  }
+
+  const handleOpenNotification = async (notificationId: string, actionUrl?: string) => {
+    await notificationApi.markAsRead(notificationId)
+    refreshNotifications()
+    setIsOpen(false)
+
+    if (actionUrl) {
+      navigate(actionUrl)
+    }
   }
 
   const refreshNotifications = () => {
@@ -107,7 +118,7 @@ export default function NotificationDropdown({ userId }: Props) {
                     className={`flex w-full gap-3 border-b border-slate-100 px-4 py-3 text-left transition-colors last:border-0 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-900 ${
                       !notif.isRead ? 'bg-indigo-50/50 dark:bg-indigo-950/20' : ''
                     }`}
-                    onClick={() => handleMarkRead(notif.id)}
+                    onClick={() => handleOpenNotification(notif.id, notif.actionUrl)}
                   >
                     <div className="mt-1 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl bg-white shadow-sm ring-1 ring-slate-100 dark:bg-slate-950 dark:ring-slate-800">
                       {getIcon(notif.notificationType)}

@@ -1,7 +1,6 @@
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import {
-  Bell,
   BookOpen,
   Briefcase,
   Calendar,
@@ -21,6 +20,7 @@ import {
 } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { useThemeStore } from '@/store/themeStore'
+import NotificationDropdown from '@/components/notification/NotificationDropdown'
 import { UserMode } from '@/types'
 
 const navigationItems = [
@@ -164,12 +164,7 @@ export default function MentorLayout() {
                   <ChevronDown className="h-4 w-4 text-slate-400" />
                 </button>
 
-                <button type="button" className="relative flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-500 transition hover:bg-slate-50 hover:text-slate-900">
-                  <Bell className="h-4 w-4" />
-                  <span className="absolute right-2 top-2 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-black text-white">
-                    3
-                  </span>
-                </button>
+                {user && <NotificationDropdown userId={user.userId} />}
 
                 <button type="button" className="flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-500 transition hover:bg-slate-50 hover:text-slate-900">
                   <MessageCircle className="h-4 w-4" />
