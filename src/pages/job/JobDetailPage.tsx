@@ -49,6 +49,7 @@ import { proposalApi } from '@/api/proposalApi'
 import { negotiationApi } from '@/api/negotiationApi'
 import { useAuthStore } from '@/store/authStore'
 import { BudgetType, JobResponse, JobStatus, JobType } from '@/types'
+import { isMentorApproved } from '@/utils/roleRedirect'
 import { formatCurrency, formatDate, formatDateTime, formatRelativeTime } from '@/utils/formatters'
 import { getJobChatRoute } from '@/utils/jobWorkspace'
 import ProposalCreateForm from '@/components/job/ProposalCreateForm'
@@ -99,7 +100,7 @@ export default function JobDetailPage() {
     ['proposal', jobId, user?.userId],
     () => proposalApi.getByJobAndMentor(jobId!, user!.userId),
     { 
-      enabled: !!jobId && !!user?.userId && isAuthenticated,
+      enabled: !!jobId && !!user?.userId && isAuthenticated && isMentorApproved(user),
       retry: false,
       // Don't throw error if no proposal found (404 is expected)
       onError: () => {
@@ -188,11 +189,13 @@ export default function JobDetailPage() {
   }
 
   const isOwner = job.clientId === user?.userId
+  const isApprovedMentor = isMentorApproved(user)
   const jobContract =
     contractPage?.content.find((contract) => contract.proposalId) ||
     contractPage?.content[0] ||
     null
-  const canApply = job.status === JobStatus.OPEN && !isOwner
+  const canApply = job.status === JobStatus.OPEN && !isOwner && isApprovedMentor
+  const shouldPromptMentorAccess = isAuthenticated && !isOwner && !isApprovedMentor
   const clientName = getClientName(job)
   const proposalCount = getProposalCount(job)
   const canCloseJob = isOwner && job.status === JobStatus.OPEN
@@ -205,10 +208,7 @@ export default function JobDetailPage() {
   )
   const canEditSubmittedProposal = Boolean(
     existingProposal &&
-    existingProposal.status !== 'ACCEPTED' &&
-    existingProposal.status !== 'REJECTED' &&
-    existingProposal.status !== 'WITHDRAWN' &&
-    latestNegotiation?.senderType !== 'CLIENT'
+    (existingProposal.status === 'DRAFT' || existingProposal.status === 'WITHDRAWN')
   )
 
   const toggleSaved = () => {
@@ -235,10 +235,14 @@ export default function JobDetailPage() {
       setWithdrawing(true)
       await proposalApi.withdraw(existingProposal.id)
       setShowWithdrawConfirm(false)
-      // Refresh to show updated state
-      window.location.reload()
+      toast.success('Đã thu hồi proposal.')
+      await Promise.all([
+        queryClient.invalidateQueries(['proposal', jobId, user?.userId]),
+        queryClient.invalidateQueries(['negotiation-latest', existingProposal.id]),
+      ])
     } catch (err: any) {
       alert(err.response?.data?.message || 'Không thể thu hồi proposal. Vui lòng thử lại.')
+    } finally {
       setWithdrawing(false)
     }
   }
@@ -587,7 +591,7 @@ export default function JobDetailPage() {
                           <Eye className="h-4 w-4" />
                           Xem chi tiết proposal
                         </button>
-                        {existingProposal.status === 'ACCEPTED' && (
+                        {(existingProposal.status === 'ACCEPTED' || existingProposal.status === 'OFFER_ACCEPTED') && (
                           <Link
                             to={getJobChatRoute(job.jobId, job.clientId)}
                             className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-indigo-200 bg-indigo-50 px-4 text-sm font-black text-indigo-700 shadow-sm hover:bg-indigo-100"
@@ -604,7 +608,7 @@ export default function JobDetailPage() {
                               setForceEditMode(true)
                               setShowApplyModal(true)
                             }}
-                            disabled={existingProposal.status === 'ACCEPTED' || existingProposal.status === 'REJECTED'}
+                            disabled={!canEditSubmittedProposal}
                             className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-black text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             <Edit className="h-4 w-4" />
@@ -613,7 +617,7 @@ export default function JobDetailPage() {
                           <button
                             type="button"
                             onClick={() => setShowWithdrawConfirm(true)}
-                            disabled={existingProposal.status === 'ACCEPTED' || existingProposal.status === 'WITHDRAWN'}
+                            disabled={existingProposal.status === 'ACCEPTED' || existingProposal.status === 'OFFER_ACCEPTED' || existingProposal.status === 'WITHDRAWN'}
                             className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-rose-200 bg-white px-3 text-sm font-black text-rose-600 hover:bg-rose-50 disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             <Trash2 className="h-4 w-4" />
@@ -621,14 +625,29 @@ export default function JobDetailPage() {
                           </button>
                         </div>
                         
-                        {(existingProposal.status === 'ACCEPTED' || existingProposal.status === 'REJECTED') && (
+                        {(existingProposal.status === 'ACCEPTED' || existingProposal.status === 'OFFER_ACCEPTED' || existingProposal.status === 'REJECTED') && (
                           <p className="text-xs text-slate-500 text-center">
-                            {existingProposal.status === 'ACCEPTED' 
+                            {(existingProposal.status === 'ACCEPTED' || existingProposal.status === 'OFFER_ACCEPTED') 
                               ? '⚠️ Không thể chỉnh sửa proposal đã được chấp nhận'
                               : '⚠️ Không thể chỉnh sửa proposal đã bị từ chối'
                             }
                           </p>
                         )}
+                      </>
+                    ) : shouldPromptMentorAccess ? (
+                      <>
+                        <Link
+                          to="/mentor/profile"
+                          className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 text-sm font-black text-white shadow-sm hover:bg-indigo-700"
+                        >
+                          <ShieldCheck className="h-4 w-4" />
+                          Become a mentor to apply
+                        </Link>
+                        <div className="mt-3 rounded-xl border border-indigo-200 bg-indigo-50 p-4 text-center">
+                          <p className="text-[11px] font-bold leading-relaxed text-indigo-800">
+                            Only approved mentors can submit proposals for jobs. Complete your mentor profile and approval flow first.
+                          </p>
+                        </div>
                       </>
                     ) : (
                       <>
@@ -698,7 +717,7 @@ export default function JobDetailPage() {
         </div>
       </main>
 
-      {showApplyModal && user && (
+      {showApplyModal && user && canApply && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4 backdrop-blur-sm">
           <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl sm:p-7">
             <div className="mb-5 flex items-start justify-between gap-4">
@@ -735,8 +754,10 @@ export default function JobDetailPage() {
               onSuccess={() => {
                 setShowApplyModal(false)
                 setForceEditMode(false)
-                // Refetch proposal data instead of full page reload
-                window.location.reload()
+                void Promise.all([
+                  queryClient.invalidateQueries(['proposal', jobId, user?.userId]),
+                  queryClient.invalidateQueries(['negotiation-latest', existingProposal?.id]),
+                ])
               }}
               onCancel={() => {
                 // When user cancels edit in force edit mode, just close modal
@@ -910,6 +931,7 @@ export default function JobDetailPage() {
                   type="button"
                   onClick={() => {
                     setShowProposalDetail(false)
+                    setForceEditMode(true)
                     setShowApplyModal(true)
                   }}
                   className="flex-1 inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 text-sm font-black text-white hover:bg-indigo-700"

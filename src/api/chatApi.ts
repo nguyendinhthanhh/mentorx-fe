@@ -2,6 +2,15 @@ import apiClient from './client'
 import { ApiResponse, PaginatedResponse, ChatRoomResponse, MessageResponse } from '@/types'
 
 export const chatApi = {
+  resolveConversation: async (data: {
+    recipientId: string
+    contextType: 'JOB' | 'PROPOSAL' | 'CONTRACT' | 'MENTOR_APPLICATION'
+    contextId: string
+  }): Promise<ChatRoomResponse> => {
+    const response = await apiClient.post<ApiResponse<ChatRoomResponse>>('/chat/rooms/resolve', data)
+    return response.data.data
+  },
+
   createRoom: async (data: {
     participantIds?: string[]
     memberIds?: string[]

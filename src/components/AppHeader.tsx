@@ -30,21 +30,21 @@ import { formatMxc } from '@/utils/formatters'
 import { canAccessAdminWorkspace, canSwitchToMentorMode, isAdmin } from '@/utils/roleRedirect'
 import { MentorStatus, UserMode } from '@/types'
 
-function getMentorCtaLabel(status?: MentorStatus) {
+function getMentorCtaLabel(status: MentorStatus | undefined, t: ReturnType<typeof useI18n>['t']) {
   switch (status) {
     case MentorStatus.PENDING:
-      return 'Mentor application pending'
+      return t('nav.mentorApplicationPending')
     case MentorStatus.REJECTED:
-      return 'Update mentor application'
+      return t('nav.updateMentorApplication')
     case MentorStatus.SUSPENDED:
-      return 'Mentor access suspended'
+      return t('nav.mentorSuspended')
     default:
-      return 'Become a mentor'
+      return t('nav.becomeMentor')
   }
 }
 
 export default function AppHeader() {
-  const { t } = useI18n()
+  const { t, language } = useI18n()
   const navigate = useNavigate()
   const location = useLocation()
   const { user, logout, setCurrentMode } = useAuthStore()
@@ -66,7 +66,7 @@ export default function AppHeader() {
   )
 
   const unreadCount = rooms?.content.reduce((sum, room) => sum + (room.unreadCount || 0), 0) || 0
-  const mentorCtaLabel = getMentorCtaLabel(user?.mentorStatus)
+  const mentorCtaLabel = getMentorCtaLabel(user?.mentorStatus, t)
 
   const navLinks = [
     { to: '/jobs', label: t('nav.jobs') },
@@ -153,7 +153,7 @@ export default function AppHeader() {
                   className="inline-flex h-10 items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-xs font-black text-slate-700 transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
                 >
                   <UserCog className="h-4 w-4" />
-                  <span className="hidden lg:inline">{isAdmin(user) ? 'Admin Console' : 'Moderator Console'}</span>
+                  <span className="hidden lg:inline">{isAdmin(user) ? t('nav.adminConsole') : t('nav.moderatorConsole')}</span>
                 </Link>
               )}
 
@@ -164,7 +164,7 @@ export default function AppHeader() {
                 >
                   <Wallet className="h-3.5 w-3.5 text-amber-500" />
                   <span className="text-[11px] font-black text-slate-700 dark:text-slate-200">
-                    {formatMxc(balance?.available || 0)}
+                    {formatMxc(balance?.available || 0, language)}
                   </span>
                 </Link>
 
@@ -210,14 +210,14 @@ export default function AppHeader() {
                     <div className="fixed inset-0 z-10" onClick={() => setUserDropdownOpen(false)} />
                     <div className="absolute right-0 z-20 mt-2 w-60 origin-top-right rounded-2xl border border-slate-200 bg-white p-2 shadow-xl ring-1 ring-black ring-opacity-5 focus:outline-none">
                       <div className="mb-1 border-b border-slate-100 px-3 py-2">
-                        <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Account</p>
+                        <p className="text-xs font-bold uppercase tracking-wider text-slate-400">{t('common.account')}</p>
                         <p className="truncate text-sm font-black text-slate-900">{user.fullName}</p>
                         <div className="mt-2 flex items-center justify-between rounded-lg bg-slate-50 p-2">
                           <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-500">
                             <Wallet className="h-3 w-3" />
-                            Balance
+                            {t('common.balance')}
                           </div>
-                          <span className="text-xs font-black text-amber-600">{formatMxc(balance?.available || 0)}</span>
+                          <span className="text-xs font-black text-amber-600">{formatMxc(balance?.available || 0, language)}</span>
                         </div>
                       </div>
 
@@ -227,16 +227,16 @@ export default function AppHeader() {
                           className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50 hover:text-blue-600"
                         >
                           <User className="h-4 w-4" />
-                          View profile
+                          {t('common.viewProfile')}
                       </Link>
                       {mentorApproved && (
                         <Link
-                          to="/mentor/profile-setup"
+                          to="/mentor/profile"
                           onClick={() => setUserDropdownOpen(false)}
                           className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50 hover:text-blue-600"
                         >
                           <Star className="h-4 w-4" />
-                          View Mentor Profile
+                          {t('nav.editMentorProfile')}
                         </Link>
                       )}
                       <Link
@@ -245,7 +245,7 @@ export default function AppHeader() {
                         className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50 hover:text-blue-600"
                       >
                         <Wallet className="h-4 w-4" />
-                        My wallet
+                        {t('nav.wallet')}
                       </Link>
                       <Link
                         to="/my-jobs"
@@ -253,7 +253,7 @@ export default function AppHeader() {
                         className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50 hover:text-blue-600"
                       >
                         <Briefcase className="h-4 w-4" />
-                        My jobs
+                        {t('nav.myJobs')}
                       </Link>
                       {/* <Link
                         to="/quick-support"
@@ -269,7 +269,7 @@ export default function AppHeader() {
                         className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50 hover:text-blue-600"
                       >
                         <ShoppingBag className="h-4 w-4" />
-                        Courses
+                        {t('nav.courses')}
                       </Link>
                       <Link
                         to="/profile/settings"
@@ -277,7 +277,7 @@ export default function AppHeader() {
                         className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50 hover:text-blue-600"
                       >
                         <UserCog className="h-4 w-4" />
-                        Settings
+                        {t('nav.settings')}
                       </Link>
 
                       {mentorApproved && (
@@ -291,7 +291,7 @@ export default function AppHeader() {
                           className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50 hover:text-blue-600"
                         >
                           <GraduationCap className="h-4 w-4" />
-                          Mentor Dashboard
+                          {t('nav.mentorDashboard')}
                         </button>
                       )}
 
@@ -304,7 +304,7 @@ export default function AppHeader() {
                         className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-red-600 transition hover:bg-red-50"
                       >
                         <LogOut className="h-4 w-4" />
-                        Sign out
+                        {t('nav.logout')}
                       </button>
                     </div>
                   </>
@@ -359,9 +359,9 @@ export default function AppHeader() {
                 <div className="mb-2 flex items-center justify-between rounded-lg bg-amber-50 px-3 py-3 text-amber-700">
                   <div className="flex items-center gap-2 text-sm font-bold">
                     <Wallet className="h-4 w-4" />
-                    Wallet balance
+                    {t('common.balance')}
                   </div>
-                  <span className="font-black">{formatMxc(balance?.available || 0)}</span>
+                  <span className="font-black">{formatMxc(balance?.available || 0, language)}</span>
                 </div>
                 {mentorApproved && (
                   <Link
@@ -372,7 +372,7 @@ export default function AppHeader() {
                     }}
                     className="rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
                   >
-                    Mentor Dashboard
+                    {t('nav.mentorDashboard')}
                   </Link>
                 )}
                 {!mentorApproved && (
@@ -401,7 +401,7 @@ export default function AppHeader() {
                   onClick={() => setMobileOpen(false)}
                   className="rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
                 >
-                  Notifications
+                  {t('common.notifications')}
                 </Link>
                 <button
                   type="button"

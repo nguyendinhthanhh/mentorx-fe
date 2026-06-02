@@ -24,7 +24,7 @@ export interface NegotiationResponse {
   estimatedDurationDays?: number
   proposedStartDate?: string
   proposedDeliveryDate?: string
-  status: 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'COUNTERED'
+  status: 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'COUNTERED' | 'CANCELLED'
   createdAt: string
   respondedAt?: string
 }

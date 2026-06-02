@@ -1,6 +1,6 @@
-import { useParams, Link, useNavigate } from 'react-router-dom'
-import { useMutation, useQuery } from 'react-query'
 import { useMemo, useState } from 'react'
+import { Link, useNavigate, useParams } from 'react-router-dom'
+import { useMutation, useQuery } from 'react-query'
 import {
   Award,
   Calendar,
@@ -10,7 +10,6 @@ import {
   ExternalLink,
   Globe,
   Heart,
-  Mail,
   MessageSquare,
   Play,
   ShieldCheck,
@@ -18,14 +17,25 @@ import {
   Trophy,
   Users,
 } from 'lucide-react'
-import { mentorApi } from '@/api/mentorApi'
+
 import { chatApi } from '@/api/chatApi'
-import { useAuthStore } from '@/store/authStore'
-import ReviewList from '@/components/review/ReviewList'
+import { mentorApi } from '@/api/mentorApi'
+import { reviewApi } from '@/api/reviewApi'
+import { useI18n } from '@/i18n/I18nProvider'
 import ReviewForm from '@/components/review/ReviewForm'
-import MentorProfileEditor from './MentorProfileSetupPage'
-import { MentorProfileAssetResponse, MentorProfileAssetType, MentorProfileResponse, MessageType, ReviewTargetType } from '@/types'
+import ReviewList from '@/components/review/ReviewList'
+import { useAuthStore } from '@/store/authStore'
+import {
+  MentorProfileAssetResponse,
+  MentorProfileAssetType,
+  MentorProfileResponse,
+  MessageType,
+  ReviewTargetType,
+} from '@/types'
+import { formatMxc } from '@/utils/formatters'
 import { getMentorProofLinks } from '@/utils/proofLinks'
+
+import MentorProfileEditor from './MentorProfileSetupPage'
 
 const courseImages = [
   'https://images.unsplash.com/photo-1545239351-1141bd82e8a6?auto=format&fit=crop&w=900&q=80',
@@ -47,6 +57,7 @@ type ScheduleDay = { day: string; date: string; slots: string[]; today?: boolean
 export default function MentorPublicProfilePage() {
   const { userId } = useParams<{ userId: string }>()
   const navigate = useNavigate()
+  const { t, language } = useI18n()
   const { user } = useAuthStore()
   const [activeTab, setActiveTab] = useState<ProfileTab>('overview')
   const [isEditing, setIsEditing] = useState(false)
@@ -54,11 +65,9 @@ export default function MentorPublicProfilePage() {
   const [pendingAction, setPendingAction] = useState<string | null>(null)
   const [actionError, setActionError] = useState<string | null>(null)
 
-  const { data: mentor, isLoading } = useQuery(
-    ['mentor', userId],
-    () => mentorApi.getMentorProfile(userId!),
-    { enabled: !!userId }
-  )
+  const { data: mentor, isLoading } = useQuery(['mentor', userId], () => mentorApi.getMentorProfile(userId!), {
+    enabled: !!userId,
+  })
 
   const { data: packages = [], isLoading: packagesLoading } = useQuery(
     ['mentor-packages', userId],
@@ -89,6 +98,11 @@ export default function MentorPublicProfilePage() {
     () => mentorApi.isMentorSaved(user!.userId, userId!),
     { enabled: !!user?.userId && !!userId }
   )
+  const { data: canReviewMentor = false } = useQuery(
+    ['mentor-review-eligibility', user?.userId, userId],
+    () => reviewApi.canReviewMentor(userId!),
+    { enabled: !!user?.userId && !!userId }
+  )
 
   const saveMentorMutation = useMutation(
     (nextSaved: boolean) => {
@@ -96,9 +110,7 @@ export default function MentorPublicProfilePage() {
         throw new Error('Missing user or mentor id')
       }
 
-      return nextSaved
-        ? mentorApi.saveMentor(user.userId, userId)
-        : mentorApi.unsaveMentor(user.userId, userId)
+      return nextSaved ? mentorApi.saveMentor(user.userId, userId) : mentorApi.unsaveMentor(user.userId, userId)
     },
     {
       onSuccess: () => {
@@ -106,7 +118,7 @@ export default function MentorPublicProfilePage() {
       },
       onError: (error) => {
         console.error('Failed to update saved mentor status', error)
-        setActionError('Không thể cập nhật trạng thái lưu mentor lúc này. Vui lòng thử lại.')
+        setActionError(t('mentor.public.error.saved'))
       },
     }
   )
@@ -133,18 +145,17 @@ export default function MentorPublicProfilePage() {
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gray-100 text-gray-300 dark:bg-gray-900">
           <Users className="h-8 w-8" />
         </div>
-        <h2 className="mt-5 text-2xl font-black text-gray-950 dark:text-white">Mentor not found</h2>
-        <p className="mt-2 text-sm font-medium text-gray-500">This profile may have been removed or is not public.</p>
+        <h2 className="mt-5 text-2xl font-black text-gray-950 dark:text-white">{t('mentor.public.notFoundTitle')}</h2>
+        <p className="mt-2 text-sm font-medium text-gray-500">{t('mentor.public.notFoundBody')}</p>
         <Link to="/mentors" className="mt-6 inline-flex rounded-xl bg-blue-600 px-5 py-3 text-sm font-black text-white hover:bg-blue-700">
-          Browse mentors
+          {t('mentor.public.browseMentors')}
         </Link>
       </div>
     )
   }
 
   const name = mentor.user?.fullName || mentor.user?.displayName || 'Mentor'
-  const title = mentor.headline || 'Senior Product Designer'
-  
+  const title = mentor.headline || mentor.currentTitle || mentor.primaryDomain || 'Mentor'
   const mentoringPackages = packages
   const mentorCourses = courses
   const schedule = weeklyAvailability ? buildScheduleFromAPI(weeklyAvailability) : []
@@ -166,9 +177,7 @@ export default function MentorPublicProfilePage() {
     try {
       const roomPage = await chatApi.getUserRooms(user.userId, { size: 100 })
       const existingRoom = roomPage.content.find(
-        (room) =>
-          room.roomType === 'DIRECT_MESSAGE' &&
-          room.members.some((member) => member.userId === mentor.userId)
+        (room) => room.roomType === 'DIRECT_MESSAGE' && room.members.some((member) => member.userId === mentor.userId)
       )
 
       const room =
@@ -202,7 +211,7 @@ export default function MentorPublicProfilePage() {
       navigate('/chat')
     } catch (error) {
       console.error('Failed to open mentor chat', error)
-      setActionError('Không thể mở cuộc trò chuyện với mentor lúc này. Vui lòng thử lại.')
+      setActionError(t('mentor.public.error.chat'))
     } finally {
       setPendingAction(null)
     }
@@ -210,7 +219,9 @@ export default function MentorPublicProfilePage() {
 
   const requestBooking = () =>
     openMentorChat(
-      `Chào ${name}, mình muốn đặt lịch mentoring 1-1 với bạn. Bạn có thể tư vấn giúp mình khung giờ phù hợp không?`,
+      language === 'vi'
+        ? `Chào ${name}, tôi muốn đặt một buổi mentoring 1:1 với bạn. Bạn có thể giúp tôi tìm khung giờ phù hợp không?`
+        : `Hi ${name}, I'd like to book a 1:1 mentoring session with you. Can you help me find a suitable time?`,
       'book-profile'
     )
 
@@ -227,11 +238,11 @@ export default function MentorPublicProfilePage() {
   }
 
   const tabs: Array<{ key: ProfileTab; label: string }> = [
-    { key: 'overview', label: 'Tổng quan' },
-    { key: 'mentoring', label: 'Mentoring 1-1' },
-    { key: 'courses', label: 'Khóa học' },
-    { key: 'resources', label: 'Tài liệu' },
-    { key: 'reviews', label: 'Đánh giá' },
+    { key: 'overview', label: t('mentor.public.tabs.overview') },
+    { key: 'mentoring', label: t('mentor.public.tabs.mentoring') },
+    { key: 'courses', label: t('mentor.public.tabs.courses') },
+    { key: 'resources', label: t('mentor.public.tabs.resources') },
+    { key: 'reviews', label: t('mentor.public.tabs.reviews') },
   ]
 
   return (
@@ -241,8 +252,12 @@ export default function MentorPublicProfilePage() {
         className="inline-flex items-center gap-2 text-sm font-bold text-gray-500 transition-colors hover:text-blue-700 dark:text-gray-400 dark:hover:text-blue-300"
       >
         <ChevronLeft className="h-4 w-4" />
-        Quay lại danh sách mentor
+        {t('mentor.public.backToMentors')}
       </Link>
+
+      <div className="inline-flex rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-black uppercase tracking-[0.16em] text-blue-700 dark:border-blue-900 dark:bg-blue-950/30 dark:text-blue-200">
+        {t('mentor.profile.publicProfile')}
+      </div>
 
       <section className="grid gap-6 lg:grid-cols-[380px_minmax(0,1fr)]">
         <MentorIdentityCard
@@ -288,17 +303,21 @@ export default function MentorPublicProfilePage() {
 
       {(activeTab === 'overview' || activeTab === 'mentoring') && (
         <>
-          <SectionHeader title="Gói Mentoring 1-1 phổ biến" />
+          <SectionHeader title={t('mentor.public.featuredPackages')} />
+        
           {mentoringPackages.length > 0 ? (
             <div className="grid gap-5 md:grid-cols-3">
               {mentoringPackages.map((item, index) => (
                 <MentoringPackageCard
                   key={item.id || index}
                   item={item}
+                  language={language}
                   pending={pendingAction === `package-${item.id || index}`}
                   onBook={() =>
                     openMentorChat(
-                      `Chào ${name}, mình muốn đặt gói "${item.title}" (${formatPackagePrice(item)}). Bạn hỗ trợ mình bước tiếp theo nhé.`,
+                      language === 'vi'
+                        ? `Chào ${name}, tôi muốn đặt gói "${item.title}" (${formatPackagePrice(item, language)}). Bạn có thể hướng dẫn bước tiếp theo không?`
+                        : `Hi ${name}, I'd like to book the "${item.title}" package (${formatPackagePrice(item, language)}). Can you help me with the next step?`,
                       `package-${item.id || index}`
                     )
                   }
@@ -307,7 +326,7 @@ export default function MentorPublicProfilePage() {
             </div>
           ) : (
             <div className="rounded-3xl border border-gray-200 bg-gray-50 p-8 text-center dark:border-gray-800 dark:bg-gray-900">
-              <p className="text-sm font-medium text-gray-500">Mentor chưa tạo gói mentoring nào.</p>
+              <p className="text-sm font-medium text-gray-500">{t('mentor.public.noPackages')}</p>
             </div>
           )}
 
@@ -316,7 +335,9 @@ export default function MentorPublicProfilePage() {
             pendingAction={pendingAction}
             onBookSlot={(slotLabel) =>
               openMentorChat(
-                `Chào ${name}, mình muốn đặt lịch mentoring vào ${slotLabel}. Khung giờ này còn phù hợp không?`,
+                language === 'vi'
+                  ? `Chào ${name}, tôi muốn đặt một buổi mentoring vào ${slotLabel}. Khung giờ này còn trống không?`
+                  : `Hi ${name}, I'd like to book a mentoring session at ${slotLabel}. Is this time still available?`,
                 `slot-${slotLabel}`
               )
             }
@@ -326,17 +347,20 @@ export default function MentorPublicProfilePage() {
 
       {(activeTab === 'overview' || activeTab === 'courses') && (
         <>
-          <SectionHeader title="Khóa học nổi bật" />
+          <SectionHeader title={t('mentor.public.featuredCourses')} />
           {mentorCourses.length > 0 ? (
             <div className="grid gap-5 md:grid-cols-3">
               {mentorCourses.map((course, index) => (
                 <CourseCard
                   key={course.id || index}
                   course={course}
+                  language={language}
                   pending={pendingAction === `course-${course.id || index}`}
                   onAsk={() =>
                     openMentorChat(
-                      `Chào ${name}, mình muốn tìm hiểu thêm về khóa học "${course.title}". Bạn tư vấn giúp mình nhé.`,
+                      language === 'vi'
+                        ? `Chào ${name}, tôi muốn tìm hiểu thêm về khóa học "${course.title}". Bạn có thể tư vấn giúp tôi không?`
+                        : `Hi ${name}, I'd like to learn more about the course "${course.title}". Can you advise me?`,
                       `course-${course.id || index}`
                     )
                   }
@@ -345,7 +369,7 @@ export default function MentorPublicProfilePage() {
             </div>
           ) : (
             <div className="rounded-3xl border border-gray-200 bg-gray-50 p-8 text-center dark:border-gray-800 dark:bg-gray-900">
-              <p className="text-sm font-medium text-gray-500">Mentor chưa xuất bản khóa học nào.</p>
+              <p className="text-sm font-medium text-gray-500">{t('mentor.public.noCourses')}</p>
             </div>
           )}
         </>
@@ -353,10 +377,8 @@ export default function MentorPublicProfilePage() {
 
       {(activeTab === 'overview' || activeTab === 'resources') && (
         <>
-          <SectionHeader title="Tài liệu hữu ích" />
-          <div className="rounded-3xl border border-gray-200 bg-gray-50 p-8 text-center dark:border-gray-800 dark:bg-gray-900">
-            <p className="text-sm font-medium text-gray-500">Mentor chưa có tài liệu công khai từ API.</p>
-          </div>
+          <SectionHeader title={t('mentor.public.publicResources')} />
+          <ResourcesPanel mentor={mentor} assets={assets} />
         </>
       )}
 
@@ -364,21 +386,30 @@ export default function MentorPublicProfilePage() {
         <section className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-950">
           <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h2 className="text-2xl font-black text-gray-950 dark:text-white">Đánh giá từ học viên</h2>
+              <h2 className="text-2xl font-black text-gray-950 dark:text-white">{t('mentor.public.learnerReviews')}</h2>
               <p className="mt-1 text-sm font-medium text-gray-500">
-                {mentor.totalReviews} đánh giá, điểm trung bình {mentor.averageRating?.toFixed(1) || 'N/A'}.
+                {t('mentor.public.reviewSummary', {
+                  count: mentor.totalReviews,
+                  rating: mentor.averageRating?.toFixed(1) || 'N/A',
+                })}
               </p>
             </div>
-            {user && !isOwnProfile && !showReviewForm && (
+            {user && !isOwnProfile && canReviewMentor && !showReviewForm && (
               <button
                 type="button"
                 onClick={() => setShowReviewForm(true)}
                 className="inline-flex h-11 items-center justify-center rounded-xl bg-blue-600 px-5 text-sm font-black text-white transition-colors hover:bg-blue-700"
               >
-                Viết đánh giá
+                {t('mentor.public.writeReview')}
               </button>
             )}
           </div>
+
+          {user && !isOwnProfile && !canReviewMentor && (
+            <div className="mb-6 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-600">
+              {t('mentor.public.reviewLocked')}
+            </div>
+          )}
 
           {showReviewForm && (
             <div className="mb-6">
@@ -425,6 +456,7 @@ function MentorIdentityCard({
   pendingAction: string | null
   isOwnProfile: boolean
 }) {
+  const { t } = useI18n()
   const proofLinks = getMentorProofLinks(mentor)
 
   return (
@@ -437,8 +469,11 @@ function MentorIdentityCard({
       </div>
 
       <div className="mt-5 text-center">
-        <div className="mb-3 inline-flex rounded-full bg-violet-50 px-3 py-1 text-xs font-black text-violet-700 dark:bg-violet-950/40 dark:text-violet-300">
-          Đã xác minh
+        <div className="mb-3 inline-flex rounded-full bg-blue-50 px-3 py-1 text-[11px] font-black uppercase tracking-[0.16em] text-blue-700 dark:bg-blue-950/40 dark:text-blue-300">
+          {t('mentor.profile.publicProfile')}
+        </div>
+        <div className="mb-3 ml-2 inline-flex rounded-full bg-violet-50 px-3 py-1 text-xs font-black text-violet-700 dark:bg-violet-950/40 dark:text-violet-300">
+          {t('mentor.public.verified')}
         </div>
         <h1 className="text-2xl font-black tracking-tight text-gray-950 dark:text-white">{name}</h1>
         <p className="mt-1 text-sm font-medium text-gray-500 dark:text-gray-400">{title}</p>
@@ -446,7 +481,7 @@ function MentorIdentityCard({
           <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
           {mentor.averageRating?.toFixed(1) || 'N/A'}
           <span className="h-4 w-px bg-gray-200 dark:bg-gray-700" />
-          <span className="text-gray-500">{mentor.totalReviews} đánh giá</span>
+          <span className="text-gray-500">{t('mentor.public.ratingReviews', { count: mentor.totalReviews })}</span>
         </div>
       </div>
 
@@ -457,7 +492,7 @@ function MentorIdentityCard({
             onClick={onEdit}
             className="h-12 w-full rounded-2xl bg-blue-600 text-sm font-black text-white shadow-lg shadow-blue-600/20 transition-colors hover:bg-blue-700 dark:bg-blue-600 dark:text-white dark:hover:bg-blue-700"
           >
-            Chỉnh sửa hồ sơ
+            {t('mentor.public.editProfile')}
           </button>
         ) : (
           <>
@@ -467,7 +502,7 @@ function MentorIdentityCard({
               disabled={!!pendingAction}
               className="h-12 w-full rounded-2xl bg-blue-600 text-sm font-black text-white shadow-lg shadow-blue-600/20 transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:shadow-none dark:disabled:bg-gray-800"
             >
-              {pendingAction === 'book-profile' ? 'Đang mở chat...' : 'Đặt lịch 1-1'}
+              {pendingAction === 'book-profile' ? t('mentor.public.openingChat') : t('mentor.public.bookSession')}
             </button>
             <button
               type="button"
@@ -476,23 +511,27 @@ function MentorIdentityCard({
               className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-2xl border border-blue-200 text-sm font-black text-blue-700 transition-colors hover:bg-blue-50 disabled:cursor-not-allowed disabled:border-gray-200 disabled:text-gray-400 disabled:hover:bg-transparent dark:border-blue-900 dark:text-blue-300 dark:hover:bg-blue-950/30 dark:disabled:border-gray-800"
             >
               <MessageSquare className="h-4 w-4" />
-              {pendingAction === 'message' ? 'Đang mở...' : 'Nhắn tin'}
+              {pendingAction === 'message' ? t('mentor.public.opening') : t('mentor.public.messageMentor')}
             </button>
           </>
         )}
       </div>
 
       <div className="mt-7 grid grid-cols-2 gap-4 border-t border-gray-100 pt-5 dark:border-gray-800">
-        <ProfileMiniStat label="Tỷ lệ phản hồi" value={`${mentor.successRate || 98}%`} />
+        <ProfileMiniStat label={t('mentor.public.responseRate')} value={`${mentor.successRate || 98}%`} />
         <ProfileMiniStat
-          label="Response time"
-          value={mentor.responseTimeHours ? `Usually responds within ${mentor.responseTimeHours} hours` : 'Response time will be calculated after more activity.'}
+          label={t('mentor.public.responseTime')}
+          value={
+            mentor.responseTimeHours
+              ? t('mentor.public.responseWithinHours', { hours: mentor.responseTimeHours })
+              : t('mentor.public.responseCalculated')
+          }
         />
       </div>
 
       {proofLinks.length > 0 && (
         <div className="mt-7 space-y-2 border-t border-gray-100 pt-5 dark:border-gray-800">
-          <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Proof links</p>
+          <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">{t('mentor.public.proofLinks')}</p>
           <div className="flex flex-wrap gap-2">
             {proofLinks.map((link) => (
               <a
@@ -514,7 +553,7 @@ function MentorIdentityCard({
         type="button"
         onClick={onToggleSaved}
         disabled={savingMentor || isOwnProfile}
-        title={saved ? 'Bỏ lưu mentor' : 'Lưu mentor'}
+        title={saved ? t('mentor.public.removeSaved') : t('mentor.public.saveMentor')}
         className={`mt-5 inline-flex h-10 w-full items-center justify-center gap-2 rounded-xl text-sm font-bold transition-colors ${
           saved
             ? 'bg-rose-50 text-rose-700 dark:bg-rose-950/30 dark:text-rose-300'
@@ -522,15 +561,21 @@ function MentorIdentityCard({
         }`}
       >
         <Heart className={`h-4 w-4 ${saved ? 'fill-current' : ''}`} />
-        {savingMentor ? 'Đang cập nhật...' : saved ? 'Đã lưu mentor' : 'Lưu mentor'}
+        {savingMentor ? t('mentor.public.updating') : saved ? t('mentor.public.savedMentor') : t('mentor.public.saveMentor')}
       </button>
     </aside>
   )
 }
 
 function IntroPanel({ mentor, name, assets }: { mentor: MentorProfileResponse; name: string; assets: MentorProfileAssetResponse[] }) {
-  const experiences = assets.filter(a => a.type === MentorProfileAssetType.EXPERIENCE)
-  const achievements = assets.filter(a => a.type === MentorProfileAssetType.ACHIEVEMENT)
+  const { t, language } = useI18n()
+  const experiences = assets.filter((asset) => asset.type === MentorProfileAssetType.EXPERIENCE)
+  const achievements = assets.filter((asset) => asset.type === MentorProfileAssetType.ACHIEVEMENT)
+  const proofLinks = getMentorProofLinks(mentor)
+  const professionalSummary =
+    mentor.professionalBio ||
+    mentor.helpDescription ||
+    t('mentor.public.fallbackBio', { name })
 
   return (
     <section className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-950 lg:p-8">
@@ -538,36 +583,87 @@ function IntroPanel({ mentor, name, assets }: { mentor: MentorProfileResponse; n
         <div>
           <h2 className="flex items-center gap-2 text-xl font-black text-gray-950 dark:text-white">
             <Users className="h-5 w-5 text-blue-600" />
-            Giới thiệu bản thân
+            {t('mentor.public.professionalOverview')}
           </h2>
-          <p className="mt-4 text-sm leading-7 text-gray-600 dark:text-gray-400">
-            {mentor.user?.bio ||
-              `Xin chào, mình là ${name}. Mình có ${mentor.yearsOfExperience || 8} năm kinh nghiệm trong lĩnh vực mentoring và sản phẩm số. Mình hỗ trợ học viên định hướng kỹ năng, review công việc thực tế và xây dựng lộ trình phát triển rõ ràng.`}
-          </p>
+          <p className="mt-4 text-sm leading-7 text-gray-600 dark:text-gray-400">{professionalSummary}</p>
+
+          <div className="mt-6 grid gap-3 md:grid-cols-2">
+            <ProfileDetailCard
+              icon={<Globe className="h-4 w-4 text-blue-600" />}
+              label={t('mentor.public.primaryDomain')}
+              value={mentor.primaryDomain || t('common.notSpecifiedYet')}
+            />
+            <ProfileDetailCard
+              icon={<Clock className="h-4 w-4 text-blue-600" />}
+              label={t('mentor.public.typicalRate')}
+              value={
+                mentor.hourlyRateMxc
+                  ? t('mentor.public.ratePerHour', { amount: formatMxc(mentor.hourlyRateMxc, language) })
+                  : t('common.contact')
+              }
+            />
+            <ProfileDetailCard
+              icon={<Calendar className="h-4 w-4 text-blue-600" />}
+              label={t('mentor.public.experience')}
+              value={mentor.yearsOfExperience ? t('mentor.public.yearsCount', { count: mentor.yearsOfExperience }) : t('common.notSpecifiedYet')}
+            />
+            <ProfileDetailCard
+              icon={<ExternalLink className="h-4 w-4 text-blue-600" />}
+              label={t('mentor.public.portfolio')}
+              value={mentor.portfolioUrl ? t('mentor.public.openPortfolio') : t('mentor.public.noPublicPortfolioYet')}
+              href={mentor.portfolioUrl}
+            />
+          </div>
+
+          <div className="mt-6">
+            <p className="mb-3 text-sm font-black text-gray-950 dark:text-white">{t('mentor.public.skills')}</p>
+            <div className="flex flex-wrap gap-2">
+              {(mentor.skills || []).length > 0 ? (
+                mentor.skills!.map((skill) => (
+                  <span
+                    key={skill}
+                    className="inline-flex rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700 dark:border-blue-900 dark:bg-blue-950/30 dark:text-blue-200"
+                  >
+                    {skill}
+                  </span>
+                ))
+              ) : (
+                <span className="text-sm font-medium text-gray-500">{t('mentor.public.noSkillsListedYet')}</span>
+              )}
+            </div>
+          </div>
 
           <div className="mt-6 overflow-hidden rounded-2xl bg-gray-950">
             <div className="relative aspect-video">
-              <img src={introImage} alt="Mentor intro video" className="h-full w-full object-cover opacity-75" />
-              <button className="absolute left-1/2 top-1/2 flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-gray-950 shadow-xl transition-transform hover:scale-105">
-                <Play className="ml-1 h-7 w-7 fill-current" />
-              </button>
+              <img src={introImage} alt={t('mentor.public.videoAlt')} className="h-full w-full object-cover opacity-75" />
+              {mentor.videoIntroUrl ? (
+                <a
+                  href={mentor.videoIntroUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="absolute left-1/2 top-1/2 flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-gray-950 shadow-xl transition-transform hover:scale-105"
+                >
+                  <Play className="ml-1 h-7 w-7 fill-current" />
+                </a>
+              ) : (
+                <div className="absolute left-1/2 top-1/2 flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-gray-950 shadow-xl">
+                  <Play className="ml-1 h-7 w-7 fill-current" />
+                </div>
+              )}
             </div>
           </div>
 
           <div className="mt-6">
-            <p className="mb-3 text-sm font-black text-gray-950 dark:text-white">Đã từng làm việc tại:</p>
+            <p className="mb-3 text-sm font-black text-gray-950 dark:text-white">{t('mentor.public.experienceHighlights')}</p>
             <div className="flex flex-wrap items-center gap-5 text-xl font-black text-gray-900 dark:text-gray-100">
               {experiences.length > 0 ? (
                 experiences.map((exp) => (
-                  <span key={exp.id} className="text-blue-700">{exp.title}</span>
+                  <span key={exp.id} className="text-blue-700">
+                    {exp.title}
+                  </span>
                 ))
               ) : (
-                <>
-                  <span className="text-blue-700">TechCorp</span>
-                  <span className="text-amber-600">InnovateHub</span>
-                  <span className="tracking-tight text-gray-500">Google</span>
-                  <span className="text-sm font-bold text-gray-500">UX Certificate</span>
-                </>
+                <span className="text-sm font-medium text-gray-500">{t('mentor.public.noPublicExperienceYet')}</span>
               )}
             </div>
           </div>
@@ -576,28 +672,33 @@ function IntroPanel({ mentor, name, assets }: { mentor: MentorProfileResponse; n
         <div className="rounded-2xl bg-gray-50 p-5 dark:bg-gray-900">
           <h3 className="mb-4 flex items-center gap-2 text-sm font-black text-gray-950 dark:text-white">
             <Trophy className="h-4 w-4 text-blue-600" />
-            Thành tựu nổi bật
+            {t('mentor.public.publicProofAchievements')}
           </h3>
           <div className="space-y-3">
+            {proofLinks.map((link) => (
+              <a
+                key={`${link.label}-${link.url}`}
+                href={link.url}
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center gap-2 text-sm font-medium text-blue-700 hover:text-blue-800 dark:text-blue-300"
+              >
+                <ExternalLink className="h-4 w-4 flex-none" />
+                <span>{link.label}</span>
+              </a>
+            ))}
             {achievements.length > 0 ? (
-              achievements.map((ach) => (
-                <div key={ach.id} className="flex gap-2 text-sm font-medium text-gray-600 dark:text-gray-400">
+              achievements.map((achievement) => (
+                <div key={achievement.id} className="flex gap-2 text-sm font-medium text-gray-600 dark:text-gray-400">
                   <Award className="mt-0.5 h-4 w-4 flex-none text-amber-500" />
-                  <span>{ach.title}</span>
+                  <span>{achievement.title}</span>
                 </div>
               ))
             ) : (
-              [
-                'Vietnam Design Award 2024 - Best UX App',
-                'Top Mentor của năm 2023',
-                'Google UX Certificate Professional',
-                `${mentor.totalReviews} đánh giá từ học viên`,
-              ].map((item) => (
-                <div key={item} className="flex gap-2 text-sm font-medium text-gray-600 dark:text-gray-400">
-                  <Award className="mt-0.5 h-4 w-4 flex-none text-amber-500" />
-                  <span>{item}</span>
-                </div>
-              ))
+              <div className="flex gap-2 text-sm font-medium text-gray-600 dark:text-gray-400">
+                <Award className="mt-0.5 h-4 w-4 flex-none text-amber-500" />
+                <span>{t('mentor.public.noPublicAchievementsYet')}</span>
+              </div>
             )}
           </div>
         </div>
@@ -606,12 +707,96 @@ function IntroPanel({ mentor, name, assets }: { mentor: MentorProfileResponse; n
   )
 }
 
-function MentoringPackageCard({ item, onBook, pending }: { item: any; onBook: () => void; pending: boolean }) {
-  // Handle both API response and mock data structure
-  const duration = item.durationHours ? `${item.durationHours * 60} phút` : item.duration || '60 phút'
+function ResourcesPanel({ mentor, assets }: { mentor: MentorProfileResponse; assets: MentorProfileAssetResponse[] }) {
+  const { t } = useI18n()
+  const documents = assets.filter((asset) => asset.type === MentorProfileAssetType.DOCUMENT)
+  const proofLinks = getMentorProofLinks(mentor)
+
+  if (documents.length === 0 && proofLinks.length === 0 && !mentor.portfolioUrl && !mentor.cvUrl && !mentor.certificateUrl) {
+    return (
+      <div className="rounded-3xl border border-gray-200 bg-gray-50 p-8 text-center dark:border-gray-800 dark:bg-gray-900">
+        <p className="text-sm font-medium text-gray-500">{t('mentor.public.noResources')}</p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="grid gap-4 md:grid-cols-2">
+      {mentor.portfolioUrl && (
+        <ResourceCard title={t('mentor.public.resource.portfolio')} description={t('mentor.public.resource.portfolioDescription')} href={mentor.portfolioUrl} />
+      )}
+      {mentor.cvUrl && <ResourceCard title={t('mentor.public.resource.resume')} description={t('mentor.public.resource.resumeDescription')} href={mentor.cvUrl} />}
+      {mentor.certificateUrl && (
+        <ResourceCard title={t('mentor.public.resource.certificate')} description={t('mentor.public.resource.certificateDescription')} href={mentor.certificateUrl} />
+      )}
+      {proofLinks.map((link) => (
+        <ResourceCard key={`${link.label}-${link.url}`} title={link.label} description={t('mentor.public.resource.proofDescription')} href={link.url} />
+      ))}
+      {documents.map((document) => (
+        <ResourceCard
+          key={document.id}
+          title={document.title}
+          description={document.description || document.issuer || t('mentor.public.resource.documentDescription')}
+          href={document.fileUrl}
+        />
+      ))}
+    </div>
+  )
+}
+
+function ResourceCard({ title, description, href }: { title: string; description: string; href?: string }) {
+  const { t } = useI18n()
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      className="rounded-3xl border border-gray-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-gray-800 dark:bg-gray-950"
+    >
+      <div className="flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.16em] text-gray-500">
+        <ExternalLink className="h-4 w-4 text-blue-600" />
+        {t('mentor.public.resource.label')}
+      </div>
+      <h3 className="mt-3 text-lg font-black text-gray-950 dark:text-white">{title}</h3>
+      <p className="mt-2 text-sm text-gray-500">{description}</p>
+    </a>
+  )
+}
+
+function ProfileDetailCard({
+  icon,
+  label,
+  value,
+  href,
+}: {
+  icon: React.ReactNode
+  label: string
+  value: string
+  href?: string
+}) {
+  return (
+    <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-900">
+      <div className="flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.16em] text-gray-500">
+        {icon}
+        {label}
+      </div>
+      {href ? (
+        <a href={href} target="_blank" rel="noreferrer" className="mt-1 inline-flex text-sm font-black text-blue-700 hover:text-blue-800 dark:text-blue-300">
+          {value}
+        </a>
+      ) : (
+        <p className="mt-1 text-sm font-black text-gray-950 dark:text-white">{value}</p>
+      )}
+    </div>
+  )
+}
+
+function MentoringPackageCard({ item, onBook, pending, language }: { item: any; onBook: () => void; pending: boolean; language: 'en' | 'vi' }) {
+  const { t } = useI18n()
+  const duration = item.durationHours ? `${item.durationHours * 60} min` : item.duration || '60 min'
   const title = item.title
   const description = item.description
-  const price = formatPackagePrice(item)
+  const price = formatPackagePrice(item, language)
   const features = item.features || []
 
   return (
@@ -641,18 +826,18 @@ function MentoringPackageCard({ item, onBook, pending }: { item: any; onBook: ()
         disabled={pending}
         className="mt-6 h-11 w-full rounded-2xl bg-blue-600 text-sm font-black text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-300 dark:disabled:bg-gray-800"
       >
-        {pending ? 'Đang mở chat...' : 'Đặt lịch'}
+        {pending ? t('mentor.public.openingChat') : t('mentor.public.package.book')}
       </button>
     </article>
   )
 }
 
-function formatPackagePrice(item: any) {
+function formatPackagePrice(item: any, language: 'en' | 'vi') {
   if (item.priceMxc !== undefined && item.priceMxc !== null) {
-    return `${Math.round(Number(item.priceMxc))} MXC`
+    return formatMxc(item.priceMxc, language)
   }
 
-  return item.price || 'Liên hệ'
+  return item.price || (language === 'vi' ? 'Liên hệ' : 'Contact')
 }
 
 function SchedulePanel({
@@ -664,72 +849,78 @@ function SchedulePanel({
   pendingAction: string | null
   onBookSlot: (slotLabel: string) => void
 }) {
+  const { t } = useI18n()
   return (
     <section className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-950">
       <div className="mb-5 flex items-center justify-between gap-3">
         <div>
           <h2 className="flex items-center gap-2 text-2xl font-black text-gray-950 dark:text-white">
             <Calendar className="h-5 w-5 text-blue-600" />
-            Lịch trống tuần này
+            {t('mentor.public.schedule.title')}
           </h2>
-          <p className="mt-1 text-sm font-medium text-gray-500">Chọn khung giờ phù hợp để đặt lịch ngay.</p>
+          <p className="mt-1 text-sm font-medium text-gray-500">{t('mentor.public.schedule.subtitle')}</p>
         </div>
       </div>
       {schedule.length > 0 ? (
         <div className="grid grid-cols-2 gap-3 md:grid-cols-7">
-        {schedule.map((day) => (
-          <div
-            key={day.day}
-            className={`rounded-2xl border p-3 text-center ${
-              day.today
-                ? 'border-blue-200 bg-blue-50 shadow-md shadow-blue-100 dark:border-blue-900 dark:bg-blue-950/30 dark:shadow-none'
-                : 'border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-900'
-            }`}
-          >
-            <p className="text-xs font-bold text-gray-500">{day.day}</p>
-            <p className="mt-1 text-base font-black text-gray-950 dark:text-white">{day.date}</p>
-            <div className="mt-3 space-y-2">
-              {day.slots.length ? (
-                day.slots.map((slot) => (
-                  <button
-                    type="button"
-                    key={slot}
-                    onClick={() => onBookSlot(`${day.day} ${day.date} ${slot}`)}
-                    disabled={pendingAction === `slot-${day.day} ${day.date} ${slot}`}
-                    className={`h-7 w-full rounded-full text-xs font-black ${
-                      day.today
-                        ? 'bg-blue-600 text-white'
-                        : 'border border-blue-300 bg-white text-blue-700 hover:bg-blue-50 dark:border-blue-900 dark:bg-gray-950 dark:text-blue-300'
-                    }`}
-                  >
-                    {slot}
-                  </button>
-                ))
-              ) : (
-                <span className="inline-flex h-7 w-full items-center justify-center rounded-full bg-gray-200 text-xs font-bold text-gray-400 dark:bg-gray-800">
-                  {day.off ? 'Nghỉ' : 'Đã kín'}
-                </span>
-              )}
+          {schedule.map((day) => (
+            <div
+              key={day.day}
+              className={`rounded-2xl border p-3 text-center ${
+                day.today
+                  ? 'border-blue-200 bg-blue-50 shadow-md shadow-blue-100 dark:border-blue-900 dark:bg-blue-950/30 dark:shadow-none'
+                  : 'border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-900'
+              }`}
+            >
+              <p className="text-xs font-bold text-gray-500">{day.day}</p>
+              <p className="mt-1 text-base font-black text-gray-950 dark:text-white">{day.date}</p>
+              <div className="mt-3 space-y-2">
+                {day.slots.length ? (
+                  day.slots.map((slot) => (
+                    <button
+                      type="button"
+                      key={slot}
+                      onClick={() => onBookSlot(`${day.day} ${day.date} ${slot}`)}
+                      disabled={pendingAction === `slot-${day.day} ${day.date} ${slot}`}
+                      className={`h-7 w-full rounded-full text-xs font-black ${
+                        day.today
+                          ? 'bg-blue-600 text-white'
+                          : 'border border-blue-300 bg-white text-blue-700 hover:bg-blue-50 dark:border-blue-900 dark:bg-gray-950 dark:text-blue-300'
+                      }`}
+                    >
+                      {slot}
+                    </button>
+                  ))
+                ) : (
+                  <span className="inline-flex h-7 w-full items-center justify-center rounded-full bg-gray-200 text-xs font-bold text-gray-400 dark:bg-gray-800">
+                    {day.off ? t('mentor.public.schedule.off') : t('mentor.public.schedule.full')}
+                  </span>
+                )}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
         </div>
       ) : (
         <div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50 p-6 text-center text-sm font-medium text-gray-500 dark:border-gray-800 dark:bg-gray-900">
-          Mentor chưa cấu hình lịch trống công khai.
+          {t('mentor.public.schedule.noAvailability')}
         </div>
       )}
     </section>
   )
 }
 
-function CourseCard({ course, onAsk, pending }: { course: any; onAsk: () => void; pending: boolean }) {
-  // Handle both API response and mock data structure
+function CourseCard({ course, onAsk, pending, language: _language }: { course: any; onAsk: () => void; pending: boolean; language?: 'en' | 'vi' }) {
+  const { t } = useI18n()
   const title = course.title
   const lessonsCount = course.lessonsCount || course.lessons || 0
   const image = course.thumbnailUrl || course.image || courseImages[0]
   const level = course.level || 'BEGINNER'
-  const levelText = level === 'BEGINNER' ? 'Cơ bản' : level === 'INTERMEDIATE' ? 'Trung cấp' : 'Nâng cao'
+  const levelText =
+    level === 'BEGINNER'
+      ? t('mentor.public.course.beginner')
+      : level === 'INTERMEDIATE'
+        ? t('mentor.public.course.intermediate')
+        : t('mentor.public.course.advanced')
 
   return (
     <article className="overflow-hidden rounded-3xl border border-gray-200 bg-white p-4 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg dark:border-gray-800 dark:bg-gray-950">
@@ -737,7 +928,7 @@ function CourseCard({ course, onAsk, pending }: { course: any; onAsk: () => void
       <h3 className="mt-4 text-lg font-black text-gray-950 dark:text-white">{title}</h3>
       <p className="mt-1 flex items-center gap-1.5 text-sm font-medium text-gray-500">
         <Clock className="h-4 w-4" />
-        {lessonsCount} bài học · {levelText}
+        {t('mentor.public.course.lessons', { count: lessonsCount })} · {levelText}
       </p>
       <button
         type="button"
@@ -745,7 +936,7 @@ function CourseCard({ course, onAsk, pending }: { course: any; onAsk: () => void
         disabled={pending}
         className="mt-4 h-10 w-full rounded-2xl border border-blue-300 text-sm font-black text-blue-700 transition-colors hover:bg-blue-50 disabled:cursor-not-allowed disabled:border-gray-200 disabled:text-gray-400 disabled:hover:bg-transparent dark:border-blue-900 dark:text-blue-300 dark:hover:bg-blue-950/30 dark:disabled:border-gray-800"
       >
-        {pending ? 'Đang mở chat...' : 'Hỏi về khóa học'}
+        {pending ? t('mentor.public.openingChat') : t('mentor.public.course.ask')}
       </button>
     </article>
   )
@@ -788,20 +979,19 @@ function ProfileSkeleton() {
 
 function buildScheduleFromAPI(weeklyAvailability: any): ScheduleDay[] {
   const today = new Date()
-  const dayNames = ['CN', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7']
-  const schedule = []
+  const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+  const schedule: ScheduleDay[] = []
 
-  for (let i = 0; i < 7; i++) {
+  for (let i = 0; i < 7; i += 1) {
     const date = new Date(today)
     date.setDate(today.getDate() + i)
-    const dayOfWeek = date.getDay() === 0 ? 7 : date.getDay() // Convert Sunday from 0 to 7
+    const dayOfWeek = date.getDay() === 0 ? 7 : date.getDay()
     const dateStr = `${date.getDate()}/${date.getMonth() + 1}`
-    const dayName = i === 0 ? 'Hôm nay' : dayNames[date.getDay()]
+    const dayName = i === 0 ? 'Today' : dayNames[date.getDay()]
 
     const timeSlots = weeklyAvailability?.weeklySchedule?.[dayOfWeek] || []
-    const slots = timeSlots.map((slot: any) => slot.startTime.substring(0, 5)) // Extract HH:mm
+    const slots = timeSlots.map((slot: any) => slot.startTime.substring(0, 5))
 
-    // Check if date is blocked
     const isBlocked = weeklyAvailability?.blockedDates?.some((blockedDate: string) => {
       const blocked = new Date(blockedDate)
       return blocked.toDateString() === date.toDateString()

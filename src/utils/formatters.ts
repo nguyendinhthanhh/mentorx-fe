@@ -1,4 +1,20 @@
+import { isLanguage, LANGUAGE_STORAGE_KEY, Language } from '@/i18n/translations'
+
 type DisplayAmount = number | string | null | undefined
+
+const localeMap: Record<Language, string> = {
+  en: 'en-US',
+  vi: 'vi-VN',
+}
+
+const relativeTimeLabels: Array<{ unit: Intl.RelativeTimeFormatUnit; seconds: number }> = [
+  { unit: 'year', seconds: 60 * 60 * 24 * 365 },
+  { unit: 'month', seconds: 60 * 60 * 24 * 30 },
+  { unit: 'week', seconds: 60 * 60 * 24 * 7 },
+  { unit: 'day', seconds: 60 * 60 * 24 },
+  { unit: 'hour', seconds: 60 * 60 },
+  { unit: 'minute', seconds: 60 },
+]
 
 const toNumericValue = (value: DisplayAmount): number => {
   if (typeof value === 'number') {
@@ -15,20 +31,46 @@ const toNumericValue = (value: DisplayAmount): number => {
   return 0
 }
 
-export const formatMxc = (amount: DisplayAmount): string => {
-  const numeric = toNumericValue(amount)
-  return `${new Intl.NumberFormat('en-US', {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 3,
-  }).format(numeric)} MXC`
+export function resolveLanguage(language?: Language): Language {
+  if (language) return language
+  if (typeof window !== 'undefined') {
+    const stored = window.localStorage.getItem(LANGUAGE_STORAGE_KEY)
+    if (isLanguage(stored)) return stored
+  }
+  if (typeof navigator !== 'undefined' && navigator.language.toLowerCase().startsWith('vi')) {
+    return 'vi'
+  }
+  return 'en'
 }
 
-export const formatFiatCurrency = (amount: DisplayAmount, currency: string = 'VND'): string => {
+function getLocale(language?: Language): string {
+  return localeMap[resolveLanguage(language)]
+}
+
+export const formatNumber = (value: DisplayAmount, language?: Language): string => {
+  const numeric = toNumericValue(value)
+  return new Intl.NumberFormat(getLocale(language), {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 3,
+  }).format(numeric)
+}
+
+export const formatMxc = (amount: DisplayAmount, language?: Language): string => {
+  return `${formatNumber(amount, language)} MXC`
+}
+
+export const formatCurrencyMxc = formatMxc
+
+export const formatFiatCurrency = (
+  amount: DisplayAmount,
+  currency: string = 'VND',
+  language?: Language
+): string => {
   const numeric = toNumericValue(amount)
   const normalizedCurrency = currency.toUpperCase()
   const fractionDigits = normalizedCurrency === 'VND' ? 0 : 2
 
-  return `${new Intl.NumberFormat(normalizedCurrency === 'VND' ? 'vi-VN' : 'en-US', {
+  return `${new Intl.NumberFormat(getLocale(language), {
     minimumFractionDigits: 0,
     maximumFractionDigits: fractionDigits,
   }).format(numeric)} ${normalizedCurrency}`
@@ -37,49 +79,64 @@ export const formatFiatCurrency = (amount: DisplayAmount, currency: string = 'VN
 export const formatExchangeRate = (
   rate: DisplayAmount,
   fromCurrency: string,
-  toCurrency: string = 'VND'
+  toCurrency: string = 'VND',
+  language?: Language
 ): string => {
   const numeric = toNumericValue(rate)
-  return `1 ${fromCurrency.toUpperCase()} = ${formatFiatCurrency(numeric, toCurrency)}`
+  return `1 ${fromCurrency.toUpperCase()} = ${formatFiatCurrency(numeric, toCurrency, language)}`
 }
 
-export const formatCurrency = (amount: DisplayAmount, currency: string = 'MXC'): string => {
+export const formatCurrency = (
+  amount: DisplayAmount,
+  currency: string = 'MXC',
+  language?: Language
+): string => {
   return currency.toUpperCase() === 'MXC'
-    ? formatMxc(amount)
-    : formatFiatCurrency(amount, currency)
+    ? formatMxc(amount, language)
+    : formatFiatCurrency(amount, currency, language)
 }
 
-export const formatDate = (date: string | Date): string => {
-  return new Date(date).toLocaleDateString('en-US', {
+export const formatDate = (date: string | Date, language?: Language): string => {
+  return new Intl.DateTimeFormat(getLocale(language), {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
-  })
+  }).format(new Date(date))
 }
 
-export const formatDateTime = (date: string | Date): string => {
-  return new Date(date).toLocaleString('en-US', {
+export const formatDateTime = (date: string | Date, language?: Language): string => {
+  return new Intl.DateTimeFormat(getLocale(language), {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
-  })
+  }).format(new Date(date))
 }
 
-export const formatRelativeTime = (date: string | Date): string => {
+export const formatRelativeTime = (date: string | Date, language?: Language): string => {
+  const currentLanguage = resolveLanguage(language)
+  const locale = getLocale(currentLanguage)
   const now = new Date()
-  const past = new Date(date)
-  const diffInSeconds = Math.floor((now.getTime() - past.getTime()) / 1000)
+  const target = new Date(date)
+  const diffInSeconds = Math.floor((target.getTime() - now.getTime()) / 1000)
+  const absoluteSeconds = Math.abs(diffInSeconds)
 
-  if (diffInSeconds < 60) return 'just now'
-  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`
-  if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`
-  if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)} days ago`
-  return formatDate(date)
+  if (absoluteSeconds < 45) {
+    return currentLanguage === 'vi' ? 'vừa xong' : 'just now'
+  }
+
+  for (const entry of relativeTimeLabels) {
+    if (absoluteSeconds >= entry.seconds) {
+      const value = Math.round(diffInSeconds / entry.seconds)
+      return new Intl.RelativeTimeFormat(locale, { numeric: 'auto' }).format(value, entry.unit)
+    }
+  }
+
+  return formatDate(date, currentLanguage)
 }
 
 export const truncateText = (text: string, maxLength: number): string => {
   if (text.length <= maxLength) return text
-  return text.substring(0, maxLength) + '...'
+  return `${text.substring(0, maxLength)}...`
 }

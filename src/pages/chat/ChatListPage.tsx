@@ -34,6 +34,7 @@ export default function ChatListPage() {
   const scrollRef = useRef<HTMLDivElement>(null)
   const [searchParams, setSearchParams] = useSearchParams()
   const targetUserId = searchParams.get('userId')
+  const targetRoomId = searchParams.get('conversationId') || searchParams.get('roomId')
 
   const { data: rooms, isLoading: roomsLoading, refetch: refetchRooms } = useQuery(
     ['chatRooms', user?.userId],
@@ -67,6 +68,15 @@ export default function ChatListPage() {
 
   useEffect(() => {
     if (roomsLoading || !user?.userId) return
+
+    if (targetRoomId) {
+      const existingRoom = roomList.find((room) => room.id === targetRoomId)
+      if (existingRoom) {
+        setSelectedRoomId(existingRoom.id)
+        setSearchParams({})
+      }
+      return
+    }
 
     if (targetUserId) {
       const existingRoom = roomList.find(
@@ -151,7 +161,7 @@ export default function ChatListPage() {
     if (!filteredRooms.some((room) => room.id === selectedRoomId)) {
       setSelectedRoomId(filteredRooms[0].id)
     }
-  }, [filteredRooms, roomList, selectedRoomId, targetUserId, roomsLoading, user?.userId, setSearchParams, refetchRooms])
+  }, [filteredRooms, roomList, selectedRoomId, targetRoomId, targetUserId, roomsLoading, user?.userId, setSearchParams, refetchRooms])
 
   const selectedRoom = useMemo(
     () => roomList.find((room) => room.id === selectedRoomId) || null,

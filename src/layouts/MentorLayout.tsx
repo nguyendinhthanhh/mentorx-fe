@@ -28,12 +28,12 @@ const navigationItems = [
   { to: '/mentor/jobs', label: 'Find Jobs', icon: Search },
   { to: '/mentor/proposals', label: 'My Proposals', icon: CreditCard, badge: 3 },
   { to: '/mentor/contracts', label: 'Active Contracts', icon: Briefcase },
-  { to: '/mentor/my-courses', label: 'My Courses', icon: BookOpen },
+  { to: '/mentor/courses', label: 'My Courses', icon: BookOpen },
   { to: '/mentor/schedule', label: 'Schedule', icon: Calendar },
-  { to: '/mentor/wallet', label: 'Earnings', icon: Wallet },
-  { to: '/profile/reviews', label: 'Reviews', icon: Star },
-  { to: '/chat', label: 'Messages', icon: MessageCircle, badge: 2 },
-  { to: '/profile/settings', label: 'Settings', icon: Settings },
+  { to: '/mentor/earnings', label: 'Earnings', icon: Wallet },
+  { to: '/mentor/reviews', label: 'Reviews', icon: Star },
+  { to: '/mentor/messages', label: 'Messages', icon: MessageCircle, badge: 2 },
+  { to: '/mentor/settings', label: 'Settings', icon: Settings },
 ]
 
 export default function MentorLayout() {

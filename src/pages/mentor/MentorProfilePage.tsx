@@ -5,10 +5,12 @@ import axios from 'axios'
 
 import { mentorApi } from '@/api/mentorApi'
 import MentorProfileForm from '@/components/mentor/MentorProfileForm'
+import { useI18n } from '@/i18n/I18nProvider'
 import { useAuthStore } from '@/store/authStore'
 import { MentorStatus, VerificationStatus } from '@/types'
 
 export default function MentorProfilePage() {
+  const { t } = useI18n()
   const { user } = useAuthStore()
 
   const { data: mentorProfile, isLoading } = useQuery(
@@ -73,10 +75,9 @@ export default function MentorProfilePage() {
             Back to account
           </Link>
 
-          <h1 className="mt-4 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">Become a Mentor</h1>
+          <h1 className="mt-4 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">{t('mentor.application.title')}</h1>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-600 sm:text-base">
-            Complete your professional profile to unlock Mentor Mode. Identity verification is requested later only
-            when trust, payout, or compliance policy requires it.
+            {t('mentor.application.subtitle')}
           </p>
         </div>
       </section>
