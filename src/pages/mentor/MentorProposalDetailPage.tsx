@@ -18,17 +18,19 @@ import {
   Eye,
 } from 'lucide-react'
 import { Skeleton, SkeletonCircle, SkeletonText } from '@/components/ui/Skeleton'
+import ContextualChatDrawer from '@/components/chat/ContextualChatDrawer'
 import { categoryApi } from '@/api/categoryApi'
+import { contractApi } from '@/api/contractApi'
 import { jobApi } from '@/api/jobApi'
 import { mentorApi } from '@/api/mentorApi'
 import { negotiationApi, NegotiationResponse } from '@/api/negotiationApi'
 import { proposalApi } from '@/api/proposalApi'
 import { useAuthStore } from '@/store/authStore'
-import { CategoryResponse, JobResponse, MentorProfileResponse, ProposalResponse, ProposalStatus } from '@/types'
+import { CategoryResponse, ContractResponse, JobResponse, MentorProfileResponse, ProposalResponse, ProposalStatus } from '@/types'
 import { formatCurrency, formatDate, formatDateTime } from '@/utils/formatters'
-import { getJobChatRoute } from '@/utils/jobWorkspace'
 
 type CounterMode = 'COUNTER' | 'REQUEST_CHANGES'
+type CancellationDecisionMode = 'APPROVE' | 'REJECT'
 
 const stepLabels = ['Proposal Sent', 'Viewed', 'Counter Offer', 'Negotiating', 'Agreement', 'Contract']
 const quickReplies = ['Can you reduce the price?', 'Can we add another revision?', 'Can we split into milestones?', 'I accept this offer']
@@ -44,6 +46,7 @@ export default function MentorProposalDetailPage() {
 
   const [proposal, setProposal] = useState<ProposalResponse | null>(null)
   const [job, setJob] = useState<JobResponse | null>(null)
+  const [contract, setContract] = useState<ContractResponse | null>(null)
   const [categories, setCategories] = useState<CategoryResponse[]>([])
   const [negotiations, setNegotiations] = useState<NegotiationResponse[]>([])
   const [recommendedMentors, setRecommendedMentors] = useState<MentorProfileResponse[]>([])
@@ -53,6 +56,10 @@ export default function MentorProposalDetailPage() {
   const [counterDays, setCounterDays] = useState('')
   const [showCounterModal, setShowCounterModal] = useState(false)
   const [counterMode, setCounterMode] = useState<CounterMode>('COUNTER')
+  const [showCancellationDecisionModal, setShowCancellationDecisionModal] = useState(false)
+  const [cancellationDecisionMode, setCancellationDecisionMode] = useState<CancellationDecisionMode>('APPROVE')
+  const [cancellationDecisionNote, setCancellationDecisionNote] = useState('')
+  const [isChatDrawerOpen, setIsChatDrawerOpen] = useState(false)
 
   useEffect(() => {
     void loadData()
@@ -66,17 +73,23 @@ export default function MentorProposalDetailPage() {
       setError('')
 
       const proposalData = await proposalApi.getById(proposalId)
-      const [jobData, categoryData, negotiationData, mentorPage] = await Promise.all([
+      const [jobData, categoryData, negotiationData, mentorPage, contractPage] = await Promise.all([
         jobApi.getById(proposalData.jobId),
         categoryApi.getAllActive().catch(() => [] as CategoryResponse[]),
         negotiationApi.getByProposal(proposalId).catch(() => [] as NegotiationResponse[]),
         mentorApi.getAllApprovedMentors({ page: 0, size: 3, sortBy: 'averageRating', sortDir: 'desc' }).catch(() => ({
           content: [] as MentorProfileResponse[],
         })),
+        contractApi.getByJob(proposalData.jobId, { page: 0, size: 10 }).catch(() => ({ content: [] as ContractResponse[] })),
       ])
+
+      const linkedContract =
+        contractPage.content.find((item) => item.proposalId === proposalData.id) ||
+        null
 
       setProposal(proposalData)
       setJob(jobData)
+      setContract(linkedContract)
       setCategories(categoryData)
       setNegotiations(negotiationData.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()))
       setRecommendedMentors(mentorPage.content || [])
@@ -114,16 +127,14 @@ export default function MentorProposalDetailPage() {
 
   const latestNegotiation = negotiations.length > 0 ? negotiations[negotiations.length - 1] : null
   const isClientOffer = latestNegotiation?.senderType === 'CLIENT'
-  const isEditingOwnPendingCounter =
-    latestNegotiation?.senderType === 'MENTOR' &&
-    latestNegotiation?.status === 'PENDING' &&
-    latestNegotiation?.senderId === user?.userId
-  const isFinalized = proposal?.status === 'ACCEPTED' || proposal?.status === 'REJECTED' || proposal?.status === 'WITHDRAWN'
+  const isFinalized = proposal?.status === 'ACCEPTED' || proposal?.status === 'REJECTED' || proposal?.status === 'WITHDRAWN' || proposal?.status === 'OFFER_ACCEPTED'
   
   const currentOffer = latestNegotiation || proposal
   const currentAmount = currentOffer?.proposedAmount || currentOffer?.proposedHourlyRate || proposal?.proposedAmount || proposal?.proposedHourlyRate || 0
   const currentDuration = currentOffer?.estimatedDurationDays || proposal?.estimatedDurationDays
   const currentStatus = proposal?.status || ProposalStatus.SUBMITTED
+  const hasPendingCancellation = contract?.cancellationRequestStatus === 'PENDING'
+  const cancellationRejected = contract?.cancellationRequestStatus === 'REJECTED'
 
   const agreementStatus = getAgreementStatus(currentStatus, latestNegotiation)
   const stageIndex = getStageIndex(proposal, negotiations)
@@ -260,11 +271,7 @@ export default function MentorProposalDetailPage() {
         estimatedDurationDays: counterDays ? Number(counterDays) : undefined,
       }
 
-      if (isEditingOwnPendingCounter && latestNegotiation) {
-        await negotiationApi.updatePendingNegotiation(latestNegotiation.id, negotiationPayload)
-      } else {
-        await negotiationApi.mentorCounterOffer(negotiationPayload)
-      }
+      await negotiationApi.mentorCounterOffer(negotiationPayload)
       setShowCounterModal(false)
       setMessage('')
       setCounterAmount('')
@@ -274,6 +281,40 @@ export default function MentorProposalDetailPage() {
     } catch (err: any) {
       const msg = err.response?.data?.message || err.message || 'Could not send negotiation'
       setError(msg)
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const handleOpenCancellationDecision = (mode: CancellationDecisionMode) => {
+    setCancellationDecisionMode(mode)
+    setCancellationDecisionNote('')
+    setShowCancellationDecisionModal(true)
+  }
+
+  const handleSubmitCancellationDecision = async () => {
+    if (!user?.userId || !contract || submitting) return
+
+    if (!cancellationDecisionNote.trim()) {
+      setError('Please add a short note before responding to the cancellation request.')
+      return
+    }
+
+    try {
+      setSubmitting(true)
+      setError('')
+
+      if (cancellationDecisionMode === 'APPROVE') {
+        await contractApi.approveCancellation(contract.id, user.userId, cancellationDecisionNote.trim())
+      } else {
+        await contractApi.rejectCancellation(contract.id, user.userId, cancellationDecisionNote.trim())
+      }
+
+      setShowCancellationDecisionModal(false)
+      setCancellationDecisionNote('')
+      await loadData()
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Could not respond to the cancellation request.')
     } finally {
       setSubmitting(false)
     }
@@ -564,12 +605,51 @@ export default function MentorProposalDetailPage() {
                 </div>
 
                 {currentStatus === ProposalStatus.ACCEPTED && (
-                  <Link
-                    to={getJobChatRoute(job.jobId, job.clientId)}
-                    className="mt-5 inline-flex h-10 w-full items-center justify-center rounded-xl border border-indigo-200 bg-indigo-50 text-xs font-bold text-indigo-700 transition hover:bg-indigo-100"
-                  >
-                    Open chat
-                  </Link>
+                  <>
+                    {hasPendingCancellation && (
+                      <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-4">
+                        <p className="text-xs font-black uppercase tracking-[0.14em] text-amber-700">Cancellation request</p>
+                        <p className="mt-2 text-sm font-bold text-amber-900">
+                          {contract?.clientName || clientName} wants to cancel this job.
+                        </p>
+                        <p className="mt-1 text-xs leading-5 text-amber-800">
+                          Reason: {contract?.cancellationRequestReason || 'No reason provided.'}
+                        </p>
+                        <div className="mt-4 grid grid-cols-2 gap-2">
+                          <button
+                            type="button"
+                            disabled={submitting}
+                            onClick={() => handleOpenCancellationDecision('APPROVE')}
+                            className="inline-flex h-10 items-center justify-center rounded-xl bg-emerald-600 text-xs font-bold text-white transition hover:bg-emerald-700 disabled:opacity-60"
+                          >
+                            Approve cancel
+                          </button>
+                          <button
+                            type="button"
+                            disabled={submitting}
+                            onClick={() => handleOpenCancellationDecision('REJECT')}
+                            className="inline-flex h-10 items-center justify-center rounded-xl border border-amber-300 bg-white text-xs font-bold text-amber-800 transition hover:bg-amber-100 disabled:opacity-60"
+                          >
+                            Keep contract
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {cancellationRejected && contract?.cancellationResponseNote && (
+                      <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs leading-5 text-slate-600">
+                        Latest cancellation decision note: {contract.cancellationResponseNote}
+                      </div>
+                    )}
+
+                    <button
+                      type="button"
+                      onClick={() => setIsChatDrawerOpen(true)}
+                      className="mt-5 inline-flex h-10 w-full items-center justify-center rounded-xl border border-indigo-200 bg-indigo-50 text-xs font-bold text-indigo-700 transition hover:bg-indigo-100"
+                    >
+                      Open chat
+                    </button>
+                  </>
                 )}
 
                 {/* Action buttons */}
@@ -610,14 +690,6 @@ export default function MentorProposalDetailPage() {
                           <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Waiting for client</p>
                           <p className="mt-1 text-xs text-slate-400">The client is reviewing your latest offer.</p>
                         </div>
-                        <button
-                          type="button"
-                          disabled={submitting}
-                          onClick={() => handleOpenCounter('COUNTER')}
-                          className="inline-flex h-9 w-full items-center justify-center rounded-xl border border-slate-200 text-xs font-bold text-slate-700 transition hover:bg-slate-50 disabled:opacity-60"
-                        >
-                          Revise Offer
-                        </button>
                       </>
                     )}
                   </div>
@@ -633,6 +705,74 @@ export default function MentorProposalDetailPage() {
           </aside>
         </div>
       </div>
+
+      {showCancellationDecisionModal && contract ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-[560px] rounded-[28px] bg-white p-6 shadow-2xl">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h3 className="text-2xl font-black tracking-tight text-slate-950">
+                  {cancellationDecisionMode === 'APPROVE' ? 'Approve cancellation request' : 'Reject cancellation request'}
+                </h3>
+                <p className="mt-2 text-sm leading-6 text-slate-500">
+                  {cancellationDecisionMode === 'APPROVE'
+                    ? 'If you approve, the contract will be cancelled and any escrow will be refunded to the client.'
+                    : 'If you reject, the contract will remain active and the client will see your response note.'}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowCancellationDecisionModal(false)}
+                className="flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-200 text-slate-500 transition hover:bg-slate-50"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-700">
+              Client reason: {contract.cancellationRequestReason || 'No reason provided.'}
+            </div>
+
+            <label className="mt-4 block space-y-2">
+              <span className="text-sm font-bold text-slate-700">Your note</span>
+              <textarea
+                value={cancellationDecisionNote}
+                onChange={(event) => setCancellationDecisionNote(event.target.value)}
+                placeholder={
+                  cancellationDecisionMode === 'APPROVE'
+                    ? 'Add a short note for the client before the contract is cancelled...'
+                    : 'Explain why you want to continue the contract...'
+                }
+                className="min-h-[140px] w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm leading-6 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
+              />
+            </label>
+
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setShowCancellationDecisionModal(false)}
+                className="inline-flex h-11 items-center justify-center rounded-2xl border border-slate-200 px-4 text-sm font-bold text-slate-600 transition hover:bg-slate-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={submitting || !cancellationDecisionNote.trim()}
+                onClick={handleSubmitCancellationDecision}
+                className={`inline-flex h-11 items-center justify-center rounded-2xl px-5 text-sm font-bold text-white transition disabled:opacity-60 ${
+                  cancellationDecisionMode === 'APPROVE' ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-amber-600 hover:bg-amber-700'
+                }`}
+              >
+                {submitting
+                  ? 'Processing...'
+                  : cancellationDecisionMode === 'APPROVE'
+                    ? 'Approve & cancel'
+                    : 'Reject request'}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       {showCounterModal ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4 backdrop-blur-sm">
@@ -711,6 +851,16 @@ export default function MentorProposalDetailPage() {
           </div>
         </div>
       ) : null}
+
+      <ContextualChatDrawer
+        open={isChatDrawerOpen}
+        onOpenChange={setIsChatDrawerOpen}
+        recipientId={job?.clientId}
+        contextType="PROPOSAL"
+        contextId={proposal?.id}
+        title={clientName}
+        subtitle="Proposal discussion"
+      />
     </>
   )
 }
@@ -906,6 +1056,7 @@ function formatBudgetValue(
 
 function getAgreementStatus(status: ProposalStatus, latestNegotiation: NegotiationResponse | null) {
   if (status === 'ACCEPTED') return 'Accepted'
+  if (status === 'OFFER_ACCEPTED') return 'Offer Accepted'
   if (status === 'REJECTED') return 'Rejected'
   if (latestNegotiation?.status === 'COUNTERED') return 'Draft'
   if (status === 'NEGOTIATING') return 'Negotiating'
@@ -914,7 +1065,7 @@ function getAgreementStatus(status: ProposalStatus, latestNegotiation: Negotiati
 
 function getStageIndex(proposal: ProposalResponse | null, negotiations: NegotiationResponse[]) {
   if (!proposal) return 0
-  if (proposal.status === 'ACCEPTED') return 4
+  if (proposal.status === 'ACCEPTED' || proposal.status === 'OFFER_ACCEPTED') return 4
   if (proposal.status === 'REJECTED') return 3
   if (proposal.status === 'NEGOTIATING' && negotiations.length > 1) return 3
   if (negotiations.length > 0) return 2

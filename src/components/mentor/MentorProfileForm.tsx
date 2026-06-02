@@ -235,12 +235,32 @@ interface Props {
   isEdit: boolean
   isLocked?: boolean
   lockedMessage?: string
+  headingTitle?: string
+  headingDescription?: string
+  submitButtonLabel?: string
+  successTitle?: string
+  successDescription?: string
+  successRedirectTo?: string
+  onSaved?: () => void | Promise<void>
 }
 
 const inputClass =
   'w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:border-slate-800 dark:bg-slate-950 dark:text-white'
 
-export default function MentorProfileForm({ userId, initialData, isEdit, isLocked = false, lockedMessage }: Props) {
+export default function MentorProfileForm({
+  userId,
+  initialData,
+  isEdit,
+  isLocked = false,
+  lockedMessage,
+  headingTitle,
+  headingDescription,
+  submitButtonLabel,
+  successTitle,
+  successDescription,
+  successRedirectTo = '/become-a-mentor',
+  onSaved,
+}: Props) {
   const navigate = useNavigate()
   const { refreshUser } = useAuthStore()
   const [uploading, setUploading] = useState<Record<string, boolean>>({})
@@ -431,7 +451,12 @@ export default function MentorProfileForm({ userId, initialData, isEdit, isLocke
 
       await refreshUser()
       setSuccess(true)
-      setTimeout(() => navigate('/become-a-mentor'), 900)
+      setTimeout(async () => {
+        await onSaved?.()
+        if (successRedirectTo) {
+          navigate(successRedirectTo)
+        }
+      }, 900)
     } catch (err: any) {
       setError(getApiErrorMessage(err, 'Unable to submit your professional profile right now.'))
     } finally {
@@ -446,11 +471,10 @@ export default function MentorProfileForm({ userId, initialData, isEdit, isLocke
           <CheckCircle2 className="h-8 w-8" />
         </div>
         <h3 className="mt-5 text-2xl font-black text-slate-950 dark:text-white">
-          {isEdit ? 'Professional profile updated' : 'Professional profile submitted'}
+          {successTitle || (isEdit ? 'Professional profile updated' : 'Professional profile submitted')}
         </h3>
         <p className="mx-auto mt-3 max-w-lg text-sm leading-relaxed text-slate-600 dark:text-slate-400">
-          Your expertise review is now in queue. Mentor Mode will unlock after the moderation team approves your
-          professional profile.
+          {successDescription || 'Your expertise review is now in queue. Mentor Mode will unlock after the moderation team approves your professional profile.'}
         </p>
       </div>
     )
@@ -470,10 +494,11 @@ export default function MentorProfileForm({ userId, initialData, isEdit, isLocke
             <Briefcase className="h-6 w-6" />
           </div>
           <div>
-            <h2 className="mt-1 text-2xl font-black text-slate-950 dark:text-white">Build your professional profile</h2>
+            <h2 className="mt-1 text-2xl font-black text-slate-950 dark:text-white">
+              {headingTitle || 'Build your public mentor profile'}
+            </h2>
             <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
-              Tell Mentor X what you can teach, where you have real experience, and how learners should trust your
-              work.
+              {headingDescription || 'Tell Mentor X what you can teach, where you have real experience, and why learners can trust your professional background.'}
             </p>
           </div>
         </div>
@@ -793,7 +818,7 @@ export default function MentorProfileForm({ userId, initialData, isEdit, isLocke
           className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-slate-300"
         >
           {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowRight className="h-4 w-4" />}
-          {isEdit ? 'Update profile for review' : 'Submit for mentor review'}
+          {submitButtonLabel || (isEdit ? 'Update profile for review' : 'Submit for mentor review')}
         </button>
       </section>
       </fieldset>

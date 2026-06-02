@@ -3,23 +3,21 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { userApi } from '@/api/userApi'
 import { fileApi } from '@/api/fileApi'
+import { useI18n } from '@/i18n/I18nProvider'
 import { useAuthStore } from '@/store/authStore'
 import { SupportedLanguage, UserUpdateRequest } from '@/types'
 import { useState, useRef } from 'react'
 import { Loader2, CheckCircle, Camera, Trash2 } from 'lucide-react'
-
-const profileSchema = z.object({
-  fullName: z.string().min(2, 'Name must be at least 2 characters').max(100),
-  displayName: z.string().max(50).optional().or(z.literal('')),
-  avatarUrl: z.string().optional().or(z.literal('')),
-  bio: z.string().max(500).optional().or(z.literal('')),
-  phone: z.string().max(20).optional().or(z.literal('')),
-  countryCode: z.string().max(5).optional().or(z.literal('')),
-  preferredLanguage: z.string().optional(),
-  profileIsPublic: z.boolean().optional(),
-})
-
-type ProfileFormData = z.infer<typeof profileSchema>
+type ProfileFormData = {
+  fullName: string
+  displayName?: string
+  avatarUrl?: string
+  bio?: string
+  phone?: string
+  countryCode?: string
+  preferredLanguage?: string
+  profileIsPublic?: boolean
+}
 
 interface Props {
   userId: string
@@ -36,12 +34,24 @@ interface Props {
 }
 
 export default function UserUpdateForm({ userId, initialData }: Props) {
+  const { t } = useI18n()
   const { setUser, user } = useAuthStore()
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [uploading, setUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const profileSchema = z.object({
+    fullName: z.string().min(2, t('profile.validation.nameMin')).max(100),
+    displayName: z.string().max(50).optional().or(z.literal('')),
+    avatarUrl: z.string().optional().or(z.literal('')),
+    bio: z.string().max(500).optional().or(z.literal('')),
+    phone: z.string().max(20).optional().or(z.literal('')),
+    countryCode: z.string().max(5).optional().or(z.literal('')),
+    preferredLanguage: z.string().optional(),
+    profileIsPublic: z.boolean().optional(),
+  })
 
   const {
     register,
@@ -75,7 +85,7 @@ export default function UserUpdateForm({ userId, initialData }: Props) {
       const response = await fileApi.upload(file)
       setValue('avatarUrl', response.fileUrl)
     } catch (err: any) {
-      setError('Failed to upload image. Please try again.')
+      setError(t('profile.messages.uploadFailed'))
     } finally {
       setUploading(false)
     }
@@ -103,7 +113,7 @@ export default function UserUpdateForm({ userId, initialData }: Props) {
       setSuccess(true)
       setTimeout(() => setSuccess(false), 3000)
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to update profile.')
+      setError(err.response?.data?.message || t('profile.messages.updateFailed'))
     } finally {
       setLoading(false)
     }
@@ -153,14 +163,14 @@ export default function UserUpdateForm({ userId, initialData }: Props) {
         
         <div className="text-center">
           <h3 className="font-bold text-gray-900">{watch('fullName')}</h3>
-          <p className="text-xs text-gray-500 font-medium">PNG, JPG or GIF up to 5MB</p>
+          <p className="text-xs text-gray-500 font-medium">{t('profile.avatarHint')}</p>
           {avatarUrl && (
             <button 
               type="button" 
               onClick={() => setValue('avatarUrl', '')}
               className="text-xs text-red-500 font-bold mt-1 hover:underline flex items-center gap-1 justify-center mx-auto"
             >
-              <Trash2 className="w-3 h-3" /> Remove Photo
+              <Trash2 className="w-3 h-3" /> {t('profile.actions.removePhoto')}
             </button>
           )}
         </div>
@@ -168,24 +178,24 @@ export default function UserUpdateForm({ userId, initialData }: Props) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div>
-          <label className={labelClass}>Full Name</label>
-          <input {...register('fullName')} className={inputClass} placeholder="John Doe" />
+          <label className={labelClass}>{t('profile.fields.fullName')}</label>
+          <input {...register('fullName')} className={inputClass} placeholder={t('profile.placeholders.fullName')} />
           {errors.fullName && <p className="text-xs text-red-500 mt-1">{errors.fullName.message}</p>}
         </div>
         <div>
-          <label className={labelClass}>Display Name</label>
-          <input {...register('displayName')} className={inputClass} placeholder="johndoe" />
+          <label className={labelClass}>{t('profile.fields.displayName')}</label>
+          <input {...register('displayName')} className={inputClass} placeholder={t('profile.placeholders.displayName')} />
           {errors.displayName && <p className="text-xs text-red-500 mt-1">{errors.displayName.message}</p>}
         </div>
       </div>
 
       <div>
-        <label className={labelClass}>Bio</label>
+        <label className={labelClass}>{t('profile.fields.bio')}</label>
         <textarea
           {...register('bio')}
           rows={3}
           className={`${inputClass} resize-none`}
-          placeholder="Tell us about yourself..."
+          placeholder={t('profile.placeholders.bio')}
           maxLength={500}
         />
         <div className="flex justify-end mt-1">
@@ -196,23 +206,21 @@ export default function UserUpdateForm({ userId, initialData }: Props) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div>
-          <label className={labelClass}>Phone Number</label>
-          <input {...register('phone')} className={inputClass} placeholder="+84 123 456 789" />
+          <label className={labelClass}>{t('profile.fields.phone')}</label>
+          <input {...register('phone')} className={inputClass} placeholder={t('profile.placeholders.phone')} />
         </div>
         <div>
-          <label className={labelClass}>Country Code</label>
-          <input {...register('countryCode')} className={inputClass} placeholder="VN" />
+          <label className={labelClass}>{t('profile.fields.countryCode')}</label>
+          <input {...register('countryCode')} className={inputClass} placeholder={t('profile.placeholders.countryCode')} />
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div>
-          <label className={labelClass}>Preferred Language</label>
+          <label className={labelClass}>{t('profile.fields.preferredLanguage')}</label>
           <select {...register('preferredLanguage')} className={inputClass}>
             <option value={SupportedLanguage.EN}>English</option>
-            <option value={SupportedLanguage.VI}>Vietnamese</option>
-            <option value={SupportedLanguage.ZH}>Chinese</option>
-            <option value={SupportedLanguage.JA}>Japanese</option>
+            <option value={SupportedLanguage.VI}>Tiếng Việt</option>
           </select>
         </div>
         <div className="flex items-center pt-6">
@@ -225,7 +233,7 @@ export default function UserUpdateForm({ userId, initialData }: Props) {
               />
               <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 dark:peer-focus:ring-primary-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary-600"></div>
             </div>
-            <span className="text-sm font-bold text-gray-700 group-hover:text-primary-600 transition-colors">Public Profile</span>
+            <span className="text-sm font-bold text-gray-700 group-hover:text-primary-600 transition-colors">{t('profile.fields.profileIsPublic')}</span>
           </label>
         </div>
       </div>
@@ -240,7 +248,7 @@ export default function UserUpdateForm({ userId, initialData }: Props) {
       {success && (
         <div className="flex items-center gap-2 bg-green-50 border border-green-100 text-green-600 px-4 py-3 rounded-xl text-sm font-medium">
           <CheckCircle className="w-4 h-4" />
-          Profile updated successfully!
+          {t('profile.messages.updated')}
         </div>
       )}
 
@@ -252,10 +260,10 @@ export default function UserUpdateForm({ userId, initialData }: Props) {
         {loading ? (
           <>
             <Loader2 className="w-4 h-4 animate-spin" />
-            Saving Changes...
+            {t('profile.actions.saving')}
           </>
         ) : (
-          'Save Changes'
+          t('profile.actions.saveChanges')
         )}
       </button>
     </form>

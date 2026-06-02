@@ -161,9 +161,12 @@ export enum ProposalStatus {
   SUBMITTED = "SUBMITTED",
   UNDER_REVIEW = "UNDER_REVIEW",
   SHORTLISTED = "SHORTLISTED",
+  OFFER_ACCEPTED = "OFFER_ACCEPTED",
   ACCEPTED = "ACCEPTED",
   REJECTED = "REJECTED",
   WITHDRAWN = "WITHDRAWN",
+  AUTO_CLOSED = "AUTO_CLOSED",
+  CONTRACT_CANCELLED = "CONTRACT_CANCELLED",
   EXPIRED = "EXPIRED",
   INTERVIEW_REQUESTED = "INTERVIEW_REQUESTED",
   NEGOTIATING = "NEGOTIATING",
@@ -181,6 +184,18 @@ export enum ContractStatus {
   EXPIRED = "EXPIRED",
   PENDING_PAYMENT = "PENDING_PAYMENT",
   UNDER_REVIEW = "UNDER_REVIEW",
+}
+
+export enum DisputeStatus {
+  OPEN = "OPEN",
+  AWAITING_RESPONSE = "AWAITING_RESPONSE",
+  INVESTIGATING = "INVESTIGATING",
+  EVIDENCE_REVIEW = "EVIDENCE_REVIEW",
+  IN_MEDIATION = "IN_MEDIATION",
+  IN_ARBITRATION = "IN_ARBITRATION",
+  RESOLVED = "RESOLVED",
+  CLOSED = "CLOSED",
+  WITHDRAWN = "WITHDRAWN",
 }
 
 export enum NotificationType {
@@ -557,6 +572,15 @@ export interface ContractResponse {
   activatedAt?: string;
   completedAt?: string;
   cancelledAt?: string;
+  cancellationRequestStatus?: 'PENDING' | 'REJECTED' | 'APPROVED';
+  cancellationRequestedByUserId?: string;
+  cancellationRequestedByName?: string;
+  cancellationRequestedAt?: string;
+  cancellationRequestReason?: string;
+  cancellationRespondedByUserId?: string;
+  cancellationRespondedByName?: string;
+  cancellationRespondedAt?: string;
+  cancellationResponseNote?: string;
   milestoneCount: number;
   completedMilestoneCount: number;
   amountPaid: number;
@@ -568,6 +592,34 @@ export interface ContractResponse {
   renewalTerms?: string;
   ndaRequired?: boolean;
   ndaSigned?: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface DisputeResponse {
+  id: string;
+  initiatorId: string;
+  initiatorName: string;
+  respondentId: string;
+  respondentName: string;
+  contractId?: string;
+  jobId?: string;
+  title: string;
+  description: string;
+  disputeCategory: string;
+  status: DisputeStatus;
+  priorityLevel: number;
+  disputedAmountMxc?: number;
+  refundRequestedMxc?: number;
+  mediatorId?: string;
+  respondentResponse?: string;
+  responseDeadline?: string;
+  resolvedAt?: string;
+  resolutionDetails?: string;
+  refundAmountMxc?: number;
+  fundsInEscrow?: boolean;
+  evidenceUrls?: string[];
+  requiresArbitration?: boolean;
   createdAt: string;
   updatedAt: string;
 }

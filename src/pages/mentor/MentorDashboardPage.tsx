@@ -1,158 +1,178 @@
-import { 
-  Briefcase, 
-  BookOpen, 
-  Users, 
-  Star, 
-  TrendingUp, 
-  DollarSign,
-  ArrowUpRight,
-  Clock,
-  MessageSquare,
-  Activity
-} from 'lucide-react'
+import { ReactNode, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { formatCurrency } from '@/utils/formatters'
+import { ArrowRight, BookOpen, Briefcase, DollarSign, MessageCircle, Search, Star, Wallet } from 'lucide-react'
+import { contractApi } from '@/api/contractApi'
+import { courseApi } from '@/api/courseApi'
+import { mentorApi } from '@/api/mentorApi'
+import { proposalApi } from '@/api/proposalApi'
+import { walletApi } from '@/api/walletApi'
 import { useAuthStore } from '@/store/authStore'
+import { ContractResponse, ContractStatus, CourseResponse, MentorProfileResponse, ProposalResponse, ProposalStatus } from '@/types'
+import { formatCurrency, formatRelativeTime } from '@/utils/formatters'
+import { LoadingRows, MetricCard, PageShell, StateCard, StatusPill } from './shared/MentorHubUI'
 
 export default function MentorDashboardPage() {
   const { user } = useAuthStore()
+  const [contracts, setContracts] = useState<ContractResponse[]>([])
+  const [proposals, setProposals] = useState<ProposalResponse[]>([])
+  const [courses, setCourses] = useState<CourseResponse[]>([])
+  const [profile, setProfile] = useState<MentorProfileResponse | null>(null)
+  const [availableBalance, setAvailableBalance] = useState(0)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
-  const stats = [
-    { label: 'Total Earnings', value: formatCurrency(4250), change: '+18%', icon: DollarSign, color: 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400' },
-    { label: 'Active Contracts', value: '12', change: '+2', icon: Briefcase, color: 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' },
-    { label: 'Avg. Rating', value: '4.9', change: '+0.1', icon: Star, color: 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400' },
-    { label: 'Students', value: '156', change: '+24', icon: Users, color: 'bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400' },
-  ]
+  useEffect(() => {
+    void loadDashboard()
+  }, [user?.userId])
+
+  const loadDashboard = async () => {
+    if (!user?.userId) return
+    try {
+      setLoading(true)
+      setError('')
+      const [contractPage, proposalPage, coursePage, mentorProfile, balance] = await Promise.all([
+        contractApi.getMine({ page: 0, size: 100 }),
+        proposalApi.getByMentor(user.userId, { page: 0, size: 100 }),
+        courseApi.getByInstructor(user.userId, { page: 0, size: 100 }),
+        mentorApi.getMentorProfile(user.userId).catch(() => null),
+        walletApi.getUserBalance(user.userId).catch(() => ({ available: 0 })),
+      ])
+      setContracts(contractPage.content || [])
+      setProposals(proposalPage.content || [])
+      setCourses(coursePage.content || [])
+      setProfile(mentorProfile)
+      setAvailableBalance(Number(balance.available || 0))
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Unable to load MentorHub overview.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const summary = useMemo(() => {
+    const activeContracts = contracts.filter((contract) => [ContractStatus.ACTIVE, ContractStatus.UNDER_REVIEW, ContractStatus.IN_DISPUTE].includes(contract.status))
+    const inEscrow = activeContracts.reduce((sum, contract) => sum + Number(contract.amountInEscrow || 0), 0)
+    const awaitingProposals = proposals.filter((proposal) => [ProposalStatus.SUBMITTED, ProposalStatus.NEGOTIATING, ProposalStatus.OFFER_ACCEPTED].includes(proposal.status)).length
+    const publishedCourses = courses.filter((course) => String(course.status) === 'PUBLISHED').length
+    return {
+      activeContracts: activeContracts.length,
+      inEscrow,
+      awaitingProposals,
+      availableBalance,
+      publishedCourses,
+      averageRating: Number(profile?.averageRating || 0),
+    }
+  }, [availableBalance, contracts, courses, profile?.averageRating, proposals])
+
+  const recentProposals = useMemo(
+    () => [...proposals].sort((a, b) => new Date(b.updatedAt || b.createdAt).getTime() - new Date(a.updatedAt || a.createdAt).getTime()).slice(0, 5),
+    [proposals]
+  )
+
+  if (loading) {
+    return (
+      <PageShell eyebrow="MentorHub" title="Overview" description="Loading your real mentor activity.">
+        <LoadingRows rows={6} />
+      </PageShell>
+    )
+  }
+
+  if (error) {
+    return (
+      <PageShell eyebrow="MentorHub" title="Overview" description="Your mentor activity could not be loaded.">
+        <StateCard tone="error" title="Unable to load dashboard" message={error} action={<button onClick={loadDashboard} className="rounded-2xl bg-indigo-600 px-4 py-2 text-sm font-black text-white">Retry</button>} />
+      </PageShell>
+    )
+  }
 
   return (
-    <div className="space-y-10">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div>
-          <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">Welcome back, {user?.fullName}!</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1 font-medium">Here's a summary of your mentoring activities and performance.</p>
-        </div>
-        <Link
-          to="/mentor/profile-setup"
-          className="px-6 py-3 bg-indigo-600 text-white rounded-2xl font-black text-sm shadow-xl shadow-indigo-200 dark:shadow-none hover:bg-indigo-700 transition-all flex items-center gap-2"
-        >
-          <TrendingUp className="w-4 h-4" />
-          Chỉnh hồ sơ mentor
+    <PageShell
+      eyebrow="MentorHub"
+      title={`Welcome back, ${user?.displayName || user?.fullName || 'mentor'}`}
+      description="A compact overview of contracts, proposals, courses, wallet balance, and reputation using backend data only."
+      actions={
+        <Link to="/mentor/profile-setup" className="inline-flex h-11 items-center gap-2 rounded-2xl bg-indigo-600 px-4 text-sm font-black text-white shadow-lg shadow-indigo-200 transition hover:bg-indigo-700">
+          Improve profile
+          <ArrowRight className="h-4 w-4" />
         </Link>
+      }
+    >
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <MetricCard label="Active contracts" value={summary.activeContracts} helper="Active, review, or disputed work." icon={<Briefcase className="h-5 w-5" />} />
+        <MetricCard label="In escrow" value={formatCurrency(summary.inEscrow)} helper="Locked, not released earnings." icon={<Wallet className="h-5 w-5" />} tone="amber" />
+        <MetricCard label="Available balance" value={formatCurrency(summary.availableBalance)} helper="Withdrawable after payout approval." icon={<DollarSign className="h-5 w-5" />} tone="emerald" />
+        <MetricCard label="Average rating" value={`${summary.averageRating.toFixed(1)} / 5`} helper={`${profile?.totalReviews || 0} public reviews.`} icon={<Star className="h-5 w-5" />} tone="slate" />
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat) => (
-          <div key={stat.label} className="bg-white dark:bg-gray-900 p-8 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-sm group hover:scale-105 transition-all duration-500">
-            <div className="flex items-start justify-between mb-6">
-              <div className={`p-4 rounded-2xl ${stat.color} group-hover:rotate-12 transition-transform`}>
-                <stat.icon className="w-7 h-7" />
-              </div>
-              <span className="flex items-center gap-1 text-[10px] font-black text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 px-2.5 py-1.5 rounded-xl uppercase tracking-widest">
-                <ArrowUpRight className="w-3 h-3" />
-                {stat.change}
-              </span>
+      <div className="grid gap-5 xl:grid-cols-[1fr_360px]">
+        <section className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <h2 className="text-lg font-black text-slate-950">Recent proposals</h2>
+              <p className="mt-1 text-sm font-medium text-slate-500">{summary.awaitingProposals} proposals or offers need attention.</p>
             </div>
-            <p className="text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em]">{stat.label}</p>
-            <h3 className="text-3xl font-black text-gray-900 dark:text-white mt-2 tracking-tighter">{stat.value}</h3>
+            <Link to="/mentor/proposals" className="text-sm font-black text-indigo-600">View all</Link>
           </div>
-        ))}
-      </div>
-
-      {/* Main Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-        {/* Active Proposals */}
-        <div className="lg:col-span-2 bg-white dark:bg-gray-900 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
-          <div className="px-10 py-8 border-b border-gray-50 dark:border-gray-800/50 flex items-center justify-between">
-            <h3 className="text-xl font-black text-gray-900 dark:text-white tracking-tight">Recent Proposals</h3>
-            <button className="text-xs font-black text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 uppercase tracking-[0.2em]">
-              View All Proposals
-            </button>
-          </div>
-          <div className="divide-y divide-gray-50 dark:divide-gray-800/50">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="px-10 py-6 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-all cursor-pointer group">
-                <div className="flex items-center gap-6">
-                  <div className="w-14 h-14 rounded-2xl bg-gray-50 dark:bg-gray-800 flex items-center justify-center border border-gray-100 dark:border-gray-700 group-hover:scale-110 transition-transform">
-                    <Briefcase className="w-6 h-6 text-gray-400 dark:text-gray-600" />
-                  </div>
+          {recentProposals.length === 0 ? (
+            <StateCard title="No proposals yet" message="Start from Find Jobs and submit proposals to clients that match your expertise." action={<Link to="/mentor/jobs" className="inline-flex items-center gap-2 rounded-2xl bg-indigo-600 px-4 py-2 text-sm font-black text-white"><Search className="h-4 w-4" /> Find jobs</Link>} />
+          ) : (
+            <div className="mt-4 divide-y divide-slate-100">
+              {recentProposals.map((proposal) => (
+                <Link key={proposal.id} to={`/mentor/proposals?proposalId=${proposal.id}`} className="flex flex-col gap-3 py-4 transition hover:bg-slate-50 sm:flex-row sm:items-center sm:justify-between">
                   <div>
-                    <p className="text-base font-black text-gray-900 dark:text-white tracking-tight">Frontend React Developer for E-commerce</p>
-                    <p className="text-xs font-bold text-gray-500 dark:text-gray-400 mt-1 uppercase tracking-widest">Proposed: <span className="text-indigo-600 dark:text-indigo-400">{formatCurrency(500)}</span> • 2 days ago</p>
+                    <p className="font-black text-slate-950">{proposal.jobTitle}</p>
+                    <p className="mt-1 text-xs font-semibold text-slate-500">{formatRelativeTime(proposal.updatedAt || proposal.createdAt)} - {formatCurrency(proposal.proposedAmount || proposal.proposedHourlyRate || 0)}</p>
                   </div>
-                </div>
-                <span className="px-4 py-1.5 bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 text-[10px] font-black rounded-xl uppercase tracking-widest">
-                  Pending
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Quick Actions / Status */}
-        <div className="space-y-8">
-          <div className="bg-gradient-to-br from-indigo-600 to-blue-600 rounded-[2.5rem] shadow-xl shadow-indigo-200 dark:shadow-none p-10 text-white">
-            <h3 className="text-lg font-black mb-3 tracking-tight">Hồ sơ công khai của bạn</h3>
-            <p className="text-sm font-medium leading-6 text-indigo-100">
-              Cập nhật ảnh, video giới thiệu, gói mentoring, lịch trống và tài liệu để học viên đặt lịch dễ hơn.
-            </p>
-            <div className="mt-6 grid gap-3">
-              <Link
-                to="/mentor/profile-setup"
-                className="inline-flex w-full items-center justify-center rounded-2xl bg-white px-4 py-3 text-sm font-black text-indigo-700 transition hover:bg-indigo-50"
-              >
-                Chỉnh sửa hồ sơ
-              </Link>
-              <Link
-                to={`/mentors/${user?.userId}`}
-                className="inline-flex w-full items-center justify-center rounded-2xl border border-white/25 px-4 py-3 text-sm font-black text-white transition hover:bg-white/10"
-              >
-                Xem hồ sơ công khai
-              </Link>
+                  <StatusPill label={formatProposalStatus(proposal.status)} tone={proposal.status === ProposalStatus.ACCEPTED ? 'emerald' : proposal.status === ProposalStatus.REJECTED ? 'rose' : 'indigo'} />
+                </Link>
+              ))}
             </div>
-          </div>
+          )}
+        </section>
 
-          <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-sm p-10">
-            <h3 className="text-lg font-black text-gray-900 dark:text-white mb-6 tracking-tight">Profile Visibility</h3>
-            <div className="space-y-6">
-              <div className="flex items-center justify-between p-5 rounded-[1.5rem] bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-900/30">
-                <div className="flex items-center gap-4">
-                  <Activity className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
-                  <span className="text-sm font-black text-indigo-900 dark:text-indigo-300 uppercase tracking-widest">Available</span>
-                </div>
-                <div className="w-12 h-6 bg-indigo-600 rounded-full relative shadow-inner">
-                  <div className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full shadow-md" />
-                </div>
-              </div>
-              <p className="text-xs font-bold text-gray-400 dark:text-gray-500 text-center leading-relaxed px-4">
-                When active, you will appear in search results for new mentoring opportunities.
-              </p>
+        <aside className="space-y-5">
+          <section className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm">
+            <h2 className="text-lg font-black text-slate-950">Quick actions</h2>
+            <div className="mt-4 grid gap-3">
+              <QuickLink to="/mentor/jobs" icon={<Search className="h-4 w-4" />} label="Find jobs" />
+              <QuickLink to="/mentor/contracts" icon={<Briefcase className="h-4 w-4" />} label="View contracts" />
+              <QuickLink to="/mentor/courses" icon={<BookOpen className="h-4 w-4" />} label={`My courses (${summary.publishedCourses} published)`} />
+              <QuickLink to="/mentor/messages" icon={<MessageCircle className="h-4 w-4" />} label="Open messages" />
             </div>
-          </div>
+          </section>
 
-          <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-sm p-10">
-            <h3 className="text-lg font-black text-gray-900 dark:text-white mb-6 tracking-tight">Next Session</h3>
-            <div className="space-y-6">
-              <div className="flex gap-5 items-center p-4 rounded-2xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group">
-                <div className="w-16 h-16 rounded-2xl bg-indigo-600 flex flex-col items-center justify-center text-white font-black shadow-lg shadow-indigo-200 dark:shadow-none group-hover:rotate-6 transition-transform">
-                  <span className="text-[10px] leading-none uppercase tracking-widest opacity-80">May</span>
-                  <span className="text-2xl leading-none mt-1">12</span>
-                </div>
-                <div>
-                  <p className="text-base font-black text-gray-900 dark:text-white tracking-tight">React Architecture Review</p>
-                  <p className="text-xs font-bold text-gray-400 dark:text-gray-500 flex items-center gap-2 mt-1 uppercase tracking-widest">
-                    <Clock className="w-4 h-4 text-indigo-500" /> 10:00 - 11:30
-                  </p>
-                </div>
-              </div>
-              <button className="w-full py-4 bg-gray-50 dark:bg-gray-800 text-gray-400 dark:text-gray-500 font-black text-[10px] uppercase tracking-[0.2em] rounded-2xl hover:bg-indigo-50 dark:hover:bg-indigo-900/20 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all">
-                View Full Schedule
-              </button>
-            </div>
-          </div>
-        </div>
+          <section className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm">
+            <h2 className="text-lg font-black text-slate-950">Schedule</h2>
+            <p className="mt-2 text-sm font-medium leading-6 text-slate-500">No booking/session API is available, so this overview does not show fake meetings.</p>
+            <Link to="/mentor/schedule" className="mt-4 inline-flex rounded-2xl border border-slate-200 px-4 py-2 text-sm font-black text-slate-700 transition hover:bg-slate-50">
+              Manage availability
+            </Link>
+          </section>
+        </aside>
       </div>
-    </div>
+    </PageShell>
   )
+}
+
+function QuickLink({ to, icon, label }: { to: string; icon: ReactNode; label: string }) {
+  return (
+    <Link to={to} className="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3 text-sm font-black text-slate-700 transition hover:bg-indigo-50 hover:text-indigo-700">
+      <span className="flex items-center gap-2">{icon}{label}</span>
+      <ArrowRight className="h-4 w-4" />
+    </Link>
+  )
+}
+
+function formatProposalStatus(status: string) {
+  const labels: Record<string, string> = {
+    SUBMITTED: 'Submitted',
+    NEGOTIATING: 'Negotiating',
+    OFFER_ACCEPTED: 'Offer agreed',
+    ACCEPTED: 'Contract active',
+    REJECTED: 'Rejected',
+    AUTO_CLOSED: 'Closed',
+    CONTRACT_CANCELLED: 'Contract cancelled',
+    WITHDRAWN: 'Withdrawn',
+  }
+  return labels[status] || status.replace(/_/g, ' ').toLowerCase()
 }

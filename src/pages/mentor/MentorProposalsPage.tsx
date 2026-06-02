@@ -6,20 +6,20 @@ import {
   CheckCircle2,
   Circle,
   Clock3,
-  Loader2,
   MessageCircleMore,
   RefreshCw,
   Search,
 } from 'lucide-react'
-import { Skeleton, SkeletonCircle, SkeletonText } from '@/components/ui/Skeleton'
+import ContextualChatDrawer from '@/components/chat/ContextualChatDrawer'
+import { Skeleton, SkeletonCircle } from '@/components/ui/Skeleton'
 import { categoryApi } from '@/api/categoryApi'
 import { jobApi } from '@/api/jobApi'
 import { mentorApi } from '@/api/mentorApi'
 import { negotiationApi } from '@/api/negotiationApi'
 import { proposalApi } from '@/api/proposalApi'
 import { useAuthStore } from '@/store/authStore'
-import { CategoryResponse, JobResponse, MentorProfileResponse, ProposalResponse } from '@/types'
-import { formatCurrency, formatDate, formatRelativeTime } from '@/utils/formatters'
+import { CategoryResponse, JobResponse, ProposalResponse } from '@/types'
+import { formatCurrency, formatRelativeTime } from '@/utils/formatters'
 
 interface NegotiationInfo {
   id: string
@@ -29,7 +29,15 @@ interface NegotiationInfo {
   senderType: 'CLIENT' | 'MENTOR'
   senderName: string
   createdAt: string
+  status?: string
 }
+
+type ChatDrawerState = {
+  recipientId: string
+  contextId: string
+  title?: string
+  subtitle?: string
+} | null
 
 type TabKey = 'ALL' | 'AWAITING' | 'NEGOTIATING' | 'ACCEPTED' | 'REJECTED' | 'ARCHIVED'
 
@@ -37,10 +45,12 @@ const tabs: Array<{ key: TabKey; label: string }> = [
   { key: 'ALL', label: 'All' },
   { key: 'AWAITING', label: 'Awaiting Response' },
   { key: 'NEGOTIATING', label: 'Negotiating' },
-  { key: 'ACCEPTED', label: 'Accepted' },
+  { key: 'ACCEPTED', label: 'Active' },
   { key: 'REJECTED', label: 'Rejected' },
   { key: 'ARCHIVED', label: 'Archived' },
 ]
+
+const stageLabels = ['Sent', 'Viewed', 'Negotiating', 'Agreed', 'Contract'] as const
 
 export default function MentorProposalsPage() {
   const { user } = useAuthStore()
@@ -50,16 +60,13 @@ export default function MentorProposalsPage() {
   const [jobMap, setJobMap] = useState<Record<string, JobResponse>>({})
   const [categories, setCategories] = useState<CategoryResponse[]>([])
   const [negotiations, setNegotiations] = useState<Record<string, NegotiationInfo>>({})
-  const [recommendedMentors, setRecommendedMentors] = useState<MentorProfileResponse[]>([])
   const [recommendedJobs, setRecommendedJobs] = useState<JobResponse[]>([])
 
   const [activeTab, setActiveTab] = useState<TabKey>('ALL')
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState('ALL')
-  const [negotiationFilter, setNegotiationFilter] = useState('ALL')
-  const [budgetFilter, setBudgetFilter] = useState('ALL')
   const [categoryFilter, setCategoryFilter] = useState('ALL')
-  const [dateFilter, setDateFilter] = useState('ALL')
+  const [chatDrawer, setChatDrawer] = useState<ChatDrawerState>(null)
 
   useEffect(() => {
     void loadData()
@@ -72,22 +79,21 @@ export default function MentorProposalsPage() {
       setLoading(true)
       setError('')
 
-      const [proposalPage, categoryList, mentorsPage, jobsPage] = await Promise.all([
+      const [proposalPage, categoryList, , jobsPage] = await Promise.all([
         proposalApi.getByMentor(user.userId, { page: 0, size: 100 }),
         categoryApi.getAllActive().catch(() => [] as CategoryResponse[]),
         mentorApi.getAllApprovedMentors({ page: 0, size: 3, sortBy: 'averageRating', sortDir: 'desc' }).catch(() => ({
-          content: [] as MentorProfileResponse[],
+          content: [],
         })),
         jobApi.getOpenJobs({ page: 0, size: 4 }).catch(() => ({ content: [] as JobResponse[] })),
       ])
 
       setProposals(proposalPage.content)
       setCategories(categoryList)
-      setRecommendedMentors(mentorsPage.content || [])
       setRecommendedJobs(jobsPage.content || [])
 
       const latestNegotiationMap: Record<string, NegotiationInfo> = {}
-      for (const proposal of proposalPage.content.filter((item) => item.status === 'NEGOTIATING')) {
+      for (const proposal of proposalPage.content.filter((item) => item.status === 'NEGOTIATING' || item.status === 'OFFER_ACCEPTED')) {
         try {
           const latest = await negotiationApi.getLatest(proposal.id)
           latestNegotiationMap[proposal.id] = latest
@@ -116,14 +122,14 @@ export default function MentorProposalsPage() {
         }, {})
       )
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Khong the tai proposals')
+      setError(err.response?.data?.message || 'Unable to load your proposals.')
     } finally {
       setLoading(false)
     }
   }
 
   const tabCounts = useMemo(() => {
-    const archived = proposals.filter((proposal) => proposal.status === 'WITHDRAWN' || proposal.status === 'DRAFT').length
+    const archived = proposals.filter((proposal) => ['WITHDRAWN', 'DRAFT', 'AUTO_CLOSED', 'CONTRACT_CANCELLED'].includes(proposal.status)).length
     const awaiting = proposals.filter((proposal) => {
       if (proposal.status === 'NEGOTIATING') return negotiations[proposal.id]?.senderType !== 'CLIENT'
       return proposal.status === 'SUBMITTED' || proposal.status === 'UNDER_REVIEW'
@@ -134,13 +140,16 @@ export default function MentorProposalsPage() {
       AWAITING: awaiting,
       NEGOTIATING: proposals.filter((proposal) => proposal.status === 'NEGOTIATING').length,
       ACCEPTED: proposals.filter((proposal) => proposal.status === 'ACCEPTED').length,
-      REJECTED: proposals.filter((proposal) => proposal.status === 'REJECTED').length,
+      REJECTED: proposals.filter((proposal) => ['REJECTED', 'AUTO_CLOSED', 'CONTRACT_CANCELLED'].includes(proposal.status)).length,
       ARCHIVED: archived,
     }
   }, [negotiations, proposals])
 
-  const activeNegotiations = useMemo(
-    () => proposals.filter((proposal) => proposal.status === 'NEGOTIATING' && negotiations[proposal.id]?.senderType === 'CLIENT'),
+  const pendingNegotiationItems = useMemo(
+    () =>
+      proposals
+        .filter((proposal) => proposal.status === 'NEGOTIATING' && negotiations[proposal.id]?.senderType === 'CLIENT')
+        .sort((a, b) => new Date(negotiations[b.id].createdAt).getTime() - new Date(negotiations[a.id].createdAt).getTime()),
     [negotiations, proposals]
   )
 
@@ -152,8 +161,8 @@ export default function MentorProposalsPage() {
     const rejected = tabCounts.REJECTED
     const responseRate = total > 0 ? Math.round(((accepted + negotiating) / total) * 100) : 0
     const potentialEarnings = proposals
-      .filter((proposal) => proposal.status === 'ACCEPTED' || proposal.status === 'NEGOTIATING')
-      .reduce((sum, proposal) => sum + (proposal.proposedAmount || proposal.proposedHourlyRate || 0), 0)
+      .filter((proposal) => proposal.status === 'ACCEPTED')
+      .reduce((sum, proposal) => sum + normalizeProposalValue(proposal), 0)
 
     return {
       total,
@@ -167,57 +176,43 @@ export default function MentorProposalsPage() {
   }, [proposals, tabCounts])
 
   const filteredProposals = useMemo(() => {
-    return proposals.filter((proposal) => {
-      const job = jobMap[proposal.jobId]
-      const categoryId = job?.categoryId ? String(job.categoryId) : ''
-      const query = searchQuery.trim().toLowerCase()
+    return proposals
+      .filter((proposal) => {
+        const job = jobMap[proposal.jobId]
+        const categoryId = job?.categoryId ? String(job.categoryId) : ''
+        const query = searchQuery.trim().toLowerCase()
 
-      const tabMatch =
-        activeTab === 'ALL' ? true :
-        activeTab === 'AWAITING' ? (proposal.status === 'SUBMITTED' || proposal.status === 'UNDER_REVIEW' || (proposal.status === 'NEGOTIATING' && negotiations[proposal.id]?.senderType !== 'CLIENT')) :
-        activeTab === 'NEGOTIATING' ? proposal.status === 'NEGOTIATING' :
-        activeTab === 'ACCEPTED' ? proposal.status === 'ACCEPTED' :
-        activeTab === 'REJECTED' ? proposal.status === 'REJECTED' :
-        proposal.status === 'WITHDRAWN' || proposal.status === 'DRAFT'
+        const tabMatch =
+          activeTab === 'ALL'
+            ? true
+            : activeTab === 'AWAITING'
+              ? proposal.status === 'SUBMITTED' ||
+                proposal.status === 'UNDER_REVIEW' ||
+                (proposal.status === 'NEGOTIATING' && negotiations[proposal.id]?.senderType !== 'CLIENT')
+              : activeTab === 'NEGOTIATING'
+                ? proposal.status === 'NEGOTIATING'
+                : activeTab === 'ACCEPTED'
+                  ? proposal.status === 'ACCEPTED'
+                  : activeTab === 'REJECTED'
+                    ? ['REJECTED', 'AUTO_CLOSED', 'CONTRACT_CANCELLED'].includes(proposal.status)
+                    : ['WITHDRAWN', 'DRAFT', 'AUTO_CLOSED', 'CONTRACT_CANCELLED'].includes(proposal.status)
 
-      const statusMatch = statusFilter === 'ALL' || proposal.status === statusFilter
-      const negotiationMatch =
-        negotiationFilter === 'ALL' ||
-        (negotiationFilter === 'ACTIVE' && proposal.status === 'NEGOTIATING') ||
-        (negotiationFilter === 'CLIENT_WAITING' && proposal.status === 'NEGOTIATING' && negotiations[proposal.id]?.senderType === 'CLIENT') ||
-        (negotiationFilter === 'MENTOR_WAITING' && proposal.status === 'NEGOTIATING' && negotiations[proposal.id]?.senderType !== 'CLIENT')
-      const budgetMatch =
-        budgetFilter === 'ALL' ||
-        (budgetFilter === 'FIXED' && Boolean(proposal.proposedAmount || job?.budgetMinMxc || job?.budgetMaxMxc)) ||
-        (budgetFilter === 'HOURLY' && Boolean(proposal.proposedHourlyRate || job?.hourlyRateMxc))
-      const categoryMatch = categoryFilter === 'ALL' || categoryId === categoryFilter
-      const dateMatch =
-        dateFilter === 'ALL' ||
-        (dateFilter === 'TODAY' && isWithinDays(proposal.updatedAt || proposal.createdAt, 1)) ||
-        (dateFilter === 'WEEK' && isWithinDays(proposal.updatedAt || proposal.createdAt, 7)) ||
-        (dateFilter === 'MONTH' && isWithinDays(proposal.updatedAt || proposal.createdAt, 30))
-      const searchMatch =
-        query === '' ||
-        proposal.jobTitle.toLowerCase().includes(query) ||
-        (job?.description || proposal.coverLetter).toLowerCase().includes(query)
+        const statusMatch = statusFilter === 'ALL' || proposal.status === statusFilter
+        const categoryMatch = categoryFilter === 'ALL' || categoryId === categoryFilter
+        const searchMatch =
+          query === '' ||
+          proposal.jobTitle.toLowerCase().includes(query) ||
+          (job?.description || proposal.coverLetter || '').toLowerCase().includes(query)
 
-      return tabMatch && statusMatch && negotiationMatch && budgetMatch && categoryMatch && dateMatch && searchMatch
-    }).sort((a, b) => {
-      const aPriority = a.status === 'NEGOTIATING' && negotiations[a.id]?.senderType === 'CLIENT' ? 1 : 0
-      const bPriority = b.status === 'NEGOTIATING' && negotiations[b.id]?.senderType === 'CLIENT' ? 1 : 0
-      if (aPriority !== bPriority) return bPriority - aPriority
-      return new Date(b.updatedAt || b.createdAt).getTime() - new Date(a.updatedAt || a.createdAt).getTime()
-    })
-  }, [activeTab, budgetFilter, categoryFilter, dateFilter, jobMap, negotiationFilter, negotiations, proposals, searchQuery, statusFilter])
-
-  const inboxItems = useMemo(
-    () =>
-      proposals
-        .filter((proposal) => proposal.status === 'NEGOTIATING' && negotiations[proposal.id])
-        .sort((a, b) => new Date(negotiations[b.id].createdAt).getTime() - new Date(negotiations[a.id].createdAt).getTime())
-        .slice(0, 3),
-    [negotiations, proposals]
-  )
+        return tabMatch && statusMatch && categoryMatch && searchMatch
+      })
+      .sort((a, b) => {
+        const aPriority = a.status === 'NEGOTIATING' && negotiations[a.id]?.senderType === 'CLIENT' ? 1 : 0
+        const bPriority = b.status === 'NEGOTIATING' && negotiations[b.id]?.senderType === 'CLIENT' ? 1 : 0
+        if (aPriority !== bPriority) return bPriority - aPriority
+        return new Date(b.updatedAt || b.createdAt).getTime() - new Date(a.updatedAt || a.createdAt).getTime()
+      })
+  }, [activeTab, categoryFilter, jobMap, negotiations, proposals, searchQuery, statusFilter])
 
   if (loading) {
     return (
@@ -266,28 +261,28 @@ export default function MentorProposalsPage() {
                 </span>
                 {stats.accepted > 0 ? (
                   <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-600">
-                    <CheckCircle2 className="h-3 w-3" /> {stats.accepted} accepted
+                    <CheckCircle2 className="h-3 w-3" /> {stats.accepted} active contracts
                   </span>
                 ) : null}
               </div>
             </div>
 
             <div className="flex items-center gap-3">
-              {activeNegotiations.length > 0 ? (
+              {pendingNegotiationItems.length > 0 ? (
                 <button
                   type="button"
                   onClick={() => setActiveTab('NEGOTIATING')}
                   className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-amber-200 bg-amber-50 px-4 text-sm font-bold text-amber-700 transition hover:bg-amber-100"
                 >
                   <MessageCircleMore className="h-3.5 w-3.5" />
-                  {activeNegotiations.length} pending reply
+                  {pendingNegotiationItems.length} pending reply
                 </button>
               ) : null}
               <Link
                 to="/mentor/jobs"
                 className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-indigo-600 px-4 text-sm font-bold text-white shadow-sm transition hover:bg-indigo-700"
               >
-                + New Proposal
+                + Browse jobs
               </Link>
             </div>
           </div>
@@ -304,9 +299,7 @@ export default function MentorProposalsPage() {
                       type="button"
                       onClick={() => setActiveTab(tab.key)}
                       className={`inline-flex h-10 items-center gap-2 rounded-xl px-3.5 text-xs font-bold transition ${
-                        isActive
-                          ? 'bg-indigo-600 text-white shadow-sm'
-                          : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700'
+                        isActive ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700'
                       }`}
                     >
                       {tab.label}
@@ -332,17 +325,28 @@ export default function MentorProposalsPage() {
 
             <div className="flex flex-wrap items-center gap-2 px-5 py-4">
               <div className="hidden items-center gap-2 lg:flex">
-                <MiniSelect value={statusFilter} onChange={setStatusFilter} options={[['ALL', 'Status'], ['SUBMITTED', 'Submitted'], ['UNDER_REVIEW', 'In Review'], ['NEGOTIATING', 'Negotiation'], ['ACCEPTED', 'Accepted'], ['REJECTED', 'Rejected']]} />
+                <MiniSelect
+                  value={statusFilter}
+                  onChange={setStatusFilter}
+                  options={[
+                    ['ALL', 'Status'],
+                    ['SUBMITTED', 'Submitted'],
+                    ['NEGOTIATING', 'Negotiating'],
+                    ['OFFER_ACCEPTED', 'Offer agreed'],
+                    ['ACCEPTED', 'Contract active'],
+                    ['REJECTED', 'Rejected'],
+                    ['AUTO_CLOSED', 'Closed'],
+                    ['CONTRACT_CANCELLED', 'Contract cancelled'],
+                    ['WITHDRAWN', 'Withdrawn'],
+                  ]}
+                />
                 <MiniSelect value={categoryFilter} onChange={setCategoryFilter} options={[['ALL', 'Category'], ...categories.map((item) => [String(item.id), item.name] as [string, string])]} />
-                {(statusFilter !== 'ALL' || categoryFilter !== 'ALL' || searchQuery) ? (
+                {statusFilter !== 'ALL' || categoryFilter !== 'ALL' || searchQuery ? (
                   <button
                     type="button"
                     onClick={() => {
                       setStatusFilter('ALL')
-                      setNegotiationFilter('ALL')
-                      setBudgetFilter('ALL')
                       setCategoryFilter('ALL')
-                      setDateFilter('ALL')
                       setSearchQuery('')
                     }}
                     className="inline-flex h-10 items-center gap-2 rounded-xl px-3 text-xs font-bold text-slate-400 transition hover:bg-slate-50 hover:text-slate-600"
@@ -355,9 +359,7 @@ export default function MentorProposalsPage() {
             </div>
 
             <div className="space-y-4 px-4 py-4">
-              {error ? (
-                <div className="rounded-2xl border border-rose-200 bg-rose-50 px-5 py-4 text-sm text-rose-700">{error}</div>
-              ) : null}
+              {error ? <div className="rounded-2xl border border-rose-200 bg-rose-50 px-5 py-4 text-sm text-rose-700">{error}</div> : null}
 
               {filteredProposals.length === 0 ? (
                 <div className="rounded-2xl border border-dashed border-slate-200 px-6 py-14 text-center">
@@ -369,16 +371,18 @@ export default function MentorProposalsPage() {
                   const job = jobMap[proposal.jobId]
                   const categoryName = categories.find((item) => item.id === job?.categoryId)?.name || 'General'
                   const negotiation = negotiations[proposal.id]
+                  const statusMeta = getStatusMeta(proposal.status, negotiation)
                   const rowTone = getRowTone(proposal.status)
                   const currentOffer = getCurrentOffer(proposal, negotiation)
                   const clientName = job?.clientName || job?.client?.fullName || 'Client'
                   const clientAvatar = job?.client?.avatarUrl
-                  const footerText = negotiation?.senderType === 'CLIENT' ? 'Counter-offer received' : negotiation ? 'Waiting for client' : proposal.status === 'ACCEPTED' ? 'Ready to start contract' : 'Proposal submitted'
+                  const cta = getProposalCta(proposal.status)
+                  const lastActivityAt = negotiation?.createdAt || proposal.updatedAt || proposal.createdAt
+                  const lastActivityLabel = proposal.submittedAt && proposal.submittedAt !== lastActivityAt ? `Last activity ${formatRelativeTime(lastActivityAt)}` : `Submitted ${formatRelativeTime(proposal.submittedAt || proposal.createdAt)}`
 
                   return (
                     <article key={proposal.id} className={`overflow-hidden rounded-[26px] border bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg ${rowTone.border}`}>
                       <div className="px-5 py-5">
-                        {/* Row 1: Avatar + Title + Badges + Actions */}
                         <div className="flex items-start gap-4">
                           <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full bg-slate-100 ring-1 ring-slate-200">
                             {clientAvatar ? (
@@ -389,74 +393,75 @@ export default function MentorProposalsPage() {
                               </div>
                             )}
                           </div>
+
                           <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-2">
                               <h2 className="truncate text-sm font-bold text-slate-950">{proposal.jobTitle}</h2>
                               <span className={`inline-flex shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold ${rowTone.badge}`}>{getStatusLabel(proposal.status)}</span>
                             </div>
                             <p className="mt-0.5 text-[11px] text-slate-500">
-                              {clientName} · {categoryName} · {formatRelativeTime(proposal.updatedAt || proposal.createdAt)}
-                              {proposal.estimatedDurationDays ? ` · ${proposal.estimatedDurationDays} days` : ''}
+                              {clientName} · {categoryName} · {lastActivityLabel}
                             </p>
+                            <p className={`mt-1.5 text-[11px] font-medium ${rowTone.message}`}>{statusMeta.helper}</p>
                           </div>
-                          <Link
-                            to={`/mentor/proposals/${proposal.id}`}
-                            className={`inline-flex h-8 shrink-0 items-center gap-1 rounded-lg px-3 text-[11px] font-bold text-white transition ${proposal.status === 'ACCEPTED' ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-indigo-600 hover:bg-indigo-700'}`}
-                          >
-                            {proposal.status === 'ACCEPTED' ? 'View' : 'Open'}
-                            <ArrowRight className="h-3 w-3" />
-                          </Link>
+
+                          <div className="flex items-center gap-2">
+                            {job?.clientId ? (
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setChatDrawer({
+                                    recipientId: job.clientId,
+                                    contextId: proposal.id,
+                                    title: clientName,
+                                    subtitle: 'Proposal discussion',
+                                  })
+                                }
+                                className="inline-flex h-8 shrink-0 items-center rounded-lg border border-slate-200 px-3 text-[11px] font-bold text-slate-600 transition hover:bg-slate-50 hover:text-slate-800"
+                              >
+                                Message
+                              </button>
+                            ) : null}
+                            <Link
+                              to={`/mentor/proposals/${proposal.id}`}
+                              className={`inline-flex h-8 shrink-0 items-center gap-1 rounded-lg px-3 text-[11px] font-bold transition ${cta.className}`}
+                            >
+                              {cta.label}
+                              <ArrowRight className="h-3 w-3" />
+                            </Link>
+                          </div>
                         </div>
 
-                        {/* Row 2: Budget flow + Step progress */}
-                        <div className="mt-2 flex items-center gap-4 rounded-lg bg-slate-50/80 px-3 py-2">
-                          {/* Budget flow */}
-                          <div className="flex items-center gap-2 text-[11px]">
-                            <span className="text-slate-400">Budget</span>
-                            <span className="font-bold text-slate-600">{getClientBudget(job)}</span>
-                            <span className="text-slate-300">→</span>
-                            <span className="text-slate-400">Yours</span>
-                            <span className="font-bold text-slate-700">{getProposalValue(proposal)}</span>
-                            {currentOffer.primary !== getProposalValue(proposal) ? (
-                              <>
-                                <span className="text-slate-300">→</span>
-                                <span className={`font-bold ${currentOffer.highlight === 'amber' ? 'text-amber-600' : currentOffer.highlight === 'green' ? 'text-emerald-600' : 'text-slate-700'}`}>
-                                  {currentOffer.primary}
-                                </span>
-                              </>
-                            ) : null}
+                        <div className="mt-3 rounded-xl bg-slate-50/80 px-3 py-3">
+                          <div className="grid gap-3 md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
+                            <div className="grid grid-cols-2 gap-3 text-[11px]">
+                              <ProposalMetric label="Client budget" value={getClientBudget(job)} />
+                              <ProposalMetric label="Your offer" value={currentOffer.primary} />
+                              <ProposalMetric label="Delivery time" value={getTimelineValue(proposal, negotiation)} />
+                              <ProposalMetric label="Current status" value={getStatusLabel(proposal.status)} />
+                            </div>
+
+                            <div className="flex items-center justify-start md:justify-end">
+                              <div className="flex items-center gap-0">
+                                {stageLabels.map((label, index) => {
+                                  const step = index + 1
+                                  const currentStep = getCurrentStep(proposal.status)
+                                  const reached = step <= currentStep
+                                  const active = step === currentStep
+
+                                  return (
+                                    <div key={label} className="flex items-center">
+                                      <div className="flex items-center gap-1">
+                                        <div className={`h-2 w-2 rounded-full ${reached ? 'bg-indigo-500' : 'bg-slate-200'}`} />
+                                        {active ? <span className="whitespace-nowrap text-[9px] font-bold text-indigo-600">{label}</span> : null}
+                                      </div>
+                                      {step < stageLabels.length ? <div className={`mx-1 h-px w-3 ${step < currentStep ? 'bg-indigo-400' : 'bg-slate-200'}`} /> : null}
+                                    </div>
+                                  )
+                                })}
+                              </div>
+                            </div>
                           </div>
-
-                          {/* Separator */}
-                          <div className="hidden h-4 w-px bg-slate-200 md:block" />
-
-                          {/* Mini labeled step progress */}
-                          <div className="hidden items-center gap-0 md:flex">
-                            {stageLabels.map((label, index) => {
-                              const step = index + 1
-                              const currentStep = getCurrentStep(proposal.status)
-                              const reached = step <= currentStep
-                              const active = step === currentStep
-
-                              let dotCls = 'bg-slate-200'
-                              if (reached) dotCls = 'bg-indigo-500'
-
-                              return (
-                                <div key={label} className="flex items-center">
-                                  <div className="flex items-center gap-0.5">
-                                    <div className={`h-1.5 w-1.5 rounded-full ${dotCls}`} />
-                                    {active ? (
-                                      <span className="whitespace-nowrap text-[9px] font-bold text-indigo-600">{label}</span>
-                                    ) : null}
-                                  </div>
-                                  {step < stageLabels.length ? <div className={`mx-0.5 h-[1px] w-2 ${step < currentStep ? 'bg-indigo-400' : 'bg-slate-200'}`} /> : null}
-                                </div>
-                              )
-                            })}
-                          </div>
-
-                          {/* Footer status text (mobile) */}
-                          <span className={`ml-auto text-[10px] font-bold md:hidden ${rowTone.message}`}>{footerText}</span>
                         </div>
                       </div>
                     </article>
@@ -472,71 +477,75 @@ export default function MentorProposalsPage() {
             <div className="flex items-center justify-between">
               <h3 className="text-base font-black text-slate-950">Negotiation Inbox</h3>
               <span className="inline-flex h-7 min-w-7 items-center justify-center rounded-full bg-rose-100 px-2 text-xs font-black text-rose-600">
-                {activeNegotiations.length}
+                {pendingNegotiationItems.length}
               </span>
             </div>
-            <div className="mt-4 space-y-4">
-              {inboxItems.map((proposal) => {
-                const negotiation = negotiations[proposal.id]
-                const clientName = jobMap[proposal.jobId]?.clientName || jobMap[proposal.jobId]?.client?.fullName || 'Client'
-                const avatarUrl = jobMap[proposal.jobId]?.client?.avatarUrl
-                return (
-                  <Link key={proposal.id} to={`/mentor/proposals/${proposal.id}`} className="flex items-start gap-3">
-                    <div className="h-10 w-10 overflow-hidden rounded-full bg-slate-100">
-                      {avatarUrl ? (
-                        <img src={avatarUrl} alt={clientName} className="h-full w-full object-cover" />
-                      ) : (
-                              <div className="flex h-full w-full items-center justify-center bg-indigo-100 text-xs font-black text-indigo-600">
-                                {clientName.charAt(0)}
-                              </div>
-                      )}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-start justify-between gap-2">
-                        <div>
-                          <p className="truncate text-sm font-black text-slate-950">{clientName}</p>
-                          <p className={`mt-1 text-xs font-medium ${negotiation?.senderType === 'CLIENT' ? 'text-amber-600' : 'text-slate-500'}`}>
-                            {negotiation?.senderType === 'CLIENT' ? 'Counter-offer received' : 'Waiting for your reply'}
-                          </p>
-                        </div>
-                        <p className="whitespace-nowrap text-xs text-slate-400">{formatRelativeTime(negotiation?.createdAt || proposal.updatedAt)}</p>
+
+            {pendingNegotiationItems.length > 0 ? (
+              <div className="mt-4 space-y-4">
+                {pendingNegotiationItems.slice(0, 3).map((proposal) => {
+                  const negotiation = negotiations[proposal.id]
+                  const clientName = jobMap[proposal.jobId]?.clientName || jobMap[proposal.jobId]?.client?.fullName || 'Client'
+                  const avatarUrl = jobMap[proposal.jobId]?.client?.avatarUrl
+                  return (
+                    <Link key={proposal.id} to={`/mentor/proposals/${proposal.id}`} className="flex items-start gap-3">
+                      <div className="h-10 w-10 overflow-hidden rounded-full bg-slate-100">
+                        {avatarUrl ? (
+                          <img src={avatarUrl} alt={clientName} className="h-full w-full object-cover" />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center bg-indigo-100 text-xs font-black text-indigo-600">
+                            {clientName.charAt(0)}
+                          </div>
+                        )}
                       </div>
-                    </div>
-                  </Link>
-                )
-              })}
-            </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <p className="truncate text-sm font-black text-slate-950">{clientName}</p>
+                            <p className="mt-1 text-xs font-medium text-amber-600">Pending negotiation request</p>
+                          </div>
+                          <p className="whitespace-nowrap text-xs text-slate-400">{formatRelativeTime(negotiation?.createdAt || proposal.updatedAt)}</p>
+                        </div>
+                      </div>
+                    </Link>
+                  )
+                })}
+              </div>
+            ) : (
+              <div className="mt-4 rounded-2xl border border-dashed border-slate-200 px-4 py-8 text-center">
+                <p className="text-sm font-bold text-slate-900">No pending negotiation requests.</p>
+              </div>
+            )}
+
             <Link
               to="/mentor/proposals"
               className="mt-5 inline-flex h-11 w-full items-center justify-center gap-2 rounded-2xl border border-indigo-200 bg-indigo-50 text-sm font-bold text-indigo-700 transition hover:bg-indigo-100"
             >
-              View all conversations
+              View all proposals
               <ArrowRight className="h-4 w-4" />
             </Link>
           </aside>
 
           <aside className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-sm">
             <div className="flex items-center justify-between">
-              <h3 className="text-base font-black text-slate-950">Earnings Forecast</h3>
-              <span className="rounded-xl border border-slate-200 px-3 py-1 text-xs font-bold text-slate-500">This Month</span>
+              <h3 className="text-base font-black text-slate-950">Potential Earnings</h3>
+              <span className="rounded-xl border border-slate-200 px-3 py-1 text-xs font-bold text-slate-500">Active contracts</span>
             </div>
             <p className="mt-5 text-[36px] font-black tracking-tight text-slate-950">{formatCompactMxc(stats.potentialEarnings)} MXC</p>
-            <div className="mt-1 flex items-center justify-between text-sm">
-              <span className="text-slate-500">Potential Earnings</span>
-              <span className="font-bold text-emerald-500">+18% vs last month</span>
-            </div>
-            <MiniChart />
+            <p className="mt-2 text-sm leading-6 text-slate-500">
+              Based on proposals that already became active contracts. Escrow is locked after client acceptance, payout happens only after completion.
+            </p>
           </aside>
 
           <aside className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-sm">
             <div className="flex items-center justify-between">
-              <h3 className="text-base font-black text-slate-950">AI Suggestions</h3>
-              <span className="rounded-full bg-violet-100 px-2.5 py-1 text-xs font-black text-violet-700">New</span>
+              <h3 className="text-base font-black text-slate-950">Proposal Tips</h3>
+              <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-black text-slate-600">Static</span>
             </div>
             <div className="mt-4 space-y-4">
-              <SuggestionRow tone="blue" title="This proposal has high acceptance probability" text="80% match" />
-              <SuggestionRow tone="indigo" title="Client usually responds within 2 hours" text="High responsiveness" />
-              <SuggestionRow tone="amber" title="Consider reducing delivery time" text="May improve acceptance rate" />
+              <SuggestionRow tone="blue" title="Respond quickly to improve acceptance rate." text="Fast follow-up helps keep negotiations active." />
+              <SuggestionRow tone="indigo" title="Keep delivery time realistic." text="Clear and achievable timelines build trust with clients." />
+              <SuggestionRow tone="amber" title="Clarify scope before accepting offer." text="Offer agreed does not start the contract until the client accepts and locks escrow." />
             </div>
           </aside>
 
@@ -565,6 +574,20 @@ export default function MentorProposalsPage() {
           </aside>
         </aside>
       </div>
+
+      <ContextualChatDrawer
+        open={!!chatDrawer}
+        onOpenChange={(open) => {
+          if (!open) {
+            setChatDrawer(null)
+          }
+        }}
+        recipientId={chatDrawer?.recipientId}
+        contextType="PROPOSAL"
+        contextId={chatDrawer?.contextId}
+        title={chatDrawer?.title}
+        subtitle={chatDrawer?.subtitle}
+      />
     </div>
   )
 }
@@ -593,33 +616,11 @@ function MiniSelect({
   )
 }
 
-
-
-function MiniChart() {
-  const points = '6,50 38,40 70,62 102,45 134,52 166,33 198,29 230,18'
+function ProposalMetric({ label, value }: { label: string; value: string }) {
   return (
-    <div className="mt-5">
-      <div className="flex items-end gap-2 text-[10px] text-slate-400">
-        <span>0</span>
-        <span>1K</span>
-        <span>2K</span>
-        <span>3K</span>
-      </div>
-      <svg viewBox="0 0 236 72" className="mt-2 h-24 w-full">
-        <path d="M6 50 L38 40 L70 62 L102 45 L134 52 L166 33 L198 29 L230 18" fill="none" stroke="#5b4df6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-        <polyline points={points} fill="url(#forecastFill)" opacity="0.18" />
-        <defs>
-          <linearGradient id="forecastFill" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#5b4df6" />
-            <stop offset="100%" stopColor="#5b4df6" stopOpacity="0" />
-          </linearGradient>
-        </defs>
-      </svg>
-      <div className="mt-1 flex justify-between text-[10px] text-slate-400">
-        <span>1 May</span>
-        <span>15 May</span>
-        <span>31 May</span>
-      </div>
+    <div>
+      <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-400">{label}</p>
+      <p className="mt-1 text-[11px] font-bold text-slate-700">{value}</p>
     </div>
   )
 }
@@ -654,18 +655,99 @@ function SuggestionRow({
 
 function getStatusLabel(status: string) {
   switch (status) {
+    case 'SUBMITTED':
+      return 'Submitted'
     case 'NEGOTIATING':
       return 'Negotiating'
-    case 'SUBMITTED':
-      return 'Awaiting Response'
-    case 'UNDER_REVIEW':
-      return 'In Review'
+    case 'OFFER_ACCEPTED':
+      return 'Offer agreed'
     case 'ACCEPTED':
-      return 'Accepted'
+      return 'Contract active'
     case 'REJECTED':
       return 'Rejected'
+    case 'AUTO_CLOSED':
+      return 'Closed'
+    case 'CONTRACT_CANCELLED':
+      return 'Contract cancelled'
+    case 'WITHDRAWN':
+      return 'Withdrawn'
+    case 'UNDER_REVIEW':
+      return 'In review'
     default:
       return status
+  }
+}
+
+function getStatusMeta(status: string, negotiation?: NegotiationInfo) {
+  switch (status) {
+    case 'SUBMITTED':
+      return {
+        helper: 'Waiting for the client to review your proposal.',
+      }
+    case 'NEGOTIATING':
+      return {
+        helper: negotiation?.senderType === 'CLIENT' ? 'Client sent a counter-offer, continue negotiation.' : 'Negotiation is open, waiting for the client response.',
+      }
+    case 'OFFER_ACCEPTED':
+      return {
+        helper: 'Offer agreed. Waiting for client to accept mentor and lock escrow.',
+      }
+    case 'ACCEPTED':
+      return {
+        helper: 'Contract is active. Escrow is locked and payout happens after completion.',
+      }
+    case 'REJECTED':
+      return {
+        helper: 'The client decided not to move forward with this proposal.',
+      }
+    case 'AUTO_CLOSED':
+      return {
+        helper: 'The client selected another mentor for this job.',
+      }
+    case 'CONTRACT_CANCELLED':
+      return {
+        helper: 'This contract was cancelled. The old deal remains in history.',
+      }
+    case 'WITHDRAWN':
+      return {
+        helper: 'You withdrew this proposal before it became a contract.',
+      }
+    default:
+      return {
+        helper: 'Track updates here as the proposal moves forward.',
+      }
+  }
+}
+
+function getProposalCta(status: string) {
+  switch (status) {
+    case 'NEGOTIATING':
+      return {
+        label: 'Continue negotiation',
+        className: 'bg-amber-100 text-amber-700 hover:bg-amber-200',
+      }
+    case 'OFFER_ACCEPTED':
+      return {
+        label: 'Waiting for client',
+        className: 'bg-indigo-100 text-indigo-700 hover:bg-indigo-200',
+      }
+    case 'ACCEPTED':
+      return {
+        label: 'View contract',
+        className: 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200',
+      }
+    case 'REJECTED':
+    case 'AUTO_CLOSED':
+    case 'CONTRACT_CANCELLED':
+      return {
+        label: 'View result',
+        className: 'bg-slate-100 text-slate-700 hover:bg-slate-200',
+      }
+    default:
+      return {
+        label: 'View details',
+        className: 'bg-indigo-600 text-white hover:bg-indigo-700',
+      }
   }
 }
 
@@ -673,31 +755,34 @@ function getRowTone(status: string) {
   switch (status) {
     case 'NEGOTIATING':
       return {
-        border: 'border-l-4 border-l-amber-400 border-slate-200',
+        border: 'border-slate-200',
         badge: 'bg-amber-50 text-amber-700',
-        cta: 'bg-indigo-600 hover:bg-indigo-700',
-        message: 'text-indigo-600',
+        message: 'text-amber-700',
       }
-    case 'SUBMITTED':
-    case 'UNDER_REVIEW':
+    case 'OFFER_ACCEPTED':
       return {
-        border: 'border-l-4 border-l-blue-400 border-slate-200',
-        badge: 'bg-blue-50 text-blue-700',
-        cta: 'bg-indigo-600 hover:bg-indigo-700',
-        message: 'text-emerald-500',
+        border: 'border-slate-200',
+        badge: 'bg-indigo-50 text-indigo-700',
+        message: 'text-indigo-700',
       }
     case 'ACCEPTED':
       return {
-        border: 'border-l-4 border-l-emerald-400 border-slate-200',
+        border: 'border-slate-200',
         badge: 'bg-emerald-50 text-emerald-700',
-        cta: 'bg-violet-100 text-violet-700 hover:bg-violet-200',
-        message: 'text-emerald-500',
+        message: 'text-emerald-700',
+      }
+    case 'REJECTED':
+    case 'AUTO_CLOSED':
+    case 'CONTRACT_CANCELLED':
+      return {
+        border: 'border-slate-200',
+        badge: 'bg-slate-100 text-slate-600',
+        message: 'text-slate-500',
       }
     default:
       return {
-        border: 'border-l-4 border-l-slate-300 border-slate-200',
-        badge: 'bg-slate-100 text-slate-600',
-        cta: 'bg-slate-900 hover:bg-slate-800',
+        border: 'border-slate-200',
+        badge: 'bg-blue-50 text-blue-700',
         message: 'text-slate-500',
       }
   }
@@ -710,85 +795,58 @@ function getClientBudget(job?: JobResponse) {
   return 'Budget TBD'
 }
 
-function getBudgetType(job: JobResponse | undefined, proposal: ProposalResponse) {
-  if (proposal.proposedHourlyRate || job?.hourlyRateMxc) return 'Hourly Rate'
-  return 'Fixed Price'
-}
-
 function getProposalValue(proposal: ProposalResponse) {
   if (proposal.proposedHourlyRate) return `${formatCurrency(proposal.proposedHourlyRate)} / hr`
   if (proposal.proposedAmount) return formatCurrency(proposal.proposedAmount)
   return 'Not set'
 }
 
-function getTimelineLabel(proposal: ProposalResponse) {
-  if (proposal.estimatedDurationDays) return `${proposal.estimatedDurationDays} days`
-  return 'Flexible timeline'
-}
-
 function getCurrentOffer(proposal: ProposalResponse, negotiation?: NegotiationInfo) {
-  if (proposal.status === 'ACCEPTED') {
-    return {
-      primary: proposal.proposedHourlyRate ? `${formatCurrency(proposal.proposedHourlyRate)} / hr` : proposal.proposedAmount ? formatCurrency(proposal.proposedAmount) : 'Accepted',
-      secondary: 'Agreement reached',
-      highlight: 'green' as const,
-    }
-  }
-
   if (negotiation?.proposedAmount) {
     return {
       primary: formatCurrency(negotiation.proposedAmount),
-      secondary: negotiation.senderType === 'CLIENT' ? 'Counter-offer received' : 'Waiting for client',
-      highlight: negotiation.senderType === 'CLIENT' ? ('amber' as const) : ('blue' as const),
     }
   }
 
-  if (proposal.proposedHourlyRate) {
+  if (negotiation?.estimatedDurationDays && !negotiation?.proposedAmount) {
     return {
-      primary: `${formatCurrency(proposal.proposedHourlyRate)} / hr`,
-      secondary: proposal.status === 'NEGOTIATING' ? 'Negotiation started' : 'Current proposal',
-      highlight: proposal.status === 'NEGOTIATING' ? ('blue' as const) : undefined,
-    }
-  }
-
-  if (proposal.proposedAmount) {
-    return {
-      primary: formatCurrency(proposal.proposedAmount),
-      secondary: proposal.status === 'NEGOTIATING' ? 'Waiting for reply' : 'Current proposal',
-      highlight: proposal.status === 'NEGOTIATING' ? ('blue' as const) : undefined,
+      primary: getProposalValue(proposal),
     }
   }
 
   return {
-    primary: 'TBD',
-    secondary: 'No offer yet',
-    highlight: undefined,
+    primary: getProposalValue(proposal),
   }
 }
 
-const stageLabels = ['Sent', 'Viewed', 'Counter', 'Negotiating', 'Agreement', 'Contract'] as const
-
-
+function getTimelineValue(proposal: ProposalResponse, negotiation?: NegotiationInfo) {
+  if (negotiation?.estimatedDurationDays) {
+    return `${negotiation.estimatedDurationDays} days`
+  }
+  if (proposal.estimatedDurationDays) {
+    return `${proposal.estimatedDurationDays} days`
+  }
+  return 'Flexible'
+}
 
 function getCurrentStep(status: string) {
   switch (status) {
     case 'SUBMITTED':
-      return 2
     case 'UNDER_REVIEW':
-      return 3
+      return 2
     case 'NEGOTIATING':
+      return 3
+    case 'OFFER_ACCEPTED':
       return 4
     case 'ACCEPTED':
-      return 6
-    case 'REJECTED':
-      return 3
+      return 5
     default:
       return 1
   }
 }
 
-function isWithinDays(date: string, days: number) {
-  return Date.now() - new Date(date).getTime() <= days * 24 * 60 * 60 * 1000
+function normalizeProposalValue(proposal: ProposalResponse) {
+  return proposal.proposedAmount || proposal.proposedHourlyRate || 0
 }
 
 function formatCompactMxc(value: number) {
@@ -801,6 +859,7 @@ function getRecommendedMatch(job: JobResponse) {
   }
   return 76
 }
+
 function ProposalCardSkeleton() {
   return (
     <div className="rounded-2xl border border-slate-100 bg-white p-4">

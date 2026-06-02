@@ -30,6 +30,7 @@ import JobDetailPage from './pages/job/JobDetailPage'
 import JobCreatePage from './pages/job/JobCreatePage'
 import JobEditPage from './pages/job/JobEditPage'
 import MyJobsPage from './pages/job/MyJobsPage'
+import UserRequestDetailPage from './pages/job/UserRequestDetailPage'
 
 // Course Pages
 import CourseListPage from './pages/course/CourseListPage'
@@ -61,9 +62,16 @@ import AdminSupportPage from './pages/admin/AdminSupportPage'
 // Mentor Pages
 import MentorDashboardPage from './pages/mentor/MentorDashboardPage'
 import MentorJobsPage from './pages/mentor/MentorJobsPage'
+import MentorContractsPage from './pages/mentor/MentorContractsPage'
 import MentorProposalsPage from './pages/mentor/MentorProposalsPage'
 import MentorProposalDetailPage from './pages/mentor/MentorProposalDetailPage'
 import MentorProfileSetupPage from './pages/mentor/MentorProfileSetupPage'
+import MentorMessagesPage from './pages/mentor/MentorMessagesPage'
+import MentorCoursesPage from './pages/mentor/MentorCoursesPage'
+import MentorSchedulePage from './pages/mentor/MentorSchedulePage'
+import MentorEarningsPage from './pages/mentor/MentorEarningsPage'
+import MentorReviewsPage from './pages/mentor/MentorReviewsPage'
+import MentorSettingsPage from './pages/mentor/MentorSettingsPage'
 
 // Protected Route Components
 import ProtectedRoute from './components/auth/ProtectedRoute'
@@ -146,8 +154,6 @@ function App() {
             <Route path="/chat" element={<ChatListPage />} />
             <Route path="/chat/demo" element={<ChatDemoPage />} />
 
-            {/* My Jobs Route */}
-            <Route path="/my-jobs" element={<MyJobsPage />} />
           </Route>
 
           {/* Profile Routes with ProfileLayout */}
@@ -156,12 +162,18 @@ function App() {
             <Route path="/profile/dashboard" element={<Navigate to="/profile" replace />} />
             <Route path="/profile/settings" element={<div>Settings Page (Coming Soon)</div>} />
             <Route path="/profile/notifications" element={<NotificationListPage />} />
-            <Route path="/profile/jobs" element={<Navigate to="/my-jobs" replace />} />
+            <Route path="/profile/jobs" element={<Navigate to="/users/requests" replace />} />
             <Route path="/profile/proposals" element={<div>Proposals (Coming Soon)</div>} />
             <Route path="/profile/courses" element={<MyCoursesPage />} />
+            <Route path="/profile/appointments" element={<div>Appointments (Coming Soon)</div>} />
+            <Route path="/profile/transactions" element={<div>Transactions (Coming Soon)</div>} />
             <Route path="/profile/saved" element={<SavedMentorsPage />} />
             <Route path="/profile/reviews" element={<div>Reviews (Coming Soon)</div>} />
             <Route path="/profile/payments" element={<div>Payment Methods (Coming Soon)</div>} />
+            <Route path="/my-jobs" element={<MyJobsPage />} />
+            <Route path="/my-jobs/:jobId" element={<UserRequestDetailPage />} />
+            <Route path="/users/requests" element={<MyJobsPage />} />
+            <Route path="/users/requests/:jobId" element={<UserRequestDetailPage />} />
             
             {/* Mentor Verification */}
             <Route path="/become-a-mentor" element={<MentorProfilePage />} />
@@ -197,11 +209,15 @@ function App() {
             <Route path="/mentor/jobs" element={<MentorJobsPage />} />
             <Route path="/mentor/proposals" element={<MentorProposalsPage />} />
             <Route path="/mentor/proposals/:proposalId" element={<MentorProposalDetailPage />} />
-            <Route path="/mentor/contracts" element={<div>Active Contracts (Coming Soon)</div>} />
-            <Route path="/mentor/my-courses" element={<div>My Courses (Coming Soon)</div>} />
-            <Route path="/mentor/schedule" element={<div>Schedule (Coming Soon)</div>} />
-            <Route path="/mentor/wallet" element={<div>Earnings (Coming Soon)</div>} />
-            <Route path="/mentor/earnings" element={<Navigate to="/mentor/wallet" replace />} />
+            <Route path="/mentor/contracts" element={<MentorContractsPage />} />
+            <Route path="/mentor/messages" element={<MentorMessagesPage />} />
+            <Route path="/mentor/courses" element={<MentorCoursesPage />} />
+            <Route path="/mentor/my-courses" element={<Navigate to="/mentor/courses" replace />} />
+            <Route path="/mentor/schedule" element={<MentorSchedulePage />} />
+            <Route path="/mentor/earnings" element={<MentorEarningsPage />} />
+            <Route path="/mentor/wallet" element={<Navigate to="/mentor/earnings" replace />} />
+            <Route path="/mentor/reviews" element={<MentorReviewsPage />} />
+            <Route path="/mentor/settings" element={<MentorSettingsPage />} />
             <Route path="/mentor/withdraw" element={<Navigate to="/wallet" replace />} />
           </Route>
 
