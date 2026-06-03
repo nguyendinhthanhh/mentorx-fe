@@ -20,6 +20,7 @@ import {
   shouldShowDateSeparator,
 } from '../chatShared'
 import { PromptInputBox } from '@/components/ui/ai-prompt-box'
+import JobContextBanner from './JobContextBanner'
 
 type ConversationPaneProps = {
   selectedRoom: ChatRoomResponse | null
@@ -196,6 +197,11 @@ export default function ConversationPane({
           </div>
         )}
       </header>
+
+      {/* Job Context Banner - Shows when chat is linked to a job */}
+      {selectedRoom.referenceType === 'JOB' && selectedRoom.referenceId && (
+        <JobContextBanner jobId={selectedRoom.referenceId} userId={currentUserId} />
+      )}
 
       <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto bg-white px-6 py-5">
         {messagesLoading ? (

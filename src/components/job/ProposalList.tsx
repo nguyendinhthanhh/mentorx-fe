@@ -6,26 +6,32 @@ import { negotiationApi, type NegotiationResponse } from '@/api/negotiationApi'
 import { chatApi } from '@/api/chatApi'
 import { useAuthStore } from '@/store/authStore'
 import { useSearchParams, Link, useNavigate } from 'react-router-dom'
-import { formatCurrency, formatRelativeTime } from '@/utils/formatters'
+import { formatCurrency, formatRelativeTime, formatDeadline, formatTimeRemaining } from '@/utils/formatters'
 import { ProposalResponse } from '@/types'
 import { ensureDirectJobChat, getJobChatRoute } from '@/utils/jobWorkspace'
-import { 
-  CalendarDays, 
-  CheckCircle, 
-  Clock, 
-  MessageSquare, 
-  Timer, 
-  User, 
-  XCircle,
-  Filter,
-  AlertCircle,
-  TrendingUp,
-  MessageCircle,
+import {
+  Clock3,
   DollarSign,
-  Loader2,
-  ArrowRight,
+  MessageCircle,
+  Clock,
   Eye,
+  CheckCircle,
+  XCircle,
+  AlertCircle,
+  Filter,
+  CheckCircle2,
+  Loader2,
+  CalendarDays,
+  Timer,
+  ArrowRight,
+  TrendingUp,
+  X,
   Edit,
+  MessageSquare,
+  ChevronRight,
+  PencilLine,
+  FileText,
+  User
 } from 'lucide-react'
 
 interface Props {
@@ -44,7 +50,15 @@ export default function ProposalList({ jobId }: Props) {
   const queryClient = useQueryClient()
   const navigate = useNavigate()
   const [actionLoading, setActionLoading] = useState<string | null>(null)
-  const [acceptCandidate, setAcceptCandidate] = useState<AcceptCandidate | null>(null)
+  const [acceptCandidate, setAcceptCandidate] = useState<{
+    id: string
+    mentorId: string
+    mentorName: string
+    acceptedAmount?: number
+    acceptedDurationDays?: number
+    jobId: string
+  } | null>(null)
+  const [selectedProposalId, setSelectedProposalId] = useState<string | null>(null)
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('ALL')
   const [searchParams] = useSearchParams()
   const targetProposalId = searchParams.get('proposalId')
@@ -151,6 +165,7 @@ export default function ProposalList({ jobId }: Props) {
       setActionLoading(proposalId)
       await proposalApi.reject(proposalId, reason || 'Not selected for this project')
       await refreshProposalViews()
+      setSelectedProposalId(null)
     } catch (error: any) {
       alert(error.response?.data?.message || 'Không thể từ chối proposal')
     } finally {
@@ -158,69 +173,14 @@ export default function ProposalList({ jobId }: Props) {
     }
   }
 
-  const legacyOpenAcceptConfirm = (proposalId: string) => {
-    const proposalToAccept = data?.content.find((proposal) => proposal.id === proposalId)
-    if (!proposalToAccept) return
-    setAcceptCandidate(proposalToAccept)
-  }
-
-  const legacyConfirmAccept = async () => {
-    if (!acceptCandidate) return
-
-    try {
-      setActionLoading(acceptCandidate.id)
-      await proposalApi.accept(acceptCandidate.id)
-
-      if (user) {
-        try {
-          let finalAmount = acceptCandidate.acceptedAmount ?? acceptCandidate.proposedAmount
-          let finalDays = acceptCandidate.acceptedDurationDays ?? acceptCandidate.estimatedDurationDays
-
-          try {
-            const latestNeg = await negotiationApi.getLatest(acceptCandidate.id)
-            if (latestNeg) {
-              finalAmount = latestNeg.proposedAmount || finalAmount
-              finalDays = latestNeg.estimatedDurationDays || finalDays
-            }
-          } catch (e) {
-            // Ignore error
-          }
-
-          const room = await ensureDirectJobChat({
-            currentUserId: user.userId,
-            peerUserId: acceptCandidate.mentorId,
-            jobId,
-          })
-
-          const msg = `🎉 **Dự án đã chính thức được bắt đầu!**\n\nChào mentor **${acceptCandidate.mentorName}**, tôi vừa chấp nhận đề xuất của bạn. Dưới đây là thông tin chốt:\n- **Giá thỏa thuận**: ${finalAmount} MXC\n- **Thời gian**: ${finalDays} ngày\n\nChúng ta sẽ sử dụng không gian này để trao đổi tiến độ và tài liệu công việc nhé!`
-
-          await chatApi.sendMessage({
-            chatRoomId: room.id,
-            senderId: user.userId,
-            content: msg,
-            messageType: 'TEXT',
-          })
-          toast.success('Deal accepted. Chat is ready.')
-          navigate(getJobChatRoute(jobId, acceptCandidate.mentorId))
-        } catch (chatError) {
-          console.error('Lỗi khi setup không gian làm việc:', chatError)
-        }
-      }
-
-      await refreshProposalViews()
-      setAcceptCandidate(null)
-    } catch (error: any) {
-      alert(error.response?.data?.message || 'Không thể chấp nhận proposal')
-    } finally {
-      setActionLoading(null)
-    }
-  }
-
   const openAcceptConfirm = (proposal: ProposalResponse, latestNegotiation?: NegotiationResponse) => {
     setAcceptCandidate({
-      ...proposal,
-      acceptedAmount: latestNegotiation?.proposedAmount ?? proposal.proposedAmount ?? null,
-      acceptedDurationDays: latestNegotiation?.estimatedDurationDays ?? proposal.estimatedDurationDays ?? null,
+      id: proposal.id,
+      mentorId: proposal.mentorId,
+      mentorName: proposal.mentorName,
+      jobId,
+      acceptedAmount: latestNegotiation?.proposedAmount ?? proposal.proposedAmount ?? undefined,
+      acceptedDurationDays: latestNegotiation?.estimatedDurationDays ?? proposal.estimatedDurationDays ?? undefined,
     })
   }
 
@@ -233,26 +193,13 @@ export default function ProposalList({ jobId }: Props) {
 
       if (user) {
         try {
-          let finalAmount = acceptCandidate.proposedAmount
-          let finalDays = acceptCandidate.estimatedDurationDays
-
-          try {
-            const latestNeg = await negotiationApi.getLatest(acceptCandidate.id)
-            if (latestNeg) {
-              finalAmount = latestNeg.proposedAmount || finalAmount
-              finalDays = latestNeg.estimatedDurationDays || finalDays
-            }
-          } catch (e) {
-            // Ignore error
-          }
-
           const room = await ensureDirectJobChat({
             currentUserId: user.userId,
             peerUserId: acceptCandidate.mentorId,
             jobId,
           })
 
-          const msg = `🎉 **Dự án đã chính thức được bắt đầu!**\n\nChào mentor **${acceptCandidate.mentorName}**, tôi vừa chấp nhận đề xuất của bạn. Dưới đây là thông tin chốt:\n- **Giá thỏa thuận**: ${finalAmount} MXC\n- **Thời gian**: ${finalDays} ngày\n\nChúng ta sẽ sử dụng không gian này để trao đổi tiến độ và tài liệu công việc nhé!`
+          const msg = `🎉 **Dự án đã chính thức được bắt đầu!**\n\nChào mentor **${acceptCandidate.mentorName}**, tôi vừa chấp nhận đề xuất của bạn. Dưới đây là thông tin chốt:\n- **Giá thỏa thuận**: ${acceptCandidate.acceptedAmount} MXC\n- **Thời gian**: ${acceptCandidate.acceptedDurationDays} ngày\n\nChúng ta sẽ sử dụng không gian này để trao đổi tiến độ và tài liệu công việc nhé!`
 
           await chatApi.sendMessage({
             chatRoomId: room.id,
@@ -269,6 +216,7 @@ export default function ProposalList({ jobId }: Props) {
 
       await refreshProposalViews()
       setAcceptCandidate(null)
+      setSelectedProposalId(null)
     } catch (error: any) {
       alert(error.response?.data?.message || 'Không thể chấp nhận proposal')
     } finally {
@@ -377,17 +325,12 @@ export default function ProposalList({ jobId }: Props) {
           </p>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-3">
           {filteredProposals.map((proposal) => (
-            <ProposalCard
+            <CompactProposalCard
               key={proposal.id}
-              id={`proposal-${proposal.id}`}
               proposal={proposal}
-              actionLoading={actionLoading}
-              hasAcceptedProposal={hasAcceptedProposal}
-              onAccept={openAcceptConfirm}
-              onReject={handleReject}
-              onNegotiated={refreshProposalViews}
+              onClick={() => setSelectedProposalId(proposal.id)}
             />
           ))}
         </div>
@@ -398,6 +341,18 @@ export default function ProposalList({ jobId }: Props) {
         <div className="text-center text-sm text-slate-500">
           Hiển thị {filteredProposals.length} / {proposals.length} proposals
         </div>
+      )}
+
+      {selectedProposalId && (
+        <ProposalDetailDrawer
+          proposal={proposals.find(p => p.id === selectedProposalId)!}
+          onClose={() => setSelectedProposalId(null)}
+          actionLoading={actionLoading}
+          hasAcceptedProposal={hasAcceptedProposal}
+          onAccept={openAcceptConfirm}
+          onReject={handleReject}
+          onNegotiated={refreshProposalViews}
+        />
       )}
 
       {acceptCandidate && (
@@ -513,274 +468,278 @@ function FilterChip({ label, count, color, active, onClick }: FilterChipProps) {
   )
 }
 
-function ProposalCard({
-  id,
+function CompactProposalCard({
   proposal,
+  onClick
+}: {
+  proposal: ProposalResponse
+  onClick: () => void
+}) {
+  const isAccepted = proposal.status === 'ACCEPTED' || proposal.status === 'OFFER_ACCEPTED'
+  const isRejected = proposal.status === 'REJECTED'
+  const isNegotiating = proposal.status === 'NEGOTIATING'
+
+  const { data: latestNegotiation } = useQuery(
+    ['negotiation-latest', proposal.id],
+    () => negotiationApi.getLatest(proposal.id),
+    { enabled: isNegotiating || isAccepted, retry: false }
+  )
+
+  const currentAmount = latestNegotiation?.proposedAmount ?? proposal.proposedAmount
+
+  return (
+    <div
+      onClick={onClick}
+      className={`group cursor-pointer rounded-2xl border bg-white p-4 shadow-sm transition-all duration-300 hover:shadow-md ${
+        isAccepted ? 'border-emerald-200 bg-emerald-50/30' :
+        isRejected ? 'border-slate-200 opacity-70' :
+        isNegotiating ? 'border-amber-200 hover:border-amber-300' :
+        'border-slate-200 hover:border-indigo-300'
+      }`}
+    >
+      <div className="flex items-center gap-4">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-sm font-black text-indigo-700">
+          {getInitials(proposal.mentorName)}
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <h4 className="truncate text-base font-black text-slate-950 group-hover:text-indigo-600 transition-colors">
+              {proposal.mentorName}
+            </h4>
+            <StatusBadge status={proposal.status} />
+          </div>
+          <div className="mt-1.5 flex flex-wrap items-center gap-3 text-xs font-bold text-slate-500">
+            <span className="flex items-center gap-1"><Clock3 className="w-3.5 h-3.5"/> {formatRelativeTime(proposal.submittedAt || proposal.createdAt)}</span>
+            <span className="hidden sm:inline-block w-1 h-1 rounded-full bg-slate-300"></span>
+            <span className="flex items-center gap-1"><DollarSign className="w-3.5 h-3.5 text-slate-400"/> {currentAmount ? formatCurrency(currentAmount) : 'N/A'}</span>
+            <span className="hidden sm:inline-block w-1 h-1 rounded-full bg-slate-300"></span>
+            <span className="flex items-center gap-1">
+              <Timer className="w-3.5 h-3.5 text-slate-400"/> 
+              {(latestNegotiation?.estimatedDurationDays || proposal.estimatedDurationDays) 
+                ? `${latestNegotiation?.estimatedDurationDays || proposal.estimatedDurationDays} ngày`
+                : (latestNegotiation?.deadlineAt || proposal.deadlineAt)
+                  ? formatDeadline(latestNegotiation?.deadlineAt || proposal.deadlineAt)
+                  : 'N/A'
+              }
+            </span>
+          </div>
+        </div>
+        <div className="shrink-0 flex items-center justify-center w-10 h-10 rounded-full bg-slate-50 text-slate-400 group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-colors">
+          <ChevronRight className="w-5 h-5" />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function ProposalDetailDrawer({
+  proposal,
+  onClose,
   actionLoading,
   hasAcceptedProposal,
   onAccept,
   onReject,
-  onNegotiated,
+  onNegotiated
 }: {
-  id?: string
   proposal: ProposalResponse
+  onClose: () => void
   actionLoading: string | null
   hasAcceptedProposal: boolean
   onAccept: (proposal: ProposalResponse, latestNegotiation?: NegotiationResponse) => void
   onReject: (proposalId: string) => void
   onNegotiated: () => void | Promise<unknown>
 }) {
-  const isPending = proposal.status === 'SUBMITTED' || proposal.status === 'DRAFT' || proposal.status === 'UNDER_REVIEW'
+  const isOfferAccepted = proposal.status === 'OFFER_ACCEPTED'
+  const isPending = proposal.status === 'SUBMITTED' || proposal.status === 'DRAFT' || proposal.status === 'UNDER_REVIEW' || isOfferAccepted
   const isAccepted = proposal.status === 'ACCEPTED'
   const isRejected = proposal.status === 'REJECTED'
   const isNegotiating = proposal.status === 'NEGOTIATING'
+  const shouldFetchNegotiation = isNegotiating || isAccepted || isOfferAccepted
 
-  // Fetch latest negotiation
   const { data: latestNegotiation } = useQuery(
     ['negotiation-latest', proposal.id],
     () => negotiationApi.getLatest(proposal.id),
-    { 
-      enabled: isNegotiating || isAccepted,
-      retry: false
-    }
+    { enabled: shouldFetchNegotiation, retry: false }
   )
 
-  // Fetch negotiation history
   const { data: negotiationHistory } = useQuery(
     ['negotiation-history', proposal.id],
     () => negotiationApi.getByProposal(proposal.id),
-    { 
-      enabled: isNegotiating || isAccepted,
-      retry: false
-    }
+    { enabled: shouldFetchNegotiation, retry: false }
   )
-  
-  const price = proposal.proposedAmount
-    ? formatCurrency(proposal.proposedAmount)
-    : proposal.proposedHourlyRate
-      ? `${formatCurrency(proposal.proposedHourlyRate)}/hr`
-      : 'Chưa xác định'
 
   return (
-    <article
-      id={id}
-      className={`rounded-2xl border bg-white p-6 shadow-sm transition-all duration-500 ${
-        isAccepted
-          ? 'border-emerald-200 ring-2 ring-emerald-100'
-          : isRejected
-            ? 'border-slate-200 opacity-60'
-            : isNegotiating
-              ? 'border-amber-200 ring-2 ring-amber-100'
-              : 'border-slate-200 hover:border-indigo-200 hover:shadow-md'
-      }`}
-    >
-      <div className="flex flex-col gap-5">
+    <div className="fixed inset-0 z-50 flex justify-end bg-slate-950/45 backdrop-blur-sm">
+      <div 
+        className="absolute inset-0 cursor-pointer"
+        onClick={onClose}
+      ></div>
+      <div className="relative w-full max-w-xl bg-slate-50 h-full overflow-hidden shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
         {/* Header */}
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex items-start gap-3 flex-1 min-w-0">
-            <Link to={`/mentors/${proposal.mentorId}`} className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-sm font-black text-indigo-700 hover:bg-indigo-100 transition-colors">
-              {getInitials(proposal.mentorName)}
-            </Link>
-            <div className="min-w-0 flex-1">
-              <Link to={`/mentors/${proposal.mentorId}`} className="group inline-flex items-center gap-1.5 hover:opacity-80">
-                <h4 className="text-lg font-black text-slate-950 group-hover:text-indigo-600 transition-colors">{proposal.mentorName}</h4>
-                <Eye className="w-4 h-4 text-slate-400 group-hover:text-indigo-600 transition-colors opacity-0 group-hover:opacity-100" />
-              </Link>
-              <p className="mt-1 flex items-center gap-1.5 text-xs font-bold text-slate-500">
-                <Clock className="h-3.5 w-3.5" />
-                Gửi {formatRelativeTime(proposal.submittedAt || proposal.createdAt)}
-              </p>
-            </div>
+        <div className="flex items-center justify-between px-6 py-4 bg-white border-b border-slate-200">
+          <div className="flex items-center gap-4">
+             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-sm font-black text-indigo-700">
+               {getInitials(proposal.mentorName)}
+             </div>
+             <div>
+               <h3 className="font-black text-lg text-slate-950 truncate max-w-[200px] sm:max-w-[300px]">{proposal.mentorName}</h3>
+               <div className="flex items-center gap-2 mt-0.5 text-xs text-slate-500 font-bold">
+                 <span>{formatRelativeTime(proposal.submittedAt || proposal.createdAt)}</span>
+                 <span className="w-1 h-1 rounded-full bg-slate-300"></span>
+                 <StatusBadge status={proposal.status} />
+               </div>
+             </div>
           </div>
-          <StatusBadge status={proposal.status} />
+          <button onClick={onClose} className="p-2 rounded-full hover:bg-slate-100 text-slate-500 transition-colors">
+            <X className="w-5 h-5" />
+          </button>
         </div>
-
-        {/* Cover Letter & Experience Section */}
-        <div className={`grid gap-4 ${proposal.relevantExperience ? 'sm:grid-cols-2' : 'sm:grid-cols-1'}`}>
-          <div className="flex flex-col rounded-xl bg-slate-50 p-4 border border-slate-100">
-            <h5 className="text-xs font-black uppercase text-slate-400 mb-2">Cover Letter</h5>
-            <p className="text-sm leading-6 text-slate-700 whitespace-pre-wrap line-clamp-4">{proposal.coverLetter}</p>
-          </div>
-          
-          {proposal.relevantExperience && (
-            <div className="flex flex-col rounded-xl bg-indigo-50/50 p-4 border border-indigo-100">
-              <h5 className="text-xs font-black uppercase text-indigo-500 mb-2">Kinh nghiệm liên quan</h5>
-              <p className="text-sm leading-6 text-slate-700 whitespace-pre-wrap line-clamp-4">{proposal.relevantExperience}</p>
-            </div>
-          )}
-        </div>
-
-        {/* Details Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          <ProposalFact label="Giá ban đầu" value={price} icon={DollarSign} />
-          <ProposalFact
-            label="Thời gian ban đầu"
-            value={proposal.estimatedDurationDays ? `${proposal.estimatedDurationDays} ngày` : 'Chưa xác định'}
-            icon={Timer}
-          />
-          {proposal.proposedDeliveryDate && (
-            <ProposalFact 
-              label="Ngày giao" 
-              value={new Date(proposal.proposedDeliveryDate).toLocaleDateString('vi-VN')} 
-              icon={CalendarDays} 
-            />
-          )}
-        </div>
-
-        {/* Latest Negotiation (Mentor's Counter Offer) */}
-        {isNegotiating && latestNegotiation && (
-          <div className="relative bg-gradient-to-br from-amber-50 to-white border border-amber-200 rounded-2xl p-5 mt-4 shadow-sm overflow-hidden group">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-amber-100/30 rounded-full -mr-8 -mt-8 blur-2xl" />
-            
-            <div className="relative flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center">
-                  <MessageCircle className="w-4 h-4 text-amber-600" />
-                </div>
-                <div>
-                  <p className="text-sm font-black text-slate-900">
-                    {latestNegotiation.senderType === 'MENTOR' ? 'Mentor đã đề xuất lại' : 'Bạn đã đề xuất thương lượng'}
-                  </p>
-                  <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">
-                    {latestNegotiation.senderType === 'MENTOR' ? 'Đang chờ bạn phản hồi' : 'Đang chờ mentor phản hồi'}
-                  </p>
-                </div>
-              </div>
-              <div className="px-2.5 py-1 rounded-md bg-white/80 border border-amber-100 text-[10px] font-bold text-amber-600 shadow-sm">
-                {formatRelativeTime(latestNegotiation.createdAt)}
-              </div>
-            </div>
-
-            <div className="relative bg-white rounded-xl p-4 border border-amber-100/50 mb-4 shadow-sm italic text-slate-600 text-sm leading-relaxed">
-              <span className="text-amber-300 text-2xl absolute -top-1 -left-1 font-serif opacity-50">"</span>
-              {latestNegotiation.message}
-              <span className="text-amber-300 text-2xl absolute -bottom-4 -right-1 font-serif opacity-50">"</span>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              {latestNegotiation.proposedAmount && (
-                <div className="bg-white/60 backdrop-blur-sm rounded-xl p-3.5 border border-amber-100 shadow-sm hover:border-amber-300 transition-colors">
-                  <p className="text-[10px] font-black text-amber-600 uppercase mb-2 tracking-widest">Giá thỏa thuận</p>
-                  <div className="flex items-center gap-2">
-                    <span className="text-slate-400 line-through text-xs font-bold">{proposal.proposedAmount} MXC</span>
-                    <ArrowRight className="w-3 h-3 text-amber-500" />
-                    <span className="text-lg font-black text-amber-700">{latestNegotiation.proposedAmount} MXC</span>
-                  </div>
-                </div>
-              )}
-              {latestNegotiation.estimatedDurationDays && (
-                <div className="bg-white/60 backdrop-blur-sm rounded-xl p-3.5 border border-amber-100 shadow-sm hover:border-amber-300 transition-colors">
-                  <p className="text-[10px] font-black text-amber-600 uppercase mb-2 tracking-widest">Thời gian mới</p>
-                  <div className="flex items-center gap-2">
-                    <span className="text-slate-400 line-through text-xs font-bold">{proposal.estimatedDurationDays} ngày</span>
-                    <ArrowRight className="w-3 h-3 text-amber-500" />
-                    <span className="text-lg font-black text-amber-700">{latestNegotiation.estimatedDurationDays} ngày</span>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Negotiation History & Final Terms */}
-        {(isNegotiating || isAccepted) && negotiationHistory && negotiationHistory.length > 0 && (
-          <div className="mt-4 border-t border-slate-100 pt-4">
-            <h5 className="text-sm font-black text-slate-800 mb-4 flex items-center gap-2">
-              <MessageCircle className="w-4 h-4 text-indigo-500" />
-              Lịch sử thương lượng
-            </h5>
-            <div className="space-y-4">
-              {negotiationHistory.map((neg, idx) => (
-                <div key={neg.id} className={`p-4 rounded-xl border text-sm shadow-sm ${neg.senderType === 'CLIENT' ? 'bg-indigo-50 border-indigo-100 ml-8' : 'bg-slate-50 border-slate-200 mr-8'}`}>
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="font-bold text-slate-900">{neg.senderType === 'CLIENT' ? 'Bạn' : neg.senderName || 'Mentor'}</span>
-                    <span className="text-[10px] font-bold text-slate-500">{formatRelativeTime(neg.createdAt)}</span>
-                  </div>
-                  <p className="text-slate-700 italic mb-3">"{neg.message}"</p>
-                  <div className="flex flex-wrap gap-2 text-xs font-bold">
-                    {neg.proposedAmount && (
-                      <span className="text-emerald-700 bg-emerald-100/50 px-2.5 py-1 rounded-md border border-emerald-200">
-                        Giá: {neg.proposedAmount} MXC
-                      </span>
-                    )}
-                    {neg.estimatedDurationDays && (
-                      <span className="text-blue-700 bg-blue-100/50 px-2.5 py-1 rounded-md border border-blue-200">
-                        Thời gian: {neg.estimatedDurationDays} ngày
-                      </span>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-            
-            {/* Final agreed details if accepted */}
-            {isAccepted && (
-               <div className="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-xl p-5 mt-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
-                 <div>
-                   <p className="text-xs font-black uppercase tracking-wider text-emerald-600 mb-2">Kết quả chốt deal</p>
-                   <div className="flex items-center gap-4">
-                     <div className="bg-white px-3 py-1.5 rounded-lg border border-emerald-100 shadow-sm">
-                       <p className="text-[10px] text-emerald-600 font-bold mb-0.5">Giá cuối</p>
-                       <p className="text-lg font-black text-emerald-900">{latestNegotiation?.proposedAmount || proposal.proposedAmount} MXC</p>
-                     </div>
-                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-300"></span>
-                     <div className="bg-white px-3 py-1.5 rounded-lg border border-emerald-100 shadow-sm">
-                       <p className="text-[10px] text-emerald-600 font-bold mb-0.5">Thời gian</p>
-                       <p className="text-lg font-black text-emerald-900">{latestNegotiation?.estimatedDurationDays || proposal.estimatedDurationDays} ngày</p>
-                     </div>
-                   </div>
+        
+        {/* Thread Timeline */}
+        <div className="flex-1 overflow-y-auto p-6">
+          {/* First Message (Original Proposal) */}
+          <div className="flex gap-4">
+             <div className="flex-shrink-0 flex flex-col items-center">
+               <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
+                 <FileText className="w-4 h-4" />
+               </div>
+               <div className="w-0.5 flex-1 bg-slate-200 my-2"></div>
+             </div>
+             <div className="flex-1 pb-6">
+               <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+                 <div className="flex items-center justify-between mb-3">
+                   <span className="text-sm font-black text-slate-900">Original Proposal</span>
+                   <span className="text-[10px] text-slate-500 font-bold">{formatRelativeTime(proposal.submittedAt || proposal.createdAt)}</span>
                  </div>
-                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mt-4 sm:mt-0 w-full sm:w-auto">
-                   <Link
-                     to={getJobChatRoute(proposal.jobId, proposal.mentorId)}
-                     className="flex-1 sm:flex-none inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 text-sm font-black text-white hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-200 hover:scale-[1.02] active:scale-95 whitespace-nowrap"
-                   >
-                     <MessageSquare className="w-4 h-4" />
-                     Open chat
-                   </Link>
-                   <Link
-                     to={`/chat?userId=${proposal.mentorId}&jobId=${proposal.jobId}&contextMsg=${encodeURIComponent(`🎉 **Dự án đã chính thức được bắt đầu!**\n\nChào mentor **${proposal.mentorName}**, tôi vừa chấp nhận đề xuất của bạn. Dưới đây là thông tin chốt:\n- **Giá thỏa thuận**: ${latestNegotiation?.proposedAmount || proposal.proposedAmount} MXC\n- **Thời gian**: ${latestNegotiation?.estimatedDurationDays || proposal.estimatedDurationDays} ngày\n\nChúng ta sẽ sử dụng không gian này để trao đổi tiến độ và tài liệu công việc nhé!`)}`}
-                     className="hidden flex-1 sm:flex-none h-11 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 text-sm font-black text-white hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-200 hover:scale-[1.02] active:scale-95 whitespace-nowrap"
-                   >
-                     <MessageSquare className="w-4 h-4" />
-                     Bắt đầu làm việc
-                   </Link>
-                   <div className="hidden sm:flex w-11 h-11 rounded-full bg-emerald-100 items-center justify-center flex-shrink-0">
-                     <CheckCircle className="w-5 h-5 text-emerald-600" />
+                 
+                 <div className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap mb-4">
+                   {proposal.coverLetter}
+                 </div>
+                 {proposal.relevantExperience && (
+                   <div className="bg-indigo-50/50 rounded-xl p-3 border border-indigo-100 mb-4">
+                     <p className="text-[10px] font-black text-indigo-500 uppercase mb-1">Kinh nghiệm liên quan</p>
+                     <p className="text-sm text-slate-700">{proposal.relevantExperience}</p>
+                   </div>
+                 )}
+
+                 <div className="flex flex-wrap gap-2 text-xs font-bold">
+                   <div className="bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100 flex items-center gap-1.5">
+                     <DollarSign className="w-3.5 h-3.5 text-slate-400" />
+                     {proposal.proposedAmount ? formatCurrency(proposal.proposedAmount) : (proposal.proposedHourlyRate ? `${formatCurrency(proposal.proposedHourlyRate)}/hr` : 'N/A')}
+                   </div>
+                   <div className="bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100 flex items-center gap-1.5">
+                     <Timer className="w-3.5 h-3.5 text-slate-400" />
+                     {proposal.estimatedDurationDays ? `${proposal.estimatedDurationDays} ngày` : 'N/A'}
                    </div>
                  </div>
                </div>
-            )}
+             </div>
           </div>
-        )}
 
-        {/* Rejection Reason */}
-        {isRejected && proposal.rejectionReason && (
-          <div className="bg-rose-50 border border-rose-200 rounded-xl p-4">
-            <div className="flex items-start gap-2">
-              <AlertCircle className="w-4 h-4 text-rose-500 flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="text-xs font-black uppercase text-rose-600 mb-1">Lý do từ chối</p>
-                <p className="text-sm text-rose-700">{proposal.rejectionReason}</p>
+          {/* Negotiation History */}
+          {negotiationHistory && negotiationHistory.length > 0 && negotiationHistory.map((neg, idx) => {
+            const isLast = idx === negotiationHistory.length - 1 && !isRejected && !isAccepted
+            return (
+              <div className="flex gap-4" key={neg.id}>
+                <div className="flex-shrink-0 flex flex-col items-center">
+                   <div className={`w-8 h-8 rounded-full flex items-center justify-center ${neg.senderType === 'CLIENT' ? 'bg-amber-100 text-amber-600' : 'bg-slate-200 text-slate-600'}`}>
+                     {neg.senderType === 'CLIENT' ? <MessageCircle className="w-4 h-4" /> : <MessageSquare className="w-4 h-4" />}
+                   </div>
+                   {!isLast && <div className="w-0.5 flex-1 bg-slate-200 my-2"></div>}
+                </div>
+                <div className={`flex-1 ${!isLast ? 'pb-6' : ''}`}>
+                   <div className={`rounded-2xl p-4 border shadow-sm ${neg.senderType === 'CLIENT' ? 'bg-amber-50 border-amber-200' : 'bg-white border-slate-200'}`}>
+                     <div className="flex items-center justify-between mb-2">
+                       <span className="text-sm font-black text-slate-900">{neg.senderType === 'CLIENT' ? 'Bạn' : neg.senderName || 'Mentor'}</span>
+                       <span className="text-[10px] text-slate-500 font-bold">{formatRelativeTime(neg.createdAt)}</span>
+                     </div>
+                     <p className="text-sm text-slate-700 italic mb-3">"{neg.message}"</p>
+                     <div className="flex flex-wrap gap-2 text-xs font-bold">
+                       {neg.proposedAmount && (
+                         <div className="bg-white px-2.5 py-1 rounded-md border border-slate-100 text-slate-700">
+                           Giá mới: <span className="font-black text-amber-700">{formatCurrency(neg.proposedAmount)}</span>
+                         </div>
+                       )}
+                       {(neg.deadlineAt || neg.estimatedDurationDays) && (
+                         <div className="bg-white px-2.5 py-1 rounded-md border border-slate-100 text-slate-700">
+                           Thời gian mới: <span className="font-black text-amber-700">
+                             {neg.deadlineAt 
+                               ? `${formatDeadline(neg.deadlineAt)} (${formatTimeRemaining(neg.deadlineAt)})`
+                               : `${neg.estimatedDurationDays} ngày`}
+                           </span>
+                         </div>
+                       )}
+                     </div>
+                   </div>
+                </div>
               </div>
-            </div>
-          </div>
-        )}
+            )
+          })}
+          
+          {/* Rejection Reason */}
+          {isRejected && proposal.rejectionReason && (
+             <div className="flex gap-4 mt-6">
+               <div className="flex-shrink-0 flex flex-col items-center">
+                 <div className="w-8 h-8 rounded-full bg-rose-100 flex items-center justify-center text-rose-600">
+                   <XCircle className="w-4 h-4" />
+                 </div>
+               </div>
+               <div className="flex-1">
+                  <div className="rounded-2xl p-4 border border-rose-200 bg-rose-50">
+                    <span className="text-sm font-black text-rose-700 block mb-1">Lý do từ chối</span>
+                    <span className="text-sm text-rose-800">{proposal.rejectionReason}</span>
+                  </div>
+               </div>
+             </div>
+          )}
 
-        {/* Actions */}
-        <ProposalActions
-          proposal={proposal}
-          latestNegotiation={latestNegotiation}
-          isPending={isPending}
-          isNegotiating={isNegotiating}
-          hasAcceptedProposal={hasAcceptedProposal}
-          actionLoading={actionLoading}
-          onAccept={onAccept}
-          onReject={onReject}
-          onNegotiated={onNegotiated}
-        />
+          {/* Final terms if accepted */}
+          {(isAccepted || isOfferAccepted) && (
+            <div className="flex gap-4 mt-6">
+               <div className="flex-shrink-0 flex flex-col items-center">
+                 <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
+                   <CheckCircle2 className="w-4 h-4" />
+                 </div>
+               </div>
+               <div className="flex-1">
+                  <div className="rounded-2xl p-4 border border-emerald-200 bg-emerald-50 shadow-sm flex items-center justify-between">
+                     <div>
+                       <span className="text-[10px] font-black uppercase text-emerald-600 block mb-1.5">Kết quả chốt deal</span>
+                       <div className="flex items-center gap-3 text-sm font-bold">
+                         <span className="bg-white px-3 py-1 rounded-lg text-emerald-900 border border-emerald-100">
+                           {formatCurrency(latestNegotiation?.proposedAmount || proposal.proposedAmount || 0)}
+                         </span>
+                         <span className="bg-white px-3 py-1 rounded-lg text-emerald-900 border border-emerald-100">
+                           {(latestNegotiation?.estimatedDurationDays || proposal.estimatedDurationDays)
+                             ? `${latestNegotiation?.estimatedDurationDays || proposal.estimatedDurationDays} ngày`
+                             : latestNegotiation?.deadlineAt 
+                               ? new Date(latestNegotiation.deadlineAt).toLocaleDateString('vi-VN') 
+                               : 'N/A'}
+                         </span>
+                       </div>
+                     </div>
+                  </div>
+               </div>
+             </div>
+          )}
+        </div>
+
+        {/* Action Bottom Bar */}
+        <div className="p-4 bg-white border-t border-slate-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+           <ProposalActions
+            proposal={proposal}
+            latestNegotiation={latestNegotiation}
+            isPending={isPending}
+            isNegotiating={isNegotiating}
+            hasAcceptedProposal={hasAcceptedProposal}
+            actionLoading={actionLoading}
+            onAccept={onAccept}
+            onReject={onReject}
+            onNegotiated={onNegotiated}
+          />
+        </div>
       </div>
-    </article>
+    </div>
   )
 }
 
@@ -812,6 +771,7 @@ function StatusBadge({ status }: { status: string }) {
     NEGOTIATING: { label: 'Đang thương lượng', className: 'border-amber-200 bg-amber-50 text-amber-700' },
     SHORTLISTED: { label: 'Được chọn', className: 'border-purple-200 bg-purple-50 text-purple-700' },
     ACCEPTED: { label: 'Chấp nhận', className: 'border-emerald-200 bg-emerald-50 text-emerald-700' },
+    OFFER_ACCEPTED: { label: 'Đã chốt giá', className: 'border-emerald-200 bg-emerald-50 text-emerald-700' },
     REJECTED: { label: 'Từ chối', className: 'border-rose-200 bg-rose-50 text-rose-700' },
     WITHDRAWN: { label: 'Đã thu hồi', className: 'border-gray-200 bg-gray-50 text-gray-700' },
   }
@@ -857,7 +817,7 @@ function ProposalActions({
   const [showNegotiateForm, setShowNegotiateForm] = useState(false)
   const [negotiateMessage, setNegotiateMessage] = useState('')
   const [negotiateAmount, setNegotiateAmount] = useState(proposal.proposedAmount?.toString() || '')
-  const [negotiateDays, setNegotiateDays] = useState(proposal.estimatedDurationDays?.toString() || '')
+  const [negotiateDeadline, setNegotiateDeadline] = useState(proposal.deadlineAt ? proposal.deadlineAt.slice(0, 16) : '')
   const [negotiating, setNegotiating] = useState(false)
   const isEditingOwnPendingOffer =
     latestNegotiation?.senderType === 'CLIENT' &&
@@ -867,14 +827,14 @@ function ProposalActions({
   const openNegotiateForm = (options?: { preserveClientMessage?: boolean }) => {
     const preserveClientMessage = options?.preserveClientMessage ?? false
     const draftAmount = latestNegotiation?.proposedAmount ?? proposal.proposedAmount
-    const draftDays = latestNegotiation?.estimatedDurationDays ?? proposal.estimatedDurationDays
+    const draftDeadline = latestNegotiation?.deadlineAt ?? proposal.deadlineAt
     const draftMessage = preserveClientMessage && latestNegotiation?.senderType === 'CLIENT'
       ? latestNegotiation.message || ''
       : ''
 
     setNegotiateMessage(draftMessage)
     setNegotiateAmount(draftAmount != null ? draftAmount.toString() : '')
-    setNegotiateDays(draftDays != null ? draftDays.toString() : '')
+    setNegotiateDeadline(draftDeadline ? draftDeadline.slice(0, 16) : '')
     setShowNegotiateForm(true)
   }
 
@@ -888,8 +848,8 @@ function ProposalActions({
       return
     }
 
-    if (!negotiateAmount && !negotiateDays) {
-      toast.error('Vui long nhap it nhat gia hoac thoi gian.')
+    if (!negotiateAmount && !negotiateDeadline) {
+      toast.error('Vui long nhap it nhat gia hoac thoi gian deadline.')
       return
     }
 
@@ -906,7 +866,7 @@ function ProposalActions({
         senderId: user.userId,
         message: negotiateMessage,
         proposedAmount: negotiateAmount ? parseFloat(negotiateAmount) : undefined,
-        estimatedDurationDays: negotiateDays ? parseInt(negotiateDays) : undefined,
+        deadlineAt: negotiateDeadline ? new Date(negotiateDeadline).toISOString() : undefined,
       }
 
       if (isEditingOwnPendingOffer && latestNegotiation) {
@@ -936,90 +896,86 @@ function ProposalActions({
     <div className="space-y-3 pt-2 border-t border-slate-100">
       {/* Negotiation Form */}
       {showNegotiateForm && (
-        <div className="bg-indigo-50 border border-indigo-200 rounded-xl p-5 space-y-4">
-          <div className="flex items-center justify-between">
-            <h4 className="text-sm font-black text-indigo-900">💬 Gửi đề xuất thương lượng</h4>
-            <button
-              onClick={closeNegotiateForm}
-              className="text-indigo-600 hover:text-indigo-700"
-            >
-              <XCircle className="w-5 h-5" />
-            </button>
+        <div className="rounded-[24px] border border-indigo-200/80 bg-[linear-gradient(180deg,rgba(245,247,255,0.95),rgba(255,255,255,1))] p-5 shadow-sm">
+          <div className="flex flex-col gap-2 border-b border-indigo-100 pb-3 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <div className="flex items-center gap-2">
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-500">Respond</p>
+                <h2 className="text-base font-black tracking-tight text-slate-950">Shape the next offer</h2>
+              </div>
+              <p className="mt-0.5 text-[13px] text-slate-500">Update price, deadline, and work details before sending.</p>
+            </div>
+            {latestNegotiation && (
+              <span className="rounded-full bg-white px-2.5 py-1 text-[10px] font-bold text-slate-600 ring-1 ring-slate-200">
+                Last message {formatRelativeTime(latestNegotiation.createdAt)}
+              </span>
+            )}
           </div>
-
-          <div>
-            <label className="block text-xs font-bold text-slate-700 mb-2">
-              Message <span className="text-rose-500">*</span>
+          <div className="mt-4 grid gap-3 md:grid-cols-2">
+            <label className="space-y-1.5">
+              <span className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-500">Price (MXC)</span>
+              <input
+                type="number"
+                min="1"
+                value={negotiateAmount}
+                onChange={(event) => setNegotiateAmount(event.target.value)}
+                className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-800 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
+              />
             </label>
+            <label className="space-y-1.5">
+              <span className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-500">Deadline date/time</span>
+              <input
+                type="datetime-local"
+                value={negotiateDeadline}
+                onChange={(event) => setNegotiateDeadline(event.target.value)}
+                className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-800 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
+              />
+              <p className="text-[11px] font-medium text-slate-500">
+                Choose the latest time this offer should be completed by.
+              </p>
+              {negotiateDeadline ? (
+                <p className={`text-[11px] font-bold ${new Date(negotiateDeadline).getTime() <= Date.now() ? 'text-rose-500' : 'text-emerald-600'}`}>
+                  {formatTimeRemaining(negotiateDeadline)}
+                </p>
+              ) : null}
+            </label>
+          </div>
+          <label className="mt-3 block space-y-1.5">
+            <span className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-500">Message / Work details</span>
             <textarea
               value={negotiateMessage}
-              onChange={(e) => setNegotiateMessage(e.target.value)}
-              rows={3}
-              placeholder="Ví dụ: Bạn có thể làm với giá 400 MXC trong 10 ngày không?"
-              className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+              onChange={(event) => setNegotiateMessage(event.target.value)}
+              placeholder="Describe what you will do, what is included, and what you need from the client."
+              className="min-h-[80px] w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm leading-5 text-slate-700 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
             />
-            <p className="text-xs text-slate-500 mt-1">Tối thiểu 10 ký tự</p>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-2">
-                Giá đề xuất (MXC)
-              </label>
-              <input
-                type="number"
-                value={negotiateAmount}
-                onChange={(e) => setNegotiateAmount(e.target.value)}
-                placeholder="400"
-                className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-2">
-                Thời gian (ngày)
-              </label>
-              <input
-                type="number"
-                value={negotiateDays}
-                onChange={(e) => setNegotiateDays(e.target.value)}
-                placeholder="10"
-                className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
-              />
-            </div>
-          </div>
-
-          <div className="flex gap-2">
+            <p className="text-[11px] font-medium text-slate-500">{negotiateMessage.trim().length}/1000 characters, minimum 10</p>
+          </label>
+          <div className="mt-4 flex flex-col gap-2 sm:flex-row">
             <button
-              onClick={handleNegotiate}
+              type="button"
               disabled={negotiating}
-              className="flex-1 inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 text-sm font-black text-white hover:bg-indigo-700 disabled:bg-slate-300"
+              onClick={handleNegotiate}
+              className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-xl bg-indigo-600 text-sm font-bold text-white shadow-sm transition hover:bg-indigo-700 disabled:opacity-60"
             >
-              {negotiating ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Đang gửi...
-                </>
-              ) : (
-                <>
-                  <MessageCircle className="h-4 w-4" />
-                  Gửi đề xuất
-                </>
-              )}
+              <PencilLine className="h-4 w-4" />
+              {negotiating ? 'Sending...' : 'Send counter offer'}
             </button>
             <button
-              onClick={closeNegotiateForm}
+              type="button"
               disabled={negotiating}
-              className="px-4 py-2 border border-slate-200 rounded-lg text-sm font-bold text-slate-700 hover:bg-slate-50"
+              onClick={closeNegotiateForm}
+              className="inline-flex h-10 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-600 transition hover:bg-slate-50 disabled:opacity-60"
             >
-              Hủy
+              Cancel
             </button>
           </div>
         </div>
       )}
 
       {/* Action Buttons */}
-      <div className="flex flex-wrap gap-2">
-        {isPending && !hasAcceptedProposal && (
+      {!showNegotiateForm && (
+        <div className="flex flex-wrap gap-2">
+          {isPending && !hasAcceptedProposal && (
           <>
             <button
               type="button"
@@ -1114,6 +1070,7 @@ function ProposalActions({
           Chat
         </button>
       </div>
+      )}
     </div>
   )
 }

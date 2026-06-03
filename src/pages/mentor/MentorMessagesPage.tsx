@@ -1,21 +1,45 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { useQuery } from 'react-query'
-import { ArrowLeft, ChevronRight, MessageCircle, Search } from 'lucide-react'
+import {
+  ArrowRight,
+  Briefcase,
+  CalendarDays,
+  CircleDollarSign,
+  FileText,
+  Info,
+  Link2,
+  MessageCircle,
+  Search,
+  Send,
+  ShieldCheck,
+  Video,
+  X,
+} from 'lucide-react'
 import { chatApi } from '@/api/chatApi'
 import { contractApi } from '@/api/contractApi'
 import { fileApi } from '@/api/fileApi'
 import { jobApi } from '@/api/jobApi'
 import { proposalApi } from '@/api/proposalApi'
-import ConversationPane from '@/pages/chat/components/ConversationPane'
+import { PromptInputBox } from '@/components/ui/ai-prompt-box'
 import { useAuthStore } from '@/store/authStore'
-import { ChatRoomResponse, ContractResponse, JobResponse, MessageType, ProposalResponse, ProposalStatus } from '@/types'
-import { formatRelativeTime } from '@/utils/formatters'
+import { ChatRoomResponse, ContractResponse, JobResponse, MessageResponse, MessageType, ProposalResponse, ProposalStatus } from '@/types'
+import { formatCurrency, formatRelativeTime } from '@/utils/formatters'
 import {
+  MessageAttachment,
+  MessageText,
+  buildSharedFiles,
+  buildSharedLinks,
+  formatAttachmentMeta,
+  formatMessageDate,
+  formatMessageTime,
   formatRoomTime,
+  getPresenceLabel,
   getPrimaryOtherMember,
   getRoomDisplayName,
   getRoomPreview,
+  shortenUrl,
+  shouldShowDateSeparator,
 } from '@/pages/chat/chatShared'
 
 type MentorInboxFilter = 'ALL' | 'UNREAD' | 'CONTRACTS' | 'PROPOSALS' | 'JOBS'
@@ -95,6 +119,7 @@ export default function MentorMessagesPage() {
   const [composerError, setComposerError] = useState<string | null>(null)
   const [isSending, setIsSending] = useState(false)
   const [selectionError, setSelectionError] = useState<string | null>(null)
+  const [showContextPanel, setShowContextPanel] = useState(false)
   const selectedRoomId = searchParams.get('conversationId') || searchParams.get('roomId')
 
   const roomsQuery = useQuery(
@@ -107,6 +132,7 @@ export default function MentorMessagesPage() {
   )
 
   const roomList = roomsQuery.data?.content || []
+  const visibleRooms = useMemo(() => roomList.filter((room) => !room.isArchived), [roomList])
 
   const contextMapsQuery = useQuery<ConversationContextMaps>(
     ['mentor-message-context-maps', roomList.map((room) => `${room.referenceType || 'NONE'}:${room.referenceId || room.id}`).join('|')],
@@ -147,8 +173,7 @@ export default function MentorMessagesPage() {
 
   const filteredRooms = useMemo(() => {
     const keyword = searchTerm.trim().toLowerCase()
-    return roomList.filter((room) => {
-      if (room.isArchived) return false
+    return visibleRooms.filter((room) => {
       if (activeFilter === 'UNREAD' && room.unreadCount === 0) return false
       if (activeFilter === 'CONTRACTS' && room.referenceType !== 'CONTRACT') return false
       if (activeFilter === 'PROPOSALS' && room.referenceType !== 'PROPOSAL') return false
@@ -169,12 +194,19 @@ export default function MentorMessagesPage() {
 
       return haystack.includes(keyword)
     })
-  }, [activeFilter, contextMaps, roomList, searchTerm, user?.userId])
+  }, [activeFilter, contextMaps, searchTerm, user?.userId, visibleRooms])
 
   const selectedRoom = useMemo(
     () => roomList.find((room) => room.id === selectedRoomId) || null,
     [roomList, selectedRoomId]
   )
+
+  const effectiveRoom = useMemo(() => {
+    if (selectedRoom) return selectedRoom
+    return filteredRooms[0] || visibleRooms[0] || null
+  }, [filteredRooms, selectedRoom, visibleRooms])
+
+  const effectiveRoomId = effectiveRoom?.id || null
 
   useEffect(() => {
     if (roomsQuery.isLoading) return
@@ -190,30 +222,30 @@ export default function MentorMessagesPage() {
   }, [roomsQuery.isLoading, selectedRoom, selectedRoomId])
 
   const selectedMessagesQuery = useQuery(
-    ['mentor-messages-thread', selectedRoomId],
-    () => chatApi.getRoomMessages(selectedRoomId!, { size: 100 }),
+    ['mentor-messages-thread', effectiveRoomId],
+    () => chatApi.getRoomMessages(effectiveRoomId!, { size: 100 }),
     {
-      enabled: !!selectedRoomId && !!selectedRoom,
-      refetchInterval: selectedRoomId ? 5000 : false,
+      enabled: !!effectiveRoomId,
+      refetchInterval: effectiveRoomId ? 5000 : false,
     }
   )
 
   const selectedMessages = selectedMessagesQuery.data?.content || []
   const latestMessage = selectedMessages[selectedMessages.length - 1]
   const otherMember = useMemo(
-    () => (selectedRoom ? getPrimaryOtherMember(selectedRoom, user?.userId) : undefined),
-    [selectedRoom, user?.userId]
+    () => (effectiveRoom ? getPrimaryOtherMember(effectiveRoom, user?.userId) : undefined),
+    [effectiveRoom, user?.userId]
   )
 
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight
     }
-  }, [selectedMessages.length, selectedRoomId])
+  }, [selectedMessages.length, effectiveRoomId])
 
   useEffect(() => {
-    if (!user?.userId || !selectedRoom || !latestMessage) return
-    if (!selectedRoom.unreadCount || latestMessage.senderId === user.userId) return
+    if (!user?.userId || !effectiveRoom || !latestMessage) return
+    if (!effectiveRoom.unreadCount || latestMessage.senderId === user.userId) return
 
     let cancelled = false
     chatApi
@@ -226,37 +258,37 @@ export default function MentorMessagesPage() {
     return () => {
       cancelled = true
     }
-  }, [latestMessage, roomsQuery, selectedRoom, user?.userId])
+  }, [effectiveRoom, latestMessage, roomsQuery, user?.userId])
 
   const contractContextQuery = useQuery(
-    ['mentor-message-contract-context', selectedRoom?.referenceId],
-    () => contractApi.getMineById(selectedRoom!.referenceId!),
+    ['mentor-message-contract-context', effectiveRoom?.referenceId],
+    () => contractApi.getMineById(effectiveRoom!.referenceId!),
     {
-      enabled: selectedRoom?.referenceType === 'CONTRACT' && !!selectedRoom?.referenceId,
+      enabled: effectiveRoom?.referenceType === 'CONTRACT' && !!effectiveRoom.referenceId,
       retry: false,
     }
   )
 
   const proposalContextQuery = useQuery(
-    ['mentor-message-proposal-context', selectedRoom?.referenceId],
-    () => proposalApi.getById(selectedRoom!.referenceId!),
+    ['mentor-message-proposal-context', effectiveRoom?.referenceId],
+    () => proposalApi.getById(effectiveRoom!.referenceId!),
     {
-      enabled: selectedRoom?.referenceType === 'PROPOSAL' && !!selectedRoom?.referenceId,
+      enabled: effectiveRoom?.referenceType === 'PROPOSAL' && !!effectiveRoom.referenceId,
       retry: false,
     }
   )
 
   const jobContextQuery = useQuery(
-    ['mentor-message-job-context', selectedRoom?.referenceId],
-    () => jobApi.getById(selectedRoom!.referenceId!),
+    ['mentor-message-job-context', effectiveRoom?.referenceId],
+    () => jobApi.getById(effectiveRoom!.referenceId!),
     {
-      enabled: selectedRoom?.referenceType === 'JOB' && !!selectedRoom?.referenceId,
+      enabled: effectiveRoom?.referenceType === 'JOB' && !!effectiveRoom.referenceId,
       retry: false,
     }
   )
 
   const contextMeta = useMemo(() => {
-    if (!selectedRoom) {
+    if (!effectiveRoom) {
       return {
         actionLabel: undefined as string | undefined,
         actionHref: undefined as string | undefined,
@@ -266,8 +298,8 @@ export default function MentorMessagesPage() {
       }
     }
 
-    if (selectedRoom.referenceType === 'CONTRACT') {
-      const contract = (contextMaps.contractMap[selectedRoom.referenceId || ''] || contractContextQuery.data) as ContractResponse | undefined
+    if (effectiveRoom.referenceType === 'CONTRACT') {
+      const contract = (contextMaps.contractMap[effectiveRoom.referenceId || ''] || contractContextQuery.data) as ContractResponse | undefined
       return {
         actionLabel: 'View contract',
         actionHref: contract ? '/mentor/contracts' : undefined,
@@ -277,8 +309,8 @@ export default function MentorMessagesPage() {
       }
     }
 
-    if (selectedRoom.referenceType === 'PROPOSAL') {
-      const proposal = (contextMaps.proposalMap[selectedRoom.referenceId || ''] || proposalContextQuery.data) as ProposalResponse | undefined
+    if (effectiveRoom.referenceType === 'PROPOSAL') {
+      const proposal = (contextMaps.proposalMap[effectiveRoom.referenceId || ''] || proposalContextQuery.data) as ProposalResponse | undefined
       return {
         actionLabel: proposal ? 'View proposal' : undefined,
         actionHref: proposal ? `/mentor/proposals/${proposal.id}` : undefined,
@@ -288,8 +320,8 @@ export default function MentorMessagesPage() {
       }
     }
 
-    if (selectedRoom.referenceType === 'JOB') {
-      const job = (contextMaps.jobMap[selectedRoom.referenceId || ''] || jobContextQuery.data) as JobResponse | undefined
+    if (effectiveRoom.referenceType === 'JOB') {
+      const job = (contextMaps.jobMap[effectiveRoom.referenceId || ''] || jobContextQuery.data) as JobResponse | undefined
       return {
         actionLabel: job ? 'View job' : undefined,
         actionHref: job ? `/jobs/${job.jobId}` : undefined,
@@ -306,22 +338,105 @@ export default function MentorMessagesPage() {
       statusToneClassName: undefined as string | undefined,
       noMessagesDescription: 'Start the conversation with this client.',
     }
-  }, [contextMaps, contractContextQuery.data, jobContextQuery.data, proposalContextQuery.data, selectedRoom])
+  }, [contextMaps, contractContextQuery.data, effectiveRoom, jobContextQuery.data, proposalContextQuery.data])
+
+  const contextCard = useMemo(() => {
+    if (!effectiveRoom) return null
+
+    if (effectiveRoom.referenceType === 'CONTRACT') {
+      const contract = (contextMaps.contractMap[effectiveRoom.referenceId || ''] || contractContextQuery.data) as ContractResponse | undefined
+      if (!contract) return null
+      return {
+        title: contract.title || contract.jobTitle,
+        description: contract.description || contract.deliverables || 'Contract conversation and delivery details.',
+        metrics: [
+          { label: 'Value', value: formatCurrency(contract.totalAmount || 0), icon: CircleDollarSign },
+          {
+            label: 'Progress',
+            value: contract.milestoneCount > 0 ? `${contract.completedMilestoneCount}/${contract.milestoneCount} milestones` : `${contract.progressPercentage}% complete`,
+            icon: CalendarDays,
+          },
+        ],
+        primaryAction: contextMeta.actionHref && contextMeta.actionLabel ? { href: contextMeta.actionHref, label: contextMeta.actionLabel } : undefined,
+        secondaryAction: { href: '/mentor/contracts', label: 'Open contracts' },
+      }
+    }
+
+    if (effectiveRoom.referenceType === 'PROPOSAL') {
+      const proposal = (contextMaps.proposalMap[effectiveRoom.referenceId || ''] || proposalContextQuery.data) as ProposalResponse | undefined
+      if (!proposal) return null
+      return {
+        title: proposal.jobTitle,
+        description: proposal.relevantExperience || proposal.coverLetter || 'Proposal discussion and negotiation thread.',
+        metrics: [
+          { label: 'Offer', value: formatCurrency(proposal.proposedAmount || proposal.proposedHourlyRate || 0), icon: CircleDollarSign },
+          { label: 'Timeline', value: proposal.estimatedDurationDays ? `${proposal.estimatedDurationDays} days` : 'Flexible', icon: CalendarDays },
+        ],
+        primaryAction: contextMeta.actionHref && contextMeta.actionLabel ? { href: contextMeta.actionHref, label: contextMeta.actionLabel } : undefined,
+        secondaryAction: { href: '/jobs', label: 'Find jobs' },
+      }
+    }
+
+    if (effectiveRoom.referenceType === 'JOB') {
+      const job = (contextMaps.jobMap[effectiveRoom.referenceId || ''] || jobContextQuery.data) as JobResponse | undefined
+      if (!job) return null
+      return {
+        title: job.title,
+        description: job.description || 'Job discussion and project discovery thread.',
+        metrics: [
+          { label: 'Budget', value: formatJobBudget(job), icon: CircleDollarSign },
+          { label: 'Deadline', value: job.deadlineAt ? formatRoomDate(job.deadlineAt) : 'Flexible', icon: CalendarDays },
+        ],
+        primaryAction: contextMeta.actionHref && contextMeta.actionLabel ? { href: contextMeta.actionHref, label: contextMeta.actionLabel } : undefined,
+        secondaryAction: { href: '/jobs', label: 'Browse jobs' },
+      }
+    }
+
+    return {
+      title: getRoomDisplayName(effectiveRoom, user?.userId),
+      description: effectiveRoom.description || 'Direct conversation space.',
+      metrics: [
+        { label: 'Type', value: formatContextLabel(effectiveRoom.referenceType), icon: FileText },
+        { label: 'Messages', value: String(effectiveRoom.messageCount || 0), icon: MessageCircle },
+      ],
+      primaryAction: undefined,
+      secondaryAction: undefined,
+    }
+  }, [
+    contextMaps.contractMap,
+    contextMaps.jobMap,
+    contextMaps.proposalMap,
+    contractContextQuery.data,
+    contextMeta.actionHref,
+    contextMeta.actionLabel,
+    effectiveRoom,
+    jobContextQuery.data,
+    proposalContextQuery.data,
+    user?.userId,
+  ])
+
+  const counts = useMemo(
+    () => ({
+      ALL: visibleRooms.length,
+      UNREAD: visibleRooms.filter((room) => room.unreadCount > 0).length,
+      CONTRACTS: visibleRooms.filter((room) => room.referenceType === 'CONTRACT').length,
+      PROPOSALS: visibleRooms.filter((room) => room.referenceType === 'PROPOSAL').length,
+      JOBS: visibleRooms.filter((room) => room.referenceType === 'JOB').length,
+    }),
+    [visibleRooms]
+  )
+
+  const sharedFiles = useMemo(() => buildSharedFiles(selectedMessages).slice(-4).reverse(), [selectedMessages])
+  const sharedLinks = useMemo(() => buildSharedLinks(selectedMessages).slice(-2).reverse(), [selectedMessages])
 
   const handleSelectRoom = (roomId: string) => {
     setSelectionError(null)
     setSearchParams({ conversationId: roomId })
   }
 
-  const handleBackToInbox = () => {
-    setComposerError(null)
-    setSelectionError(null)
-    setSearchParams({})
-  }
-
   const handleSendMessage = async (message: string, files: File[] = []) => {
     const trimmedMessage = message.trim()
-    if ((!trimmedMessage && files.length === 0) || !selectedRoomId || !user?.userId || isSending) return
+    if ((!trimmedMessage && files.length === 0) || !effectiveRoomId || !user?.userId || isSending) return
 
     setComposerError(null)
     setIsSending(true)
@@ -329,7 +444,7 @@ export default function MentorMessagesPage() {
     try {
       if (files.length === 0) {
         await chatApi.sendMessage({
-          chatRoomId: selectedRoomId,
+          chatRoomId: effectiveRoomId,
           senderId: user.userId,
           content: trimmedMessage,
           messageType: MessageType.TEXT,
@@ -340,7 +455,7 @@ export default function MentorMessagesPage() {
           const isImage = file.type.startsWith('image/')
 
           await chatApi.sendMessage({
-            chatRoomId: selectedRoomId,
+            chatRoomId: effectiveRoomId,
             senderId: user.userId,
             content: index === 0 ? trimmedMessage : '',
             messageType: isImage ? MessageType.IMAGE : MessageType.FILE,
@@ -364,290 +479,569 @@ export default function MentorMessagesPage() {
     }
   }
 
-  const counts = useMemo(
-    () => ({
-      ALL: roomList.filter((room) => !room.isArchived).length,
-      UNREAD: roomList.filter((room) => !room.isArchived && room.unreadCount > 0).length,
-      CONTRACTS: roomList.filter((room) => !room.isArchived && room.referenceType === 'CONTRACT').length,
-      PROPOSALS: roomList.filter((room) => !room.isArchived && room.referenceType === 'PROPOSAL').length,
-      JOBS: roomList.filter((room) => !room.isArchived && room.referenceType === 'JOB').length,
-    }),
-    [roomList]
-  )
-
   if (!user) return null
 
-  if (selectedRoomId && !selectionError && selectedRoom) {
-    return (
-      <div className="mx-auto max-w-[1040px] space-y-4">
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={handleBackToInbox}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50"
-            title="Back to messages"
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </button>
-          <div>
-            <h1 className="text-[28px] font-black tracking-tight text-slate-950">Messages</h1>
-            <p className="mt-1 text-sm text-slate-500">Conversations with clients and job owners.</p>
-          </div>
-        </div>
+  if (roomsQuery.isLoading) {
+    return <MentorMessagesWorkspaceLoading />
+  }
 
-        <div className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm">
-          <ConversationPane
-            selectedRoom={selectedRoom}
-            selectedMessages={selectedMessages}
-            currentUserId={user.userId}
-            otherMember={otherMember}
-            messagesLoading={selectedMessagesQuery.isLoading}
-            scrollRef={scrollRef}
-            messageInput=""
-            onMessageInputChange={() => {}}
-            queuedAttachments={[]}
-            onAttachmentSelect={() => {}}
-            onRemoveAttachment={() => {}}
-            onSendMessage={handleSendMessage}
-            fileInputRef={{ current: null }}
-            onOpenFilePicker={() => {}}
-            composerError={composerError}
-            isSending={isSending}
-            onShowDetails={() => undefined}
-            onBackToList={handleBackToInbox}
-            showBackButton
-            heightClassName="h-[calc(100vh-220px)]"
-            contextStatusLabel={contextMeta.statusLabel}
-            contextStatusToneClassName={contextMeta.statusToneClassName}
-            contextActionLabel={contextMeta.actionLabel}
-            contextActionHref={contextMeta.actionHref}
-            participantRoleLabel={getParticipantRoleLabel(selectedRoom, user.userId)}
-            noMessagesTitle="No messages yet"
-            noMessagesDescription={contextMeta.noMessagesDescription}
-            showUtilityActions={false}
-            showDetailsButton={false}
-          />
+  if (visibleRooms.length === 0) {
+    return (
+      <div className="rounded-[28px] border border-slate-200 bg-white px-6 py-16 text-center shadow-sm">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-500">
+          <MessageCircle className="h-6 w-6" />
+        </div>
+        <h2 className="mt-5 text-2xl font-black tracking-tight text-slate-950">No messages yet</h2>
+        <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-slate-500">
+          When you message a client from a proposal or contract, conversations will appear here.
+        </p>
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+          <Link
+            to="/jobs"
+            className="inline-flex h-11 items-center justify-center rounded-2xl bg-indigo-600 px-5 text-sm font-bold text-white transition hover:bg-indigo-700"
+          >
+            Find jobs
+          </Link>
+          <Link
+            to="/mentor/proposals"
+            className="inline-flex h-11 items-center justify-center rounded-2xl border border-slate-200 bg-white px-5 text-sm font-bold text-slate-700 transition hover:bg-slate-50"
+          >
+            View proposals
+          </Link>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="mx-auto max-w-[1040px] space-y-6">
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-        <div>
-          <h1 className="text-[32px] font-black tracking-tight text-slate-950">Messages</h1>
-          <p className="mt-2 text-sm leading-6 text-slate-500">Conversations with clients and job owners.</p>
-        </div>
-        <div className="text-sm font-semibold text-indigo-600">
-          {counts.UNREAD > 0 ? `${counts.UNREAD} unread` : 'All caught up'}
-        </div>
-      </div>
-
+    <div className="space-y-5">
       {selectionError ? (
         <div className="rounded-[24px] border border-rose-200 bg-rose-50 px-5 py-4 text-sm font-medium text-rose-700">
           {selectionError}
         </div>
       ) : null}
 
-      {roomsQuery.isLoading ? (
-        <MentorMessagesLoadingState />
-      ) : roomList.filter((room) => !room.isArchived).length === 0 ? (
-        <div className="rounded-[28px] border border-slate-200 bg-white px-6 py-16 text-center shadow-sm">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-500">
-            <MessageCircle className="h-6 w-6" />
-          </div>
-          <h2 className="mt-5 text-2xl font-black tracking-tight text-slate-950">No messages yet</h2>
-          <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-slate-500">
-            When you message a client from a proposal or contract, conversations will appear here.
-          </p>
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-            <Link
-              to="/mentor/jobs"
-              className="inline-flex h-11 items-center justify-center rounded-2xl bg-indigo-600 px-5 text-sm font-bold text-white transition hover:bg-indigo-700"
-            >
-              Find jobs
-            </Link>
-            <Link
-              to="/mentor/proposals"
-              className="inline-flex h-11 items-center justify-center rounded-2xl border border-slate-200 bg-white px-5 text-sm font-bold text-slate-700 transition hover:bg-slate-50"
-            >
-              View proposals
-            </Link>
-          </div>
-        </div>
-      ) : (
-        <div className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm">
-          <div className="border-b border-slate-100 px-5 py-5">
-            <div className="relative">
-              <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(event) => setSearchTerm(event.target.value)}
-                placeholder="Search messages, clients, jobs..."
-                className="h-11 w-full rounded-2xl border border-slate-200 bg-slate-50 pl-10 pr-3 text-sm text-slate-700 outline-none transition focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10"
-              />
-            </div>
-            <div className="mt-4 flex flex-wrap gap-2">
-              {mentorFilters.map((filter) => {
-                const active = activeFilter === filter.key
-                return (
-                  <button
-                    key={filter.key}
-                    type="button"
-                    onClick={() => setActiveFilter(filter.key)}
-                    className={`inline-flex h-9 items-center gap-2 rounded-full px-3.5 text-xs font-bold transition ${
-                      active ? 'bg-indigo-600 text-white' : 'border border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
-                    }`}
-                  >
-                    {filter.label}
-                    <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-black ${active ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'}`}>
-                      {counts[filter.key]}
-                    </span>
-                  </button>
-                )
-              })}
-            </div>
-          </div>
+      <section className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_24px_80px_-48px_rgba(15,23,42,0.22)]">
+        <div className={`grid min-h-[calc(100vh-180px)] ${showContextPanel ? 'xl:grid-cols-[340px_minmax(0,1fr)_300px]' : 'xl:grid-cols-[340px_minmax(0,1fr)]'}`}>
+          <aside className="border-b border-slate-200 xl:border-b-0 xl:border-r">
+            <div className="border-b border-slate-100 px-5 py-5">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h1 className="text-[18px] font-bold tracking-[-0.02em] text-slate-950">Messages</h1>
+                  <p className="mt-1 text-[13px] font-medium text-slate-500">
+                    {counts.UNREAD > 0 ? `${counts.UNREAD} unread conversations` : 'All caught up'}
+                  </p>
+                </div>
+              </div>
 
-          <div className="divide-y divide-slate-100">
-            {filteredRooms.length === 0 ? (
-              <div className="px-6 py-16 text-center">
-                <p className="text-base font-black text-slate-950">No conversations found</p>
-                <p className="mt-2 text-sm leading-6 text-slate-500">Try another keyword or clear filters.</p>
+              <div className="relative mt-4">
+                <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(event) => setSearchTerm(event.target.value)}
+                  placeholder="Search conversations"
+                  className="h-11 w-full rounded-2xl border border-slate-200 bg-slate-50 pl-11 pr-3 text-sm text-slate-700 outline-none transition focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10"
+                />
+              </div>
+
+              <div className="mt-4 flex flex-wrap gap-2">
+                {mentorFilters.map((filter) => {
+                  const active = activeFilter === filter.key
+                  return (
+                    <button
+                      key={filter.key}
+                      type="button"
+                      onClick={() => setActiveFilter(filter.key)}
+                      className={`inline-flex h-8 items-center gap-2 rounded-full px-3 text-[12px] font-semibold transition ${
+                        active ? 'bg-indigo-600 text-white shadow-sm' : 'border border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                      }`}
+                    >
+                      {filter.label}
+                      <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-black ${active ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'}`}>
+                        {counts[filter.key]}
+                      </span>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
+            <div className="max-h-[calc(100vh-340px)] overflow-y-auto xl:max-h-[calc(100vh-245px)]">
+              {filteredRooms.length === 0 ? (
+                <div className="px-6 py-16 text-center">
+                  <p className="text-base font-black text-slate-950">No conversations found</p>
+                  <p className="mt-2 text-sm leading-6 text-slate-500">Try another keyword or clear filters.</p>
+                </div>
+              ) : (
+                filteredRooms.map((room) => (
+                  <WorkspaceConversationRow
+                    key={room.id}
+                    room={room}
+                    currentUserId={user.userId}
+                    contextMaps={contextMaps}
+                    isActive={room.id === effectiveRoomId}
+                    onSelect={handleSelectRoom}
+                  />
+                ))
+              )}
+            </div>
+          </aside>
+
+          <section className={`border-b border-slate-200 xl:border-b-0 ${showContextPanel ? 'xl:border-r' : ''}`}>
+            {effectiveRoom ? (
+              <div className="flex h-full flex-col">
+                <div className="border-b border-slate-100 px-5 py-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex min-w-0 items-center gap-3">
+                      <AvatarBadge
+                        name={otherMember?.displayName || otherMember?.fullName || getRoomDisplayName(effectiveRoom, user.userId)}
+                        avatarUrl={otherMember?.avatarUrl || effectiveRoom.avatarUrl}
+                      />
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <h2 className="truncate text-[18px] font-bold tracking-[-0.02em] text-slate-950">
+                            {otherMember?.displayName || otherMember?.fullName || getRoomDisplayName(effectiveRoom, user.userId)}
+                          </h2>
+                        </div>
+                        <p className="mt-0.5 text-[13px] font-medium text-emerald-600">
+                          {otherMember?.isOnline ? 'Online' : getPresenceLabel(otherMember)}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="hidden items-center gap-2 md:flex">
+                      <HeaderActionButton icon={<Briefcase className="h-4 w-4" />} label="Context" href={contextMeta.actionHref} />
+                      <HeaderActionButton icon={<Video className="h-4 w-4" />} label="Meet" href="/mentor/schedule" />
+                      <button
+                        type="button"
+                        title="Info"
+                        onClick={() => setShowContextPanel(true)}
+                        className="inline-flex h-9 w-9 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-500 transition hover:border-indigo-200 hover:text-indigo-700"
+                      >
+                        <Info className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto bg-[linear-gradient(180deg,#ffffff,#fafbff)] px-5 py-5">
+                  {selectedMessagesQuery.isLoading ? (
+                    <MessageThreadLoading />
+                  ) : selectedMessages.length === 0 ? (
+                    <div className="flex min-h-[360px] items-center justify-center">
+                      <div className="max-w-sm text-center">
+                        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-indigo-50 text-indigo-500">
+                          <Send className="h-6 w-6" />
+                        </div>
+                        <h3 className="mt-4 text-base font-bold text-slate-950">No messages yet</h3>
+                        <p className="mt-2 text-sm leading-6 text-slate-500">{contextMeta.noMessagesDescription}</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-6">
+                      {selectedMessages.map((message, index) => (
+                        <WorkspaceMessageBubble
+                          key={message.id}
+                          message={message}
+                          previousMessage={selectedMessages[index - 1]}
+                          mine={message.senderId === user.userId}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div className="border-t border-slate-100 bg-white px-5 py-4">
+                  <PromptInputBox
+                    onSend={(msg, files) => handleSendMessage(msg, files || [])}
+                    isLoading={isSending}
+                    placeholder="Type your message..."
+                    className="rounded-[24px] border border-slate-200 shadow-none"
+                  />
+                  {composerError ? <p className="px-2 pt-3 text-sm text-rose-500">{composerError}</p> : null}
+                </div>
               </div>
             ) : (
-              filteredRooms.map((room) => (
-                <ConversationRow
-                  key={room.id}
-                  room={room}
-                  currentUserId={user.userId}
-                  contextMaps={contextMaps}
-                  onSelect={handleSelectRoom}
-                />
-              ))
+              <div className="flex h-full items-center justify-center px-6 py-16">
+                <div className="max-w-sm text-center">
+                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-indigo-50 text-indigo-500">
+                    <MessageCircle className="h-6 w-6" />
+                  </div>
+                  <h2 className="mt-5 text-base font-bold text-slate-950">Select a conversation</h2>
+                  <p className="mt-2 text-sm text-slate-500">Choose a room from the inbox to read messages and files.</p>
+                </div>
+              </div>
             )}
-          </div>
+          </section>
+
+          {showContextPanel ? (
+          <aside className="bg-white">
+            <div className="border-b border-slate-100 px-6 py-5">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-[12px] font-bold uppercase tracking-[0.16em] text-slate-900">Project Context</p>
+                <button
+                  type="button"
+                  onClick={() => setShowContextPanel(false)}
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-400 transition hover:border-slate-300 hover:text-slate-700"
+                  aria-label="Close project context"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+
+            <div className="space-y-5 px-6 py-5">
+              {contextCard ? (
+                <div className="rounded-[24px] border border-slate-200 bg-slate-50/80 p-5">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-indigo-600">{formatContextLabel(effectiveRoom?.referenceType)}</p>
+                  <h3 className="mt-2 text-[15px] font-bold leading-6 text-slate-950">{contextCard.title}</h3>
+                  <p className="mt-2 text-[13px] leading-6 text-slate-500">{truncateText(contextCard.description, 180)}</p>
+                </div>
+              ) : (
+                <div className="rounded-[24px] border border-slate-200 bg-slate-50/80 p-5 text-sm text-slate-500">
+                  Conversation details are loading.
+                </div>
+              )}
+
+              <div className="space-y-4">
+                {contextCard?.metrics.map((metric) => (
+                  <div key={metric.label} className="flex items-start gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600">
+                      <metric.icon className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <p className="text-[13px] font-medium text-slate-400">{metric.label}</p>
+                      <p className="mt-1 text-[15px] font-bold text-slate-950">{metric.value}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="space-y-3">
+                {contextCard?.primaryAction ? (
+                  <Link
+                    to={contextCard.primaryAction.href}
+                    className="inline-flex h-11 w-full items-center justify-center rounded-2xl bg-indigo-600 px-4 text-sm font-semibold text-white transition hover:bg-indigo-700"
+                  >
+                    {contextCard.primaryAction.label}
+                  </Link>
+                ) : null}
+                {contextCard?.secondaryAction ? (
+                  <Link
+                    to={contextCard.secondaryAction.href}
+                    className="inline-flex h-11 w-full items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                  >
+                    {contextCard.secondaryAction.label}
+                  </Link>
+                ) : null}
+              </div>
+
+              <div className="border-t border-slate-100 pt-6">
+                <div className="mb-4 flex items-center justify-between">
+                  <p className="text-[12px] font-black uppercase tracking-[0.16em] text-slate-400">Shared Files</p>
+                  {contextMeta.actionHref ? (
+                    <Link to={contextMeta.actionHref} className="text-sm font-black text-indigo-600">
+                      See all
+                    </Link>
+                  ) : null}
+                </div>
+
+                <div className="space-y-3">
+                  {sharedFiles.length === 0 && sharedLinks.length === 0 ? (
+                    <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-5 text-sm text-slate-400">
+                      No shared files yet.
+                    </div>
+                  ) : (
+                    <>
+                      {sharedFiles.map((file) => (
+                        <a
+                          key={file.id}
+                          href={file.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="flex items-start gap-3 rounded-2xl px-2 py-2 transition hover:bg-slate-50"
+                        >
+                          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-rose-50 text-rose-500">
+                            <FileText className="h-4 w-4" />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="truncate text-[14px] font-semibold text-slate-950">{file.name}</p>
+                            <p className="mt-1 text-[13px] text-slate-400">{file.meta}</p>
+                          </div>
+                        </a>
+                      ))}
+                      {sharedLinks.map((link) => (
+                        <a
+                          key={link.id}
+                          href={link.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="flex items-start gap-3 rounded-2xl px-2 py-2 transition hover:bg-slate-50"
+                        >
+                          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-sky-50 text-sky-600">
+                            <Link2 className="h-4 w-4" />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="truncate text-[14px] font-semibold text-slate-950">{shortenUrl(link.url)}</p>
+                            <p className="mt-1 text-[13px] text-slate-400">{link.host}</p>
+                          </div>
+                        </a>
+                      ))}
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+          </aside>
+          ) : null}
         </div>
-      )}
+      </section>
     </div>
   )
 }
 
-function ConversationRow({
+function WorkspaceConversationRow({
   room,
   currentUserId,
   contextMaps,
+  isActive,
   onSelect,
 }: {
   room: ChatRoomResponse
   currentUserId: string
   contextMaps: ConversationContextMaps
+  isActive: boolean
   onSelect: (roomId: string) => void
 }) {
   const roomName = getRoomDisplayName(room, currentUserId)
   const otherMember = room.members.find((member) => member.userId !== currentUserId) || room.members[0]
-  const contextLabel = formatContextLabel(room.referenceType)
   const contextTitle = getContextTitle(room)
   const contextStatusLabel = getContextStatusLabel(room, contextMaps)
-  const contextStatusToneClassName = getContextStatusTone(room, contextMaps)
   const participantRoleLabel = getParticipantRoleLabel(room, currentUserId)
   const conversationStateLabel = getConversationStateLabel(room, currentUserId)
   const isUnread = room.unreadCount > 0
-  const timeLabel = formatRoomTime(room.lastMessageAt || room.updatedAt)
-  const avatarLabel = roomName
-    .split(' ')
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase())
-    .join('')
 
   return (
     <button
       type="button"
       onClick={() => onSelect(room.id)}
-      className="flex w-full items-center gap-4 px-5 py-4 text-left transition hover:bg-slate-50"
+      className={`w-full border-b border-slate-100 px-5 py-4 text-left transition ${
+        isActive ? 'bg-[linear-gradient(180deg,#edf3ff,#e7f0ff)] shadow-[inset_-3px_0_0_0_#2563eb]' : 'hover:bg-slate-50'
+      }`}
     >
-      <div className="relative shrink-0">
-        {otherMember?.avatarUrl || room.avatarUrl ? (
-          <img
-            src={otherMember?.avatarUrl || room.avatarUrl}
-            alt={roomName}
-            className="h-14 w-14 rounded-full object-cover"
-          />
-        ) : (
-          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-violet-500 text-sm font-black text-white">
-            {avatarLabel}
-          </div>
-        )}
-        {otherMember?.isOnline ? <span className="absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full border-2 border-white bg-emerald-400" /> : null}
-      </div>
-
-      <div className="min-w-0 flex-1">
-        <div className="flex items-start justify-between gap-4">
-          <div className="min-w-0">
-            <div className="flex items-center gap-2">
-              <p className={`truncate text-[15px] ${isUnread ? 'font-black text-slate-950' : 'font-bold text-slate-900'}`}>{roomName}</p>
-              <span className="text-[11px] font-medium text-slate-400">{participantRoleLabel}</span>
+      <div className="flex items-start gap-3">
+        <AvatarBadge
+          name={roomName}
+          avatarUrl={otherMember?.avatarUrl || room.avatarUrl}
+          size="sm"
+        />
+        <div className="min-w-0 flex-1">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <p className={`truncate text-[15px] ${isUnread ? 'font-bold text-slate-950' : 'font-semibold text-slate-900'}`}>{roomName}</p>
+              <p className="mt-0.5 truncate text-[13px] font-medium text-indigo-600">{contextTitle || formatContextLabel(room.referenceType)}</p>
             </div>
-            <p className="mt-1 truncate text-sm font-medium text-slate-600">{contextTitle || room.roomName || 'Conversation'}</p>
+            <div className="shrink-0 text-right">
+              <p className="text-xs font-medium text-slate-400">{formatRoomTime(room.lastMessageAt || room.updatedAt)}</p>
+            </div>
           </div>
-          <div className="shrink-0 text-right">
-            <p className="text-[11px] font-medium text-slate-400">{timeLabel}</p>
+
+          <div className="mt-2 flex items-center gap-2 text-[13px] text-slate-500">
+            <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
+            <span className="truncate">{getRoomPreview(room)}</span>
+          </div>
+
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <span className="inline-flex h-5 items-center rounded-full bg-white px-2.5 text-[10px] font-semibold text-slate-500 ring-1 ring-slate-200">
+              {participantRoleLabel}
+            </span>
+            {contextStatusLabel ? (
+              <span className={`inline-flex h-5 items-center rounded-full border px-2.5 text-[10px] font-semibold ${getContextStatusTone(room, contextMaps)}`}>
+                {contextStatusLabel}
+              </span>
+            ) : null}
+            <span className={`inline-flex h-5 items-center rounded-full border px-2.5 text-[10px] font-semibold ${getConversationStateTone(room, currentUserId)}`}>
+              {conversationStateLabel}
+            </span>
             {room.unreadCount > 0 ? (
-              <span className="mt-2 inline-flex h-6 min-w-[24px] items-center justify-center rounded-full bg-indigo-600 px-1.5 text-[11px] font-bold text-white">
+              <span className="inline-flex h-6 min-w-[24px] items-center justify-center rounded-full bg-indigo-600 px-1.5 text-[11px] font-black text-white">
                 {room.unreadCount}
               </span>
             ) : null}
           </div>
         </div>
-
-        <p className={`mt-2 truncate text-sm ${isUnread ? 'font-semibold text-slate-700' : 'text-slate-500'}`}>{getRoomPreview(room)}</p>
-
-        <div className="mt-2 flex flex-wrap items-center gap-2">
-          <span className="inline-flex h-6 items-center rounded-full bg-slate-100 px-2.5 text-[11px] font-bold text-slate-600">
-            {contextLabel}
-          </span>
-          {contextStatusLabel ? (
-            <span className={`inline-flex h-6 items-center rounded-full border px-2.5 text-[11px] font-bold ${contextStatusToneClassName}`}>
-              {contextStatusLabel}
-            </span>
-          ) : null}
-          <span className={`inline-flex h-6 items-center rounded-full border px-2.5 text-[11px] font-bold ${getConversationStateTone(room, currentUserId)}`}>
-            {conversationStateLabel}
-          </span>
-          {room.lastMessageAt ? <span className="text-[11px] text-slate-400">{formatRelativeTime(room.lastMessageAt)}</span> : null}
-        </div>
       </div>
-
-      <ChevronRight className="h-4 w-4 shrink-0 text-slate-300" />
     </button>
   )
 }
 
-function MentorMessagesLoadingState() {
+function WorkspaceMessageBubble({
+  message,
+  previousMessage,
+  mine,
+}: {
+  message: MessageResponse
+  previousMessage?: MessageResponse
+  mine: boolean
+}) {
+  const showDate = shouldShowDateSeparator(previousMessage, message)
+
   return (
-    <div className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm">
-      <div className="border-b border-slate-100 px-5 py-5">
-        <div className="h-11 w-full animate-pulse rounded-2xl bg-slate-100" />
-        <div className="mt-4 flex gap-2">
-          {Array.from({ length: 5 }).map((_, index) => (
-            <div key={index} className="h-9 w-20 animate-pulse rounded-full bg-slate-100" />
-          ))}
+    <div>
+      {showDate ? (
+        <div className="mb-6 flex items-center justify-center">
+          <span className="rounded-full bg-slate-100 px-3 py-1 text-[11px] font-black uppercase tracking-[0.16em] text-slate-400">
+            {formatMessageDate(message.sentAt)}
+          </span>
+        </div>
+      ) : null}
+
+      <div className={`flex gap-3 ${mine ? 'justify-end' : 'justify-start'}`}>
+        {!mine ? (
+          <div className="mt-1 hidden sm:block">
+            <AvatarBadge name={message.senderName} avatarUrl={message.senderAvatarUrl} size="xs" />
+          </div>
+        ) : null}
+
+        <div className={`max-w-[78%] ${mine ? 'items-end' : 'items-start'}`}>
+          <div
+            className={`rounded-[22px] px-4 py-3.5 shadow-sm ${
+              mine
+                ? 'bg-[linear-gradient(180deg,#2f67f6,#2457dc)] text-white'
+                : 'border border-slate-200 bg-white text-slate-900'
+            }`}
+          >
+            <MessageText content={message.content} mine={mine} />
+            <MessageAttachment message={message} mine={mine} />
+          </div>
+          <p className={`mt-2 px-1 text-xs text-slate-400 ${mine ? 'text-right' : ''}`}>
+            {formatMessageTime(message.sentAt)}
+          </p>
         </div>
       </div>
-      <div className="divide-y divide-slate-100">
-        {Array.from({ length: 7 }).map((_, index) => (
-          <div key={index} className="flex items-center gap-4 px-5 py-4">
-            <div className="h-14 w-14 animate-pulse rounded-full bg-slate-100" />
-            <div className="min-w-0 flex-1 space-y-2">
-              <div className="h-4 w-40 animate-pulse rounded-full bg-slate-100" />
-              <div className="h-4 w-56 animate-pulse rounded-full bg-slate-100" />
-              <div className="h-3 w-64 animate-pulse rounded-full bg-slate-100" />
-            </div>
+    </div>
+  )
+}
+
+function AvatarBadge({
+  name,
+  avatarUrl,
+  size = 'md',
+}: {
+  name: string
+  avatarUrl?: string
+  size?: 'xs' | 'sm' | 'md'
+}) {
+  const sizeClasses = {
+    xs: 'h-9 w-9 text-xs',
+    sm: 'h-11 w-11 text-sm',
+    md: 'h-12 w-12 text-base',
+  }[size]
+
+  if (avatarUrl) {
+    return <img src={avatarUrl} alt={name} className={`${sizeClasses} rounded-full object-cover`} />
+  }
+
+  return (
+    <div className={`flex ${sizeClasses} items-center justify-center rounded-full bg-[radial-gradient(circle_at_top,_#dbeafe,_#c7d2fe_55%,_#e2e8f0)] font-black text-indigo-700`}>
+      {name
+        .split(' ')
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((part) => part[0]?.toUpperCase())
+        .join('')}
+    </div>
+  )
+}
+
+function HeaderActionButton({
+  icon,
+  label,
+  href,
+}: {
+  icon: React.ReactNode
+  label: string
+  href?: string
+}) {
+  if (!href) {
+    return (
+      <span className="inline-flex h-9 w-9 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-400">
+        {icon}
+      </span>
+    )
+  }
+
+  return (
+    <Link
+      to={href}
+      title={label}
+      className="inline-flex h-9 w-9 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-500 transition hover:border-indigo-200 hover:text-indigo-700"
+    >
+      {icon}
+    </Link>
+  )
+}
+
+function MessageThreadLoading() {
+  return (
+    <div className="space-y-6">
+      {Array.from({ length: 4 }).map((_, index) => (
+        <div key={index} className={`flex ${index % 2 === 0 ? 'justify-start' : 'justify-end'}`}>
+          <div className="w-full max-w-[70%] space-y-2">
+            <div className="h-4 w-24 animate-pulse rounded-full bg-slate-100" />
+            <div className="h-28 animate-pulse rounded-[26px] bg-slate-100" />
           </div>
-        ))}
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function MentorMessagesWorkspaceLoading() {
+  return (
+    <div className="overflow-hidden rounded-[34px] border border-slate-200 bg-white shadow-sm">
+      <div className="grid min-h-[calc(100vh-180px)] xl:grid-cols-[360px_minmax(0,1fr)_320px]">
+        <div className="border-r border-slate-100 p-5">
+          <div className="h-10 w-40 animate-pulse rounded-full bg-slate-100" />
+          <div className="mt-4 h-11 w-full animate-pulse rounded-2xl bg-slate-100" />
+          <div className="mt-4 flex gap-2">
+            {Array.from({ length: 4 }).map((_, index) => (
+              <div key={index} className="h-9 w-20 animate-pulse rounded-full bg-slate-100" />
+            ))}
+          </div>
+          <div className="mt-6 space-y-4">
+            {Array.from({ length: 5 }).map((_, index) => (
+              <div key={index} className="flex items-center gap-3">
+                <div className="h-12 w-12 animate-pulse rounded-full bg-slate-100" />
+                <div className="min-w-0 flex-1 space-y-2">
+                  <div className="h-4 w-40 animate-pulse rounded-full bg-slate-100" />
+                  <div className="h-3 w-56 animate-pulse rounded-full bg-slate-100" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="border-r border-slate-100 p-5">
+          <div className="h-14 w-72 animate-pulse rounded-2xl bg-slate-100" />
+          <div className="mt-8 space-y-6">
+            {Array.from({ length: 4 }).map((_, index) => (
+              <div key={index} className={`flex ${index % 2 === 0 ? 'justify-start' : 'justify-end'}`}>
+                <div className="h-28 w-[70%] animate-pulse rounded-[26px] bg-slate-100" />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="p-6">
+          <div className="h-5 w-40 animate-pulse rounded-full bg-slate-100" />
+          <div className="mt-6 h-44 animate-pulse rounded-[26px] bg-slate-100" />
+          <div className="mt-6 space-y-4">
+            <div className="h-12 animate-pulse rounded-2xl bg-slate-100" />
+            <div className="h-12 animate-pulse rounded-2xl bg-slate-100" />
+          </div>
+        </div>
       </div>
     </div>
   )
@@ -662,8 +1056,8 @@ function formatContextLabel(referenceType?: string) {
 
 function getContextTitle(room: ChatRoomResponse) {
   if (!room.description) return room.roomName || ''
-  const segments = room.description.split('Â·').map((segment) => segment.trim()).filter(Boolean)
-  if (segments.length > 1) return segments.slice(1).join(' · ')
+  const segments = room.description.split('Ã‚Â·').map((segment) => segment.trim()).filter(Boolean)
+  if (segments.length > 1) return segments.slice(1).join(' Â· ')
   return room.description
 }
 
@@ -745,4 +1139,22 @@ function getConversationStateTone(room: ChatRoomResponse, currentUserId: string)
   if (state === 'Waiting for client') return 'border-amber-200 bg-amber-50 text-amber-700'
   if (state === 'Waiting for you') return 'border-rose-200 bg-rose-50 text-rose-700'
   return 'border-slate-200 bg-slate-100 text-slate-600'
+}
+
+function formatJobBudget(job: JobResponse) {
+  if (job.budgetType === 'HOURLY' && job.hourlyRateMxc) return `${formatCurrency(job.hourlyRateMxc)}/hr`
+  if (job.budgetMinMxc || job.budgetMaxMxc) {
+    if (job.budgetMinMxc && job.budgetMaxMxc) return `${formatCurrency(job.budgetMinMxc)} - ${formatCurrency(job.budgetMaxMxc)}`
+    return formatCurrency(job.budgetMaxMxc || job.budgetMinMxc || 0)
+  }
+  return 'Budget flexible'
+}
+
+function formatRoomDate(value: string) {
+  return new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' }).format(new Date(value))
+}
+
+function truncateText(value?: string, limit = 120) {
+  if (!value) return ''
+  return value.length > limit ? `${value.slice(0, limit).trim()}...` : value
 }

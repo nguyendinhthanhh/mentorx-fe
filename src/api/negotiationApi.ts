@@ -8,6 +8,8 @@ export interface NegotiationRequest {
   proposedAmount?: number
   proposedHourlyRate?: number
   estimatedDurationDays?: number
+  deadlineAt?: string
+  scopeDescription?: string
   proposedStartDate?: string
   proposedDeliveryDate?: string
 }
@@ -22,6 +24,8 @@ export interface NegotiationResponse {
   proposedAmount?: number
   proposedHourlyRate?: number
   estimatedDurationDays?: number
+  deadlineAt?: string
+  scopeDescription?: string
   proposedStartDate?: string
   proposedDeliveryDate?: string
   status: 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'COUNTERED' | 'CANCELLED'
