@@ -562,6 +562,8 @@ export interface ContractResponse {
   hourlyRate?: number;
   startDate?: string;
   endDate?: string;
+  deadlineAt?: string;
+  scopeDescription?: string;
   actualStartDate?: string;
   actualCompletionDate?: string;
   termsAndConditions?: string;
@@ -939,6 +941,8 @@ export interface ProposalResponse {
   proposedAmount?: number;
   proposedHourlyRate?: number;
   estimatedDurationDays?: number;
+  deadlineAt?: string;
+  scopeDescription?: string;
   proposedStartDate?: string;
   proposedDeliveryDate?: string;
   proposedMilestones?: any[];
@@ -964,6 +968,8 @@ export interface ProposalCreateRequest {
   proposedAmount?: number;
   proposedHourlyRate?: number;
   estimatedDurationDays?: number;
+  deadlineAt?: string;
+  scopeDescription?: string;
   proposedStartDate?: string;
   proposedDeliveryDate?: string;
   proposedMilestones?: any[];

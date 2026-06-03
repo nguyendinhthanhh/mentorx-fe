@@ -623,8 +623,12 @@ function Pagination({
 
 function formatBudget(job: JobResponse) {
   if (job.budgetMinMxc && job.budgetMaxMxc) {
+    if (job.budgetMinMxc === job.budgetMaxMxc) return formatCurrency(job.budgetMinMxc)
     return `${formatCurrency(job.budgetMinMxc)} - ${formatCurrency(job.budgetMaxMxc)}`
   }
+
+  if (job.budgetMinMxc) return formatCurrency(job.budgetMinMxc)
+  if (job.budgetMaxMxc) return formatCurrency(job.budgetMaxMxc)
 
   if (job.hourlyRateMxc) {
     return `${formatCurrency(job.hourlyRateMxc)}/giờ`

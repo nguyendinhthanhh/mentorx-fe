@@ -61,7 +61,6 @@ import AdminSupportPage from './pages/admin/AdminSupportPage'
 
 // Mentor Pages
 import MentorDashboardPage from './pages/mentor/MentorDashboardPage'
-import MentorJobsPage from './pages/mentor/MentorJobsPage'
 import MentorContractsPage from './pages/mentor/MentorContractsPage'
 import MentorProposalsPage from './pages/mentor/MentorProposalsPage'
 import MentorProposalDetailPage from './pages/mentor/MentorProposalDetailPage'
@@ -206,7 +205,6 @@ function App() {
             <Route path="/mentor/profile-setup" element={<MentorProfileSetupPage initialTab="profile" />} />
             <Route path="/mentor/packages" element={<MentorProfileSetupPage initialTab="packages" />} />
             <Route path="/mentor/availability" element={<MentorProfileSetupPage initialTab="availability" />} />
-            <Route path="/mentor/jobs" element={<MentorJobsPage />} />
             <Route path="/mentor/proposals" element={<MentorProposalsPage />} />
             <Route path="/mentor/proposals/:proposalId" element={<MentorProposalDetailPage />} />
             <Route path="/mentor/contracts" element={<MentorContractsPage />} />

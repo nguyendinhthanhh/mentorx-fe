@@ -114,6 +114,41 @@ export const formatDateTime = (date: string | Date, language?: Language): string
   }).format(new Date(date))
 }
 
+export const formatDeadline = (deadlineAt?: string | Date | null, language?: Language): string => {
+  if (!deadlineAt) return resolveLanguage(language) === 'vi' ? 'Chua co deadline' : 'No deadline set'
+
+  return new Intl.DateTimeFormat(getLocale(language), {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(new Date(deadlineAt))
+}
+
+export const formatTimeRemaining = (deadlineAt?: string | Date | null, language?: Language): string => {
+  const currentLanguage = resolveLanguage(language)
+  if (!deadlineAt) return currentLanguage === 'vi' ? 'Chua co deadline' : 'No deadline set'
+
+  const diffMs = new Date(deadlineAt).getTime() - Date.now()
+  if (diffMs <= 0) return currentLanguage === 'vi' ? 'Qua han' : 'Overdue'
+
+  const totalMinutes = Math.ceil(diffMs / 60000)
+  const days = Math.floor(totalMinutes / (60 * 24))
+  const hours = Math.floor((totalMinutes % (60 * 24)) / 60)
+  const minutes = totalMinutes % 60
+
+  if (currentLanguage === 'vi') {
+    if (days > 0) return hours > 0 ? `Con lai: ${days} ngay ${hours} gio` : `Con lai: ${days} ngay`
+    if (hours > 0) return minutes > 0 ? `Con lai: ${hours} gio ${minutes} phut` : `Con lai: ${hours} gio`
+    return `Con lai: ${minutes} phut`
+  }
+
+  if (days > 0) return hours > 0 ? `Time left: ${days} day${days > 1 ? 's' : ''} ${hours} hour${hours > 1 ? 's' : ''}` : `Time left: ${days} day${days > 1 ? 's' : ''}`
+  if (hours > 0) return minutes > 0 ? `Time left: ${hours} hour${hours > 1 ? 's' : ''} ${minutes} minute${minutes > 1 ? 's' : ''}` : `Time left: ${hours} hour${hours > 1 ? 's' : ''}`
+  return `Time left: ${minutes} minute${minutes > 1 ? 's' : ''}`
+}
+
 export const formatRelativeTime = (date: string | Date, language?: Language): string => {
   const currentLanguage = resolveLanguage(language)
   const locale = getLocale(currentLanguage)

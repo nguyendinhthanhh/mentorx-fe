@@ -25,7 +25,6 @@ import { UserMode } from '@/types'
 
 const navigationItems = [
   { to: '/mentor/dashboard', label: 'Overview', icon: LayoutDashboard },
-  { to: '/mentor/jobs', label: 'Find Jobs', icon: Search },
   { to: '/mentor/proposals', label: 'My Proposals', icon: CreditCard, badge: 3 },
   { to: '/mentor/contracts', label: 'Active Contracts', icon: Briefcase },
   { to: '/mentor/courses', label: 'My Courses', icon: BookOpen },
