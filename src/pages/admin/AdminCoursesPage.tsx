@@ -53,6 +53,7 @@ export default function AdminCoursesPage() {
   const getStatusColor = (status: CourseStatus) => {
     switch (status) {
       case CourseStatus.PUBLISHED: return 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400'
+      case CourseStatus.PENDING_REVIEW: return 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400'
       case CourseStatus.DRAFT: return 'bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400'
       case CourseStatus.ARCHIVED: return 'bg-gray-50 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
       case CourseStatus.REJECTED: return 'bg-rose-50 text-rose-600 dark:bg-rose-900/20 dark:text-rose-400'
@@ -166,7 +167,7 @@ export default function AdminCoursesPage() {
                           <button 
                             onClick={() => handleArchive(course.courseId)}
                             className="p-2.5 rounded-xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-gray-400 hover:text-rose-500 transition-all shadow-sm"
-                            title="Archive/Reject Course"
+                            title="Reject Course"
                           >
                             <XCircle className="w-4 h-4" />
                           </button>
@@ -211,7 +212,7 @@ export default function AdminCoursesPage() {
           if (selectedCourseId) {
             updateStatusMutation.mutate({ 
               courseId: selectedCourseId, 
-              status: CourseStatus.ARCHIVED, 
+              status: CourseStatus.REJECTED,
               reason 
             })
           }

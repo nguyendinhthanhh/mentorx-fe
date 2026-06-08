@@ -13,4 +13,17 @@ export const fileApi = {
     })
     return response.data.data
   },
+
+  uploadCourseMedia: async (file: File, folder = 'mentorx/courses'): Promise<FileResponse> => {
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('folder', folder)
+
+    const response = await client.post<ApiResponse<FileResponse>>('/v1/files/course-media', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
+    return response.data.data
+  },
 }

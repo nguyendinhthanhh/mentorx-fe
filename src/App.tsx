@@ -35,6 +35,7 @@ import MyJobsPage from './pages/job/MyJobsPage'
 import CourseListPage from './pages/course/CourseListPage'
 import CourseDetailPage from './pages/course/CourseDetailPage'
 import CourseCreatePage from './pages/course/CourseCreatePage'
+import CourseLearnPage from './pages/course/CourseLearnPage'
 
 // Wallet Pages
 import WalletPage from './pages/wallet/WalletPage'
@@ -60,6 +61,8 @@ import AdminSupportPage from './pages/admin/AdminSupportPage'
 
 // Mentor Pages
 import MentorDashboardPage from './pages/mentor/MentorDashboardPage'
+import MentorCoursesPage from './pages/mentor/MentorCoursesPage'
+import MentorCourseManagePage from './pages/mentor/MentorCourseManagePage'
 import MentorJobsPage from './pages/mentor/MentorJobsPage'
 import MentorProposalsPage from './pages/mentor/MentorProposalsPage'
 import MentorProposalDetailPage from './pages/mentor/MentorProposalDetailPage'
@@ -145,6 +148,7 @@ function App() {
             {/* Chat Routes */}
             <Route path="/chat" element={<ChatListPage />} />
             <Route path="/chat/demo" element={<ChatDemoPage />} />
+            <Route path="/courses/:courseId/learn" element={<CourseLearnPage />} />
 
             {/* My Jobs Route */}
             <Route path="/my-jobs" element={<MyJobsPage />} />
@@ -198,7 +202,8 @@ function App() {
             <Route path="/mentor/proposals" element={<MentorProposalsPage />} />
             <Route path="/mentor/proposals/:proposalId" element={<MentorProposalDetailPage />} />
             <Route path="/mentor/contracts" element={<div>Active Contracts (Coming Soon)</div>} />
-            <Route path="/mentor/my-courses" element={<div>My Courses (Coming Soon)</div>} />
+            <Route path="/mentor/my-courses" element={<MentorCoursesPage />} />
+            <Route path="/mentor/courses/:courseId/manage" element={<MentorCourseManagePage />} />
             <Route path="/mentor/schedule" element={<div>Schedule (Coming Soon)</div>} />
             <Route path="/mentor/wallet" element={<div>Earnings (Coming Soon)</div>} />
             <Route path="/mentor/earnings" element={<Navigate to="/mentor/wallet" replace />} />

@@ -10,6 +10,11 @@ import {
   CourseSectionResponse,
   CourseLessonResponse,
   CourseEnrollmentResponse,
+  LessonProgressResponse,
+  QuizAttemptResponse,
+  QuizQuestionResponse,
+  QuizQuestionType,
+  CourseQaMessageResponse,
 } from '@/types'
 
 export const courseApi = {
@@ -30,6 +35,11 @@ export const courseApi = {
 
   delete: async (courseId: string): Promise<void> => {
     await apiClient.delete(`/courses/${courseId}`)
+  },
+
+  archive: async (courseId: string): Promise<CourseResponse> => {
+    const response = await apiClient.post<ApiResponse<CourseResponse>>(`/courses/${courseId}/archive`)
+    return response.data.data
   },
 
   getPublished: async (params: {
@@ -96,6 +106,11 @@ export const courseApi = {
     return response.data.data
   },
 
+  submitForReview: async (courseId: string): Promise<CourseResponse> => {
+    const response = await apiClient.post<ApiResponse<CourseResponse>>(`/courses/${courseId}/submit-for-review`)
+    return response.data.data
+  },
+
   isEnrolled: async (courseId: string): Promise<boolean> => {
     const response = await apiClient.get<boolean>(`/v1/course-enrollments/course/${courseId}/me/is-enrolled`)
     return response.data
@@ -104,6 +119,75 @@ export const courseApi = {
   getPublishedSections: async (courseId: string): Promise<CourseSectionResponse[]> => {
     const response = await apiClient.get<CourseSectionResponse[]>(
       `/v1/course-sections/course/${courseId}/published`
+    )
+    return response.data
+  },
+
+  getSections: async (courseId: string): Promise<CourseSectionResponse[]> => {
+    const response = await apiClient.get<CourseSectionResponse[]>(
+      `/v1/course-sections/course/${courseId}`
+    )
+    return response.data
+  },
+
+  createSection: async (data: {
+    courseId: string
+    title: string
+    description?: string
+    sectionOrder: number
+    isPublished?: boolean
+  }): Promise<CourseSectionResponse> => {
+    const response = await apiClient.post<CourseSectionResponse>('/v1/course-sections', data)
+    return response.data
+  },
+
+  updateSection: async (
+    sectionId: string,
+    data: Partial<{
+      title: string
+      description: string
+      sectionOrder: number
+      isPublished: boolean
+    }>
+  ): Promise<CourseSectionResponse> => {
+    const response = await apiClient.put<CourseSectionResponse>(`/v1/course-sections/${sectionId}`, data)
+    return response.data
+  },
+
+  deleteSection: async (sectionId: string): Promise<void> => {
+    await apiClient.delete(`/v1/course-sections/${sectionId}`)
+  },
+
+  saveCurriculum: async (
+    courseId: string,
+    data: {
+      sections: Array<{
+        id?: string
+        title: string
+        description?: string
+        sectionOrder: number
+        isPublished?: boolean
+        lessons: Array<{
+          id?: string
+          title: string
+          description?: string
+          lessonType: string
+          lessonOrder: number
+          durationMinutes?: number
+          videoUrl?: string
+          articleContent?: string
+          resourceUrl?: string
+          isFreePreview?: boolean
+          isPublished?: boolean
+          isMandatory?: boolean
+          metadata?: Record<string, unknown>
+        }>
+      }>
+    }
+  ): Promise<{ sections: CourseSectionResponse[]; lessons: CourseLessonResponse[] }> => {
+    const response = await apiClient.put<{ sections: CourseSectionResponse[]; lessons: CourseLessonResponse[] }>(
+      `/v1/course-curriculum/courses/${courseId}`,
+      data
     )
     return response.data
   },
@@ -154,6 +238,128 @@ export const courseApi = {
     const response = await apiClient.get<CourseEnrollmentResponse[]>(
       `/v1/course-enrollments/student/${studentId}/completed`
     )
+    return response.data
+  },
+
+  createLesson: async (data: {
+    sectionId: string
+    title: string
+    description?: string
+    lessonType: string
+    lessonOrder: number
+    durationMinutes?: number
+    videoUrl?: string
+    articleContent?: string
+    resourceUrl?: string
+    isFreePreview?: boolean
+    isPublished?: boolean
+    isMandatory?: boolean
+    metadata?: Record<string, unknown>
+  }): Promise<CourseLessonResponse> => {
+    const response = await apiClient.post<CourseLessonResponse>('/v1/course-lessons', data)
+    return response.data
+  },
+
+  updateLesson: async (
+    lessonId: string,
+    data: Partial<{
+      title: string
+      description: string
+      lessonType: string
+      lessonOrder: number
+      durationMinutes: number
+      videoUrl: string
+      articleContent: string
+      resourceUrl: string
+      isFreePreview: boolean
+      isPublished: boolean
+      isMandatory: boolean
+      metadata: Record<string, unknown>
+    }>
+  ): Promise<CourseLessonResponse> => {
+    const response = await apiClient.put<CourseLessonResponse>(`/v1/course-lessons/${lessonId}`, data)
+    return response.data
+  },
+
+  deleteLesson: async (lessonId: string): Promise<void> => {
+    await apiClient.delete(`/v1/course-lessons/${lessonId}`)
+  },
+
+  updateLessonProgress: async (
+    enrollmentId: string,
+    lessonId: string,
+    data: Partial<LessonProgressResponse>
+  ): Promise<LessonProgressResponse> => {
+    const response = await apiClient.post<LessonProgressResponse>(
+      `/v1/lesson-progress/enrollment/${enrollmentId}/lesson/${lessonId}`,
+      data
+    )
+    return response.data
+  },
+
+  getProgressByStudentAndCourse: async (
+    studentId: string,
+    courseId: string
+  ): Promise<LessonProgressResponse[]> => {
+    const response = await apiClient.get<LessonProgressResponse[]>(
+      `/v1/lesson-progress/student/${studentId}/course/${courseId}`
+    )
+    return response.data
+  },
+
+  downloadCertificate: async (enrollmentId: string): Promise<{ blob: Blob; fileName: string }> => {
+    const response = await apiClient.get<Blob>(
+      `/v1/course-enrollments/${enrollmentId}/certificate`,
+      { responseType: 'blob' }
+    )
+    return { blob: response.data, fileName: extractFileName(response.headers['content-disposition']) }
+  },
+
+  getQuizQuestions: async (lessonId: string): Promise<QuizQuestionResponse[]> => {
+    const response = await apiClient.get<QuizQuestionResponse[]>(
+      `/v1/course-quizzes/lessons/${lessonId}/questions`
+    )
+    return response.data
+  },
+
+  createQuizQuestion: async (
+    lessonId: string,
+    data: {
+      questionType: QuizQuestionType
+      questionText: string
+      optionsJson?: string
+      correctAnswersJson: string
+      points?: number
+      explanation?: string
+      orderIndex?: number
+    }
+  ): Promise<QuizQuestionResponse> => {
+    const response = await apiClient.post<QuizQuestionResponse>(
+      `/v1/course-quizzes/lessons/${lessonId}/questions`,
+      data
+    )
+    return response.data
+  },
+
+  submitQuizAttempt: async (data: {
+    enrollmentId: string
+    lessonId: string
+    answers: Array<{ questionId: string; givenAnswerJson: string }>
+  }): Promise<QuizAttemptResponse> => {
+    const response = await apiClient.post<QuizAttemptResponse>('/v1/course-quizzes/attempts/submit', data)
+    return response.data
+  },
+
+  getCourseQaMessages: async (courseId: string): Promise<CourseQaMessageResponse[]> => {
+    const response = await apiClient.get<CourseQaMessageResponse[]>(`/v1/course-qa/courses/${courseId}/messages`)
+    return response.data
+  },
+
+  sendCourseQaMessage: async (
+    courseId: string,
+    data: { lessonId?: string; content: string }
+  ): Promise<CourseQaMessageResponse> => {
+    const response = await apiClient.post<CourseQaMessageResponse>(`/v1/course-qa/courses/${courseId}/messages`, data)
     return response.data
   },
 }

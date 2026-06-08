@@ -77,21 +77,20 @@ export enum BudgetType {
 
 export enum CourseStatus {
   DRAFT = "DRAFT",
+  PENDING_REVIEW = "PENDING_REVIEW",
   PUBLISHED = "PUBLISHED",
-  ARCHIVED = "ARCHIVED",
   REJECTED = "REJECTED",
+  ARCHIVED = "ARCHIVED",
 }
 
 export enum LessonType {
   VIDEO = "VIDEO",
   ARTICLE = "ARTICLE",
   TEXT = "TEXT",
+  DOWNLOADABLE = "DOWNLOADABLE",
   QUIZ = "QUIZ",
   ASSIGNMENT = "ASSIGNMENT",
   LIVE_SESSION = "LIVE_SESSION",
-  DOWNLOADABLE = "DOWNLOADABLE",
-  INTERACTIVE = "INTERACTIVE",
-  CODE_EXERCISE = "CODE_EXERCISE",
 }
 
 export enum TxnType {
@@ -563,12 +562,14 @@ export interface JobUpdateRequest {
 
 // Course Types
 export interface CourseResponse {
+  id?: string;
   courseId: string;
   instructorId: string;
   instructor: UserResponse;
   instructorName?: string;
   categoryId?: number;
   skills?: string[];
+  skillIds?: number[];
   title: string;
   slug: string;
   description?: string;
@@ -585,6 +586,9 @@ export interface CourseResponse {
   totalDurationMin?: number;
   totalReviews?: number;
   rejectionReason?: string;
+  submittedAt?: string;
+  publishedAt?: string;
+  reviewedAt?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -592,7 +596,8 @@ export interface CourseResponse {
 export interface CourseCreateRequest {
   instructorId: string;
   categoryId: number;
-  skills: string[];
+  skills?: string[];
+  skillIds: number[];
   title: string;
   slug: string;
   description?: string;
@@ -607,6 +612,7 @@ export interface CourseCreateRequest {
 export interface CourseUpdateRequest {
   categoryId?: number;
   skills?: string[];
+  skillIds?: number[];
   title?: string;
   description?: string;
   thumbnailUrl?: string;
@@ -628,6 +634,8 @@ export interface CourseEnrollmentResponse {
   progressPercent: number;
   isCompleted: boolean;
   certificateUrl?: string;
+  certificateCode?: string;
+  certificateIssuedAt?: string;
   enrolledAt: string;
   completedAt?: string;
 }
@@ -642,6 +650,60 @@ export interface CourseSectionResponse {
   isPublished?: boolean;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface LessonProgressResponse {
+  enrollmentId: string;
+  lessonId: string;
+  lessonTitle?: string;
+  isCompleted: boolean;
+  completedAt?: string;
+  watchDurationSec: number;
+  progressPercent: number;
+  scrollPercent: number;
+  activeTimeSec: number;
+  lastPositionSec: number;
+  completedByRule: boolean;
+}
+
+export enum QuizQuestionType {
+  SINGLE_CHOICE = "SINGLE_CHOICE",
+  MULTIPLE_CHOICE = "MULTIPLE_CHOICE",
+  TRUE_FALSE = "TRUE_FALSE",
+  TEXT_ANSWER = "TEXT_ANSWER",
+}
+
+export interface QuizQuestionResponse {
+  id: string;
+  lessonId: string;
+  questionType: QuizQuestionType;
+  questionText: string;
+  optionsJson?: string;
+  correctAnswersJson?: string;
+  points: number;
+  explanation?: string;
+  orderIndex: number;
+}
+
+export interface QuizAttemptResponse {
+  id: string;
+  enrollmentId: string;
+  lessonId: string;
+  score: number;
+  maxScore: number;
+  passed: boolean;
+  startedAt: string;
+  completedAt?: string;
+}
+
+export interface CourseQaMessageResponse {
+  id: string;
+  courseId: string;
+  lessonId?: string;
+  senderId: string;
+  senderName: string;
+  content: string;
+  createdAt: string;
 }
 
 export interface CourseLessonResponse {
