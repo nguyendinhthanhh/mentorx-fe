@@ -26,7 +26,7 @@ export default function ArchiveReasonModal({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!reason.trim()) {
-      setError('Please provide a reason for archiving this job.')
+      setError('Please provide a reason.')
       return
     }
     onConfirm(reason)

@@ -3,8 +3,8 @@ import { Link, useParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { courseApi } from '@/api/courseApi'
 import { useAuthStore } from '@/store/authStore'
-import { CourseLessonResponse, LessonType } from '@/types'
-import { Award, CheckCircle2, Download, FileText, MessageSquare, PlayCircle } from 'lucide-react'
+import { CourseLessonResponse, CourseStatus, LessonType } from '@/types'
+import { AlertTriangle, Award, CheckCircle2, Download, FileText, MessageSquare, PlayCircle } from 'lucide-react'
 
 export default function CourseLearnPage() {
   const { courseId } = useParams<{ courseId: string }>()
@@ -130,20 +130,28 @@ export default function CourseLearnPage() {
       </aside>
 
       <main className="rounded-2xl border border-slate-200 bg-white p-6">
+        {course.status === CourseStatus.ARCHIVED && (
+          <div className="mb-5 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm font-semibold text-amber-800">
+            <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" />
+            <p>This course has been archived. You can still access the material and complete your enrolled course, but it is no longer listed on the marketplace.</p>
+          </div>
+        )}
         {activeLesson ? (
           <div className="space-y-5">
             <div>
-              <p className="text-xs font-black uppercase tracking-widest text-indigo-600">{activeLesson.lessonType}</p>
+              <p className="text-xs font-black uppercase tracking-widest text-indigo-600">
+                {activeLesson.lessonType === LessonType.QUIZ ? 'QUIZ' : 'LESSON'}
+              </p>
               <h1 className="text-2xl font-black text-slate-900">{activeLesson.title}</h1>
               {activeLesson.description && <p className="mt-2 text-sm text-slate-500">{activeLesson.description}</p>}
             </div>
             {activeLesson.videoUrl && (
               <video src={activeLesson.videoUrl} controls className="aspect-video w-full rounded-xl bg-black" />
             )}
-            {(activeLesson.lessonType === LessonType.ARTICLE || activeLesson.articleContent) && (
+            {activeLesson.articleContent && (
               <article className="prose max-w-none" dangerouslySetInnerHTML={{ __html: activeLesson.articleContent || '' }} />
             )}
-            {activeLesson.lessonType === LessonType.DOWNLOADABLE && activeLesson.resourceUrl && (
+            {activeLesson.resourceUrl && (
               <a href={activeLesson.resourceUrl} className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2 text-sm font-bold text-slate-700">
                 <Download className="h-4 w-4" />
                 Open resource

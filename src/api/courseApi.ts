@@ -33,6 +33,34 @@ export const courseApi = {
     return response.data.data
   },
 
+  updateDetailsWithMedia: async (
+    courseId: string,
+    data: CourseUpdateRequest,
+    media: {
+      thumbnailFile?: File
+      previewVideoFile?: File
+      removeThumbnail?: boolean
+      removePreviewVideo?: boolean
+    } = {}
+  ): Promise<CourseResponse> => {
+    const formData = new FormData()
+    formData.append('data', new Blob([JSON.stringify(data)], { type: 'application/json' }))
+    if (media.thumbnailFile) formData.append('thumbnailFile', media.thumbnailFile)
+    if (media.previewVideoFile) formData.append('previewVideoFile', media.previewVideoFile)
+
+    const response = await apiClient.put<ApiResponse<CourseResponse>>(
+      `/courses/${courseId}/details`,
+      formData,
+      {
+        params: {
+          removeThumbnail: media.removeThumbnail === true,
+          removePreviewVideo: media.removePreviewVideo === true,
+        },
+      }
+    )
+    return response.data.data
+  },
+
   delete: async (courseId: string): Promise<void> => {
     await apiClient.delete(`/courses/${courseId}`)
   },
@@ -181,11 +209,20 @@ export const courseApi = {
           isPublished?: boolean
           isMandatory?: boolean
           metadata?: Record<string, unknown>
+          quizQuestions?: Array<{
+            id?: string
+            questionType: QuizQuestionType
+            questionText: string
+            answerDataJson: string
+            points?: number
+            explanation?: string
+            orderIndex?: number
+          }>
         }>
       }>
     }
-  ): Promise<{ sections: CourseSectionResponse[]; lessons: CourseLessonResponse[] }> => {
-    const response = await apiClient.put<{ sections: CourseSectionResponse[]; lessons: CourseLessonResponse[] }>(
+  ): Promise<{ sections: CourseSectionResponse[]; lessons: CourseLessonResponse[]; quizQuestions: QuizQuestionResponse[] }> => {
+    const response = await apiClient.put<{ sections: CourseSectionResponse[]; lessons: CourseLessonResponse[]; quizQuestions: QuizQuestionResponse[] }>(
       `/v1/course-curriculum/courses/${courseId}`,
       data
     )
@@ -327,8 +364,7 @@ export const courseApi = {
     data: {
       questionType: QuizQuestionType
       questionText: string
-      optionsJson?: string
-      correctAnswersJson: string
+      answerDataJson: string
       points?: number
       explanation?: string
       orderIndex?: number

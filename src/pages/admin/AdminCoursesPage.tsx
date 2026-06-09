@@ -3,15 +3,13 @@ import { courseApi } from '@/api/courseApi'
 import { CourseStatus } from '@/types'
 import { 
   Search, 
-  MoreVertical, 
   BookOpen, 
-  Clock, 
   ChevronLeft, 
   ChevronRight,
   CheckCircle,
   XCircle,
   Eye,
-  Award
+  Archive
 } from 'lucide-react'
 import { useState } from 'react'
 import { formatCurrency, formatDateTime } from '@/utils/formatters'
@@ -25,8 +23,7 @@ export default function AdminCoursesPage() {
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<CourseStatus | ''>('')
 
-  // Archive Modal State
-  const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false)
+  const [isDenyModalOpen, setIsDenyModalOpen] = useState(false)
   const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null)
 
   const { data, isLoading } = useQuery(
@@ -45,10 +42,17 @@ export default function AdminCoursesPage() {
       onSuccess: () => {
         toast.success('Course status updated')
         queryClient.invalidateQueries('admin-courses')
-        setIsArchiveModalOpen(false)
+        setIsDenyModalOpen(false)
       }
     }
   )
+
+  const archiveMutation = useMutation((courseId: string) => courseApi.archive(courseId), {
+    onSuccess: () => {
+      toast.success('Course archived')
+      queryClient.invalidateQueries('admin-courses')
+    },
+  })
 
   const getStatusColor = (status: CourseStatus) => {
     switch (status) {
@@ -61,9 +65,9 @@ export default function AdminCoursesPage() {
     }
   }
 
-  const handleArchive = (courseId: string) => {
+  const handleDeny = (courseId: string) => {
     setSelectedCourseId(courseId)
-    setIsArchiveModalOpen(true)
+    setIsDenyModalOpen(true)
   }
 
   return (
@@ -151,7 +155,7 @@ export default function AdminCoursesPage() {
                     </td>
                     <td className="px-8 py-6 text-right">
                       <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-4 group-hover:translate-x-0">
-                        <Link to={`/courses/${course.courseId}`} className="p-2.5 rounded-xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-gray-400 hover:text-primary-600 transition-all shadow-sm" title="View Details">
+                        <Link to={`/admin/courses/${course.courseId}/review`} className="p-2.5 rounded-xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-gray-400 hover:text-primary-600 transition-all shadow-sm" title="Review Material">
                           <Eye className="w-4 h-4" />
                         </Link>
                         {course.status !== CourseStatus.PUBLISHED && (
@@ -163,13 +167,27 @@ export default function AdminCoursesPage() {
                             <CheckCircle className="w-4 h-4" />
                           </button>
                         )}
-                        {course.status !== CourseStatus.ARCHIVED && (
+                        {course.status === CourseStatus.PENDING_REVIEW && (
                           <button 
-                            onClick={() => handleArchive(course.courseId)}
+                            onClick={() => handleDeny(course.courseId)}
                             className="p-2.5 rounded-xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-gray-400 hover:text-rose-500 transition-all shadow-sm"
-                            title="Reject Course"
+                            title="Deny and Return to Draft"
                           >
                             <XCircle className="w-4 h-4" />
+                          </button>
+                        )}
+                        {course.status === CourseStatus.PUBLISHED && (
+                          <button
+                            onClick={() => {
+                              if (window.confirm('Archive this course? It will leave the marketplace but enrolled learners can still access it.')) {
+                                archiveMutation.mutate(course.courseId)
+                              }
+                            }}
+                            disabled={archiveMutation.isLoading}
+                            className="p-2.5 rounded-xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-gray-400 hover:text-slate-700 transition-all shadow-sm"
+                            title="Archive Course"
+                          >
+                            <Archive className="w-4 h-4" />
                           </button>
                         )}
                       </div>
@@ -205,14 +223,17 @@ export default function AdminCoursesPage() {
         </div>
       </div>
       <ArchiveReasonModal 
-        isOpen={isArchiveModalOpen}
-        onClose={() => setIsArchiveModalOpen(false)}
+        isOpen={isDenyModalOpen}
+        onClose={() => setIsDenyModalOpen(false)}
         isLoading={updateStatusMutation.isLoading}
+        title="Return Course to Draft"
+        message="The mentor will see this reason and can revise the course before submitting it again."
+        confirmText="Return to Draft"
         onConfirm={(reason) => {
           if (selectedCourseId) {
             updateStatusMutation.mutate({ 
               courseId: selectedCourseId, 
-              status: CourseStatus.REJECTED,
+              status: CourseStatus.DRAFT,
               reason 
             })
           }

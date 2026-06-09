@@ -84,13 +84,8 @@ export enum CourseStatus {
 }
 
 export enum LessonType {
-  VIDEO = "VIDEO",
-  ARTICLE = "ARTICLE",
-  TEXT = "TEXT",
-  DOWNLOADABLE = "DOWNLOADABLE",
+  LESSON = "LESSON",
   QUIZ = "QUIZ",
-  ASSIGNMENT = "ASSIGNMENT",
-  LIVE_SESSION = "LIVE_SESSION",
 }
 
 export enum TxnType {
@@ -678,8 +673,7 @@ export interface QuizQuestionResponse {
   lessonId: string;
   questionType: QuizQuestionType;
   questionText: string;
-  optionsJson?: string;
-  correctAnswersJson?: string;
+  answerDataJson: string;
   points: number;
   explanation?: string;
   orderIndex: number;

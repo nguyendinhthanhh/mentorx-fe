@@ -92,34 +92,27 @@ export default function CourseDetailPage() {
     }))
   }, [publishedLessons, sections])
 
-  const videoCount = publishedLessons.filter(
-    (lesson) => lesson.lessonType === 'VIDEO' || !!lesson.videoUrl
-  ).length
+  const videoCount = publishedLessons.filter((lesson) => !!lesson.videoUrl).length
   const documentCount = publishedLessons.filter(
-    (lesson) =>
-      lesson.lessonType === 'DOWNLOADABLE' ||
-      lesson.lessonType === 'ARTICLE' ||
-      lesson.lessonType === 'TEXT' ||
-      !!lesson.resourceUrl ||
-      !!lesson.articleContent
+    (lesson) => !!lesson.resourceUrl || !!lesson.articleContent
   ).length
 
   const getLessonLabel = (lesson: CourseLessonResponse) => {
-    if (lesson.lessonType === 'VIDEO' || lesson.videoUrl) return 'Video'
-    if (lesson.lessonType === 'DOWNLOADABLE' || lesson.resourceUrl) return 'Document'
-    if (lesson.lessonType === 'ARTICLE' || lesson.lessonType === 'TEXT' || lesson.articleContent)
-      return 'Article'
+    if (lesson.lessonType === 'QUIZ') return 'Quiz'
+    if (lesson.videoUrl) return 'Video'
+    if (lesson.resourceUrl) return 'Document'
+    if (lesson.articleContent) return 'Article'
     return 'Lesson'
   }
 
   const getLessonIcon = (lesson: CourseLessonResponse) => {
-    if (lesson.lessonType === 'VIDEO' || lesson.videoUrl) {
+    if (lesson.videoUrl) {
       return <Play className="h-4 w-4 text-indigo-600" />
     }
-    if (lesson.lessonType === 'DOWNLOADABLE' || lesson.resourceUrl) {
+    if (lesson.resourceUrl) {
       return <Download className="h-4 w-4 text-indigo-600" />
     }
-    if (lesson.lessonType === 'ARTICLE' || lesson.lessonType === 'TEXT' || lesson.articleContent) {
+    if (lesson.articleContent) {
       return <FileText className="h-4 w-4 text-indigo-600" />
     }
     return <BookOpen className="h-4 w-4 text-indigo-600" />

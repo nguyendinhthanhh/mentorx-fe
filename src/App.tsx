@@ -54,6 +54,7 @@ import AdminApiPage from './pages/admin/AdminApiPage'
 import AdminUsersPage from './pages/admin/AdminUsersPage'
 import AdminJobsPage from './pages/admin/AdminJobsPage'
 import AdminCoursesPage from './pages/admin/AdminCoursesPage'
+import AdminCourseReviewPage from './pages/admin/AdminCourseReviewPage'
 import AdminReportsPage from './pages/admin/AdminReportsPage'
 import AdminWalletPage from './pages/admin/AdminWalletPage'
 import AdminMentorApplicationsPage from './pages/admin/AdminMentorApplicationsPage'
@@ -183,6 +184,7 @@ function App() {
             <Route path="/admin/mentor-applications" element={<AdminMentorApplicationsPage />} />
             <Route path="/admin/jobs" element={<AdminJobsPage />} />
             <Route path="/admin/courses" element={<AdminCoursesPage />} />
+            <Route path="/admin/courses/:courseId/review" element={<AdminCourseReviewPage />} />
             <Route path="/admin/reports" element={<AdminReportsPage />} />
             <Route path="/admin/support" element={<AdminSupportPage />} />
             <Route path="/admin/wallet" element={<AdminOnlyRoute><AdminWalletPage /></AdminOnlyRoute>} />

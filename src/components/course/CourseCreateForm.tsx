@@ -2,12 +2,13 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { courseApi } from '@/api/courseApi'
-import { categoryApi } from '@/api/categoryApi'
 import { fileApi } from '@/api/fileApi'
+import { categoryApi } from '@/api/categoryApi'
 import { skillApi } from '@/api/skillApi'
+import { CourseMediaDropZone, CourseMediaKind, validateCourseMedia } from './CourseMediaDropZone'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Image, Loader2, Upload, Video, X } from 'lucide-react'
+import { Loader2, X } from 'lucide-react'
 import { CategoryResponse, SkillResponse, SupportedLanguage } from '@/types'
 
 const courseSchema = z.object({
@@ -22,8 +23,6 @@ const courseSchema = z.object({
   language: z.string().optional(),
   level: z.string().optional(),
   isCertificate: z.boolean().optional(),
-  thumbnailUrl: z.string().url('Must be a valid URL').optional().or(z.literal('')),
-  previewVideoUrl: z.string().url('Must be a valid URL').optional().or(z.literal('')),
 })
 
 type CourseFormData = z.infer<typeof courseSchema>
@@ -32,12 +31,14 @@ export default function CourseCreateForm({ instructorId }: { instructorId: strin
   const navigate = useNavigate()
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const [uploadingThumbnail, setUploadingThumbnail] = useState(false)
-  const [uploadingPreview, setUploadingPreview] = useState(false)
   const [categories, setCategories] = useState<CategoryResponse[]>([])
   const [skills, setSkills] = useState<SkillResponse[]>([])
   const [skillQuery, setSkillQuery] = useState('')
   const [isSkillMenuOpen, setIsSkillMenuOpen] = useState(false)
+  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null)
+  const [thumbnailPreviewUrl, setThumbnailPreviewUrl] = useState('')
+  const [previewVideoFile, setPreviewVideoFile] = useState<File | null>(null)
+  const [previewVideoPreviewUrl, setPreviewVideoPreviewUrl] = useState('')
 
   useEffect(() => {
     void categoryApi.getAllActive().then(setCategories).catch(() => setCategories([]))
@@ -92,15 +93,28 @@ export default function CourseCreateForm({ instructorId }: { instructorId: strin
     try {
       setLoading(true)
       setError('')
+      let thumbnailUrl: string | undefined
+      let previewVideoUrl: string | undefined
+
+      if (thumbnailFile) {
+        const result = await fileApi.uploadCourseMedia(thumbnailFile, 'mentorx/courses/previews/images')
+        thumbnailUrl = result.fileUrl
+      }
+
+      if (previewVideoFile) {
+        const result = await fileApi.uploadCourseMedia(previewVideoFile, 'mentorx/courses/previews/videos')
+        previewVideoUrl = result.fileUrl
+      }
+
       const course = await courseApi.create({
         ...data,
         instructorId,
         categoryId: data.categoryId,
         skillIds: data.skillIds,
         description: data.description || undefined,
+        thumbnailUrl,
+        previewVideoUrl,
         language: data.language as SupportedLanguage | undefined,
-        thumbnailUrl: data.thumbnailUrl || undefined,
-        previewVideoUrl: data.previewVideoUrl || undefined,
       })
       navigate(`/mentor/courses/${course.courseId || course.id}/manage`)
     } catch (err: any) {
@@ -113,37 +127,6 @@ export default function CourseCreateForm({ instructorId }: { instructorId: strin
   const inputClass = 'w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-sm'
   const labelClass = 'block text-sm font-medium text-gray-700 mb-1.5'
 
-  const uploadCourseAsset = async (file: File, field: 'thumbnailUrl' | 'previewVideoUrl') => {
-    const setUploading = field === 'thumbnailUrl' ? setUploadingThumbnail : setUploadingPreview
-    const validationError = validateCourseAsset(file, field)
-    if (validationError) {
-      setError(validationError)
-      return
-    }
-    try {
-      setUploading(true)
-      setError('')
-      const result = await fileApi.uploadCourseMedia(file, 'mentorx/courses/previews')
-      setValue(field, result.fileUrl, { shouldValidate: true, shouldDirty: true })
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to upload media. Check Cloudinary configuration and try again.')
-    } finally {
-      setUploading(false)
-    }
-  }
-
-  const validateCourseAsset = (file: File, field: 'thumbnailUrl' | 'previewVideoUrl') => {
-    if (field === 'thumbnailUrl') {
-      if (!file.type.startsWith('image/')) return 'Thumbnail must be an image file.'
-      if (file.size > 5 * 1024 * 1024) return 'Thumbnail image must be 5 MB or smaller.'
-    }
-    if (field === 'previewVideoUrl') {
-      if (!file.type.startsWith('video/')) return 'Preview media must be a video file.'
-      if (file.size > 200 * 1024 * 1024) return 'Preview video must be 200 MB or smaller.'
-    }
-    return ''
-  }
-
   const addSkill = (id: number) => {
     if (!id || selectedSkillIds.includes(id)) return
     setValue('skillIds', [...selectedSkillIds, id], { shouldValidate: true, shouldDirty: true })
@@ -153,6 +136,37 @@ export default function CourseCreateForm({ instructorId }: { instructorId: strin
 
   const removeSkill = (id: number) => {
     setValue('skillIds', selectedSkillIds.filter((skillId) => skillId !== id), { shouldValidate: true, shouldDirty: true })
+  }
+
+  const selectCourseMedia = (kind: CourseMediaKind, file: File) => {
+    const validation = validateCourseMedia(file, kind)
+    if (validation) {
+      setError(validation)
+      return
+    }
+    const previewUrl = URL.createObjectURL(file)
+    if (kind === 'image') {
+      if (thumbnailPreviewUrl) URL.revokeObjectURL(thumbnailPreviewUrl)
+      setThumbnailFile(file)
+      setThumbnailPreviewUrl(previewUrl)
+    } else {
+      if (previewVideoPreviewUrl) URL.revokeObjectURL(previewVideoPreviewUrl)
+      setPreviewVideoFile(file)
+      setPreviewVideoPreviewUrl(previewUrl)
+    }
+    setError('')
+  }
+
+  const clearCourseMedia = (kind: CourseMediaKind) => {
+    if (kind === 'image') {
+      if (thumbnailPreviewUrl) URL.revokeObjectURL(thumbnailPreviewUrl)
+      setThumbnailFile(null)
+      setThumbnailPreviewUrl('')
+    } else {
+      if (previewVideoPreviewUrl) URL.revokeObjectURL(previewVideoPreviewUrl)
+      setPreviewVideoFile(null)
+      setPreviewVideoPreviewUrl('')
+    }
   }
 
   return (
@@ -268,6 +282,25 @@ export default function CourseCreateForm({ instructorId }: { instructorId: strin
         {errors.description && <p className="text-xs text-red-500 mt-1">{errors.description.message}</p>}
       </div>
 
+      <div className="grid gap-4 md:grid-cols-2">
+        <CourseMediaDropZone
+          label="Course thumbnail"
+          kind="image"
+          file={thumbnailFile}
+          mediaUrl={thumbnailPreviewUrl}
+          onFile={(file) => selectCourseMedia('image', file)}
+          onClear={() => clearCourseMedia('image')}
+        />
+        <CourseMediaDropZone
+          label="Preview video"
+          kind="video"
+          file={previewVideoFile}
+          mediaUrl={previewVideoPreviewUrl}
+          onFile={(file) => selectCourseMedia('video', file)}
+          onClear={() => clearCourseMedia('video')}
+        />
+      </div>
+
       <div className="grid grid-cols-3 gap-4">
         <div>
           <label className={labelClass}>Price (MXC)</label>
@@ -299,66 +332,6 @@ export default function CourseCreateForm({ instructorId }: { instructorId: strin
             <option value="Advanced">Advanced</option>
             <option value="Expert">Expert</option>
           </select>
-        </div>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2">
-        <div>
-          <label className={labelClass}>Thumbnail</label>
-          <div className="rounded-xl border border-gray-200 p-3">
-            {watch('thumbnailUrl') ? (
-              <img src={watch('thumbnailUrl')} alt="Course thumbnail preview" className="mb-3 aspect-video w-full rounded-lg object-cover" />
-            ) : (
-              <div className="mb-3 flex aspect-video w-full items-center justify-center rounded-lg bg-gray-50 text-gray-400">
-                <Image className="h-8 w-8" />
-              </div>
-            )}
-            <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-gray-900 px-3 py-2 text-sm font-semibold text-white hover:bg-primary-600">
-              {uploadingThumbnail ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-              Upload image
-              <input
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={(event) => {
-                  const file = event.target.files?.[0]
-                  if (file) void uploadCourseAsset(file, 'thumbnailUrl')
-                  event.currentTarget.value = ''
-                }}
-              />
-            </label>
-            <input {...register('thumbnailUrl')} className={`${inputClass} mt-3`} placeholder="Uploaded image URL" />
-          </div>
-          {errors.thumbnailUrl && <p className="text-xs text-red-500 mt-1">{errors.thumbnailUrl.message}</p>}
-        </div>
-
-        <div>
-          <label className={labelClass}>Preview Video</label>
-          <div className="rounded-xl border border-gray-200 p-3">
-            {watch('previewVideoUrl') ? (
-              <video src={watch('previewVideoUrl')} controls className="mb-3 aspect-video w-full rounded-lg bg-black" />
-            ) : (
-              <div className="mb-3 flex aspect-video w-full items-center justify-center rounded-lg bg-gray-50 text-gray-400">
-                <Video className="h-8 w-8" />
-              </div>
-            )}
-            <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-gray-900 px-3 py-2 text-sm font-semibold text-white hover:bg-primary-600">
-              {uploadingPreview ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-              Upload video
-              <input
-                type="file"
-                accept="video/*"
-                className="hidden"
-                onChange={(event) => {
-                  const file = event.target.files?.[0]
-                  if (file) void uploadCourseAsset(file, 'previewVideoUrl')
-                  event.currentTarget.value = ''
-                }}
-              />
-            </label>
-            <input {...register('previewVideoUrl')} className={`${inputClass} mt-3`} placeholder="Uploaded or external video URL" />
-          </div>
-          {errors.previewVideoUrl && <p className="text-xs text-red-500 mt-1">{errors.previewVideoUrl.message}</p>}
         </div>
       </div>
 

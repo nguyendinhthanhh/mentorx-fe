@@ -73,16 +73,9 @@ export default function CourseListPage() {
 
       const lessons = (query.data ?? []) as CourseLessonResponse[]
       const publishedLessons = lessons.filter((lesson) => lesson.isPublished !== false)
-      const videoCount = publishedLessons.filter(
-        (lesson) => lesson.lessonType === 'VIDEO' || !!lesson.videoUrl
-      ).length
+      const videoCount = publishedLessons.filter((lesson) => !!lesson.videoUrl).length
       const documentCount = publishedLessons.filter(
-        (lesson) =>
-          lesson.lessonType === 'DOWNLOADABLE' ||
-          lesson.lessonType === 'ARTICLE' ||
-          lesson.lessonType === 'TEXT' ||
-          !!lesson.resourceUrl ||
-          !!lesson.articleContent
+        (lesson) => !!lesson.resourceUrl || !!lesson.articleContent
       ).length
 
       summary[course.courseId] = {
