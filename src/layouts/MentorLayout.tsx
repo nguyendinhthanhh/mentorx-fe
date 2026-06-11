@@ -1,5 +1,6 @@
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
+import { useQuery } from 'react-query'
 import {
   BookOpen,
   Briefcase,
@@ -22,6 +23,7 @@ import { useAuthStore } from '@/store/authStore'
 import { useThemeStore } from '@/store/themeStore'
 import NotificationDropdown from '@/components/notification/NotificationDropdown'
 import { UserMode } from '@/types'
+import { courseApi } from '@/api/courseApi'
 
 const navigationItems = [
   { to: '/mentor/dashboard', label: 'Overview', icon: LayoutDashboard },
@@ -42,6 +44,12 @@ export default function MentorLayout() {
   const { isDarkMode, toggleTheme } = useThemeStore()
   const [availability] = useState('Available')
   const [userDropdownOpen, setUserDropdownOpen] = useState(false)
+  const { data: qaSummaries = [] } = useQuery(
+    ['mentor-course-qa-summaries', user?.userId],
+    () => courseApi.getMentorQaSummaries(),
+    { enabled: !!user?.userId, refetchInterval: 30000 }
+  )
+  const unansweredCourseQaCount = qaSummaries.reduce((sum, item) => sum + (item.unansweredLearners || 0), 0)
 
   const handleLogout = () => {
     logout()
@@ -75,6 +83,7 @@ export default function MentorLayout() {
           <nav className="flex-1 overflow-y-auto space-y-2 px-4 py-5">
             {navigationItems.map((item) => {
               const active = isActive(item.to)
+              const badge = item.to === '/mentor/courses' ? unansweredCourseQaCount : item.badge
               return (
                 <Link
                   key={item.to}
@@ -85,9 +94,9 @@ export default function MentorLayout() {
                 >
                   <item.icon className={`h-4 w-4 ${active ? 'text-white' : 'text-slate-400 group-hover:text-slate-700'}`} />
                   <span className="flex-1">{item.label}</span>
-                  {item.badge ? (
+                  {badge ? (
                     <span className={`inline-flex h-6 min-w-6 items-center justify-center rounded-full px-1.5 text-xs font-black ${active ? 'bg-white/20 text-white' : 'bg-violet-100 text-violet-700'}`}>
-                      {item.badge}
+                      {badge}
                     </span>
                   ) : null}
                 </Link>

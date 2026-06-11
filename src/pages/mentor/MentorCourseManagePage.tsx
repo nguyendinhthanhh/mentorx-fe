@@ -5,8 +5,9 @@ import { courseApi } from '@/api/courseApi'
 import { fileApi } from '@/api/fileApi'
 import { categoryApi } from '@/api/categoryApi'
 import { skillApi } from '@/api/skillApi'
+import { useAuthStore } from '@/store/authStore'
 import { CourseMediaDropZone, CourseMediaKind, validateCourseMedia } from '@/components/course/CourseMediaDropZone'
-import { CategoryResponse, CourseStatus, LessonType, QuizQuestionType, SkillResponse, SupportedLanguage } from '@/types'
+import { CategoryResponse, CourseQaMessageResponse, CourseStatus, LessonType, QuizQuestionType, SkillResponse, SupportedLanguage } from '@/types'
 import {
   ArrowLeft,
   AlertTriangle,
@@ -18,6 +19,7 @@ import {
   List,
   ListOrdered,
   Loader2,
+  MessageCircle,
   Plus,
   Save,
   Send,
@@ -99,7 +101,17 @@ type CourseDetailsDraft = {
   pendingPreviewVideoPreviewUrl?: string
 }
 
-type ManageTab = 'content' | 'info'
+type ManageTab = 'content' | 'info' | 'liveQa'
+
+type QaThread = {
+  learnerId: string
+  learnerName: string
+  lessonId?: string
+  messages: CourseQaMessageResponse[]
+  latestLearnerMessage?: CourseQaMessageResponse
+  latestMentorReply?: CourseQaMessageResponse
+  unanswered: boolean
+}
 
 const newId = () => `tmp-${Date.now()}-${Math.random().toString(36).slice(2)}`
 
@@ -142,6 +154,7 @@ const createQuizQuestion = (index: number): DraftQuizQuestion => ({
 
 export default function MentorCourseManagePage() {
   const { courseId } = useParams<{ courseId: string }>()
+  const { user } = useAuthStore()
   const queryClient = useQueryClient()
   const [sections, setSections] = useState<DraftSection[]>([])
   const [selection, setSelection] = useState<Selection | null>(null)
@@ -151,6 +164,8 @@ export default function MentorCourseManagePage() {
   const [activeTab, setActiveTab] = useState<ManageTab>('info')
   const [skillQuery, setSkillQuery] = useState('')
   const [isSkillMenuOpen, setIsSkillMenuOpen] = useState(false)
+  const [qaReplyDrafts, setQaReplyDrafts] = useState<Record<string, string>>({})
+  const [showUnansweredOnly, setShowUnansweredOnly] = useState(false)
   const [courseDetails, setCourseDetails] = useState<CourseDetailsDraft>({
     title: '',
     description: '',
@@ -172,6 +187,17 @@ export default function MentorCourseManagePage() {
   }, [sections])
 
   const { data: course } = useQuery(['course', courseId], () => courseApi.getById(courseId!), { enabled: !!courseId })
+  const coursePublished = course?.status === CourseStatus.PUBLISHED
+  const { data: qaMessages = [], isLoading: qaLoading } = useQuery(
+    ['course-qa', courseId],
+    () => courseApi.getCourseQaMessages(courseId!),
+    { enabled: !!courseId && coursePublished, refetchInterval: 15000 }
+  )
+  const { data: qaSummary } = useQuery(
+    ['course-qa-summary', courseId],
+    () => courseApi.getCourseQaSummary(courseId!),
+    { enabled: !!courseId && coursePublished, refetchInterval: 15000 }
+  )
   const { data: categories = [] } = useQuery(['course-editor-categories'], () => categoryApi.getAllActive())
   const { data: skills = [] } = useQuery(['course-editor-skills'], () => skillApi.getAllActive())
   const { data: savedSections = [], isLoading: sectionsLoading } = useQuery(
@@ -203,6 +229,12 @@ export default function MentorCourseManagePage() {
       isLoading: query.isLoading,
     }))
   )
+
+  useEffect(() => {
+    if (!coursePublished && activeTab === 'liveQa') {
+      setActiveTab('info')
+    }
+  }, [activeTab, coursePublished])
 
   useEffect(() => {
     if (!course || detailsDirty) return
@@ -305,6 +337,12 @@ export default function MentorCourseManagePage() {
       })
       .slice(0, 8)
   }, [skills, courseDetails.skillIds, skillQuery])
+
+  const qaThreads = useMemo(
+    () => buildQaThreads(qaMessages, user?.userId),
+    [qaMessages, user?.userId]
+  )
+  const visibleQaThreads = showUnansweredOnly ? qaThreads.filter((thread) => thread.unanswered) : qaThreads
 
   const saveMutation = useMutation(
     async () => {
@@ -413,6 +451,20 @@ export default function MentorCourseManagePage() {
         queryClient.invalidateQueries(['course', courseId])
       },
       onError: (err: any) => setError(err.message || err.response?.data?.message || 'Failed to update course details.'),
+    }
+  )
+
+  const sendQaReplyMutation = useMutation(
+    ({ learnerId, content, lessonId }: { learnerId: string; content: string; lessonId?: string }) =>
+      courseApi.sendCourseQaMessage(courseId!, { recipientId: learnerId, lessonId, content }),
+    {
+      onSuccess: (_message, variables) => {
+        setQaReplyDrafts((current) => ({ ...current, [variables.learnerId]: '' }))
+        queryClient.invalidateQueries(['course-qa', courseId])
+        queryClient.invalidateQueries(['course-qa-summary', courseId])
+        queryClient.invalidateQueries(['mentor-course-qa-summaries', user?.userId])
+      },
+      onError: (err: any) => setError(err.message || err.response?.data?.message || 'Failed to send Q&A reply.'),
     }
   )
 
@@ -566,6 +618,7 @@ export default function MentorCourseManagePage() {
 
   const canSubmitForReview = !dirty && sections.length > 0 && sections.some((section) => section.lessons.length > 0)
     && (course?.status === CourseStatus.DRAFT || course?.status === CourseStatus.REJECTED)
+  const unansweredQaCount = qaSummary?.unansweredLearners ?? qaThreads.filter((thread) => thread.unanswered).length
 
   return (
     <div className="min-h-[calc(100vh-8rem)] space-y-4">
@@ -582,6 +635,9 @@ export default function MentorCourseManagePage() {
         <div className="flex flex-wrap gap-2">
           {activeTab === 'content' && dirty && <span className="rounded-full bg-amber-50 px-3 py-2 text-xs font-black text-amber-700">Unsaved changes</span>}
           {activeTab === 'info' && detailsDirty && <span className="rounded-full bg-amber-50 px-3 py-2 text-xs font-black text-amber-700">Unsaved info</span>}
+          {coursePublished && unansweredQaCount > 0 && (
+            <span className="rounded-full bg-rose-50 px-3 py-2 text-xs font-black text-rose-700">{unansweredQaCount} unanswered Q&A</span>
+          )}
           <button
             disabled={!canSubmitForReview || submitReviewMutation.isLoading}
             onClick={() => submitReviewMutation.mutate()}
@@ -618,6 +674,20 @@ export default function MentorCourseManagePage() {
         >
           Course content
         </button>
+        {coursePublished && (
+          <button
+            type="button"
+            onClick={() => setActiveTab('liveQa')}
+            className={`relative flex-1 rounded-xl px-4 py-2 text-sm font-black ${activeTab === 'liveQa' ? 'bg-indigo-600 text-white' : 'text-slate-600 hover:bg-slate-50'}`}
+          >
+            Live Q&A
+            {unansweredQaCount > 0 && (
+              <span className={`ml-2 inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[11px] font-black ${activeTab === 'liveQa' ? 'bg-white/20 text-white' : 'bg-rose-100 text-rose-700'}`}>
+                {unansweredQaCount}
+              </span>
+            )}
+          </button>
+        )}
       </div>
 
       {activeTab === 'info' && (
@@ -871,6 +941,100 @@ export default function MentorCourseManagePage() {
           </button>
         </div>
       </section>}
+
+      {activeTab === 'liveQa' && coursePublished && (
+        <section className="rounded-2xl border border-slate-200 bg-white p-5">
+          <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div>
+              <h2 className="flex items-center gap-2 text-base font-black text-slate-900">
+                <MessageCircle className="h-5 w-5 text-indigo-600" />
+                Live Q&A
+              </h2>
+              <p className="text-sm font-medium text-slate-500">Reply to learner questions from this published course.</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowUnansweredOnly((current) => !current)}
+              className={`inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-black ${
+                showUnansweredOnly ? 'bg-indigo-600 text-white' : 'border border-slate-200 text-slate-700 hover:bg-slate-50'
+              }`}
+            >
+              <MessageCircle className="h-4 w-4" />
+              Unanswered only
+            </button>
+          </div>
+
+          {qaLoading ? (
+            <div className="flex min-h-48 items-center justify-center">
+              <Loader2 className="h-7 w-7 animate-spin text-indigo-600" />
+            </div>
+          ) : visibleQaThreads.length === 0 ? (
+            <div className="rounded-xl border border-dashed border-slate-200 p-8 text-center">
+              <MessageCircle className="mx-auto mb-3 h-8 w-8 text-slate-300" />
+              <p className="text-sm font-black text-slate-700">{showUnansweredOnly ? 'No unanswered questions' : 'No learner questions yet'}</p>
+              <p className="mt-1 text-sm font-medium text-slate-500">
+                {showUnansweredOnly ? 'Every learner question has a mentor reply.' : 'Questions from enrolled learners will appear here.'}
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {visibleQaThreads.map((thread) => {
+                const draft = qaReplyDrafts[thread.learnerId] || ''
+                return (
+                  <article key={thread.learnerId} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                    <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+                      <div>
+                        <h3 className="text-sm font-black text-slate-900">{thread.learnerName}</h3>
+                        <p className="text-xs font-semibold text-slate-500">{thread.messages.length} message{thread.messages.length === 1 ? '' : 's'}</p>
+                      </div>
+                      {thread.unanswered ? (
+                        <span className="rounded-full bg-rose-100 px-3 py-1 text-xs font-black text-rose-700">New</span>
+                      ) : (
+                        <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-black text-emerald-700">Answered</span>
+                      )}
+                    </div>
+                    <div className="max-h-72 space-y-2 overflow-auto pr-1">
+                      {thread.messages.map((message) => {
+                        const fromMentor = message.senderId === user?.userId
+                        return (
+                          <div key={message.id} className={`rounded-xl px-3 py-2 ${fromMentor ? 'ml-8 bg-indigo-600 text-white' : 'mr-8 bg-white text-slate-700'}`}>
+                            <div className="mb-1 flex items-center justify-between gap-2">
+                              <span className={`text-xs font-black ${fromMentor ? 'text-indigo-100' : 'text-slate-500'}`}>{fromMentor ? 'You' : message.senderName}</span>
+                              <span className={`text-[11px] font-semibold ${fromMentor ? 'text-indigo-100' : 'text-slate-400'}`}>{new Date(message.createdAt).toLocaleString()}</span>
+                            </div>
+                            <p className="whitespace-pre-wrap text-sm font-medium leading-6">{message.content}</p>
+                          </div>
+                        )
+                      })}
+                    </div>
+                    <div className="mt-4 flex flex-col gap-2 md:flex-row">
+                      <textarea
+                        value={draft}
+                        onChange={(event) => setQaReplyDrafts((current) => ({ ...current, [thread.learnerId]: event.target.value }))}
+                        placeholder={`Reply to ${thread.learnerName}`}
+                        className="min-h-20 flex-1 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10"
+                      />
+                      <button
+                        type="button"
+                        disabled={!draft.trim() || sendQaReplyMutation.isLoading}
+                        onClick={() => sendQaReplyMutation.mutate({
+                          learnerId: thread.learnerId,
+                          lessonId: thread.latestLearnerMessage?.lessonId,
+                          content: draft.trim(),
+                        })}
+                        className="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-bold text-white disabled:bg-slate-300 md:self-end"
+                      >
+                        {sendQaReplyMutation.isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                        Reply
+                      </button>
+                    </div>
+                  </article>
+                )
+              })}
+            </div>
+          )}
+        </section>
+      )}
     </div>
   )
 }
@@ -1520,6 +1684,48 @@ function buildCurriculumHydrationKey(
   quizQuestionData: Array<{ lessonId?: string; questions: unknown[] }>
 ) {
   return JSON.stringify({ sections, lessons, quizQuestionData })
+}
+
+function buildQaThreads(messages: CourseQaMessageResponse[], mentorId?: string): QaThread[] {
+  if (!mentorId) return []
+  const threads = new Map<string, QaThread>()
+
+  messages
+    .slice()
+    .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+    .forEach((message) => {
+      const learnerId = message.senderId === mentorId ? message.recipientId : message.senderId
+      if (!learnerId) return
+      const existing = threads.get(learnerId) || {
+        learnerId,
+        learnerName: message.senderId === mentorId ? 'Learner' : message.senderName,
+        lessonId: message.lessonId,
+        messages: [],
+        unanswered: false,
+      }
+      if (message.senderId !== mentorId) {
+        existing.learnerName = message.senderName
+        existing.latestLearnerMessage = message
+        existing.lessonId = message.lessonId || existing.lessonId
+      } else {
+        existing.latestMentorReply = message
+      }
+      existing.messages.push(message)
+      threads.set(learnerId, existing)
+    })
+
+  return Array.from(threads.values())
+    .map((thread) => ({
+      ...thread,
+      unanswered: !!thread.latestLearnerMessage
+        && (!thread.latestMentorReply || new Date(thread.latestLearnerMessage.createdAt) > new Date(thread.latestMentorReply.createdAt)),
+    }))
+    .sort((a, b) => {
+      if (a.unanswered !== b.unanswered) return a.unanswered ? -1 : 1
+      const aTime = new Date(a.messages[a.messages.length - 1]?.createdAt || 0).getTime()
+      const bTime = new Date(b.messages[b.messages.length - 1]?.createdAt || 0).getTime()
+      return bTime - aTime
+    })
 }
 
 function normalizeEditorLessonType(lessonType?: LessonType) {

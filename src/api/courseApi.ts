@@ -15,6 +15,7 @@ import {
   QuizQuestionResponse,
   QuizQuestionType,
   CourseQaMessageResponse,
+  CourseQaSummaryResponse,
 } from '@/types'
 
 export const courseApi = {
@@ -396,9 +397,19 @@ export const courseApi = {
     return response.data
   },
 
+  getCourseQaSummary: async (courseId: string): Promise<CourseQaSummaryResponse> => {
+    const response = await apiClient.get<CourseQaSummaryResponse>(`/v1/course-qa/courses/${courseId}/summary`)
+    return response.data
+  },
+
+  getMentorQaSummaries: async (): Promise<CourseQaSummaryResponse[]> => {
+    const response = await apiClient.get<CourseQaSummaryResponse[]>('/v1/course-qa/mentor/summaries')
+    return response.data
+  },
+
   sendCourseQaMessage: async (
     courseId: string,
-    data: { lessonId?: string; content: string }
+    data: { lessonId?: string; recipientId?: string; content: string }
   ): Promise<CourseQaMessageResponse> => {
     const response = await apiClient.post<CourseQaMessageResponse>(`/v1/course-qa/courses/${courseId}/messages`, data)
     return response.data

@@ -814,9 +814,15 @@ export interface CourseQaMessageResponse {
   courseId: string;
   lessonId?: string;
   senderId: string;
+  recipientId?: string;
   senderName: string;
   content: string;
   createdAt: string;
+}
+
+export interface CourseQaSummaryResponse {
+  courseId: string;
+  unansweredLearners: number;
 }
 
 export interface CourseLessonResponse {

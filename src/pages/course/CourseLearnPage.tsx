@@ -54,7 +54,9 @@ export default function CourseLearnPage() {
   const articleRef = useRef<HTMLElement | null>(null)
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const restoredVideoLessonRef = useRef<string | null>(null)
+  const restoredArticleLessonRef = useRef<string | null>(null)
   const lastTrackedVideoPercentRef = useRef<Record<string, number>>({})
+  const lastTrackedVideoSecondRef = useRef<Record<string, number>>({})
   const lastTrackedArticlePercentRef = useRef<Record<string, number>>({})
 
   const { data: course, isLoading: courseLoading } = useQuery(
@@ -126,11 +128,16 @@ export default function CourseLearnPage() {
   }, [courseId, lessonId, navigate, orderedLessons, progressByLesson, sectionId, sections])
 
   useEffect(() => {
-    setQuizAnswers({})
+    if (courseId && enrollment && activeLesson?.lessonType === LessonType.QUIZ) {
+      setQuizAnswers(readQuizDraft(courseId, enrollment.id, activeLesson.id))
+    } else {
+      setQuizAnswers({})
+    }
     setLatestAttempt(null)
     setQuizResults({})
     restoredVideoLessonRef.current = null
-  }, [activeLesson?.id])
+    restoredArticleLessonRef.current = null
+  }, [activeLesson?.id, activeLesson?.lessonType, courseId, enrollment?.id])
 
   useEffect(() => {
     const video = videoRef.current
@@ -153,9 +160,17 @@ export default function CourseLearnPage() {
       return courseApi.updateLessonProgress(enrollment.id, lesson.id, payload)
     },
     {
-      onSuccess: () => {
-        queryClient.invalidateQueries(['course-progress', user?.userId, courseId])
-        queryClient.invalidateQueries(['my-enrollments', user?.userId])
+      onSuccess: (savedProgress) => {
+        queryClient.setQueryData<LessonProgressResponse[]>(
+          ['course-progress', user?.userId, courseId],
+          (current = []) => {
+            const next = current.filter((item) => item.lessonId !== savedProgress.lessonId)
+            return [...next, savedProgress]
+          }
+        )
+        if (savedProgress.isCompleted) {
+          queryClient.invalidateQueries(['my-enrollments', user?.userId])
+        }
       },
     }
   )
@@ -176,6 +191,9 @@ export default function CourseLearnPage() {
       onSuccess: (attempt) => {
         setLatestAttempt(attempt)
         setQuizResults(buildQuizResults(quizQuestions, quizAnswers))
+        if (attempt.passed && courseId && enrollment && activeLesson) {
+          window.localStorage.removeItem(quizDraftKey(courseId, enrollment.id, activeLesson.id))
+        }
         queryClient.invalidateQueries(['course-progress', user?.userId, courseId])
         queryClient.invalidateQueries(['my-enrollments', user?.userId])
       },
@@ -185,15 +203,25 @@ export default function CourseLearnPage() {
   useEffect(() => {
     if (!activeLesson || !enrollment || activeLesson.lessonType === LessonType.QUIZ || activeLesson.videoUrl) return
 
-    const trackScroll = () => {
+    const restoreScroll = window.setTimeout(() => {
+      const element = articleRef.current
+      if (!element || restoredArticleLessonRef.current === activeLesson.id) return
+      const savedPercent = activeProgress?.scrollPercent || 0
+      if (savedPercent <= 0) return
+      const rect = element.getBoundingClientRect()
+      const articleTop = window.scrollY + rect.top
+      const targetY = articleTop + (element.scrollHeight * savedPercent) / 100 - window.innerHeight * 0.35
+      window.scrollTo({ top: Math.max(targetY, 0), behavior: 'auto' })
+      restoredArticleLessonRef.current = activeLesson.id
+      lastTrackedArticlePercentRef.current[activeLesson.id] = savedPercent
+    }, 120)
+
+    const trackScroll = (force = false) => {
       const element = articleRef.current
       if (!element) return
-      const rect = element.getBoundingClientRect()
-      const viewportHeight = window.innerHeight || document.documentElement.clientHeight
-      const visibleBottom = Math.min(viewportHeight, Math.max(0, viewportHeight - rect.top))
-      const percent = Math.min(Math.max(Math.round((visibleBottom / Math.max(rect.height, 1)) * 100), 0), 100)
-      const previous = lastTrackedArticlePercentRef.current[activeLesson.id] || 0
-      if (percent >= 90 || percent - previous >= 10) {
+      const percent = getArticleScrollPercent(element)
+      const previous = lastTrackedArticlePercentRef.current[activeLesson.id] ?? activeProgress?.scrollPercent ?? 0
+      if (force || percent >= 95 || Math.abs(percent - previous) >= 5) {
         lastTrackedArticlePercentRef.current[activeLesson.id] = percent
         updateProgress.mutate({
           lesson: activeLesson,
@@ -206,14 +234,32 @@ export default function CourseLearnPage() {
       }
     }
 
-    trackScroll()
-    window.addEventListener('scroll', trackScroll, { passive: true })
-    window.addEventListener('resize', trackScroll)
-    return () => {
-      window.removeEventListener('scroll', trackScroll)
-      window.removeEventListener('resize', trackScroll)
+    const handleScroll = () => trackScroll(false)
+    const handleHidden = () => {
+      if (document.visibilityState === 'hidden') trackScroll(true)
     }
-  }, [activeLesson, enrollment, updateProgress])
+    const handleBeforeUnload = () => trackScroll(true)
+
+    trackScroll()
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    window.addEventListener('resize', handleScroll)
+    document.addEventListener('visibilitychange', handleHidden)
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    return () => {
+      window.clearTimeout(restoreScroll)
+      trackScroll(true)
+      window.removeEventListener('scroll', handleScroll)
+      window.removeEventListener('resize', handleScroll)
+      document.removeEventListener('visibilitychange', handleHidden)
+      window.removeEventListener('beforeunload', handleBeforeUnload)
+    }
+  }, [
+    activeLesson?.id,
+    activeLesson?.lessonType,
+    activeLesson?.videoUrl,
+    activeProgress?.scrollPercent,
+    enrollment?.id,
+  ])
 
   const sendQa = useMutation(
     () => courseApi.sendCourseQaMessage(courseId!, { lessonId: activeLesson?.id, content: qaText.trim() }),
@@ -258,21 +304,54 @@ export default function CourseLearnPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  const trackVideoProgress = (lesson: CourseLessonResponse, video: HTMLVideoElement) => {
+  const trackVideoProgress = (lesson: CourseLessonResponse, video: HTMLVideoElement, force = false) => {
     if (!Number.isFinite(video.duration) || video.duration <= 0) return
+    const currentSecond = Math.round(video.currentTime)
     const percent = Math.min(Math.max(Math.round((video.currentTime / video.duration) * 100), 0), 100)
-    const previous = lastTrackedVideoPercentRef.current[lesson.id] || 0
-    if (percent >= 90 || percent - previous >= 10) {
+    const previousPercent = lastTrackedVideoPercentRef.current[lesson.id] || 0
+    const previousSecond = lastTrackedVideoSecondRef.current[lesson.id] ?? activeProgress?.lastPositionSec ?? 0
+    if (force || percent >= 95 || percent - previousPercent >= 5 || Math.abs(currentSecond - previousSecond) >= 5) {
       lastTrackedVideoPercentRef.current[lesson.id] = percent
+      lastTrackedVideoSecondRef.current[lesson.id] = currentSecond
       updateProgress.mutate({
         lesson,
         payload: {
           progressPercent: percent,
-          watchDurationSec: Math.round(video.currentTime),
-          lastPositionSec: Math.round(video.currentTime),
+          watchDurationSec: currentSecond,
+          lastPositionSec: currentSecond,
         },
       })
     }
+  }
+
+  useEffect(() => {
+    if (!activeLesson?.videoUrl || !enrollment) return
+
+    const saveCurrentVideo = () => {
+      const video = videoRef.current
+      if (video) trackVideoProgress(activeLesson, video, true)
+    }
+    const handleHidden = () => {
+      if (document.visibilityState === 'hidden') saveCurrentVideo()
+    }
+
+    document.addEventListener('visibilitychange', handleHidden)
+    window.addEventListener('beforeunload', saveCurrentVideo)
+    return () => {
+      saveCurrentVideo()
+      document.removeEventListener('visibilitychange', handleHidden)
+      window.removeEventListener('beforeunload', saveCurrentVideo)
+    }
+  }, [activeLesson?.id, activeLesson?.videoUrl, enrollment?.id])
+
+  const updateQuizAnswer = (questionId: string, answer: QuizAnswer) => {
+    setQuizAnswers((current) => {
+      const next = { ...current, [questionId]: answer }
+      if (courseId && enrollment && activeLesson?.lessonType === LessonType.QUIZ) {
+        window.localStorage.setItem(quizDraftKey(courseId, enrollment.id, activeLesson.id), JSON.stringify(next))
+      }
+      return next
+    })
   }
 
   if (courseLoading || lessonsLoading || enrollmentsLoading) {
@@ -399,10 +478,16 @@ export default function CourseLearnPage() {
                 src={activeLesson.videoUrl}
                 controls
                 onTimeUpdate={(event) => trackVideoProgress(activeLesson, event.currentTarget)}
+                onPause={(event) => trackVideoProgress(activeLesson, event.currentTarget, true)}
+                onSeeked={(event) => trackVideoProgress(activeLesson, event.currentTarget, true)}
                 onLoadedMetadata={(event) => {
                   const lastPosition = activeProgress?.lastPositionSec || 0
                   if (lastPosition > 0 && event.currentTarget.duration > lastPosition) {
                     event.currentTarget.currentTime = lastPosition
+                    lastTrackedVideoSecondRef.current[activeLesson.id] = Math.round(lastPosition)
+                    lastTrackedVideoPercentRef.current[activeLesson.id] = Math.round(
+                      (lastPosition / event.currentTarget.duration) * 100
+                    )
                   }
                 }}
                 onEnded={(event) => {
@@ -439,9 +524,7 @@ export default function CourseLearnPage() {
                 results={quizResults}
                 passingPercent={readPassingPercent(activeLesson.metadata)}
                 submitting={submitQuiz.isLoading}
-                onAnswerChange={(questionId, answer) =>
-                  setQuizAnswers((current) => ({ ...current, [questionId]: answer }))
-                }
+                onAnswerChange={updateQuizAnswer}
                 onSubmit={() => submitQuiz.mutate()}
               />
             )}
@@ -928,8 +1011,33 @@ function readPassingPercent(metadata?: Record<string, unknown>) {
   return Math.min(Math.max(Math.round(value), 0), 100)
 }
 
+function getArticleScrollPercent(element: HTMLElement) {
+  const rect = element.getBoundingClientRect()
+  const articleTop = window.scrollY + rect.top
+  const readerPosition = window.scrollY + window.innerHeight * 0.7
+  const scrolled = readerPosition - articleTop
+  return Math.min(Math.max(Math.round((scrolled / Math.max(element.scrollHeight, 1)) * 100), 0), 100)
+}
+
+function readQuizDraft(courseId: string, enrollmentId: string, lessonId: string): Record<string, QuizAnswer> {
+  try {
+    const raw = window.localStorage.getItem(quizDraftKey(courseId, enrollmentId, lessonId))
+    if (!raw) return {}
+    const parsed = JSON.parse(raw)
+    return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+      ? parsed as Record<string, QuizAnswer>
+      : {}
+  } catch {
+    return {}
+  }
+}
+
 function lastLessonKey(courseId: string) {
   return `mentorx:last-lesson:${courseId}`
+}
+
+function quizDraftKey(courseId: string, enrollmentId: string, lessonId: string) {
+  return `mentorx:quiz-draft:${courseId}:${enrollmentId}:${lessonId}`
 }
 
 function lessonPath(courseId: string, lesson: CourseLessonResponse) {

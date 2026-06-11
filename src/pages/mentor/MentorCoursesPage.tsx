@@ -2,11 +2,11 @@ import { ReactNode, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useMutation } from 'react-query'
 import * as Dialog from '@radix-ui/react-dialog'
-import { Archive, BookOpen, Edit3, Eye, GraduationCap, Loader2, Plus, Search, Send, Star, Trash2, X } from 'lucide-react'
+import { Archive, BookOpen, Edit3, Eye, GraduationCap, Loader2, MessageCircle, Plus, Search, Send, Star, Trash2, X } from 'lucide-react'
 import { categoryApi } from '@/api/categoryApi'
 import { courseApi } from '@/api/courseApi'
 import { useAuthStore } from '@/store/authStore'
-import { CategoryResponse, CourseResponse, CourseStatus } from '@/types'
+import { CategoryResponse, CourseQaSummaryResponse, CourseResponse, CourseStatus } from '@/types'
 import { formatCurrency, formatDate } from '@/utils/formatters'
 import { LoadingRows, MetricCard, PageShell, SelectInput, StateCard, StatusPill, TextInput, Toolbar } from './shared/MentorHubUI'
 
@@ -24,11 +24,13 @@ export default function MentorCoursesPage() {
   const { user } = useAuthStore()
   const [courses, setCourses] = useState<CourseResponse[]>([])
   const [categories, setCategories] = useState<CategoryResponse[]>([])
+  const [qaSummaries, setQaSummaries] = useState<CourseQaSummaryResponse[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState('ALL')
   const [sortBy, setSortBy] = useState('updated')
+  const [unansweredOnly, setUnansweredOnly] = useState(false)
   const [confirmAction, setConfirmAction] = useState<ConfirmAction>(null)
 
   useEffect(() => {
@@ -40,12 +42,14 @@ export default function MentorCoursesPage() {
     try {
       setLoading(true)
       setError('')
-      const [coursePage, categoryList] = await Promise.all([
+      const [coursePage, categoryList, summaryList] = await Promise.all([
         courseApi.getByInstructor(user.userId, { page: 0, size: 100 }),
         categoryApi.getAllActive().catch(() => [] as CategoryResponse[]),
+        courseApi.getMentorQaSummaries().catch(() => [] as CourseQaSummaryResponse[]),
       ])
       setCourses(coursePage.content || [])
       setCategories(categoryList)
+      setQaSummaries(summaryList)
     } catch (err: any) {
       setError(err.response?.data?.message || 'Unable to load mentor courses.')
     } finally {
@@ -72,21 +76,33 @@ export default function MentorCoursesPage() {
     }, {})
   }, [categories])
 
+  const qaSummaryByCourseId = useMemo(() => {
+    return qaSummaries.reduce<Record<string, number>>((acc, summary) => {
+      acc[summary.courseId] = summary.unansweredLearners || 0
+      return acc
+    }, {})
+  }, [qaSummaries])
+
+  const getCourseId = (course: { courseId?: string; id?: string }) => course.courseId || course.id || ''
+
   const filteredCourses = useMemo(() => {
     const query = searchQuery.trim().toLowerCase()
     return courses
       .filter((course) => {
         const status = String(course.status)
+        const courseId = getCourseId(course)
         const categoryName = course.categoryId ? categoryNameById[course.categoryId] || '' : ''
         const haystack = [course.title, course.description, categoryName, ...(course.skills || [])].join(' ').toLowerCase()
-        return (statusFilter === 'ALL' || status === statusFilter) && (!query || haystack.includes(query))
+        return (statusFilter === 'ALL' || status === statusFilter)
+          && (!unansweredOnly || (qaSummaryByCourseId[courseId] || 0) > 0)
+          && (!query || haystack.includes(query))
       })
       .sort((a, b) => {
         if (sortBy === 'enrolled') return (b.totalEnrollments || 0) - (a.totalEnrollments || 0)
         if (sortBy === 'rated') return Number(b.averageRating || 0) - Number(a.averageRating || 0)
         return new Date(b.updatedAt || b.createdAt).getTime() - new Date(a.updatedAt || a.createdAt).getTime()
       })
-  }, [categoryNameById, courses, searchQuery, sortBy, statusFilter])
+  }, [categoryNameById, courses, qaSummaryByCourseId, searchQuery, sortBy, statusFilter, unansweredOnly])
 
   const summary = useMemo(() => {
     return {
@@ -96,8 +112,6 @@ export default function MentorCoursesPage() {
       enrollments: courses.reduce((sum, course) => sum + (course.totalEnrollments || 0), 0),
     }
   }, [courses])
-
-  const getCourseId = (course: { courseId?: string; id?: string }) => course.courseId || course.id || ''
 
   const requestAction = (type: CourseAction, course: CourseResponse) => {
     setConfirmAction({
@@ -159,6 +173,16 @@ export default function MentorCoursesPage() {
           <option value="enrolled">Most enrolled</option>
           <option value="rated">Highest rated</option>
         </SelectInput>
+        <button
+          type="button"
+          onClick={() => setUnansweredOnly((current) => !current)}
+          className={`inline-flex h-11 items-center justify-center gap-2 rounded-2xl px-4 text-sm font-black transition ${
+            unansweredOnly ? 'bg-indigo-600 text-white' : 'border border-slate-200 bg-slate-50 text-slate-700 hover:bg-white'
+          }`}
+        >
+          <MessageCircle className="h-4 w-4" />
+          Unanswered
+        </button>
       </Toolbar>
 
       {loading ? (
@@ -175,6 +199,7 @@ export default function MentorCoursesPage() {
         <div className="grid gap-4 xl:grid-cols-2">
           {filteredCourses.map((course) => {
             const courseId = getCourseId(course)
+            const unansweredCount = qaSummaryByCourseId[courseId] || 0
             return (
               <article key={courseId} className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
                 <div className="flex gap-4 p-5">
@@ -191,6 +216,12 @@ export default function MentorCoursesPage() {
                     <div className="flex flex-wrap items-center gap-2">
                       <StatusPill label={formatStatusLabel(String(course.status))} tone={courseStatusTone(String(course.status))} />
                       {course.categoryId ? <span className="text-xs font-bold text-slate-400">{categoryNameById[course.categoryId] || `Category ${course.categoryId}`}</span> : null}
+                      {unansweredCount > 0 && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-rose-50 px-3 py-1 text-xs font-black text-rose-700">
+                          <MessageCircle className="h-3.5 w-3.5" />
+                          {unansweredCount} unanswered
+                        </span>
+                      )}
                     </div>
                     <h2 className="mt-3 line-clamp-2 text-lg font-black leading-6 text-slate-950">{course.title}</h2>
                     <p className="mt-2 line-clamp-2 text-sm font-medium leading-6 text-slate-500">{course.description || 'No course description provided yet.'}</p>
