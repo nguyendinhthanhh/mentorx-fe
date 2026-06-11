@@ -22,18 +22,20 @@ import {
 import { fileApi } from '@/api/fileApi'
 import { mentorApi } from '@/api/mentorApi'
 import MentorAvailabilityCalendar from '@/components/mentor/MentorAvailabilityCalendar'
+import MentorCoursesManager from '@/components/mentor/MentorCoursesManager'
 import MentorPackagesManager from '@/components/mentor/MentorPackagesManager'
 import MentorProfileForm from '@/components/mentor/MentorProfileForm'
 import { useI18n } from '@/i18n/I18nProvider'
 import { useAuthStore } from '@/store/authStore'
 import { formatMxc } from '@/utils/formatters'
 import {
+  MentorOfferingResponse,
   MentorProfileAssetRequest,
   MentorProfileAssetResponse,
   MentorProfileAssetType,
 } from '@/types'
 
-type SetupTab = 'overview' | 'profile' | 'packages' | 'availability' | 'documents'
+type SetupTab = 'overview' | 'profile' | 'packages' | 'courses' | 'availability' | 'documents'
 
 const inputClass =
   'w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm font-medium text-slate-900 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10'
@@ -71,6 +73,12 @@ export default function MentorProfileSetupPage({ onCancelEdit, initialTab = 'pro
     enabled: !!userId,
   })
 
+  const { data: courses = [] } = useQuery<MentorOfferingResponse[]>(
+    ['mentor-courses', userId],
+    () => mentorApi.getMentorCourses(userId!),
+    { enabled: !!userId }
+  )
+
   const { data: weeklyAvailability } = useQuery(
     ['mentor-availability', userId],
     () => mentorApi.getWeeklyAvailability(userId!),
@@ -93,6 +101,7 @@ export default function MentorProfileSetupPage({ onCancelEdit, initialTab = 'pro
     { id: 'overview', label: t('mentor.profile.setup.tabs.overview'), icon: Eye },
     { id: 'profile', label: t('mentor.profile.setup.tabs.profile'), icon: Pencil },
     { id: 'packages', label: t('mentor.profile.setup.tabs.packages'), icon: Package },
+    { id: 'courses', label: t('mentor.public.tabs.courses'), icon: FileText },
     { id: 'availability', label: t('mentor.profile.setup.tabs.availability'), icon: Calendar },
     { id: 'documents', label: t('mentor.profile.setup.tabs.documents'), icon: FileText },
   ]
@@ -114,7 +123,7 @@ export default function MentorProfileSetupPage({ onCancelEdit, initialTab = 'pro
 
   return (
     <div className="min-h-screen bg-slate-50 pb-24 text-slate-950">
-      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8">
         <header className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <div className="inline-flex rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-black uppercase tracking-[0.16em] text-blue-700">
@@ -172,6 +181,7 @@ export default function MentorProfileSetupPage({ onCancelEdit, initialTab = 'pro
                 <OverviewPanel
                   progress={progress}
                   packages={packages}
+                  courses={courses}
                   weeklyAvailability={weeklyAvailability}
                   assets={assets}
                   setActiveTab={setActiveTab}
@@ -205,6 +215,8 @@ export default function MentorProfileSetupPage({ onCancelEdit, initialTab = 'pro
 
               {activeTab === 'packages' && <MentorPackagesManager userId={user.userId} />}
 
+              {activeTab === 'courses' && <MentorCoursesManager userId={user.userId} />}
+
               {activeTab === 'availability' && <MentorAvailabilityCalendar userId={user.userId} />}
 
               {activeTab === 'documents' && (
@@ -227,17 +239,19 @@ export default function MentorProfileSetupPage({ onCancelEdit, initialTab = 'pro
 function OverviewPanel({
   progress,
   packages,
+  courses,
   weeklyAvailability,
   assets,
   setActiveTab,
 }: {
   progress: ReturnType<typeof calculateProgress>
   packages: any[]
+  courses: MentorOfferingResponse[]
   weeklyAvailability: any
   assets: MentorProfileAssetResponse[]
   setActiveTab: Dispatch<SetStateAction<SetupTab>>
 }) {
-  const { t } = useI18n()
+  const { t, language } = useI18n()
   const proofCount = assets.length
 
   const cards = [
@@ -264,6 +278,17 @@ function OverviewPanel({
       done: packages.length > 0,
       icon: Package,
       cta: t('mentor.profile.setup.cards.packages.cta'),
+    },
+    {
+      title: t('mentor.public.tabs.courses'),
+      description:
+        language === 'vi'
+          ? 'Xuat ban khoa hoc hoac hoc lieu thuc te hien thi tren trang mentor cong khai.'
+          : 'Publish practical courses or learning products that appear on your public mentor page.',
+      tab: 'courses' as const,
+      done: courses.length > 0,
+      icon: FileText,
+      cta: language === 'vi' ? 'Quan ly khoa hoc' : 'Manage Courses',
     },
     {
       title: t('mentor.profile.setup.cards.availability.title'),

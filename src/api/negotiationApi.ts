@@ -100,10 +100,17 @@ export const negotiationApi = {
   /**
    * Get latest negotiation for a proposal
    */
-  getLatest: async (proposalId: string): Promise<NegotiationResponse> => {
-    const response = await apiClient.get<ApiResponse<NegotiationResponse>>(
-      `/negotiations/proposal/${proposalId}/latest`
-    )
-    return response.data.data
+  getLatest: async (proposalId: string): Promise<NegotiationResponse | null> => {
+    try {
+      const response = await apiClient.get<ApiResponse<NegotiationResponse>>(
+        `/negotiations/proposal/${proposalId}/latest`
+      )
+      return response.data.data
+    } catch (error: any) {
+      if (error.response?.status === 404) {
+        return null
+      }
+      throw error
+    }
   },
 }

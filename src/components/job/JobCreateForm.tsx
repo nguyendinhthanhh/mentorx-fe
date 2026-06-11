@@ -20,6 +20,7 @@ import { categoryApi } from '@/api/categoryApi'
 import { fileApi } from '@/api/fileApi'
 import { jobApi } from '@/api/jobApi'
 import { BudgetType, CategoryResponse, FileResponse, JobResponse, JobStatus, JobType } from '@/types'
+import { formatTimeRemaining } from '@/utils/formatters'
 
 const OTHER_CATEGORY_VALUE = -1
 const EXPERIENCE_CUSTOM = 'CUSTOM'
@@ -63,13 +64,43 @@ const optionalText = (max = 1200) =>
       return trimmed ? trimmed : undefined
     })
 
+const toDateTimeLocalValue = (value?: string | null) => {
+  if (!value) return undefined
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return undefined
+
+  const offsetMs = date.getTimezoneOffset() * 60_000
+  return new Date(date.getTime() - offsetMs).toISOString().slice(0, 19)
+}
+
+const normalizeDateTimeLocalValue = (value?: string | null) => {
+  if (!value) return undefined
+  return value.length === 16 ? `${value}:00` : value
+}
+
+const formatDeadlinePreview = (value?: string | null) => {
+  if (!value) return 'dd/mm/yyyy --:--:-- --'
+
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return 'dd/mm/yyyy --:--:-- --'
+
+  return new Intl.DateTimeFormat('vi-VN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+  }).format(date).replace(', ', ' ')
+}
+
 const jobSchema = z
   .object({
     title: z.string().trim().min(5, 'Title must be at least 5 characters').max(200),
     description: z.string().trim(),
     categoryId: optionalCategory,
     customCategoryName: optionalText(120),
-    startDate: z.string().optional(),
     deadlineDate: z.string().optional(),
 
     budgetType: z.enum(['FIXED', 'HOURLY']).default('FIXED'),
@@ -154,18 +185,10 @@ const jobSchema = z
       }
     }
 
-    if ((data.startDate && !data.deadlineDate) || (!data.startDate && data.deadlineDate)) {
+    if (!data.deadlineDate) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'Please provide both start and end date, or leave both empty.',
-        path: ['deadlineDate'],
-      })
-    }
-
-    if (data.startDate && data.deadlineDate && new Date(data.startDate) >= new Date(data.deadlineDate)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'End date must be after start date.',
+        message: 'Please provide an end date and time.',
         path: ['deadlineDate'],
       })
     }
@@ -239,6 +262,16 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
   const selectedCategoryId = Number(watch('categoryId') ?? '')
   const experiencePreset = watch('experiencePreset')
   const communicationPreset = watch('communicationPreset')
+  const selectedDeadline = watch('deadlineDate')
+  const [deadlineTick, setDeadlineTick] = useState(Date.now())
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setDeadlineTick(Date.now())
+    }, 1000)
+
+    return () => window.clearInterval(timer)
+  }, [])
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -283,8 +316,7 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
       availabilityExpectation: initialJob.availabilityExpectation,
       availabilityStartTime: initialJob.availabilityStartTime,
       availabilityEndTime: initialJob.availabilityEndTime,
-      startDate: initialJob.startDate ? initialJob.startDate.slice(0, 16) : undefined,
-      deadlineDate: initialJob.deadlineAt ? initialJob.deadlineAt.slice(0, 16) : undefined,
+      deadlineDate: toDateTimeLocalValue(initialJob.deadlineAt),
     })
 
     const initialAttachments = [...(initialJob.attachments || []), ...(initialJob.attachmentUrl ? [initialJob.attachmentUrl] : [])]
@@ -314,6 +346,12 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
     if (data.communicationPreset === COMMUNICATION_CUSTOM) return data.customCommunicationPreference
     return data.communicationPreset || undefined
   }
+
+  const selectedDeadlinePreview = useMemo(() => formatDeadlinePreview(selectedDeadline), [selectedDeadline, deadlineTick])
+  const selectedDeadlineRemaining = useMemo(
+    () => (selectedDeadline ? formatTimeRemaining(selectedDeadline, 'vi') : 'Chọn deadline để xem thời gian còn lại.'),
+    [selectedDeadline, deadlineTick]
+  )
 
   const buildJobPayload = (data: JobFormData, status: JobStatus) => {
     const safeCategoryId =
@@ -347,8 +385,7 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
       budgetMaxMxc: data.budgetType === 'FIXED' ? data.budgetAmount : undefined,
       hourlyRateMxc: data.budgetType === 'HOURLY' ? data.hourlyRate : undefined,
       estimatedHours: data.budgetType === 'HOURLY' ? data.estimatedHours : undefined,
-      startDate: data.startDate ? new Date(data.startDate).toISOString().slice(0, 16) : undefined,
-      deadlineAt: data.deadlineDate ? new Date(data.deadlineDate).toISOString().slice(0, 16) : undefined,
+      deadlineAt: normalizeDateTimeLocalValue(data.deadlineDate),
       status,
     }
   }
@@ -470,28 +507,21 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-bold text-slate-800">Deadline</label>
-          <div className="grid gap-3">
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div>
-                <label className="mb-2 block text-xs font-bold text-slate-700">Start date and time</label>
-                <input
-                  type="datetime-local"
-                  {...register('startDate')}
-                  className="w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition"
-                />
-              </div>
-              <div>
-                <label className="mb-2 block text-xs font-bold text-slate-700">End date and time</label>
-                <input
-                  type="datetime-local"
-                  {...register('deadlineDate')}
-                  className="w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition"
-                />
-              </div>
-            </div>
+          <label className="mb-2 block text-sm font-bold text-slate-800">End date and time</label>
+          <input
+            type="datetime-local"
+            step={1}
+            {...register('deadlineDate')}
+            className="w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition"
+          />
+          <div className="mt-2 space-y-1 rounded-xl border border-slate-100 bg-slate-50 px-3 py-2">
+            <p className="text-xs font-semibold text-slate-700">
+              Selected: <span className="font-black text-slate-900">{selectedDeadlinePreview}</span>
+            </p>
+            <p className={`text-xs font-semibold ${selectedDeadline && new Date(selectedDeadline).getTime() > Date.now() ? 'text-emerald-700' : 'text-slate-500'}`}>
+              {selectedDeadlineRemaining}
+            </p>
           </div>
-          {errors.startDate && <p className="mt-1.5 text-xs font-medium text-rose-500">{errors.startDate.message}</p>}
           {errors.deadlineDate && <p className="mt-1.5 text-xs font-medium text-rose-500">{errors.deadlineDate.message}</p>}
         </div>
       </div>

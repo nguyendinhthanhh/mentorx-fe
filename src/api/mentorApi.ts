@@ -5,6 +5,13 @@ import {
   MentorProfileResponse,
   MentorProfileRequest,
   UserResponse,
+  MentorPackageRequest,
+  MentorPackageResponse,
+  MentorOfferingRequest,
+  MentorOfferingResponse,
+  MentorAvailabilityResponse,
+  MentorWeeklyAvailabilityResponse,
+  MentorBlockedDateResponse,
   MentorProfileAssetRequest,
   MentorProfileAssetResponse,
   MentorProfileAssetType,
@@ -197,28 +204,28 @@ export const mentorApi = {
   },
 
   // Mentor Packages
-  getMentorPackages: async (userId: string): Promise<any[]> => {
-    const response = await apiClient.get<ApiResponse<any[]>>(`/mentors/${userId}/packages`)
+  getMentorPackages: async (userId: string): Promise<MentorPackageResponse[]> => {
+    const response = await apiClient.get<ApiResponse<MentorPackageResponse[]>>(`/mentors/${userId}/packages`)
     return response.data.data
   },
 
-  getAllMentorPackages: async (userId: string): Promise<any[]> => {
-    const response = await apiClient.get<ApiResponse<any[]>>(`/mentors/${userId}/packages`)
+  getAllMentorPackages: async (userId: string): Promise<MentorPackageResponse[]> => {
+    const response = await apiClient.get<ApiResponse<MentorPackageResponse[]>>(`/mentors/${userId}/packages`)
     return response.data.data
   },
 
-  getActiveMentorPackages: async (userId: string): Promise<any[]> => {
-    const response = await apiClient.get<ApiResponse<any[]>>(`/mentors/${userId}/packages/active`)
+  getActiveMentorPackages: async (userId: string): Promise<MentorPackageResponse[]> => {
+    const response = await apiClient.get<ApiResponse<MentorPackageResponse[]>>(`/mentors/${userId}/packages/active`)
     return response.data.data
   },
 
-  createMentorPackage: async (userId: string, data: any): Promise<any> => {
-    const response = await apiClient.post<ApiResponse<any>>(`/mentors/${userId}/packages`, data)
+  createMentorPackage: async (userId: string, data: MentorPackageRequest): Promise<MentorPackageResponse> => {
+    const response = await apiClient.post<ApiResponse<MentorPackageResponse>>(`/mentors/${userId}/packages`, data)
     return response.data.data
   },
 
-  updateMentorPackage: async (_userId: string, packageId: string, data: any): Promise<any> => {
-    const response = await apiClient.put<ApiResponse<any>>(`/mentors/packages/${packageId}`, data)
+  updateMentorPackage: async (_userId: string, packageId: string, data: MentorPackageRequest): Promise<MentorPackageResponse> => {
+    const response = await apiClient.put<ApiResponse<MentorPackageResponse>>(`/mentors/packages/${packageId}`, data)
     return response.data.data
   },
 
@@ -227,47 +234,68 @@ export const mentorApi = {
   },
 
   // Mentor Courses
-  getMentorCourses: async (userId: string): Promise<any[]> => {
-    const response = await apiClient.get<ApiResponse<any[]>>(`/mentors/${userId}/courses`)
+  getMentorCourses: async (userId: string): Promise<MentorOfferingResponse[]> => {
+    const response = await apiClient.get<ApiResponse<MentorOfferingResponse[]>>(`/mentors/${userId}/courses`)
     return response.data.data
   },
 
-  getPublishedMentorCourses: async (userId: string): Promise<any[]> => {
-    const response = await apiClient.get<ApiResponse<any[]>>(`/mentors/${userId}/courses/published`)
+  getPublishedMentorCourses: async (userId: string): Promise<MentorOfferingResponse[]> => {
+    const response = await apiClient.get<ApiResponse<MentorOfferingResponse[]>>(`/mentors/${userId}/courses/published`)
+    return response.data.data
+  },
+
+  createMentorCourse: async (userId: string, data: MentorOfferingRequest): Promise<MentorOfferingResponse> => {
+    const response = await apiClient.post<ApiResponse<MentorOfferingResponse>>(`/mentors/${userId}/courses`, data)
+    return response.data.data
+  },
+
+  updateMentorCourse: async (courseId: string, data: MentorOfferingRequest): Promise<MentorOfferingResponse> => {
+    const response = await apiClient.put<ApiResponse<MentorOfferingResponse>>(`/mentors/courses/${courseId}`, data)
+    return response.data.data
+  },
+
+  deleteMentorCourse: async (courseId: string): Promise<void> => {
+    await apiClient.delete(`/mentors/courses/${courseId}`)
+  },
+
+  publishMentorCourse: async (courseId: string): Promise<MentorOfferingResponse> => {
+    const response = await apiClient.patch<ApiResponse<MentorOfferingResponse>>(`/mentors/courses/${courseId}/publish`)
+    return response.data.data
+  },
+
+  archiveMentorCourse: async (courseId: string): Promise<MentorOfferingResponse> => {
+    const response = await apiClient.patch<ApiResponse<MentorOfferingResponse>>(`/mentors/courses/${courseId}/archive`)
     return response.data.data
   },
 
   // Mentor Availability
-  getMentorAvailability: async (userId: string): Promise<any[]> => {
-    const response = await apiClient.get<ApiResponse<any[]>>(`/mentors/${userId}/availability`)
+  getMentorAvailability: async (userId: string): Promise<MentorAvailabilityResponse[]> => {
+    const response = await apiClient.get<ApiResponse<MentorAvailabilityResponse[]>>(`/mentors/${userId}/availability`)
     return response.data.data
   },
 
-  getWeeklyAvailability: async (userId: string): Promise<any> => {
-    const [availabilityResponse, blockedResponse] = await Promise.all([
-      apiClient.get<ApiResponse<any[]>>(`/mentors/${userId}/availability`),
-      apiClient.get<ApiResponse<any[]>>(`/mentors/${userId}/blocked-dates`),
-    ])
-    const weeklySchedule = (availabilityResponse.data.data || []).reduce<Record<number, any[]>>((acc, slot) => {
-      const day = Number(slot.dayOfWeek)
-      acc[day] = acc[day] || []
-      acc[day].push(slot)
-      return acc
-    }, {})
+  getWeeklyAvailability: async (userId: string): Promise<MentorWeeklyAvailabilityResponse> => {
+    const response = await apiClient.get<ApiResponse<{ weeklySchedule: Record<number, MentorAvailabilityResponse[]>; blockedDates: string[] }>>(
+      `/mentors/${userId}/availability/week`
+    )
+    const blockedDateItems = await mentorApi.getBlockedDates(userId)
     return {
-      weeklySchedule,
-      blockedDates: (blockedResponse.data.data || []).map((item) => item.blockedDate),
-      blockedDateItems: blockedResponse.data.data || [],
+      weeklySchedule: response.data.data?.weeklySchedule || {},
+      blockedDates: response.data.data?.blockedDates || [],
+      blockedDateItems,
     }
   },
 
-  getBlockedDates: async (userId: string): Promise<any[]> => {
-    const response = await apiClient.get<ApiResponse<any[]>>(`/mentors/${userId}/blocked-dates`)
+  getBlockedDates: async (userId: string): Promise<MentorBlockedDateResponse[]> => {
+    const response = await apiClient.get<ApiResponse<MentorBlockedDateResponse[]>>(`/mentors/${userId}/blocked-dates`)
     return response.data.data
   },
 
-  createAvailabilitySlot: async (userId: string, data: any): Promise<any> => {
-    const response = await apiClient.post<ApiResponse<any>>(`/mentors/${userId}/availability`, data)
+  createAvailabilitySlot: async (
+    userId: string,
+    data: Pick<MentorAvailabilityResponse, 'dayOfWeek' | 'startTime' | 'endTime' | 'isActive'>
+  ): Promise<MentorAvailabilityResponse> => {
+    const response = await apiClient.post<ApiResponse<MentorAvailabilityResponse>>(`/mentors/${userId}/availability`, data)
     return response.data.data
   },
 
@@ -275,8 +303,8 @@ export const mentorApi = {
     await apiClient.delete(`/mentors/availability/${slotId}`)
   },
 
-  blockDate: async (userId: string, blockedDate: string): Promise<any> => {
-    const response = await apiClient.post<ApiResponse<any>>(`/mentors/${userId}/blocked-dates`, {
+  blockDate: async (userId: string, blockedDate: string): Promise<MentorBlockedDateResponse> => {
+    const response = await apiClient.post<ApiResponse<MentorBlockedDateResponse>>(`/mentors/${userId}/blocked-dates`, {
       blockedDate,
       reason: 'Mentor unavailable',
     })

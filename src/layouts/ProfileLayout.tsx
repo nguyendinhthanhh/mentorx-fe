@@ -138,7 +138,7 @@ export default function ProfileLayout() {
             </aside>
           )}
 
-          <div className={`min-w-0 flex-1 ${isFullWidthPage ? 'mx-auto max-w-7xl' : ''}`}>
+          <div className={`min-w-0 flex-1 ${isFullWidthPage ? 'mx-auto max-w-[1600px]' : ''}`}>
             <Outlet />
           </div>
         </div>

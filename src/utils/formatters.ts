@@ -126,6 +126,19 @@ export const formatDeadline = (deadlineAt?: string | Date | null, language?: Lan
   }).format(new Date(deadlineAt))
 }
 
+export const formatDeadlineWithSeconds = (deadlineAt?: string | Date | null, language?: Language): string => {
+  if (!deadlineAt) return resolveLanguage(language) === 'vi' ? 'Chua co deadline' : 'No deadline set'
+
+  return new Intl.DateTimeFormat(getLocale(language), {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  }).format(new Date(deadlineAt))
+}
+
 export const formatTimeRemaining = (deadlineAt?: string | Date | null, language?: Language): string => {
   const currentLanguage = resolveLanguage(language)
   if (!deadlineAt) return currentLanguage === 'vi' ? 'Chua co deadline' : 'No deadline set'
@@ -133,20 +146,24 @@ export const formatTimeRemaining = (deadlineAt?: string | Date | null, language?
   const diffMs = new Date(deadlineAt).getTime() - Date.now()
   if (diffMs <= 0) return currentLanguage === 'vi' ? 'Qua han' : 'Overdue'
 
-  const totalMinutes = Math.ceil(diffMs / 60000)
-  const days = Math.floor(totalMinutes / (60 * 24))
-  const hours = Math.floor((totalMinutes % (60 * 24)) / 60)
-  const minutes = totalMinutes % 60
+  const totalSeconds = Math.ceil(diffMs / 1000)
+  const days = Math.floor(totalSeconds / (60 * 60 * 24))
+  const hours = Math.floor((totalSeconds % (60 * 60 * 24)) / (60 * 60))
+  const minutes = Math.floor((totalSeconds % (60 * 60)) / 60)
+  const seconds = totalSeconds % 60
+  const pad = (value: number) => String(value).padStart(2, '0')
 
   if (currentLanguage === 'vi') {
-    if (days > 0) return hours > 0 ? `Con lai: ${days} ngay ${hours} gio` : `Con lai: ${days} ngay`
-    if (hours > 0) return minutes > 0 ? `Con lai: ${hours} gio ${minutes} phut` : `Con lai: ${hours} gio`
-    return `Con lai: ${minutes} phut`
+    if (days > 0) return `Con lai: ${days} ngay ${pad(hours)} gio ${pad(minutes)} phut ${pad(seconds)} giay`
+    if (hours > 0) return `Con lai: ${hours} gio ${pad(minutes)} phut ${pad(seconds)} giay`
+    if (minutes > 0) return `Con lai: ${minutes} phut ${pad(seconds)} giay`
+    return `Con lai: ${seconds} giay`
   }
 
-  if (days > 0) return hours > 0 ? `Time left: ${days} day${days > 1 ? 's' : ''} ${hours} hour${hours > 1 ? 's' : ''}` : `Time left: ${days} day${days > 1 ? 's' : ''}`
-  if (hours > 0) return minutes > 0 ? `Time left: ${hours} hour${hours > 1 ? 's' : ''} ${minutes} minute${minutes > 1 ? 's' : ''}` : `Time left: ${hours} hour${hours > 1 ? 's' : ''}`
-  return `Time left: ${minutes} minute${minutes > 1 ? 's' : ''}`
+  if (days > 0) return `Time left: ${days} day${days > 1 ? 's' : ''} ${pad(hours)} hour${hours === 1 ? '' : 's'} ${pad(minutes)} minute${minutes === 1 ? '' : 's'} ${pad(seconds)} second${seconds === 1 ? '' : 's'}`
+  if (hours > 0) return `Time left: ${hours} hour${hours > 1 ? 's' : ''} ${pad(minutes)} minute${minutes === 1 ? '' : 's'} ${pad(seconds)} second${seconds === 1 ? '' : 's'}`
+  if (minutes > 0) return `Time left: ${minutes} minute${minutes > 1 ? 's' : ''} ${pad(seconds)} second${seconds === 1 ? '' : 's'}`
+  return `Time left: ${seconds} second${seconds === 1 ? '' : 's'}`
 }
 
 export const formatRelativeTime = (date: string | Date, language?: Language): string => {

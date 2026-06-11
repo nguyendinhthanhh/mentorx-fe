@@ -5,7 +5,7 @@ import { chatApi } from '@/api/chatApi'
 import { contractApi } from '@/api/contractApi'
 import { fileApi } from '@/api/fileApi'
 import { mentorApi } from '@/api/mentorApi'
-import { ContractResponse, CourseResponse, MessageType } from '@/types'
+import { ContractResponse, MentorOfferingResponse, MessageType } from '@/types'
 import { useAuthStore } from '@/store/authStore'
 import ConversationPane from './components/ConversationPane'
 import ContextRail from './components/ContextRail'
@@ -202,8 +202,8 @@ export default function ChatListPage() {
   const { data: mentorCourses = [], isLoading: mentorCoursesLoading } = useQuery(
     ['chat-mentor-courses', otherMemberId],
     async () => {
-      if (!otherMemberId) return [] as CourseResponse[]
-      return mentorApi.getPublishedMentorCourses(otherMemberId).catch(() => [] as CourseResponse[])
+      if (!otherMemberId) return [] as MentorOfferingResponse[]
+      return mentorApi.getPublishedMentorCourses(otherMemberId).catch(() => [] as MentorOfferingResponse[])
     },
     {
       enabled: !!otherMemberId,
