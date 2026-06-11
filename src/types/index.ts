@@ -641,7 +641,6 @@ export interface JobCreateRequest {
   budgetMaxMxc?: number;
   hourlyRateMxc?: number;
   estimatedHours?: number;
-  startDate?: string;
   deadlineAt?: string;
   attachmentUrl?: string;
   attachments?: string[];
@@ -668,7 +667,6 @@ export interface JobUpdateRequest {
   budgetMaxMxc?: number;
   hourlyRateMxc?: number;
   estimatedHours?: number;
-  startDate?: string;
   deadlineAt?: string;
   status?: JobStatus;
   isFeatured?: boolean;
@@ -1357,6 +1355,83 @@ export enum PackageType {
   SINGLE_SESSION = "SINGLE_SESSION",
   PACKAGE_DEAL = "PACKAGE_DEAL",
   SUBSCRIPTION = "SUBSCRIPTION",
+}
+
+export interface MentorPackageResponse {
+  id: string;
+  mentorProfileId: string;
+  title: string;
+  description: string;
+  packageType: PackageType;
+  durationHours: number;
+  priceMxc: number;
+  features: string[];
+  isActive: boolean;
+  displayOrder: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MentorPackageRequest {
+  title: string;
+  description: string;
+  packageType: PackageType;
+  durationHours: number;
+  priceMxc: number;
+  features?: string[];
+  isActive?: boolean;
+  displayOrder?: number;
+}
+
+export interface MentorOfferingResponse {
+  id: string;
+  mentorProfileId: string;
+  title: string;
+  description: string;
+  priceMxc: number;
+  durationHours: number;
+  level: string;
+  lessonsCount: number;
+  thumbnailUrl?: string;
+  status: CourseStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MentorOfferingRequest {
+  title: string;
+  description: string;
+  priceMxc: number;
+  durationHours: number;
+  level: string;
+  lessonsCount: number;
+  thumbnailUrl?: string;
+}
+
+export interface MentorAvailabilityResponse {
+  id: string;
+  mentorProfileId: string;
+  dayOfWeek: number;
+  startTime: string;
+  endTime: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MentorBlockedDateResponse {
+  id: string;
+  mentorProfileId: string;
+  blockedDate: string;
+  reason?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MentorWeeklyAvailabilityResponse {
+  weeklySchedule: Record<number, MentorAvailabilityResponse[]>;
+  blockedDates: string[];
+  blockedDateItems: MentorBlockedDateResponse[];
 }
 
 export enum MentorProfileAssetType {

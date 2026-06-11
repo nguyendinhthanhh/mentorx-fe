@@ -2,11 +2,14 @@ import { useState, useEffect } from 'react'
 import { useQuery, useQueryClient } from 'react-query'
 import { toast } from 'react-hot-toast'
 import { proposalApi } from '@/api/proposalApi'
+import { QRCodeCanvas } from 'qrcode.react'
+import { paymentApi, type PayOSPaymentResponse } from '@/api/paymentApi'
 import { negotiationApi, type NegotiationResponse } from '@/api/negotiationApi'
 import { chatApi } from '@/api/chatApi'
+import { walletApi } from '@/api/walletApi'
 import { useAuthStore } from '@/store/authStore'
 import { useSearchParams, Link, useNavigate } from 'react-router-dom'
-import { formatCurrency, formatRelativeTime, formatDeadline, formatTimeRemaining } from '@/utils/formatters'
+import { formatCurrency, formatFiatCurrency, formatRelativeTime, formatDeadline, formatDeadlineWithSeconds, formatTimeRemaining } from '@/utils/formatters'
 import { ProposalResponse } from '@/types'
 import { ensureDirectJobChat, getJobChatRoute } from '@/utils/jobWorkspace'
 import {
@@ -45,11 +48,17 @@ type AcceptCandidate = ProposalResponse & {
   acceptedDurationDays?: number | null
 }
 
+const MXC_TO_VND_RATE = 1000
+const MIN_PAYOS_VND_AMOUNT = 10000
+
 export default function ProposalList({ jobId }: Props) {
   const { user } = useAuthStore()
   const queryClient = useQueryClient()
   const navigate = useNavigate()
   const [actionLoading, setActionLoading] = useState<string | null>(null)
+  const [topUpLoading, setTopUpLoading] = useState(false)
+  const [topUpError, setTopUpError] = useState('')
+  const [topUpPayment, setTopUpPayment] = useState<PayOSPaymentResponse | null>(null)
   const [acceptCandidate, setAcceptCandidate] = useState<{
     id: string
     mentorId: string
@@ -67,6 +76,15 @@ export default function ProposalList({ jobId }: Props) {
     proposalApi.getByJob(jobId, { page: 0, size: 50 })
   )
 
+  const { data: userBalance, refetch: refetchBalance } = useQuery(
+    ['userBalance', user?.userId],
+    () => walletApi.getUserBalance(user!.userId),
+    {
+      enabled: Boolean(user?.userId),
+      staleTime: 15_000,
+    }
+  )
+
   const proposals = data?.content || []
   const acceptedProposal = proposals.find((proposal) => proposal.status === 'ACCEPTED')
   const hasAcceptedProposal = Boolean(acceptedProposal)
@@ -79,6 +97,15 @@ export default function ProposalList({ jobId }: Props) {
       retry: false,
     }
   )
+
+  const availableBalance = userBalance?.available ?? 0
+  const escrowMissingAmount =
+    acceptCandidate && acceptCandidate.acceptedAmount && availableBalance < acceptCandidate.acceptedAmount
+      ? acceptCandidate.acceptedAmount - availableBalance
+      : 0
+  const escrowMissingVnd = Math.max(0, Math.ceil(escrowMissingAmount * MXC_TO_VND_RATE))
+  const escrowPayosAmountVnd = Math.max(escrowMissingVnd, MIN_PAYOS_VND_AMOUNT)
+  const escrowRequiresMinimumTopUp = escrowMissingAmount > 0 && escrowPayosAmountVnd > escrowMissingVnd
 
   const refreshProposalViews = async () => {
     await Promise.all([
@@ -174,6 +201,8 @@ export default function ProposalList({ jobId }: Props) {
   }
 
   const openAcceptConfirm = (proposal: ProposalResponse, latestNegotiation?: NegotiationResponse) => {
+    setTopUpPayment(null)
+    setTopUpError('')
     setAcceptCandidate({
       id: proposal.id,
       mentorId: proposal.mentorId,
@@ -184,8 +213,60 @@ export default function ProposalList({ jobId }: Props) {
     })
   }
 
+  const resetAcceptFlow = () => {
+    setAcceptCandidate(null)
+    setTopUpPayment(null)
+    setTopUpError('')
+    setTopUpLoading(false)
+  }
+
+  const createTopUpQr = async () => {
+    if (!acceptCandidate) return
+
+    if (escrowMissingAmount <= 0 || escrowMissingVnd <= 0) {
+      return
+    }
+
+    try {
+      setTopUpLoading(true)
+      setTopUpError('')
+      const response = await paymentApi.createPayOSPayment({
+        amount: escrowPayosAmountVnd.toString(),
+        currency: 'VND',
+        orderInfo: `Escrow top-up for ${acceptCandidate.mentorName} - missing ${formatCurrency(escrowMissingAmount)} MXC`,
+      })
+
+      if (response.code === '00' && (response.qrCode || response.checkoutUrl)) {
+        setTopUpPayment(response)
+        toast.success('Đã tạo mã thanh toán. Quét mã hoặc mở trang thanh toán, sau đó quay lại để xác nhận.')
+        return
+      }
+
+      setTopUpError(response.message || 'Không tạo được mã thanh toán.')
+    } catch (error: any) {
+      setTopUpError(error.response?.data?.message || 'Không tạo được mã thanh toán.')
+    } finally {
+      setTopUpLoading(false)
+    }
+  }
+
   const confirmAccept = async () => {
     if (!acceptCandidate) return
+
+    const acceptedAmount = acceptCandidate.acceptedAmount ?? 0
+    if (acceptedAmount > 0 && availableBalance < acceptedAmount) {
+      if (!topUpPayment) {
+        await createTopUpQr()
+        return
+      }
+
+      const refreshed = await refetchBalance()
+      const latestAvailable = refreshed.data?.available ?? 0
+      if (latestAvailable < acceptedAmount) {
+        toast.error(`Ban con thieu ${formatCurrency(acceptedAmount - latestAvailable)} MXC de chap nhan proposal nay.`)
+        return
+      }
+    }
 
     try {
       setActionLoading(acceptCandidate.id)
@@ -215,7 +296,7 @@ export default function ProposalList({ jobId }: Props) {
       }
 
       await refreshProposalViews()
-      setAcceptCandidate(null)
+      resetAcceptFlow()
       setSelectedProposalId(null)
     } catch (error: any) {
       alert(error.response?.data?.message || 'Không thể chấp nhận proposal')
@@ -349,6 +430,8 @@ export default function ProposalList({ jobId }: Props) {
           onClose={() => setSelectedProposalId(null)}
           actionLoading={actionLoading}
           hasAcceptedProposal={hasAcceptedProposal}
+          availableBalance={availableBalance}
+          refetchBalance={refetchBalance}
           onAccept={openAcceptConfirm}
           onReject={handleReject}
           onNegotiated={refreshProposalViews}
@@ -389,11 +472,82 @@ export default function ProposalList({ jobId }: Props) {
               </div>
             </div>
 
+            {acceptCandidate.acceptedAmount && acceptCandidate.acceptedAmount > 0 && availableBalance < acceptCandidate.acceptedAmount && (
+              <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4">
+                <div className="flex items-start gap-3">
+                  <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-amber-700 shadow-sm">
+                    <AlertCircle className="h-5 w-5" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-bold text-amber-900">Thiếu số dư để mở escrow</p>
+                    <p className="mt-1 text-sm leading-6 text-amber-800">
+                      Bạn còn thiếu <span className="font-black">{formatCurrency(escrowMissingAmount)}</span>, tương đương{' '}
+                      <span className="font-black">
+                        {formatFiatCurrency(escrowMissingVnd, 'VND')}
+                      </span>.
+                      Nạp xong ngay tại đây, không cần rời khỏi trang này.
+                      {escrowRequiresMinimumTopUp ? (
+                        <>
+                          {' '}
+                          PayOS yêu cầu tối thiểu <span className="font-black">{formatFiatCurrency(MIN_PAYOS_VND_AMOUNT, 'VND')}</span>, nên QR sẽ được tạo cho{' '}
+                          <span className="font-black">{formatFiatCurrency(escrowPayosAmountVnd, 'VND')}</span>.
+                        </>
+                      ) : null}
+                    </p>
+                  </div>
+                </div>
+
+                {topUpError && (
+                  <div className="mt-3 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
+                    {topUpError}
+                  </div>
+                )}
+
+                {topUpPayment ? (
+                  <div className="mt-4 grid gap-4 rounded-2xl border border-amber-100 bg-white p-4 sm:grid-cols-[160px_1fr]">
+                    <div className="flex items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                      {topUpPayment.qrCode ? (
+                        <QRCodeCanvas value={topUpPayment.qrCode} size={160} includeMargin className="h-36 w-36 rounded-xl" />
+                      ) : (
+                        <div className="flex h-36 w-36 items-center justify-center rounded-xl border border-dashed border-slate-300 text-xs text-slate-500">
+                          QR unavailable
+                        </div>
+                      )}
+                    </div>
+                    <div className="space-y-3 text-sm">
+                      <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                        <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400">Nạp tiền thực tế</p>
+                        <p className="mt-1 font-black text-slate-950">{formatFiatCurrency(topUpPayment.amount ?? 0, 'VND')}</p>
+                        <p className="mt-1 text-slate-600">Order code: {topUpPayment.orderCode}</p>
+                      </div>
+                      {topUpPayment.checkoutUrl && (
+                        <a
+                          href={topUpPayment.checkoutUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex h-10 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-700 transition hover:bg-slate-50"
+                        >
+                          Mở trang thanh toán
+                        </a>
+                      )}
+                      {topUpPayment.paymentLinkId && (
+                        <p className="break-all text-xs text-slate-500">Payment link: {topUpPayment.paymentLinkId}</p>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="mt-4 rounded-2xl border border-dashed border-amber-300 bg-white/70 px-4 py-4 text-sm text-amber-900">
+                    Chọn nút <span className="font-black">Nạp đủ bằng QR</span> để tạo mã thanh toán PayOS ngay trong màn hình này.
+                  </div>
+                )}
+              </div>
+            )}
+
             <div className="mt-6 flex gap-3">
               <button
                 type="button"
-                onClick={() => setAcceptCandidate(null)}
-                disabled={actionLoading === acceptCandidate.id}
+                onClick={resetAcceptFlow}
+                disabled={actionLoading === acceptCandidate.id || topUpLoading}
                 className="flex-1 inline-flex h-11 items-center justify-center rounded-xl border border-slate-200 bg-white text-sm font-black text-slate-700 hover:bg-slate-50 disabled:opacity-50"
               >
                 Hủy
@@ -401,10 +555,10 @@ export default function ProposalList({ jobId }: Props) {
               <button
                 type="button"
                 onClick={confirmAccept}
-                disabled={actionLoading === acceptCandidate.id}
+                disabled={actionLoading === acceptCandidate.id || topUpLoading}
                 className="flex-1 inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-emerald-600 text-sm font-black text-white hover:bg-emerald-700 disabled:bg-slate-300"
               >
-                {actionLoading === acceptCandidate.id ? (
+                {topUpLoading ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
                     Đang xử lý...
@@ -537,6 +691,8 @@ function ProposalDetailDrawer({
   onClose,
   actionLoading,
   hasAcceptedProposal,
+  availableBalance,
+  refetchBalance,
   onAccept,
   onReject,
   onNegotiated
@@ -545,6 +701,8 @@ function ProposalDetailDrawer({
   onClose: () => void
   actionLoading: string | null
   hasAcceptedProposal: boolean
+  availableBalance: number
+  refetchBalance: () => Promise<any>
   onAccept: (proposal: ProposalResponse, latestNegotiation?: NegotiationResponse) => void
   onReject: (proposalId: string) => void
   onNegotiated: () => void | Promise<unknown>
@@ -664,7 +822,7 @@ function ProposalDetailDrawer({
                          <div className="bg-white px-2.5 py-1 rounded-md border border-slate-100 text-slate-700">
                            Thời gian mới: <span className="font-black text-amber-700">
                              {neg.deadlineAt 
-                               ? `${formatDeadline(neg.deadlineAt)} (${formatTimeRemaining(neg.deadlineAt)})`
+                              ? `${formatDeadlineWithSeconds(neg.deadlineAt)} (${formatTimeRemaining(neg.deadlineAt)})`
                                : `${neg.estimatedDurationDays} ngày`}
                            </span>
                          </div>
@@ -728,11 +886,13 @@ function ProposalDetailDrawer({
         <div className="p-4 bg-white border-t border-slate-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
            <ProposalActions
             proposal={proposal}
-            latestNegotiation={latestNegotiation}
+            latestNegotiation={latestNegotiation || undefined}
             isPending={isPending}
             isNegotiating={isNegotiating}
             hasAcceptedProposal={hasAcceptedProposal}
             actionLoading={actionLoading}
+            availableBalance={availableBalance}
+            refetchBalance={refetchBalance}
             onAccept={onAccept}
             onReject={onReject}
             onNegotiated={onNegotiated}
@@ -797,6 +957,8 @@ interface ProposalActionsProps {
   isNegotiating: boolean
   hasAcceptedProposal: boolean
   actionLoading: string | null
+  availableBalance: number
+  refetchBalance: () => Promise<any>
   onAccept: (proposal: ProposalResponse, latestNegotiation?: NegotiationResponse) => void
   onReject: (proposalId: string) => void
   onNegotiated: () => void | Promise<unknown>
@@ -809,6 +971,8 @@ function ProposalActions({
   isNegotiating,
   hasAcceptedProposal,
   actionLoading,
+  availableBalance,
+  refetchBalance,
   onAccept,
   onReject,
   onNegotiated,
@@ -819,10 +983,23 @@ function ProposalActions({
   const [negotiateAmount, setNegotiateAmount] = useState(proposal.proposedAmount?.toString() || '')
   const [negotiateDeadline, setNegotiateDeadline] = useState(proposal.deadlineAt ? proposal.deadlineAt.slice(0, 16) : '')
   const [negotiating, setNegotiating] = useState(false)
+  const [counterTopUpLoading, setCounterTopUpLoading] = useState(false)
+  const [counterTopUpError, setCounterTopUpError] = useState('')
+  const [counterTopUpPayment, setCounterTopUpPayment] = useState<PayOSPaymentResponse | null>(null)
   const isEditingOwnPendingOffer =
     latestNegotiation?.senderType === 'CLIENT' &&
     latestNegotiation?.status === 'PENDING' &&
     latestNegotiation?.senderId === user?.userId
+  const negotiateAmountValue = Number(negotiateAmount)
+  const negotiateHasValidAmount = Number.isFinite(negotiateAmountValue) && negotiateAmountValue > 0
+  const negotiateMissingAmount =
+    negotiateHasValidAmount && negotiateAmountValue > availableBalance
+      ? negotiateAmountValue - availableBalance
+      : 0
+  const negotiateMissingVnd = Math.max(0, Math.ceil(negotiateMissingAmount * MXC_TO_VND_RATE))
+  const negotiatePayosAmountVnd = Math.max(negotiateMissingVnd, MIN_PAYOS_VND_AMOUNT)
+  const negotiateRequiresTopUp = negotiateMissingAmount > 0
+  const negotiateRequiresMinimumTopUp = negotiateRequiresTopUp && negotiatePayosAmountVnd > negotiateMissingVnd
 
   const openNegotiateForm = (options?: { preserveClientMessage?: boolean }) => {
     const preserveClientMessage = options?.preserveClientMessage ?? false
@@ -835,11 +1012,45 @@ function ProposalActions({
     setNegotiateMessage(draftMessage)
     setNegotiateAmount(draftAmount != null ? draftAmount.toString() : '')
     setNegotiateDeadline(draftDeadline ? draftDeadline.slice(0, 16) : '')
+    setCounterTopUpPayment(null)
+    setCounterTopUpError('')
+    setCounterTopUpLoading(false)
     setShowNegotiateForm(true)
   }
 
   const closeNegotiateForm = () => {
     setShowNegotiateForm(false)
+    setCounterTopUpPayment(null)
+    setCounterTopUpError('')
+    setCounterTopUpLoading(false)
+  }
+
+  const createCounterTopUpQr = async () => {
+    if (!negotiateRequiresTopUp || negotiateMissingAmount <= 0) {
+      return
+    }
+
+    try {
+      setCounterTopUpLoading(true)
+      setCounterTopUpError('')
+      const response = await paymentApi.createPayOSPayment({
+        amount: negotiatePayosAmountVnd.toString(),
+        currency: 'VND',
+        orderInfo: `Negotiation top-up for ${proposal.mentorName} - missing ${formatCurrency(negotiateMissingAmount)} MXC`,
+      })
+
+      if (response.code === '00' && (response.qrCode || response.checkoutUrl)) {
+        setCounterTopUpPayment(response)
+        toast.success('Da tao ma thanh toan. Quet QR de nap tien ngay trong man hinh nay.')
+        return
+      }
+
+      setCounterTopUpError(response.message || 'Khong tao duoc ma thanh toan.')
+    } catch (error: any) {
+      setCounterTopUpError(error.response?.data?.message || 'Khong tao duoc ma thanh toan.')
+    } finally {
+      setCounterTopUpLoading(false)
+    }
   }
 
   const handleNegotiate = async () => {
@@ -856,6 +1067,20 @@ function ProposalActions({
     if (!user?.userId) {
       toast.error('Vui long dang nhap.')
       return
+    }
+
+    if (negotiateRequiresTopUp) {
+      if (!counterTopUpPayment) {
+        await createCounterTopUpQr()
+        return
+      }
+
+      const refreshed = await refetchBalance()
+      const latestAvailable = refreshed.data?.available ?? 0
+      if (latestAvailable < negotiateAmountValue) {
+        toast.error(`Ban con thieu ${formatCurrency(negotiateAmountValue - latestAvailable)} MXC de gui de xuat nay.`)
+        return
+      }
     }
 
     try {
@@ -879,6 +1104,8 @@ function ProposalActions({
 
       setShowNegotiateForm(false)
       setNegotiateMessage('')
+      setCounterTopUpPayment(null)
+      setCounterTopUpError('')
       
       // Refresh page to see updated status
       await onNegotiated()
@@ -918,7 +1145,11 @@ function ProposalActions({
                 type="number"
                 min="1"
                 value={negotiateAmount}
-                onChange={(event) => setNegotiateAmount(event.target.value)}
+                onChange={(event) => {
+                  setNegotiateAmount(event.target.value)
+                  setCounterTopUpPayment(null)
+                  setCounterTopUpError('')
+                }}
                 className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-800 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
               />
             </label>
@@ -926,6 +1157,7 @@ function ProposalActions({
               <span className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-500">Deadline date/time</span>
               <input
                 type="datetime-local"
+                step={1}
                 value={negotiateDeadline}
                 onChange={(event) => setNegotiateDeadline(event.target.value)}
                 className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-800 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
@@ -950,6 +1182,74 @@ function ProposalActions({
             />
             <p className="text-[11px] font-medium text-slate-500">{negotiateMessage.trim().length}/1000 characters, minimum 10</p>
           </label>
+          {negotiateRequiresTopUp && (
+            <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4">
+              <div className="flex items-start gap-3">
+                <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-amber-700 shadow-sm">
+                  <AlertCircle className="h-5 w-5" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-bold text-amber-900">Thieu so du de gui de xuat nay</p>
+                  <p className="mt-1 text-sm leading-6 text-amber-800">
+                    Ban con thieu <span className="font-black">{formatCurrency(negotiateMissingAmount)}</span>, tuong duong{' '}
+                    <span className="font-black">{formatFiatCurrency(negotiateMissingVnd, 'VND')}</span>.
+                    Nạp xong ngay tai day, khong can roi khoi trang nay.
+                    {negotiateRequiresMinimumTopUp ? (
+                      <>
+                        {' '}
+                        PayOS yeu cau toi thieu <span className="font-black">{formatFiatCurrency(MIN_PAYOS_VND_AMOUNT, 'VND')}</span>, nen QR se duoc tao cho{' '}
+                        <span className="font-black">{formatFiatCurrency(negotiatePayosAmountVnd, 'VND')}</span>.
+                      </>
+                    ) : null}
+                  </p>
+                </div>
+              </div>
+
+              {counterTopUpError && (
+                <div className="mt-3 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
+                  {counterTopUpError}
+                </div>
+              )}
+
+              {counterTopUpPayment ? (
+                <div className="mt-4 grid gap-4 rounded-2xl border border-amber-100 bg-white p-4 sm:grid-cols-[160px_1fr]">
+                  <div className="flex items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                    {counterTopUpPayment.qrCode ? (
+                      <QRCodeCanvas value={counterTopUpPayment.qrCode} size={160} includeMargin className="h-36 w-36 rounded-xl" />
+                    ) : (
+                      <div className="flex h-36 w-36 items-center justify-center rounded-xl border border-dashed border-slate-300 text-xs text-slate-500">
+                        QR unavailable
+                      </div>
+                    )}
+                  </div>
+                  <div className="space-y-3 text-sm">
+                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                      <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400">Nap tien thuc te</p>
+                      <p className="mt-1 font-black text-slate-950">{formatFiatCurrency(counterTopUpPayment.amount ?? 0, 'VND')}</p>
+                      <p className="mt-1 text-slate-600">Order code: {counterTopUpPayment.orderCode}</p>
+                    </div>
+                    {counterTopUpPayment.checkoutUrl && (
+                      <a
+                        href={counterTopUpPayment.checkoutUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex h-10 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-700 transition hover:bg-slate-50"
+                      >
+                        Mo trang thanh toan
+                      </a>
+                    )}
+                    {counterTopUpPayment.paymentLinkId && (
+                      <p className="break-all text-xs text-slate-500">Payment link: {counterTopUpPayment.paymentLinkId}</p>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="mt-4 rounded-2xl border border-dashed border-amber-300 bg-white/70 px-4 py-4 text-sm text-amber-900">
+                  Chon nut <span className="font-black">Nap du bang QR</span> de tao ma thanh toan PayOS ngay trong man hinh nay.
+                </div>
+              )}
+            </div>
+          )}
           <div className="mt-4 flex flex-col gap-2 sm:flex-row">
             <button
               type="button"
@@ -957,9 +1257,19 @@ function ProposalActions({
               onClick={handleNegotiate}
               className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-xl bg-indigo-600 text-sm font-bold text-white shadow-sm transition hover:bg-indigo-700 disabled:opacity-60"
             >
-              <PencilLine className="h-4 w-4" />
-              {negotiating ? 'Sending...' : 'Send counter offer'}
-            </button>
+                <PencilLine className="h-4 w-4" />
+                {negotiating ? 'Sending...' : 'Send counter offer'}
+              </button>
+            {negotiateRequiresTopUp && !counterTopUpPayment && (
+              <button
+                type="button"
+                disabled={counterTopUpLoading}
+                onClick={createCounterTopUpQr}
+                className="inline-flex h-10 items-center justify-center rounded-xl border border-amber-200 bg-white px-4 text-sm font-bold text-amber-700 transition hover:bg-amber-50 disabled:opacity-60"
+              >
+                {counterTopUpLoading ? 'Creating QR...' : 'Nap du bang QR'}
+              </button>
+            )}
             <button
               type="button"
               disabled={negotiating}

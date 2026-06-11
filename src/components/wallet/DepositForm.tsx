@@ -16,6 +16,7 @@ const CURRENCY_OPTIONS = ['VND', 'USD', 'EUR', 'SGD', 'JPY'] as const
 const GATEWAY_OPTIONS = [
   { value: 'VNPAY', label: 'VNPay', description: 'Internet banking, QR, local card' },
   { value: 'MOMO', label: 'MoMo', description: 'MoMo wallet redirect payment' },
+  { value: 'PAYOS', label: 'PayOS', description: 'Hosted payment page with QR' },
 ] as const
 
 const VNPAY_CHANNELS = [
@@ -38,7 +39,7 @@ const depositSchema = z.object({
   originalCurrency: z.enum(CURRENCY_OPTIONS, {
     errorMap: () => ({ message: 'Choose a currency' }),
   }),
-  gateway: z.enum(['VNPAY', 'MOMO']).optional(),
+  gateway: z.enum(['VNPAY', 'MOMO', 'PAYOS']).optional(),
   bankCode: z.string().optional(),
 }).superRefine((value, ctx) => {
   if (value.originalCurrency === 'VND' && Number(value.originalAmount) < 10000) {
@@ -165,6 +166,23 @@ export default function DepositForm({ userId: _userId, onSuccess }: DepositFormP
         }
 
         setError(response.message || 'Failed to create MoMo payment URL')
+        return
+      }
+
+      if (data.gateway === 'PAYOS') {
+        const response = await paymentApi.createPayOSPayment({
+          amount: data.originalAmount.trim(),
+          currency: data.originalCurrency,
+          orderInfo,
+        })
+
+        if (response.code === '00' && response.checkoutUrl) {
+          onSuccess?.()
+          window.location.href = response.checkoutUrl
+          return
+        }
+
+        setError(response.message || 'Failed to create PayOS payment URL')
         return
       }
 

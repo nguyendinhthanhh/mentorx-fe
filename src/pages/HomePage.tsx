@@ -58,7 +58,7 @@ export default function HomePage() {
     <div className="bg-[#f7f8fc] min-h-screen">
       {/* HERO SECTION */}
       <section className="bg-white pb-16 pt-12">
-        <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[1.3fr_1fr] lg:px-8 items-center">
+        <div className="mx-auto grid max-w-[1600px] gap-10 px-4 sm:px-6 lg:grid-cols-[1.3fr_1fr] lg:px-8 items-center">
           <div>
             <h1 className="text-4xl font-extrabold leading-tight text-[#1b2252] lg:text-[54px]">
               {t('home.hero.titleLine1')}
@@ -177,7 +177,7 @@ export default function HomePage() {
       </section>
 
       {/* CATEGORIES */}
-      <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <section className="mx-auto max-w-[1600px] px-4 py-8 sm:px-6 lg:px-8">
         {isLoading ? (
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-8">
             {Array.from({ length: 8 }).map((_, i) => (
@@ -199,7 +199,7 @@ export default function HomePage() {
       </section>
 
       {/* FEATURED JOBS */}
-      <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <section className="mx-auto max-w-[1600px] px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-6 flex items-center justify-between">
           <h2 className="text-2xl font-black text-[#1b2252] md:text-3xl">
             {isAuthenticated ? 'Recommended jobs for you' : t('home.featuredJobs.title')}
@@ -274,7 +274,7 @@ export default function HomePage() {
       </section>
 
       {/* FEATURED MENTORS */}
-      <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <section className="mx-auto max-w-[1600px] px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-6 flex items-center justify-between">
           <h2 className="text-2xl font-black text-[#1b2252] md:text-3xl">
             {isAuthenticated ? 'Recommended mentors for you' : t('home.featuredMentors.title')}
@@ -353,7 +353,7 @@ export default function HomePage() {
       </section>
 
       {/* WHY CHOOSE US */}
-      <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+      <section className="mx-auto max-w-[1600px] px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid gap-6 lg:grid-cols-4 md:grid-cols-2">
           <article className="rounded-3xl bg-transparent p-4 flex flex-col justify-center lg:col-span-1 md:col-span-2">
             <h2 className="whitespace-pre-line text-3xl font-black text-[#1b2252] leading-tight">{t('home.why.title')}</h2>
@@ -400,7 +400,7 @@ export default function HomePage() {
       </section>
 
       {/* HOW IT WORKS */}
-      <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+      <section className="mx-auto max-w-[1600px] px-4 py-12 sm:px-6 lg:px-8">
         <h2 className="text-2xl font-black text-[#1b2252] md:text-3xl mb-10">{t('home.how.title')}</h2>
         
         <div className="flex flex-col md:flex-row items-stretch justify-between gap-4 relative">
@@ -454,7 +454,7 @@ export default function HomePage() {
       </section>
 
       {/* STATS */}
-      <section className="mx-auto max-w-7xl px-4 pb-16 pt-8 sm:px-6 lg:px-8">
+      <section className="mx-auto max-w-[1600px] px-4 pb-16 pt-8 sm:px-6 lg:px-8">
         <div className="rounded-3xl bg-[#1b2252] p-8 md:p-10 shadow-2xl relative overflow-hidden">
           {/* Decorative shapes */}
           <div className="absolute top-0 left-0 w-64 h-64 bg-indigo-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 -translate-x-1/2 -translate-y-1/2"></div>

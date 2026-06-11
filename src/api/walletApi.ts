@@ -1,4 +1,5 @@
 import apiClient from './client'
+import { useAuthStore } from '@/store/authStore'
 import {
   ApiResponse,
   PaginatedResponse,
@@ -60,7 +61,12 @@ export const walletApi = {
   },
 
   getUserBalance: async (userId: string): Promise<{ total: number; available: number; pending: number; escrow?: number }> => {
-    const response = await apiClient.get<ApiResponse<{ total: number; available: number; pending: number; escrow?: number }>>(`/v1/wallet/user/${userId}/balance`)
+    const currentUserId = useAuthStore.getState().user?.userId
+    const endpoint =
+      currentUserId && currentUserId === userId
+        ? '/v1/wallet/me/balance'
+        : `/v1/wallet/user/${userId}/balance`
+    const response = await apiClient.get<ApiResponse<{ total: number; available: number; pending: number; escrow?: number }>>(endpoint)
     return response.data.data
   },
 

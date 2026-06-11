@@ -26,7 +26,7 @@ export default function AboutPage() {
           <div className="absolute -right-20 bottom-0 h-96 w-96 rounded-full bg-purple-500 blur-[100px]" />
         </div>
 
-        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="relative mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-8">
           <div className="grid items-center gap-12 lg:grid-cols-2">
             <div>
               <h1 className="text-4xl font-black tracking-tight sm:text-5xl lg:text-6xl">
@@ -76,7 +76,7 @@ export default function AboutPage() {
 
       {/* Story Section */}
       <section className="py-24">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-3xl text-center">
             <h2 className="text-3xl font-black text-slate-900 sm:text-4xl">{t('about.story.title')}</h2>
             <div className="mt-4 h-1.5 w-20 mx-auto rounded-full bg-blue-600" />
@@ -89,7 +89,7 @@ export default function AboutPage() {
 
       {/* Mission Section */}
       <section className="bg-white py-24 border-y border-slate-100">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-8">
           <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
             <div className="order-2 lg:order-1">
               <div className="inline-flex rounded-full bg-indigo-50 px-4 py-1.5 text-xs font-black uppercase tracking-widest text-indigo-600">
@@ -138,7 +138,7 @@ export default function AboutPage() {
 
       {/* Values Section */}
       <section className="py-24">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
+        <div className="mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl font-black text-slate-900 sm:text-4xl">{t('about.values.title')}</h2>
           <div className="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {values.map((value, idx) => (
@@ -157,7 +157,7 @@ export default function AboutPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">
+      <section className="mx-auto max-w-[1600px] px-4 pb-24 sm:px-6 lg:px-8">
         <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-[#4f46e5] to-[#2d6cdf] px-8 py-16 text-center text-white lg:px-16 lg:py-24">
           <div className="relative z-10 mx-auto max-w-2xl">
             <h2 className="text-3xl font-black sm:text-4xl lg:text-5xl">

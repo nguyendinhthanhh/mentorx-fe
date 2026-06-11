@@ -44,6 +44,7 @@ import WalletPage from './pages/wallet/WalletPage'
 // Payment Pages
 import VNPayReturnPage from './pages/payment/VNPayReturnPage'
 import MomoReturnPage from './pages/payment/MomoReturnPage'
+import PayOSReturnPage from './pages/payment/PayOSReturnPage'
 
 // Chat Page
 import ChatListPage from './pages/chat/ChatListPage'
@@ -151,6 +152,7 @@ function App() {
             {/* Payment Routes */}
             <Route path="/payment/vnpay-return" element={<VNPayReturnPage />} />
             <Route path="/payment/momo-return" element={<MomoReturnPage />} />
+            <Route path="/payment/payos-return" element={<PayOSReturnPage />} />
 
             {/* Chat Routes */}
             <Route path="/chat" element={<ChatListPage />} />
@@ -209,6 +211,7 @@ function App() {
             <Route path="/mentor/profile" element={<MentorProfileSetupPage initialTab="profile" />} />
             <Route path="/mentor/profile-setup" element={<MentorProfileSetupPage initialTab="profile" />} />
             <Route path="/mentor/packages" element={<MentorProfileSetupPage initialTab="packages" />} />
+            <Route path="/mentor/profile-courses" element={<MentorProfileSetupPage initialTab="courses" />} />
             <Route path="/mentor/availability" element={<MentorProfileSetupPage initialTab="availability" />} />
             <Route path="/mentor/proposals" element={<MentorProposalsPage />} />
             <Route path="/mentor/proposals/:proposalId" element={<MentorProposalDetailPage />} />

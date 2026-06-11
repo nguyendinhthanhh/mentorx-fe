@@ -143,7 +143,7 @@ export default function ProposalCreateForm({
   if (checkingExisting) {
     return (
       <div className="text-center py-8">
-        <Loader2 className="w-8 h-8 animate-spin text-indigo-500 mx-auto mb-3" />
+        <Loader2 className="mx-auto mb-3 h-8 w-8 animate-spin text-[#4f46e5]" />
         <p className="text-sm text-slate-600">Äang kiá»ƒm tra proposal hiá»‡n cÃ³...</p>
       </div>
     )
@@ -254,7 +254,7 @@ export default function ProposalCreateForm({
     )
   }
 
-  const inputClass = 'w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all text-sm font-medium'
+  const inputClass = 'w-full rounded-xl border border-[#e2e6f5] px-4 py-3 text-sm font-medium transition-all focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#c7d2fe]/40'
   const labelClass = 'block text-sm font-bold text-slate-700 mb-2'
 
   return (
@@ -336,7 +336,7 @@ export default function ProposalCreateForm({
       <button
         type="submit"
         disabled={loading}
-        className="w-full flex items-center justify-center gap-2 bg-indigo-600 text-white py-3.5 rounded-xl font-bold hover:bg-indigo-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-all text-sm shadow-lg shadow-indigo-200 hover:shadow-xl hover:shadow-indigo-300"
+        className="w-full flex items-center justify-center gap-2 rounded-xl bg-indigo-600 py-3.5 text-sm font-bold text-white transition-all hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-slate-300"
       >
         {loading ? (
           <>

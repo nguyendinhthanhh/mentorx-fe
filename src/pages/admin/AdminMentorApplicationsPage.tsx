@@ -628,7 +628,7 @@ export default function AdminMentorApplicationsPage() {
   }
 
   return (
-    <div className={`relative min-h-screen grid gap-6 transition-all duration-500 ${selectedProfile ? 'xl:grid-cols-[minmax(0,1fr)_720px]' : 'max-w-7xl mx-auto w-full'}`}>
+    <div className={`relative min-h-screen grid gap-6 transition-all duration-500 ${selectedProfile ? 'xl:grid-cols-[minmax(0,1fr)_720px]' : 'max-w-[1600px] mx-auto w-full'}`}>
       <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-50/40 via-white to-white dark:from-indigo-950/20 dark:via-slate-950 dark:to-slate-950" />
       <section className="relative overflow-hidden rounded-[2.5rem] border border-white/40 bg-white/60 backdrop-blur-2xl shadow-xl shadow-slate-200/40 dark:border-slate-800/60 dark:bg-slate-900/40 dark:shadow-none transition-all">
         <div className="absolute inset-0 bg-gradient-to-b from-white/40 to-transparent pointer-events-none dark:from-white/5" />

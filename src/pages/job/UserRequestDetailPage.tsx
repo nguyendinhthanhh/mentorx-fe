@@ -178,7 +178,7 @@ export default function UserRequestDetailPageNew() {
 
   return (
     <div className="min-h-screen bg-[#f6f7fb]">
-      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8">
         {/* Breadcrumb */}
         <div className="mb-6">
           <Link to="/users/requests" className="inline-flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-indigo-600 transition-colors">
