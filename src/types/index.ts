@@ -825,6 +825,13 @@ export interface CourseQaSummaryResponse {
   unansweredLearners: number;
 }
 
+export interface CourseStatsResponse {
+  courseId: string;
+  totalEnrollments: number;
+  completedEnrollments: number;
+  completionRate: number;
+}
+
 export interface CourseLessonResponse {
   id: string;
   sectionId: string;

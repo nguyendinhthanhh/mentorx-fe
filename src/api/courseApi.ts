@@ -16,6 +16,7 @@ import {
   QuizQuestionType,
   CourseQaMessageResponse,
   CourseQaSummaryResponse,
+  CourseStatsResponse,
 } from '@/types'
 
 export const courseApi = {
@@ -356,6 +357,11 @@ export const courseApi = {
       { responseType: 'blob' }
     )
     return { blob: response.data, fileName: extractFileName(response.headers['content-disposition']) }
+  },
+
+  getCourseStats: async (courseId: string): Promise<CourseStatsResponse> => {
+    const response = await apiClient.get<CourseStatsResponse>(`/v1/course-enrollments/course/${courseId}/stats`)
+    return response.data
   },
 
   getQuizQuestions: async (lessonId: string): Promise<QuizQuestionResponse[]> => {

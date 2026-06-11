@@ -5,6 +5,7 @@ import { Star, ThumbsUp, ThumbsDown, CheckCircle, User, ChevronDown, MessageCirc
 import { formatRelativeTime } from '@/utils/formatters'
 import { ReviewTargetType, ReviewResponse } from '@/types'
 import { useState } from 'react'
+import ReviewForm from './ReviewForm'
 
 interface Props {
   targetType: ReviewTargetType
@@ -28,6 +29,7 @@ function RatingBar({ label, value }: { label: string; value: number }) {
 
 function ReviewCard({ review }: { review: ReviewResponse }) {
   const [expanded, setExpanded] = useState(false)
+  const [editing, setEditing] = useState(false)
   const { user } = useAuthStore()
   const queryClient = useQueryClient()
 
@@ -35,6 +37,17 @@ function ReviewCard({ review }: { review: ReviewResponse }) {
     (isHelpful: boolean) => reviewApi.vote(review.id, isHelpful),
     { onSuccess: () => queryClient.invalidateQueries(['reviews']) }
   )
+
+  if (editing) {
+    return (
+      <ReviewForm
+        targetType={review.targetType}
+        targetId={review.targetId}
+        initialReview={review}
+        onClose={() => setEditing(false)}
+      />
+    )
+  }
 
   return (
     <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-6 hover:shadow-md transition-shadow">
@@ -82,6 +95,14 @@ function ReviewCard({ review }: { review: ReviewResponse }) {
 
         {/* Vote Buttons */}
         <div className="flex items-center gap-1">
+          {user?.userId === review.reviewerId && review.canBeEdited && (
+            <button
+              onClick={() => setEditing(true)}
+              className="rounded-lg border border-indigo-100 px-3 py-1.5 text-xs font-black text-indigo-600 hover:bg-indigo-50"
+            >
+              Edit
+            </button>
+          )}
           <button
             onClick={() => user && voteMutation.mutate(true)}
             disabled={!user}

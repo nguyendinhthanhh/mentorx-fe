@@ -2,13 +2,16 @@ import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useQueries, useQuery } from 'react-query'
 import { courseApi } from '@/api/courseApi'
+import { reviewApi } from '@/api/reviewApi'
 import { useAuthStore } from '@/store/authStore'
-import { CourseResponse, CourseStatus } from '@/types'
-import { AlertTriangle, Award, BookOpen, Clock, Eye, Loader2, PlayCircle } from 'lucide-react'
+import { CourseResponse, CourseStatus, ReviewResponse, ReviewTargetType } from '@/types'
+import ReviewForm from '@/components/review/ReviewForm'
+import { AlertTriangle, Award, BookOpen, Clock, Eye, Loader2, PlayCircle, Star, X } from 'lucide-react'
 
 export default function MyCoursesPage() {
   const { user } = useAuthStore()
   const [viewingCertificateId, setViewingCertificateId] = useState<string | null>(null)
+  const [reviewingCourseId, setReviewingCourseId] = useState<string | null>(null)
 
   const { data: enrollmentsData, isLoading } = useQuery(
     ['my-enrollments', user?.userId],
@@ -17,6 +20,11 @@ export default function MyCoursesPage() {
   )
 
   const enrollments = enrollmentsData?.content || []
+  const { data: myReviewsData } = useQuery(
+    ['my-reviews', user?.userId],
+    () => reviewApi.getByReviewer(user!.userId, { page: 0, size: 100 }),
+    { enabled: !!user?.userId }
+  )
   const courseQueries = useQueries(
     enrollments.map((enrollment) => ({
       queryKey: ['course', enrollment.courseId],
@@ -35,6 +43,13 @@ export default function MyCoursesPage() {
   }, [courseQueries])
 
   const completedCount = enrollments.filter((enrollment) => enrollment.isCompleted).length
+  const reviewByCourseId = useMemo(() => {
+    const map = new Map<string, ReviewResponse>()
+    ;(myReviewsData?.content || [])
+      .filter((review) => review.targetType === ReviewTargetType.COURSE)
+      .forEach((review) => map.set(review.targetId, review))
+    return map
+  }, [myReviewsData])
   const averageProgress =
     enrollments.length > 0
       ? Math.round(enrollments.reduce((sum, enrollment) => sum + (enrollment.progressPercent || 0), 0) / enrollments.length)
@@ -106,6 +121,8 @@ export default function MyCoursesPage() {
             const archived = course?.status === CourseStatus.ARCHIVED
             const progress = Math.min(Math.max(enrollment.progressPercent || 0, 0), 100)
             const canViewCertificate = enrollment.isCompleted && progress >= 100 && course?.isCertificate
+            const canReview = enrollment.isCompleted && progress >= 100
+            const existingReview = reviewByCourseId.get(enrollment.courseId)
 
             return (
               <div
@@ -167,7 +184,7 @@ export default function MyCoursesPage() {
                         style={{ width: `${progress}%` }}
                       />
                     </div>
-                    <div className={`grid gap-2 ${canViewCertificate ? 'sm:grid-cols-2' : ''}`}>
+                    <div className={`grid gap-2 ${canViewCertificate || canReview ? 'sm:grid-cols-2' : ''}`}>
                       <Link
                         to={`/courses/${enrollment.courseId}/learn`}
                         className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 py-2.5 text-sm font-bold text-white transition hover:bg-indigo-600 dark:bg-indigo-900 dark:hover:bg-indigo-800"
@@ -190,12 +207,44 @@ export default function MyCoursesPage() {
                           View certificate
                         </button>
                       )}
+                      {canReview && (
+                        <button
+                          type="button"
+                          onClick={() => setReviewingCourseId(enrollment.courseId)}
+                          className="flex w-full items-center justify-center gap-2 rounded-xl border border-amber-200 bg-amber-50 py-2.5 text-sm font-bold text-amber-700 transition hover:bg-amber-100"
+                        >
+                          <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+                          {existingReview ? 'Edit review' : 'Review course'}
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
               </div>
             )
           })}
+        </div>
+      )}
+
+      {reviewingCourseId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4 backdrop-blur-sm">
+          <div className="max-h-[90vh] w-full max-w-3xl overflow-auto rounded-3xl bg-white p-2 shadow-2xl dark:bg-slate-950">
+            <div className="mb-2 flex justify-end">
+              <button
+                onClick={() => setReviewingCourseId(null)}
+                className="rounded-xl p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+                aria-label="Close review form"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <ReviewForm
+              targetType={ReviewTargetType.COURSE}
+              targetId={reviewingCourseId}
+              initialReview={reviewByCourseId.get(reviewingCourseId)}
+              onClose={() => setReviewingCourseId(null)}
+            />
+          </div>
         </div>
       )}
     </div>

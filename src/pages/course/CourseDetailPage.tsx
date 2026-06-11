@@ -46,6 +46,11 @@ export default function CourseDetailPage() {
     () => courseApi.getById(courseId!),
     { enabled: !!courseId }
   )
+  const { data: courseStats } = useQuery(
+    ['course-stats', courseId],
+    () => courseApi.getCourseStats(courseId!),
+    { enabled: !!courseId }
+  )
 
   const { data: instructorProfile = null } = useQuery(
     ['course-instructor-profile', course?.instructorId],
@@ -447,6 +452,7 @@ export default function CourseDetailPage() {
                       { icon: Globe, text: `${formatLanguage(course.language)} language` },
                       { icon: Award, text: course.isCertificate ? 'Certificate of completion' : 'No certificate' },
                       { icon: TrendingUp, text: course.level ? `${course.level} level` : 'Open level' },
+                      { icon: TrendingUp, text: `${Math.round(courseStats?.completionRate || 0)}% completion rate` },
                     ].map((item, index) => (
                       <div key={index} className="flex items-center gap-3">
                         <item.icon className="w-5 h-5 text-indigo-600" />

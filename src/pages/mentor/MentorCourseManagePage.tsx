@@ -2,12 +2,13 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useMutation, useQueries, useQuery, useQueryClient } from 'react-query'
 import { courseApi } from '@/api/courseApi'
+import { reviewApi } from '@/api/reviewApi'
 import { fileApi } from '@/api/fileApi'
 import { categoryApi } from '@/api/categoryApi'
 import { skillApi } from '@/api/skillApi'
 import { useAuthStore } from '@/store/authStore'
 import { CourseMediaDropZone, CourseMediaKind, validateCourseMedia } from '@/components/course/CourseMediaDropZone'
-import { CategoryResponse, CourseQaMessageResponse, CourseStatus, LessonType, QuizQuestionType, SkillResponse, SupportedLanguage } from '@/types'
+import { CategoryResponse, CourseQaMessageResponse, CourseStatus, LessonType, QuizQuestionType, ReviewResponse, ReviewTargetType, SkillResponse, SupportedLanguage } from '@/types'
 import {
   ArrowLeft,
   AlertTriangle,
@@ -23,6 +24,7 @@ import {
   Plus,
   Save,
   Send,
+  Star,
   Trash2,
   Upload,
   X,
@@ -101,7 +103,7 @@ type CourseDetailsDraft = {
   pendingPreviewVideoPreviewUrl?: string
 }
 
-type ManageTab = 'content' | 'info' | 'liveQa'
+type ManageTab = 'content' | 'info' | 'liveQa' | 'reviews'
 
 type QaThread = {
   learnerId: string
@@ -166,6 +168,7 @@ export default function MentorCourseManagePage() {
   const [isSkillMenuOpen, setIsSkillMenuOpen] = useState(false)
   const [qaReplyDrafts, setQaReplyDrafts] = useState<Record<string, string>>({})
   const [showUnansweredOnly, setShowUnansweredOnly] = useState(false)
+  const [reviewResponseDrafts, setReviewResponseDrafts] = useState<Record<string, string>>({})
   const [courseDetails, setCourseDetails] = useState<CourseDetailsDraft>({
     title: '',
     description: '',
@@ -197,6 +200,16 @@ export default function MentorCourseManagePage() {
     ['course-qa-summary', courseId],
     () => courseApi.getCourseQaSummary(courseId!),
     { enabled: !!courseId && coursePublished, refetchInterval: 15000 }
+  )
+  const { data: courseStats } = useQuery(
+    ['course-stats', courseId],
+    () => courseApi.getCourseStats(courseId!),
+    { enabled: !!courseId && coursePublished, refetchInterval: 30000 }
+  )
+  const { data: courseReviewsData, isLoading: reviewsLoading } = useQuery(
+    ['reviews', ReviewTargetType.COURSE, courseId, 'mentor-manage'],
+    () => reviewApi.getByTarget(ReviewTargetType.COURSE, courseId!, { page: 0, size: 100 }),
+    { enabled: !!courseId && coursePublished }
   )
   const { data: categories = [] } = useQuery(['course-editor-categories'], () => categoryApi.getAllActive())
   const { data: skills = [] } = useQuery(['course-editor-skills'], () => skillApi.getAllActive())
@@ -232,6 +245,12 @@ export default function MentorCourseManagePage() {
 
   useEffect(() => {
     if (!coursePublished && activeTab === 'liveQa') {
+      setActiveTab('info')
+    }
+  }, [activeTab, coursePublished])
+
+  useEffect(() => {
+    if (!coursePublished && activeTab === 'reviews') {
       setActiveTab('info')
     }
   }, [activeTab, coursePublished])
@@ -343,6 +362,10 @@ export default function MentorCourseManagePage() {
     [qaMessages, user?.userId]
   )
   const visibleQaThreads = showUnansweredOnly ? qaThreads.filter((thread) => thread.unanswered) : qaThreads
+  const courseReviews = courseReviewsData?.content || []
+  const averageReviewRating = courseReviews.length
+    ? courseReviews.reduce((sum, review) => sum + (review.overallRating || 0), 0) / courseReviews.length
+    : 0
 
   const saveMutation = useMutation(
     async () => {
@@ -465,6 +488,18 @@ export default function MentorCourseManagePage() {
         queryClient.invalidateQueries(['mentor-course-qa-summaries', user?.userId])
       },
       onError: (err: any) => setError(err.message || err.response?.data?.message || 'Failed to send Q&A reply.'),
+    }
+  )
+
+  const respondToReviewMutation = useMutation(
+    ({ reviewId, responseText }: { reviewId: string; responseText: string }) => reviewApi.respond(reviewId, responseText),
+    {
+      onSuccess: (_review, variables) => {
+        setReviewResponseDrafts((current) => ({ ...current, [variables.reviewId]: '' }))
+        queryClient.invalidateQueries(['reviews', ReviewTargetType.COURSE, courseId, 'mentor-manage'])
+        queryClient.invalidateQueries(['reviews', ReviewTargetType.COURSE, courseId])
+      },
+      onError: (err: any) => setError(err.message || err.response?.data?.message || 'Failed to save review response.'),
     }
   )
 
@@ -686,6 +721,15 @@ export default function MentorCourseManagePage() {
                 {unansweredQaCount}
               </span>
             )}
+          </button>
+        )}
+        {coursePublished && (
+          <button
+            type="button"
+            onClick={() => setActiveTab('reviews')}
+            className={`flex-1 rounded-xl px-4 py-2 text-sm font-black ${activeTab === 'reviews' ? 'bg-indigo-600 text-white' : 'text-slate-600 hover:bg-slate-50'}`}
+          >
+            Reviews
           </button>
         )}
       </div>
@@ -1035,6 +1079,87 @@ export default function MentorCourseManagePage() {
           )}
         </section>
       )}
+
+      {activeTab === 'reviews' && coursePublished && (
+        <section className="space-y-5 rounded-2xl border border-slate-200 bg-white p-5">
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div>
+              <h2 className="flex items-center gap-2 text-base font-black text-slate-900">
+                <Star className="h-5 w-5 fill-amber-400 text-amber-400" />
+                Course reviews
+              </h2>
+              <p className="text-sm font-medium text-slate-500">Track learner satisfaction and respond publicly to reviews.</p>
+            </div>
+          </div>
+
+          <div className="grid gap-3 md:grid-cols-4">
+            <ReviewMetric label="Completion rate" value={`${Math.round(courseStats?.completionRate || 0)}%`} helper={`${courseStats?.completedEnrollments || 0}/${courseStats?.totalEnrollments || 0} learners completed`} />
+            <ReviewMetric label="Average rating" value={averageReviewRating ? averageReviewRating.toFixed(1) : '0.0'} helper={`${courseReviewsData?.totalElements || 0} reviews`} />
+            <ReviewMetric label="Total enrollments" value={String(courseStats?.totalEnrollments || 0)} helper="Learners in this course" />
+            <ReviewMetric label="Responses" value={String(courseReviews.filter((review) => review.responseText).length)} helper="Reviews with mentor reply" />
+          </div>
+
+          {reviewsLoading ? (
+            <div className="flex min-h-48 items-center justify-center">
+              <Loader2 className="h-7 w-7 animate-spin text-indigo-600" />
+            </div>
+          ) : courseReviews.length === 0 ? (
+            <div className="rounded-xl border border-dashed border-slate-200 p-8 text-center">
+              <Star className="mx-auto mb-3 h-8 w-8 text-slate-300" />
+              <p className="text-sm font-black text-slate-700">No reviews yet</p>
+              <p className="mt-1 text-sm font-medium text-slate-500">Completed learners can leave reviews from their course library.</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {courseReviews.map((review) => {
+                const draft = reviewResponseDrafts[review.id] ?? review.responseText ?? ''
+                return (
+                  <article key={review.id} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                    <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
+                      <div>
+                        <p className="text-sm font-black text-slate-900">{review.isAnonymous ? 'Anonymous learner' : review.reviewerName}</p>
+                        <div className="mt-1 flex items-center gap-2">
+                          <div className="flex">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <Star key={star} className={`h-4 w-4 ${star <= Math.round(review.overallRating) ? 'fill-amber-400 text-amber-400' : 'text-slate-300'}`} />
+                            ))}
+                          </div>
+                          <span className="text-xs font-bold text-slate-500">{new Date(review.createdAt).toLocaleDateString()}</span>
+                        </div>
+                      </div>
+                      {review.responseText ? (
+                        <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-black text-emerald-700">Responded</span>
+                      ) : (
+                        <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-black text-amber-700">Needs response</span>
+                      )}
+                    </div>
+                    {review.reviewTitle && <h3 className="mb-2 text-sm font-black text-slate-900">{review.reviewTitle}</h3>}
+                    <p className="whitespace-pre-wrap text-sm font-medium leading-6 text-slate-700">{review.reviewText}</p>
+                    <div className="mt-4 space-y-2">
+                      <label className="text-xs font-black uppercase tracking-widest text-slate-400">Mentor response</label>
+                      <textarea
+                        value={draft}
+                        onChange={(event) => setReviewResponseDrafts((current) => ({ ...current, [review.id]: event.target.value }))}
+                        className="min-h-24 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10"
+                        placeholder="Write a public response to this review"
+                      />
+                      <button
+                        type="button"
+                        disabled={!draft.trim() || respondToReviewMutation.isLoading}
+                        onClick={() => respondToReviewMutation.mutate({ reviewId: review.id, responseText: draft.trim() })}
+                        className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-bold text-white disabled:bg-slate-300"
+                      >
+                        {respondToReviewMutation.isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                        Save response
+                      </button>
+                    </div>
+                  </article>
+                )
+              })}
+            </div>
+          )}
+        </section>
+      )}
     </div>
   )
 }
@@ -1198,6 +1323,16 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
       <span className="mb-1.5 block text-sm font-bold text-slate-700">{label}</span>
       {children}
     </label>
+  )
+}
+
+function ReviewMetric({ label, value, helper }: { label: string; value: string; helper: string }) {
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-white p-4">
+      <p className="text-xs font-black uppercase tracking-widest text-slate-400">{label}</p>
+      <p className="mt-2 text-2xl font-black text-slate-900">{value}</p>
+      <p className="mt-1 text-xs font-semibold text-slate-500">{helper}</p>
+    </div>
   )
 }
 
