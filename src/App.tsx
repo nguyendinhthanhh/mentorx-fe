@@ -75,6 +75,8 @@ import MentorSchedulePage from './pages/mentor/MentorSchedulePage'
 import MentorEarningsPage from './pages/mentor/MentorEarningsPage'
 import MentorReviewsPage from './pages/mentor/MentorReviewsPage'
 import MentorSettingsPage from './pages/mentor/MentorSettingsPage'
+import MyCoursesPage from './pages/user/MyCoursesPage'
+
 
 // Protected Route Components
 import ProtectedRoute from './components/auth/ProtectedRoute'
@@ -96,8 +98,6 @@ const queryClient = new QueryClient({
     },
   },
 })
-
-import MyCoursesPage from './pages/user/MyCoursesPage'
 
 function App() {
   return (
@@ -158,6 +158,8 @@ function App() {
             <Route path="/chat" element={<ChatListPage />} />
             <Route path="/chat/demo" element={<ChatDemoPage />} />
             <Route path="/courses/:courseId/learn" element={<CourseLearnPage />} />
+            <Route path="/courses/:courseId/learn/sections/:sectionId" element={<CourseLearnPage />} />
+            <Route path="/courses/:courseId/learn/sections/:sectionId/lessons/:lessonId" element={<CourseLearnPage />} />
 
           </Route>
 

@@ -46,6 +46,7 @@ type DraftLesson = {
   pendingResourceFile?: File
   pendingResourceName?: string
   pendingImages: PendingImage[]
+  passingPercent: string
   quizQuestions: DraftQuizQuestion[]
 }
 
@@ -123,6 +124,7 @@ const createLesson = (type: LessonType, index: number): DraftLesson => ({
   isMandatory: true,
   isPublished: true,
   pendingImages: [],
+  passingPercent: type === LessonType.QUIZ ? '50' : '',
   quizQuestions: type === LessonType.QUIZ ? [createQuizQuestion(0)] : [],
 })
 
@@ -254,6 +256,7 @@ export default function MentorCourseManagePage() {
           isMandatory: lesson.isMandatory !== false,
           isPublished: lesson.isPublished !== false,
           pendingImages: [],
+          passingPercent: lesson.lessonType === LessonType.QUIZ ? String(readPassingPercent(lesson.metadata)) : '',
           quizQuestions: (quizQuestionsByLessonId.get(lesson.id) || []).map((question) => {
             const answerData = parseAnswerData(question.answerDataJson, question.questionType)
             return {
@@ -332,6 +335,9 @@ export default function MentorCourseManagePage() {
             isFreePreview: lesson.isFreePreview,
             isPublished: lesson.isPublished,
             isMandatory: lesson.isMandatory,
+            metadata: lesson.lessonType === LessonType.QUIZ
+              ? { passingPercent: clampPassingPercent(Number(lesson.passingPercent || 50)) }
+              : undefined,
             quizQuestions: lesson.lessonType === LessonType.QUIZ
               ? lesson.quizQuestions.map((question, questionIndex) => ({
                   id: question.id,
@@ -972,6 +978,19 @@ function LessonEditor({ lesson, uploadingField, onChange, onDelete, onUpload, on
         />
       )}
       {lesson.lessonType === LessonType.QUIZ && (
+        <Field label="Passing score (%)">
+          <input
+            type="number"
+            min="0"
+            max="100"
+            step="1"
+            value={lesson.passingPercent}
+            onChange={(event) => onChange({ passingPercent: event.target.value })}
+            className={`${editorInputClass} max-w-xs`}
+          />
+        </Field>
+      )}
+      {lesson.lessonType === LessonType.QUIZ && (
         <QuizEditor
           questions={lesson.quizQuestions}
           onChange={(quizQuestions) => onChange({ quizQuestions })}
@@ -1507,6 +1526,15 @@ function normalizeEditorLessonType(lessonType?: LessonType) {
   return lessonType === LessonType.QUIZ ? LessonType.QUIZ : LessonType.LESSON
 }
 
+function readPassingPercent(metadata?: Record<string, unknown>) {
+  return clampPassingPercent(Number(metadata?.passingPercent ?? 50))
+}
+
+function clampPassingPercent(value: number) {
+  if (!Number.isFinite(value)) return 50
+  return Math.min(Math.max(Math.round(value), 0), 100)
+}
+
 type QuizAnswerData = {
   options: string[]
   correctAnswers: string[]
@@ -1627,6 +1655,8 @@ function validateCurriculum(sections: DraftSection[]) {
         if (!Number.isInteger(duration) || duration < 0) return 'Lesson duration must be a full number and cannot be negative.'
       }
       if (lesson.lessonType === LessonType.QUIZ) {
+        const passingPercent = Number(lesson.passingPercent || 50)
+        if (!Number.isInteger(passingPercent) || passingPercent < 0 || passingPercent > 100) return 'Quiz passing score must be a full number from 0 to 100.'
         if (!lesson.quizQuestions.length) return 'Each quiz needs at least one question.'
         for (const question of lesson.quizQuestions) {
           if (stripHtml(question.questionText).length < 3) return 'Each quiz question needs a description.'

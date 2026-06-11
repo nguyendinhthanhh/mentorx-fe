@@ -34,6 +34,7 @@ export default function AdminCourseReviewPage() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const [activeLessonId, setActiveLessonId] = useState<string | null>(null)
+  const [activeSectionId, setActiveSectionId] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<ReviewTab>('info')
   const [denyOpen, setDenyOpen] = useState(false)
   const [denyReason, setDenyReason] = useState('')
@@ -59,6 +60,7 @@ export default function AdminCourseReviewPage() {
     [lessons]
   )
   const activeLesson = orderedLessons.find((lesson) => lesson.id === (activeLessonId || orderedLessons[0]?.id))
+  const activeSection = sections.find((section) => section.id === activeSectionId) || null
 
   const { data: quizQuestions = [], isLoading: isQuizLoading } = useQuery(
     ['admin-course-review-quiz', activeLesson?.id],
@@ -254,12 +256,27 @@ export default function AdminCourseReviewPage() {
                 <div className="mb-2 rounded-xl bg-slate-50 px-3 py-2">
                   <p className="text-sm font-black text-slate-900">{section?.title || `Section ${index + 1}`}</p>
                   {section?.description && <p className="mt-1 line-clamp-2 text-xs font-medium text-slate-500">{section.description}</p>}
+                  {section && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setActiveSectionId(section.id)
+                        setActiveLessonId(null)
+                      }}
+                      className="mt-2 text-xs font-black text-indigo-600 hover:text-indigo-700"
+                    >
+                      View summary
+                    </button>
+                  )}
                 </div>
                 <div className="space-y-1">
                   {sectionLessons.map((lesson) => (
                     <button
                       key={lesson.id}
-                      onClick={() => setActiveLessonId(lesson.id)}
+                      onClick={() => {
+                        setActiveLessonId(lesson.id)
+                        setActiveSectionId(null)
+                      }}
                       className={`flex w-full items-start gap-2 rounded-xl px-3 py-2 text-left text-sm font-bold transition ${
                         activeLesson?.id === lesson.id ? 'bg-indigo-50 text-indigo-700' : 'text-slate-700 hover:bg-slate-50'
                       }`}
@@ -275,7 +292,29 @@ export default function AdminCourseReviewPage() {
         </aside>
 
         <main className="min-h-0 overflow-y-auto rounded-2xl border border-slate-200 bg-white p-6">
-          {activeLesson ? (
+          {activeSection && !activeLessonId ? (
+            <div className="space-y-4">
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6">
+                <p className="text-xs font-black uppercase tracking-widest text-indigo-600">Section summary</p>
+                <h2 className="mt-1 text-2xl font-black text-slate-900">{activeSection.title}</h2>
+                <p className="mt-2 text-sm font-medium text-slate-600">{activeSection.description || 'No section description provided.'}</p>
+              </div>
+              {(lessonsBySection.find((group) => group.section?.id === activeSection.id)?.lessons || []).map((lesson) => (
+                <button
+                  key={lesson.id}
+                  type="button"
+                  onClick={() => {
+                    setActiveLessonId(lesson.id)
+                    setActiveSectionId(null)
+                  }}
+                  className="flex w-full items-center justify-between rounded-xl border border-slate-200 p-4 text-left hover:border-indigo-200 hover:bg-indigo-50"
+                >
+                  <span className="text-sm font-black text-slate-900">{lesson.title}</span>
+                  <span className="text-xs font-bold text-slate-500">{lesson.lessonType === LessonType.QUIZ ? 'Quiz' : 'Lesson'}</span>
+                </button>
+              ))}
+            </div>
+          ) : activeLesson ? (
             <div className="space-y-5">
               <div>
                 <p className="text-xs font-black uppercase tracking-widest text-indigo-600">
@@ -299,7 +338,11 @@ export default function AdminCourseReviewPage() {
               )}
 
               {activeLesson.lessonType === LessonType.QUIZ && (
-                <QuizPreview questions={quizQuestions} loading={isQuizLoading} />
+                <QuizPreview
+                  questions={quizQuestions}
+                  loading={isQuizLoading}
+                  passingPercent={readPassingPercent(activeLesson.metadata)}
+                />
               )}
             </div>
           ) : (
@@ -336,7 +379,7 @@ export default function AdminCourseReviewPage() {
   )
 }
 
-function QuizPreview({ questions, loading }: { questions: QuizQuestionResponse[]; loading: boolean }) {
+function QuizPreview({ questions, loading, passingPercent }: { questions: QuizQuestionResponse[]; loading: boolean; passingPercent: number }) {
   if (loading) {
     return <div className="rounded-xl border border-dashed border-slate-300 p-5 text-sm font-bold text-slate-500">Loading quiz questions...</div>
   }
@@ -345,6 +388,9 @@ function QuizPreview({ questions, loading }: { questions: QuizQuestionResponse[]
   }
   return (
     <div className="space-y-4">
+      <p className="rounded-xl bg-slate-50 px-4 py-3 text-sm font-bold text-slate-600">
+        Quiz questions and correct answers for review. Passing score: {passingPercent}%.
+      </p>
       {questions
         .slice()
         .sort((a, b) => (a.orderIndex ?? 0) - (b.orderIndex ?? 0))
@@ -405,6 +451,12 @@ function parseAnswerData(value?: string): AnswerData {
   } catch {
     return {}
   }
+}
+
+function readPassingPercent(metadata?: Record<string, unknown>) {
+  const value = Number(metadata?.passingPercent ?? 50)
+  if (!Number.isFinite(value)) return 50
+  return Math.min(Math.max(Math.round(value), 0), 100)
 }
 
 function StatusBadge({ status }: { status: CourseStatus }) {

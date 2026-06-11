@@ -267,11 +267,11 @@ export const courseApi = {
     studentId: string,
     params: { page?: number; size?: number } = {}
   ): Promise<PaginatedResponse<CourseEnrollmentResponse>> => {
-    const response = await apiClient.get<ApiResponse<PaginatedResponse<CourseEnrollmentResponse>>>(
+    const response = await apiClient.get<ApiResponse<PaginatedResponse<CourseEnrollmentResponse>> | PaginatedResponse<CourseEnrollmentResponse>>(
       `/v1/course-enrollments/student/${studentId}`,
       { params }
     )
-    return response.data.data
+    return unwrapApiResponse(response.data)
   },
 
   getCompletedEnrollmentsByStudent: async (
@@ -410,4 +410,16 @@ const extractFileName = (contentDisposition?: string) => {
   const match = /filename="([^"]+)"/i.exec(contentDisposition)
   if (match?.[1]) return match[1]
   return 'mentorx-document.pdf'
+}
+
+const unwrapApiResponse = <T>(payload: ApiResponse<T> | T): T => {
+  if (
+    payload &&
+    typeof payload === 'object' &&
+    'data' in payload &&
+    'success' in payload
+  ) {
+    return (payload as ApiResponse<T>).data
+  }
+  return payload as T
 }
