@@ -146,7 +146,7 @@ export default function MentorCourseManagePage() {
   const [dirty, setDirty] = useState(false)
   const [error, setError] = useState('')
   const [uploadingField, setUploadingField] = useState<'videoUrl' | 'resourceUrl' | null>(null)
-  const [activeTab, setActiveTab] = useState<ManageTab>('content')
+  const [activeTab, setActiveTab] = useState<ManageTab>('info')
   const [skillQuery, setSkillQuery] = useState('')
   const [isSkillMenuOpen, setIsSkillMenuOpen] = useState(false)
   const [courseDetails, setCourseDetails] = useState<CourseDetailsDraft>({
@@ -600,17 +600,17 @@ export default function MentorCourseManagePage() {
       <div className="flex rounded-2xl border border-slate-200 bg-white p-1">
         <button
           type="button"
-          onClick={() => setActiveTab('content')}
-          className={`flex-1 rounded-xl px-4 py-2 text-sm font-black ${activeTab === 'content' ? 'bg-indigo-600 text-white' : 'text-slate-600 hover:bg-slate-50'}`}
-        >
-          Course content
-        </button>
-        <button
-          type="button"
           onClick={() => setActiveTab('info')}
           className={`flex-1 rounded-xl px-4 py-2 text-sm font-black ${activeTab === 'info' ? 'bg-indigo-600 text-white' : 'text-slate-600 hover:bg-slate-50'}`}
         >
           Course info
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab('content')}
+          className={`flex-1 rounded-xl px-4 py-2 text-sm font-black ${activeTab === 'content' ? 'bg-indigo-600 text-white' : 'text-slate-600 hover:bg-slate-50'}`}
+        >
+          Course content
         </button>
       </div>
 
