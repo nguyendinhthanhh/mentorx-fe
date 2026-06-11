@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useQuery, useQueryClient } from 'react-query'
 import { notificationApi } from '@/api/notificationApi'
 import { useAuthStore } from '@/store/authStore'
@@ -33,6 +33,7 @@ const filterLabels: Record<FilterKey, string> = {
 export default function NotificationListPage() {
   const { user } = useAuthStore()
   const queryClient = useQueryClient()
+  const navigate = useNavigate()
   const [activeFilter, setActiveFilter] = useState<FilterKey>('all')
 
   const { data, isLoading, refetch } = useQuery(
@@ -84,6 +85,17 @@ export default function NotificationListPage() {
   const handleMarkAllRead = async () => {
     await notificationApi.markAllAsRead(user.userId)
     refreshNotifications()
+  }
+
+  const handleOpenNotification = async (notification: NotificationResponse) => {
+    if (!notification.isRead) {
+      await notificationApi.markAsRead(notification.id)
+      refreshNotifications()
+    }
+
+    if (notification.actionUrl) {
+      navigate(notification.actionUrl)
+    }
   }
 
   return (
@@ -162,6 +174,7 @@ export default function NotificationListPage() {
               <NotificationRow
                 key={notification.id}
                 notification={notification}
+                onOpen={() => handleOpenNotification(notification)}
                 onMarkRead={() => handleMarkRead(notification.id)}
                 onDismiss={() => handleDismiss(notification.id)}
               />
@@ -177,10 +190,12 @@ export default function NotificationListPage() {
 
 function NotificationRow({
   notification,
+  onOpen,
   onMarkRead,
   onDismiss,
 }: {
   notification: NotificationResponse
+  onOpen: () => void
   onMarkRead: () => void
   onDismiss: () => void
 }) {
@@ -188,7 +203,8 @@ function NotificationRow({
     <article
       className={`group relative flex gap-4 p-4 transition-colors hover:bg-slate-50 dark:hover:bg-slate-900 ${
         !notification.isRead ? 'bg-indigo-50/35 dark:bg-indigo-950/20' : ''
-      }`}
+      } ${notification.actionUrl ? 'cursor-pointer' : ''}`}
+      onClick={notification.actionUrl ? onOpen : undefined}
     >
       {!notification.isRead && <div className="absolute bottom-0 left-0 top-0 w-1 bg-indigo-600" />}
       <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white shadow-sm ring-1 ring-slate-100 dark:bg-slate-950 dark:ring-slate-800">
@@ -208,11 +224,25 @@ function NotificationRow({
 
         <div className="mt-3 flex flex-wrap gap-3 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100">
           {!notification.isRead && (
-            <button type="button" onClick={onMarkRead} className="text-xs font-black text-indigo-600 hover:text-indigo-700 dark:text-indigo-300">
+            <button
+              type="button"
+              onClick={(event) => {
+                event.stopPropagation()
+                onMarkRead()
+              }}
+              className="text-xs font-black text-indigo-600 hover:text-indigo-700 dark:text-indigo-300"
+            >
               Đánh dấu đã đọc
             </button>
           )}
-          <button type="button" onClick={onDismiss} className="inline-flex items-center gap-1 text-xs font-black text-rose-500 hover:text-rose-600">
+          <button
+            type="button"
+            onClick={(event) => {
+              event.stopPropagation()
+              onDismiss()
+            }}
+            className="inline-flex items-center gap-1 text-xs font-black text-rose-500 hover:text-rose-600"
+          >
             <Trash2 className="h-3 w-3" />
             Ẩn
           </button>

@@ -27,6 +27,11 @@ export const reviewApi = {
     return response.data.data
   },
 
+  canReviewMentor: async (mentorId: string): Promise<boolean> => {
+    const response = await apiClient.get<ApiResponse<boolean>>(`/reviews/eligibility/mentor/${mentorId}`)
+    return response.data.data
+  },
+
   vote: async (reviewId: string, isHelpful: boolean): Promise<ReviewResponse> => {
     const response = await apiClient.post<ApiResponse<ReviewResponse>>(`/reviews/${reviewId}/vote?isHelpful=${isHelpful}`)
     return response.data.data

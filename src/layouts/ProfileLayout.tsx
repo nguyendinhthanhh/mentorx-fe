@@ -1,22 +1,35 @@
 import { Link, Outlet, useLocation } from 'react-router-dom'
 import {
   Award,
-  Bell,
-  Heart,
+  Briefcase,
+  CalendarDays,
+  LayoutDashboard,
+  ReceiptText,
   Settings,
   ShoppingBag,
-  User,
+  Star,
+  Wallet,
 } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { canSwitchToMentorMode } from '@/utils/roleRedirect'
 import AppHeader from '@/components/AppHeader'
 
-const baseTabs = [
-  { to: '/profile', label: 'Profile', icon: User },
-  { to: '/profile/saved', label: 'Saved mentors', icon: Heart },
-  { to: '/profile/notifications', label: 'Notifications', icon: Bell },
-  { to: '/profile/courses', label: 'Courses', icon: ShoppingBag },
-  { to: '/profile/settings', label: 'Settings', icon: Settings },
+type SidebarItem = {
+  to: string
+  label: string
+  icon: any
+  matches: string[]
+}
+
+const baseTabs: SidebarItem[] = [
+  { to: '/profile', label: 'Tổng quan', icon: LayoutDashboard, matches: ['/profile'] },
+  { to: '/users/requests', label: 'Yêu cầu đã đăng', icon: Briefcase, matches: ['/users/requests', '/my-jobs'] },
+  { to: '/profile/courses', label: 'Khóa học đã mua', icon: ShoppingBag, matches: ['/profile/courses'] },
+  { to: '/profile/appointments', label: 'Lịch hẹn', icon: CalendarDays, matches: ['/profile/appointments'] },
+  { to: '/wallet', label: 'Ví MXC', icon: Wallet, matches: ['/wallet'] },
+  { to: '/profile/transactions', label: 'Giao dịch', icon: ReceiptText, matches: ['/profile/transactions'] },
+  { to: '/profile/reviews', label: 'Đánh giá của tôi', icon: Star, matches: ['/profile/reviews'] },
+  { to: '/profile/settings', label: 'Cài đặt', icon: Settings, matches: ['/profile/settings'] },
 ]
 
 export default function ProfileLayout() {
@@ -30,26 +43,31 @@ export default function ProfileLayout() {
   const initials = displayName.charAt(0).toUpperCase()
   const mentorApproved = canSwitchToMentorMode(user)
 
-  const tabs = [
+  const tabs: SidebarItem[] = [
     ...baseTabs,
-    ...(mentorApproved ? [] : [{ to: '/become-a-mentor', label: 'Become a mentor', icon: Award }]),
+    ...(mentorApproved
+      ? []
+      : [{ to: '/become-a-mentor', label: 'Trở thành mentor', icon: Award, matches: ['/become-a-mentor'] }]),
   ]
 
-  const isActive = (path: string) => {
-    if (path === '/profile') return location.pathname === '/profile'
-    return location.pathname.startsWith(path)
+  const isActive = (paths: string[]) => {
+    return paths.some((path) => {
+      if (path === '/profile') return location.pathname === '/profile'
+      return location.pathname.startsWith(path)
+    })
   }
 
   return (
     <div className="min-h-screen bg-[#f7f8fc] text-slate-950 dark:bg-slate-950 dark:text-white">
       <AppHeader />
 
-      <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+      <main className="mx-auto max-w-screen-2xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-8 lg:flex-row">
           {!isFullWidthPage && (
-            <aside className="w-full flex-none space-y-6 lg:w-72">
-              <div className="overflow-hidden rounded-[2rem] border border-slate-200/60 bg-white/80 p-4 shadow-xl shadow-slate-200/40 backdrop-blur-xl dark:border-slate-800/60 dark:bg-slate-900/80 dark:shadow-none">
-                <div className="mb-6 flex items-center gap-4 px-2 py-3">
+            <aside className="w-full flex-none space-y-6 lg:w-[290px]">
+              <div className="overflow-hidden rounded-[2rem] border border-slate-200/70 bg-white/90 p-4 shadow-[0_28px_70px_rgba(15,23,42,0.08)] backdrop-blur-xl dark:border-slate-800/60 dark:bg-slate-900/80 dark:shadow-none">
+                <div className="mb-6 rounded-[1.6rem] bg-[radial-gradient(circle_at_top_left,rgba(108,77,255,0.18),transparent_46%),linear-gradient(135deg,#ffffff,#f8f7ff)] px-3 py-4 dark:bg-slate-900">
+                  <div className="flex items-center gap-4 px-2 py-1">
                   <div className="relative shrink-0">
                     <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg shadow-indigo-200 dark:shadow-none">
                       {user.avatarUrl ? (
@@ -63,18 +81,19 @@ export default function ProfileLayout() {
                     <h1 className="truncate text-base font-black tracking-tight text-slate-950 dark:text-white">
                       {displayName}
                     </h1>
-                    <p className="truncate text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-                      {user.email.split('@')[0]}
+                    <p className="truncate text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500">
+                      User workspace
                     </p>
                   </div>
                 </div>
+                </div>
 
                 <div className="space-y-1.5">
-                  <div className="px-3 pb-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
-                    Menu
+                  <div className="px-3 pb-2 text-[10px] font-black uppercase tracking-[0.22em] text-slate-400">
+                    Workspace
                   </div>
                   {tabs.map((item) => {
-                    const active = isActive(item.to)
+                    const active = isActive(item.matches)
                     return (
                       <Link
                         key={item.to}
@@ -101,11 +120,20 @@ export default function ProfileLayout() {
                   })}
                 </div>
 
-                <div className="mt-8 rounded-2xl border border-slate-100 bg-slate-50/50 px-4 py-4 dark:border-slate-800/50 dark:bg-slate-800/30">
-                  <p className="text-center text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
-                    Mentor X v1.0
-                  </p>
-                </div>
+                {!mentorApproved && (
+                  <div className="mt-8 rounded-[1.6rem] border border-indigo-100 bg-indigo-50/70 px-4 py-5 dark:border-indigo-900/40 dark:bg-indigo-950/20">
+                    <p className="text-[11px] font-black uppercase tracking-[0.16em] text-indigo-500">Mentor track</p>
+                    <p className="mt-2 text-sm leading-6 text-slate-700 dark:text-slate-300">
+                      Mở rộng tài khoản để nhận job, mentor 1:1 và kiếm thêm MXC.
+                    </p>
+                    <Link
+                      to="/become-a-mentor"
+                      className="mt-4 inline-flex h-10 items-center justify-center rounded-2xl bg-[#6C4DFF] px-4 text-sm font-bold text-white transition hover:bg-[#5b3ef0]"
+                    >
+                      Trở thành mentor
+                    </Link>
+                  </div>
+                )}
               </div>
             </aside>
           )}

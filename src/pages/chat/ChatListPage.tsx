@@ -2,9 +2,10 @@ import { ChangeEvent, FormEvent, useEffect, useMemo, useRef, useState } from 're
 import { useSearchParams } from 'react-router-dom'
 import { useQuery } from 'react-query'
 import { chatApi } from '@/api/chatApi'
+import { contractApi } from '@/api/contractApi'
 import { fileApi } from '@/api/fileApi'
 import { mentorApi } from '@/api/mentorApi'
-import { CourseResponse, MessageType } from '@/types'
+import { ContractResponse, CourseResponse, MessageType } from '@/types'
 import { useAuthStore } from '@/store/authStore'
 import ConversationPane from './components/ConversationPane'
 import ContextRail from './components/ContextRail'
@@ -33,6 +34,7 @@ export default function ChatListPage() {
   const scrollRef = useRef<HTMLDivElement>(null)
   const [searchParams, setSearchParams] = useSearchParams()
   const targetUserId = searchParams.get('userId')
+  const targetRoomId = searchParams.get('conversationId') || searchParams.get('roomId')
 
   const { data: rooms, isLoading: roomsLoading, refetch: refetchRooms } = useQuery(
     ['chatRooms', user?.userId],
@@ -66,6 +68,15 @@ export default function ChatListPage() {
 
   useEffect(() => {
     if (roomsLoading || !user?.userId) return
+
+    if (targetRoomId) {
+      const existingRoom = roomList.find((room) => room.id === targetRoomId)
+      if (existingRoom) {
+        setSelectedRoomId(existingRoom.id)
+        setSearchParams({})
+      }
+      return
+    }
 
     if (targetUserId) {
       const existingRoom = roomList.find(
@@ -150,7 +161,7 @@ export default function ChatListPage() {
     if (!filteredRooms.some((room) => room.id === selectedRoomId)) {
       setSelectedRoomId(filteredRooms[0].id)
     }
-  }, [filteredRooms, roomList, selectedRoomId, targetUserId, roomsLoading, user?.userId, setSearchParams, refetchRooms])
+  }, [filteredRooms, roomList, selectedRoomId, targetRoomId, targetUserId, roomsLoading, user?.userId, setSearchParams, refetchRooms])
 
   const selectedRoom = useMemo(
     () => roomList.find((room) => room.id === selectedRoomId) || null,
@@ -226,6 +237,26 @@ export default function ChatListPage() {
       // Import jobApi first
       const { jobApi } = await import('@/api/jobApi')
       return jobApi.getById(linkedJobId).catch(() => null)
+    },
+    {
+      enabled: !!linkedJobId,
+      retry: false,
+    }
+  )
+
+  const { data: linkedContract, isLoading: linkedContractLoading } = useQuery(
+    ['chat-linked-contract', linkedJobId],
+    async () => {
+      if (!linkedJobId) return null
+      const result = await contractApi.getByJob(linkedJobId, { page: 0, size: 10 }).catch(() => null)
+      const contracts = result?.content || []
+      return (
+        contracts.find((contract) => contract.status === 'ACTIVE') ||
+        contracts.find((contract) => contract.status === 'PENDING_PAYMENT') ||
+        contracts.find((contract) => contract.status === 'COMPLETED') ||
+        contracts[0] ||
+        null
+      ) as ContractResponse | null
     },
     {
       enabled: !!linkedJobId,
@@ -378,6 +409,8 @@ export default function ChatListPage() {
               isAvailabilityLoading={weeklyAvailabilityLoading}
               linkedJob={linkedJob}
               isLinkedJobLoading={linkedJobLoading}
+              linkedContract={linkedContract}
+              isLinkedContractLoading={linkedContractLoading}
             />
           </div>
         </div>
@@ -405,6 +438,8 @@ export default function ChatListPage() {
               isAvailabilityLoading={weeklyAvailabilityLoading}
               linkedJob={linkedJob}
               isLinkedJobLoading={linkedJobLoading}
+              linkedContract={linkedContract}
+              isLinkedContractLoading={linkedContractLoading}
               onClose={() => setIsDetailsOpen(false)}
               compact
             />

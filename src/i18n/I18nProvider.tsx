@@ -1,5 +1,10 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from 'react'
-import { LANGUAGE_STORAGE_KEY, Language, TranslationKey, translations } from './translations'
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+
+import { userApi } from '@/api/userApi'
+import { useAuthStore } from '@/store/authStore'
+import { SupportedLanguage, UserUpdateRequest } from '@/types'
+
+import { isLanguage, LANGUAGE_STORAGE_KEY, Language, TranslationKey, translations } from './translations'
 
 type TranslateParams = Record<string, string | number>
 
@@ -11,29 +16,93 @@ interface I18nContextValue {
 
 const I18nContext = createContext<I18nContextValue | null>(null)
 
-function getInitialLanguage(): Language {
-  const saved = localStorage.getItem(LANGUAGE_STORAGE_KEY)
-  if (saved === 'en' || saved === 'vi') return saved
+function normalizeLanguage(value?: string | null): Language | null {
+  return isLanguage(value) ? value : null
+}
 
-  const browserLanguage = navigator.language.toLowerCase()
-  return browserLanguage.startsWith('vi') ? 'vi' : 'en'
+function detectBrowserLanguage(): Language {
+  if (typeof navigator === 'undefined') return 'en'
+  return navigator.language.toLowerCase().startsWith('vi') ? 'vi' : 'en'
+}
+
+function readStoredLanguage(): Language | null {
+  if (typeof window === 'undefined') return null
+  return normalizeLanguage(window.localStorage.getItem(LANGUAGE_STORAGE_KEY))
+}
+
+function getInitialLanguage(): Language {
+  return readStoredLanguage() || detectBrowserLanguage() || 'en'
+}
+
+function toSupportedLanguage(language: Language): SupportedLanguage {
+  return language === 'vi' ? SupportedLanguage.VI : SupportedLanguage.EN
 }
 
 export function I18nProvider({ children }: { children: React.ReactNode }) {
+  const { user, isAuthenticated, setUser } = useAuthStore()
   const [language, setLanguageState] = useState<Language>(getInitialLanguage)
 
-  const setLanguage = (nextLanguage: Language) => {
+  const applyLanguage = useCallback((nextLanguage: Language) => {
     setLanguageState(nextLanguage)
-    localStorage.setItem(LANGUAGE_STORAGE_KEY, nextLanguage)
-  }
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(LANGUAGE_STORAGE_KEY, nextLanguage)
+    }
+    if (typeof document !== 'undefined') {
+      document.documentElement.lang = nextLanguage
+    }
+  }, [])
 
   useEffect(() => {
     document.documentElement.lang = language
   }, [language])
 
+  useEffect(() => {
+    const preferredLanguage = normalizeLanguage(user?.preferredLanguage)
+    if (preferredLanguage && preferredLanguage !== language) {
+      applyLanguage(preferredLanguage)
+    }
+  }, [applyLanguage, language, user?.preferredLanguage])
+
+  const setLanguage = useCallback(
+    (nextLanguage: Language) => {
+      applyLanguage(nextLanguage)
+
+      if (!isAuthenticated || !user?.userId || normalizeLanguage(user.preferredLanguage) === nextLanguage) {
+        return
+      }
+
+      void userApi
+        .updateUser(
+          user.userId,
+          {
+            preferredLanguage: toSupportedLanguage(nextLanguage),
+          } as UserUpdateRequest
+        )
+        .then((updatedUser) => {
+          setUser({
+            ...user,
+            ...updatedUser,
+          })
+        })
+        .catch((error) => {
+          if (import.meta.env.DEV) {
+            console.error('Failed to persist language preference', error)
+          }
+        })
+    },
+    [applyLanguage, isAuthenticated, setUser, user]
+  )
+
   const value = useMemo<I18nContextValue>(() => {
     const t = (key: TranslationKey, params?: TranslateParams) => {
-      const template: string = translations[language][key] || translations.en[key] || key
+      const selectedTranslation = translations[language][key]
+      const fallbackTranslation = translations.en[key]
+
+      if (!selectedTranslation && import.meta.env.DEV) {
+        console.warn(`[i18n] Missing translation for "${key}" in "${language}", falling back to English.`)
+      }
+
+      const template = selectedTranslation || fallbackTranslation || key
       if (!params) return template
 
       return Object.entries(params).reduce<string>(
@@ -43,7 +112,7 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
     }
 
     return { language, setLanguage, t }
-  }, [language])
+  }, [language, setLanguage])
 
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>
 }

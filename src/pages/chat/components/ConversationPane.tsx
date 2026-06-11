@@ -1,20 +1,10 @@
-import { ChangeEvent, FormEvent, ReactNode, RefObject } from 'react'
+import { ChangeEvent, ReactNode, RefObject } from 'react'
 import { Link } from 'react-router-dom'
 import {
   ArrowLeft,
-  CalendarDays,
-  ChevronDown,
   ChevronLeft,
-  Loader2,
-  MoreHorizontal,
-  Paperclip,
-  Phone,
-  Send,
-  Smile,
   Sparkles,
   Target,
-  Video,
-  X,
 } from 'lucide-react'
 import { ChatRoomMemberSummary, ChatRoomResponse, MessageResponse } from '@/types'
 import {
@@ -30,6 +20,7 @@ import {
   shouldShowDateSeparator,
 } from '../chatShared'
 import { PromptInputBox } from '@/components/ui/ai-prompt-box'
+import JobContextBanner from './JobContextBanner'
 
 type ConversationPaneProps = {
   selectedRoom: ChatRoomResponse | null
@@ -51,6 +42,16 @@ type ConversationPaneProps = {
   onShowDetails: () => void
   onBackToList: () => void
   showBackButton: boolean
+  heightClassName?: string
+  contextStatusLabel?: string
+  contextStatusToneClassName?: string
+  contextActionLabel?: string
+  contextActionHref?: string
+  noMessagesTitle?: string
+  noMessagesDescription?: string
+  participantRoleLabel?: string
+  showUtilityActions?: boolean
+  showDetailsButton?: boolean
 }
 
 export default function ConversationPane({
@@ -73,12 +74,22 @@ export default function ConversationPane({
   onShowDetails,
   onBackToList,
   showBackButton,
+  heightClassName = 'h-[calc(100vh-73px)]',
+  contextStatusLabel,
+  contextStatusToneClassName = 'border-slate-200 bg-slate-100 text-slate-600',
+  contextActionLabel,
+  contextActionHref,
+  noMessagesTitle = 'No messages yet',
+  noMessagesDescription = 'Start the conversation with a message or share a file.',
+  participantRoleLabel,
+  showUtilityActions = false,
+  showDetailsButton = true,
 }: ConversationPaneProps) {
   const banner = buildContextBanner(selectedRoom)
 
   if (!selectedRoom) {
     return (
-      <section className="hidden h-[calc(100vh-73px)] flex-1 items-center justify-center bg-white lg:flex">
+      <section className={`hidden ${heightClassName} flex-1 items-center justify-center bg-white lg:flex`}>
         <div className="max-w-sm text-center">
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-indigo-50 text-indigo-500">
             <Sparkles className="h-6 w-6" />
@@ -95,7 +106,7 @@ export default function ConversationPane({
   const goalLink = selectedRoom.referenceType === 'JOB' && selectedRoom.referenceId ? `/jobs/${selectedRoom.referenceId}` : undefined
 
   return (
-    <section className="flex h-[calc(100vh-73px)] flex-1 flex-col bg-white">
+    <section className={`flex ${heightClassName} flex-1 flex-col bg-white`}>
       <header className="sticky top-0 z-10 border-b border-slate-200 bg-white">
         <div className="flex items-center justify-between gap-4 px-6 py-4">
           <div className="flex min-w-0 items-center gap-4">
@@ -138,34 +149,23 @@ export default function ConversationPane({
               </div>
               <p className="truncate text-[14px] text-[#66729d]">
                 {selectedRoom.roomType === 'DIRECT_MESSAGE'
-                  ? otherMember?.memberRole?.replace(/_/g, ' ') || roomPresence
+                  ? participantRoleLabel || otherMember?.memberRole?.replace(/_/g, ' ') || roomPresence
                   : `${roomPresence} - ${formatRoomType(selectedRoom.roomType)}`}
               </p>
             </div>
           </div>
 
-          <div className="hidden items-center gap-3 md:flex">
-            <IconAction title="Call">
-              <Phone className="h-4 w-4" />
-            </IconAction>
-            <IconAction title="Video call">
-              <Video className="h-4 w-4" />
-            </IconAction>
-            <IconAction title="Calendar">
-              <CalendarDays className="h-4 w-4" />
-            </IconAction>
-            <IconAction title="More">
-              <MoreHorizontal className="h-5 w-5" />
-            </IconAction>
-          </div>
+          {showUtilityActions ? <div className="hidden items-center gap-3 md:flex" /> : null}
 
-          <button
-            type="button"
-            onClick={onShowDetails}
-            className="inline-flex h-10 items-center gap-2 rounded-xl border border-slate-200 px-4 text-sm font-medium text-[#52608b] transition-colors hover:border-indigo-200 hover:text-indigo-700 lg:hidden"
-          >
-            Details
-          </button>
+          {showDetailsButton ? (
+            <button
+              type="button"
+              onClick={onShowDetails}
+              className="inline-flex h-10 items-center gap-2 rounded-xl border border-slate-200 px-4 text-sm font-medium text-[#52608b] transition-colors hover:border-indigo-200 hover:text-indigo-700 lg:hidden"
+            >
+              Details
+            </button>
+          ) : null}
         </div>
 
         {banner && (
@@ -175,24 +175,33 @@ export default function ConversationPane({
                 <Target className="h-6 w-6" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="truncate text-[14px] font-bold text-[#10164a]">Goal: {banner.title}</p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="truncate text-[14px] font-bold text-[#10164a]">Goal: {banner.title}</p>
+                  {contextStatusLabel ? (
+                    <span className={`inline-flex h-6 items-center rounded-full border px-2.5 text-[11px] font-bold ${contextStatusToneClassName}`}>
+                      {contextStatusLabel}
+                    </span>
+                  ) : null}
+                </div>
                 <p className="mt-1 truncate text-[13px] text-[#25305f]">{banner.detail}</p>
               </div>
-              {goalLink && (
+              {(contextActionHref && contextActionLabel) || goalLink ? (
                 <Link
-                  to={goalLink}
+                  to={contextActionHref || goalLink!}
                   className="hidden h-10 shrink-0 items-center justify-center rounded-xl border border-indigo-200 bg-white px-4 text-[13px] font-semibold text-indigo-700 transition-colors hover:bg-indigo-50 sm:inline-flex"
                 >
-                  View goal
+                  {contextActionLabel || 'View goal'}
                 </Link>
-              )}
-              <button type="button" className="text-indigo-500 hover:text-indigo-700" title="Dismiss goal banner">
-                <X className="h-4 w-4" />
-              </button>
+              ) : null}
             </div>
           </div>
         )}
       </header>
+
+      {/* Job Context Banner - Shows when chat is linked to a job */}
+      {selectedRoom.referenceType === 'JOB' && selectedRoom.referenceId && (
+        <JobContextBanner jobId={selectedRoom.referenceId} userId={currentUserId} />
+      )}
 
       <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto bg-white px-6 py-5">
         {messagesLoading ? (
@@ -207,15 +216,15 @@ export default function ConversationPane({
             ))}
           </div>
         ) : selectedMessages.length === 0 ? (
-          <div className="flex h-full min-h-[340px] items-center justify-center">
-            <div className="max-w-sm text-center">
-              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-indigo-50 text-indigo-500">
-                <Sparkles className="h-6 w-6" />
+            <div className="flex h-full min-h-[340px] items-center justify-center">
+              <div className="max-w-sm text-center">
+                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-indigo-50 text-indigo-500">
+                  <Sparkles className="h-6 w-6" />
+                </div>
+              <h3 className="mt-4 text-lg font-semibold text-[#10164a]">{noMessagesTitle}</h3>
+              <p className="mt-2 text-sm text-[#66729d]">{noMessagesDescription}</p>
               </div>
-              <h3 className="mt-4 text-lg font-semibold text-[#10164a]">No messages yet</h3>
-              <p className="mt-2 text-sm text-[#66729d]">Start the conversation with a message or share a file.</p>
             </div>
-          </div>
         ) : (
           <div className="space-y-5">
             {selectedMessages.map((message, index) => {
@@ -287,18 +296,6 @@ export default function ConversationPane({
         {composerError && <p className="text-sm text-rose-500 p-3 pb-0">{composerError}</p>}
       </div>
     </section>
-  )
-}
-
-function IconAction({ title, children }: { title: string; children: ReactNode }) {
-  return (
-    <button
-      type="button"
-      title={title}
-      className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-[#dce2f2] bg-white text-[#10164a] transition-colors hover:border-indigo-200 hover:bg-indigo-50"
-    >
-      {children}
-    </button>
   )
 }
 

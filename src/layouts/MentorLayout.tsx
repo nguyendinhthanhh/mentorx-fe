@@ -1,7 +1,6 @@
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import {
-  Bell,
   BookOpen,
   Briefcase,
   Calendar,
@@ -21,19 +20,19 @@ import {
 } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { useThemeStore } from '@/store/themeStore'
+import NotificationDropdown from '@/components/notification/NotificationDropdown'
 import { UserMode } from '@/types'
 
 const navigationItems = [
   { to: '/mentor/dashboard', label: 'Overview', icon: LayoutDashboard },
-  { to: '/mentor/jobs', label: 'Find Jobs', icon: Search },
   { to: '/mentor/proposals', label: 'My Proposals', icon: CreditCard, badge: 3 },
   { to: '/mentor/contracts', label: 'Active Contracts', icon: Briefcase },
-  { to: '/mentor/my-courses', label: 'My Courses', icon: BookOpen },
+  { to: '/mentor/courses', label: 'My Courses', icon: BookOpen },
   { to: '/mentor/schedule', label: 'Schedule', icon: Calendar },
-  { to: '/mentor/wallet', label: 'Earnings', icon: Wallet },
-  { to: '/profile/reviews', label: 'Reviews', icon: Star },
-  { to: '/chat', label: 'Messages', icon: MessageCircle, badge: 2 },
-  { to: '/profile/settings', label: 'Settings', icon: Settings },
+  { to: '/mentor/earnings', label: 'Earnings', icon: Wallet },
+  { to: '/mentor/reviews', label: 'Reviews', icon: Star },
+  { to: '/mentor/messages', label: 'Messages', icon: MessageCircle, badge: 2 },
+  { to: '/mentor/settings', label: 'Settings', icon: Settings },
 ]
 
 export default function MentorLayout() {
@@ -164,12 +163,7 @@ export default function MentorLayout() {
                   <ChevronDown className="h-4 w-4 text-slate-400" />
                 </button>
 
-                <button type="button" className="relative flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-500 transition hover:bg-slate-50 hover:text-slate-900">
-                  <Bell className="h-4 w-4" />
-                  <span className="absolute right-2 top-2 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-black text-white">
-                    3
-                  </span>
-                </button>
+                {user && <NotificationDropdown userId={user.userId} />}
 
                 <button type="button" className="flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-500 transition hover:bg-slate-50 hover:text-slate-900">
                   <MessageCircle className="h-4 w-4" />

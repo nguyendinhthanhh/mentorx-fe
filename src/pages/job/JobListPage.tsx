@@ -426,8 +426,11 @@ function Pagination({
 
 function formatBudget(job: JobResponse, t: ReturnType<typeof useI18n>['t']) {
   if (job.budgetMinMxc && job.budgetMaxMxc) {
+    if (job.budgetMinMxc === job.budgetMaxMxc) return formatCurrency(job.budgetMinMxc)
     return `${formatCurrency(job.budgetMinMxc)} - ${formatCurrency(job.budgetMaxMxc)}`
   }
+  if (job.budgetMinMxc) return formatCurrency(job.budgetMinMxc)
+  if (job.budgetMaxMxc) return formatCurrency(job.budgetMaxMxc)
   if (job.hourlyRateMxc) return `${formatCurrency(job.hourlyRateMxc)}/hr`
   return t('jobs.budgetTbd')
 }
@@ -439,9 +442,9 @@ function formatDeadline(deadline: string) {
 }
 
 function getClientName(job: JobResponse) {
-  return (job as JobResponse & { clientName?: string }).clientName || job.client?.displayName || job.client?.fullName || 'Company'
+  return job.clientName || job.client?.displayName || job.client?.fullName || 'Company'
 }
 
 function getProposalCount(job: JobResponse) {
-  return (job as JobResponse & { proposalCount?: number }).proposalCount || 0
+  return job.proposalCount || 0
 }

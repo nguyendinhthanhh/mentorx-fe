@@ -155,12 +155,41 @@ export enum ProposalStatus {
   SUBMITTED = "SUBMITTED",
   UNDER_REVIEW = "UNDER_REVIEW",
   SHORTLISTED = "SHORTLISTED",
+  OFFER_ACCEPTED = "OFFER_ACCEPTED",
   ACCEPTED = "ACCEPTED",
   REJECTED = "REJECTED",
   WITHDRAWN = "WITHDRAWN",
+  AUTO_CLOSED = "AUTO_CLOSED",
+  CONTRACT_CANCELLED = "CONTRACT_CANCELLED",
   EXPIRED = "EXPIRED",
   INTERVIEW_REQUESTED = "INTERVIEW_REQUESTED",
   NEGOTIATING = "NEGOTIATING",
+}
+
+export enum ContractStatus {
+  DRAFT = "DRAFT",
+  PENDING_SIGNATURE = "PENDING_SIGNATURE",
+  ACTIVE = "ACTIVE",
+  PAUSED = "PAUSED",
+  COMPLETED = "COMPLETED",
+  CANCELLED = "CANCELLED",
+  TERMINATED = "TERMINATED",
+  IN_DISPUTE = "IN_DISPUTE",
+  EXPIRED = "EXPIRED",
+  PENDING_PAYMENT = "PENDING_PAYMENT",
+  UNDER_REVIEW = "UNDER_REVIEW",
+}
+
+export enum DisputeStatus {
+  OPEN = "OPEN",
+  AWAITING_RESPONSE = "AWAITING_RESPONSE",
+  INVESTIGATING = "INVESTIGATING",
+  EVIDENCE_REVIEW = "EVIDENCE_REVIEW",
+  IN_MEDIATION = "IN_MEDIATION",
+  IN_ARBITRATION = "IN_ARBITRATION",
+  RESOLVED = "RESOLVED",
+  CLOSED = "CLOSED",
+  WITHDRAWN = "WITHDRAWN",
 }
 
 export enum NotificationType {
@@ -362,8 +391,14 @@ export interface BankAccountRequest {
 }
 
 // Mentor Types
+export interface ProofLink {
+  label: string;
+  url: string;
+}
+
 export interface MentorProfileResponse {
   id?: string;
+  proofLinks?: ProofLink[];
   userId: string;
   user: UserResponse;
   headline?: string;
@@ -440,6 +475,7 @@ export interface MentorProfileResponse {
 }
 
 export interface MentorProfileRequest {
+  proofLinks?: ProofLink[];
   headline?: string;
   hourlyRateMxc?: number;
   yearsOfExperience?: number;
@@ -495,6 +531,91 @@ export interface JobResponse {
   attachmentUrl?: string;
   attachments?: string[];
   statusReason?: string;
+  proposalCount?: number;
+  viewCount?: number;
+  publishedAt?: string;
+  closedAt?: string;
+  deletedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ContractResponse {
+  id: string;
+  jobId: string;
+  jobTitle: string;
+  proposalId?: string;
+  clientId: string;
+  clientName: string;
+  mentorId: string;
+  mentorName: string;
+  status: ContractStatus;
+  title: string;
+  description: string;
+  totalAmount: number;
+  hourlyRate?: number;
+  startDate?: string;
+  endDate?: string;
+  deadlineAt?: string;
+  scopeDescription?: string;
+  actualStartDate?: string;
+  actualCompletionDate?: string;
+  termsAndConditions?: string;
+  paymentTerms?: string;
+  deliverables?: string;
+  clientSignedAt?: string;
+  mentorSignedAt?: string;
+  activatedAt?: string;
+  completedAt?: string;
+  cancelledAt?: string;
+  cancellationRequestStatus?: 'PENDING' | 'REJECTED' | 'APPROVED';
+  cancellationRequestedByUserId?: string;
+  cancellationRequestedByName?: string;
+  cancellationRequestedAt?: string;
+  cancellationRequestReason?: string;
+  cancellationRespondedByUserId?: string;
+  cancellationRespondedByName?: string;
+  cancellationRespondedAt?: string;
+  cancellationResponseNote?: string;
+  milestoneCount: number;
+  completedMilestoneCount: number;
+  amountPaid: number;
+  amountInEscrow: number;
+  fundsInEscrow: boolean;
+  progressPercentage: number;
+  isRenewable?: boolean;
+  autoRenewal?: boolean;
+  renewalTerms?: string;
+  ndaRequired?: boolean;
+  ndaSigned?: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface DisputeResponse {
+  id: string;
+  initiatorId: string;
+  initiatorName: string;
+  respondentId: string;
+  respondentName: string;
+  contractId?: string;
+  jobId?: string;
+  title: string;
+  description: string;
+  disputeCategory: string;
+  status: DisputeStatus;
+  priorityLevel: number;
+  disputedAmountMxc?: number;
+  refundRequestedMxc?: number;
+  mediatorId?: string;
+  respondentResponse?: string;
+  responseDeadline?: string;
+  resolvedAt?: string;
+  resolutionDetails?: string;
+  refundAmountMxc?: number;
+  fundsInEscrow?: boolean;
+  evidenceUrls?: string[];
+  requiresArbitration?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -876,6 +997,8 @@ export interface ProposalResponse {
   proposedAmount?: number;
   proposedHourlyRate?: number;
   estimatedDurationDays?: number;
+  deadlineAt?: string;
+  scopeDescription?: string;
   proposedStartDate?: string;
   proposedDeliveryDate?: string;
   proposedMilestones?: any[];
@@ -901,6 +1024,8 @@ export interface ProposalCreateRequest {
   proposedAmount?: number;
   proposedHourlyRate?: number;
   estimatedDurationDays?: number;
+  deadlineAt?: string;
+  scopeDescription?: string;
   proposedStartDate?: string;
   proposedDeliveryDate?: string;
   proposedMilestones?: any[];

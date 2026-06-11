@@ -8,6 +8,8 @@ export interface NegotiationRequest {
   proposedAmount?: number
   proposedHourlyRate?: number
   estimatedDurationDays?: number
+  deadlineAt?: string
+  scopeDescription?: string
   proposedStartDate?: string
   proposedDeliveryDate?: string
 }
@@ -22,9 +24,11 @@ export interface NegotiationResponse {
   proposedAmount?: number
   proposedHourlyRate?: number
   estimatedDurationDays?: number
+  deadlineAt?: string
+  scopeDescription?: string
   proposedStartDate?: string
   proposedDeliveryDate?: string
-  status: 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'COUNTERED'
+  status: 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'COUNTERED' | 'CANCELLED'
   createdAt: string
   respondedAt?: string
 }
@@ -47,6 +51,20 @@ export const negotiationApi = {
   mentorCounterOffer: async (data: NegotiationRequest): Promise<NegotiationResponse> => {
     const response = await apiClient.post<ApiResponse<NegotiationResponse>>(
       '/negotiations/mentor-counter',
+      data
+    )
+    return response.data.data
+  },
+
+  /**
+   * Update an existing pending negotiation without creating a new round
+   */
+  updatePendingNegotiation: async (
+    negotiationId: string,
+    data: NegotiationRequest
+  ): Promise<NegotiationResponse> => {
+    const response = await apiClient.put<ApiResponse<NegotiationResponse>>(
+      `/negotiations/${negotiationId}`,
       data
     )
     return response.data.data
