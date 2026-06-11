@@ -101,7 +101,9 @@ export default function MentorProposalsPage() {
       for (const proposal of proposalPage.content.filter((item) => item.status === 'NEGOTIATING' || item.status === 'OFFER_ACCEPTED')) {
         try {
           const latest = await negotiationApi.getLatest(proposal.id)
-          latestNegotiationMap[proposal.id] = latest
+          if (latest) {
+            latestNegotiationMap[proposal.id] = latest
+          }
         } catch {
           continue
         }
@@ -221,7 +223,7 @@ export default function MentorProposalsPage() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-7xl space-y-6 pt-6">
+      <div className="mx-auto max-w-[1600px] space-y-6 pt-6">
         <div className="grid gap-8">
           <div className="space-y-6">
             <div className="flex items-center justify-between">

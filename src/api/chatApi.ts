@@ -1,5 +1,6 @@
 import apiClient from './client'
 import { ApiResponse, PaginatedResponse, ChatRoomResponse, MessageResponse } from '@/types'
+import { useAuthStore } from '@/store/authStore'
 
 export const chatApi = {
   resolveConversation: async (data: {
@@ -48,7 +49,12 @@ export const chatApi = {
   },
 
   getUserRooms: async (userId: string, params?: { page?: number; size?: number }): Promise<PaginatedResponse<ChatRoomResponse>> => {
-    const response = await apiClient.get<ApiResponse<PaginatedResponse<ChatRoomResponse>>>(`/chat/users/${userId}/rooms`, { params })
+    const currentUserId = useAuthStore.getState().user?.userId
+    const endpoint =
+      currentUserId && currentUserId === userId
+        ? '/chat/users/me/rooms'
+        : `/chat/users/${userId}/rooms`
+    const response = await apiClient.get<ApiResponse<PaginatedResponse<ChatRoomResponse>>>(endpoint, { params })
     return response.data.data
   },
 

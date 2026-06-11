@@ -44,6 +44,34 @@ export interface MomoPaymentResponse {
   deeplink: string
 }
 
+export interface PayOSPaymentRequest {
+  amount: string
+  currency: string
+  orderInfo?: string
+}
+
+export interface PayOSPaymentResponse {
+  code: string
+  message: string
+  orderCode?: number
+  paymentLinkId?: string
+  checkoutUrl?: string
+  qrCode?: string
+  amount?: number
+  status?: string
+}
+
+export interface PayOSReturnResponse {
+  code: string
+  message: string
+  orderCode?: number
+  paymentLinkId?: string
+  status?: string
+  cancel?: boolean
+  amount?: number
+  transactionId?: string
+}
+
 export interface MomoCallbackResponse {
   resultCode: string
   message: string
@@ -72,6 +100,15 @@ export const paymentApi = {
     return response.data.data
   },
 
+  // Create PayOS payment URL
+  createPayOSPayment: async (data: PayOSPaymentRequest): Promise<PayOSPaymentResponse> => {
+    const response = await apiClient.post<ApiResponse<PayOSPaymentResponse>>(
+      '/v1/payment/payos/create',
+      data
+    )
+    return response.data.data
+  },
+
   // Process VNPay callback/return
   processVNPayCallback: async (params: Record<string, string>): Promise<VNPayCallbackResponse> => {
     const queryString = new URLSearchParams(params).toString()
@@ -86,6 +123,15 @@ export const paymentApi = {
     const queryString = new URLSearchParams(params).toString()
     const response = await apiClient.get<ApiResponse<MomoCallbackResponse>>(
       `/v1/payment/momo/return?${queryString}`
+    )
+    return response.data.data
+  },
+
+  // Process PayOS callback/return
+  processPayOSReturn: async (params: Record<string, string>): Promise<PayOSReturnResponse> => {
+    const queryString = new URLSearchParams(params).toString()
+    const response = await apiClient.get<ApiResponse<PayOSReturnResponse>>(
+      `/v1/payment/payos/return?${queryString}`
     )
     return response.data.data
   },

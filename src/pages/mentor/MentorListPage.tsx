@@ -16,6 +16,11 @@ import {
   Star,
   Users,
   X,
+  CheckCircle2,
+  Code2,
+  ExternalLink,
+  ShieldCheck,
+  Lightbulb,
 } from 'lucide-react'
 import { mentorApi } from '@/api/mentorApi'
 import { categoryApi } from '@/api/categoryApi'
@@ -142,23 +147,23 @@ export default function MentorListPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f6f7fb] text-slate-950">
-      <section className="sticky top-16 z-30 border-b border-slate-200 bg-white/95 backdrop-blur">
-        <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
+    <div className="topcv-job-font min-h-screen bg-[#F8FAFC] text-[#111827]">
+      <section className="sticky top-16 z-30 border-b border-[#E5E7EB] bg-[#FFFFFF]/95 backdrop-blur">
+        <div className="mx-auto max-w-[1600px] px-4 py-4 sm:px-6 lg:px-8">
           <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto]">
             <div className="relative">
-              <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
+              <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#9CA3AF]" />
               <input
                 value={searchText}
                 onChange={(event) => setSearchText(event.target.value)}
                 placeholder="Search mentor name, expertise, career goal..."
-                className="h-12 w-full rounded-xl border border-slate-300 bg-white pl-12 pr-12 text-sm font-medium text-slate-950 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+                className="h-12 w-full rounded-xl border border-[#E5E7EB] bg-[#FFFFFF] pl-12 pr-12 text-sm font-medium text-[#111827] outline-none transition focus:border-gray-400 focus:ring-4 focus:ring-gray-100"
               />
               {searchText && (
                 <button
                   type="button"
                   onClick={() => setSearchText('')}
-                  className="absolute right-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+                  className="absolute right-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-lg text-[#9CA3AF] transition hover:bg-[#F9FAFB] hover:text-[#4B5563]"
                   aria-label="Clear search"
                 >
                   <X className="h-4 w-4" />
@@ -171,19 +176,19 @@ export default function MentorListPage() {
               <button
                 type="button"
                 onClick={() => setFilterOpen((open) => !open)}
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 text-sm font-black text-slate-800 transition hover:bg-slate-50"
+                className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-[#E5E7EB] bg-[#FFFFFF] px-4 text-sm font-medium text-[#111827] transition hover:bg-[#F9FAFB]"
               >
-                <SlidersHorizontal className="h-4 w-4" />
+                <SlidersHorizontal className="h-4 w-4 text-[#9CA3AF]" />
                 Filters
                 {activeFilterCount > 0 && (
-                  <span className="rounded-full bg-indigo-600 px-2 py-0.5 text-xs text-white">{activeFilterCount}</span>
+                  <span className="rounded-full bg-[#111827] px-2 py-0.5 text-xs text-white">{activeFilterCount}</span>
                 )}
               </button>
             </div>
           </div>
 
           {filterOpen && (
-            <div className="mt-4 grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 md:grid-cols-6">
+            <div className="mt-4 grid gap-3 rounded-xl border border-[#E5E7EB] bg-[#FFFFFF] p-4 md:grid-cols-6 shadow-sm">
               <SelectControl
                 label="Domain"
                 value={primaryDomain || ''}
@@ -243,9 +248,9 @@ export default function MentorListPage() {
                 <button
                   type="button"
                   onClick={clearSearchAndFilters}
-                  className="h-12 w-full rounded-xl border border-slate-300 bg-white text-sm font-black text-slate-700 transition hover:bg-slate-100"
+                  className="h-12 w-full rounded-xl border border-[#E5E7EB] bg-[#FFFFFF] text-sm font-medium text-[#4B5563] transition hover:bg-[#F9FAFB]"
                 >
-                  Reset search
+                  Reset filters
                 </button>
               </div>
             </div>
@@ -253,29 +258,33 @@ export default function MentorListPage() {
         </div>
       </section>
 
-      <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-        <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+      <main className="mx-auto max-w-[1600px] px-4 py-8 sm:px-6 lg:px-8">
+        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h1 className="text-2xl font-black tracking-tight text-slate-950">Mentors</h1>
-            <p className="mt-1 text-sm text-slate-600">
-              {isSearchMode ? `${totalMentors} result(s) for "${debouncedSearch}"` : `${totalMentors} approved mentor(s)`}
+            <h1 className="text-3xl font-bold tracking-tight text-[#111827] sm:text-4xl">Find the right mentor</h1>
+            <p className="mt-2 text-base text-[#4B5563]">
+              Learn from verified experts and accelerate your growth.
             </p>
           </div>
-          {(isSearchMode || activeFilterCount > 0) && (
-            <button
-              type="button"
-              onClick={clearSearchAndFilters}
-              className="h-10 rounded-xl border border-slate-300 bg-white px-4 text-sm font-black text-slate-700 transition hover:bg-slate-50"
-            >
-              Clear search
-            </button>
-          )}
+          <div className="flex items-center gap-4">
+             <div className="hidden sm:flex items-center gap-3">
+                <div className="flex -space-x-3">
+                   <img src={mentorFallbackImages[0]} className="w-10 h-10 rounded-full border-2 border-[#FFFFFF] object-cover" />
+                   <img src={mentorFallbackImages[1]} className="w-10 h-10 rounded-full border-2 border-[#FFFFFF] object-cover" />
+                   <img src={mentorFallbackImages[2]} className="w-10 h-10 rounded-full border-2 border-[#FFFFFF] object-cover" />
+                </div>
+                <div className="text-sm">
+                   <p className="font-semibold text-[#111827]">{totalMentors} approved mentors</p>
+                   <p className="text-[#9CA3AF]">in this marketplace</p>
+                </div>
+             </div>
+          </div>
         </div>
 
         {isLoading ? (
           <MentorGridSkeleton />
         ) : mentors.length > 0 ? (
-          <div className="grid gap-4 xl:grid-cols-2">
+          <div className="flex flex-col gap-5">
             {mentors.map((mentor, index) => (
               <MentorCard key={mentor.userId} mentor={mentor} index={index} />
             ))}
@@ -297,67 +306,92 @@ export default function MentorListPage() {
 function MentorCard({ mentor, index }: { mentor: MentorProfileResponse; index: number }) {
   const name = mentor.user?.displayName || mentor.user?.fullName || 'Mentor'
   const headline = mentor.headline || 'Expert mentor'
-  const rating = mentor.averageRating ? mentor.averageRating.toFixed(1) : 'N/A'
+  const rating = mentor.averageRating ? mentor.averageRating.toFixed(1) : 'New'
   const reviews = mentor.totalReviews || 0
   const image = mentor.user?.avatarUrl || mentorFallbackImages[index % mentorFallbackImages.length]
   const rate = mentor.hourlyRateMxc ? formatCurrency(mentor.hourlyRateMxc) : 'Flexible'
-  const responseTime = mentor.responseTimeHours ? `Usually responds within ${mentor.responseTimeHours} hours` : 'Response time will be calculated after more activity.'
+  const responseTime = mentor.responseTimeHours ? `Replies within ${mentor.responseTimeHours}h` : 'Replies within 12h'
   const availability = formatAvailability(mentor.availability)
+  const isTopRated = mentor.averageRating && mentor.averageRating >= 4.8
 
   return (
-    <article className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-lg">
-      <div className="p-5">
-        <div className="flex gap-4">
-          <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl bg-slate-100">
-            <img src={image} alt={name} className="h-full w-full object-cover" />
-            {mentor.isFeatured && (
-              <div className="absolute bottom-1 right-1 flex h-6 w-6 items-center justify-center rounded-full bg-amber-400 text-slate-950 shadow-sm">
-                <Sparkles className="h-3.5 w-3.5" />
-              </div>
-            )}
-          </div>
+    <article className="flex flex-col sm:flex-row items-start gap-5 p-5 sm:p-6 rounded-xl border border-[#E5E7EB] bg-[#FFFFFF] transition-all hover:border-gray-300">
+      
+      {/* Avatar Column */}
+      <div className="shrink-0 flex flex-col items-center">
+        <div className="h-16 w-16 sm:h-20 sm:w-20 overflow-hidden rounded-full border border-[#E5E7EB] bg-[#F8FAFC]">
+           <img src={image} alt={name} className="h-full w-full object-cover" />
+        </div>
+      </div>
 
-          <div className="min-w-0 flex-1">
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <h2 className="truncate text-lg font-black text-slate-950">{name}</h2>
-                <p className="mt-1 line-clamp-2 text-sm leading-5 text-slate-600">{headline}</p>
-              </div>
-              <div className="shrink-0 rounded-xl border border-amber-200 bg-amber-50 px-2.5 py-1 text-sm font-black text-amber-700">
-                {rating}
-              </div>
-            </div>
-
-            <div className="mt-3 flex flex-wrap gap-2">
-              <Badge icon={Star} label={`${reviews} reviews`} tone="amber" />
-              <Badge icon={Briefcase} label={`${mentor.yearsOfExperience || 0}+ yrs`} tone="blue" />
-              <Badge icon={Clock3} label={responseTime} tone="emerald" />
-              <Badge icon={CalendarClock} label={availability} tone="rose" />
-            </div>
-          </div>
+      {/* Main Info Column */}
+      <div className="flex-1 min-w-0 flex flex-col justify-start">
+        <div className="flex items-center gap-2">
+           <h2 className="text-lg font-bold text-[#111827] truncate">{name}</h2>
+           {isTopRated ? (
+             <span className="flex items-center gap-0.5 text-xs font-semibold text-[#15803D]">
+               <ShieldCheck className="h-3.5 w-3.5" />
+             </span>
+           ) : (
+             <span className="flex items-center gap-0.5 text-xs font-semibold text-[#15803D]">
+               <CheckCircle2 className="h-3.5 w-3.5" />
+             </span>
+           )}
+        </div>
+        <p className="mt-0.5 text-sm font-medium text-[#4B5563] truncate">{headline}</p>
+        
+        {/* Trust Line */}
+        <div className="mt-2 flex flex-wrap items-center gap-2 text-xs font-medium text-[#9CA3AF]">
+           <span className="flex items-center gap-1 text-[#111827]">
+             <Star className="h-3.5 w-3.5 fill-current" />
+             {rating}
+           </span>
+           <span>·</span>
+           <span>{reviews} reviews</span>
+           <span>·</span>
+           <span>{mentor.totalJobsDone || 0} completed jobs</span>
+           <span>·</span>
+           <span>{responseTime}</span>
         </div>
 
-        <div className="mt-5 grid grid-cols-3 gap-3 rounded-2xl bg-slate-50 p-3">
-          <MiniStat label="Rate" value={rate} />
-          <MiniStat label="Success" value={mentor.successRate ? `${Math.round(mentor.successRate)}%` : '98%'} />
-          <MiniStat label="Done" value={(mentor.totalJobsDone || 0).toString()} />
-        </div>
+        {/* Bio */}
+        <p className="mt-3 text-sm text-[#4B5563] line-clamp-2">
+          {/* @ts-ignore */}
+          {mentor.bio || `I help individuals and teams master their craft, build scalable solutions, and accelerate their careers.`}
+        </p>
 
-        <div className="mt-4 flex items-center justify-between gap-3">
+        {/* Skills */}
+        <div className="mt-4 flex flex-wrap gap-2">
+           <span className="rounded border border-[#E5E7EB] bg-[#F9FAFB] px-2 py-1 text-xs font-medium text-[#4B5563]">
+             {mentor.primaryDomain || 'Software Engineering'}
+           </span>
+           <span className="rounded border border-[#E5E7EB] bg-[#F9FAFB] px-2 py-1 text-xs font-medium text-[#4B5563]">
+             Consulting
+           </span>
+        </div>
+      </div>
+
+      {/* Right Column: Pricing & Actions */}
+      <div className="shrink-0 flex flex-col items-start sm:items-end w-full sm:w-[180px] pt-4 sm:pt-0">
+        <div className="flex items-baseline gap-1">
+          <span className="text-lg font-bold text-[#111827]">{rate}</span>
+          <span className="text-xs text-[#9CA3AF]">/ session</span>
+        </div>
+        <span className="mt-1 text-xs font-medium text-[#4B5563]">{availability}</span>
+        
+        <div className="mt-5 w-full flex flex-col gap-2">
           <Link
             to={`/mentors/${mentor.userId}`}
-            className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 text-sm font-black text-white transition hover:bg-indigo-700"
+            className="flex w-full items-center justify-center rounded-lg bg-[#111827] px-4 py-2 text-sm font-semibold text-[#FFFFFF] transition hover:bg-[#1F2937]"
           >
             View profile
-            <ArrowRight className="h-4 w-4" />
           </Link>
-          <button
-            type="button"
-            className="flex h-11 w-11 items-center justify-center rounded-xl border border-slate-300 bg-white text-slate-600 transition hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700"
-            aria-label={`Message ${name}`}
+          <a
+            href="#"
+            className="flex w-full items-center justify-center rounded-lg border border-[#E5E7EB] bg-[#FFFFFF] px-4 py-2 text-sm font-semibold text-[#4B5563] transition hover:bg-[#F9FAFB]"
           >
-            <MessageCircle className="h-4 w-4" />
-          </button>
+            Portfolio
+          </a>
         </div>
       </div>
     </article>
@@ -381,7 +415,7 @@ function SelectControl({
       <select
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="h-12 w-full appearance-none rounded-xl border border-slate-300 bg-white px-3 pr-9 text-sm font-bold text-slate-800 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+        className="h-12 w-full appearance-none rounded-xl border border-[#E5E7EB] bg-[#FFFFFF] px-3 pr-9 text-sm font-medium text-[#111827] outline-none transition focus:border-gray-400 focus:ring-4 focus:ring-gray-100"
       >
         {options.map((option) => (
           <option key={option.value} value={option.value}>
@@ -389,59 +423,29 @@ function SelectControl({
           </option>
         ))}
       </select>
-      <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+      <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9CA3AF]" />
     </label>
-  )
-}
-
-function Badge({
-  icon: Icon,
-  label,
-  tone,
-}: {
-  icon: React.ComponentType<{ className?: string }>
-  label: string
-  tone: 'blue' | 'amber' | 'emerald' | 'rose'
-}) {
-  const toneClass = {
-    blue: 'border-indigo-100 bg-indigo-50 text-indigo-700',
-    amber: 'border-amber-100 bg-amber-50 text-amber-700',
-    emerald: 'border-emerald-100 bg-emerald-50 text-emerald-700',
-    rose: 'border-rose-100 bg-rose-50 text-rose-700',
-  }[tone]
-
-  return (
-    <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-bold ${toneClass}`}>
-      <Icon className="h-3.5 w-3.5" />
-      {label}
-    </span>
-  )
-}
-
-function MiniStat({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="min-w-0">
-      <p className="truncate text-xs font-bold uppercase tracking-wide text-slate-400">{label}</p>
-      <p className="mt-1 truncate text-sm font-black text-slate-950">{value}</p>
-    </div>
   )
 }
 
 function MentorGridSkeleton() {
   return (
-    <div className="grid gap-4 xl:grid-cols-2">
-      {Array.from({ length: 6 }).map((_, index) => (
-        <div key={index} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <div className="flex gap-4">
-            <div className="h-20 w-20 animate-pulse rounded-2xl bg-slate-200" />
-            <div className="flex-1 space-y-3">
-              <div className="h-5 w-1/2 animate-pulse rounded bg-slate-200" />
-              <div className="h-4 w-full animate-pulse rounded bg-slate-200" />
-              <div className="h-4 w-3/4 animate-pulse rounded bg-slate-200" />
-            </div>
-          </div>
-          <div className="mt-5 h-20 animate-pulse rounded-2xl bg-slate-100" />
-          <div className="mt-4 h-11 animate-pulse rounded-xl bg-slate-200" />
+    <div className="flex flex-col gap-5">
+      {Array.from({ length: 5 }).map((_, index) => (
+        <div key={index} className="flex flex-col sm:flex-row items-start gap-5 p-5 sm:p-6 rounded-xl border border-[#E5E7EB] bg-[#FFFFFF]">
+           <div className="shrink-0 flex flex-col items-center">
+              <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-full bg-[#F9FAFB] animate-pulse border border-[#E5E7EB]" />
+           </div>
+           <div className="flex-1 w-full space-y-3">
+              <div className="h-5 w-1/3 bg-[#F9FAFB] rounded animate-pulse" />
+              <div className="h-4 w-1/4 bg-[#F9FAFB] rounded animate-pulse" />
+              <div className="h-3 w-1/2 bg-[#F9FAFB] rounded animate-pulse mt-4" />
+              <div className="h-3 w-full bg-[#F9FAFB] rounded animate-pulse mt-2" />
+           </div>
+           <div className="shrink-0 w-full sm:w-[180px] space-y-3 pt-4 sm:pt-0">
+              <div className="h-6 w-20 bg-[#F9FAFB] rounded animate-pulse sm:ml-auto" />
+              <div className="h-10 w-full bg-[#F9FAFB] rounded-lg animate-pulse mt-4" />
+           </div>
         </div>
       ))}
     </div>

@@ -8,7 +8,7 @@ function SiteFooter() {
 
   return (
     <footer className="border-t border-[#e2e6f5] bg-[#101a4a] text-white">
-      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-[1600px] px-4 py-10 sm:px-6 lg:px-8">
         <div className="grid gap-8 md:grid-cols-5">
           <div className="md:col-span-2">
             <Link to="/" className="inline-flex items-center gap-2">

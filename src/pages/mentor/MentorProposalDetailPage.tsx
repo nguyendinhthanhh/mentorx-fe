@@ -25,7 +25,7 @@ import { negotiationApi, NegotiationResponse } from '@/api/negotiationApi'
 import { proposalApi } from '@/api/proposalApi'
 import { useAuthStore } from '@/store/authStore'
 import { CategoryResponse, ContractResponse, JobResponse, ProposalResponse, ProposalStatus } from '@/types'
-import { formatCurrency, formatDate, formatDateTime, formatDeadline, formatTimeRemaining } from '@/utils/formatters'
+import { formatCurrency, formatDate, formatDateTime, formatDeadlineWithSeconds, formatTimeRemaining } from '@/utils/formatters'
 
 type CounterMode = 'COUNTER' | 'REQUEST_CHANGES'
 type CancellationDecisionMode = 'APPROVE' | 'REJECT'
@@ -122,7 +122,7 @@ export default function MentorProposalDetailPage() {
   const currentBudgetLabel = formatBudgetValue(currentOffer, job)
   const currentDeadlineAt = currentOffer?.deadlineAt || proposal?.deadlineAt || null
   const currentOfferMessage = latestNegotiation?.message || proposal?.coverLetter || 'No offer details yet.'
-  const currentDeadlineLabel = formatDeadline(currentDeadlineAt)
+  const currentDeadlineLabel = formatDeadlineWithSeconds(currentDeadlineAt)
   const currentTimeRemainingLabel = formatTimeRemaining(currentDeadlineAt)
   const canRespond = isClientOffer && !isFinalized
   const canOpenChat = currentStatus === ProposalStatus.ACCEPTED
@@ -307,7 +307,7 @@ export default function MentorProposalDetailPage() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-7xl space-y-6">
+      <div className="mx-auto max-w-[1600px] space-y-6">
         <div className="flex h-12 items-center gap-4">
           <Skeleton className="h-4 w-32" />
         </div>
@@ -347,7 +347,7 @@ export default function MentorProposalDetailPage() {
 
   return (
     <>
-      <div className="mx-auto max-w-7xl space-y-6">
+      <div className="mx-auto max-w-[1600px] space-y-6">
         {error && (
           <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-bold text-rose-600 flex items-center gap-2">
             <div className="h-5 w-5 rounded-full bg-rose-100 flex items-center justify-center shrink-0">!</div>
@@ -444,6 +444,7 @@ export default function MentorProposalDetailPage() {
                     <span className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-500">Deadline date/time</span>
                     <input
                       type="datetime-local"
+                      step={1}
                       value={counterDeadline}
                       onChange={(event) => setCounterDeadline(event.target.value)}
                       className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-800 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
@@ -865,7 +866,7 @@ function ConversationCard({ item, isLast, onCounter, onAccept }: { item: Convers
           {item.type === 'offer' ? (
             <div className="mt-4 grid gap-3 rounded-[22px] border border-white/70 bg-white/90 p-3 sm:grid-cols-3">
               <OfferFact icon={<Wallet className="h-3.5 w-3.5" />} value={item.amount ? formatCurrency(item.amount) : 'To discuss'} label="Price" />
-              <OfferFact icon={<Clock3 className="h-3.5 w-3.5" />} value={formatDeadline(item.deadlineAt)} label="Deadline" />
+              <OfferFact icon={<Clock3 className="h-3.5 w-3.5" />} value={formatDeadlineWithSeconds(item.deadlineAt)} label="Deadline" />
               <OfferFact icon={<CircleDashed className="h-3.5 w-3.5" />} value={formatTimeRemaining(item.deadlineAt)} label="Time left" />
             </div>
           ) : null}
@@ -1087,7 +1088,7 @@ function toDateTimeLocalValue(value?: string | null) {
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) return ''
   const offsetMs = date.getTimezoneOffset() * 60000
-  return new Date(date.getTime() - offsetMs).toISOString().slice(0, 16)
+  return new Date(date.getTime() - offsetMs).toISOString().slice(0, 19)
 }
 
 function getStepDate(index: number, proposal: ProposalResponse, negotiations: NegotiationResponse[]) {

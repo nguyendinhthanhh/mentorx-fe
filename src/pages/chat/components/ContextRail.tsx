@@ -11,7 +11,7 @@ import {
   Star,
   X,
 } from 'lucide-react'
-import { ChatRoomMemberSummary, ChatRoomResponse, ContractResponse, CourseResponse, MentorProfileResponse, JobResponse } from '@/types'
+import { ChatRoomMemberSummary, ChatRoomResponse, ContractResponse, CourseResponse, MentorOfferingResponse, MentorProfileResponse, JobResponse } from '@/types'
 import { formatCurrency, formatRelativeTime } from '@/utils/formatters'
 import {
   EmptySharedState,
@@ -26,7 +26,7 @@ type ContextRailProps = {
   selectedRoom: ChatRoomResponse | null
   otherMember?: ChatRoomMemberSummary
   mentorProfile: MentorProfileResponse | null | undefined
-  mentorCourses: CourseResponse[]
+  mentorCourses: Array<CourseResponse | MentorOfferingResponse>
   weeklyAvailability: any
   sharedImages: SharedImage[]
   sharedFiles: SharedFile[]
@@ -397,7 +397,7 @@ export default function ContextRail({
           ) : mentorCourses.length > 0 ? (
             <div className="mt-3 space-y-3">
               {mentorCourses.slice(0, compact ? 1 : 2).map((course) => (
-                <Link key={course.courseId} to={`/courses/${course.courseId}`} className="flex gap-3">
+                <Link key={getCourseId(course)} to={`/courses/${getCourseId(course)}`} className="flex gap-3">
                   {course.thumbnailUrl ? (
                     <img src={course.thumbnailUrl} alt={course.title} className="h-[72px] w-[72px] rounded-lg object-cover" />
                   ) : (
@@ -411,7 +411,7 @@ export default function ContextRail({
                       {course.description || 'Mentor-created guide with practical examples.'}
                     </span>
                     <span className="mt-1 block text-[12px] font-medium text-[#52608b]">
-                      {course.priceMxc ? formatCurrency(course.priceMxc) : 'Free'} - {course.totalLessons || 0} lessons
+                      {course.priceMxc ? formatCurrency(course.priceMxc) : 'Free'} - {getCourseLessonCount(course)} lessons
                     </span>
                   </span>
                 </Link>
@@ -519,4 +519,12 @@ function fileToDocumentItem(file: SharedFile) {
     ...file,
     isImage: false,
   }
+}
+
+function getCourseId(course: CourseResponse | MentorOfferingResponse) {
+  return 'courseId' in course ? course.courseId : course.id
+}
+
+function getCourseLessonCount(course: CourseResponse | MentorOfferingResponse) {
+  return 'lessonsCount' in course ? course.lessonsCount || 0 : course.totalLessons || 0
 }
