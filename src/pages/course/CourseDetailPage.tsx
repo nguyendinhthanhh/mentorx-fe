@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
-import { useParams, Link } from 'react-router-dom'
-import { useQuery } from 'react-query'
+import { useParams, Link, useNavigate } from 'react-router-dom'
+import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { courseApi } from '@/api/courseApi'
 import { formatCurrency } from '@/utils/formatters'
 import {
@@ -34,6 +34,8 @@ type TabType = 'overview' | 'curriculum' | 'instructor' | 'reviews'
 
 export default function CourseDetailPage() {
   const { courseId } = useParams<{ courseId: string }>()
+  const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const { user } = useAuthStore()
   const [activeTab, setActiveTab] = useState<TabType>('overview')
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set())
@@ -62,6 +64,18 @@ export default function CourseDetailPage() {
     ['course-lessons', courseId],
     () => courseApi.getLessonsByCourse(courseId!),
     { enabled: !!courseId }
+  )
+
+  const enrollMutation = useMutation(
+    () => courseApi.enrollCurrentUser(courseId!),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(['course-enrollment-status', courseId, user?.userId])
+        queryClient.invalidateQueries(['my-enrollments', user?.userId])
+        queryClient.invalidateQueries(['course', courseId])
+        navigate(`/courses/${courseId}/learn`)
+      },
+    }
   )
 
   const publishedLessons = useMemo(
@@ -176,6 +190,18 @@ export default function CourseDetailPage() {
       return `${hours}h ${mins}m`
     }
     return `${mins}m`
+  }
+
+  const handleEnroll = () => {
+    if (!user) {
+      navigate('/login')
+      return
+    }
+    if (isEnrolled) {
+      navigate(`/courses/${courseId}/learn`)
+      return
+    }
+    enrollMutation.mutate()
   }
 
   if (isLoading) {
@@ -323,6 +349,8 @@ export default function CourseDetailPage() {
                 course={course}
                 isEnrolled={isEnrolled}
                 isEnrollmentLoading={isEnrollmentLoading}
+                isEnrolling={enrollMutation.isLoading}
+                onEnroll={handleEnroll}
               />
             </div>
           </div>
@@ -482,8 +510,12 @@ export default function CourseDetailPage() {
               {course.priceMxc ? formatCurrency(course.priceMxc) : 'Free'}
             </p>
           </div>
-          <button className="flex-1 bg-indigo-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-indigo-700 transition-colors">
-            {isEnrolled ? 'Continue Learning' : 'Enroll Now'}
+          <button
+            onClick={handleEnroll}
+            disabled={enrollMutation.isLoading}
+            className="flex-1 bg-indigo-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-indigo-700 transition-colors disabled:bg-gray-300"
+          >
+            {enrollMutation.isLoading ? 'Enrolling...' : isEnrolled ? 'Continue Learning' : 'Enroll Now'}
           </button>
         </div>
       </div>
@@ -493,7 +525,7 @@ export default function CourseDetailPage() {
 
 
 // Course Preview Card Component
-function CoursePreviewCard({ course, isEnrolled, isEnrollmentLoading }: any) {
+function CoursePreviewCard({ course, isEnrolled, isEnrollmentLoading, isEnrolling, onEnroll }: any) {
   return (
     <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-lg">
       {/* Thumbnail */}
@@ -535,14 +567,18 @@ function CoursePreviewCard({ course, isEnrolled, isEnrollmentLoading }: any) {
         {/* CTA Buttons */}
         <div className="space-y-2">
           {isEnrolled ? (
-            <button className="w-full bg-green-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-green-700 transition-colors flex items-center justify-center gap-2">
+            <button onClick={onEnroll} className="w-full bg-green-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-green-700 transition-colors flex items-center justify-center gap-2">
               <CheckCircle2 className="w-5 h-5" />
               Continue Learning
             </button>
           ) : (
             <>
-              <button className="w-full bg-indigo-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-indigo-700 transition-colors">
-                Enroll Now
+              <button
+                onClick={onEnroll}
+                disabled={isEnrollmentLoading || isEnrolling}
+                className="w-full bg-indigo-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-indigo-700 transition-colors disabled:bg-gray-300"
+              >
+                {isEnrolling ? 'Enrolling...' : 'Enroll Now'}
               </button>
               <button className="w-full border-2 border-gray-200 text-gray-700 px-6 py-3 rounded-xl font-semibold hover:bg-gray-50 transition-colors">
                 Add to Cart

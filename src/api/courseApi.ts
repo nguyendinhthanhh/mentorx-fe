@@ -144,6 +144,11 @@ export const courseApi = {
     return response.data
   },
 
+  enrollCurrentUser: async (courseId: string): Promise<CourseEnrollmentResponse> => {
+    const response = await apiClient.post<CourseEnrollmentResponse>(`/v1/course-enrollments/course/${courseId}/me`)
+    return response.data
+  },
+
   getPublishedSections: async (courseId: string): Promise<CourseSectionResponse[]> => {
     const response = await apiClient.get<CourseSectionResponse[]>(
       `/v1/course-sections/course/${courseId}/published`
