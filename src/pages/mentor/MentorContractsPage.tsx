@@ -383,7 +383,7 @@ export default function MentorContractsPage() {
 
   return (
     <>
-      <div className="-ml-2 mx-auto max-w-[1540px] space-y-6">
+      <div className="mx-auto max-w-[1540px] space-y-6">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <h1 className="text-[32px] font-black tracking-tight text-slate-950">Active Contracts</h1>
@@ -441,7 +441,7 @@ export default function MentorContractsPage() {
           />
         </section>
 
-        <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_420px]">
+        <div className="grid gap-6 2xl:grid-cols-[minmax(0,1fr)_420px]">
           <section className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm">
             <div className="border-b border-slate-100 px-5 py-4">
               <div className="flex flex-wrap items-center gap-2">
@@ -492,7 +492,7 @@ export default function MentorContractsPage() {
               </div>
             </div>
 
-            <div className="flex items-center justify-between border-b border-slate-100 px-5 py-3 text-xs font-medium text-slate-500">
+            <div className="flex flex-col gap-1 border-b border-slate-100 px-5 py-3 text-xs font-medium text-slate-500 sm:flex-row sm:items-center sm:justify-between">
               <p>{filteredContracts.length} contracts visible</p>
               <p>Contracts move to history after completion or cancellation.</p>
             </div>
@@ -633,7 +633,7 @@ export default function MentorContractsPage() {
             </div>
           </section>
 
-          <aside className="hidden xl:block">
+          <aside className="hidden 2xl:block">
             <ContractDetailPanel
               contract={selectedContract}
               job={selectedContract ? jobsMap[selectedContract.jobId] : undefined}
@@ -663,7 +663,7 @@ export default function MentorContractsPage() {
       </div>
 
       {selectedContract && isMobileDrawerOpen ? (
-        <div className="fixed inset-0 z-50 bg-slate-950/40 backdrop-blur-sm xl:hidden">
+        <div className="fixed inset-0 z-50 bg-slate-950/40 backdrop-blur-sm 2xl:hidden">
           <div className="absolute inset-y-0 right-0 w-full max-w-[560px] overflow-y-auto bg-white shadow-2xl">
             <ContractDetailPanel
               contract={selectedContract}

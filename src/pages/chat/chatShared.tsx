@@ -2,9 +2,8 @@ import { Fragment } from 'react'
 import { FileImage, FileText, Link as LinkIcon } from 'lucide-react'
 import { ChatRoomMemberSummary, ChatRoomResponse, MessageResponse } from '@/types'
 import { formatRelativeTime } from '@/utils/formatters'
+import { resolveUploadedFileUrl } from '@/utils/media'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'
-const API_ORIGIN = API_BASE_URL.replace(/\/api\/?$/, '')
 const URL_REGEX = /https?:\/\/[^\s<]+/gi
 
 export const MAX_ATTACHMENTS = 5
@@ -209,8 +208,7 @@ export function formatAttachmentMeta(message: MessageResponse) {
 }
 
 export function resolveAttachmentUrl(url: string) {
-  if (/^https?:\/\//i.test(url)) return url
-  return `${API_ORIGIN}${url.startsWith('/') ? url : `/${url}`}`
+  return resolveUploadedFileUrl(url) || url
 }
 
 export function isImageMessage(message: MessageResponse) {

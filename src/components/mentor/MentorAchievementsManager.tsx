@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { Award, Plus, Star, Trophy, Upload, X, Loader2, CheckCircle2, Medal } from 'lucide-react'
 import { mentorApi } from '@/api/mentorApi'
-import { fileApi } from '@/api/fileApi'
+import { FILE_UPLOAD_DIRS, fileApi } from '@/api/fileApi'
 
 interface Props {
   userId: string
@@ -70,7 +70,7 @@ export default function MentorAchievementsManager({ userId }: Props) {
 
     setUploading(true)
     try {
-      const response = await fileApi.upload(file)
+      const response = await fileApi.upload(file, { subDirectory: FILE_UPLOAD_DIRS.PUBLIC_MENTOR_ASSET })
       setFormData(prev => ({ ...prev, iconUrl: response.fileUrl }))
     } catch (error) {
       console.error('Upload failed', error)

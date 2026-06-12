@@ -150,7 +150,7 @@ export default function MentorListPage() {
     <div className="topcv-job-font min-h-screen bg-[#F8FAFC] text-[#111827]">
       <section className="sticky top-16 z-30 border-b border-[#E5E7EB] bg-[#FFFFFF]/95 backdrop-blur">
         <div className="mx-auto max-w-[1600px] px-4 py-4 sm:px-6 lg:px-8">
-          <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto]">
+          <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_auto]">
             <div className="relative">
               <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#9CA3AF]" />
               <input
@@ -171,7 +171,7 @@ export default function MentorListPage() {
               )}
             </div>
 
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="grid gap-2 sm:grid-cols-2 xl:flex xl:flex-wrap xl:items-center">
               <SelectControl label="Sort" value={sortBy} onChange={applySort} options={SORT_OPTIONS} />
               <button
                 type="button"
@@ -188,7 +188,7 @@ export default function MentorListPage() {
           </div>
 
           {filterOpen && (
-            <div className="mt-4 grid gap-3 rounded-xl border border-[#E5E7EB] bg-[#FFFFFF] p-4 md:grid-cols-6 shadow-sm">
+            <div className="mt-4 grid gap-3 rounded-xl border border-[#E5E7EB] bg-[#FFFFFF] p-4 shadow-sm sm:grid-cols-2 xl:grid-cols-6">
               <SelectControl
                 label="Domain"
                 value={primaryDomain || ''}
@@ -266,8 +266,8 @@ export default function MentorListPage() {
               Learn from verified experts and accelerate your growth.
             </p>
           </div>
-          <div className="flex items-center gap-4">
-             <div className="hidden sm:flex items-center gap-3">
+          <div className="flex w-full items-center gap-4 sm:w-auto">
+             <div className="hidden md:flex items-center gap-3">
                 <div className="flex -space-x-3">
                    <img src={mentorFallbackImages[0]} className="w-10 h-10 rounded-full border-2 border-[#FFFFFF] object-cover" />
                    <img src={mentorFallbackImages[1]} className="w-10 h-10 rounded-full border-2 border-[#FFFFFF] object-cover" />
@@ -315,7 +315,7 @@ function MentorCard({ mentor, index }: { mentor: MentorProfileResponse; index: n
   const isTopRated = mentor.averageRating && mentor.averageRating >= 4.8
 
   return (
-    <article className="flex flex-col sm:flex-row items-start gap-5 p-5 sm:p-6 rounded-xl border border-[#E5E7EB] bg-[#FFFFFF] transition-all hover:border-gray-300">
+    <article className="flex flex-col items-start gap-5 overflow-hidden rounded-xl border border-[#E5E7EB] bg-[#FFFFFF] p-5 transition-all hover:border-gray-300 sm:flex-row sm:p-6">
       
       {/* Avatar Column */}
       <div className="shrink-0 flex flex-col items-center">
@@ -325,7 +325,7 @@ function MentorCard({ mentor, index }: { mentor: MentorProfileResponse; index: n
       </div>
 
       {/* Main Info Column */}
-      <div className="flex-1 min-w-0 flex flex-col justify-start">
+      <div className="flex w-full min-w-0 flex-1 flex-col justify-start">
         <div className="flex items-center gap-2">
            <h2 className="text-lg font-bold text-[#111827] truncate">{name}</h2>
            {isTopRated ? (
@@ -363,7 +363,7 @@ function MentorCard({ mentor, index }: { mentor: MentorProfileResponse; index: n
         {/* Skills */}
         <div className="mt-4 flex flex-wrap gap-2">
            <span className="rounded border border-[#E5E7EB] bg-[#F9FAFB] px-2 py-1 text-xs font-medium text-[#4B5563]">
-             {mentor.primaryDomain || 'Software Engineering'}
+             <span className="break-words">{mentor.primaryDomain || 'Software Engineering'}</span>
            </span>
            <span className="rounded border border-[#E5E7EB] bg-[#F9FAFB] px-2 py-1 text-xs font-medium text-[#4B5563]">
              Consulting
@@ -372,7 +372,7 @@ function MentorCard({ mentor, index }: { mentor: MentorProfileResponse; index: n
       </div>
 
       {/* Right Column: Pricing & Actions */}
-      <div className="shrink-0 flex flex-col items-start sm:items-end w-full sm:w-[180px] pt-4 sm:pt-0">
+      <div className="flex w-full shrink-0 flex-col items-stretch pt-2 sm:w-[180px] sm:items-end sm:pt-0">
         <div className="flex items-baseline gap-1">
           <span className="text-lg font-bold text-[#111827]">{rate}</span>
           <span className="text-xs text-[#9CA3AF]">/ session</span>
@@ -410,7 +410,7 @@ function SelectControl({
   options: Array<{ value: string; label: string }>
 }) {
   return (
-    <label className="relative block min-w-[150px]">
+    <label className="relative block min-w-0 sm:min-w-[150px]">
       <span className="sr-only">{label}</span>
       <select
         value={value}
@@ -442,7 +442,7 @@ function MentorGridSkeleton() {
               <div className="h-3 w-1/2 bg-[#F9FAFB] rounded animate-pulse mt-4" />
               <div className="h-3 w-full bg-[#F9FAFB] rounded animate-pulse mt-2" />
            </div>
-           <div className="shrink-0 w-full sm:w-[180px] space-y-3 pt-4 sm:pt-0">
+           <div className="w-full shrink-0 space-y-3 pt-4 sm:w-[180px] sm:pt-0">
               <div className="h-6 w-20 bg-[#F9FAFB] rounded animate-pulse sm:ml-auto" />
               <div className="h-10 w-full bg-[#F9FAFB] rounded-lg animate-pulse mt-4" />
            </div>

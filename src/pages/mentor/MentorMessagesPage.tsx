@@ -18,7 +18,7 @@ import {
 } from 'lucide-react'
 import { chatApi } from '@/api/chatApi'
 import { contractApi } from '@/api/contractApi'
-import { fileApi } from '@/api/fileApi'
+import { FILE_UPLOAD_DIRS, fileApi } from '@/api/fileApi'
 import { jobApi } from '@/api/jobApi'
 import { proposalApi } from '@/api/proposalApi'
 import { PromptInputBox } from '@/components/ui/ai-prompt-box'
@@ -451,7 +451,7 @@ export default function MentorMessagesPage() {
         })
       } else {
         for (const [index, file] of files.entries()) {
-          const uploadedFile = await fileApi.upload(file)
+          const uploadedFile = await fileApi.upload(file, { subDirectory: FILE_UPLOAD_DIRS.PUBLIC_CHAT })
           const isImage = file.type.startsWith('image/')
 
           await chatApi.sendMessage({
@@ -522,7 +522,7 @@ export default function MentorMessagesPage() {
       ) : null}
 
       <section className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_24px_80px_-48px_rgba(15,23,42,0.22)]">
-        <div className={`grid min-h-[calc(100vh-180px)] ${showContextPanel ? 'xl:grid-cols-[340px_minmax(0,1fr)_300px]' : 'xl:grid-cols-[340px_minmax(0,1fr)]'}`}>
+        <div className={`grid min-h-[calc(100dvh-180px)] ${showContextPanel ? '2xl:grid-cols-[340px_minmax(0,1fr)_300px]' : '2xl:grid-cols-[340px_minmax(0,1fr)]'}`}>
           <aside className="border-b border-slate-200 xl:border-b-0 xl:border-r">
             <div className="border-b border-slate-100 px-5 py-5">
               <div className="flex items-start justify-between gap-3">
@@ -567,7 +567,7 @@ export default function MentorMessagesPage() {
               </div>
             </div>
 
-            <div className="max-h-[calc(100vh-340px)] overflow-y-auto xl:max-h-[calc(100vh-245px)]">
+            <div className="max-h-[calc(100dvh-340px)] overflow-y-auto xl:max-h-[calc(100dvh-245px)]">
               {filteredRooms.length === 0 ? (
                 <div className="px-6 py-16 text-center">
                   <p className="text-base font-black text-slate-950">No conversations found</p>
@@ -588,7 +588,7 @@ export default function MentorMessagesPage() {
             </div>
           </aside>
 
-          <section className={`border-b border-slate-200 xl:border-b-0 ${showContextPanel ? 'xl:border-r' : ''}`}>
+          <section className={`border-b border-slate-200 xl:border-b-0 ${showContextPanel ? '2xl:border-r' : ''}`}>
             {effectiveRoom ? (
               <div className="flex h-full flex-col">
                 <div className="border-b border-slate-100 px-5 py-4">
@@ -610,9 +610,11 @@ export default function MentorMessagesPage() {
                       </div>
                     </div>
 
-                    <div className="hidden items-center gap-2 md:flex">
-                      <HeaderActionButton icon={<Briefcase className="h-4 w-4" />} label="Context" href={contextMeta.actionHref} />
-                      <HeaderActionButton icon={<Video className="h-4 w-4" />} label="Meet" href="/mentor/schedule" />
+                    <div className="flex items-center gap-2">
+                      <div className="hidden items-center gap-2 sm:flex">
+                        <HeaderActionButton icon={<Briefcase className="h-4 w-4" />} label="Context" href={contextMeta.actionHref} />
+                        <HeaderActionButton icon={<Video className="h-4 w-4" />} label="Meet" href="/mentor/schedule" />
+                      </div>
                       <button
                         type="button"
                         title="Info"
@@ -676,7 +678,7 @@ export default function MentorMessagesPage() {
           </section>
 
           {showContextPanel ? (
-          <aside className="bg-white">
+          <aside className="hidden bg-white 2xl:block">
             <div className="border-b border-slate-100 px-6 py-5">
               <div className="flex items-center justify-between gap-3">
                 <p className="text-[12px] font-bold uppercase tracking-[0.16em] text-slate-900">Project Context</p>
@@ -797,6 +799,78 @@ export default function MentorMessagesPage() {
           ) : null}
         </div>
       </section>
+
+      {showContextPanel ? (
+        <div className="fixed inset-0 z-40 bg-slate-950/30 2xl:hidden">
+          <div
+            className="absolute inset-0"
+            onClick={() => setShowContextPanel(false)}
+            aria-hidden="true"
+          />
+          <aside className="absolute right-0 top-0 h-full w-full max-w-[380px] overflow-y-auto border-l border-slate-200 bg-white shadow-2xl">
+            <div className="border-b border-slate-100 px-6 py-5">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-[12px] font-bold uppercase tracking-[0.16em] text-slate-900">Project Context</p>
+                <button
+                  type="button"
+                  onClick={() => setShowContextPanel(false)}
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-400 transition hover:border-slate-300 hover:text-slate-700"
+                  aria-label="Close project context"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+
+            <div className="space-y-5 px-6 py-5">
+              {contextCard ? (
+                <div className="rounded-[24px] border border-slate-200 bg-slate-50/80 p-5">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-indigo-600">{formatContextLabel(effectiveRoom?.referenceType)}</p>
+                  <h3 className="mt-2 text-[15px] font-bold leading-6 text-slate-950">{contextCard.title}</h3>
+                  <p className="mt-2 text-[13px] leading-6 text-slate-500">{truncateText(contextCard.description, 180)}</p>
+                </div>
+              ) : (
+                <div className="rounded-[24px] border border-slate-200 bg-slate-50/80 p-5 text-sm text-slate-500">
+                  Conversation details are loading.
+                </div>
+              )}
+
+              <div className="space-y-4">
+                {contextCard?.metrics.map((metric) => (
+                  <div key={metric.label} className="flex items-start gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600">
+                      <metric.icon className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <p className="text-[13px] font-medium text-slate-400">{metric.label}</p>
+                      <p className="mt-1 text-[15px] font-bold text-slate-950">{metric.value}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="space-y-3">
+                {contextCard?.primaryAction ? (
+                  <Link
+                    to={contextCard.primaryAction.href}
+                    className="inline-flex h-11 w-full items-center justify-center rounded-2xl bg-indigo-600 px-4 text-sm font-semibold text-white transition hover:bg-indigo-700"
+                  >
+                    {contextCard.primaryAction.label}
+                  </Link>
+                ) : null}
+                {contextCard?.secondaryAction ? (
+                  <Link
+                    to={contextCard.secondaryAction.href}
+                    className="inline-flex h-11 w-full items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                  >
+                    {contextCard.secondaryAction.label}
+                  </Link>
+                ) : null}
+              </div>
+            </div>
+          </aside>
+        </div>
+      ) : null}
     </div>
   )
 }

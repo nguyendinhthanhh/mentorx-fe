@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useMutation, useQueryClient } from 'react-query'
 import { Upload, Video, X, Play, Loader2, CheckCircle2 } from 'lucide-react'
-import { fileApi } from '@/api/fileApi'
+import { FILE_UPLOAD_DIRS, fileApi } from '@/api/fileApi'
 import { mentorApi } from '@/api/mentorApi'
 
 interface Props {
@@ -63,7 +63,7 @@ export default function MentorVideoIntro({ userId, currentVideoUrl }: Props) {
 
     try {
       // Upload video file
-      const uploadResponse = await fileApi.upload(videoFile)
+      const uploadResponse = await fileApi.upload(videoFile, { subDirectory: FILE_UPLOAD_DIRS.PRIVATE_VIDEO })
       
       // Update mentor profile with video URL
       await updateVideoMutation.mutateAsync(uploadResponse.fileUrl)

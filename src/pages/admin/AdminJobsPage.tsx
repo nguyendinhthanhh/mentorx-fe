@@ -103,7 +103,7 @@ export default function AdminJobsPage() {
 
       {/* Filters */}
       <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 p-8 shadow-sm">
-        <div className="flex flex-col md:flex-row gap-6">
+        <div className="flex flex-col gap-6 md:flex-row">
           <div className="relative flex-1 group">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-primary-500 transition-colors" />
             <input 
@@ -114,11 +114,11 @@ export default function AdminJobsPage() {
               className="w-full pl-12 pr-6 py-3.5 rounded-2xl bg-gray-50 dark:bg-gray-800 border border-transparent focus:bg-white dark:focus:bg-gray-900 focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500/30 transition-all text-sm font-medium text-gray-900 dark:text-white"
             />
           </div>
-          <div className="flex gap-4">
+          <div className="flex flex-col gap-4 sm:flex-row">
             <select 
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as JobStatus)}
-              className="px-6 py-3.5 rounded-2xl bg-gray-50 dark:bg-gray-800 border border-transparent focus:bg-white dark:focus:bg-gray-900 focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500/30 transition-all text-sm font-bold text-gray-600 dark:text-gray-400"
+              className="w-full rounded-2xl bg-gray-50 px-6 py-3.5 text-sm font-bold text-gray-600 transition-all focus:border-primary-500/30 focus:bg-white focus:ring-4 focus:ring-primary-500/10 dark:bg-gray-800 dark:text-gray-400 dark:focus:bg-gray-900 sm:w-auto"
             >
               <option value="">All Statuses</option>
               {Object.values(JobStatus).map(s => (
@@ -128,7 +128,7 @@ export default function AdminJobsPage() {
             <select 
               value={typeFilter}
               onChange={(e) => setTypeFilter(e.target.value as JobType)}
-              className="px-6 py-3.5 rounded-2xl bg-gray-50 dark:bg-gray-800 border border-transparent focus:bg-white dark:focus:bg-gray-900 focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500/30 transition-all text-sm font-bold text-gray-600 dark:text-gray-400"
+              className="w-full rounded-2xl bg-gray-50 px-6 py-3.5 text-sm font-bold text-gray-600 transition-all focus:border-primary-500/30 focus:bg-white focus:ring-4 focus:ring-primary-500/10 dark:bg-gray-800 dark:text-gray-400 dark:focus:bg-gray-900 sm:w-auto"
             >
               <option value="">All Types</option>
               {Object.values(JobType).map(t => (
@@ -195,7 +195,7 @@ export default function AdminJobsPage() {
                       </div>
                     </td>
                     <td className="px-8 py-6 text-right">
-                      <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-4 group-hover:translate-x-0">
+                      <div className="flex items-center justify-end gap-2 opacity-100 transition-all duration-300 md:translate-x-4 md:opacity-0 md:group-hover:translate-x-0 md:group-hover:opacity-100">
                         <Link to={`/jobs/${job.jobId}`} className="p-2.5 rounded-xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-gray-400 hover:text-primary-600 transition-all shadow-sm" title="View Details">
                           <Eye className="w-4 h-4" />
                         </Link>
@@ -239,7 +239,7 @@ export default function AdminJobsPage() {
         </div>
 
         {/* Pagination */}
-        <div className="px-8 py-6 border-t border-gray-50 dark:border-gray-800 flex items-center justify-between bg-gray-50/30 dark:bg-gray-800/30">
+        <div className="flex flex-col gap-4 border-t border-gray-50 bg-gray-50/30 px-6 py-6 dark:border-gray-800 dark:bg-gray-800/30 sm:flex-row sm:items-center sm:justify-between sm:px-8">
           <p className="text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">
             Total {data?.totalElements} jobs listed
           </p>

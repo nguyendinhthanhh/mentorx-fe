@@ -172,14 +172,14 @@ export default function AdminUsersPage() {
 
   return (
     <div className="space-y-8 pb-10">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
         <div>
           <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">User Management</h1>
           <p className="text-gray-500 dark:text-gray-400 mt-1 font-medium italic">Control and moderate platform accounts.</p>
         </div>
         <button 
           onClick={handleCreate}
-          className="flex items-center justify-center gap-2 px-8 py-3.5 rounded-2xl bg-primary-600 hover:bg-primary-700 text-white font-black uppercase tracking-widest text-[10px] transition-all shadow-lg shadow-primary-500/20"
+          className="flex items-center justify-center gap-2 rounded-2xl bg-primary-600 px-6 py-3.5 text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-primary-500/20 transition-all hover:bg-primary-700 sm:px-8"
         >
           <Plus className="w-5 h-5" />
           Create New User
@@ -188,7 +188,7 @@ export default function AdminUsersPage() {
 
       {/* Filters */}
       <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 p-8 shadow-sm">
-        <div className="flex flex-col md:flex-row gap-6">
+        <div className="flex flex-col gap-6 md:flex-row">
           <div className="relative flex-1 group">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-primary-500 transition-colors" />
             <input 
@@ -199,11 +199,11 @@ export default function AdminUsersPage() {
               className="w-full pl-12 pr-6 py-3.5 rounded-2xl bg-gray-50 dark:bg-gray-800 border border-transparent focus:bg-white dark:focus:bg-gray-900 focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500/30 transition-all text-sm font-medium text-gray-900 dark:text-white"
             />
           </div>
-          <div className="flex gap-4">
+          <div className="flex flex-col gap-4 sm:flex-row">
             <select 
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as UserStatus)}
-              className="px-6 py-3.5 rounded-2xl bg-gray-50 dark:bg-gray-800 border border-transparent focus:bg-white dark:focus:bg-gray-900 focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500/30 transition-all text-sm font-bold text-gray-600 dark:text-gray-400 outline-none"
+              className="w-full rounded-2xl border border-transparent bg-gray-50 px-6 py-3.5 text-sm font-bold text-gray-600 outline-none transition-all focus:border-primary-500/30 focus:bg-white focus:ring-4 focus:ring-primary-500/10 dark:bg-gray-800 dark:text-gray-400 dark:focus:bg-gray-900 sm:w-auto"
             >
               <option value="">Account Status</option>
               {Object.values(UserStatus).map(s => (
@@ -213,7 +213,7 @@ export default function AdminUsersPage() {
             <select 
               value={mentorStatusFilter}
               onChange={(e) => setMentorStatusFilter(e.target.value as MentorStatus)}
-              className="px-6 py-3.5 rounded-2xl bg-gray-50 dark:bg-gray-800 border border-transparent focus:bg-white dark:focus:bg-gray-900 focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500/30 transition-all text-sm font-bold text-gray-600 dark:text-gray-400 outline-none"
+              className="w-full rounded-2xl border border-transparent bg-gray-50 px-6 py-3.5 text-sm font-bold text-gray-600 outline-none transition-all focus:border-primary-500/30 focus:bg-white focus:ring-4 focus:ring-primary-500/10 dark:bg-gray-800 dark:text-gray-400 dark:focus:bg-gray-900 sm:w-auto"
             >
               <option value="">Mentor Role</option>
               {Object.values(MentorStatus).map(s => (
@@ -290,7 +290,7 @@ export default function AdminUsersPage() {
                       </span>
                     </td>
                     <td className="px-8 py-6 text-right">
-                      <div className="flex items-center justify-end gap-2">
+                      <div className="flex items-center justify-end gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 md:translate-x-4 md:group-hover:translate-x-0 transition-all duration-300">
                         <button 
                           onClick={() => handleViewDetails(user)}
                           className="p-2.5 rounded-xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-gray-400 hover:text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-all shadow-sm"
@@ -381,7 +381,7 @@ export default function AdminUsersPage() {
         </div>
 
         {/* Pagination */}
-        <div className="px-8 py-6 border-t border-gray-50 dark:border-gray-800 flex items-center justify-between bg-gray-50/30 dark:bg-gray-800/30">
+        <div className="flex flex-col gap-4 border-t border-gray-50 bg-gray-50/30 px-6 py-6 dark:border-gray-800 dark:bg-gray-800/30 sm:flex-row sm:items-center sm:justify-between sm:px-8">
           <p className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em]">
             Page {data?.number! + 1} of {data?.totalPages}
           </p>

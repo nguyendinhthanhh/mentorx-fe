@@ -267,13 +267,13 @@ export default function MentorPublicProfilePage() {
         </div>
       )}
 
-      <nav className="flex gap-6 overflow-x-auto border-b border-gray-200">
+      <nav className="flex flex-wrap gap-x-4 gap-y-2 border-b border-gray-200 pb-1 sm:flex-nowrap sm:gap-6 sm:overflow-x-auto">
         {tabs.map((tab) => (
           <button
             key={tab.key}
             type="button"
             onClick={() => setActiveTab(tab.key)}
-            className={`whitespace-nowrap border-b-2 px-0.5 pb-4 text-sm font-black transition-colors ${
+            className={`whitespace-nowrap border-b-2 px-0.5 pb-2 text-sm font-black transition-colors sm:pb-4 ${
               activeTab === tab.key ? 'border-blue-600 text-blue-700' : 'border-transparent text-gray-500 hover:text-gray-900'
             }`}
           >
@@ -286,7 +286,7 @@ export default function MentorPublicProfilePage() {
         <>
           <SectionHeader title={language === 'vi' ? 'Goi Mentoring 1-1 pho bien' : t('mentor.public.featuredPackages')} />
           {packages.length > 0 ? (
-            <div className="grid gap-5 md:grid-cols-3">
+            <div className="grid gap-5 lg:grid-cols-3">
               {sortPackages(packages).slice(0, 3).map((item) => (
                 <MentoringPackageCard
                   key={item.id}
@@ -328,7 +328,7 @@ export default function MentorPublicProfilePage() {
         <>
           <SectionHeader title={t('mentor.public.featuredCourses')} />
           {courses.length > 0 ? (
-            <div className="grid gap-5 md:grid-cols-3">
+            <div className="grid gap-5 lg:grid-cols-3">
               {courses.slice(0, 3).map((course) => (
                 <CourseCard
                   key={course.id}
@@ -453,7 +453,7 @@ function IdentityCard({
   ]
 
   return (
-    <aside className="rounded-[30px] border border-slate-200 bg-white p-6 shadow-[0_22px_65px_-40px_rgba(15,23,42,0.45)] xl:sticky xl:top-24 xl:self-start">
+    <aside className="rounded-[30px] border border-slate-200 bg-white p-5 shadow-[0_22px_65px_-40px_rgba(15,23,42,0.45)] sm:p-6 xl:sticky xl:top-24 xl:self-start">
       <div className="flex justify-center">
         <div className="relative">
           <AvatarVisual visual={profileVisual} name={name} className="h-28 w-28 ring-8 ring-orange-50" />
@@ -503,7 +503,7 @@ function IdentityCard({
         )}
       </div>
 
-      <div className="mt-6 grid grid-cols-2 gap-4 border-t border-slate-100 pt-6">
+      <div className="mt-6 grid grid-cols-1 gap-4 border-t border-slate-100 pt-6 sm:grid-cols-2">
         {stats.map((item) => (
           <MiniStat key={item.label} label={item.label} value={item.value} />
         ))}
@@ -823,7 +823,7 @@ function SchedulePanel({
 }) {
   const { t } = useI18n()
   return (
-    <section className="rounded-[30px] border border-slate-200 bg-white p-6 shadow-[0_20px_45px_-38px_rgba(15,23,42,0.45)]">
+    <section className="rounded-[30px] border border-slate-200 bg-white p-5 shadow-[0_20px_45px_-38px_rgba(15,23,42,0.45)] sm:p-6">
       <div className="mb-5 flex items-center justify-between gap-3">
         <div>
           <h2 className="flex items-center gap-2 text-2xl font-black text-gray-950">
@@ -835,7 +835,7 @@ function SchedulePanel({
       </div>
 
       {schedule.length > 0 ? (
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-7">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-7">
           {schedule.map((day) => (
             <div
               key={day.key}
@@ -895,7 +895,7 @@ function ResourcesPanel({
   }
 
   return (
-    <div className="grid gap-4 md:grid-cols-3">
+    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
       {mentor.portfolioUrl && (
         <ResourceCard title={t('mentor.public.resource.portfolio')} description={t('mentor.public.resource.portfolioDescription')} href={mentor.portfolioUrl} />
       )}
@@ -1059,7 +1059,7 @@ function ProfileSkeleton() {
         <div className="h-[420px] animate-pulse rounded-3xl bg-gray-100" />
       </div>
       <div className="h-12 animate-pulse rounded-xl bg-gray-100" />
-      <div className="grid gap-5 md:grid-cols-3">
+      <div className="grid gap-5 lg:grid-cols-3">
         {[0, 1, 2].map((item) => (
           <div key={item} className="h-64 animate-pulse rounded-3xl bg-gray-100" />
         ))}

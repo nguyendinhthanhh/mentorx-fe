@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom'
 import { useQuery } from 'react-query'
 import { chatApi } from '@/api/chatApi'
 import { contractApi } from '@/api/contractApi'
-import { fileApi } from '@/api/fileApi'
+import { FILE_UPLOAD_DIRS, fileApi } from '@/api/fileApi'
 import { mentorApi } from '@/api/mentorApi'
 import { ContractResponse, MentorOfferingResponse, MessageType } from '@/types'
 import { useAuthStore } from '@/store/authStore'
@@ -325,7 +325,7 @@ export default function ChatListPage() {
         })
       } else {
         for (const [index, file] of files.entries()) {
-          const uploadedFile = await fileApi.upload(file)
+          const uploadedFile = await fileApi.upload(file, { subDirectory: FILE_UPLOAD_DIRS.PUBLIC_CHAT })
           const isImage = file.type.startsWith('image/')
 
           await chatApi.sendMessage({
@@ -356,7 +356,7 @@ export default function ChatListPage() {
   return (
     <div className="bg-[#f7f8fe]">
       <div className="overflow-hidden border-t border-slate-200 bg-white">
-        <div className="grid h-[calc(100vh-73px)] lg:grid-cols-[350px_minmax(0,1fr)_330px] 2xl:grid-cols-[380px_minmax(0,1fr)_360px]">
+        <div className="grid h-[calc(100dvh-73px)] lg:grid-cols-[340px_minmax(0,1fr)] 2xl:grid-cols-[380px_minmax(0,1fr)_360px]">
           <InboxSidebar
             rooms={filteredRooms}
             currentUserId={user.userId}
@@ -370,7 +370,7 @@ export default function ChatListPage() {
             hiddenOnMobile={showConversationMobile}
           />
 
-          <div className={`${showConversationMobile ? 'flex' : 'hidden'} h-[calc(100vh-73px)] flex-1 flex-col lg:flex`}>
+          <div className={`${showConversationMobile ? 'flex' : 'hidden'} h-[calc(100dvh-73px)] min-w-0 flex-1 flex-col lg:flex`}>
             <ConversationPane
               selectedRoom={selectedRoom}
               selectedMessages={selectedMessages}
@@ -394,7 +394,7 @@ export default function ChatListPage() {
             />
           </div>
 
-          <div className="hidden h-[calc(100vh-73px)] border-l border-slate-200 lg:block">
+          <div className="hidden h-[calc(100dvh-73px)] border-l border-slate-200 2xl:block">
             <ContextRail
               selectedRoom={selectedRoom}
               otherMember={otherMember}
@@ -417,13 +417,13 @@ export default function ChatListPage() {
       </div>
 
       {isDetailsOpen && selectedRoom && (
-        <div className="fixed inset-0 z-40 bg-slate-950/30 lg:hidden">
+        <div className="fixed inset-0 z-40 bg-slate-950/30 2xl:hidden">
           <div
             className="absolute inset-0"
             onClick={() => setIsDetailsOpen(false)}
             aria-hidden="true"
           />
-          <div className="absolute right-0 top-0 h-full w-full max-w-[380px] border-l border-slate-200 bg-white shadow-2xl">
+          <div className="absolute right-0 top-0 h-full w-full max-w-[380px] overflow-y-auto border-l border-slate-200 bg-white shadow-2xl">
             <ContextRail
               selectedRoom={selectedRoom}
               otherMember={otherMember}

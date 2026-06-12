@@ -107,14 +107,14 @@ export default function JobListPage() {
   return (
     <div className="topcv-job-font min-h-screen bg-[#F5F6FA] pb-12 pt-8">
       <main className="mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-8">
-        <div className="mb-8 flex flex-col items-start justify-between gap-4 md:flex-row md:items-end">
+        <div className="mb-8 flex flex-col items-start justify-between gap-4 lg:flex-row lg:items-end">
           <div>
             <h1 className="text-3xl font-extrabold tracking-tight text-[#111827] sm:text-4xl">{t('jobs.title')}</h1>
             <p className="mt-2 text-base font-medium text-[#6B7280]">
               Find the best freelance projects, part-time mentoring, and quick fixes.
             </p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
             <Link
               to="/my-jobs"
               className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-[#E6EAF0] bg-[#FFFFFF] px-5 text-sm font-bold text-[#475569] shadow-sm transition hover:bg-[#F5F6FA] hover:text-[#111827]"
@@ -153,8 +153,8 @@ export default function JobListPage() {
           )}
         </div>
 
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-4 border-b border-[#EEF1F5] pb-6">
-          <div className="flex flex-wrap items-center gap-3">
+        <div className="mb-6 flex flex-col gap-4 border-b border-[#EEF1F5] pb-6 xl:flex-row xl:items-center xl:justify-between">
+          <div className="grid gap-3 sm:grid-cols-2 xl:flex xl:flex-wrap xl:items-center">
             <div className="relative">
               <select
                 value={jobType}
@@ -195,7 +195,7 @@ export default function JobListPage() {
             </button>
           </div>
 
-          <div className="flex items-center gap-2 text-sm font-medium">
+          <div className="flex items-center gap-2 text-sm font-medium xl:justify-end">
             <span className="text-[#6B7280]">Sort by:</span>
             <div className="relative">
               <select className="appearance-none bg-transparent font-bold text-[#111827] outline-none pr-4 cursor-pointer">
@@ -288,8 +288,8 @@ function JobCard({ job }: { job: JobResponse }) {
   const initial = clientName.charAt(0).toUpperCase()
 
   return (
-    <article className="group relative flex flex-col rounded-2xl border border-[#E6EAF0] bg-[#FFFFFF] p-6 transition-all hover:-translate-y-1 hover:border-[#4F46E5]/40 hover:shadow-xl hover:shadow-[#4F46E5]/5">
-      <div className="flex items-start gap-5">
+    <article className="group relative flex flex-col rounded-2xl border border-[#E6EAF0] bg-[#FFFFFF] p-5 transition-all hover:-translate-y-1 hover:border-[#4F46E5]/40 hover:shadow-xl hover:shadow-[#4F46E5]/5 sm:p-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-5">
         {/* Company Logo */}
         <div className="flex h-[64px] w-[64px] sm:h-[72px] sm:w-[72px] shrink-0 items-center justify-center rounded-xl border border-[#EEF1F5] bg-[#F5F6FA] text-2xl font-black text-[#94A3B8] shadow-sm">
           {initial}
@@ -297,8 +297,8 @@ function JobCard({ job }: { job: JobResponse }) {
 
         {/* Job Title & Salary */}
         <div className="min-w-0 flex-1">
-          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
-            <Link to={`/jobs/${job.jobId}`} className="text-[20px] sm:text-[22px] font-extrabold leading-tight text-[#111827] transition-colors group-hover:text-[#4F46E5] line-clamp-2 pr-4">
+          <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
+            <Link to={`/jobs/${job.jobId}`} className="line-clamp-2 text-[20px] font-extrabold leading-tight text-[#111827] transition-colors group-hover:text-[#4F46E5] sm:pr-4 sm:text-[22px]">
               {job.title}
             </Link>
             <div className="shrink-0 sm:text-right mt-1 sm:mt-0">
@@ -335,7 +335,7 @@ function JobCard({ job }: { job: JobResponse }) {
       </div>
 
       {/* Footer: Skills and Action */}
-      <div className="mt-6 pt-5 flex flex-col sm:flex-row sm:items-center justify-between gap-5 border-t border-[#EEF1F5]">
+      <div className="mt-6 flex flex-col gap-5 border-t border-[#EEF1F5] pt-5 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex-1 min-w-0">
            {job.requiredSkills && job.requiredSkills.length > 0 ? (
              <div className="flex flex-wrap gap-2">
