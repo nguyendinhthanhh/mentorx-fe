@@ -177,7 +177,7 @@ export default function UserRequestDetailPageNew() {
   const canCompleteContract = Boolean(contract && contract.status === 'ACTIVE' && job.status === JobStatus.IN_PROGRESS)
 
   return (
-    <div className="min-h-screen bg-[#f6f7fb]">
+    <div className="min-h-[100dvh] bg-[#f6f7fb]">
       <div className="mx-auto max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8">
         {/* Breadcrumb */}
         <div className="mb-6">
@@ -192,9 +192,9 @@ export default function UserRequestDetailPageNew() {
           {/* Left Column - Main Content */}
           <div className="space-y-6">
             {/* Header Card */}
-            <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+            <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
               {/* Status Bar */}
-              <div className="bg-gradient-to-r from-indigo-50 to-slate-50 px-6 py-4 border-b border-slate-100">
+              <div className="border-b border-slate-100 bg-gradient-to-r from-indigo-50 to-slate-50 px-4 py-4 sm:px-6">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-bold ${statusBadge.color}`}>
                     {statusBadge.label}
@@ -211,8 +211,8 @@ export default function UserRequestDetailPageNew() {
               </div>
 
               {/* Title & Meta */}
-              <div className="px-6 py-6">
-                <h1 className="text-3xl font-extrabold tracking-tight text-slate-950">{job.title}</h1>
+              <div className="px-4 py-6 sm:px-6">
+                <h1 className="break-words text-2xl font-extrabold tracking-tight text-slate-950 sm:text-3xl">{job.title}</h1>
                 
                 <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-slate-600">
                   <span className="flex items-center gap-2">
@@ -227,8 +227,8 @@ export default function UserRequestDetailPageNew() {
               </div>
 
               {/* Quick Stats */}
-              <div className="border-t border-slate-100 px-6 py-5">
-                <div className="grid gap-4 sm:grid-cols-3">
+              <div className="border-t border-slate-100 px-4 py-5 sm:px-6">
+                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                   {/* Budget */}
                   <div className="rounded-xl bg-gradient-to-br from-emerald-50 to-white border border-emerald-100 p-4">
                     <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-600 mb-2">
@@ -260,10 +260,10 @@ export default function UserRequestDetailPageNew() {
             </div>
 
             {/* Tabs */}
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <button
                 onClick={() => setActiveTab('overview')}
-                className={`px-4 py-2.5 rounded-xl text-sm font-bold transition ${
+                className={`min-w-0 flex-1 rounded-xl px-4 py-2.5 text-sm font-bold transition sm:flex-none ${
                   activeTab === 'overview'
                     ? 'bg-indigo-600 text-white shadow-lg'
                     : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
@@ -273,7 +273,7 @@ export default function UserRequestDetailPageNew() {
               </button>
               <button
                 onClick={() => setActiveTab('proposals')}
-                className={`px-4 py-2.5 rounded-xl text-sm font-bold transition ${
+                className={`min-w-0 flex-1 rounded-xl px-4 py-2.5 text-sm font-bold transition sm:flex-none ${
                   activeTab === 'proposals'
                     ? 'bg-indigo-600 text-white shadow-lg'
                     : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
@@ -286,7 +286,7 @@ export default function UserRequestDetailPageNew() {
               </button>
               <button
                 onClick={() => setActiveTab('payment')}
-                className={`px-4 py-2.5 rounded-xl text-sm font-bold transition ${
+                className={`min-w-0 flex-1 rounded-xl px-4 py-2.5 text-sm font-bold transition sm:flex-none ${
                   activeTab === 'payment'
                     ? 'bg-indigo-600 text-white shadow-lg'
                     : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
@@ -299,7 +299,7 @@ export default function UserRequestDetailPageNew() {
             {/* Tab Content */}
             {activeTab === 'overview' && (
               <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
-                <div className="px-6 py-5 border-b border-slate-100">
+                <div className="border-b border-slate-100 px-4 py-5 sm:px-6">
                   <div className="flex items-center gap-3">
                     <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-100">
                       <FileText className="h-5 w-5 text-indigo-600" />
@@ -311,7 +311,7 @@ export default function UserRequestDetailPageNew() {
                   </div>
                 </div>
 
-                <div className="px-6 py-6 space-y-6">
+                <div className="space-y-6 px-4 py-6 sm:px-6">
                   {/* Description */}
                   <div>
                     <h3 className="text-sm font-bold text-slate-700 mb-3">Mô tả công việc</h3>
@@ -356,7 +356,7 @@ export default function UserRequestDetailPageNew() {
                   </div>
 
                   {/* Actions */}
-                  <div className="flex gap-3 pt-4 border-t border-slate-100">
+                  <div className="flex flex-wrap gap-3 border-t border-slate-100 pt-4">
                     <Link
                       to={`/jobs/${job.jobId}/edit`}
                       className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-sm font-bold text-slate-700 hover:bg-slate-50 transition"
@@ -371,8 +371,8 @@ export default function UserRequestDetailPageNew() {
 
             {activeTab === 'proposals' && (
               <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
-                <div className="px-6 py-5 border-b border-slate-100">
-                  <div className="flex items-center justify-between">
+                <div className="border-b border-slate-100 px-4 py-5 sm:px-6">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-3">
                       <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-100">
                         <Users className="h-5 w-5 text-indigo-600" />
@@ -390,7 +390,7 @@ export default function UserRequestDetailPageNew() {
 
             {activeTab === 'payment' && (
               <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
-                <div className="px-6 py-5 border-b border-slate-100">
+                <div className="border-b border-slate-100 px-4 py-5 sm:px-6">
                   <div className="flex items-center gap-3">
                     <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100">
                       <Coins className="h-5 w-5 text-emerald-600" />
@@ -401,11 +401,11 @@ export default function UserRequestDetailPageNew() {
                     </div>
                   </div>
                 </div>
-                <div className="px-6 py-8">
+                <div className="px-4 py-8 sm:px-6">
                   {contract ? (
                     <div className="space-y-4">
                       <div className="rounded-xl bg-emerald-50 border border-emerald-200 p-5">
-                        <div className="flex items-start justify-between">
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                           <div>
                             <p className="text-sm font-bold text-emerald-900">Escrow đang giữ</p>
                             <p className="mt-1 text-2xl font-black text-emerald-950">{formatCurrency(contract.amountInEscrow || 0)}</p>
@@ -438,15 +438,15 @@ export default function UserRequestDetailPageNew() {
           <aside className="space-y-5 lg:sticky lg:top-24 lg:self-start">
             {/* Mentor Card (if accepted) */}
             {acceptedProposal && (
-              <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-                <div className="bg-gradient-to-br from-indigo-50 to-white px-6 py-5 border-b border-slate-100">
-                  <div className="flex items-center gap-4">
+              <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                <div className="border-b border-slate-100 bg-gradient-to-br from-indigo-50 to-white px-4 py-5 sm:px-6">
+                  <div className="flex items-start gap-4">
                     <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 text-lg font-black text-white shadow-lg">
                       {acceptedProposal.mentorName?.charAt(0) || 'M'}
                     </div>
-                    <div className="flex-1 min-w-0">
+                    <div className="min-w-0 flex-1">
                       <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Mentor đang đồng hành</p>
-                      <h3 className="mt-1 truncate text-lg font-black text-slate-950">{acceptedProposal.mentorName}</h3>
+                      <h3 className="mt-1 break-words text-lg font-black text-slate-950">{acceptedProposal.mentorName}</h3>
                       <span className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700">
                         <CheckCircle2 className="h-3.5 w-3.5" />
                         Đã chọn
@@ -455,7 +455,7 @@ export default function UserRequestDetailPageNew() {
                   </div>
                 </div>
                 
-                <div className="px-6 py-4">
+                <div className="px-4 py-4 sm:px-6">
                   <div className="text-sm text-slate-600 mb-4">
                     <p className="font-bold text-slate-900">Đã chốt giá: {formatCurrency(acceptedProposal.proposedAmount || 0)}</p>
                   </div>

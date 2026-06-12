@@ -5,8 +5,9 @@ import { courseApi } from '@/api/courseApi'
 import { categoryApi } from '@/api/categoryApi'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Loader2 } from 'lucide-react'
+import { ImagePlus, Loader2, Trash2, Upload } from 'lucide-react'
 import { CategoryResponse, SupportedLanguage } from '@/types'
+import { FILE_UPLOAD_DIRS, fileApi } from '@/api/fileApi'
 
 const courseSchema = z.object({
   title: z.string().min(5, 'Title must be at least 5 characters').max(200),
@@ -29,6 +30,7 @@ export default function CourseCreateForm({ instructorId }: { instructorId: strin
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [categories, setCategories] = useState<CategoryResponse[]>([])
+  const [thumbnailUploading, setThumbnailUploading] = useState(false)
 
   useEffect(() => {
     void categoryApi.getAllActive().then(setCategories).catch(() => setCategories([]))
@@ -50,6 +52,27 @@ export default function CourseCreateForm({ instructorId }: { instructorId: strin
   })
 
   const title = watch('title')
+  const thumbnailUrl = watch('thumbnailUrl')
+
+  const handleThumbnailUpload = async (file?: File) => {
+    if (!file) return
+
+    if (!file.type.startsWith('image/')) {
+      setError('Thumbnail must be an image file.')
+      return
+    }
+
+    setThumbnailUploading(true)
+    setError('')
+    try {
+      const response = await fileApi.upload(file, { subDirectory: FILE_UPLOAD_DIRS.PUBLIC_COURSE_THUMBNAIL })
+      setValue('thumbnailUrl', response.fileUrl, { shouldDirty: true, shouldValidate: true })
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Failed to upload thumbnail. Please try again.')
+    } finally {
+      setThumbnailUploading(false)
+    }
+  }
 
   const generateSlug = () => {
     if (title) {
@@ -181,13 +204,41 @@ export default function CourseCreateForm({ instructorId }: { instructorId: strin
         </div>
       </div>
 
-      <div>
-        <label className={labelClass}>Thumbnail URL (optional)</label>
+      <div className="space-y-3">
+        <div className="flex items-center justify-between gap-3">
+          <label className={labelClass}>Thumbnail URL or upload image</label>
+          <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-dashed border-gray-300 bg-white px-3 py-2 text-xs font-bold text-gray-600 hover:bg-gray-50">
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(event) => handleThumbnailUpload(event.target.files?.[0])}
+            />
+            {thumbnailUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ImagePlus className="h-4 w-4" />}
+            Upload thumbnail
+          </label>
+        </div>
         <input
           {...register('thumbnailUrl')}
           className={inputClass}
           placeholder="https://example.com/image.jpg"
         />
+        {thumbnailUrl && (
+          <div className="flex items-center gap-3 rounded-xl border border-gray-200 bg-gray-50 p-3">
+            <img src={thumbnailUrl} alt="Thumbnail preview" className="h-16 w-24 rounded-lg object-cover" />
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-bold text-gray-900">Thumbnail ready</p>
+              <p className="truncate text-xs text-gray-500">{thumbnailUrl}</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setValue('thumbnailUrl', '', { shouldDirty: true, shouldValidate: true })}
+              className="rounded-lg p-2 text-red-500 hover:bg-red-50"
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+          </div>
+        )}
         {errors.thumbnailUrl && <p className="text-xs text-red-500 mt-1">{errors.thumbnailUrl.message}</p>}
       </div>
 

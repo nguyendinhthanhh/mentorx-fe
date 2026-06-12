@@ -33,7 +33,7 @@ export default function AdminSupportPage() {
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
         <div>
           <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">Support Center</h1>
           <p className="text-gray-500 dark:text-gray-400 mt-1 font-medium italic">Manage incoming help requests and community messages.</p>
@@ -63,9 +63,9 @@ export default function AdminSupportPage() {
       </div>
 
       {/* Main Content */}
-      <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden min-h-[600px] flex flex-col">
+      <div className="flex min-h-[600px] flex-col overflow-hidden rounded-[2.5rem] border border-gray-100 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
         {/* Search & Filter */}
-        <div className="p-6 border-b border-gray-50 dark:border-gray-800 flex items-center gap-4">
+        <div className="flex flex-col gap-4 border-b border-gray-50 p-6 dark:border-gray-800 sm:flex-row sm:items-center">
            <div className="relative flex-1 group">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-primary-500 transition-colors" />
               <input 
@@ -76,7 +76,7 @@ export default function AdminSupportPage() {
                 className="w-full pl-12 pr-6 py-3 rounded-2xl bg-gray-50 dark:bg-gray-800 border border-transparent focus:bg-white dark:focus:bg-gray-900 focus:ring-4 focus:ring-primary-500/10 transition-all text-xs font-bold"
               />
            </div>
-           <button className="p-3 rounded-2xl bg-gray-50 dark:bg-gray-800 text-gray-400 hover:text-primary-600 transition-all">
+           <button className="self-end rounded-2xl bg-gray-50 p-3 text-gray-400 transition-all hover:text-primary-600 dark:bg-gray-800 sm:self-auto">
               <Filter className="w-4 h-4" />
            </button>
         </div>
@@ -104,9 +104,9 @@ export default function AdminSupportPage() {
                   <div 
                     key={room.id}
                     onClick={() => navigate(`/chat/${room.id}`)}
-                    className="p-6 flex items-center justify-between hover:bg-gray-50/50 dark:hover:bg-gray-800/50 transition-all cursor-pointer group"
+                    className="group cursor-pointer p-6 transition-all hover:bg-gray-50/50 dark:hover:bg-gray-800/50 sm:flex sm:items-center sm:justify-between"
                   >
-                     <div className="flex items-center gap-5">
+                     <div className="flex min-w-0 items-center gap-4 sm:gap-5">
                         <div className="relative">
                            <div className="w-14 h-14 rounded-[1.5rem] bg-primary-50 dark:bg-primary-900/20 flex items-center justify-center text-primary-600 dark:text-primary-400 font-black text-xl border-2 border-white dark:border-gray-900 shadow-sm">
                               {room.roomName?.charAt(0).toUpperCase() || 'S'}
@@ -114,11 +114,11 @@ export default function AdminSupportPage() {
                            <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-lg bg-emerald-500 border-2 border-white dark:border-gray-900" />
                         </div>
                         <div className="min-w-0">
-                           <div className="flex items-center gap-3">
-                              <h4 className="text-sm font-black text-gray-900 dark:text-white tracking-tight">{room.roomName || 'Support Session'}</h4>
+                           <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                              <h4 className="break-words text-sm font-black tracking-tight text-gray-900 dark:text-white">{room.roomName || 'Support Session'}</h4>
                               <span className="px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-600 text-[8px] font-black uppercase tracking-widest">{room.roomType}</span>
                            </div>
-                           <p className="text-xs font-bold text-gray-500 truncate max-w-md mt-1 italic">
+                           <p className="mt-1 max-w-md break-words text-xs font-bold italic text-gray-500 sm:truncate">
                               {room.lastMessagePreview || 'No messages yet...'}
                            </p>
                            <div className="flex items-center gap-3 mt-2">
@@ -128,7 +128,7 @@ export default function AdminSupportPage() {
                            </div>
                         </div>
                      </div>
-                     <div className="flex items-center gap-4">
+                     <div className="mt-4 flex items-center gap-4 self-end sm:mt-0 sm:self-auto">
                         <button className="p-3 rounded-2xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-800 text-gray-400 group-hover:text-primary-600 transition-all shadow-sm">
                            <ChevronRight className="w-5 h-5" />
                         </button>

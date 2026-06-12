@@ -58,11 +58,11 @@ export default function InboxSidebar({
 
   return (
     <aside
-      className={`flex h-[calc(100vh-73px)] flex-col border-r border-slate-200 bg-white ${
+      className={`flex h-[calc(100dvh-73px)] min-w-0 flex-col border-r border-slate-200 bg-white ${
         hiddenOnMobile ? 'hidden lg:flex' : 'flex'
       }`}
     >
-      <div className="px-7 pb-4 pt-7">
+      <div className="px-4 pb-4 pt-6 sm:px-7 sm:pt-7">
         <div className="flex items-center justify-between gap-3">
           <h1 className="text-[28px] font-bold tracking-tight text-[#10164a]">Messages</h1>
           <button
@@ -117,7 +117,7 @@ export default function InboxSidebar({
         </div>
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-4 pt-2">
+      <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-4 pt-2 sm:px-6">
         {isLoading ? (
           <div className="space-y-3 px-2 pt-2">
             {[0, 1, 2, 3, 4].map((item) => (

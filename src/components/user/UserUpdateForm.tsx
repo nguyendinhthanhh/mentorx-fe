@@ -2,7 +2,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { userApi } from '@/api/userApi'
-import { fileApi } from '@/api/fileApi'
+import { FILE_UPLOAD_DIRS, fileApi } from '@/api/fileApi'
 import { useI18n } from '@/i18n/I18nProvider'
 import { useAuthStore } from '@/store/authStore'
 import { SupportedLanguage, UserUpdateRequest } from '@/types'
@@ -82,7 +82,7 @@ export default function UserUpdateForm({ userId, initialData }: Props) {
     try {
       setUploading(true)
       setError('')
-      const response = await fileApi.upload(file)
+      const response = await fileApi.upload(file, { subDirectory: FILE_UPLOAD_DIRS.PUBLIC_AVATAR })
       setValue('avatarUrl', response.fileUrl)
     } catch (err: any) {
       setError(t('profile.messages.uploadFailed'))

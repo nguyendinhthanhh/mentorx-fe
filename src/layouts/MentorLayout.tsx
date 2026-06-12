@@ -5,6 +5,7 @@ import {
   Briefcase,
   Calendar,
   ChevronDown,
+  Menu,
   CreditCard,
   LayoutDashboard,
   LogOut,
@@ -15,6 +16,7 @@ import {
   ShoppingBag,
   Star,
   Sun,
+  X,
   User,
   Wallet,
 } from 'lucide-react'
@@ -42,6 +44,7 @@ export default function MentorLayout() {
   const { isDarkMode, toggleTheme } = useThemeStore()
   const [availability] = useState('Available')
   const [userDropdownOpen, setUserDropdownOpen] = useState(false)
+  const [mobileNavOpen, setMobileNavOpen] = useState(false)
 
   const handleLogout = () => {
     logout()
@@ -59,7 +62,7 @@ export default function MentorLayout() {
   return (
     <div className={`min-h-screen ${isDarkMode ? 'dark bg-slate-950' : 'bg-[#faf9ff]'}`}>
       <div className="flex min-h-screen">
-        <aside className="hidden w-[248px] shrink-0 border-r border-slate-200/80 bg-white xl:flex xl:flex-col max-h-screen overflow-hidden">
+        <aside className="hidden max-h-screen w-[248px] shrink-0 overflow-hidden border-r border-slate-200/80 bg-white xl:flex xl:flex-col">
           <div className="flex h-[88px] shrink-0 items-center border-b border-slate-100 px-6">
             <Link to="/" className="flex items-center gap-3">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 shadow-lg shadow-violet-200">
@@ -127,11 +130,89 @@ export default function MentorLayout() {
           </div>
         </aside>
 
-        <div className="min-w-0 flex-1 max-h-screen overflow-y-auto">
+        {mobileNavOpen && (
+          <div className="fixed inset-0 z-50 xl:hidden">
+            <button
+              type="button"
+              aria-label="Close navigation"
+              className="absolute inset-0 bg-slate-950/40"
+              onClick={() => setMobileNavOpen(false)}
+            />
+            <div className="relative flex h-full w-[min(84vw,320px)] flex-col bg-white shadow-2xl">
+              <div className="flex h-[76px] items-center justify-between border-b border-slate-100 px-5">
+                <Link to="/" className="flex items-center gap-3" onClick={() => setMobileNavOpen(false)}>
+                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 shadow-lg shadow-violet-200">
+                    <span className="text-lg font-black text-white">M</span>
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-lg font-black leading-none tracking-tight text-slate-950">MentorHub</p>
+                    <p className="mt-1 text-[10px] font-black uppercase tracking-[0.2em] text-indigo-500">Premium Mentor</p>
+                  </div>
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => setMobileNavOpen(false)}
+                  className="flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-200 text-slate-500"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              <nav className="flex-1 space-y-2 overflow-y-auto px-4 py-5">
+                {navigationItems.map((item) => {
+                  const active = isActive(item.to)
+                  return (
+                    <Link
+                      key={item.to}
+                      to={item.to}
+                      onClick={() => setMobileNavOpen(false)}
+                      className={`group flex min-h-12 items-center gap-3 rounded-2xl px-4 py-3 text-[14px] font-bold transition ${
+                        active ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                      }`}
+                    >
+                      <item.icon className={`h-4 w-4 ${active ? 'text-white' : 'text-slate-400 group-hover:text-slate-700'}`} />
+                      <span className="flex-1">{item.label}</span>
+                      {item.badge ? (
+                        <span className={`inline-flex h-6 min-w-6 items-center justify-center rounded-full px-1.5 text-xs font-black ${active ? 'bg-white/20 text-white' : 'bg-violet-100 text-violet-700'}`}>
+                          {item.badge}
+                        </span>
+                      ) : null}
+                    </Link>
+                  )
+                })}
+              </nav>
+
+              <div className="border-t border-slate-100 p-4">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileNavOpen(false)
+                    handleLogout()
+                  }}
+                  className="flex h-12 w-full items-center gap-3 rounded-2xl px-4 text-sm font-bold text-rose-500 transition hover:bg-rose-50"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Logout
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div className="min-w-0 max-h-screen flex-1 overflow-y-auto">
           <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/95 backdrop-blur">
-            <div className="flex h-[80px] items-center justify-between gap-4 px-6 lg:px-8">
+            <div className="flex h-[80px] items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
               <div className="flex min-w-0 flex-1 items-center gap-4">
-                <div className="relative hidden max-w-[420px] flex-1 md:block">
+                <button
+                  type="button"
+                  onClick={() => setMobileNavOpen(true)}
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50 xl:hidden"
+                  aria-label="Open navigation"
+                >
+                  <Menu className="h-4 w-4" />
+                </button>
+
+                <div className="relative hidden max-w-[420px] flex-1 lg:block">
                   <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                   <input
                     type="text"
@@ -144,7 +225,7 @@ export default function MentorLayout() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 sm:gap-3">
                 <button
                   type="button"
                   onClick={toggleTheme}
@@ -156,7 +237,7 @@ export default function MentorLayout() {
 
                 <button
                   type="button"
-                  className="hidden h-11 items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-700 lg:inline-flex"
+                  className="hidden h-11 items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-700 2xl:inline-flex"
                 >
                   <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
                   {availability}
@@ -165,7 +246,7 @@ export default function MentorLayout() {
 
                 {user && <NotificationDropdown userId={user.userId} />}
 
-                <button type="button" className="flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-500 transition hover:bg-slate-50 hover:text-slate-900">
+                <button type="button" className="hidden h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-500 transition hover:bg-slate-50 hover:text-slate-900 sm:flex">
                   <MessageCircle className="h-4 w-4" />
                 </button>
 
@@ -183,7 +264,7 @@ export default function MentorLayout() {
                         </div>
                       )}
                     </div>
-                    <div className="hidden text-left lg:block">
+                    <div className="hidden text-left 2xl:block">
                       <p className="text-sm font-black text-slate-950">{user?.fullName || 'Mentor'}</p>
                       <p className="mt-0.5 text-xs font-medium text-slate-500">Expert Mentor</p>
                     </div>
@@ -250,7 +331,7 @@ export default function MentorLayout() {
             </div>
           </header>
 
-          <main className="px-4 py-6 md:px-4 lg:px-4">
+          <main className="px-4 py-5 sm:px-6 lg:px-6">
             <Outlet />
           </main>
         </div>

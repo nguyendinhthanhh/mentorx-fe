@@ -19,7 +19,7 @@ import {
   User,
 } from 'lucide-react'
 
-import { fileApi } from '@/api/fileApi'
+import { FILE_UPLOAD_DIRS, fileApi } from '@/api/fileApi'
 import { mentorApi } from '@/api/mentorApi'
 import MentorAvailabilityCalendar from '@/components/mentor/MentorAvailabilityCalendar'
 import MentorCoursesManager from '@/components/mentor/MentorCoursesManager'
@@ -122,7 +122,7 @@ export default function MentorProfileSetupPage({ onCancelEdit, initialTab = 'pro
   const documents = assets.filter((asset) => asset.type === MentorProfileAssetType.DOCUMENT)
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-24 text-slate-950">
+    <div className="min-h-[100dvh] bg-slate-50 pb-24 text-slate-950">
       <div className="mx-auto max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8">
         <header className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
@@ -134,9 +134,9 @@ export default function MentorProfileSetupPage({ onCancelEdit, initialTab = 'pro
               {t('mentor.profile.editorSubtitle')}
             </p>
           </div>
-          <div className="grid min-w-[360px] gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:grid-cols-[1fr_auto_auto]">
+          <div className="grid w-full gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm lg:w-auto sm:grid-cols-[1fr_auto_auto]">
             <div>
-                <div className="mb-2 flex items-center justify-between text-xs font-bold text-slate-500">
+              <div className="mb-2 flex items-center justify-between text-xs font-bold text-slate-500">
                 <span>{t('mentor.profile.completion')}</span>
                 <span className="text-lg font-black text-slate-950">{progress.percent}%</span>
               </div>
@@ -150,7 +150,7 @@ export default function MentorProfileSetupPage({ onCancelEdit, initialTab = 'pro
         </header>
 
         <div className="rounded-3xl border border-slate-200 bg-white shadow-sm">
-          <nav className="flex overflow-x-auto border-b border-slate-200 px-4">
+          <nav className="flex flex-wrap gap-x-2 gap-y-1 border-b border-slate-200 px-4 sm:flex-nowrap sm:overflow-x-auto">
             {tabs.map((tab) => {
               const Icon = tab.icon
               const active = activeTab === tab.id
@@ -159,7 +159,7 @@ export default function MentorProfileSetupPage({ onCancelEdit, initialTab = 'pro
                   key={tab.id}
                   type="button"
                   onClick={() => setActiveTab(tab.id)}
-                  className={`inline-flex h-14 min-w-max items-center gap-2 border-b-2 px-4 text-sm font-black transition ${
+                  className={`inline-flex h-12 min-w-max items-center gap-2 border-b-2 px-4 text-sm font-black transition sm:h-14 ${
                     active ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-900'
                   }`}
                 >
@@ -524,7 +524,7 @@ function AssetSection({
     if (!file) return
     setUploading(true)
     try {
-      const response = await fileApi.upload(file)
+      const response = await fileApi.upload(file, { subDirectory: FILE_UPLOAD_DIRS.PUBLIC_MENTOR_ASSET })
       const isImage = response.fileType?.startsWith('image/')
       setForm((prev) => ({
         ...prev,

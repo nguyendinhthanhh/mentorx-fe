@@ -395,10 +395,10 @@ export default function JobDetailPage() {
 
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
           <div className="space-y-6">
-            <section className="job-surface overflow-hidden rounded-2xl border border-[#E8E1D8] bg-[#FFFFFF] p-8 shadow-sm md:p-10">
+            <section className="job-surface overflow-hidden rounded-2xl border border-[#E8E1D8] bg-[#FFFFFF] p-5 shadow-sm sm:p-8 md:p-10">
               {/* Header Section */}
               <div className="mb-10">
-                <h1 className="text-[28px] sm:text-[32px] font-extrabold text-[#111827] leading-tight mb-4">
+                <h1 className="mb-4 text-[24px] font-extrabold leading-tight text-[#111827] sm:text-[32px]">
                   {job.title}
                 </h1>
                 <div className="flex flex-wrap items-center gap-x-6 gap-y-3 text-[15px] font-medium text-[#64748B]">
@@ -432,7 +432,7 @@ export default function JobDetailPage() {
                 </div>
 
                 {/* Inline Client Info */}
-                <div className="mt-8 flex items-center gap-4 rounded-2xl border border-[#E8E1D8] bg-[#F7F3EC] p-4 sm:max-w-md">
+                <div className="mt-8 flex flex-col gap-4 rounded-2xl border border-[#E8E1D8] bg-[#F7F3EC] p-4 sm:max-w-md sm:flex-row sm:items-center">
                   <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-[#C7D2FE] bg-[#EEF2FF] text-lg font-black text-[#4F46E5]">
                     {getInitials(clientName)}
                   </div>
@@ -469,7 +469,7 @@ export default function JobDetailPage() {
                 </div>
               )}
               {/* Highlights Row */}
-              <div className="mb-10 grid gap-4 grid-cols-2 md:grid-cols-4">
+              <div className="mb-10 grid gap-4 min-[520px]:grid-cols-2 xl:grid-cols-4">
                 <div className="job-metric-card rounded-2xl border border-[#E8E1D8] bg-white p-5 shadow-sm">
                   <p className="text-[12px] text-indigo-600 font-extrabold uppercase tracking-wide mb-1.5 flex items-center gap-1.5"><DollarSign className="w-4 h-4 text-indigo-500" /> Ngân sách</p>
                   <p className="font-black text-indigo-950 text-[18px]">{derived.budget}</p>
@@ -536,7 +536,7 @@ export default function JobDetailPage() {
                   )}
 
                   {/* Other Requirements Grid */}
-                  <div className="grid gap-4 md:grid-cols-2">
+                  <div className="grid gap-4 xl:grid-cols-2">
                     {job.experienceLevel && (
                       <BriefItem icon={GraduationCap} label="Cấp độ yêu cầu" value={formatExperienceLevel(job.experienceLevel)} />
                     )}
@@ -562,7 +562,7 @@ export default function JobDetailPage() {
                       </span>
                       Tài liệu đính kèm
                     </h2>
-                    <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="grid gap-4 lg:grid-cols-2">
                       {[
                         ...(job.attachmentUrl ? [job.attachmentUrl] : []),
                         ...(job.attachments || [])
@@ -738,7 +738,7 @@ export default function JobDetailPage() {
                         </div>
                         <div className="text-xs text-indigo-600/80 mb-4">{formatRelativeTime(existingProposal.createdAt)}</div>
                         
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className="grid gap-3 min-[420px]:grid-cols-2">
                           <div className="rounded-lg border border-indigo-200/50 bg-white p-3 shadow-sm">
                             <p className="text-indigo-600/80 font-bold text-[11px] uppercase tracking-wider mb-1">Giá đề xuất</p>
                             <p className="text-indigo-950 font-black">{formatCurrency(existingProposal.proposedAmount || 0)}</p>
@@ -893,7 +893,7 @@ export default function JobDetailPage() {
       </main>
 
       {/* Sticky Mobile Actions */}
-      <div className="fixed bottom-0 left-0 right-0 z-30 lg:hidden bg-[#FFFFFF] border-t border-[#E6EAF0] p-4 shadow-[0_-8px_16px_-4px_rgba(0,0,0,0.05)]">
+      <div className="fixed bottom-0 left-0 right-0 z-30 border-t border-[#E6EAF0] bg-[#FFFFFF]/95 p-4 shadow-[0_-8px_16px_-4px_rgba(0,0,0,0.05)] backdrop-blur lg:hidden">
         {isOwner ? (
           <Link
             to={`/jobs/${job.jobId}/edit`}
@@ -1041,7 +1041,7 @@ export default function JobDetailPage() {
               </div>
 
               {/* Budget & Duration */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-4 min-[420px]:grid-cols-2">
                 <div className="rounded-xl bg-slate-50 p-4">
                   <div className="flex items-center gap-2 text-xs font-bold uppercase text-slate-400 mb-2">
                     <DollarSign className="h-4 w-4" />
@@ -1085,7 +1085,7 @@ export default function JobDetailPage() {
                     <span className="text-4xl text-amber-200 absolute -bottom-6 -right-1 font-serif opacity-50">”</span>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid gap-4 min-[420px]:grid-cols-2">
                     {latestNegotiation.proposedAmount && (
                       <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 border border-amber-100 shadow-sm">
                         <p className="text-[10px] font-black text-amber-600 uppercase mb-2 tracking-wider">Giá thỏa thuận</p>

@@ -13,7 +13,7 @@ import {
   UploadCloud,
 } from 'lucide-react'
 
-import { fileApi } from '@/api/fileApi'
+import { FILE_UPLOAD_DIRS, fileApi } from '@/api/fileApi'
 import { mentorApi } from '@/api/mentorApi'
 import { MentorProfileRequest } from '@/types'
 import { useAuthStore } from '@/store/authStore'
@@ -367,7 +367,7 @@ export default function MentorProfileForm({
     setUploading((prev) => ({ ...prev, [field]: true }))
     setError('')
     try {
-      const response = await fileApi.upload(file)
+      const response = await fileApi.upload(file, { subDirectory: FILE_UPLOAD_DIRS.PRIVATE_DOCUMENT })
       setValue(field, response.fileUrl, { shouldDirty: true, shouldValidate: true })
     } catch (err: any) {
       setError(getApiErrorMessage(err, 'Unable to upload the selected file. Please try again.'))

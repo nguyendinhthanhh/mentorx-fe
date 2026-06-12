@@ -74,7 +74,7 @@ export default function ConversationPane({
   onShowDetails,
   onBackToList,
   showBackButton,
-  heightClassName = 'h-[calc(100vh-73px)]',
+  heightClassName = 'h-[calc(100dvh-73px)]',
   contextStatusLabel,
   contextStatusToneClassName = 'border-slate-200 bg-slate-100 text-slate-600',
   contextActionLabel,
@@ -108,7 +108,7 @@ export default function ConversationPane({
   return (
     <section className={`flex ${heightClassName} flex-1 flex-col bg-white`}>
       <header className="sticky top-0 z-10 border-b border-slate-200 bg-white">
-        <div className="flex items-center justify-between gap-4 px-6 py-4">
+        <div className="flex items-center justify-between gap-3 px-4 py-4 sm:gap-4 sm:px-6">
           <div className="flex min-w-0 items-center gap-4">
             <button
               type="button"
@@ -141,8 +141,8 @@ export default function ConversationPane({
               )}
             </div>
 
-            <div className="min-w-0">
-              <div className="flex items-center gap-2">
+              <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2">
                 <h2 className="truncate text-[18px] font-bold text-[#10164a]">{roomName}</h2>
                 {otherMember?.isOnline && <span className="h-2 w-2 rounded-full bg-emerald-400" />}
                 {otherMember?.isOnline && <span className="text-[13px] font-medium text-[#10164a]">Online</span>}
@@ -169,8 +169,8 @@ export default function ConversationPane({
         </div>
 
         {banner && (
-          <div className="px-6 pb-4">
-            <div className="flex items-center gap-4 rounded-xl border border-indigo-100 bg-[#f4f3ff] px-4 py-4">
+          <div className="px-4 pb-4 sm:px-6">
+            <div className="flex flex-col gap-4 rounded-xl border border-indigo-100 bg-[#f4f3ff] px-4 py-4 sm:flex-row sm:items-center">
               <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white text-indigo-600">
                 <Target className="h-6 w-6" />
               </div>
@@ -188,7 +188,7 @@ export default function ConversationPane({
               {(contextActionHref && contextActionLabel) || goalLink ? (
                 <Link
                   to={contextActionHref || goalLink!}
-                  className="hidden h-10 shrink-0 items-center justify-center rounded-xl border border-indigo-200 bg-white px-4 text-[13px] font-semibold text-indigo-700 transition-colors hover:bg-indigo-50 sm:inline-flex"
+                  className="inline-flex h-10 w-full shrink-0 items-center justify-center rounded-xl border border-indigo-200 bg-white px-4 text-[13px] font-semibold text-indigo-700 transition-colors hover:bg-indigo-50 sm:w-auto"
                 >
                   {contextActionLabel || 'View goal'}
                 </Link>
@@ -203,7 +203,7 @@ export default function ConversationPane({
         <JobContextBanner jobId={selectedRoom.referenceId} userId={currentUserId} />
       )}
 
-      <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto bg-white px-6 py-5">
+      <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto bg-white px-4 py-5 pb-8 sm:px-6 sm:pb-10">
         {messagesLoading ? (
           <div className="space-y-4">
             {[0, 1, 2, 3].map((item) => (
@@ -287,7 +287,7 @@ export default function ConversationPane({
         )}
       </div>
 
-      <div className="bg-white px-6 py-4 border-t border-slate-100">
+      <div className="border-t border-slate-100 bg-white px-4 py-4 sm:px-6">
         <PromptInputBox 
            onSend={(msg, files) => onSendMessage(msg, files || [])} 
            isLoading={isSending}

@@ -61,7 +61,7 @@ export default function WalletPage() {
   }
 
   return (
-    <div className="mx-auto max-w-[1600px] px-4 py-10 sm:px-6 lg:px-8 space-y-6">
+    <div className="mx-auto max-w-[1600px] space-y-6 px-4 py-10 sm:px-6 lg:px-8">
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-gray-900">My Wallet</h1>
@@ -79,7 +79,7 @@ export default function WalletPage() {
               <Wallet className="w-6 h-6 text-primary-200" />
             </div>
             <p className="text-3xl font-bold">{formatMxc(userBalance?.total || 0)}</p>
-            <div className="mt-4 grid grid-cols-3 gap-3">
+            <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
               <div>
                 <p className="text-[10px] text-primary-200 uppercase tracking-wider font-semibold">Available</p>
                 <p className="text-base font-bold">{formatMxc(availableWallet?.balanceMxc ?? userBalance?.available ?? 0)}</p>
@@ -135,19 +135,21 @@ export default function WalletPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Action Tabs */}
         <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
-          <div className="flex gap-1 mb-6 bg-gray-50 p-1 rounded-xl">
+          <div className="mb-6 flex flex-wrap gap-1 rounded-xl bg-gray-50 p-1">
             {tabs.map((tab) => (
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
-                className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                className={`min-w-0 flex-1 basis-[calc(50%-0.125rem)] items-center justify-center gap-1.5 rounded-lg px-3 py-2.5 text-xs font-medium transition-all sm:basis-0 sm:text-sm ${
                   activeTab === tab.key
                     ? 'bg-white text-gray-900 shadow-sm'
-                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100/50'
+                    : 'text-gray-500 hover:bg-gray-100/50 hover:text-gray-700'
                 }`}
               >
-                <tab.icon className="w-4 h-4" />
-                {tab.label}
+                <span className="flex min-w-0 items-center justify-center gap-1.5">
+                  <tab.icon className="h-4 w-4 shrink-0" />
+                  <span className="truncate">{tab.label}</span>
+                </span>
               </button>
             ))}
           </div>
@@ -177,8 +179,8 @@ export default function WalletPage() {
                 const style = txnColors[txn.txnType] || { bg: 'bg-gray-50', text: 'text-gray-600', sign: '' }
                 return (
                   <div key={txn.id} className="rounded-2xl border border-gray-100 p-4 transition-colors hover:bg-gray-50/60">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex items-start gap-3">
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                      <div className="flex min-w-0 items-start gap-3">
                         <div className={`mt-0.5 w-10 h-10 rounded-xl ${style.bg} flex items-center justify-center shadow-sm`}>
                           {txn.direction === 'CREDIT' ? (
                             <ArrowDownCircle className={`w-5 h-5 ${style.text}`} />
@@ -186,18 +188,18 @@ export default function WalletPage() {
                             <ArrowUpCircle className={`w-5 h-5 ${style.text}`} />
                           )}
                         </div>
-                        <div>
+                        <div className="min-w-0">
                           <p className="text-sm font-semibold text-gray-900">{txn.txnType.replace(/_/g, ' ')}</p>
-                          <p className="mt-1 text-[11px] text-gray-400 flex items-center gap-1">
+                          <p className="mt-1 flex items-center gap-1 text-[11px] text-gray-400">
                             <Clock className="w-3 h-3" />
                             {formatDateTime(txn.createdAt)}
                           </p>
                           {txn.note && (
-                            <p className="mt-2 text-xs text-slate-500">{txn.note}</p>
+                            <p className="mt-2 break-words text-xs text-slate-500">{txn.note}</p>
                           )}
                         </div>
                       </div>
-                      <div className="text-right">
+                      <div className="text-left sm:text-right">
                         <p className={`text-sm font-bold ${style.text}`}>
                           {txn.direction === 'CREDIT' ? '+' : '-'}{formatMxc(txn.amountMxc)}
                         </p>
@@ -267,12 +269,12 @@ function MetaRow({
   value: string
 }) {
   return (
-    <div className="flex items-center justify-between gap-3">
-      <div className="flex items-center gap-2">
+    <div className="flex flex-col items-start gap-1.5 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+      <div className="flex items-center gap-2 text-slate-600">
         {icon}
         <span>{label}</span>
       </div>
-      <span className="font-semibold text-slate-900">{value}</span>
+      <span className="break-words text-left font-semibold text-slate-900 sm:max-w-[55%] sm:text-right">{value}</span>
     </div>
   )
 }

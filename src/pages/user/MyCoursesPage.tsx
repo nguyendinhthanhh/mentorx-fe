@@ -25,7 +25,7 @@ export default function MyCoursesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-black text-slate-900 dark:text-white">Khóa học của tôi</h1>
           <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
@@ -34,7 +34,7 @@ export default function MyCoursesPage() {
         </div>
         <Link
           to="/courses"
-          className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-indigo-700"
+          className="inline-flex h-10 items-center justify-center rounded-xl bg-indigo-600 px-4 text-sm font-bold text-white transition hover:bg-indigo-700 sm:h-auto sm:py-2"
         >
           Khám phá thêm
         </Link>

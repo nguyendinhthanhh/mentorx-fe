@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { useQuery, useQueryClient } from 'react-query'
 import { ArrowUpRight, MessageSquare, RefreshCw, X } from 'lucide-react'
 import { chatApi } from '@/api/chatApi'
-import { fileApi } from '@/api/fileApi'
+import { FILE_UPLOAD_DIRS, fileApi } from '@/api/fileApi'
 import { useAuthStore } from '@/store/authStore'
 import { Skeleton, SkeletonCircle } from '@/components/ui/Skeleton'
 import { PromptInputBox } from '@/components/ui/ai-prompt-box'
@@ -144,7 +144,7 @@ export default function ContextualChatDrawer({
         })
       } else {
         for (const [index, file] of files.entries()) {
-          const uploadedFile = await fileApi.upload(file)
+          const uploadedFile = await fileApi.upload(file, { subDirectory: FILE_UPLOAD_DIRS.PUBLIC_CHAT })
           const isImage = file.type.startsWith('image/')
 
           await chatApi.sendMessage({
