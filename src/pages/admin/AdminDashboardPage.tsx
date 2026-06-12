@@ -267,7 +267,7 @@ export default function AdminDashboardPage() {
       {/* 4. STRATEGIC ANALYTICS (Long-term trends) */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Revenue Trends */}
-        <div className="bg-white dark:bg-gray-900 p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-sm">
+        <div className="rounded-[3rem] border border-gray-100 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:p-10">
           <div className="flex items-center justify-between mb-10">
             <div>
               <h3 className="text-lg font-black text-gray-900 dark:text-white tracking-tight">Growth Analytics</h3>
@@ -303,7 +303,7 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* User Distribution */}
-        <div className="bg-white dark:bg-gray-900 p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-sm">
+        <div className="rounded-[3rem] border border-gray-100 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:p-10">
           <h3 className="text-lg font-black text-gray-900 dark:text-white tracking-tight mb-10">User Ecosystem</h3>
           <div className="h-[350px] w-full flex flex-col items-center justify-center">
             <ResponsiveContainer width="100%" height={280}>
@@ -316,7 +316,7 @@ export default function AdminDashboardPage() {
                 <Tooltip />
               </PieChart>
             </ResponsiveContainer>
-            <div className="flex gap-10 mt-8">
+            <div className="mt-8 flex flex-wrap gap-6 sm:gap-10">
               {userSegmentData.map((segment, i) => (
                 <div key={i} className="flex items-center gap-3">
                   <div className="w-3 h-3 rounded-full" style={{ backgroundColor: segment.color }} />

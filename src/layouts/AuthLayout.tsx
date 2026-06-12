@@ -8,7 +8,7 @@ export default function AuthLayout() {
   return (
     <div className="min-h-screen flex">
       {/* Left Panel - Branding */}
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-gradient-to-br from-primary-600 via-primary-700 to-primary-900">
+      <div className="relative hidden overflow-hidden bg-gradient-to-br from-primary-600 via-primary-700 to-primary-900 lg:flex lg:w-1/2">
         {/* Animated background circles */}
         <div className="absolute inset-0">
           <div className="absolute -top-20 -left-20 w-96 h-96 bg-primary-500/20 rounded-full blur-3xl animate-pulse" />
@@ -16,14 +16,14 @@ export default function AuthLayout() {
           <div className="absolute top-1/2 left-1/3 w-64 h-64 bg-primary-300/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '4s' }} />
         </div>
 
-        <div className="relative z-10 flex flex-col justify-center px-16 text-white">
-          <h1 className="text-5xl font-bold mb-6 leading-tight">
+        <div className="relative z-10 flex flex-col justify-center px-10 text-white xl:px-16">
+          <h1 className="mb-6 text-4xl font-bold leading-tight xl:text-5xl">
             Connect with<br />
             <span className="bg-gradient-to-r from-white to-primary-200 bg-clip-text text-transparent">
               Expert Mentors
             </span>
           </h1>
-          <p className="text-primary-100 text-lg mb-10 max-w-md leading-relaxed">
+          <p className="mb-10 max-w-md text-base leading-relaxed text-primary-100 xl:text-lg">
             MentorX connects you with industry-leading mentors to accelerate your career growth, learn new skills, and achieve your goals.
           </p>
           
@@ -57,7 +57,7 @@ export default function AuthLayout() {
       </div>
 
       {/* Right Panel - Auth Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 bg-gray-50">
+      <div className="flex w-full items-center justify-center bg-gray-50 p-4 sm:p-6 lg:w-1/2">
         <div className="w-full max-w-md">
           {/* Mobile Logo */}
           <div className="lg:hidden text-center mb-8">
@@ -66,7 +66,7 @@ export default function AuthLayout() {
           </div>
 
           {/* Form Card */}
-          <div className="bg-white rounded-2xl shadow-xl shadow-gray-200/50 p-8 border border-gray-100">
+          <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-xl shadow-gray-200/50 sm:p-8">
             <Outlet />
           </div>
 

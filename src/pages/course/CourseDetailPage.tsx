@@ -187,13 +187,13 @@ export default function CourseDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="max-w-4xl mx-auto space-y-6">
+      <div className="mx-auto max-w-4xl space-y-6 px-4 sm:px-0">
         <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden animate-pulse">
           <div className="h-72 bg-gray-100" />
           <div className="p-8">
             <div className="h-8 bg-gray-100 rounded-lg w-2/3 mb-4" />
             <div className="h-4 bg-gray-100 rounded-lg w-1/4 mb-8" />
-            <div className="grid grid-cols-4 gap-4 mb-8">
+            <div className="mb-8 grid gap-4 min-[520px]:grid-cols-2 xl:grid-cols-4">
               {[1, 2, 3, 4].map((i) => (
                 <div key={i} className="h-16 bg-gray-50 rounded-xl" />
               ))}
@@ -237,7 +237,7 @@ export default function CourseDetailPage() {
       {/* Hero Section */}
       <div className="bg-gradient-to-br from-indigo-600 via-indigo-700 to-purple-800 text-white">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="grid lg:grid-cols-[1.5fr_1fr] gap-8 items-start">
+          <div className="grid items-start gap-8 lg:grid-cols-[1.5fr_1fr]">
             {/* Left: Course Info */}
             <div className="space-y-6">
               {/* Category Badge */}
@@ -249,12 +249,12 @@ export default function CourseDetailPage() {
               )}
 
               {/* Title */}
-              <h1 className="text-4xl lg:text-5xl font-bold leading-tight">
+              <h1 className="text-3xl font-bold leading-tight sm:text-4xl lg:text-5xl">
                 {course.title}
               </h1>
 
               {/* Subtitle */}
-              <p className="text-xl text-indigo-100 leading-relaxed">
+              <p className="text-base leading-relaxed text-indigo-100 sm:text-xl">
                 {course.description
                   ? `${course.description.substring(0, 150)}${course.description.length > 150 ? '...' : ''}`
                   : 'Learn with practical mentor-led content and reusable resources.'}
@@ -338,10 +338,18 @@ export default function CourseDetailPage() {
 
       {/* Main Content */}
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-6 lg:hidden">
+          <CoursePreviewCard
+            course={course}
+            isEnrolled={isEnrolled}
+            isEnrollmentLoading={isEnrollmentLoading}
+          />
+        </div>
+
         {/* Tab Navigation */}
         <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
           <div className="border-b border-gray-100">
-            <nav className="flex">
+            <nav className="flex overflow-x-auto">
               {[
                 { id: 'overview', label: 'Overview', icon: BookOpen },
                 { id: 'curriculum', label: 'Curriculum', icon: PlayCircle },
@@ -351,7 +359,7 @@ export default function CourseDetailPage() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as TabType)}
-                  className={`flex-1 flex items-center justify-center gap-2 px-6 py-4 text-sm font-semibold transition border-b-2 ${
+                  className={`flex min-w-[140px] flex-1 items-center justify-center gap-2 px-4 py-4 text-sm font-semibold transition border-b-2 sm:px-6 ${
                     activeTab === tab.id
                       ? 'border-indigo-600 text-indigo-600 bg-indigo-50/50'
                       : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'
@@ -364,7 +372,7 @@ export default function CourseDetailPage() {
             </nav>
           </div>
 
-          <div className="p-8">
+          <div className="p-5 sm:p-8">
             {/* Overview Tab */}
             {activeTab === 'overview' && (
               <div className="space-y-8">
@@ -374,7 +382,7 @@ export default function CourseDetailPage() {
                     <Sparkles className="w-6 h-6 text-indigo-600" />
                     What you'll learn
                   </h2>
-                  <div className="grid sm:grid-cols-2 gap-3">
+                  <div className="grid gap-3 sm:grid-cols-2">
                     {[
                       'Master the fundamentals and advanced concepts',
                       'Build real-world projects from scratch',
@@ -425,7 +433,7 @@ export default function CourseDetailPage() {
                 {/* This course includes */}
                 <div className="bg-gray-50 rounded-xl p-6">
                   <h3 className="font-semibold text-gray-900 mb-4">This course includes:</h3>
-                  <div className="grid sm:grid-cols-2 gap-4">
+                  <div className="grid gap-4 sm:grid-cols-2">
                     {[
                       { icon: PlayCircle, text: `${videoCount} video lectures` },
                       { icon: FileText, text: `${documentCount} downloadable resources` },
@@ -481,7 +489,7 @@ export default function CourseDetailPage() {
       </div>
 
       {/* Mobile: Fixed Bottom CTA */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 shadow-lg z-50">
+      <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-gray-200 bg-white/95 p-4 shadow-lg backdrop-blur lg:hidden">
         <div className="flex items-center justify-between gap-4">
           <div>
             <p className="text-sm text-gray-500">Price</p>
@@ -614,30 +622,32 @@ function CurriculumTab({
             {/* Section Header */}
             <button
               onClick={() => toggleSection(sectionId)}
-              className="w-full flex items-center justify-between p-5 bg-gray-50 hover:bg-gray-100 transition"
+              className="w-full bg-gray-50 p-5 transition hover:bg-gray-100"
             >
-              <div className="flex items-center gap-4">
-                {isExpanded ? (
-                  <ChevronUp className="w-5 h-5 text-gray-400" />
-                ) : (
-                  <ChevronDown className="w-5 h-5 text-gray-400" />
-                )}
-                <div className="text-left">
-                  <h3 className="font-semibold text-gray-900">
-                    {section?.title || `Section ${index + 1}`}
-                  </h3>
-                  {section?.description && (
-                    <p className="text-sm text-gray-500 mt-0.5">{section.description}</p>
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex min-w-0 items-center gap-4">
+                  {isExpanded ? (
+                    <ChevronUp className="w-5 h-5 text-gray-400" />
+                  ) : (
+                    <ChevronDown className="w-5 h-5 text-gray-400" />
+                  )}
+                  <div className="min-w-0 text-left">
+                    <h3 className="font-semibold text-gray-900">
+                      {section?.title || `Section ${index + 1}`}
+                    </h3>
+                    {section?.description && (
+                      <p className="mt-0.5 text-sm text-gray-500">{section.description}</p>
+                    )}
+                  </div>
+                </div>
+                <div className="shrink-0 text-right text-sm text-gray-500">
+                  <p>{sectionLessons.length} lessons</p>
+                  {sectionDuration > 0 && (
+                    <p className="text-xs">
+                      {Math.floor(sectionDuration / 60)}h {sectionDuration % 60}m
+                    </p>
                   )}
                 </div>
-              </div>
-              <div className="text-right text-sm text-gray-500">
-                <p>{sectionLessons.length} lessons</p>
-                {sectionDuration > 0 && (
-                  <p className="text-xs">
-                    {Math.floor(sectionDuration / 60)}h {sectionDuration % 60}m
-                  </p>
-                )}
               </div>
             </button>
 
@@ -650,9 +660,9 @@ function CurriculumTab({
                   return (
                     <div
                       key={lesson.id}
-                      className="flex items-center justify-between p-5 hover:bg-gray-50 transition"
+                      className="flex flex-col gap-4 p-5 transition hover:bg-gray-50 sm:flex-row sm:items-center sm:justify-between"
                     >
-                      <div className="flex items-start gap-4 flex-1">
+                      <div className="flex flex-1 items-start gap-4">
                         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100">
                           {isLocked ? (
                             <Lock className="h-5 w-5 text-gray-400" />
@@ -683,7 +693,7 @@ function CurriculumTab({
 
                       {/* Action Buttons */}
                       {lesson.resourceUrl && (
-                        <div className="flex items-center gap-2 ml-4">
+                        <div className="ml-0 flex flex-wrap items-center gap-2 sm:ml-4">
                           <button
                             type="button"
                             onClick={() => {
@@ -742,7 +752,7 @@ function InstructorTab({ instructor }: any) {
   return (
     <div className="space-y-6">
       {/* Instructor Profile */}
-      <div className="flex items-start gap-6">
+      <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
         <img
           src={instructor.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(instructor.fullName || 'Instructor')}`}
           alt={instructor.fullName}

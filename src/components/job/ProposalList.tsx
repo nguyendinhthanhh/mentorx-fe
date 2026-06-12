@@ -355,7 +355,7 @@ export default function ProposalList({ jobId }: Props) {
 
       {/* Accepted Banner */}
       {acceptedProposal && (
-        <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5 flex items-start gap-3">
+        <div className="flex flex-col gap-4 rounded-2xl border border-emerald-200 bg-emerald-50 p-5 sm:flex-row sm:items-start">
           <CheckCircle className="w-6 h-6 text-emerald-600 flex-shrink-0 mt-0.5" />
           <div className="flex-1">
             <p className="text-sm font-bold text-emerald-900">
@@ -372,7 +372,7 @@ export default function ProposalList({ jobId }: Props) {
           </div>
           <Link
             to={getJobChatRoute(jobId, acceptedProposal.mentorId)}
-            className="inline-flex h-10 shrink-0 items-center justify-center rounded-xl bg-emerald-600 px-4 text-sm font-black text-white hover:bg-emerald-700"
+            className="inline-flex h-10 w-full shrink-0 items-center justify-center rounded-xl bg-emerald-600 px-4 text-sm font-black text-white hover:bg-emerald-700 sm:w-auto"
           >
             Open chat
           </Link>
@@ -381,7 +381,7 @@ export default function ProposalList({ jobId }: Props) {
 
       {/* Filter Info */}
       {statusFilter !== 'ALL' && (
-        <div className="flex items-center justify-between bg-indigo-50 border border-indigo-200 rounded-xl px-4 py-3">
+        <div className="flex flex-col gap-3 rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-2 text-sm">
             <Filter className="w-4 h-4 text-indigo-600" />
             <span className="font-bold text-indigo-900">
@@ -454,19 +454,19 @@ export default function ProposalList({ jobId }: Props) {
             </div>
 
             <div className="mt-5 grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm">
-              <div className="flex items-center justify-between gap-4">
+              <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
                 <span className="font-bold text-slate-500">Mentor</span>
-                <span className="text-right font-black text-slate-950">{acceptCandidate.mentorName}</span>
+                <span className="break-words text-left font-black text-slate-950 sm:text-right">{acceptCandidate.mentorName}</span>
               </div>
-              <div className="flex items-center justify-between gap-4">
+              <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
                 <span className="font-bold text-slate-500">Giá đề xuất</span>
-                <span className="text-right font-black text-slate-950">
+                <span className="text-left font-black text-slate-950 sm:text-right">
                   {formatCurrency(acceptCandidate.acceptedAmount || 0)}
                 </span>
               </div>
-              <div className="flex items-center justify-between gap-4">
+              <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
                 <span className="font-bold text-slate-500">Thời gian</span>
-                <span className="text-right font-black text-slate-950">
+                <span className="text-left font-black text-slate-950 sm:text-right">
                   {acceptCandidate.acceptedDurationDays ? `${acceptCandidate.acceptedDurationDays} ngày` : 'Chưa xác định'}
                 </span>
               </div>
@@ -543,7 +543,7 @@ export default function ProposalList({ jobId }: Props) {
               </div>
             )}
 
-            <div className="mt-6 flex gap-3">
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
               <button
                 type="button"
                 onClick={resetAcceptFlow}
@@ -651,13 +651,13 @@ function CompactProposalCard({
         'border-slate-200 hover:border-indigo-300'
       }`}
     >
-      <div className="flex items-center gap-4">
+      <div className="flex items-start gap-3 sm:gap-4">
         <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-sm font-black text-indigo-700">
           {getInitials(proposal.mentorName)}
         </div>
         <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
-            <h4 className="truncate text-base font-black text-slate-950 group-hover:text-indigo-600 transition-colors">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <h4 className="break-words text-base font-black text-slate-950 transition-colors group-hover:text-indigo-600">
               {proposal.mentorName}
             </h4>
             <StatusBadge status={proposal.status} />
@@ -678,7 +678,7 @@ function CompactProposalCard({
             </span>
           </div>
         </div>
-        <div className="shrink-0 flex items-center justify-center w-10 h-10 rounded-full bg-slate-50 text-slate-400 group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-colors">
+        <div className="hidden h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-50 text-slate-400 transition-colors group-hover:bg-indigo-50 group-hover:text-indigo-600 sm:flex">
           <ChevronRight className="w-5 h-5" />
         </div>
       </div>
@@ -732,16 +732,16 @@ function ProposalDetailDrawer({
         className="absolute inset-0 cursor-pointer"
         onClick={onClose}
       ></div>
-      <div className="relative w-full max-w-xl bg-slate-50 h-full overflow-hidden shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
+      <div className="relative flex h-full w-full max-w-xl flex-col overflow-hidden bg-slate-50 shadow-2xl animate-in slide-in-from-right duration-300">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 bg-white border-b border-slate-200">
-          <div className="flex items-center gap-4">
+        <div className="flex items-start justify-between gap-3 border-b border-slate-200 bg-white px-4 py-4 sm:px-6">
+          <div className="flex min-w-0 items-center gap-3 sm:gap-4">
              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-sm font-black text-indigo-700">
                {getInitials(proposal.mentorName)}
              </div>
-             <div>
-               <h3 className="font-black text-lg text-slate-950 truncate max-w-[200px] sm:max-w-[300px]">{proposal.mentorName}</h3>
-               <div className="flex items-center gap-2 mt-0.5 text-xs text-slate-500 font-bold">
+             <div className="min-w-0">
+               <h3 className="max-w-[180px] truncate text-lg font-black text-slate-950 sm:max-w-[300px]">{proposal.mentorName}</h3>
+               <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs font-bold text-slate-500">
                  <span>{formatRelativeTime(proposal.submittedAt || proposal.createdAt)}</span>
                  <span className="w-1 h-1 rounded-full bg-slate-300"></span>
                  <StatusBadge status={proposal.status} />
@@ -754,9 +754,9 @@ function ProposalDetailDrawer({
         </div>
         
         {/* Thread Timeline */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6">
           {/* First Message (Original Proposal) */}
-          <div className="flex gap-4">
+          <div className="flex gap-3 sm:gap-4">
              <div className="flex-shrink-0 flex flex-col items-center">
                <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
                  <FileText className="w-4 h-4" />
@@ -765,7 +765,7 @@ function ProposalDetailDrawer({
              </div>
              <div className="flex-1 pb-6">
                <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
-                 <div className="flex items-center justify-between mb-3">
+                 <div className="mb-3 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
                    <span className="text-sm font-black text-slate-900">Original Proposal</span>
                    <span className="text-[10px] text-slate-500 font-bold">{formatRelativeTime(proposal.submittedAt || proposal.createdAt)}</span>
                  </div>
@@ -798,7 +798,7 @@ function ProposalDetailDrawer({
           {negotiationHistory && negotiationHistory.length > 0 && negotiationHistory.map((neg, idx) => {
             const isLast = idx === negotiationHistory.length - 1 && !isRejected && !isAccepted
             return (
-              <div className="flex gap-4" key={neg.id}>
+              <div className="flex gap-3 sm:gap-4" key={neg.id}>
                 <div className="flex-shrink-0 flex flex-col items-center">
                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${neg.senderType === 'CLIENT' ? 'bg-amber-100 text-amber-600' : 'bg-slate-200 text-slate-600'}`}>
                      {neg.senderType === 'CLIENT' ? <MessageCircle className="w-4 h-4" /> : <MessageSquare className="w-4 h-4" />}
@@ -807,7 +807,7 @@ function ProposalDetailDrawer({
                 </div>
                 <div className={`flex-1 ${!isLast ? 'pb-6' : ''}`}>
                    <div className={`rounded-2xl p-4 border shadow-sm ${neg.senderType === 'CLIENT' ? 'bg-amber-50 border-amber-200' : 'bg-white border-slate-200'}`}>
-                     <div className="flex items-center justify-between mb-2">
+                     <div className="mb-2 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
                        <span className="text-sm font-black text-slate-900">{neg.senderType === 'CLIENT' ? 'Bạn' : neg.senderName || 'Mentor'}</span>
                        <span className="text-[10px] text-slate-500 font-bold">{formatRelativeTime(neg.createdAt)}</span>
                      </div>
@@ -836,7 +836,7 @@ function ProposalDetailDrawer({
           
           {/* Rejection Reason */}
           {isRejected && proposal.rejectionReason && (
-             <div className="flex gap-4 mt-6">
+             <div className="mt-6 flex gap-3 sm:gap-4">
                <div className="flex-shrink-0 flex flex-col items-center">
                  <div className="w-8 h-8 rounded-full bg-rose-100 flex items-center justify-center text-rose-600">
                    <XCircle className="w-4 h-4" />
@@ -853,17 +853,17 @@ function ProposalDetailDrawer({
 
           {/* Final terms if accepted */}
           {(isAccepted || isOfferAccepted) && (
-            <div className="flex gap-4 mt-6">
+            <div className="mt-6 flex gap-3 sm:gap-4">
                <div className="flex-shrink-0 flex flex-col items-center">
                  <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
                    <CheckCircle2 className="w-4 h-4" />
                  </div>
                </div>
                <div className="flex-1">
-                  <div className="rounded-2xl p-4 border border-emerald-200 bg-emerald-50 shadow-sm flex items-center justify-between">
-                     <div>
+                  <div className="flex flex-col gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+                     <div className="min-w-0">
                        <span className="text-[10px] font-black uppercase text-emerald-600 block mb-1.5">Kết quả chốt deal</span>
-                       <div className="flex items-center gap-3 text-sm font-bold">
+                       <div className="flex flex-wrap items-center gap-3 text-sm font-bold">
                          <span className="bg-white px-3 py-1 rounded-lg text-emerald-900 border border-emerald-100">
                            {formatCurrency(latestNegotiation?.proposedAmount || proposal.proposedAmount || 0)}
                          </span>
@@ -883,7 +883,7 @@ function ProposalDetailDrawer({
         </div>
 
         {/* Action Bottom Bar */}
-        <div className="p-4 bg-white border-t border-slate-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+        <div className="border-t border-slate-200 bg-white p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
            <ProposalActions
             proposal={proposal}
             latestNegotiation={latestNegotiation || undefined}

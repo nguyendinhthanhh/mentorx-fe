@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react'
 import { Camera, Sparkles, Loader2, X } from 'lucide-react'
 import { SupportedLanguage } from '@/types'
-import { fileApi } from '@/api/fileApi'
+import { FILE_UPLOAD_DIRS, fileApi } from '@/api/fileApi'
 
 interface ProfileData {
   displayName: string
@@ -33,7 +33,7 @@ export default function StepProfile({ profileData, setProfileData, userName }: P
 
     try {
       setIsUploading(true)
-      const response = await fileApi.upload(file)
+      const response = await fileApi.upload(file, { subDirectory: FILE_UPLOAD_DIRS.PUBLIC_AVATAR })
       update('avatarUrl', response.fileUrl)
     } catch (err) {
       console.error('Upload failed:', err)
