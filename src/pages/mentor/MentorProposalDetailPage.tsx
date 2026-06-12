@@ -355,7 +355,7 @@ export default function MentorProposalDetailPage() {
           </div>
         )}
 
-        <section className="flex items-center gap-6 rounded-[24px] border border-slate-200 bg-white px-4 py-3 shadow-sm">
+        <section className="flex flex-col gap-4 rounded-[24px] border border-slate-200 bg-white px-4 py-3 shadow-sm sm:flex-row sm:items-center sm:gap-6">
           <button
             type="button"
             onClick={() => navigate('/mentor/proposals')}
@@ -365,7 +365,8 @@ export default function MentorProposalDetailPage() {
             <ArrowLeft className="h-5 w-5" />
           </button>
 
-          <div className="relative min-w-0 flex-1 flex justify-between pr-4">
+          <div className="relative min-w-0 flex-1 overflow-x-auto pb-2 sm:pb-0">
+            <div className="relative flex min-w-[360px] justify-between pr-4 sm:min-w-0">
             <div className="absolute left-0 top-4 h-[2px] w-full bg-slate-100" />
             <div
               className="absolute left-0 top-4 h-[2px] bg-indigo-600 transition-all duration-500"
@@ -375,6 +376,7 @@ export default function MentorProposalDetailPage() {
               const state = index < journeyStageIndex ? 'done' : index === journeyStageIndex ? 'active' : 'idle'
               return <JourneyStep key={label} index={index} label={label} state={state} />
             })}
+            </div>
           </div>
         </section>
 
@@ -429,7 +431,7 @@ export default function MentorProposalDetailPage() {
                     Last message {formatShortInboxTime(latestNegotiation?.createdAt)}
                   </span>
                 </div>
-                <div className="mt-4 grid gap-3 md:grid-cols-2">
+                <div className="mt-4 grid gap-3 lg:grid-cols-2">
                   <label className="space-y-1.5">
                     <span className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-500">Price (MXC)</span>
                     <input
@@ -571,7 +573,7 @@ export default function MentorProposalDetailPage() {
                       <h2 className="mt-2 text-lg font-black tracking-tight text-slate-950">{currentBudgetLabel}</h2>
                     </div>
                   </div>
-                  <div className="mt-4 grid gap-3 sm:grid-cols-3 xl:grid-cols-1">
+                  <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
                     <RailMetric icon={<Wallet className="h-4 w-4" />} label="Price" value={currentBudgetLabel} />
                     <RailMetric icon={<Clock3 className="h-4 w-4" />} label="Deadline" value={currentDeadlineLabel} />
                     <RailMetric icon={<CircleDashed className="h-4 w-4" />} label="Time left" value={currentTimeRemainingLabel} />
@@ -933,7 +935,7 @@ function JourneyStep({
   const isActive = state === 'active'
 
   return (
-    <div className="relative z-10 flex w-24 flex-col items-center">
+    <div className="relative z-10 flex w-20 flex-col items-center sm:w-24">
       <div className="bg-white px-2">
         <div
           className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-black transition-colors ${

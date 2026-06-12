@@ -628,7 +628,7 @@ export default function AdminMentorApplicationsPage() {
   }
 
   return (
-    <div className={`relative min-h-screen grid gap-6 transition-all duration-500 ${selectedProfile ? 'xl:grid-cols-[minmax(0,1fr)_720px]' : 'max-w-[1600px] mx-auto w-full'}`}>
+    <div className={`relative min-h-screen grid gap-6 transition-all duration-500 ${selectedProfile ? '2xl:grid-cols-[minmax(0,1fr)_720px]' : 'max-w-[1600px] mx-auto w-full'}`}>
       <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-50/40 via-white to-white dark:from-indigo-950/20 dark:via-slate-950 dark:to-slate-950" />
       <section className="relative overflow-hidden rounded-[2.5rem] border border-white/40 bg-white/60 backdrop-blur-2xl shadow-xl shadow-slate-200/40 dark:border-slate-800/60 dark:bg-slate-900/40 dark:shadow-none transition-all">
         <div className="absolute inset-0 bg-gradient-to-b from-white/40 to-transparent pointer-events-none dark:from-white/5" />
@@ -764,7 +764,7 @@ export default function AdminMentorApplicationsPage() {
                 </button>
               )}
 
-              <span className="ml-auto text-xs font-medium text-slate-400 dark:text-slate-500">
+              <span className="w-full text-xs font-medium text-slate-400 dark:text-slate-500 sm:ml-auto sm:w-auto">
                 {activeItems.length} of {activeQueue?.totalElements ?? 0} · Page {page + 1}/{Math.max(activeQueue?.totalPages ?? 1, 1)}
               </span>
             </div>
@@ -825,7 +825,7 @@ export default function AdminMentorApplicationsPage() {
       
       {selectedProfile && (
         <div 
-          className="hidden xl:block"
+          className="hidden 2xl:block"
           style={{ animation: 'slideInRight 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards' }}
         >
           <style>{`
@@ -858,7 +858,7 @@ export default function AdminMentorApplicationsPage() {
       )}
 
       {selectedProfile && (
-        <div className="fixed inset-0 z-[60] bg-slate-950/45 backdrop-blur-[2px] xl:hidden">
+        <div className="fixed inset-0 z-[60] bg-slate-950/45 backdrop-blur-[2px] 2xl:hidden">
           <div className="absolute inset-0" onClick={() => setSelectedProfile(null)} />
           <div className="absolute inset-y-0 right-0 w-full max-w-[560px] bg-white shadow-2xl dark:bg-slate-950">
             <ReviewWorkspacePanel

@@ -1,7 +1,23 @@
 import axios, { AxiosError, AxiosInstance, InternalAxiosRequestConfig } from 'axios'
 import { useAuthStore } from '@/store/authStore'
+import { resolveUploadedFileUrl, resolveUploadedFileUrls } from '@/utils/media'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api'
+const URL_FIELD_KEYS = new Set([
+  'attachmentUrl',
+  'avatarUrl',
+  'certificateUrl',
+  'cvUrl',
+  'fileUrl',
+  'iconUrl',
+  'imageUrl',
+  'portfolioEvidenceUrl',
+  'portfolioUrl',
+  'thumbnailUrl',
+  'url',
+  'videoIntroUrl',
+])
+const URL_ARRAY_KEYS = new Set(['attachments', 'evidenceUrls'])
 
 // Do not try to refresh session on auth endpoints (wrong password → 401 is expected)
 function isAuthEndpoint(config: InternalAxiosRequestConfig): boolean {
@@ -39,11 +55,14 @@ apiClient.interceptors.request.use(
 )
 
 // Helper to normalize backend data to frontend types
-const normalizeData = (data: any): any => {
+const normalizeData = (data: any, parentKey?: string): any => {
   if (!data || typeof data !== 'object') return data
 
   if (Array.isArray(data)) {
-    return data.map(normalizeData)
+    if (parentKey && URL_ARRAY_KEYS.has(parentKey)) {
+      return resolveUploadedFileUrls(data)
+    }
+    return data.map((item) => normalizeData(item, parentKey))
   }
 
   const normalized = { ...data }
@@ -59,7 +78,12 @@ const normalizeData = (data: any): any => {
 
   // Recursively normalize children
   Object.keys(normalized).forEach(key => {
-    normalized[key] = normalizeData(normalized[key])
+    const value = normalized[key]
+    if (typeof value === 'string' && URL_FIELD_KEYS.has(key)) {
+      normalized[key] = resolveUploadedFileUrl(value) ?? value
+      return
+    }
+    normalized[key] = normalizeData(value, key)
   })
 
   return normalized

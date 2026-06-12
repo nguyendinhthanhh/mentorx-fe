@@ -127,7 +127,7 @@ function SavedMentorCard({
         </div>
       </div>
 
-      <div className="mt-5 grid grid-cols-3 gap-3 rounded-2xl bg-gray-50 p-3 dark:bg-slate-900">
+      <div className="mt-5 grid grid-cols-1 gap-3 rounded-2xl bg-gray-50 p-3 dark:bg-slate-900 sm:grid-cols-3">
         <MiniStat label="Rate" value={rate} />
         <MiniStat label="Success" value={mentor.successRate ? `${Math.round(mentor.successRate)}%` : '98%'} />
         <MiniStat label="Done" value={(mentor.totalJobsDone || 0).toString()} />
@@ -156,9 +156,9 @@ function SavedMentorCard({
 
 function MiniBadge({ icon: Icon, label }: { icon: React.ComponentType<{ className?: string }>; label: string }) {
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-gray-50 px-2.5 py-1 text-xs font-bold text-gray-600 dark:border-gray-800 dark:bg-slate-900 dark:text-gray-300">
+    <span className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-gray-200 bg-gray-50 px-2.5 py-1 text-xs font-bold text-gray-600 dark:border-gray-800 dark:bg-slate-900 dark:text-gray-300">
       <Icon className="h-3.5 w-3.5" />
-      {label}
+      <span className="truncate">{label}</span>
     </span>
   )
 }
