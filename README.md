@@ -1,91 +1,150 @@
-# MentorX Frontend
+# Mentor X Frontend
 
-A modern React + TypeScript frontend application for the MentorX platform - connecting mentors with mentees.
+Mentor X Frontend is the React application for a multi-role mentor marketplace where users can discover mentors, post support requests, compare proposals, pay through wallet and escrow flows, and continue delivery inside a shared workspace.
 
-## Features
+This repository is designed as a real product client, not a landing page demo or a generic admin template.
 
-- 🔐 Authentication (Login, Register, 2FA)
-- 👤 User Management
-- 🎓 Mentor Profiles
-- 💼 Job Management
-- 📚 Course Management
-- 💰 Wallet & Transactions
-- 💬 Chat System
-- ⭐ Reviews & Ratings
+## Overview
+
+Mentor X separates the product into four practical surfaces:
+
+- `Public marketplace` for browsing mentors, jobs, and courses
+- `User workspace` for managing jobs, proposals received, wallet activity, purchases, and profile settings
+- `MentorHub` for managing profile setup, proposals, contracts, courses, schedule, earnings, and messages
+- `AdminHub` for moderation, mentor verification, support, reports, and operational controls
+
+## Why This Project Is Strong Portfolio Material
+
+- It handles real multi-role application structure rather than a single dashboard flow
+- It includes complex product states such as proposal negotiation, contract readiness, wallet balance, escrow, and messaging
+- It uses typed API integration against a non-trivial backend
+- It supports both legacy local uploads and new Cloudinary-hosted media URLs
+- It has been iterated for responsive behavior on dense operational screens, not just marketing pages
+
+## Product Capabilities
+
+- Authentication and onboarding
+- Mentor discovery and public profile browsing
+- Job posting and job marketplace browsing
+- Proposal review and negotiation support
+- Wallet, payment-return, and escrow-aware UI states
+- Chat and contextual collaboration flows
+- Mentor profile setup, portfolio, availability, and course management
+- Admin review and moderation workflows
+
+## Frontend Architecture
+
+```text
+src/
+  api/           typed API clients and request wrappers
+  components/    reusable UI and workflow modules
+  layouts/       app shells for public, user, mentor, and admin areas
+  pages/         route-level orchestration
+  store/         client state and auth state
+  types/         shared request and response contracts
+  utils/         formatting, media, and helper utilities
+```
+
+Key implementation choices:
+
+- API calls are centralized in `src/api`
+- Server state is managed with `react-query`
+- Client auth and session state are managed with `zustand`
+- Forms use `react-hook-form` with `zod` validation
+- Layout boundaries are explicit across marketplace, workspace, mentor, and admin areas
 
 ## Tech Stack
 
-- **React 18** - UI Library
-- **TypeScript** - Type Safety
-- **Vite** - Build Tool
-- **React Router** - Routing
-- **React Hook Form** - Form Management
-- **Zod** - Schema Validation
-- **Axios** - HTTP Client
-- **Zustand** - State Management
-- **React Query** - Data Fetching
-- **Tailwind CSS** - Styling
-- **Lucide React** - Icons
+- `React 18`
+- `TypeScript`
+- `Vite`
+- `React Router`
+- `React Query`
+- `Zustand`
+- `React Hook Form`
+- `Zod`
+- `Axios`
+- `Tailwind CSS`
+- `Lucide React`
+- `Radix UI`
 
-## Getting Started
+## UI / Engineering Focus
+
+This frontend emphasizes product usability over decorative UI:
+
+- dense but readable workspace layouts
+- clear state handling for contracts, negotiation, and payments
+- responsive behavior for mobile and laptop workflows
+- role-aware navigation and route protection
+- practical handling of uploaded media and file URLs
+
+## Local Development
 
 ### Prerequisites
 
-- Node.js 18+ and npm/yarn/pnpm
+- `Node.js 18+`
+- `npm`
+- Backend API running locally or accessible through the configured base URL
 
-### Installation
+### Environment Setup
+
+Create a local environment file:
 
 ```bash
-# Install dependencies
-npm install
-
-# Copy environment variables
 cp .env.example .env
+```
 
-# Start development server
+Example variables:
+
+```env
+VITE_API_BASE_URL=http://localhost:8080/api
+VITE_APP_NAME=MentorX
+VITE_GOOGLE_CLIENT_ID=google-client-id
+VITE_GITHUB_CLIENT_ID=github-client-id
+```
+
+### Run the App
+
+```bash
+npm install
 npm run dev
 ```
 
-### Build for Production
+Default local URL:
+
+- `http://localhost:3000`
+
+## Scripts
+
+- `npm run dev` starts the local development server
+- `npm run build` builds the production bundle
+- `npm run preview` previews the production build locally
+- `npm run lint` runs ESLint
+
+## Build
 
 ```bash
 npm run build
-npm run preview
 ```
 
-## Project Structure
+## Representative Technical Work
 
-```
-src/
-├── api/              # API client and endpoints
-├── components/       # Reusable components
-│   ├── auth/        # Authentication forms
-│   ├── user/        # User management forms
-│   ├── mentor/      # Mentor profile forms
-│   ├── job/         # Job management forms
-│   ├── course/      # Course management forms
-│   ├── wallet/      # Wallet transaction forms
-│   └── ui/          # UI components
-├── hooks/           # Custom React hooks
-├── layouts/         # Layout components
-├── pages/           # Page components
-├── store/           # Zustand stores
-├── types/           # TypeScript types
-├── utils/           # Utility functions
-└── main.tsx         # Application entry point
-```
+- Multi-layout SPA with route segmentation by product role
+- Wallet and payment return flows integrated into workspace UX
+- Media URL normalization for absolute Cloudinary URLs and legacy `/uploads/...` paths
+- Responsive rework across jobs, mentor, wallet, chat, and admin screens
+- Marketplace pages that preserve operational clarity instead of collapsing into generic SaaS patterns
 
-## Available Scripts
+## Recruiter Notes
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run preview` - Preview production build
-- `npm run lint` - Run ESLint
+If you are reviewing this repository as hiring signal, the strongest parts are:
 
-## Environment Variables
+- product-oriented frontend architecture
+- handling of real business workflows beyond CRUD
+- integration discipline between UI, auth, routing, and API layers
+- practical attention to responsive detail in complex screens
+- separation between public marketplace, customer workspace, mentor workspace, and admin operations
 
-See `.env.example` for required environment variables.
+## Related Repository
 
-## License
-
-MIT
+- Backend API: [mentorx-be](https://github.com/nguyendinhthanhh/mentorx-be)
