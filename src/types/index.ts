@@ -75,6 +75,14 @@ export enum BudgetType {
   HOURLY = "HOURLY",
 }
 
+export enum JobSort {
+  NEWEST = "NEWEST",
+  BUDGET_ASC = "BUDGET_ASC",
+  BUDGET_DESC = "BUDGET_DESC",
+  POPULAR = "POPULAR",
+  RELEVANCE = "RELEVANCE",
+}
+
 export enum CourseStatus {
   DRAFT = "DRAFT",
   PUBLISHED = "PUBLISHED",
@@ -544,6 +552,7 @@ export interface JobResponse {
   deletedAt?: string;
   createdAt: string;
   updatedAt: string;
+  relevanceScore?: number;
 }
 
 export interface ContractResponse {
