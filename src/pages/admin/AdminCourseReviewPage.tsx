@@ -4,7 +4,8 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { toast } from 'react-hot-toast'
 import { courseApi } from '@/api/courseApi'
-import { CourseLessonResponse, CourseStatus, LessonType, QuizQuestionResponse, QuizQuestionType } from '@/types'
+import CourseNameConfirmModal from '@/components/course/CourseNameConfirmModal'
+import { CourseLessonResponse, CourseProductType, CourseStatus, LessonType, QuizQuestionResponse, QuizQuestionType } from '@/types'
 import {
   AlertTriangle,
   Archive,
@@ -39,6 +40,7 @@ export default function AdminCourseReviewPage() {
   const [activeTab, setActiveTab] = useState<ReviewTab>('info')
   const [denyOpen, setDenyOpen] = useState(false)
   const [denyReason, setDenyReason] = useState('')
+  const [archiveConfirmOpen, setArchiveConfirmOpen] = useState(false)
 
   const { data: course, isLoading: isCourseLoading } = useQuery(
     ['admin-course-review', courseId],
@@ -62,6 +64,7 @@ export default function AdminCourseReviewPage() {
   )
   const activeLesson = orderedLessons.find((lesson) => lesson.id === (activeLessonId || orderedLessons[0]?.id))
   const activeSection = sections.find((section) => section.id === activeSectionId) || null
+  const isDocumentProduct = course?.productType === CourseProductType.DOCUMENT
 
   const { data: quizQuestions = [], isLoading: isQuizLoading } = useQuery(
     ['admin-course-review-quiz', activeLesson?.id],
@@ -106,6 +109,7 @@ export default function AdminCourseReviewPage() {
       queryClient.invalidateQueries('admin-courses')
       queryClient.invalidateQueries(['admin-course-review', courseId])
       toast.success('Course archived')
+      setArchiveConfirmOpen(false)
     },
   })
 
@@ -128,7 +132,7 @@ export default function AdminCourseReviewPage() {
   if (!course) {
     return (
       <div className="rounded-2xl border border-slate-200 bg-white p-6">
-        <p className="text-sm font-bold text-slate-600">Course not found.</p>
+        <p className="text-sm font-bold text-slate-600">Product not found.</p>
         <Link to="/admin/courses" className="mt-4 inline-flex text-sm font-black text-indigo-600">Back to courses</Link>
       </div>
     )
@@ -146,16 +150,23 @@ export default function AdminCourseReviewPage() {
             <h1 className="text-2xl font-black text-slate-900">{course.title}</h1>
             <StatusBadge status={course.status} />
           </div>
-          <p className="mt-1 text-sm font-medium text-slate-500">By {course.instructorName || course.instructor?.fullName || 'Unknown instructor'}</p>
+          <p className="mt-1 text-sm font-medium text-slate-500">
+            {isDocumentProduct ? 'Document' : 'Course'} by {course.instructorName || course.instructor?.fullName || 'Unknown instructor'}
+          </p>
           {course.rejectionReason && (
             <div className="mt-3 flex max-w-3xl items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm font-semibold text-amber-800">
               <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
               <span>{course.rejectionReason}</span>
             </div>
           )}
+          {course.status === CourseStatus.ARCHIVED && (
+            <span className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-black text-slate-600">
+              Archived courses are read-only
+            </span>
+          )}
         </div>
         <div className="flex flex-wrap gap-2">
-          {course.status !== CourseStatus.PUBLISHED && (
+          {course.status === CourseStatus.PENDING_REVIEW && (
             <button
               onClick={() => updateStatus.mutate({ status: CourseStatus.PUBLISHED })}
               disabled={updateStatus.isLoading}
@@ -165,21 +176,19 @@ export default function AdminCourseReviewPage() {
               Approve
             </button>
           )}
-          <button
-            onClick={() => setDenyOpen(true)}
-            disabled={updateStatus.isLoading}
-            className="inline-flex items-center gap-2 rounded-xl border border-rose-200 px-4 py-2 text-sm font-black text-rose-600 hover:bg-rose-50 disabled:opacity-60"
-          >
-            <XCircle className="h-4 w-4" />
-            Deny
-          </button>
+          {course.status === CourseStatus.PENDING_REVIEW && (
+            <button
+              onClick={() => setDenyOpen(true)}
+              disabled={updateStatus.isLoading}
+              className="inline-flex items-center gap-2 rounded-xl border border-rose-200 px-4 py-2 text-sm font-black text-rose-600 hover:bg-rose-50 disabled:opacity-60"
+            >
+              <XCircle className="h-4 w-4" />
+              Deny
+            </button>
+          )}
           {course.status === CourseStatus.PUBLISHED && (
             <button
-              onClick={() => {
-                if (window.confirm('Archive this course? It will leave the marketplace but enrolled learners can still access it.')) {
-                  archiveCourse.mutate()
-                }
-              }}
+              onClick={() => setArchiveConfirmOpen(true)}
               disabled={archiveCourse.isLoading}
               className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2 text-sm font-black text-slate-700 hover:bg-slate-50 disabled:opacity-60"
             >
@@ -196,14 +205,14 @@ export default function AdminCourseReviewPage() {
           onClick={() => setActiveTab('info')}
           className={`flex-1 rounded-xl px-4 py-2 text-sm font-black ${activeTab === 'info' ? 'bg-indigo-600 text-white' : 'text-slate-600 hover:bg-slate-50'}`}
         >
-          Course info
+          {isDocumentProduct ? 'Document info' : 'Course info'}
         </button>
         <button
           type="button"
           onClick={() => setActiveTab('content')}
           className={`flex-1 rounded-xl px-4 py-2 text-sm font-black ${activeTab === 'content' ? 'bg-indigo-600 text-white' : 'text-slate-600 hover:bg-slate-50'}`}
         >
-          Course content
+          {isDocumentProduct ? 'Document file' : 'Course content'}
         </button>
       </div>
 
@@ -222,7 +231,7 @@ export default function AdminCourseReviewPage() {
           </div>
           <div className="space-y-5 p-6">
             <div>
-              <p className="text-xs font-black uppercase tracking-widest text-indigo-600">Course overview</p>
+              <p className="text-xs font-black uppercase tracking-widest text-indigo-600">{isDocumentProduct ? 'Document overview' : 'Course overview'}</p>
               <h2 className="mt-1 text-2xl font-black text-slate-900">{course.title}</h2>
               <p className="mt-2 text-sm font-medium leading-6 text-slate-600">{course.description || 'No description provided.'}</p>
             </div>
@@ -230,7 +239,7 @@ export default function AdminCourseReviewPage() {
               <OverviewMetric icon={<Star className="h-4 w-4" />} label="Price" value={course.priceMxc ? `${course.priceMxc} MXC` : 'Free'} />
               <OverviewMetric icon={<Globe className="h-4 w-4" />} label="Language" value={course.language || 'Not set'} />
               <OverviewMetric icon={<BookOpen className="h-4 w-4" />} label="Level" value={course.level || 'Not set'} />
-              <OverviewMetric icon={<Award className="h-4 w-4" />} label="Certificate" value={course.isCertificate ? 'Included' : 'No'} />
+              <OverviewMetric icon={<Award className="h-4 w-4" />} label="Certificate" value={isDocumentProduct ? 'Not applicable' : course.isCertificate ? 'Included' : 'No'} />
             </div>
             <div>
               <p className="mb-2 text-xs font-black uppercase tracking-widest text-slate-400">Skills</p>
@@ -250,7 +259,7 @@ export default function AdminCourseReviewPage() {
 
       {activeTab === 'content' && <div className="grid min-h-[calc(100vh-15rem)] gap-5 lg:grid-cols-[320px_1fr]">
         <aside className="min-h-0 overflow-y-auto rounded-2xl border border-slate-200 bg-white p-4">
-          <h2 className="mb-4 text-sm font-black uppercase tracking-widest text-slate-400">Course Material</h2>
+          <h2 className="mb-4 text-sm font-black uppercase tracking-widest text-slate-400">{isDocumentProduct ? 'Document Material' : 'Course Material'}</h2>
           <div className="space-y-4">
             {lessonsBySection.map(({ section, lessons: sectionLessons }, index) => (
               <div key={section?.id || `section-${index}`}>
@@ -282,7 +291,7 @@ export default function AdminCourseReviewPage() {
                         activeLesson?.id === lesson.id ? 'bg-indigo-50 text-indigo-700' : 'text-slate-700 hover:bg-slate-50'
                       }`}
                     >
-                      {lesson.lessonType === LessonType.QUIZ ? <CheckCircle className="mt-0.5 h-4 w-4" /> : <PlayCircle className="mt-0.5 h-4 w-4" />}
+                      {lesson.lessonType === LessonType.QUIZ ? <CheckCircle className="mt-0.5 h-4 w-4" /> : lesson.lessonType === LessonType.DOCUMENT ? <FileText className="mt-0.5 h-4 w-4" /> : <PlayCircle className="mt-0.5 h-4 w-4" />}
                       <span className="line-clamp-2">{lesson.title}</span>
                     </button>
                   ))}
@@ -311,7 +320,7 @@ export default function AdminCourseReviewPage() {
                   className="flex w-full items-center justify-between rounded-xl border border-slate-200 p-4 text-left hover:border-indigo-200 hover:bg-indigo-50"
                 >
                   <span className="text-sm font-black text-slate-900">{lesson.title}</span>
-                  <span className="text-xs font-bold text-slate-500">{lesson.lessonType === LessonType.QUIZ ? 'Quiz' : 'Lesson'}</span>
+                  <span className="text-xs font-bold text-slate-500">{lesson.lessonType === LessonType.QUIZ ? 'Quiz' : lesson.lessonType === LessonType.DOCUMENT ? 'Document' : 'Lesson'}</span>
                 </button>
               ))}
             </div>
@@ -319,7 +328,7 @@ export default function AdminCourseReviewPage() {
             <div className="space-y-5">
               <div>
                 <p className="text-xs font-black uppercase tracking-widest text-indigo-600">
-                  {activeLesson.lessonType === LessonType.QUIZ ? 'Quiz' : 'Lesson'}
+                  {activeLesson.lessonType === LessonType.QUIZ ? 'Quiz' : activeLesson.lessonType === LessonType.DOCUMENT ? 'Document' : 'Lesson'}
                 </p>
                 <h2 className="mt-1 text-2xl font-black text-slate-900">{activeLesson.title}</h2>
                 {activeLesson.description && <p className="mt-2 text-sm font-medium text-slate-500">{activeLesson.description}</p>}
@@ -352,8 +361,8 @@ export default function AdminCourseReviewPage() {
       {denyOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4 backdrop-blur-sm">
           <form onSubmit={submitDeny} className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl">
-            <h2 className="text-xl font-black text-slate-900">Return course to draft</h2>
-            <p className="mt-2 text-sm font-medium leading-6 text-slate-500">This reason will be visible to the mentor so they can revise the course.</p>
+            <h2 className="text-xl font-black text-slate-900">Return {isDocumentProduct ? 'document' : 'course'} to draft</h2>
+            <p className="mt-2 text-sm font-medium leading-6 text-slate-500">This reason will be visible to the mentor so they can revise the {isDocumentProduct ? 'document' : 'course'}.</p>
             <textarea
               value={denyReason}
               onChange={(event) => setDenyReason(event.target.value)}
@@ -373,6 +382,20 @@ export default function AdminCourseReviewPage() {
           </form>
         </div>
       )}
+
+      <CourseNameConfirmModal
+        isOpen={archiveConfirmOpen}
+        courseName={course.title}
+        title={`Archive ${isDocumentProduct ? 'document' : 'course'}?`}
+        message="This product will leave the marketplace. Enrolled learners can still access it from their library."
+        confirmText="Archive Course"
+        confirmTone="slate"
+        isLoading={archiveCourse.isLoading}
+        onClose={() => {
+          if (!archiveCourse.isLoading) setArchiveConfirmOpen(false)
+        }}
+        onConfirm={() => archiveCourse.mutate()}
+      />
     </div>
   )
 }

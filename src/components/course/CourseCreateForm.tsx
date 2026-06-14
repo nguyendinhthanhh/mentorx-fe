@@ -8,12 +8,11 @@ import { skillApi } from '@/api/skillApi'
 import { CourseMediaDropZone, CourseMediaKind, validateCourseMedia } from './CourseMediaDropZone'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Loader2, X } from 'lucide-react'
-import { CategoryResponse, SkillResponse, SupportedLanguage } from '@/types'
+import { Download, FileText, Loader2, Trash2, Upload, X } from 'lucide-react'
+import { CategoryResponse, CourseProductType, LessonType, SkillResponse, SupportedLanguage } from '@/types'
 
 const courseSchema = z.object({
   title: z.string().min(5, 'Title must be at least 5 characters').max(200),
-  slug: z.string().min(3, 'Slug must be at least 3 characters').regex(/^[a-z0-9-]+$/, 'Slug must be lowercase with hyphens only'),
   description: z.string().min(20, 'Description must be at least 20 characters').optional().or(z.literal('')),
   categoryId: z.coerce.number().int().positive('Please choose a domain/category'),
   skillIds: z.array(z.number()).min(1, 'Please choose at least one skill'),
@@ -23,6 +22,7 @@ const courseSchema = z.object({
   language: z.string().optional(),
   level: z.string().optional(),
   isCertificate: z.boolean().optional(),
+  productType: z.nativeEnum(CourseProductType),
 })
 
 type CourseFormData = z.infer<typeof courseSchema>
@@ -39,6 +39,7 @@ export default function CourseCreateForm({ instructorId }: { instructorId: strin
   const [thumbnailPreviewUrl, setThumbnailPreviewUrl] = useState('')
   const [previewVideoFile, setPreviewVideoFile] = useState<File | null>(null)
   const [previewVideoPreviewUrl, setPreviewVideoPreviewUrl] = useState('')
+  const [documentFile, setDocumentFile] = useState<File | null>(null)
 
   useEffect(() => {
     void categoryApi.getAllActive().then(setCategories).catch(() => setCategories([]))
@@ -57,11 +58,13 @@ export default function CourseCreateForm({ instructorId }: { instructorId: strin
       language: SupportedLanguage.EN,
       level: 'Beginner',
       isCertificate: false,
+      productType: CourseProductType.COURSE,
       skillIds: [],
     },
   })
 
-  const title = watch('title')
+  const productType = watch('productType')
+  const isDocument = productType === CourseProductType.DOCUMENT
   const selectedSkillIds = watch('skillIds') || []
   const selectedSkills = skills.filter((skill) => selectedSkillIds.includes(skill.id))
   const availableSkills = skills.filter((skill) => !selectedSkillIds.includes(skill.id))
@@ -77,17 +80,12 @@ export default function CourseCreateForm({ instructorId }: { instructorId: strin
     })
     .slice(0, 8)
 
-  const generateSlug = () => {
-    if (title) {
-      const slug = title
-        .toLowerCase()
-        .replace(/[^a-z0-9\s-]/g, '')
-        .replace(/\s+/g, '-')
-        .replace(/-+/g, '-')
-        .trim()
-      setValue('slug', slug)
-    }
-  }
+  const buildSlug = (value: string) => value
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .trim()
 
   const onSubmit = async (data: CourseFormData) => {
     try {
@@ -95,19 +93,29 @@ export default function CourseCreateForm({ instructorId }: { instructorId: strin
       setError('')
       let thumbnailUrl: string | undefined
       let previewVideoUrl: string | undefined
+      let documentUrl: string | undefined
 
       if (thumbnailFile) {
         const result = await fileApi.uploadCourseMedia(thumbnailFile, 'mentorx/courses/previews/images')
         thumbnailUrl = result.fileUrl
       }
 
-      if (previewVideoFile) {
+      if (!isDocument && previewVideoFile) {
         const result = await fileApi.uploadCourseMedia(previewVideoFile, 'mentorx/courses/previews/videos')
         previewVideoUrl = result.fileUrl
       }
 
+      if (isDocument) {
+        if (!documentFile) {
+          throw new Error('Upload the downloadable document file before creating this document.')
+        }
+        const result = await fileApi.uploadCourseMedia(documentFile, 'mentorx/courses/documents/files')
+        documentUrl = result.fileUrl
+      }
+
       const course = await courseApi.create({
         ...data,
+        slug: buildSlug(data.title),
         instructorId,
         categoryId: data.categoryId,
         skillIds: data.skillIds,
@@ -115,10 +123,33 @@ export default function CourseCreateForm({ instructorId }: { instructorId: strin
         thumbnailUrl,
         previewVideoUrl,
         language: data.language as SupportedLanguage | undefined,
+        productType: data.productType,
+        isCertificate: isDocument ? false : data.isCertificate,
       })
-      navigate(`/mentor/courses/${course.courseId || course.id}/manage`)
+      const createdCourseId = course.courseId || course.id
+      if (isDocument && createdCourseId && documentUrl) {
+        await courseApi.saveCurriculum(createdCourseId, {
+          sections: [{
+            title: 'Document',
+            description: data.description || undefined,
+            sectionOrder: 1,
+            isPublished: true,
+            lessons: [{
+              title: data.title.trim(),
+              description: data.description || undefined,
+              lessonType: LessonType.DOCUMENT,
+              lessonOrder: 1,
+              resourceUrl: documentUrl,
+              isPublished: true,
+              isMandatory: true,
+              isFreePreview: false,
+            }],
+          }],
+        })
+      }
+      navigate(`/mentor/courses/${createdCourseId}/manage`)
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to create course. Please try again.')
+      setError(err.response?.data?.message || err.message || `Failed to create ${isDocument ? 'document' : 'course'}. Please try again.`)
     } finally {
       setLoading(false)
     }
@@ -169,31 +200,46 @@ export default function CourseCreateForm({ instructorId }: { instructorId: strin
     }
   }
 
+  const selectDocumentFile = (file: File) => {
+    const validation = validateDocumentFile(file)
+    if (validation) {
+      setError(validation)
+      return
+    }
+    setDocumentFile(file)
+    setError('')
+  }
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       <div>
-        <label className={labelClass}>Course Title</label>
-        <input
-          {...register('title')}
-          className={inputClass}
-          placeholder="e.g., Introduction to Machine Learning"
-        />
-        {errors.title && <p className="text-xs text-red-500 mt-1">{errors.title.message}</p>}
+        <label className={labelClass}>Product Type</label>
+        <div className="grid grid-cols-2 gap-3">
+          {[
+            { value: CourseProductType.COURSE, label: 'Course', description: 'Lessons, quizzes, and course materials' },
+            { value: CourseProductType.DOCUMENT, label: 'Document', description: 'A standalone downloadable resource' },
+          ].map((item) => (
+            <label
+              key={item.value}
+              className="cursor-pointer rounded-xl border border-gray-200 p-4 transition has-[:checked]:border-primary-500 has-[:checked]:bg-primary-50"
+            >
+              <input type="radio" value={item.value} {...register('productType')} className="sr-only" />
+              <span className="block text-sm font-black text-gray-900">{item.label}</span>
+              <span className="mt-1 block text-xs leading-5 text-gray-500">{item.description}</span>
+            </label>
+          ))}
+        </div>
+        {errors.productType && <p className="text-xs text-red-500 mt-1">{errors.productType.message}</p>}
       </div>
 
       <div>
-        <label className={labelClass}>
-          URL Slug
-          <button type="button" onClick={generateSlug} className="ml-2 text-xs text-primary-600 hover:text-primary-700">
-            Auto-generate from title
-          </button>
-        </label>
+        <label className={labelClass}>{isDocument ? 'Document Title' : 'Course Title'}</label>
         <input
-          {...register('slug')}
+          {...register('title')}
           className={inputClass}
-          placeholder="introduction-to-machine-learning"
+          placeholder={isDocument ? 'e.g., React Interview Preparation PDF' : 'e.g., Introduction to Machine Learning'}
         />
-        {errors.slug && <p className="text-xs text-red-500 mt-1">{errors.slug.message}</p>}
+        {errors.title && <p className="text-xs text-red-500 mt-1">{errors.title.message}</p>}
       </div>
 
       <div>
@@ -284,21 +330,29 @@ export default function CourseCreateForm({ instructorId }: { instructorId: strin
 
       <div className="grid gap-4 md:grid-cols-2">
         <CourseMediaDropZone
-          label="Course thumbnail"
+          label={isDocument ? 'Document cover image' : 'Course thumbnail'}
           kind="image"
           file={thumbnailFile}
           mediaUrl={thumbnailPreviewUrl}
           onFile={(file) => selectCourseMedia('image', file)}
           onClear={() => clearCourseMedia('image')}
         />
-        <CourseMediaDropZone
-          label="Preview video"
-          kind="video"
-          file={previewVideoFile}
-          mediaUrl={previewVideoPreviewUrl}
-          onFile={(file) => selectCourseMedia('video', file)}
-          onClear={() => clearCourseMedia('video')}
-        />
+        {isDocument ? (
+          <DocumentFileDropZone
+            file={documentFile}
+            onFile={selectDocumentFile}
+            onClear={() => setDocumentFile(null)}
+          />
+        ) : (
+          <CourseMediaDropZone
+            label="Preview video"
+            kind="video"
+            file={previewVideoFile}
+            mediaUrl={previewVideoPreviewUrl}
+            onFile={(file) => selectCourseMedia('video', file)}
+            onClear={() => clearCourseMedia('video')}
+          />
+        )}
       </div>
 
       <div className="grid grid-cols-3 gap-4">
@@ -335,7 +389,7 @@ export default function CourseCreateForm({ instructorId }: { instructorId: strin
         </div>
       </div>
 
-      <div className="flex items-center gap-3">
+      {!isDocument && <div className="flex items-center gap-3">
         <input
           type="checkbox"
           id="isCertificate"
@@ -345,7 +399,7 @@ export default function CourseCreateForm({ instructorId }: { instructorId: strin
         <label htmlFor="isCertificate" className="text-sm text-gray-700">
           Offer certificate upon completion
         </label>
-      </div>
+      </div>}
 
       {error && (
         <div className="flex items-center gap-2 bg-red-50 border border-red-100 text-red-600 px-4 py-3 rounded-xl text-sm">
@@ -364,12 +418,85 @@ export default function CourseCreateForm({ instructorId }: { instructorId: strin
         {loading ? (
           <>
             <Loader2 className="w-4 h-4 animate-spin" />
-            Creating course...
+            Creating {isDocument ? 'document' : 'course'}...
           </>
         ) : (
-          'Create Course'
+          `Create ${isDocument ? 'Document' : 'Course'}`
         )}
       </button>
     </form>
   )
+}
+
+function DocumentFileDropZone({ file, onFile, onClear }: {
+  file: File | null
+  onFile: (file: File) => void
+  onClear: () => void
+}) {
+  const handleFiles = (files: FileList | null) => {
+    const selectedFile = files?.[0]
+    if (selectedFile) onFile(selectedFile)
+  }
+
+  return (
+    <div>
+      <p className="mb-1.5 text-sm font-bold text-slate-700">Downloadable file</p>
+      <div
+        onDragOver={(event) => event.preventDefault()}
+        onDrop={(event) => {
+          event.preventDefault()
+          handleFiles(event.dataTransfer.files)
+        }}
+        className="rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 p-3 transition hover:border-indigo-300"
+      >
+        {file ? (
+          <div className="flex min-h-40 items-center justify-between gap-3 rounded-lg bg-white p-4">
+            <div className="flex min-w-0 items-center gap-3">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+                <FileText className="h-5 w-5" />
+              </div>
+              <div className="min-w-0">
+                <p className="truncate text-sm font-black text-slate-900">{file.name}</p>
+                <p className="text-xs font-semibold text-slate-500">{formatFileSize(file.size)}</p>
+              </div>
+            </div>
+            <button type="button" onClick={onClear} className="rounded-lg p-2 text-slate-400 hover:bg-rose-50 hover:text-rose-600" title="Remove file">
+              <Trash2 className="h-4 w-4" />
+            </button>
+          </div>
+        ) : (
+          <label htmlFor="document-file-upload" className="flex min-h-40 cursor-pointer flex-col items-center justify-center rounded-lg bg-white px-4 py-6 text-center">
+            <Download className="mb-3 h-8 w-8 text-indigo-500" />
+            <span className="text-sm font-semibold text-slate-900">Drop the file here or click to browse</span>
+            <span className="mt-1 text-xs text-slate-500">PDF, Word, PowerPoint, or ZIP up to 100 MB</span>
+            <span className="mt-3 inline-flex items-center gap-2 rounded-lg bg-indigo-50 px-3 py-2 text-xs font-bold text-indigo-700">
+              <Upload className="h-3.5 w-3.5" />
+              Choose file
+            </span>
+          </label>
+        )}
+        <input id="document-file-upload" type="file" accept=".pdf,.doc,.docx,.ppt,.pptx,.zip,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/zip" className="hidden" onChange={(event) => handleFiles(event.target.files)} />
+      </div>
+    </div>
+  )
+}
+
+function validateDocumentFile(file: File) {
+  const allowed = [
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.ms-powerpoint',
+    'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    'application/zip',
+  ]
+  if (file.type && !allowed.includes(file.type)) return 'Downloadable file must be PDF, Word, PowerPoint, or ZIP.'
+  if (file.size > 100 * 1024 * 1024) return 'Downloadable file must be 100 MB or smaller.'
+  return ''
+}
+
+function formatFileSize(size: number) {
+  if (size >= 1024 * 1024) return `${(size / 1024 / 1024).toFixed(1)} MB`
+  if (size >= 1024) return `${(size / 1024).toFixed(1)} KB`
+  return `${size} B`
 }
