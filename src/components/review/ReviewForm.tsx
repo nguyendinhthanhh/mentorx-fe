@@ -2,12 +2,13 @@ import { useState } from 'react'
 import { useMutation, useQueryClient } from 'react-query'
 import { reviewApi } from '@/api/reviewApi'
 import { useAuthStore } from '@/store/authStore'
-import { ReviewTargetType } from '@/types'
+import { ReviewResponse, ReviewTargetType } from '@/types'
 import { Star, Send, X, Eye, EyeOff, ThumbsUp, ThumbsDown, Loader2 } from 'lucide-react'
 
 interface Props {
   targetType: ReviewTargetType
   targetId: string
+  initialReview?: ReviewResponse
   onClose?: () => void
   onSuccess?: () => void
 }
@@ -21,32 +22,41 @@ const SUB_RATINGS = [
   { key: 'valueRating', label: 'Value for Money' },
 ] as const
 
-export default function ReviewForm({ targetType, targetId, onClose, onSuccess }: Props) {
+export default function ReviewForm({ targetType, targetId, initialReview, onClose, onSuccess }: Props) {
   const { user } = useAuthStore()
   const queryClient = useQueryClient()
 
-  const [overallRating, setOverallRating] = useState(0)
+  const [overallRating, setOverallRating] = useState(initialReview?.overallRating || 0)
   const [hoverRating, setHoverRating] = useState(0)
-  const [subRatings, setSubRatings] = useState<Record<string, number>>({})
+  const [subRatings, setSubRatings] = useState<Record<string, number>>({
+    communicationRating: initialReview?.communicationRating || 0,
+    qualityRating: initialReview?.qualityRating || 0,
+    timelinessRating: initialReview?.timelinessRating || 0,
+    professionalismRating: initialReview?.professionalismRating || 0,
+    valueRating: initialReview?.valueRating || 0,
+  })
   const [hoverSub, setHoverSub] = useState<Record<string, number>>({})
-  const [reviewTitle, setReviewTitle] = useState('')
-  const [reviewText, setReviewText] = useState('')
-  const [pros, setPros] = useState('')
-  const [cons, setCons] = useState('')
-  const [isAnonymous, setIsAnonymous] = useState(false)
-  const [wouldRecommend, setWouldRecommend] = useState(true)
+  const [reviewTitle, setReviewTitle] = useState(initialReview?.reviewTitle || '')
+  const [reviewText, setReviewText] = useState(initialReview?.reviewText || '')
+  const [pros, setPros] = useState(initialReview?.pros || '')
+  const [cons, setCons] = useState(initialReview?.cons || '')
+  const [isAnonymous, setIsAnonymous] = useState(initialReview?.isAnonymous || false)
+  const [wouldRecommend, setWouldRecommend] = useState(initialReview?.wouldRecommend ?? true)
   const [error, setError] = useState('')
+  const editing = !!initialReview
 
   const mutation = useMutation(
-    (data: any) => reviewApi.create(data),
+    (data: any) => editing ? reviewApi.update(initialReview!.id, data) : reviewApi.create(data),
     {
       onSuccess: () => {
         queryClient.invalidateQueries(['reviews', targetType, targetId])
+        queryClient.invalidateQueries(['my-reviews', user?.userId])
+        queryClient.invalidateQueries(['course', targetId])
         onSuccess?.()
         onClose?.()
       },
       onError: (err: any) => {
-        setError(err?.response?.data?.message || 'Failed to submit review. Please try again.')
+        setError(err?.response?.data?.message || 'Failed to save review. Please try again.')
       },
     }
   )
@@ -84,7 +94,7 @@ export default function ReviewForm({ targetType, targetId, onClose, onSuccess }:
   return (
     <div className="bg-white dark:bg-gray-900 rounded-3xl border border-gray-100 dark:border-gray-800 p-6 md:p-8 shadow-sm onb-fade-in-up">
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-xl font-black text-gray-900 dark:text-white">Write a Review</h3>
+        <h3 className="text-xl font-black text-gray-900 dark:text-white">{editing ? 'Edit Review' : 'Write a Review'}</h3>
         {onClose && (
           <button onClick={onClose} className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
             <X className="w-5 h-5 text-gray-400" />
@@ -174,7 +184,7 @@ export default function ReviewForm({ targetType, targetId, onClose, onSuccess }:
           <textarea
             value={reviewText}
             onChange={(e) => setReviewText(e.target.value)}
-            placeholder="Share your experience with this mentor..."
+            placeholder="Share your experience with this course..."
             rows={4}
             maxLength={2000}
             className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-medium text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 transition-all resize-none"
@@ -257,7 +267,7 @@ export default function ReviewForm({ targetType, targetId, onClose, onSuccess }:
           {mutation.isLoading ? (
             <><Loader2 className="w-4 h-4 animate-spin" /> Submitting...</>
           ) : (
-            <><Send className="w-4 h-4" /> Submit Review</>
+            <><Send className="w-4 h-4" /> {editing ? 'Save Review' : 'Submit Review'}</>
           )}
         </button>
       </form>

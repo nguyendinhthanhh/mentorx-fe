@@ -36,6 +36,7 @@ import UserRequestDetailPage from './pages/job/UserRequestDetailPage'
 import CourseListPage from './pages/course/CourseListPage'
 import CourseDetailPage from './pages/course/CourseDetailPage'
 import CourseCreatePage from './pages/course/CourseCreatePage'
+import CourseLearnPage from './pages/course/CourseLearnPage'
 
 // Wallet Pages
 import WalletPage from './pages/wallet/WalletPage'
@@ -55,6 +56,7 @@ import AdminApiPage from './pages/admin/AdminApiPage'
 import AdminUsersPage from './pages/admin/AdminUsersPage'
 import AdminJobsPage from './pages/admin/AdminJobsPage'
 import AdminCoursesPage from './pages/admin/AdminCoursesPage'
+import AdminCourseReviewPage from './pages/admin/AdminCourseReviewPage'
 import AdminReportsPage from './pages/admin/AdminReportsPage'
 import AdminWalletPage from './pages/admin/AdminWalletPage'
 import AdminMentorApplicationsPage from './pages/admin/AdminMentorApplicationsPage'
@@ -62,16 +64,19 @@ import AdminSupportPage from './pages/admin/AdminSupportPage'
 
 // Mentor Pages
 import MentorDashboardPage from './pages/mentor/MentorDashboardPage'
+import MentorCoursesPage from './pages/mentor/MentorCoursesPage'
+import MentorCourseManagePage from './pages/mentor/MentorCourseManagePage'
 import MentorContractsPage from './pages/mentor/MentorContractsPage'
 import MentorProposalsPage from './pages/mentor/MentorProposalsPage'
 import MentorProposalDetailPage from './pages/mentor/MentorProposalDetailPage'
 import MentorProfileSetupPage from './pages/mentor/MentorProfileSetupPage'
 import MentorMessagesPage from './pages/mentor/MentorMessagesPage'
-import MentorCoursesPage from './pages/mentor/MentorCoursesPage'
 import MentorSchedulePage from './pages/mentor/MentorSchedulePage'
 import MentorEarningsPage from './pages/mentor/MentorEarningsPage'
 import MentorReviewsPage from './pages/mentor/MentorReviewsPage'
 import MentorSettingsPage from './pages/mentor/MentorSettingsPage'
+import MyCoursesPage from './pages/user/MyCoursesPage'
+
 
 // Protected Route Components
 import ProtectedRoute from './components/auth/ProtectedRoute'
@@ -93,8 +98,6 @@ const queryClient = new QueryClient({
     },
   },
 })
-
-import MyCoursesPage from './pages/user/MyCoursesPage'
 
 function App() {
   return (
@@ -154,6 +157,9 @@ function App() {
             {/* Chat Routes */}
             <Route path="/chat" element={<ChatListPage />} />
             <Route path="/chat/demo" element={<ChatDemoPage />} />
+            <Route path="/courses/:courseId/learn" element={<CourseLearnPage />} />
+            <Route path="/courses/:courseId/learn/sections/:sectionId" element={<CourseLearnPage />} />
+            <Route path="/courses/:courseId/learn/sections/:sectionId/lessons/:lessonId" element={<CourseLearnPage />} />
 
           </Route>
 
@@ -192,6 +198,7 @@ function App() {
             <Route path="/admin/mentor-applications" element={<AdminMentorApplicationsPage />} />
             <Route path="/admin/jobs" element={<AdminJobsPage />} />
             <Route path="/admin/courses" element={<AdminCoursesPage />} />
+            <Route path="/admin/courses/:courseId/review" element={<AdminCourseReviewPage />} />
             <Route path="/admin/reports" element={<AdminReportsPage />} />
             <Route path="/admin/support" element={<AdminSupportPage />} />
             <Route path="/admin/wallet" element={<AdminOnlyRoute><AdminWalletPage /></AdminOnlyRoute>} />
@@ -213,6 +220,7 @@ function App() {
             <Route path="/mentor/contracts" element={<MentorContractsPage />} />
             <Route path="/mentor/messages" element={<MentorMessagesPage />} />
             <Route path="/mentor/courses" element={<MentorCoursesPage />} />
+            <Route path="/mentor/courses/:courseId/manage" element={<MentorCourseManagePage />} />
             <Route path="/mentor/my-courses" element={<Navigate to="/mentor/courses" replace />} />
             <Route path="/mentor/schedule" element={<MentorSchedulePage />} />
             <Route path="/mentor/earnings" element={<MentorEarningsPage />} />

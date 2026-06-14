@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react'
-import { useParams, Link } from 'react-router-dom'
-import { useQuery } from 'react-query'
+import { useParams, Link, useNavigate } from 'react-router-dom'
+import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { courseApi } from '@/api/courseApi'
+import { mentorApi } from '@/api/mentorApi'
 import { formatCurrency } from '@/utils/formatters'
 import {
   BookOpen,
@@ -17,23 +18,23 @@ import {
   CheckCircle2,
   BarChart3,
   Target,
-  Sparkles,
   ChevronDown,
   ChevronUp,
   Lock,
   PlayCircle,
   Calendar,
   TrendingUp,
-  MessageSquare,
 } from 'lucide-react'
 import ReviewList from '@/components/review/ReviewList'
-import { CourseLessonResponse, ReviewTargetType } from '@/types'
+import { CourseLessonResponse, CourseResponse, MentorProfileResponse, ReviewTargetType } from '@/types'
 import { useAuthStore } from '@/store/authStore'
 
 type TabType = 'overview' | 'curriculum' | 'instructor' | 'reviews'
 
 export default function CourseDetailPage() {
   const { courseId } = useParams<{ courseId: string }>()
+  const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const { user } = useAuthStore()
   const [activeTab, setActiveTab] = useState<TabType>('overview')
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set())
@@ -44,6 +45,17 @@ export default function CourseDetailPage() {
     ['course', courseId],
     () => courseApi.getById(courseId!),
     { enabled: !!courseId }
+  )
+  const { data: courseStats } = useQuery(
+    ['course-stats', courseId],
+    () => courseApi.getCourseStats(courseId!),
+    { enabled: !!courseId }
+  )
+
+  const { data: instructorProfile = null } = useQuery(
+    ['course-instructor-profile', course?.instructorId],
+    () => mentorApi.getMentorProfile(course!.instructorId).catch(() => null),
+    { enabled: !!course?.instructorId }
   )
 
   const { data: isEnrolled = false, isLoading: isEnrollmentLoading } = useQuery(
@@ -62,6 +74,18 @@ export default function CourseDetailPage() {
     ['course-lessons', courseId],
     () => courseApi.getLessonsByCourse(courseId!),
     { enabled: !!courseId }
+  )
+
+  const enrollMutation = useMutation(
+    () => courseApi.enrollCurrentUser(courseId!),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(['course-enrollment-status', courseId, user?.userId])
+        queryClient.invalidateQueries(['my-enrollments', user?.userId])
+        queryClient.invalidateQueries(['course', courseId])
+        navigate(`/courses/${courseId}/learn`)
+      },
+    }
   )
 
   const publishedLessons = useMemo(
@@ -92,34 +116,27 @@ export default function CourseDetailPage() {
     }))
   }, [publishedLessons, sections])
 
-  const videoCount = publishedLessons.filter(
-    (lesson) => lesson.lessonType === 'VIDEO' || !!lesson.videoUrl
-  ).length
+  const videoCount = publishedLessons.filter((lesson) => !!lesson.videoUrl).length
   const documentCount = publishedLessons.filter(
-    (lesson) =>
-      lesson.lessonType === 'DOWNLOADABLE' ||
-      lesson.lessonType === 'ARTICLE' ||
-      lesson.lessonType === 'TEXT' ||
-      !!lesson.resourceUrl ||
-      !!lesson.articleContent
+    (lesson) => !!lesson.resourceUrl || !!lesson.articleContent
   ).length
 
   const getLessonLabel = (lesson: CourseLessonResponse) => {
-    if (lesson.lessonType === 'VIDEO' || lesson.videoUrl) return 'Video'
-    if (lesson.lessonType === 'DOWNLOADABLE' || lesson.resourceUrl) return 'Document'
-    if (lesson.lessonType === 'ARTICLE' || lesson.lessonType === 'TEXT' || lesson.articleContent)
-      return 'Article'
+    if (lesson.lessonType === 'QUIZ') return 'Quiz'
+    if (lesson.videoUrl) return 'Video'
+    if (lesson.resourceUrl) return 'Document'
+    if (lesson.articleContent) return 'Article'
     return 'Lesson'
   }
 
   const getLessonIcon = (lesson: CourseLessonResponse) => {
-    if (lesson.lessonType === 'VIDEO' || lesson.videoUrl) {
+    if (lesson.videoUrl) {
       return <Play className="h-4 w-4 text-indigo-600" />
     }
-    if (lesson.lessonType === 'DOWNLOADABLE' || lesson.resourceUrl) {
+    if (lesson.resourceUrl) {
       return <Download className="h-4 w-4 text-indigo-600" />
     }
-    if (lesson.lessonType === 'ARTICLE' || lesson.lessonType === 'TEXT' || lesson.articleContent) {
+    if (lesson.articleContent) {
       return <FileText className="h-4 w-4 text-indigo-600" />
     }
     return <BookOpen className="h-4 w-4 text-indigo-600" />
@@ -176,6 +193,11 @@ export default function CourseDetailPage() {
     return publishedLessons.reduce((sum, lesson) => sum + (lesson.durationMinutes || 0), 0)
   }, [publishedLessons])
 
+  const requirements = useMemo(
+    () => buildRequirements(course),
+    [course]
+  )
+
   const formatDuration = (minutes: number) => {
     const hours = Math.floor(minutes / 60)
     const mins = minutes % 60
@@ -183,6 +205,18 @@ export default function CourseDetailPage() {
       return `${hours}h ${mins}m`
     }
     return `${mins}m`
+  }
+
+  const handleEnroll = () => {
+    if (!user) {
+      navigate('/login')
+      return
+    }
+    if (isEnrolled) {
+      navigate(`/courses/${courseId}/learn`)
+      return
+    }
+    enrollMutation.mutate()
   }
 
   if (isLoading) {
@@ -235,9 +269,13 @@ export default function CourseDetailPage() {
       </div>
 
       {/* Hero Section */}
-      <div className="bg-gradient-to-br from-indigo-600 via-indigo-700 to-purple-800 text-white">
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="grid items-start gap-8 lg:grid-cols-[1.5fr_1fr]">
+      <div
+        className={`relative overflow-hidden text-white ${course.thumbnailUrl ? 'bg-slate-950' : 'bg-gradient-to-br from-indigo-600 via-indigo-700 to-purple-800'}`}
+        style={course.thumbnailUrl ? { backgroundImage: `url(${course.thumbnailUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}
+      >
+        {course.thumbnailUrl && <div className="absolute inset-0 bg-slate-950/75 backdrop-blur-[2px]" />}
+        <div className="relative max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="grid lg:grid-cols-[1.5fr_1fr] gap-8 items-start">
             {/* Left: Course Info */}
             <div className="space-y-6">
               {/* Category Badge */}
@@ -264,13 +302,16 @@ export default function CourseDetailPage() {
               <div className="flex flex-wrap items-center gap-6 text-sm">
                 <div className="flex items-center gap-2">
                   <img
-                    src={course.instructor?.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(course.instructor?.fullName || 'Instructor')}`}
-                    alt={course.instructor?.fullName}
+                    src={getInstructorAvatar(course, instructorProfile)}
+                    alt={getInstructorName(course, instructorProfile)}
                     className="w-10 h-10 rounded-full border-2 border-white/20"
                   />
                   <div>
                     <p className="text-xs text-indigo-200">Created by</p>
-                    <p className="font-semibold">{course.instructor?.fullName || 'Unknown'}</p>
+                    <p className="font-semibold">{getInstructorName(course, instructorProfile)}</p>
+                    {getInstructorHeadline(instructorProfile) && (
+                      <p className="text-xs text-indigo-100">{getInstructorHeadline(instructorProfile)}</p>
+                    )}
                   </div>
                 </div>
 
@@ -330,6 +371,11 @@ export default function CourseDetailPage() {
                 course={course}
                 isEnrolled={isEnrolled}
                 isEnrollmentLoading={isEnrollmentLoading}
+                isEnrolling={enrollMutation.isLoading}
+                totalDuration={totalDuration}
+                lessonCount={publishedLessons.length}
+                instructorName={getInstructorName(course, instructorProfile)}
+                onEnroll={handleEnroll}
               />
             </div>
           </div>
@@ -376,29 +422,6 @@ export default function CourseDetailPage() {
             {/* Overview Tab */}
             {activeTab === 'overview' && (
               <div className="space-y-8">
-                {/* What you'll learn */}
-                <div>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                    <Sparkles className="w-6 h-6 text-indigo-600" />
-                    What you'll learn
-                  </h2>
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    {[
-                      'Master the fundamentals and advanced concepts',
-                      'Build real-world projects from scratch',
-                      'Learn industry best practices and patterns',
-                      'Get hands-on experience with modern tools',
-                      'Understand core principles and methodologies',
-                      'Prepare for professional certification',
-                    ].map((item, index) => (
-                      <div key={index} className="flex items-start gap-3">
-                        <CheckCircle2 className="w-5 h-5 text-green-600 shrink-0 mt-0.5" />
-                        <span className="text-gray-700">{item}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
                 {/* Description */}
                 <div>
                   <h2 className="text-2xl font-bold text-gray-900 mb-4">Description</h2>
@@ -416,12 +439,7 @@ export default function CourseDetailPage() {
                     Requirements
                   </h2>
                   <ul className="space-y-2">
-                    {[
-                      'Basic understanding of the subject matter',
-                      'A computer with internet connection',
-                      'Willingness to learn and practice',
-                      'No prior experience required',
-                    ].map((req, index) => (
+                    {requirements.map((req, index) => (
                       <li key={index} className="flex items-start gap-3 text-gray-700">
                         <div className="w-1.5 h-1.5 rounded-full bg-gray-400 mt-2 shrink-0" />
                         <span>{req}</span>
@@ -435,12 +453,14 @@ export default function CourseDetailPage() {
                   <h3 className="font-semibold text-gray-900 mb-4">This course includes:</h3>
                   <div className="grid gap-4 sm:grid-cols-2">
                     {[
-                      { icon: PlayCircle, text: `${videoCount} video lectures` },
-                      { icon: FileText, text: `${documentCount} downloadable resources` },
-                      { icon: Clock, text: `${formatDuration(totalDuration)} on-demand content` },
-                      { icon: Globe, text: `${course.language || 'English'} language` },
+                      { icon: PlayCircle, text: `${publishedLessons.length} published lessons` },
+                      { icon: PlayCircle, text: `${videoCount} video lessons` },
+                      { icon: FileText, text: `${documentCount} resource or article lessons` },
+                      { icon: Clock, text: totalDuration > 0 ? `${formatDuration(totalDuration)} content` : 'Self-paced content' },
+                      { icon: Globe, text: `${formatLanguage(course.language)} language` },
                       { icon: Award, text: course.isCertificate ? 'Certificate of completion' : 'No certificate' },
-                      { icon: TrendingUp, text: 'Lifetime access' },
+                      { icon: TrendingUp, text: course.level ? `${course.level} level` : 'Open level' },
+                      { icon: TrendingUp, text: `${Math.round(courseStats?.completionRate || 0)}% completion rate` },
                     ].map((item, index) => (
                       <div key={index} className="flex items-center gap-3">
                         <item.icon className="w-5 h-5 text-indigo-600" />
@@ -475,7 +495,7 @@ export default function CourseDetailPage() {
 
             {/* Instructor Tab */}
             {activeTab === 'instructor' && (
-              <InstructorTab instructor={course.instructor} />
+              <InstructorTab instructor={course.instructor} mentorProfile={instructorProfile} course={course} />
             )}
 
             {/* Reviews Tab */}
@@ -497,8 +517,12 @@ export default function CourseDetailPage() {
               {course.priceMxc ? formatCurrency(course.priceMxc) : 'Free'}
             </p>
           </div>
-          <button className="flex-1 bg-indigo-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-indigo-700 transition-colors">
-            {isEnrolled ? 'Continue Learning' : 'Enroll Now'}
+          <button
+            onClick={handleEnroll}
+            disabled={enrollMutation.isLoading}
+            className="flex-1 bg-indigo-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-indigo-700 transition-colors disabled:bg-gray-300"
+          >
+            {enrollMutation.isLoading ? 'Enrolling...' : isEnrolled ? 'Continue Learning' : 'Enroll Now'}
           </button>
         </div>
       </div>
@@ -506,14 +530,73 @@ export default function CourseDetailPage() {
   )
 }
 
+function buildRequirements(course: CourseResponse | undefined) {
+  const requirements: string[] = []
+  if (course?.level) {
+    requirements.push(`Recommended level: ${course.level}`)
+  }
+  if (course?.language) {
+    requirements.push(`Course language: ${formatLanguage(course.language)}`)
+  }
+  if (course?.skills?.length) {
+    requirements.push(`Interest in ${course.skills.slice(0, 3).join(', ')}`)
+  }
+  requirements.push('Access to a browser and internet connection')
+  return requirements
+}
+
+function formatLanguage(language?: string) {
+  if (!language) return 'English'
+  const labels: Record<string, string> = {
+    en: 'English',
+    vi: 'Vietnamese',
+    zh: 'Chinese',
+    ja: 'Japanese',
+  }
+  return labels[language] || language.toUpperCase()
+}
+
+function formatDurationText(minutes: number) {
+  const hours = Math.floor(minutes / 60)
+  const mins = minutes % 60
+  if (hours > 0) {
+    return `${hours}h ${mins}m`
+  }
+  return `${mins}m`
+}
+
+function getInstructorName(course: CourseResponse, mentorProfile?: MentorProfileResponse | null) {
+  return mentorProfile?.user?.fullName || course.instructor?.fullName || course.instructorName || 'Instructor'
+}
+
+function getInstructorAvatar(course: CourseResponse, mentorProfile?: MentorProfileResponse | null) {
+  const name = getInstructorName(course, mentorProfile)
+  return mentorProfile?.user?.avatarUrl || course.instructor?.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}`
+}
+
+function getInstructorHeadline(mentorProfile?: MentorProfileResponse | null) {
+  return mentorProfile?.headline || mentorProfile?.currentTitle || mentorProfile?.primaryDomain || ''
+}
+
+function getInstructorBio(instructor: any, mentorProfile?: MentorProfileResponse | null) {
+  return mentorProfile?.professionalBio || mentorProfile?.user?.bio || instructor?.bio || 'This instructor has not provided a bio yet.'
+}
 
 // Course Preview Card Component
-function CoursePreviewCard({ course, isEnrolled, isEnrollmentLoading }: any) {
+function CoursePreviewCard({ course, isEnrolled, isEnrollmentLoading, isEnrolling, totalDuration, lessonCount, instructorName, onEnroll }: any) {
   return (
     <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-lg">
       {/* Thumbnail */}
       <div className="relative aspect-video bg-gradient-to-br from-indigo-500 to-purple-600">
-        {course.thumbnailUrl ? (
+        {course.previewVideoUrl ? (
+          <video
+            src={course.previewVideoUrl}
+            poster={course.thumbnailUrl || undefined}
+            controls
+            preload="metadata"
+            className="h-full w-full bg-black object-cover"
+          />
+        ) : course.thumbnailUrl ? (
           <img
             src={course.thumbnailUrl}
             alt={course.title}
@@ -524,13 +607,6 @@ function CoursePreviewCard({ course, isEnrolled, isEnrollmentLoading }: any) {
             <BookOpen className="w-16 h-16 text-white/30" />
           </div>
         )}
-        {course.previewVideoUrl && (
-          <button className="absolute inset-0 flex items-center justify-center bg-black/20 hover:bg-black/30 transition-colors group">
-            <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center group-hover:scale-110 transition-transform">
-              <Play className="w-6 h-6 text-indigo-600 ml-1" />
-            </div>
-          </button>
-        )}
       </div>
 
       {/* Content */}
@@ -540,45 +616,40 @@ function CoursePreviewCard({ course, isEnrolled, isEnrollmentLoading }: any) {
           <p className="text-3xl font-bold text-gray-900">
             {course.priceMxc ? formatCurrency(course.priceMxc) : 'Free'}
           </p>
-          {course.originalPriceMxc && course.originalPriceMxc > course.priceMxc && (
-            <p className="text-sm text-gray-500 line-through">
-              {formatCurrency(course.originalPriceMxc)}
-            </p>
-          )}
+          <p className="mt-1 text-sm font-medium text-gray-500">By {instructorName}</p>
         </div>
 
         {/* CTA Buttons */}
         <div className="space-y-2">
           {isEnrolled ? (
-            <button className="w-full bg-green-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-green-700 transition-colors flex items-center justify-center gap-2">
+            <button onClick={onEnroll} className="w-full bg-green-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-green-700 transition-colors flex items-center justify-center gap-2">
               <CheckCircle2 className="w-5 h-5" />
               Continue Learning
             </button>
           ) : (
-            <>
-              <button className="w-full bg-indigo-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-indigo-700 transition-colors">
-                Enroll Now
-              </button>
-              <button className="w-full border-2 border-gray-200 text-gray-700 px-6 py-3 rounded-xl font-semibold hover:bg-gray-50 transition-colors">
-                Add to Cart
-              </button>
-            </>
+            <button
+              onClick={onEnroll}
+              disabled={isEnrollmentLoading || isEnrolling}
+              className="w-full bg-indigo-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-indigo-700 transition-colors disabled:bg-gray-300"
+            >
+              {isEnrolling ? 'Enrolling...' : 'Enroll Now'}
+            </button>
           )}
         </div>
 
         {/* Features */}
         <div className="pt-4 border-t border-gray-100 space-y-3 text-sm">
           <div className="flex items-center gap-3 text-gray-700">
-            <TrendingUp className="w-5 h-5 text-gray-400" />
-            <span>30-day money-back guarantee</span>
+            <PlayCircle className="w-5 h-5 text-gray-400" />
+            <span>{lessonCount} published lessons</span>
           </div>
           <div className="flex items-center gap-3 text-gray-700">
             <Clock className="w-5 h-5 text-gray-400" />
-            <span>Full lifetime access</span>
+            <span>{totalDuration > 0 ? `${formatDurationText(totalDuration)} content` : 'Self-paced content'}</span>
           </div>
           <div className="flex items-center gap-3 text-gray-700">
-            <MessageSquare className="w-5 h-5 text-gray-400" />
-            <span>Q&A support</span>
+            <Award className="w-5 h-5 text-gray-400" />
+            <span>{course.isCertificate ? 'Certificate included' : 'Certificate not included'}</span>
           </div>
         </div>
       </div>
@@ -739,8 +810,8 @@ function CurriculumTab({
 }
 
 // Instructor Tab Component
-function InstructorTab({ instructor }: any) {
-  if (!instructor) {
+function InstructorTab({ instructor, mentorProfile, course }: { instructor: any; mentorProfile?: MentorProfileResponse | null; course: CourseResponse }) {
+  if (!instructor && !mentorProfile) {
     return (
       <div className="text-center py-12 text-gray-500">
         <Users className="w-12 h-12 mx-auto mb-4 text-gray-300" />
@@ -749,32 +820,42 @@ function InstructorTab({ instructor }: any) {
     )
   }
 
+  const instructorName = getInstructorName(course, mentorProfile)
+  const instructorAvatar = getInstructorAvatar(course, mentorProfile)
+  const headline = getInstructorHeadline(mentorProfile) || instructor?.displayName || instructor?.email || 'Course instructor'
+  const bio = getInstructorBio(instructor, mentorProfile)
+  const mentorSkills = mentorProfile?.skills?.length ? mentorProfile.skills : course.skills
+
   return (
     <div className="space-y-6">
       {/* Instructor Profile */}
       <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
         <img
-          src={instructor.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(instructor.fullName || 'Instructor')}`}
-          alt={instructor.fullName}
+          src={instructorAvatar}
+          alt={instructorName}
           className="w-24 h-24 rounded-full border-4 border-gray-100"
         />
         <div className="flex-1">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">{instructor.fullName}</h2>
-          <p className="text-gray-600 mb-4">{instructor.headline || 'Professional Instructor'}</p>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">{instructorName}</h2>
+          <p className="text-gray-600 mb-4">{headline}</p>
           
           <div className="flex flex-wrap gap-4 text-sm">
-            <div className="flex items-center gap-2">
-              <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
-              <span className="font-medium">4.8 Instructor Rating</span>
-            </div>
+            {course.averageRating != null && (
+              <div className="flex items-center gap-2">
+                <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
+                <span className="font-medium">{Number(course.averageRating).toFixed(1)} course rating</span>
+              </div>
+            )}
             <div className="flex items-center gap-2">
               <Users className="w-4 h-4 text-gray-400" />
-              <span className="font-medium">12,450 Students</span>
+              <span className="font-medium">{course.totalEnrollments || 0} enrolled learners</span>
             </div>
-            <div className="flex items-center gap-2">
-              <PlayCircle className="w-4 h-4 text-gray-400" />
-              <span className="font-medium">15 Courses</span>
-            </div>
+            {course.totalLessons != null && (
+              <div className="flex items-center gap-2">
+                <PlayCircle className="w-4 h-4 text-gray-400" />
+                <span className="font-medium">{course.totalLessons} lessons in this course</span>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -784,25 +865,26 @@ function InstructorTab({ instructor }: any) {
         <h3 className="text-lg font-semibold text-gray-900 mb-3">About the Instructor</h3>
         <div className="prose prose-gray max-w-none">
           <p className="text-gray-700 leading-relaxed">
-            {instructor.bio || 'This instructor has not provided a bio yet.'}
+            {bio}
           </p>
         </div>
       </div>
 
-      {/* Expertise */}
-      <div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-3">Expertise</h3>
-        <div className="flex flex-wrap gap-2">
-          {['Web Development', 'JavaScript', 'React', 'Node.js', 'TypeScript'].map((skill) => (
-            <span
-              key={skill}
-              className="px-4 py-2 bg-indigo-50 text-indigo-700 rounded-lg text-sm font-medium"
-            >
-              {skill}
-            </span>
-          ))}
+      {(mentorSkills?.length || 0) > 0 && (
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-3">{mentorProfile?.skills?.length ? 'Mentor skills' : 'Course skills'}</h3>
+          <div className="flex flex-wrap gap-2">
+            {mentorSkills?.map((skill) => (
+              <span
+                key={skill}
+                className="px-4 py-2 bg-indigo-50 text-indigo-700 rounded-lg text-sm font-medium"
+              >
+                {skill}
+              </span>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }
