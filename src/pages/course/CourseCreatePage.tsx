@@ -9,15 +9,15 @@ export default function CourseCreatePage() {
   if (!user) return null
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
-      <Link to="/courses" className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700">
+    <div className="max-w-5xl mx-auto space-y-6">
+      <Link to="/mentor/courses" className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700">
         <ArrowLeft className="w-4 h-4" />
         Back to courses
       </Link>
 
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Create a New Course</h1>
-        <p className="text-gray-500 mt-1">Share your expertise with the community</p>
+        <h1 className="text-3xl font-bold text-gray-900">Create Course Basics</h1>
+        <p className="text-gray-500 mt-1">Add the public course details first. After creation, you will build sections and lessons in the editor.</p>
       </div>
       
       <div className="bg-white rounded-2xl border border-gray-100 p-8">

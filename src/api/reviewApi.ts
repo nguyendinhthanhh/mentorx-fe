@@ -12,6 +12,11 @@ export const reviewApi = {
     return response.data.data
   },
 
+  respond: async (reviewId: string, responseText: string): Promise<ReviewResponse> => {
+    const response = await apiClient.put<ApiResponse<ReviewResponse>>(`/reviews/${reviewId}/response`, { responseText })
+    return response.data.data
+  },
+
   getById: async (reviewId: string): Promise<ReviewResponse> => {
     const response = await apiClient.get<ApiResponse<ReviewResponse>>(`/reviews/${reviewId}`)
     return response.data.data

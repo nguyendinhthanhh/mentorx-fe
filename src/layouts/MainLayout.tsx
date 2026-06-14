@@ -64,9 +64,9 @@ export default function MainLayout() {
   const hideFooter = location.pathname.startsWith('/chat')
 
   return (
-    <div className="min-h-screen bg-[#f8fafc]">
+    <div className="flex min-h-screen flex-col bg-[#f8fafc]">
       <AppHeader />
-      <main>
+      <main className="flex-1">
         <Outlet />
       </main>
       {!hideFooter && <SiteFooter />}
