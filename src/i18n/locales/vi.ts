@@ -139,6 +139,32 @@ const vi = {
   "jobs.clearFilters": "Xóa bộ lọc",
   "jobs.budgetTbd": "Ngân sách thỏa thuận",
 
+  "jobs.sort.label": "Sắp xếp theo",
+  "jobs.sort.newest": "Mới nhất",
+  "jobs.sort.budgetDesc": "Ngân sách cao nhất",
+  "jobs.sort.budgetAsc": "Ngân sách thấp nhất",
+  "jobs.sort.popular": "Phổ biến nhất",
+  "jobs.sort.relevance": "Liên quan nhất",
+
+  "jobs.filter.moreFilters": "Thêm bộ lọc",
+  "jobs.filter.lessFilters": "Ẩn bớt",
+  "jobs.filter.budget": "Ngân sách",
+  "jobs.filter.budgetType": "Loại ngân sách",
+  "jobs.filter.budgetTypeAll": "Tất cả",
+  "jobs.filter.budgetTypeFixed": "Cố định",
+  "jobs.filter.budgetTypeHourly": "Theo giờ",
+  "jobs.filter.budgetMin": "Tối thiểu (MXC)",
+  "jobs.filter.budgetMax": "Tối đa (MXC)",
+  "jobs.filter.status": "Trạng thái",
+  "jobs.filter.statusOpen": "Đang mở",
+  "jobs.filter.statusClosed": "Đã đóng",
+  "jobs.filter.category": "Danh mục",
+  "jobs.filter.categoryAll": "Tất cả danh mục",
+  "jobs.filter.clearAll": "Xóa tất cả",
+
+  "jobs.relevance": "Độ liên quan: {{score}}%",
+  "jobs.searchKeywordPlaceholder": "Tìm theo từ khóa trong tiêu đề hoặc mô tả...",
+
   "courses.title": "Khóa học & học liệu mentor",
   "courses.subtitle":
     "Mua khóa học, template và tài liệu thực chiến do mentor Mentor X tạo.",
