@@ -7,6 +7,8 @@ import {
   JobUpdateRequest,
   JobStatus,
   JobType,
+  BudgetType,
+  JobSort,
 } from '@/types'
 
 export const jobApi = {
@@ -33,6 +35,12 @@ export const jobApi = {
     jobType?: JobType
     categoryId?: number
     skill?: string
+    keyword?: string
+    budgetMin?: number
+    budgetMax?: number
+    budgetType?: BudgetType
+    status?: JobStatus
+    sort?: JobSort
     page?: number
     size?: number
   }): Promise<PaginatedResponse<JobResponse>> => {

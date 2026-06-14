@@ -139,6 +139,32 @@ const en = {
   "jobs.clearFilters": "Clear filters",
   "jobs.budgetTbd": "Budget TBD",
 
+  "jobs.sort.label": "Sort by",
+  "jobs.sort.newest": "Newest",
+  "jobs.sort.budgetDesc": "Highest budget",
+  "jobs.sort.budgetAsc": "Lowest budget",
+  "jobs.sort.popular": "Most popular",
+  "jobs.sort.relevance": "Most relevant",
+
+  "jobs.filter.moreFilters": "More filters",
+  "jobs.filter.lessFilters": "Less filters",
+  "jobs.filter.budget": "Budget",
+  "jobs.filter.budgetType": "Budget type",
+  "jobs.filter.budgetTypeAll": "All types",
+  "jobs.filter.budgetTypeFixed": "Fixed price",
+  "jobs.filter.budgetTypeHourly": "Hourly",
+  "jobs.filter.budgetMin": "Min (MXC)",
+  "jobs.filter.budgetMax": "Max (MXC)",
+  "jobs.filter.status": "Status",
+  "jobs.filter.statusOpen": "Open",
+  "jobs.filter.statusClosed": "Closed",
+  "jobs.filter.category": "Category",
+  "jobs.filter.categoryAll": "All categories",
+  "jobs.filter.clearAll": "Clear all",
+
+  "jobs.relevance": "Relevance: {{score}}%",
+  "jobs.searchKeywordPlaceholder": "Search by keyword in title or description...",
+
   "courses.title": "Courses & mentor resources",
   "courses.subtitle":
     "Buy practical courses, templates, and learning materials created by Mentor X mentors.",
