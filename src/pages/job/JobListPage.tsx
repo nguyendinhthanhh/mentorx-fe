@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { useQuery } from 'react-query'
 import { Link, useSearchParams } from 'react-router-dom'
 import {
@@ -23,18 +23,40 @@ import {
 import { Skeleton } from '@/components/ui/Skeleton'
 import { jobApi } from '@/api/jobApi'
 import { skillApi } from '@/api/skillApi'
+import { categoryApi } from '@/api/categoryApi'
 import { formatCurrency, formatRelativeTime } from '@/utils/formatters'
-import { JobResponse, JobType } from '@/types'
+import { JobResponse, JobType, JobSort, BudgetType, JobStatus } from '@/types'
 import { useI18n } from '@/i18n/I18nProvider'
 import { TranslationKey } from '@/i18n/translations'
+import { useDebounce } from '@/hooks/useDebounce'
 
 const PAGE_SIZE = 8
+const DEBOUNCE_MS = 300
 
 const JOB_TYPE_OPTIONS = [
   { value: 'ALL', labelKey: 'jobs.all' },
   { value: JobType.FREELANCE_PROJECT, labelKey: 'jobs.freelance' },
   { value: JobType.LONG_TERM_MENTORING, labelKey: 'jobs.mentoring' },
   { value: JobType.QUICK_FIX, labelKey: 'jobs.quickFix' },
+]
+
+const SORT_OPTIONS: { value: JobSort; labelKey: TranslationKey }[] = [
+  { value: JobSort.NEWEST, labelKey: 'jobs.sort.newest' },
+  { value: JobSort.BUDGET_DESC, labelKey: 'jobs.sort.budgetDesc' },
+  { value: JobSort.BUDGET_ASC, labelKey: 'jobs.sort.budgetAsc' },
+  { value: JobSort.POPULAR, labelKey: 'jobs.sort.popular' },
+  { value: JobSort.RELEVANCE, labelKey: 'jobs.sort.relevance' },
+]
+
+const BUDGET_TYPE_OPTIONS = [
+  { value: 'ALL', labelKey: 'jobs.filter.budgetTypeAll' },
+  { value: BudgetType.FIXED, labelKey: 'jobs.filter.budgetTypeFixed' },
+  { value: BudgetType.HOURLY, labelKey: 'jobs.filter.budgetTypeHourly' },
+]
+
+const STATUS_OPTIONS = [
+  { value: JobStatus.OPEN, labelKey: 'jobs.filter.statusOpen' },
+  { value: JobStatus.CLOSED, labelKey: 'jobs.filter.statusClosed' },
 ]
 
 const JOB_TYPE_META: Record<string, { labelKey: TranslationKey; className: string }> = {
@@ -55,52 +77,89 @@ const JOB_TYPE_META: Record<string, { labelKey: TranslationKey; className: strin
 export default function JobListPage() {
   const { t } = useI18n()
   const [searchParams] = useSearchParams()
-  const [search, setSearch] = useState(searchParams.get('q') || '')
+  const [keyword, setKeyword] = useState(searchParams.get('q') || '')
   const [jobType, setJobType] = useState<string>('ALL')
   const [skillFilter, setSkillFilter] = useState('')
+  const [sort, setSort] = useState<JobSort>(JobSort.NEWEST)
+  const [budgetMin, setBudgetMin] = useState('')
+  const [budgetMax, setBudgetMax] = useState('')
+  const [budgetType, setBudgetType] = useState<string>('ALL')
+  const [statusFilter, setStatusFilter] = useState<JobStatus>(JobStatus.OPEN)
+  const [categoryId, setCategoryId] = useState<string>('')
+  const [showMoreFilters, setShowMoreFilters] = useState(false)
   const [page, setPage] = useState(0)
 
+  const debouncedKeyword = useDebounce(keyword, DEBOUNCE_MS)
   const apiJobType = jobType === 'ALL' ? undefined : (jobType as JobType)
+  const apiBudgetType = budgetType === 'ALL' ? undefined : (budgetType as BudgetType)
+  const apiCategoryId = categoryId ? Number(categoryId) : undefined
+
   const { data: skills = [] } = useQuery('job-filter-skills', skillApi.getAllActive, {
     staleTime: 5 * 60 * 1000,
   })
 
+  const { data: categories = [] } = useQuery('job-filter-categories', categoryApi.getAllActive, {
+    staleTime: 5 * 60 * 1000,
+  })
+
   const { data, isLoading } = useQuery(
-    ['jobs', page, apiJobType, skillFilter],
+    ['jobs', page, apiJobType, skillFilter, debouncedKeyword, sort, budgetMin, budgetMax, apiBudgetType, statusFilter, apiCategoryId],
     () =>
       jobApi.getOpenJobs({
         page,
         size: PAGE_SIZE,
         jobType: apiJobType,
         skill: skillFilter.trim() || undefined,
+        keyword: debouncedKeyword.trim() || undefined,
+        sort,
+        budgetMin: budgetMin ? Number(budgetMin) : undefined,
+        budgetMax: budgetMax ? Number(budgetMax) : undefined,
+        budgetType: apiBudgetType,
+        status: statusFilter,
+        categoryId: apiCategoryId,
       }),
     { keepPreviousData: true }
   )
 
   const jobs = data?.content || []
-  const filteredJobs = useMemo(() => {
-    const keyword = search.trim().toLowerCase()
-    if (!keyword) return jobs
-
-    return jobs.filter((job) => {
-      const clientName = getClientName(job).toLowerCase()
-      return (
-        job.title.toLowerCase().includes(keyword) ||
-        job.description.toLowerCase().includes(keyword) ||
-        clientName.includes(keyword) ||
-        job.jobType.toLowerCase().replace(/_/g, ' ').includes(keyword) ||
-        (job.requiredSkills || []).some((skill) => skill.toLowerCase().includes(keyword))
-      )
-    })
-  }, [jobs, search])
-
   const totalPages = data?.totalPages || 1
   const totalJobs = data?.totalElements || 0
-  const hasSearch = search.trim().length > 0
-  const hasActiveFilters = hasSearch || jobType !== 'ALL' || !!skillFilter
+  const hasActiveFilters =
+    keyword.trim().length > 0 ||
+    jobType !== 'ALL' ||
+    !!skillFilter ||
+    sort !== JobSort.NEWEST ||
+    !!budgetMin ||
+    !!budgetMax ||
+    budgetType !== 'ALL' ||
+    statusFilter !== JobStatus.OPEN ||
+    !!categoryId
 
-  const updateType = (value: string) => {
-    setJobType(value)
+  const setFilter = (setter: (value: string) => void) => (value: string) => {
+    setter(value)
+    setPage(0)
+  }
+
+  const setSortFilter = (value: JobSort) => {
+    setSort(JobSort[value] || value)
+    setPage(0)
+  }
+
+  const setStatusFilterFn = (value: string) => {
+    setStatusFilter(value as JobStatus)
+    setPage(0)
+  }
+
+  const clearAllFilters = () => {
+    setKeyword('')
+    setJobType('ALL')
+    setSkillFilter('')
+    setSort(JobSort.NEWEST)
+    setBudgetMin('')
+    setBudgetMax('')
+    setBudgetType('ALL')
+    setStatusFilter(JobStatus.OPEN)
+    setCategoryId('')
     setPage(0)
   }
 
@@ -136,15 +195,18 @@ export default function JobListPage() {
         <div className="relative mb-5">
           <Search className="pointer-events-none absolute left-5 top-1/2 h-5 w-5 -translate-y-1/2 text-[#94A3B8]" />
           <input
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            placeholder={t('jobs.searchPlaceholder')}
+            value={keyword}
+            onChange={(event) => {
+              setKeyword(event.target.value)
+              setPage(0)
+            }}
+            placeholder={t('jobs.searchKeywordPlaceholder' as TranslationKey)}
             className="h-14 w-full rounded-2xl border border-[#E6EAF0] bg-[#FFFFFF] pl-14 pr-12 text-base font-semibold text-[#111827] outline-none transition focus:border-[#4F46E5] focus:ring-4 focus:ring-[#4F46E5]/10 shadow-sm placeholder:text-[#94A3B8] placeholder:font-medium"
           />
-          {hasSearch && (
+          {keyword && (
             <button
               type="button"
-              onClick={() => setSearch('')}
+              onClick={() => { setKeyword(''); setPage(0) }}
               className="absolute right-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-xl text-[#94A3B8] transition hover:bg-[#F5F6FA] hover:text-[#475569]"
               aria-label={t('common.clear')}
             >
@@ -158,7 +220,7 @@ export default function JobListPage() {
             <div className="relative">
               <select
                 value={jobType}
-                onChange={(e) => updateType(e.target.value)}
+                onChange={(e) => setFilter(setJobType)(e.target.value)}
                 className="h-11 appearance-none rounded-xl border border-[#E6EAF0] bg-[#FFFFFF] pl-4 pr-10 text-sm font-semibold text-[#475569] outline-none transition hover:bg-[#F5F6FA] focus:border-[#4F46E5] focus:ring-4 focus:ring-[#4F46E5]/10 shadow-sm"
               >
                 {JOB_TYPE_OPTIONS.map((opt) => (
@@ -173,10 +235,7 @@ export default function JobListPage() {
             <div className="relative">
               <select
                 value={skillFilter}
-                onChange={(e) => {
-                  setSkillFilter(e.target.value)
-                  setPage(0)
-                }}
+                onChange={(e) => setFilter(setSkillFilter)(e.target.value)}
                 className="h-11 appearance-none rounded-xl border border-[#E6EAF0] bg-[#FFFFFF] pl-4 pr-10 text-sm font-semibold text-[#475569] outline-none transition hover:bg-[#F5F6FA] focus:border-[#4F46E5] focus:ring-4 focus:ring-[#4F46E5]/10 shadow-sm"
               >
                 <option value="">All Skills</option>
@@ -189,23 +248,122 @@ export default function JobListPage() {
               <ChevronDown className="pointer-events-none absolute right-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#94A3B8]" />
             </div>
 
-            <button className="inline-flex h-11 items-center gap-2 rounded-xl border border-[#E6EAF0] bg-[#FFFFFF] px-4 text-sm font-semibold text-[#475569] transition hover:bg-[#F5F6FA] hover:text-[#111827] shadow-sm">
+            <div className="relative">
+              <select
+                value={categoryId}
+                onChange={(e) => setFilter(setCategoryId)(e.target.value)}
+                className="h-11 appearance-none rounded-xl border border-[#E6EAF0] bg-[#FFFFFF] pl-4 pr-10 text-sm font-semibold text-[#475569] outline-none transition hover:bg-[#F5F6FA] focus:border-[#4F46E5] focus:ring-4 focus:ring-[#4F46E5]/10 shadow-sm"
+              >
+                <option value="">{t('jobs.filter.categoryAll' as TranslationKey)}</option>
+                {categories.map((cat) => (
+                  <option key={cat.categoryId ?? cat.id} value={cat.categoryId ?? cat.id}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="pointer-events-none absolute right-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#94A3B8]" />
+            </div>
+
+            <button
+              onClick={() => setShowMoreFilters(!showMoreFilters)}
+              className={`inline-flex h-11 items-center gap-2 rounded-xl border px-4 text-sm font-semibold shadow-sm transition ${
+                showMoreFilters
+                  ? 'border-[#4F46E5] bg-[#4F46E5]/5 text-[#4F46E5]'
+                  : 'border-[#E6EAF0] bg-[#FFFFFF] text-[#475569] hover:bg-[#F5F6FA] hover:text-[#111827]'
+              }`}
+            >
               <Filter className="h-4 w-4 text-[#94A3B8]" />
-              More filters
+              {t((showMoreFilters ? 'jobs.filter.lessFilters' : 'jobs.filter.moreFilters') as TranslationKey)}
             </button>
           </div>
 
           <div className="flex items-center gap-2 text-sm font-medium xl:justify-end">
-            <span className="text-[#6B7280]">Sort by:</span>
+            <span className="text-[#6B7280]">{t('jobs.sort.label' as TranslationKey)}</span>
             <div className="relative">
-              <select className="appearance-none bg-transparent font-bold text-[#111827] outline-none pr-4 cursor-pointer">
-                <option>Most relevant</option>
-                <option>Newest</option>
+              <select
+                value={sort}
+                onChange={(e) => setSortFilter(e.target.value as JobSort)}
+                className="appearance-none bg-transparent font-bold text-[#111827] outline-none pr-4 cursor-pointer"
+              >
+                {SORT_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {t(opt.labelKey)}
+                  </option>
+                ))}
               </select>
               <ChevronDown className="pointer-events-none absolute right-0 top-1/2 h-4 w-4 -translate-y-1/2 text-[#111827]" />
             </div>
           </div>
         </div>
+
+        {showMoreFilters && (
+          <div className="mb-6 grid gap-4 rounded-2xl border border-[#E6EAF0] bg-[#FFFFFF] p-5 shadow-sm sm:grid-cols-2 xl:grid-cols-4">
+            <div>
+              <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[#6B7280]">
+                {t('jobs.filter.budgetType' as TranslationKey)}
+              </label>
+              <div className="relative">
+                <select
+                  value={budgetType}
+                  onChange={(e) => setFilter(setBudgetType)(e.target.value)}
+                  className="h-11 w-full appearance-none rounded-xl border border-[#E6EAF0] bg-[#FFFFFF] pl-4 pr-10 text-sm font-semibold text-[#475569] outline-none transition hover:bg-[#F5F6FA] focus:border-[#4F46E5] focus:ring-4 focus:ring-[#4F46E5]/10 shadow-sm"
+                >
+                  {BUDGET_TYPE_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {t(opt.labelKey as TranslationKey)}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="pointer-events-none absolute right-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#94A3B8]" />
+              </div>
+            </div>
+            <div>
+              <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[#6B7280]">
+                {t('jobs.filter.budgetMin' as TranslationKey)}
+              </label>
+              <input
+                type="number"
+                min="0"
+                value={budgetMin}
+                onChange={(e) => setFilter(setBudgetMin)(e.target.value)}
+                placeholder="0"
+                className="h-11 w-full rounded-xl border border-[#E6EAF0] bg-[#FFFFFF] px-4 text-sm font-semibold text-[#111827] outline-none transition placeholder:text-[#94A3B8] focus:border-[#4F46E5] focus:ring-4 focus:ring-[#4F46E5]/10 shadow-sm"
+              />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[#6B7280]">
+                {t('jobs.filter.budgetMax' as TranslationKey)}
+              </label>
+              <input
+                type="number"
+                min="0"
+                value={budgetMax}
+                onChange={(e) => setFilter(setBudgetMax)(e.target.value)}
+                placeholder="0"
+                className="h-11 w-full rounded-xl border border-[#E6EAF0] bg-[#FFFFFF] px-4 text-sm font-semibold text-[#111827] outline-none transition placeholder:text-[#94A3B8] focus:border-[#4F46E5] focus:ring-4 focus:ring-[#4F46E5]/10 shadow-sm"
+              />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[#6B7280]">
+                {t('jobs.filter.status' as TranslationKey)}
+              </label>
+              <div className="relative">
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilterFn(e.target.value)}
+                  className="h-11 w-full appearance-none rounded-xl border border-[#E6EAF0] bg-[#FFFFFF] pl-4 pr-10 text-sm font-semibold text-[#475569] outline-none transition hover:bg-[#F5F6FA] focus:border-[#4F46E5] focus:ring-4 focus:ring-[#4F46E5]/10 shadow-sm"
+                >
+                  {STATUS_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {t(opt.labelKey as TranslationKey)}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="pointer-events-none absolute right-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#94A3B8]" />
+              </div>
+            </div>
+          </div>
+        )}
 
         {hasActiveFilters && (
           <div className="mb-6 flex flex-wrap items-center gap-2">
@@ -215,7 +373,7 @@ export default function JobListPage() {
                 {t(JOB_TYPE_OPTIONS.find((o) => o.value === jobType)?.labelKey as TranslationKey)}
                 <X
                   className="h-3 w-3 cursor-pointer text-[#94A3B8] hover:text-[#111827]"
-                  onClick={() => updateType('ALL')}
+                  onClick={() => setFilter(setJobType)('ALL')}
                 />
               </span>
             )}
@@ -224,46 +382,71 @@ export default function JobListPage() {
                 {skillFilter}
                 <X
                   className="h-3 w-3 cursor-pointer text-[#94A3B8] hover:text-[#111827]"
-                  onClick={() => {
-                    setSkillFilter('')
-                    setPage(0)
-                  }}
+                  onClick={() => setFilter(setSkillFilter)('')}
                 />
               </span>
             )}
-            <button
-              onClick={() => {
-                setSearch('')
-                updateType('ALL')
-                setSkillFilter('')
-              }}
-              className="ml-2 text-sm font-medium text-[#4F46E5] hover:text-[#4338CA]"
-            >
-              Clear all
+            {categoryId && (
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-[#E6EAF0] bg-[#FFFFFF] px-3 py-1.5 text-xs font-medium text-[#475569] shadow-sm">
+                {categories.find((c) => String(c.categoryId ?? c.id) === categoryId)?.name ?? categoryId}
+                <X
+                  className="h-3 w-3 cursor-pointer text-[#94A3B8] hover:text-[#111827]"
+                  onClick={() => setFilter(setCategoryId)('')}
+                />
+              </span>
+            )}
+            {budgetMin && (
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-[#E6EAF0] bg-[#FFFFFF] px-3 py-1.5 text-xs font-medium text-[#475569] shadow-sm">
+                Min: {budgetMin} MXC
+                <X className="h-3 w-3 cursor-pointer text-[#94A3B8] hover:text-[#111827]" onClick={() => setFilter(setBudgetMin)('')} />
+              </span>
+            )}
+            {budgetMax && (
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-[#E6EAF0] bg-[#FFFFFF] px-3 py-1.5 text-xs font-medium text-[#475569] shadow-sm">
+                Max: {budgetMax} MXC
+                <X className="h-3 w-3 cursor-pointer text-[#94A3B8] hover:text-[#111827]" onClick={() => setFilter(setBudgetMax)('')} />
+              </span>
+            )}
+            {budgetType !== 'ALL' && (
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-[#E6EAF0] bg-[#FFFFFF] px-3 py-1.5 text-xs font-medium text-[#475569] shadow-sm">
+                {budgetType}
+                <X className="h-3 w-3 cursor-pointer text-[#94A3B8] hover:text-[#111827]" onClick={() => setFilter(setBudgetType)('ALL')} />
+              </span>
+            )}
+            {statusFilter !== JobStatus.OPEN && (
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-[#E6EAF0] bg-[#FFFFFF] px-3 py-1.5 text-xs font-medium text-[#475569] shadow-sm">
+                {statusFilter}
+                <X className="h-3 w-3 cursor-pointer text-[#94A3B8] hover:text-[#111827]" onClick={() => { setStatusFilter(JobStatus.OPEN); setPage(0) }} />
+              </span>
+            )}
+            {sort !== JobSort.NEWEST && (
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-[#E6EAF0] bg-[#FFFFFF] px-3 py-1.5 text-xs font-medium text-[#475569] shadow-sm">
+                {t(SORT_OPTIONS.find((o) => o.value === sort)?.labelKey as TranslationKey)}
+                <X className="h-3 w-3 cursor-pointer text-[#94A3B8] hover:text-[#111827]" onClick={() => { setSort(JobSort.NEWEST); setPage(0) }} />
+              </span>
+            )}
+            <button onClick={clearAllFilters} className="ml-2 text-sm font-medium text-[#4F46E5] hover:text-[#4338CA]">
+              {t('jobs.filter.clearAll' as TranslationKey)}
             </button>
           </div>
         )}
 
         <div className="mb-4 text-sm font-semibold text-[#475569]">
-          {isLoading ? 'Loading...' : `${filteredJobs.length} jobs found`}
+          {isLoading ? 'Loading...' : `${totalJobs} jobs found`}
         </div>
 
         {isLoading ? (
           <JobListSkeleton />
-        ) : filteredJobs.length > 0 ? (
+        ) : jobs.length > 0 ? (
           <div className="grid gap-4 xl:grid-cols-2">
-            {filteredJobs.map((job) => (
-              <JobCard key={job.jobId} job={job} />
+            {jobs.map((job) => (
+              <JobCard key={job.jobId} job={job} showRelevance={!!debouncedKeyword.trim()} />
             ))}
           </div>
         ) : (
           <EmptyState
             hasSearch={hasActiveFilters}
-            onClear={() => {
-              setSearch('')
-              updateType('ALL')
-              setSkillFilter('')
-            }}
+            onClear={clearAllFilters}
           />
         )}
 
@@ -275,7 +458,7 @@ export default function JobListPage() {
   )
 }
 
-function JobCard({ job }: { job: JobResponse }) {
+function JobCard({ job, showRelevance }: { job: JobResponse; showRelevance: boolean }) {
   const { t } = useI18n()
   const meta = JOB_TYPE_META[job.jobType] || {
     labelKey: 'jobs.all' as TranslationKey,
@@ -284,18 +467,17 @@ function JobCard({ job }: { job: JobResponse }) {
   const clientName = getClientName(job)
   const budget = formatBudget(job, t)
   const deadline = job.deadlineAt ? formatDeadline(job.deadlineAt) : t('common.noDeadline')
+  const relevancePercent = job.relevanceScore != null ? Math.min(Math.round(job.relevanceScore * 100), 100) : null
 
   const initial = clientName.charAt(0).toUpperCase()
 
   return (
     <article className="group relative flex flex-col rounded-2xl border border-[#E6EAF0] bg-[#FFFFFF] p-5 transition-all hover:-translate-y-1 hover:border-[#4F46E5]/40 hover:shadow-xl hover:shadow-[#4F46E5]/5 sm:p-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-5">
-        {/* Company Logo */}
         <div className="flex h-[64px] w-[64px] sm:h-[72px] sm:w-[72px] shrink-0 items-center justify-center rounded-xl border border-[#EEF1F5] bg-[#F5F6FA] text-2xl font-black text-[#94A3B8] shadow-sm">
           {initial}
         </div>
 
-        {/* Job Title & Salary */}
         <div className="min-w-0 flex-1">
           <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
             <Link to={`/jobs/${job.jobId}`} className="line-clamp-2 text-[20px] font-extrabold leading-tight text-[#111827] transition-colors group-hover:text-[#4F46E5] sm:pr-4 sm:text-[22px]">
@@ -305,7 +487,7 @@ function JobCard({ job }: { job: JobResponse }) {
               <span className="inline-flex items-center text-lg font-black tracking-tight text-[#4F46E5] bg-[#4F46E5]/[0.08] border border-[#4F46E5]/10 px-3.5 py-1.5 rounded-lg shadow-sm">{budget}</span>
             </div>
           </div>
-          
+
           <div className="mt-2.5 flex items-center gap-2 text-sm">
             <span className="font-semibold text-[#6B7280] truncate">{clientName}</span>
             <CheckCircle2 className="h-4 w-4 shrink-0 text-[#16A34A]" />
@@ -314,11 +496,15 @@ function JobCard({ job }: { job: JobResponse }) {
                 HOT
               </span>
             )}
+            {showRelevance && relevancePercent != null && (
+              <span className="ml-1 inline-flex shrink-0 items-center rounded-md bg-[#4F46E5]/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#4F46E5]">
+                {relevancePercent}% match
+              </span>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Meta info */}
       <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-[13px] font-medium text-[#6B7280]">
         <div className="flex items-center gap-1.5">
           <Timer className="h-4 w-4 text-[#94A3B8]" />
@@ -334,7 +520,6 @@ function JobCard({ job }: { job: JobResponse }) {
         </div>
       </div>
 
-      {/* Footer: Skills and Action */}
       <div className="mt-6 flex flex-col gap-5 border-t border-[#EEF1F5] pt-5 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex-1 min-w-0">
            {job.requiredSkills && job.requiredSkills.length > 0 ? (
@@ -490,4 +675,3 @@ function getClientName(job: JobResponse) {
 function getProposalCount(job: JobResponse) {
   return job.proposalCount || 0
 }
-
