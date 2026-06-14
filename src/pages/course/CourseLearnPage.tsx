@@ -282,7 +282,9 @@ export default function CourseLearnPage() {
       const { blob, fileName } = await courseApi.downloadLessonDocument(lesson.id)
       downloadBlob(blob, fileName)
     } catch {
-      if (lesson.resourceUrl) window.open(lesson.resourceUrl, '_blank', 'noopener,noreferrer')
+      if (lesson.resourceUrl) {
+        downloadUrl(lesson.resourceUrl, getResourceFileName(lesson.resourceUrl))
+      }
     }
   }
 
@@ -530,13 +532,7 @@ export default function CourseLearnPage() {
             )}
 
             {activeLesson.resourceUrl && (
-              <button
-                onClick={() => downloadResource(activeLesson)}
-                className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50 dark:border-slate-800 dark:text-slate-200 dark:hover:bg-slate-900"
-              >
-                <Download className="h-4 w-4" />
-                Download resource
-              </button>
+              <ResourcePanel lesson={activeLesson} onDownload={() => downloadResource(activeLesson)} />
             )}
 
             {activeLesson.lessonType !== LessonType.QUIZ && (
@@ -649,6 +645,37 @@ function LessonHeader({ lesson, progress }: { lesson: CourseLessonResponse; prog
       <h1 className="text-2xl font-black text-slate-900 dark:text-white">{lesson.title}</h1>
       {lesson.description && <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">{lesson.description}</p>}
     </div>
+  )
+}
+
+function ResourcePanel({ lesson, onDownload }: { lesson: CourseLessonResponse; onDownload: () => void }) {
+  const resourceUrl = lesson.resourceUrl || ''
+  const fileName = getResourceFileName(resourceUrl)
+
+  return (
+    <section className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900/70">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950 dark:text-indigo-300">
+            <FileText className="h-5 w-5" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-xs font-black uppercase tracking-widest text-slate-400">Downloadable material</p>
+            <p className="truncate text-sm font-black text-slate-900 dark:text-white">{fileName}</p>
+          </div>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={onDownload}
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-bold text-white hover:bg-indigo-700"
+          >
+            <Download className="h-4 w-4" />
+            Download
+          </button>
+        </div>
+      </div>
+    </section>
   )
 }
 
@@ -1046,6 +1073,27 @@ function lessonPath(courseId: string, lesson: CourseLessonResponse) {
 
 function sectionPath(courseId: string, sectionId: string) {
   return `/courses/${courseId}/learn/sections/${sectionId}`
+}
+
+function getResourceFileName(resourceUrl: string) {
+  try {
+    const path = new URL(resourceUrl).pathname
+    const fileName = decodeURIComponent(path.split('/').filter(Boolean).pop() || '')
+    return fileName || 'Course resource'
+  } catch {
+    const clean = resourceUrl.split(/[?#]/)[0]
+    return decodeURIComponent(clean.split('/').filter(Boolean).pop() || 'Course resource')
+  }
+}
+
+function downloadUrl(url: string, fileName: string) {
+  const link = document.createElement('a')
+  link.href = url
+  link.download = fileName
+  link.rel = 'noreferrer'
+  document.body.appendChild(link)
+  link.click()
+  link.remove()
 }
 
 function downloadBlob(blob: Blob, fileName: string) {

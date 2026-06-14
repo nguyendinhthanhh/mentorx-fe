@@ -13,6 +13,7 @@ import {
   ArrowLeft,
   AlertTriangle,
   Bold,
+  Download,
   FileText,
   HelpCircle,
   Image,
@@ -1207,8 +1208,6 @@ function LessonEditor({ lesson, uploadingField, onChange, onDelete, onUpload, on
   onUpload: (field: 'videoUrl' | 'resourceUrl', file: File) => void
   onImageInsert: (file: File) => Promise<PendingImage>
 }) {
-  const lessonImages = extractImageSources(lesson.articleContent)
-
   return (
     <div className="max-w-3xl space-y-5">
       <EditorHeader title={lesson.lessonType === LessonType.QUIZ ? 'Quiz Settings' : 'Lesson Settings'} onDelete={onDelete} />
@@ -1232,6 +1231,8 @@ function LessonEditor({ lesson, uploadingField, onChange, onDelete, onUpload, on
           onUpload={(file) => onUpload('videoUrl', file)}
           onClear={() => onChange({ videoUrl: '', pendingVideoFile: undefined, pendingVideoPreviewUrl: undefined })}
           allowManualUrl={false}
+          mediaKind="video"
+          previewName={lesson.pendingVideoFile?.name || 'Video'}
         />
       )}
       {lesson.lessonType !== LessonType.QUIZ && (
@@ -1243,7 +1244,9 @@ function LessonEditor({ lesson, uploadingField, onChange, onDelete, onUpload, on
           onChange={(value) => onChange({ resourceUrl: value })}
           onUpload={(file) => onUpload('resourceUrl', file)}
           onClear={() => onChange({ resourceUrl: '', pendingResourceFile: undefined, pendingResourceName: undefined })}
-          allowManualUrl
+          allowManualUrl={false}
+          mediaKind="resource"
+          previewName={lesson.pendingResourceName}
         />
       )}
       {lesson.lessonType !== LessonType.QUIZ && (
@@ -1256,14 +1259,6 @@ function LessonEditor({ lesson, uploadingField, onChange, onDelete, onUpload, on
             pendingImages: [...lesson.pendingImages, pendingImage],
           })}
           onImageInsert={onImageInsert}
-        />
-      )}
-      {(lesson.videoUrl || lesson.resourceUrl || lessonImages.length > 0) && (
-        <MediaPreviewPanel
-          lesson={lesson}
-          imageSources={lessonImages}
-          onClearVideo={() => onChange({ videoUrl: '', pendingVideoFile: undefined, pendingVideoPreviewUrl: undefined })}
-          onClearResource={() => onChange({ resourceUrl: '', pendingResourceFile: undefined, pendingResourceName: undefined })}
         />
       )}
       {lesson.lessonType === LessonType.QUIZ && (
@@ -1336,7 +1331,18 @@ function ReviewMetric({ label, value, helper }: { label: string; value: string; 
   )
 }
 
-function UploadField({ label, value, uploading, accept, onChange, onUpload, onClear, allowManualUrl = true }: {
+function UploadField({
+  label,
+  value,
+  uploading,
+  accept,
+  onChange,
+  onUpload,
+  onClear,
+  allowManualUrl = true,
+  mediaKind = 'file',
+  previewName,
+}: {
   label: string
   value: string
   uploading: boolean
@@ -1345,25 +1351,29 @@ function UploadField({ label, value, uploading, accept, onChange, onUpload, onCl
   onUpload: (file: File) => void
   onClear: () => void
   allowManualUrl?: boolean
+  mediaKind?: 'video' | 'resource' | 'file'
+  previewName?: string
 }) {
+  const displayName = previewName || (value ? getResourceFileName(value) : '')
+
   return (
     <Field label={label}>
       <div className="rounded-xl border border-slate-200 p-3">
         <div className="mb-3 flex flex-wrap gap-2">
-        <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-bold text-white">
-          {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-          Select
-          <input
-            type="file"
-            accept={accept}
-            className="hidden"
-            onChange={(event) => {
-              const file = event.target.files?.[0]
-              if (file) onUpload(file)
-              event.currentTarget.value = ''
-            }}
-          />
-        </label>
+          <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-bold text-white">
+            {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+            Select
+            <input
+              type="file"
+              accept={accept}
+              className="hidden"
+              onChange={(event) => {
+                const file = event.target.files?.[0]
+                if (file) onUpload(file)
+                event.currentTarget.value = ''
+              }}
+            />
+          </label>
           {value && (
             <button type="button" onClick={onClear} className="inline-flex items-center gap-2 rounded-xl border border-rose-200 px-4 py-2 text-sm font-bold text-rose-600 hover:bg-rose-50">
               <Trash2 className="h-4 w-4" />
@@ -1373,6 +1383,35 @@ function UploadField({ label, value, uploading, accept, onChange, onUpload, onCl
         </div>
         {allowManualUrl && (
           <input value={value} onChange={(event) => onChange(event.target.value)} className={editorInputClass} placeholder="Uploaded or external URL" />
+        )}
+        {value && mediaKind === 'video' && (
+          <div className="mt-3 overflow-hidden rounded-xl border border-slate-200 bg-white">
+            <div className="flex items-center justify-between border-b border-slate-200 px-3 py-2">
+              <p className="truncate text-sm font-bold text-slate-700">{displayName}</p>
+            </div>
+            <video src={value} controls className="aspect-video w-full bg-black" />
+          </div>
+        )}
+        {value && mediaKind === 'resource' && (
+          <div className="mt-3 flex flex-col gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex min-w-0 items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+                <FileText className="h-5 w-5" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs font-black uppercase tracking-widest text-slate-400">Downloadable material</p>
+                <p className="truncate text-sm font-black text-slate-900">{displayName}</p>
+              </div>
+            </div>
+            <a
+              href={value}
+              download={displayName}
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-bold text-white hover:bg-indigo-700"
+            >
+              <Download className="h-4 w-4" />
+              Download
+            </a>
+          </div>
         )}
       </div>
     </Field>
@@ -1664,50 +1703,6 @@ function QuizOptionsEditor({ question, onChange }: {
   )
 }
 
-function MediaPreviewPanel({ lesson, imageSources, onClearVideo, onClearResource }: {
-  lesson: DraftLesson
-  imageSources: string[]
-  onClearVideo: () => void
-  onClearResource: () => void
-}) {
-  return (
-    <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-      <h3 className="mb-3 text-sm font-black uppercase tracking-widest text-slate-500">Media</h3>
-      <div className="space-y-3">
-        {lesson.videoUrl && (
-          <div className="rounded-xl border border-slate-200 bg-white p-3">
-            <div className="mb-2 flex items-center justify-between">
-              <p className="text-sm font-bold text-slate-700">{lesson.pendingVideoFile ? lesson.pendingVideoFile.name : 'Video'}</p>
-              <button type="button" onClick={onClearVideo} className="rounded-lg p-2 text-slate-400 hover:bg-rose-50 hover:text-rose-600" title="Remove video">
-                <Trash2 className="h-4 w-4" />
-              </button>
-            </div>
-            <video src={lesson.videoUrl} controls className="aspect-video w-full rounded-lg bg-black" />
-          </div>
-        )}
-        {lesson.resourceUrl && (
-          <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-white p-3">
-            <div className="flex min-w-0 items-center gap-2">
-              <FileText className="h-4 w-4 shrink-0 text-indigo-600" />
-              <p className="truncate text-sm font-bold text-slate-700">{lesson.pendingResourceName || lesson.resourceUrl}</p>
-            </div>
-            <button type="button" onClick={onClearResource} className="rounded-lg p-2 text-slate-400 hover:bg-rose-50 hover:text-rose-600" title="Remove file">
-              <Trash2 className="h-4 w-4" />
-            </button>
-          </div>
-        )}
-        {imageSources.length > 0 && (
-          <div className="grid gap-3 sm:grid-cols-2">
-            {imageSources.map((src) => (
-              <img key={src} src={src} alt="" className="h-36 w-full rounded-xl border border-slate-200 bg-white object-cover" />
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  )
-}
-
 async function prepareSectionsForSave(sections: DraftSection[]) {
   const preparedSections: DraftSection[] = []
   for (const section of sections) {
@@ -1811,6 +1806,17 @@ function collectMediaUrlsFromSavedQuizQuestions(questions: Array<{ questionText?
 
 function uniqueMediaUrls(urls: string[]) {
   return Array.from(new Set(urls.filter((url) => url.startsWith('http://') || url.startsWith('https://'))))
+}
+
+function getResourceFileName(resourceUrl: string) {
+  try {
+    const path = new URL(resourceUrl).pathname
+    const fileName = decodeURIComponent(path.split('/').filter(Boolean).pop() || '')
+    return fileName || 'Course resource'
+  } catch {
+    const clean = resourceUrl.split(/[?#]/)[0]
+    return decodeURIComponent(clean.split('/').filter(Boolean).pop() || 'Course resource')
+  }
 }
 
 function buildCurriculumHydrationKey(

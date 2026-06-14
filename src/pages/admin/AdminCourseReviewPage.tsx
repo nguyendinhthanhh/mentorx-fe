@@ -13,6 +13,7 @@ import {
   BookOpen,
   CheckCircle,
   Clock,
+  Download,
   FileText,
   Globe,
   Loader2,
@@ -331,10 +332,7 @@ export default function AdminCourseReviewPage() {
               {activeLesson.videoUrl && <video src={activeLesson.videoUrl} controls className="aspect-video w-full rounded-xl bg-black" />}
               {activeLesson.articleContent && <article className="prose max-w-none" dangerouslySetInnerHTML={{ __html: activeLesson.articleContent }} />}
               {activeLesson.resourceUrl && (
-                <a href={activeLesson.resourceUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50">
-                  <FileText className="h-4 w-4" />
-                  Open resource
-                </a>
+                <AdminResourcePanel lesson={activeLesson} />
               )}
 
               {activeLesson.lessonType === LessonType.QUIZ && (
@@ -481,6 +479,46 @@ function OverviewMetric({ icon, label, value }: { icon: ReactNode; label: string
       <p className="text-sm font-black text-slate-900">{value}</p>
     </div>
   )
+}
+
+function AdminResourcePanel({ lesson }: { lesson: CourseLessonResponse }) {
+  const resourceUrl = lesson.resourceUrl || ''
+  const fileName = getResourceFileName(resourceUrl)
+
+  return (
+    <section className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+            <FileText className="h-5 w-5" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-xs font-black uppercase tracking-widest text-slate-400">Downloadable material</p>
+            <p className="truncate text-sm font-black text-slate-900">{fileName}</p>
+          </div>
+        </div>
+        <a
+          href={resourceUrl}
+          download={fileName}
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-bold text-white hover:bg-indigo-700"
+        >
+          <Download className="h-4 w-4" />
+          Download
+        </a>
+      </div>
+    </section>
+  )
+}
+
+function getResourceFileName(resourceUrl: string) {
+  try {
+    const path = new URL(resourceUrl).pathname
+    const fileName = decodeURIComponent(path.split('/').filter(Boolean).pop() || '')
+    return fileName || 'Course resource'
+  } catch {
+    const clean = resourceUrl.split(/[?#]/)[0]
+    return decodeURIComponent(clean.split('/').filter(Boolean).pop() || 'Course resource')
+  }
 }
 
 function Pill({ icon, label }: { icon: ReactNode; label: string }) {
