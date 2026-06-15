@@ -8,11 +8,12 @@ import { categoryApi } from '@/api/categoryApi'
 import { skillApi } from '@/api/skillApi'
 import { useAuthStore } from '@/store/authStore'
 import { CourseMediaDropZone, CourseMediaKind, validateCourseMedia } from '@/components/course/CourseMediaDropZone'
-import { CategoryResponse, CourseQaMessageResponse, CourseStatus, LessonType, QuizQuestionType, ReviewResponse, ReviewTargetType, SkillResponse, SupportedLanguage } from '@/types'
+import { CategoryResponse, CourseProductType, CourseStatus, LessonType, QuizQuestionType, ReviewResponse, ReviewTargetType, SkillResponse, SupportedLanguage } from '@/types'
 import {
   ArrowLeft,
   AlertTriangle,
   Bold,
+  Download,
   FileText,
   HelpCircle,
   Image,
@@ -20,7 +21,6 @@ import {
   List,
   ListOrdered,
   Loader2,
-  MessageCircle,
   Plus,
   Save,
   Send,
@@ -97,23 +97,14 @@ type CourseDetailsDraft = {
   language: SupportedLanguage
   level: string
   isCertificate: boolean
+  productType: CourseProductType
   pendingThumbnailFile?: File
   pendingThumbnailPreviewUrl?: string
   pendingPreviewVideoFile?: File
   pendingPreviewVideoPreviewUrl?: string
 }
 
-type ManageTab = 'content' | 'info' | 'liveQa' | 'reviews'
-
-type QaThread = {
-  learnerId: string
-  learnerName: string
-  lessonId?: string
-  messages: CourseQaMessageResponse[]
-  latestLearnerMessage?: CourseQaMessageResponse
-  latestMentorReply?: CourseQaMessageResponse
-  unanswered: boolean
-}
+type ManageTab = 'content' | 'info' | 'reviews'
 
 const newId = () => `tmp-${Date.now()}-${Math.random().toString(36).slice(2)}`
 
@@ -127,7 +118,7 @@ const createSection = (index: number): DraftSection => ({
 
 const createLesson = (type: LessonType, index: number): DraftLesson => ({
   clientId: newId(),
-  title: type === LessonType.QUIZ ? `Quiz ${index + 1}` : `Lesson ${index + 1}`,
+  title: type === LessonType.QUIZ ? `Quiz ${index + 1}` : type === LessonType.DOCUMENT ? 'Document file' : `Lesson ${index + 1}`,
   description: '',
   lessonType: type,
   durationMinutes: '',
@@ -166,8 +157,6 @@ export default function MentorCourseManagePage() {
   const [activeTab, setActiveTab] = useState<ManageTab>('info')
   const [skillQuery, setSkillQuery] = useState('')
   const [isSkillMenuOpen, setIsSkillMenuOpen] = useState(false)
-  const [qaReplyDrafts, setQaReplyDrafts] = useState<Record<string, string>>({})
-  const [showUnansweredOnly, setShowUnansweredOnly] = useState(false)
   const [reviewResponseDrafts, setReviewResponseDrafts] = useState<Record<string, string>>({})
   const [courseDetails, setCourseDetails] = useState<CourseDetailsDraft>({
     title: '',
@@ -180,6 +169,7 @@ export default function MentorCourseManagePage() {
     language: SupportedLanguage.EN,
     level: 'Beginner',
     isCertificate: false,
+    productType: CourseProductType.COURSE,
   })
   const [detailsDirty, setDetailsDirty] = useState(false)
   const sectionsRef = useRef<DraftSection[]>([])
@@ -191,16 +181,7 @@ export default function MentorCourseManagePage() {
 
   const { data: course } = useQuery(['course', courseId], () => courseApi.getById(courseId!), { enabled: !!courseId })
   const coursePublished = course?.status === CourseStatus.PUBLISHED
-  const { data: qaMessages = [], isLoading: qaLoading } = useQuery(
-    ['course-qa', courseId],
-    () => courseApi.getCourseQaMessages(courseId!),
-    { enabled: !!courseId && coursePublished, refetchInterval: 15000 }
-  )
-  const { data: qaSummary } = useQuery(
-    ['course-qa-summary', courseId],
-    () => courseApi.getCourseQaSummary(courseId!),
-    { enabled: !!courseId && coursePublished, refetchInterval: 15000 }
-  )
+  const isDocumentProduct = courseDetails.productType === CourseProductType.DOCUMENT
   const { data: courseStats } = useQuery(
     ['course-stats', courseId],
     () => courseApi.getCourseStats(courseId!),
@@ -244,16 +225,16 @@ export default function MentorCourseManagePage() {
   )
 
   useEffect(() => {
-    if (!coursePublished && activeTab === 'liveQa') {
+    if (!coursePublished && activeTab === 'reviews') {
       setActiveTab('info')
     }
   }, [activeTab, coursePublished])
 
   useEffect(() => {
-    if (!coursePublished && activeTab === 'reviews') {
+    if (isDocumentProduct && activeTab === 'content') {
       setActiveTab('info')
     }
-  }, [activeTab, coursePublished])
+  }, [activeTab, isDocumentProduct])
 
   useEffect(() => {
     if (!course || detailsDirty) return
@@ -268,6 +249,7 @@ export default function MentorCourseManagePage() {
       language: course.language || SupportedLanguage.EN,
       level: course.level || 'Beginner',
       isCertificate: course.isCertificate === true,
+      productType: course.productType || CourseProductType.COURSE,
     })
   }, [course, detailsDirty])
 
@@ -284,7 +266,7 @@ export default function MentorCourseManagePage() {
     const quizQuestionsByLessonId = new Map(
       quizQuestionData.map(({ lessonId, questions }) => [lessonId, questions])
     )
-    const hydrated = savedSections.map((section) => ({
+    let hydrated: DraftSection[] = savedSections.map((section) => ({
       clientId: section.id,
       id: section.id,
       title: section.title,
@@ -325,10 +307,30 @@ export default function MentorCourseManagePage() {
           }),
         })),
     }))
+    let initializedDocumentDraft = false
+    if (isDocumentProduct && hydrated.length === 0 && savedSections.length === 0 && savedLessons.length === 0) {
+      const section = createSection(0)
+      const lesson = createLesson(LessonType.DOCUMENT, 0)
+      hydrated = [{
+        ...section,
+        title: 'Document',
+        lessons: [lesson],
+      }]
+      initializedDocumentDraft = true
+    }
     setSections(hydrated)
-    setSelection((currentSelection) => preserveSelection(currentSelection, sectionsRef.current, hydrated))
-    setDirty(false)
-  }, [savedSections, savedLessons, savedQuizLessons, sectionsLoading, lessonsLoading, quizQuestionsLoading, quizQuestionsHydrationKey])
+    setSelection((currentSelection) => {
+      if (initializedDocumentDraft && hydrated[0]?.lessons[0]) {
+        return {
+          type: 'lesson',
+          sectionClientId: hydrated[0].clientId,
+          lessonClientId: hydrated[0].lessons[0].clientId,
+        }
+      }
+      return preserveSelection(currentSelection, sectionsRef.current, hydrated)
+    })
+    setDirty(initializedDocumentDraft)
+  }, [savedSections, savedLessons, savedQuizLessons, sectionsLoading, lessonsLoading, quizQuestionsLoading, quizQuestionsHydrationKey, isDocumentProduct])
 
   const selectedSection = useMemo(
     () => sections.find((section) => section.clientId === selection?.sectionClientId),
@@ -338,6 +340,13 @@ export default function MentorCourseManagePage() {
     if (!selection || selection.type !== 'lesson') return null
     return selectedSection?.lessons.find((lesson) => lesson.clientId === selection.lessonClientId) || null
   }, [selectedSection, selection])
+  const documentLesson = useMemo(() => {
+    for (const section of sections) {
+      const lesson = section.lessons.find((item) => item.lessonType === LessonType.DOCUMENT) || section.lessons[0]
+      if (lesson) return { sectionClientId: section.clientId, lesson }
+    }
+    return null
+  }, [sections])
   const selectedCourseSkills = useMemo(
     () => skills.filter((skill: SkillResponse) => courseDetails.skillIds.includes(skill.id)),
     [skills, courseDetails.skillIds]
@@ -357,11 +366,6 @@ export default function MentorCourseManagePage() {
       .slice(0, 8)
   }, [skills, courseDetails.skillIds, skillQuery])
 
-  const qaThreads = useMemo(
-    () => buildQaThreads(qaMessages, user?.userId),
-    [qaMessages, user?.userId]
-  )
-  const visibleQaThreads = showUnansweredOnly ? qaThreads.filter((thread) => thread.unanswered) : qaThreads
   const courseReviews = courseReviewsData?.content || []
   const averageReviewRating = courseReviews.length
     ? courseReviews.reduce((sum, review) => sum + (review.overallRating || 0), 0) / courseReviews.length
@@ -438,11 +442,11 @@ export default function MentorCourseManagePage() {
     async () => {
       const title = courseDetails.title.trim()
       const priceMxc = Number(courseDetails.priceMxc || 0)
-      if (title.length < 5) throw new Error('Course title must be at least 5 characters.')
-      if (!Number.isInteger(priceMxc) || priceMxc < 0) throw new Error('Course price must be a full number and cannot be negative.')
-      if (!courseDetails.categoryId) throw new Error('Choose a course domain.')
+      if (title.length < 5) throw new Error(`${isDocumentProduct ? 'Document' : 'Course'} title must be at least 5 characters.`)
+      if (!Number.isInteger(priceMxc) || priceMxc < 0) throw new Error(`${isDocumentProduct ? 'Document' : 'Course'} price must be a full number and cannot be negative.`)
+      if (!courseDetails.categoryId) throw new Error(`Choose a ${isDocumentProduct ? 'document' : 'course'} domain.`)
       if (!courseDetails.skillIds.length) throw new Error('Choose at least one skill.')
-      return courseApi.updateDetailsWithMedia(courseId!, {
+      const updatedCourse = await courseApi.updateDetailsWithMedia(courseId!, {
         title,
         description: courseDetails.description.trim() || undefined,
         categoryId: Number(courseDetails.categoryId),
@@ -450,16 +454,50 @@ export default function MentorCourseManagePage() {
         priceMxc,
         language: courseDetails.language,
         level: courseDetails.level || undefined,
-        isCertificate: courseDetails.isCertificate,
+        isCertificate: isDocumentProduct ? false : courseDetails.isCertificate,
       }, {
         thumbnailFile: courseDetails.pendingThumbnailFile,
         previewVideoFile: courseDetails.pendingPreviewVideoFile,
         removeThumbnail: !courseDetails.pendingThumbnailFile && !!course?.thumbnailUrl && !courseDetails.thumbnailUrl,
         removePreviewVideo: !courseDetails.pendingPreviewVideoFile && !!course?.previewVideoUrl && !courseDetails.previewVideoUrl,
       })
+
+      let preparedSections: DraftSection[] | undefined
+      if (isDocumentProduct) {
+        const documentSections = ensureDocumentProductSections(sections, courseDetails)
+        const validation = validateDocumentProduct(documentSections)
+        if (validation) throw new Error(validation)
+        const previousMediaUrls = uniqueMediaUrls(collectMediaUrlsFromSavedLessons(savedLessons))
+        preparedSections = await prepareSectionsForSave(documentSections)
+        await courseApi.saveCurriculum(courseId!, {
+          sections: preparedSections.map((section, sectionIndex) => ({
+            id: section.id,
+            title: 'Document',
+            description: courseDetails.description.trim() || undefined,
+            sectionOrder: sectionIndex + 1,
+            isPublished: true,
+            lessons: section.lessons.map((lesson, lessonIndex) => ({
+              id: lesson.id,
+              title,
+              description: courseDetails.description.trim() || undefined,
+              lessonType: LessonType.DOCUMENT,
+              lessonOrder: lessonIndex + 1,
+              resourceUrl: lesson.resourceUrl || undefined,
+              isFreePreview: false,
+              isPublished: true,
+              isMandatory: true,
+            })),
+          })),
+        })
+        const nextMediaUrls = collectMediaUrlsFromDraftSections(preparedSections)
+        const removedMediaUrls = previousMediaUrls.filter((url) => !nextMediaUrls.includes(url))
+        await Promise.allSettled(removedMediaUrls.map((url) => fileApi.deleteCourseMedia(url)))
+      }
+
+      return { updatedCourse, preparedSections }
     },
     {
-      onSuccess: (updatedCourse) => {
+      onSuccess: ({ updatedCourse, preparedSections }) => {
         setCourseDetails((current) => ({
           ...current,
           thumbnailUrl: updatedCourse.thumbnailUrl || '',
@@ -469,25 +507,17 @@ export default function MentorCourseManagePage() {
           pendingPreviewVideoFile: undefined,
           pendingPreviewVideoPreviewUrl: undefined,
         }))
+        if (preparedSections) {
+          setSections(preparedSections)
+          setDirty(false)
+          queryClient.invalidateQueries(['course-sections-edit', courseId])
+          queryClient.invalidateQueries(['course-lessons', courseId])
+        }
         setDetailsDirty(false)
         setError('')
         queryClient.invalidateQueries(['course', courseId])
       },
       onError: (err: any) => setError(err.message || err.response?.data?.message || 'Failed to update course details.'),
-    }
-  )
-
-  const sendQaReplyMutation = useMutation(
-    ({ learnerId, content, lessonId }: { learnerId: string; content: string; lessonId?: string }) =>
-      courseApi.sendCourseQaMessage(courseId!, { recipientId: learnerId, lessonId, content }),
-    {
-      onSuccess: (_message, variables) => {
-        setQaReplyDrafts((current) => ({ ...current, [variables.learnerId]: '' }))
-        queryClient.invalidateQueries(['course-qa', courseId])
-        queryClient.invalidateQueries(['course-qa-summary', courseId])
-        queryClient.invalidateQueries(['mentor-course-qa-summaries', user?.userId])
-      },
-      onError: (err: any) => setError(err.message || err.response?.data?.message || 'Failed to send Q&A reply.'),
     }
   )
 
@@ -636,6 +666,44 @@ export default function MentorCourseManagePage() {
     )
   }
 
+  const updateDocumentFile = (patch: Partial<DraftLesson>) => {
+    const nextSections = ensureDocumentProductSections(sections, courseDetails)
+    const firstSection = nextSections[0]
+    const firstLesson = firstSection.lessons[0]
+    const next = nextSections.map((section) =>
+      section.clientId === firstSection.clientId
+        ? {
+            ...section,
+            lessons: section.lessons.map((lesson) => (
+              lesson.clientId === firstLesson.clientId ? { ...lesson, ...patch } : lesson
+            )),
+          }
+        : section
+    )
+    markDirty(next)
+  }
+
+  const selectDocumentResourceFile = (file: File) => {
+    const validation = validateAsset(file, 'resourceUrl')
+    if (validation) {
+      setError(validation)
+      return
+    }
+    updateDocumentFile({
+      resourceUrl: URL.createObjectURL(file),
+      pendingResourceFile: file,
+      pendingResourceName: file.name,
+    })
+  }
+
+  const clearDocumentResourceFile = () => {
+    updateDocumentFile({
+      resourceUrl: '',
+      pendingResourceFile: undefined,
+      pendingResourceName: undefined,
+    })
+  }
+
   const insertLessonContentImage = async (file: File) => {
     if (!file.type.startsWith('image/')) {
       throw new Error('Lesson content images must be image files.')
@@ -651,10 +719,9 @@ export default function MentorCourseManagePage() {
     return pendingImage
   }
 
-  const canSubmitForReview = !dirty && sections.length > 0 && sections.some((section) => section.lessons.length > 0)
-    && (course?.status === CourseStatus.DRAFT || course?.status === CourseStatus.REJECTED)
-  const unansweredQaCount = qaSummary?.unansweredLearners ?? qaThreads.filter((thread) => thread.unanswered).length
-
+  const documentReadyForReview = !!documentLesson?.lesson.resourceUrl
+  const canSubmitForReview = (course?.status === CourseStatus.DRAFT || course?.status === CourseStatus.REJECTED)
+    && (isDocumentProduct ? !dirty && documentReadyForReview : !dirty && sections.length > 0 && sections.some((section) => section.lessons.length > 0))
   return (
     <div className="min-h-[calc(100vh-8rem)] space-y-4">
       <Link to="/mentor/my-courses" className="inline-flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-slate-900">
@@ -669,10 +736,7 @@ export default function MentorCourseManagePage() {
         </div>
         <div className="flex flex-wrap gap-2">
           {activeTab === 'content' && dirty && <span className="rounded-full bg-amber-50 px-3 py-2 text-xs font-black text-amber-700">Unsaved changes</span>}
-          {activeTab === 'info' && detailsDirty && <span className="rounded-full bg-amber-50 px-3 py-2 text-xs font-black text-amber-700">Unsaved info</span>}
-          {coursePublished && unansweredQaCount > 0 && (
-            <span className="rounded-full bg-rose-50 px-3 py-2 text-xs font-black text-rose-700">{unansweredQaCount} unanswered Q&A</span>
-          )}
+          {activeTab === 'info' && (detailsDirty || (isDocumentProduct && dirty)) && <span className="rounded-full bg-amber-50 px-3 py-2 text-xs font-black text-amber-700">Unsaved info</span>}
           <button
             disabled={!canSubmitForReview || submitReviewMutation.isLoading}
             onClick={() => submitReviewMutation.mutate()}
@@ -700,30 +764,16 @@ export default function MentorCourseManagePage() {
           onClick={() => setActiveTab('info')}
           className={`flex-1 rounded-xl px-4 py-2 text-sm font-black ${activeTab === 'info' ? 'bg-indigo-600 text-white' : 'text-slate-600 hover:bg-slate-50'}`}
         >
-          Course info
+          {isDocumentProduct ? 'Document info' : 'Course info'}
         </button>
-        <button
+        {!isDocumentProduct && <button
           type="button"
           onClick={() => setActiveTab('content')}
           className={`flex-1 rounded-xl px-4 py-2 text-sm font-black ${activeTab === 'content' ? 'bg-indigo-600 text-white' : 'text-slate-600 hover:bg-slate-50'}`}
         >
           Course content
-        </button>
-        {coursePublished && (
-          <button
-            type="button"
-            onClick={() => setActiveTab('liveQa')}
-            className={`relative flex-1 rounded-xl px-4 py-2 text-sm font-black ${activeTab === 'liveQa' ? 'bg-indigo-600 text-white' : 'text-slate-600 hover:bg-slate-50'}`}
-          >
-            Live Q&A
-            {unansweredQaCount > 0 && (
-              <span className={`ml-2 inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[11px] font-black ${activeTab === 'liveQa' ? 'bg-white/20 text-white' : 'bg-rose-100 text-rose-700'}`}>
-                {unansweredQaCount}
-              </span>
-            )}
-          </button>
-        )}
-        {coursePublished && (
+        </button>}
+        {coursePublished && !isDocumentProduct && (
           <button
             type="button"
             onClick={() => setActiveTab('reviews')}
@@ -737,39 +787,62 @@ export default function MentorCourseManagePage() {
       {activeTab === 'info' && (
         <section className="rounded-2xl border border-slate-200 bg-white p-5">
           <div className="mb-5">
-            <h2 className="text-base font-black text-slate-900">Course info</h2>
-            <p className="text-sm font-medium text-slate-500">Title, price, domain, skills, level, language, and certificate setting.</p>
+            <h2 className="text-base font-black text-slate-900">{isDocumentProduct ? 'Document info' : 'Course info'}</h2>
+            <p className="text-sm font-medium text-slate-500">
+              {isDocumentProduct
+                ? 'Manage the document listing, cover image, and downloadable file.'
+                : 'Title, price, domain, skills, level, language, and preview media.'}
+            </p>
           </div>
           <div className="space-y-4">
               <div className="grid gap-4 md:grid-cols-2">
-                <Field label="Course title">
+                <Field label={isDocumentProduct ? 'Document title' : 'Course title'}>
                   <input value={courseDetails.title} onChange={(event) => updateCourseDetails({ title: event.target.value })} className={editorInputClass} />
                 </Field>
                 <Field label="Price (MXC)">
-                  <input type="number" min="0" step="1" value={courseDetails.priceMxc} onChange={(event) => updateCourseDetails({ priceMxc: event.target.value })} className={editorInputClass} />
+                  <input
+                    type="number"
+                    min="0"
+                    step="1"
+                    value={courseDetails.priceMxc}
+                    onChange={(event) => updateCourseDetails({ priceMxc: event.target.value })}
+                    className={editorInputClass}
+                    disabled={!!course?.publishedAt}
+                  />
+                  {!!course?.publishedAt && (
+                    <p className="mt-1 text-xs font-semibold text-slate-500">Price is locked after publication.</p>
+                  )}
                 </Field>
               </div>
               <Field label="Description">
                 <textarea value={courseDetails.description} onChange={(event) => updateCourseDetails({ description: event.target.value })} className={`${editorInputClass} min-h-28`} />
               </Field>
-              <div className="grid gap-4 md:grid-cols-2">
+              <div className={`grid gap-4 ${isDocumentProduct ? 'md:grid-cols-1' : 'md:grid-cols-2'}`}>
                 <CourseMediaDropZone
-                  label="Course thumbnail"
+                  label={isDocumentProduct ? 'Document cover image' : 'Course thumbnail'}
                   kind="image"
                   file={courseDetails.pendingThumbnailFile}
                   mediaUrl={courseDetails.thumbnailUrl}
                   onFile={(file) => selectCourseMedia('image', file)}
                   onClear={() => clearCourseMedia('image')}
                 />
-                <CourseMediaDropZone
+                {!isDocumentProduct && <CourseMediaDropZone
                   label="Preview video"
                   kind="video"
                   file={courseDetails.pendingPreviewVideoFile}
                   mediaUrl={courseDetails.previewVideoUrl}
                   onFile={(file) => selectCourseMedia('video', file)}
                   onClear={() => clearCourseMedia('video')}
-                />
+                />}
               </div>
+              {isDocumentProduct && (
+                <DocumentResourceManager
+                  resourceUrl={documentLesson?.lesson.resourceUrl || ''}
+                  pendingFileName={documentLesson?.lesson.pendingResourceName}
+                  onFile={selectDocumentResourceFile}
+                  onClear={clearDocumentResourceFile}
+                />
+              )}
               <div className="grid gap-4 md:grid-cols-3">
                 <Field label="Domain">
                   <select value={courseDetails.categoryId} onChange={(event) => updateCourseDetails({ categoryId: event.target.value })} className={editorInputClass}>
@@ -856,19 +929,21 @@ export default function MentorCourseManagePage() {
                 </div>
               </Field>
               <div className="space-y-3">
+                {!isDocumentProduct && (
                 <label className="inline-flex items-center gap-2 text-sm font-bold text-slate-700">
                   <input type="checkbox" checked={courseDetails.isCertificate} onChange={(event) => updateCourseDetails({ isCertificate: event.target.checked })} className="h-4 w-4 rounded border-slate-300" />
                   Offer certificate upon completion
                 </label>
+                )}
                 <div>
                   <button
                     type="button"
                     onClick={() => updateCourseDetailsMutation.mutate()}
-                    disabled={!detailsDirty || updateCourseDetailsMutation.isLoading}
+                    disabled={(!detailsDirty && !(isDocumentProduct && dirty)) || updateCourseDetailsMutation.isLoading}
                     className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2 text-sm font-bold text-white disabled:bg-slate-300"
                   >
                     {updateCourseDetailsMutation.isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                    Save course details
+                    Save {isDocumentProduct ? 'document' : 'course'} details
                   </button>
                 </div>
               </div>
@@ -878,14 +953,14 @@ export default function MentorCourseManagePage() {
 
       {error && <p className="rounded-xl bg-rose-50 px-4 py-3 text-sm font-semibold text-rose-600">{error}</p>}
 
-      {activeTab === 'content' && <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+      {activeTab === 'content' && !isDocumentProduct && <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
         <div className="grid h-[calc(100vh-15rem)] min-h-[520px] overflow-hidden lg:grid-cols-[320px_1fr]">
           <aside className="min-h-0 overflow-y-auto border-r border-slate-200 bg-slate-50">
           <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-slate-50 p-4">
-            <h2 className="text-sm font-black uppercase tracking-widest text-slate-500">Sections</h2>
-            <button onClick={addSection} className="rounded-lg p-2 text-slate-500 hover:bg-white hover:text-indigo-600" title="Add section">
+            <h2 className="text-sm font-black uppercase tracking-widest text-slate-500">{isDocumentProduct ? 'Document' : 'Sections'}</h2>
+            {!isDocumentProduct && <button onClick={addSection} className="rounded-lg p-2 text-slate-500 hover:bg-white hover:text-indigo-600" title="Add section">
               <Plus className="h-5 w-5" />
-            </button>
+            </button>}
           </div>
           <div className="space-y-2 p-3">
             {sections.map((section, sectionIndex) => (
@@ -901,14 +976,14 @@ export default function MentorCourseManagePage() {
                   >
                     <span className="block truncate text-sm font-black">{sectionIndex + 1}. {section.title || 'Untitled section'}</span>
                   </button>
-                  <button
+                  {!isDocumentProduct && <button
                     onClick={() => removeSection(section.clientId)}
                     className="rounded-lg p-2 text-slate-400 hover:bg-rose-50 hover:text-rose-600"
                     title="Delete section"
                     aria-label={`Delete ${section.title || 'section'}`}
                   >
                     <Trash2 className="h-4 w-4" />
-                  </button>
+                  </button>}
                 </div>
                 <div className="space-y-1 border-t border-slate-100 p-2">
                   {section.lessons.map((lesson, lessonIndex) => (
@@ -927,24 +1002,24 @@ export default function MentorCourseManagePage() {
                         {lesson.lessonType === LessonType.QUIZ ? <HelpCircle className="h-4 w-4 shrink-0" /> : <FileText className="h-4 w-4 shrink-0" />}
                         <span className="truncate">{sectionIndex + 1}.{lessonIndex + 1} {lesson.title || 'Untitled'}</span>
                       </button>
-                      <button
+                      {!isDocumentProduct && <button
                         onClick={() => removeLesson(section.clientId, lesson.clientId)}
                         className="rounded-md p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-600"
                         title={lesson.lessonType === LessonType.QUIZ ? 'Delete quiz' : 'Delete lesson'}
                         aria-label={`Delete ${lesson.title || (lesson.lessonType === LessonType.QUIZ ? 'quiz' : 'lesson')}`}
                       >
                         <Trash2 className="h-3.5 w-3.5" />
-                      </button>
+                      </button>}
                     </div>
                   ))}
-                  <div className="grid grid-cols-2 gap-1 pt-1">
+                  {!isDocumentProduct && <div className="grid grid-cols-2 gap-1 pt-1">
                     <button onClick={() => addLesson(section.clientId, LessonType.LESSON)} className="rounded-lg border border-slate-200 px-2 py-1.5 text-xs font-bold text-slate-600 hover:border-indigo-200 hover:text-indigo-600">
                       + Lesson
                     </button>
                     <button onClick={() => addLesson(section.clientId, LessonType.QUIZ)} className="rounded-lg border border-slate-200 px-2 py-1.5 text-xs font-bold text-slate-600 hover:border-indigo-200 hover:text-indigo-600">
                       + Quiz
                     </button>
-                  </div>
+                  </div>}
                 </div>
               </div>
             ))}
@@ -985,100 +1060,6 @@ export default function MentorCourseManagePage() {
           </button>
         </div>
       </section>}
-
-      {activeTab === 'liveQa' && coursePublished && (
-        <section className="rounded-2xl border border-slate-200 bg-white p-5">
-          <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <div>
-              <h2 className="flex items-center gap-2 text-base font-black text-slate-900">
-                <MessageCircle className="h-5 w-5 text-indigo-600" />
-                Live Q&A
-              </h2>
-              <p className="text-sm font-medium text-slate-500">Reply to learner questions from this published course.</p>
-            </div>
-            <button
-              type="button"
-              onClick={() => setShowUnansweredOnly((current) => !current)}
-              className={`inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-black ${
-                showUnansweredOnly ? 'bg-indigo-600 text-white' : 'border border-slate-200 text-slate-700 hover:bg-slate-50'
-              }`}
-            >
-              <MessageCircle className="h-4 w-4" />
-              Unanswered only
-            </button>
-          </div>
-
-          {qaLoading ? (
-            <div className="flex min-h-48 items-center justify-center">
-              <Loader2 className="h-7 w-7 animate-spin text-indigo-600" />
-            </div>
-          ) : visibleQaThreads.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-slate-200 p-8 text-center">
-              <MessageCircle className="mx-auto mb-3 h-8 w-8 text-slate-300" />
-              <p className="text-sm font-black text-slate-700">{showUnansweredOnly ? 'No unanswered questions' : 'No learner questions yet'}</p>
-              <p className="mt-1 text-sm font-medium text-slate-500">
-                {showUnansweredOnly ? 'Every learner question has a mentor reply.' : 'Questions from enrolled learners will appear here.'}
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {visibleQaThreads.map((thread) => {
-                const draft = qaReplyDrafts[thread.learnerId] || ''
-                return (
-                  <article key={thread.learnerId} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                    <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-                      <div>
-                        <h3 className="text-sm font-black text-slate-900">{thread.learnerName}</h3>
-                        <p className="text-xs font-semibold text-slate-500">{thread.messages.length} message{thread.messages.length === 1 ? '' : 's'}</p>
-                      </div>
-                      {thread.unanswered ? (
-                        <span className="rounded-full bg-rose-100 px-3 py-1 text-xs font-black text-rose-700">New</span>
-                      ) : (
-                        <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-black text-emerald-700">Answered</span>
-                      )}
-                    </div>
-                    <div className="max-h-72 space-y-2 overflow-auto pr-1">
-                      {thread.messages.map((message) => {
-                        const fromMentor = message.senderId === user?.userId
-                        return (
-                          <div key={message.id} className={`rounded-xl px-3 py-2 ${fromMentor ? 'ml-8 bg-indigo-600 text-white' : 'mr-8 bg-white text-slate-700'}`}>
-                            <div className="mb-1 flex items-center justify-between gap-2">
-                              <span className={`text-xs font-black ${fromMentor ? 'text-indigo-100' : 'text-slate-500'}`}>{fromMentor ? 'You' : message.senderName}</span>
-                              <span className={`text-[11px] font-semibold ${fromMentor ? 'text-indigo-100' : 'text-slate-400'}`}>{new Date(message.createdAt).toLocaleString()}</span>
-                            </div>
-                            <p className="whitespace-pre-wrap text-sm font-medium leading-6">{message.content}</p>
-                          </div>
-                        )
-                      })}
-                    </div>
-                    <div className="mt-4 flex flex-col gap-2 md:flex-row">
-                      <textarea
-                        value={draft}
-                        onChange={(event) => setQaReplyDrafts((current) => ({ ...current, [thread.learnerId]: event.target.value }))}
-                        placeholder={`Reply to ${thread.learnerName}`}
-                        className="min-h-20 flex-1 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10"
-                      />
-                      <button
-                        type="button"
-                        disabled={!draft.trim() || sendQaReplyMutation.isLoading}
-                        onClick={() => sendQaReplyMutation.mutate({
-                          learnerId: thread.learnerId,
-                          lessonId: thread.latestLearnerMessage?.lessonId,
-                          content: draft.trim(),
-                        })}
-                        className="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-bold text-white disabled:bg-slate-300 md:self-end"
-                      >
-                        {sendQaReplyMutation.isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-                        Reply
-                      </button>
-                    </div>
-                  </article>
-                )
-              })}
-            </div>
-          )}
-        </section>
-      )}
 
       {activeTab === 'reviews' && coursePublished && (
         <section className="space-y-5 rounded-2xl border border-slate-200 bg-white p-5">
@@ -1207,22 +1188,20 @@ function LessonEditor({ lesson, uploadingField, onChange, onDelete, onUpload, on
   onUpload: (field: 'videoUrl' | 'resourceUrl', file: File) => void
   onImageInsert: (file: File) => Promise<PendingImage>
 }) {
-  const lessonImages = extractImageSources(lesson.articleContent)
-
   return (
     <div className="max-w-3xl space-y-5">
-      <EditorHeader title={lesson.lessonType === LessonType.QUIZ ? 'Quiz Settings' : 'Lesson Settings'} onDelete={onDelete} />
+      <EditorHeader title={lesson.lessonType === LessonType.QUIZ ? 'Quiz Settings' : lesson.lessonType === LessonType.DOCUMENT ? 'Document File' : 'Lesson Settings'} onDelete={onDelete} />
       <Field label="Title">
         <input value={lesson.title} onChange={(event) => onChange({ title: event.target.value })} className={editorInputClass} />
       </Field>
       <Field label="Summary">
         <textarea value={lesson.description} onChange={(event) => onChange({ description: event.target.value })} className={`${editorInputClass} min-h-24`} />
       </Field>
-      <Field label="Duration minutes">
+      {lesson.lessonType !== LessonType.DOCUMENT && <Field label="Duration minutes">
         <input type="number" min="0" step="1" value={lesson.durationMinutes} onChange={(event) => onChange({ durationMinutes: event.target.value })} className={`${editorInputClass} max-w-xs`} />
-      </Field>
+      </Field>}
 
-      {lesson.lessonType !== LessonType.QUIZ && (
+      {lesson.lessonType === LessonType.LESSON && (
         <UploadField
           label="Optional video"
           value={lesson.videoUrl}
@@ -1232,21 +1211,25 @@ function LessonEditor({ lesson, uploadingField, onChange, onDelete, onUpload, on
           onUpload={(file) => onUpload('videoUrl', file)}
           onClear={() => onChange({ videoUrl: '', pendingVideoFile: undefined, pendingVideoPreviewUrl: undefined })}
           allowManualUrl={false}
+          mediaKind="video"
+          previewName={lesson.pendingVideoFile?.name || 'Video'}
         />
       )}
       {lesson.lessonType !== LessonType.QUIZ && (
         <UploadField
-          label="Optional downloadable file"
+          label={lesson.lessonType === LessonType.DOCUMENT ? 'Document file' : 'Optional downloadable file'}
           value={lesson.resourceUrl}
           uploading={uploadingField === 'resourceUrl'}
           accept=".pdf,.doc,.docx,.ppt,.pptx,.zip"
           onChange={(value) => onChange({ resourceUrl: value })}
           onUpload={(file) => onUpload('resourceUrl', file)}
           onClear={() => onChange({ resourceUrl: '', pendingResourceFile: undefined, pendingResourceName: undefined })}
-          allowManualUrl
+          allowManualUrl={false}
+          mediaKind="resource"
+          previewName={lesson.pendingResourceName}
         />
       )}
-      {lesson.lessonType !== LessonType.QUIZ && (
+      {lesson.lessonType === LessonType.LESSON && (
         <RichTextEditor
           label="Lesson content"
           value={lesson.articleContent}
@@ -1256,14 +1239,6 @@ function LessonEditor({ lesson, uploadingField, onChange, onDelete, onUpload, on
             pendingImages: [...lesson.pendingImages, pendingImage],
           })}
           onImageInsert={onImageInsert}
-        />
-      )}
-      {(lesson.videoUrl || lesson.resourceUrl || lessonImages.length > 0) && (
-        <MediaPreviewPanel
-          lesson={lesson}
-          imageSources={lessonImages}
-          onClearVideo={() => onChange({ videoUrl: '', pendingVideoFile: undefined, pendingVideoPreviewUrl: undefined })}
-          onClearResource={() => onChange({ resourceUrl: '', pendingResourceFile: undefined, pendingResourceName: undefined })}
         />
       )}
       {lesson.lessonType === LessonType.QUIZ && (
@@ -1336,7 +1311,18 @@ function ReviewMetric({ label, value, helper }: { label: string; value: string; 
   )
 }
 
-function UploadField({ label, value, uploading, accept, onChange, onUpload, onClear, allowManualUrl = true }: {
+function UploadField({
+  label,
+  value,
+  uploading,
+  accept,
+  onChange,
+  onUpload,
+  onClear,
+  allowManualUrl = true,
+  mediaKind = 'file',
+  previewName,
+}: {
   label: string
   value: string
   uploading: boolean
@@ -1345,25 +1331,29 @@ function UploadField({ label, value, uploading, accept, onChange, onUpload, onCl
   onUpload: (file: File) => void
   onClear: () => void
   allowManualUrl?: boolean
+  mediaKind?: 'video' | 'resource' | 'file'
+  previewName?: string
 }) {
+  const displayName = previewName || (value ? getResourceFileName(value) : '')
+
   return (
     <Field label={label}>
       <div className="rounded-xl border border-slate-200 p-3">
         <div className="mb-3 flex flex-wrap gap-2">
-        <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-bold text-white">
-          {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-          Select
-          <input
-            type="file"
-            accept={accept}
-            className="hidden"
-            onChange={(event) => {
-              const file = event.target.files?.[0]
-              if (file) onUpload(file)
-              event.currentTarget.value = ''
-            }}
-          />
-        </label>
+          <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-bold text-white">
+            {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+            Select
+            <input
+              type="file"
+              accept={accept}
+              className="hidden"
+              onChange={(event) => {
+                const file = event.target.files?.[0]
+                if (file) onUpload(file)
+                event.currentTarget.value = ''
+              }}
+            />
+          </label>
           {value && (
             <button type="button" onClick={onClear} className="inline-flex items-center gap-2 rounded-xl border border-rose-200 px-4 py-2 text-sm font-bold text-rose-600 hover:bg-rose-50">
               <Trash2 className="h-4 w-4" />
@@ -1374,6 +1364,110 @@ function UploadField({ label, value, uploading, accept, onChange, onUpload, onCl
         {allowManualUrl && (
           <input value={value} onChange={(event) => onChange(event.target.value)} className={editorInputClass} placeholder="Uploaded or external URL" />
         )}
+        {value && mediaKind === 'video' && (
+          <div className="mt-3 overflow-hidden rounded-xl border border-slate-200 bg-white">
+            <div className="flex items-center justify-between border-b border-slate-200 px-3 py-2">
+              <p className="truncate text-sm font-bold text-slate-700">{displayName}</p>
+            </div>
+            <video src={value} controls className="aspect-video w-full bg-black" />
+          </div>
+        )}
+        {value && mediaKind === 'resource' && (
+          <div className="mt-3 flex flex-col gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex min-w-0 items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+                <FileText className="h-5 w-5" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs font-black uppercase tracking-widest text-slate-400">Downloadable material</p>
+                <p className="truncate text-sm font-black text-slate-900">{displayName}</p>
+              </div>
+            </div>
+            <a
+              href={value}
+              download={displayName}
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-bold text-white hover:bg-indigo-700"
+            >
+              <Download className="h-4 w-4" />
+              Download
+            </a>
+          </div>
+        )}
+      </div>
+    </Field>
+  )
+}
+
+function DocumentResourceManager({ resourceUrl, pendingFileName, onFile, onClear }: {
+  resourceUrl: string
+  pendingFileName?: string
+  onFile: (file: File) => void
+  onClear: () => void
+}) {
+  const inputId = 'document-resource-file'
+  const displayName = pendingFileName || (resourceUrl ? getResourceFileName(resourceUrl) : '')
+
+  const handleFiles = (files: FileList | null) => {
+    const file = files?.[0]
+    if (file) onFile(file)
+  }
+
+  return (
+    <Field label="Downloadable file">
+      <div
+        onDragOver={(event) => event.preventDefault()}
+        onDrop={(event) => {
+          event.preventDefault()
+          handleFiles(event.dataTransfer.files)
+        }}
+        className="rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 p-3 transition hover:border-indigo-300"
+      >
+        {resourceUrl ? (
+          <div className="flex flex-col gap-3 rounded-lg bg-white p-4 md:flex-row md:items-center md:justify-between">
+            <div className="flex min-w-0 items-center gap-3">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+                <FileText className="h-5 w-5" />
+              </div>
+              <div className="min-w-0">
+                <p className="truncate text-sm font-black text-slate-900">{displayName || 'Document file'}</p>
+                <p className="text-xs font-semibold text-slate-500">{pendingFileName ? 'Pending upload. Save document details to publish this file.' : 'Current downloadable material.'}</p>
+              </div>
+            </div>
+            <div className="flex shrink-0 flex-wrap gap-2">
+              {!resourceUrl.startsWith('blob:') && (
+                <a href={resourceUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-3 py-2 text-sm font-bold text-white hover:bg-indigo-700">
+                  <Download className="h-4 w-4" />
+                  Download
+                </a>
+              )}
+              <label htmlFor={inputId} className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50">
+                <Upload className="h-4 w-4" />
+                Replace
+              </label>
+              <button type="button" onClick={onClear} className="inline-flex items-center gap-2 rounded-xl border border-rose-200 px-3 py-2 text-sm font-bold text-rose-600 hover:bg-rose-50">
+                <Trash2 className="h-4 w-4" />
+                Remove
+              </button>
+            </div>
+          </div>
+        ) : (
+          <label htmlFor={inputId} className="flex min-h-40 cursor-pointer flex-col items-center justify-center rounded-lg bg-white px-4 py-6 text-center">
+            <Download className="mb-3 h-8 w-8 text-indigo-500" />
+            <span className="text-sm font-semibold text-slate-900">Drop the document here or click to browse</span>
+            <span className="mt-1 text-xs text-slate-500">PDF, Word, PowerPoint, or ZIP up to 100 MB</span>
+            <span className="mt-3 inline-flex items-center gap-2 rounded-lg bg-indigo-50 px-3 py-2 text-xs font-bold text-indigo-700">
+              <Upload className="h-3.5 w-3.5" />
+              Choose file
+            </span>
+          </label>
+        )}
+        <input
+          id={inputId}
+          type="file"
+          accept=".pdf,.doc,.docx,.ppt,.pptx,.zip,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/zip"
+          className="hidden"
+          onChange={(event) => handleFiles(event.target.files)}
+        />
       </div>
     </Field>
   )
@@ -1664,50 +1758,6 @@ function QuizOptionsEditor({ question, onChange }: {
   )
 }
 
-function MediaPreviewPanel({ lesson, imageSources, onClearVideo, onClearResource }: {
-  lesson: DraftLesson
-  imageSources: string[]
-  onClearVideo: () => void
-  onClearResource: () => void
-}) {
-  return (
-    <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-      <h3 className="mb-3 text-sm font-black uppercase tracking-widest text-slate-500">Media</h3>
-      <div className="space-y-3">
-        {lesson.videoUrl && (
-          <div className="rounded-xl border border-slate-200 bg-white p-3">
-            <div className="mb-2 flex items-center justify-between">
-              <p className="text-sm font-bold text-slate-700">{lesson.pendingVideoFile ? lesson.pendingVideoFile.name : 'Video'}</p>
-              <button type="button" onClick={onClearVideo} className="rounded-lg p-2 text-slate-400 hover:bg-rose-50 hover:text-rose-600" title="Remove video">
-                <Trash2 className="h-4 w-4" />
-              </button>
-            </div>
-            <video src={lesson.videoUrl} controls className="aspect-video w-full rounded-lg bg-black" />
-          </div>
-        )}
-        {lesson.resourceUrl && (
-          <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-white p-3">
-            <div className="flex min-w-0 items-center gap-2">
-              <FileText className="h-4 w-4 shrink-0 text-indigo-600" />
-              <p className="truncate text-sm font-bold text-slate-700">{lesson.pendingResourceName || lesson.resourceUrl}</p>
-            </div>
-            <button type="button" onClick={onClearResource} className="rounded-lg p-2 text-slate-400 hover:bg-rose-50 hover:text-rose-600" title="Remove file">
-              <Trash2 className="h-4 w-4" />
-            </button>
-          </div>
-        )}
-        {imageSources.length > 0 && (
-          <div className="grid gap-3 sm:grid-cols-2">
-            {imageSources.map((src) => (
-              <img key={src} src={src} alt="" className="h-36 w-full rounded-xl border border-slate-200 bg-white object-cover" />
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  )
-}
-
 async function prepareSectionsForSave(sections: DraftSection[]) {
   const preparedSections: DraftSection[] = []
   for (const section of sections) {
@@ -1809,8 +1859,52 @@ function collectMediaUrlsFromSavedQuizQuestions(questions: Array<{ questionText?
   return uniqueMediaUrls(questions.flatMap((question) => extractImageSources(question.questionText || '')))
 }
 
+function ensureDocumentProductSections(sections: DraftSection[], courseDetails: CourseDetailsDraft) {
+  const existingSection = sections[0]
+  const existingLesson = sections.flatMap((section) => section.lessons).find((lesson) => lesson.lessonType === LessonType.DOCUMENT)
+    || existingSection?.lessons[0]
+  const documentLesson: DraftLesson = {
+    ...(existingLesson || createLesson(LessonType.DOCUMENT, 0)),
+    title: courseDetails.title.trim() || 'Document',
+    description: courseDetails.description || '',
+    lessonType: LessonType.DOCUMENT,
+    durationMinutes: '',
+    videoUrl: '',
+    articleContent: '',
+    isFreePreview: false,
+    isMandatory: true,
+    isPublished: true,
+    passingPercent: '',
+    quizQuestions: [],
+  }
+  return [{
+    ...(existingSection || createSection(0)),
+    title: 'Document',
+    description: courseDetails.description || '',
+    isPublished: true,
+    lessons: [documentLesson],
+  }]
+}
+
+function validateDocumentProduct(sections: DraftSection[]) {
+  const documentLesson = sections[0]?.lessons[0]
+  if (!documentLesson?.resourceUrl) return 'Upload the downloadable document file before saving.'
+  return ''
+}
+
 function uniqueMediaUrls(urls: string[]) {
   return Array.from(new Set(urls.filter((url) => url.startsWith('http://') || url.startsWith('https://'))))
+}
+
+function getResourceFileName(resourceUrl: string) {
+  try {
+    const path = new URL(resourceUrl).pathname
+    const fileName = decodeURIComponent(path.split('/').filter(Boolean).pop() || '')
+    return fileName || 'Course resource'
+  } catch {
+    const clean = resourceUrl.split(/[?#]/)[0]
+    return decodeURIComponent(clean.split('/').filter(Boolean).pop() || 'Course resource')
+  }
 }
 
 function buildCurriculumHydrationKey(
@@ -1821,50 +1915,10 @@ function buildCurriculumHydrationKey(
   return JSON.stringify({ sections, lessons, quizQuestionData })
 }
 
-function buildQaThreads(messages: CourseQaMessageResponse[], mentorId?: string): QaThread[] {
-  if (!mentorId) return []
-  const threads = new Map<string, QaThread>()
-
-  messages
-    .slice()
-    .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
-    .forEach((message) => {
-      const learnerId = message.senderId === mentorId ? message.recipientId : message.senderId
-      if (!learnerId) return
-      const existing = threads.get(learnerId) || {
-        learnerId,
-        learnerName: message.senderId === mentorId ? 'Learner' : message.senderName,
-        lessonId: message.lessonId,
-        messages: [],
-        unanswered: false,
-      }
-      if (message.senderId !== mentorId) {
-        existing.learnerName = message.senderName
-        existing.latestLearnerMessage = message
-        existing.lessonId = message.lessonId || existing.lessonId
-      } else {
-        existing.latestMentorReply = message
-      }
-      existing.messages.push(message)
-      threads.set(learnerId, existing)
-    })
-
-  return Array.from(threads.values())
-    .map((thread) => ({
-      ...thread,
-      unanswered: !!thread.latestLearnerMessage
-        && (!thread.latestMentorReply || new Date(thread.latestLearnerMessage.createdAt) > new Date(thread.latestMentorReply.createdAt)),
-    }))
-    .sort((a, b) => {
-      if (a.unanswered !== b.unanswered) return a.unanswered ? -1 : 1
-      const aTime = new Date(a.messages[a.messages.length - 1]?.createdAt || 0).getTime()
-      const bTime = new Date(b.messages[b.messages.length - 1]?.createdAt || 0).getTime()
-      return bTime - aTime
-    })
-}
-
 function normalizeEditorLessonType(lessonType?: LessonType) {
-  return lessonType === LessonType.QUIZ ? LessonType.QUIZ : LessonType.LESSON
+  if (lessonType === LessonType.QUIZ) return LessonType.QUIZ
+  if (lessonType === LessonType.DOCUMENT) return LessonType.DOCUMENT
+  return LessonType.LESSON
 }
 
 function readPassingPercent(metadata?: Record<string, unknown>) {

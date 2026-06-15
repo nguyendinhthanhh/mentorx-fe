@@ -6,6 +6,7 @@ import {
   CourseCreateRequest,
   CourseUpdateRequest,
   CourseStatus,
+  CourseProductType,
   SupportedLanguage,
   CourseSectionResponse,
   CourseLessonResponse,
@@ -77,6 +78,7 @@ export const courseApi = {
     size?: number
     categoryId?: number
     skill?: string
+    productType?: CourseProductType
     language?: SupportedLanguage
     level?: string
   }): Promise<PaginatedResponse<CourseResponse>> => {
@@ -112,6 +114,7 @@ export const courseApi = {
   // Admin Methods
   getAllCourses: async (params: {
     status?: CourseStatus
+    productType?: CourseProductType
     instructorId?: string
     categoryId?: number
     skill?: string

@@ -1,20 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from 'react-query'
 import { courseApi } from '@/api/courseApi'
-import { CourseStatus } from '@/types'
-import { 
-  Search, 
-  BookOpen, 
-  ChevronLeft, 
-  ChevronRight,
-  CheckCircle,
-  XCircle,
-  Eye,
-  Archive
-} from 'lucide-react'
+import CourseNameConfirmModal from '@/components/course/CourseNameConfirmModal'
+import { CourseProductType, CourseStatus } from '@/types'
+import { Search, BookOpen, ChevronLeft, ChevronRight, Eye, Archive } from 'lucide-react'
 import { useState } from 'react'
 import { formatCurrency, formatDateTime } from '@/utils/formatters'
 import { Link } from 'react-router-dom'
-import ArchiveReasonModal from '@/components/admin/ArchiveReasonModal'
 import { toast } from 'react-hot-toast'
 
 export default function AdminCoursesPage() {
@@ -22,16 +13,16 @@ export default function AdminCoursesPage() {
   const [page, setPage] = useState(0)
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<CourseStatus | ''>('')
-
-  const [isDenyModalOpen, setIsDenyModalOpen] = useState(false)
-  const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null)
+  const [productTypeFilter, setProductTypeFilter] = useState<CourseProductType | ''>('')
+  const [archiveTarget, setArchiveTarget] = useState<{ courseId: string; courseTitle: string } | null>(null)
 
   const { data, isLoading } = useQuery(
-    ['admin-courses', page, search, statusFilter],
+    ['admin-courses', page, search, statusFilter, productTypeFilter],
     () => courseApi.getAllCourses({ 
       page, 
       size: 10, 
-      status: statusFilter || undefined
+      status: statusFilter || undefined,
+      productType: productTypeFilter || undefined,
     })
   )
 
@@ -42,7 +33,6 @@ export default function AdminCoursesPage() {
       onSuccess: () => {
         toast.success('Course status updated')
         queryClient.invalidateQueries('admin-courses')
-        setIsDenyModalOpen(false)
       }
     }
   )
@@ -51,6 +41,7 @@ export default function AdminCoursesPage() {
     onSuccess: () => {
       toast.success('Course archived')
       queryClient.invalidateQueries('admin-courses')
+      setArchiveTarget(null)
     },
   })
 
@@ -63,11 +54,6 @@ export default function AdminCoursesPage() {
       case CourseStatus.REJECTED: return 'bg-rose-50 text-rose-600 dark:bg-rose-900/20 dark:text-rose-400'
       default: return 'bg-gray-50 text-gray-600'
     }
-  }
-
-  const handleDeny = (courseId: string) => {
-    setSelectedCourseId(courseId)
-    setIsDenyModalOpen(true)
   }
 
   return (
@@ -91,9 +77,18 @@ export default function AdminCoursesPage() {
             className="px-6 py-3.5 rounded-2xl bg-gray-50 dark:bg-gray-800 border border-transparent focus:bg-white dark:focus:bg-gray-900 focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500/30 transition-all text-sm font-bold text-gray-600 dark:text-gray-400"
           >
             <option value="">All Statuses</option>
-            {Object.values(CourseStatus).map(s => (
+            {Object.values(CourseStatus).filter((s) => s !== CourseStatus.REJECTED).map(s => (
               <option key={s} value={s}>{s}</option>
             ))}
+          </select>
+          <select
+            value={productTypeFilter}
+            onChange={(e) => setProductTypeFilter(e.target.value as CourseProductType)}
+            className="px-6 py-3.5 rounded-2xl bg-gray-50 dark:bg-gray-800 border border-transparent focus:bg-white dark:focus:bg-gray-900 focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500/30 transition-all text-sm font-bold text-gray-600 dark:text-gray-400"
+          >
+            <option value="">All Types</option>
+            <option value={CourseProductType.COURSE}>Courses</option>
+            <option value={CourseProductType.DOCUMENT}>Documents</option>
           </select>
         </div>
       </div>
@@ -121,7 +116,13 @@ export default function AdminCoursesPage() {
                   </tr>
                 ))
               ) : (
-                data?.content.map((course) => (
+                data?.content
+                  .filter((course) => {
+                    const keyword = search.trim().toLowerCase()
+                    return course.status !== CourseStatus.REJECTED
+                      && (!keyword || course.title.toLowerCase().includes(keyword) || course.description?.toLowerCase().includes(keyword))
+                  })
+                  .map((course) => (
                   <tr key={course.courseId} className="group hover:bg-gray-50/30 dark:hover:bg-gray-800/30 transition-all">
                     <td className="px-8 py-6">
                       <div className="flex items-center gap-4">
@@ -134,6 +135,9 @@ export default function AdminCoursesPage() {
                         </div>
                         <div className="flex flex-col min-w-0">
                           <span className="text-sm font-black text-gray-900 dark:text-white tracking-tight truncate max-w-[250px]">{course.title}</span>
+                          <span className="mt-1 w-fit rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-black uppercase tracking-widest text-gray-500 dark:bg-gray-800 dark:text-gray-400">
+                            {course.productType === CourseProductType.DOCUMENT ? 'Document' : 'Course'}
+                          </span>
                           <span className="text-[10px] font-black text-primary-600 dark:text-primary-400 uppercase tracking-[0.1em] mt-0.5">By {course.instructor?.fullName || course.instructorName || 'Unknown'}</span>
                         </div>
                       </div>
@@ -154,40 +158,30 @@ export default function AdminCoursesPage() {
                       </span>
                     </td>
                     <td className="px-8 py-6 text-right">
-                      <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-4 group-hover:translate-x-0">
-                        <Link to={`/admin/courses/${course.courseId}/review`} className="p-2.5 rounded-xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-gray-400 hover:text-primary-600 transition-all shadow-sm" title="Review Material">
+                      <div className="flex flex-wrap items-center justify-end gap-2 opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100">
+                        <Link
+                          to={`/admin/courses/${course.courseId}/review`}
+                          className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm font-black text-gray-700 shadow-sm hover:border-primary-200 hover:text-primary-600"
+                        >
                           <Eye className="w-4 h-4" />
+                          Review
                         </Link>
-                        {course.status !== CourseStatus.PUBLISHED && (
-                          <button 
-                            onClick={() => updateStatusMutation.mutate({ courseId: course.courseId, status: CourseStatus.PUBLISHED })}
-                            className="p-2.5 rounded-xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-gray-400 hover:text-emerald-600 transition-all shadow-sm"
-                            title="Approve & Publish"
-                          >
-                            <CheckCircle className="w-4 h-4" />
-                          </button>
-                        )}
                         {course.status === CourseStatus.PENDING_REVIEW && (
-                          <button 
-                            onClick={() => handleDeny(course.courseId)}
-                            className="p-2.5 rounded-xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-gray-400 hover:text-rose-500 transition-all shadow-sm"
-                            title="Deny and Return to Draft"
+                          <button
+                            onClick={() => updateStatusMutation.mutate({ courseId: course.courseId, status: CourseStatus.PUBLISHED })}
+                            className="inline-flex items-center gap-2 rounded-xl border border-emerald-200 bg-white px-3 py-2 text-sm font-black text-emerald-700 shadow-sm hover:border-emerald-300 hover:bg-emerald-50"
                           >
-                            <XCircle className="w-4 h-4" />
+                            Approve
                           </button>
                         )}
                         {course.status === CourseStatus.PUBLISHED && (
                           <button
-                            onClick={() => {
-                              if (window.confirm('Archive this course? It will leave the marketplace but enrolled learners can still access it.')) {
-                                archiveMutation.mutate(course.courseId)
-                              }
-                            }}
+                            onClick={() => setArchiveTarget({ courseId: course.courseId, courseTitle: course.title })}
                             disabled={archiveMutation.isLoading}
-                            className="p-2.5 rounded-xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-gray-400 hover:text-slate-700 transition-all shadow-sm"
-                            title="Archive Course"
+                            className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-black text-slate-700 shadow-sm hover:border-slate-300 hover:bg-slate-50"
                           >
                             <Archive className="w-4 h-4" />
+                            Archive
                           </button>
                         )}
                       </div>
@@ -220,25 +214,25 @@ export default function AdminCoursesPage() {
               <ChevronRight className="w-5 h-5" />
             </button>
           </div>
+          </div>
         </div>
-      </div>
-      <ArchiveReasonModal 
-        isOpen={isDenyModalOpen}
-        onClose={() => setIsDenyModalOpen(false)}
-        isLoading={updateStatusMutation.isLoading}
-        title="Return Course to Draft"
-        message="The mentor will see this reason and can revise the course before submitting it again."
-        confirmText="Return to Draft"
-        onConfirm={(reason) => {
-          if (selectedCourseId) {
-            updateStatusMutation.mutate({ 
-              courseId: selectedCourseId, 
-              status: CourseStatus.DRAFT,
-              reason 
-            })
-          }
-        }}
-      />
+
+        <CourseNameConfirmModal
+          isOpen={!!archiveTarget}
+          courseName={archiveTarget?.courseTitle || ''}
+          title="Archive course?"
+          message="This course will leave the marketplace. Enrolled learners can still access it from their library."
+          confirmText="Archive Course"
+          confirmTone="slate"
+          isLoading={archiveMutation.isLoading}
+          onClose={() => {
+            if (!archiveMutation.isLoading) setArchiveTarget(null)
+          }}
+          onConfirm={() => {
+            if (!archiveTarget) return
+            archiveMutation.mutate(archiveTarget.courseId)
+          }}
+        />
     </div>
   )
 }

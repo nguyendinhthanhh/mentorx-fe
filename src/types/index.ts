@@ -91,8 +91,14 @@ export enum CourseStatus {
   ARCHIVED = "ARCHIVED",
 }
 
+export enum CourseProductType {
+  COURSE = "COURSE",
+  DOCUMENT = "DOCUMENT",
+}
+
 export enum LessonType {
   LESSON = "LESSON",
+  DOCUMENT = "DOCUMENT",
   QUIZ = "QUIZ",
 }
 
@@ -702,6 +708,7 @@ export interface CourseResponse {
   level?: string;
   isCertificate: boolean;
   previewVideoUrl?: string;
+  productType?: CourseProductType;
   status: CourseStatus;
   totalEnrollments: number;
   averageRating?: number;
@@ -730,6 +737,7 @@ export interface CourseCreateRequest {
   level?: string;
   isCertificate?: boolean;
   previewVideoUrl?: string;
+  productType?: CourseProductType;
 }
 
 export interface CourseUpdateRequest {
@@ -744,6 +752,7 @@ export interface CourseUpdateRequest {
   level?: string;
   isCertificate?: boolean;
   previewVideoUrl?: string;
+  productType?: CourseProductType;
   status?: CourseStatus;
 }
 

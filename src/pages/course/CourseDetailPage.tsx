@@ -26,7 +26,7 @@ import {
   TrendingUp,
 } from 'lucide-react'
 import ReviewList from '@/components/review/ReviewList'
-import { CourseLessonResponse, CourseResponse, MentorProfileResponse, ReviewTargetType } from '@/types'
+import { CourseLessonResponse, CourseProductType, CourseResponse, CourseStatus, MentorProfileResponse, ReviewTargetType } from '@/types'
 import { useAuthStore } from '@/store/authStore'
 
 type TabType = 'overview' | 'curriculum' | 'instructor' | 'reviews'
@@ -143,6 +143,8 @@ export default function CourseDetailPage() {
   }
 
   const isPaidCourse = !!course?.priceMxc && course.priceMxc > 0
+  const isDocumentProduct = course?.productType === CourseProductType.DOCUMENT
+  const isPublished = course?.status === CourseStatus.PUBLISHED
   const canDownload = !!user && (!isPaidCourse || isEnrolled)
   const isPreviewLimited = isPaidCourse && !isEnrolled && !isEnrollmentLoading
 
@@ -208,6 +210,9 @@ export default function CourseDetailPage() {
   }
 
   const handleEnroll = () => {
+    if (!isPublished) {
+      return
+    }
     if (!user) {
       navigate('/login')
       return
@@ -244,8 +249,8 @@ export default function CourseDetailPage() {
         <div className="w-16 h-16 rounded-full bg-gray-50 flex items-center justify-center mx-auto mb-4">
           <BookOpen className="w-8 h-8 text-gray-300" />
         </div>
-        <h2 className="text-xl font-semibold text-gray-900 mb-2">Course not found</h2>
-        <p className="text-gray-500 mb-4">This course may have been removed or doesn't exist.</p>
+        <h2 className="text-xl font-semibold text-gray-900 mb-2">Resource not found</h2>
+        <p className="text-gray-500 mb-4">This resource may have been removed or doesn't exist.</p>
         <Link to="/courses" className="text-primary-600 font-medium hover:text-primary-700">
           ← Back to courses
         </Link>
@@ -263,7 +268,7 @@ export default function CourseDetailPage() {
             className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 transition"
           >
             <ArrowLeft className="w-4 h-4" />
-            Back to courses
+            Back to marketplace
           </Link>
         </div>
       </div>
@@ -276,13 +281,17 @@ export default function CourseDetailPage() {
         {course.thumbnailUrl && <div className="absolute inset-0 bg-slate-950/75 backdrop-blur-[2px]" />}
         <div className="relative max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="grid lg:grid-cols-[1.5fr_1fr] gap-8 items-start">
-            {/* Left: Course Info */}
+            {/* Left: Product Info */}
             <div className="space-y-6">
               {/* Category Badge */}
-              {(course.level || course.language) && (
-                <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-1.5 text-sm font-medium">
-                  <BookOpen className="w-4 h-4" />
-                  {course.level || course.language}
+              <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-1.5 text-sm font-medium">
+                {isDocumentProduct ? <FileText className="w-4 h-4" /> : <BookOpen className="w-4 h-4" />}
+                {isDocumentProduct ? 'Document resource' : course.level || course.language || 'Course'}
+              </div>
+              {isDocumentProduct && (
+                <div className="inline-flex items-center gap-2 rounded-full bg-amber-400/20 px-4 py-1.5 text-sm font-black text-amber-100 backdrop-blur-sm">
+                  <Download className="h-4 w-4" />
+                  Standalone download
                 </div>
               )}
 
@@ -295,7 +304,7 @@ export default function CourseDetailPage() {
               <p className="text-base leading-relaxed text-indigo-100 sm:text-xl">
                 {course.description
                   ? `${course.description.substring(0, 150)}${course.description.length > 150 ? '...' : ''}`
-                  : 'Learn with practical mentor-led content and reusable resources.'}
+                  : isDocumentProduct ? 'Download a practical mentor-created document resource.' : 'Learn with practical mentor-led content and reusable resources.'}
               </p>
 
               {/* Meta Info */}
@@ -325,7 +334,7 @@ export default function CourseDetailPage() {
 
                 <div className="flex items-center gap-1.5">
                   <Users className="w-5 h-5" />
-                  <span>{course.totalEnrollments?.toLocaleString() || 0} students</span>
+                    <span>{course.totalEnrollments?.toLocaleString() || 0} learners</span>
                 </div>
 
                 {course.updatedAt && (
@@ -352,11 +361,11 @@ export default function CourseDetailPage() {
                 )}
                 {publishedLessons.length > 0 && (
                   <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2">
-                    <PlayCircle className="w-4 h-4" />
-                    <span className="text-sm font-medium">{publishedLessons.length} lessons</span>
+                    {isDocumentProduct ? <FileText className="w-4 h-4" /> : <PlayCircle className="w-4 h-4" />}
+                    <span className="text-sm font-medium">{isDocumentProduct ? '1 downloadable file' : `${publishedLessons.length} lessons`}</span>
                   </div>
                 )}
-                {course.isCertificate && (
+                {!isDocumentProduct && course.isCertificate && (
                   <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2">
                     <Award className="w-4 h-4" />
                     <span className="text-sm font-medium">Certificate included</span>
@@ -372,6 +381,7 @@ export default function CourseDetailPage() {
                 isEnrolled={isEnrolled}
                 isEnrollmentLoading={isEnrollmentLoading}
                 isEnrolling={enrollMutation.isLoading}
+                isPublished={isPublished}
                 totalDuration={totalDuration}
                 lessonCount={publishedLessons.length}
                 instructorName={getInstructorName(course, instructorProfile)}
@@ -389,6 +399,12 @@ export default function CourseDetailPage() {
             course={course}
             isEnrolled={isEnrolled}
             isEnrollmentLoading={isEnrollmentLoading}
+            isEnrolling={enrollMutation.isLoading}
+            isPublished={isPublished}
+            totalDuration={totalDuration}
+            lessonCount={publishedLessons.length}
+            instructorName={getInstructorName(course, instructorProfile)}
+            onEnroll={handleEnroll}
           />
         </div>
 
@@ -398,7 +414,7 @@ export default function CourseDetailPage() {
             <nav className="flex overflow-x-auto">
               {[
                 { id: 'overview', label: 'Overview', icon: BookOpen },
-                { id: 'curriculum', label: 'Curriculum', icon: PlayCircle },
+                { id: 'curriculum', label: isDocumentProduct ? 'Document' : 'Curriculum', icon: isDocumentProduct ? FileText : PlayCircle },
                 { id: 'instructor', label: 'Instructor', icon: Users },
                 { id: 'reviews', label: 'Reviews', icon: Star },
               ].map((tab) => (
@@ -450,15 +466,15 @@ export default function CourseDetailPage() {
 
                 {/* This course includes */}
                 <div className="bg-gray-50 rounded-xl p-6">
-                  <h3 className="font-semibold text-gray-900 mb-4">This course includes:</h3>
+                  <h3 className="font-semibold text-gray-900 mb-4">This {isDocumentProduct ? 'document' : 'course'} includes:</h3>
                   <div className="grid gap-4 sm:grid-cols-2">
                     {[
-                      { icon: PlayCircle, text: `${publishedLessons.length} published lessons` },
-                      { icon: PlayCircle, text: `${videoCount} video lessons` },
-                      { icon: FileText, text: `${documentCount} resource or article lessons` },
+                      { icon: isDocumentProduct ? FileText : PlayCircle, text: isDocumentProduct ? 'Downloadable document' : `${publishedLessons.length} published lessons` },
+                      { icon: PlayCircle, text: isDocumentProduct ? 'Mentor-created resource' : `${videoCount} video lessons` },
+                      { icon: FileText, text: isDocumentProduct ? `${documentCount || 1} document file` : `${documentCount} resource or article lessons` },
                       { icon: Clock, text: totalDuration > 0 ? `${formatDuration(totalDuration)} content` : 'Self-paced content' },
                       { icon: Globe, text: `${formatLanguage(course.language)} language` },
-                      { icon: Award, text: course.isCertificate ? 'Certificate of completion' : 'No certificate' },
+                      { icon: Award, text: isDocumentProduct ? 'No certificate' : course.isCertificate ? 'Certificate of completion' : 'No certificate' },
                       { icon: TrendingUp, text: course.level ? `${course.level} level` : 'Open level' },
                       { icon: TrendingUp, text: `${Math.round(courseStats?.completionRate || 0)}% completion rate` },
                     ].map((item, index) => (
@@ -519,10 +535,10 @@ export default function CourseDetailPage() {
           </div>
           <button
             onClick={handleEnroll}
-            disabled={enrollMutation.isLoading}
+            disabled={enrollMutation.isLoading || !isPublished}
             className="flex-1 bg-indigo-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-indigo-700 transition-colors disabled:bg-gray-300"
           >
-            {enrollMutation.isLoading ? 'Enrolling...' : isEnrolled ? 'Continue Learning' : 'Enroll Now'}
+            {!isPublished ? 'Not published' : enrollMutation.isLoading ? 'Enrolling...' : isEnrolled ? (isDocumentProduct ? 'Open Document' : 'Continue Learning') : (isDocumentProduct ? 'Get Document' : 'Enroll Now')}
           </button>
         </div>
       </div>
@@ -583,9 +599,10 @@ function getInstructorBio(instructor: any, mentorProfile?: MentorProfileResponse
 }
 
 // Course Preview Card Component
-function CoursePreviewCard({ course, isEnrolled, isEnrollmentLoading, isEnrolling, totalDuration, lessonCount, instructorName, onEnroll }: any) {
+function CoursePreviewCard({ course, isEnrolled, isEnrollmentLoading, isEnrolling, isPublished = true, totalDuration = 0, lessonCount = 0, instructorName, onEnroll }: any) {
+  const isDocumentProduct = course.productType === CourseProductType.DOCUMENT
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-lg">
+    <div className={`bg-white rounded-2xl border overflow-hidden shadow-lg ${isDocumentProduct ? 'border-amber-200' : 'border-gray-200'}`}>
       {/* Thumbnail */}
       <div className="relative aspect-video bg-gradient-to-br from-indigo-500 to-purple-600">
         {course.previewVideoUrl ? (
@@ -604,8 +621,18 @@ function CoursePreviewCard({ course, isEnrolled, isEnrollmentLoading, isEnrollin
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
-            <BookOpen className="w-16 h-16 text-white/30" />
+            {isDocumentProduct ? (
+              <FileText className="w-16 h-16 text-white/40" />
+            ) : (
+              <BookOpen className="w-16 h-16 text-white/30" />
+            )}
           </div>
+        )}
+        {isDocumentProduct && (
+          <span className="absolute left-4 top-4 inline-flex items-center gap-2 rounded-full bg-amber-400 px-3 py-1 text-xs font-black uppercase tracking-widest text-amber-950">
+            <Download className="h-3.5 w-3.5" />
+            Document
+          </span>
         )}
       </div>
 
@@ -616,7 +643,7 @@ function CoursePreviewCard({ course, isEnrolled, isEnrollmentLoading, isEnrollin
           <p className="text-3xl font-bold text-gray-900">
             {course.priceMxc ? formatCurrency(course.priceMxc) : 'Free'}
           </p>
-          <p className="mt-1 text-sm font-medium text-gray-500">By {instructorName}</p>
+          <p className="mt-1 text-sm font-medium text-gray-500">{isDocumentProduct ? 'Document by' : 'Course by'} {instructorName}</p>
         </div>
 
         {/* CTA Buttons */}
@@ -624,15 +651,15 @@ function CoursePreviewCard({ course, isEnrolled, isEnrollmentLoading, isEnrollin
           {isEnrolled ? (
             <button onClick={onEnroll} className="w-full bg-green-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-green-700 transition-colors flex items-center justify-center gap-2">
               <CheckCircle2 className="w-5 h-5" />
-              Continue Learning
+              {isDocumentProduct ? 'Open Document' : 'Continue Learning'}
             </button>
           ) : (
             <button
               onClick={onEnroll}
-              disabled={isEnrollmentLoading || isEnrolling}
+              disabled={isEnrollmentLoading || isEnrolling || !isPublished}
               className="w-full bg-indigo-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-indigo-700 transition-colors disabled:bg-gray-300"
             >
-              {isEnrolling ? 'Enrolling...' : 'Enroll Now'}
+              {!isPublished ? 'Not published' : isEnrolling ? 'Enrolling...' : isDocumentProduct ? 'Get Document' : 'Enroll Now'}
             </button>
           )}
         </div>
@@ -640,16 +667,16 @@ function CoursePreviewCard({ course, isEnrolled, isEnrollmentLoading, isEnrollin
         {/* Features */}
         <div className="pt-4 border-t border-gray-100 space-y-3 text-sm">
           <div className="flex items-center gap-3 text-gray-700">
-            <PlayCircle className="w-5 h-5 text-gray-400" />
-            <span>{lessonCount} published lessons</span>
+            {isDocumentProduct ? <FileText className="w-5 h-5 text-amber-500" /> : <PlayCircle className="w-5 h-5 text-gray-400" />}
+            <span>{isDocumentProduct ? 'Downloadable document' : `${lessonCount} published lessons`}</span>
           </div>
           <div className="flex items-center gap-3 text-gray-700">
-            <Clock className="w-5 h-5 text-gray-400" />
-            <span>{totalDuration > 0 ? `${formatDurationText(totalDuration)} content` : 'Self-paced content'}</span>
+            {isDocumentProduct ? <Download className="w-5 h-5 text-amber-500" /> : <Clock className="w-5 h-5 text-gray-400" />}
+            <span>{isDocumentProduct ? 'Instant access after enrollment' : totalDuration > 0 ? `${formatDurationText(totalDuration)} content` : 'Self-paced content'}</span>
           </div>
           <div className="flex items-center gap-3 text-gray-700">
             <Award className="w-5 h-5 text-gray-400" />
-            <span>{course.isCertificate ? 'Certificate included' : 'Certificate not included'}</span>
+            <span>{isDocumentProduct ? 'Certificate not applicable' : course.isCertificate ? 'Certificate included' : 'Certificate not included'}</span>
           </div>
         </div>
       </div>

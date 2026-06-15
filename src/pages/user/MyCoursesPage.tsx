@@ -4,7 +4,7 @@ import { useQueries, useQuery } from 'react-query'
 import { courseApi } from '@/api/courseApi'
 import { reviewApi } from '@/api/reviewApi'
 import { useAuthStore } from '@/store/authStore'
-import { CourseResponse, CourseStatus, ReviewResponse, ReviewTargetType } from '@/types'
+import { CourseProductType, CourseResponse, CourseStatus, ReviewResponse, ReviewTargetType } from '@/types'
 import ReviewForm from '@/components/review/ReviewForm'
 import { AlertTriangle, Award, BookOpen, Clock, Eye, Loader2, PlayCircle, Star, X } from 'lucide-react'
 
@@ -81,7 +81,7 @@ export default function MyCoursesPage() {
         <div>
           <h1 className="text-2xl font-black text-slate-900 dark:text-white">My learning</h1>
           <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
-            All courses you have enrolled in are available here, including archived courses.
+            All courses and documents you have enrolled in are available here, including archived resources.
           </p>
         </div>
         <Link
@@ -103,9 +103,9 @@ export default function MyCoursesPage() {
           <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 dark:bg-indigo-900/30">
             <BookOpen className="h-8 w-8" />
           </div>
-          <h3 className="text-lg font-black text-slate-900 dark:text-white">No enrolled courses yet</h3>
+          <h3 className="text-lg font-black text-slate-900 dark:text-white">No enrolled resources yet</h3>
           <p className="mb-6 max-w-sm text-sm font-medium text-slate-500">
-            Browse the marketplace and enroll in a course to start learning.
+            Browse the marketplace and enroll in a course or document to start learning.
           </p>
           <Link
             to="/courses"
@@ -119,6 +119,7 @@ export default function MyCoursesPage() {
           {enrollments.map((enrollment) => {
             const course = courseById.get(enrollment.courseId)
             const archived = course?.status === CourseStatus.ARCHIVED
+            const isDocumentProduct = course?.productType === CourseProductType.DOCUMENT
             const progress = Math.min(Math.max(enrollment.progressPercent || 0, 0), 100)
             const canViewCertificate = enrollment.isCompleted && progress >= 100 && course?.isCertificate
             const canReview = enrollment.isCompleted && progress >= 100
@@ -169,7 +170,7 @@ export default function MyCoursesPage() {
 
                   {archived && (
                     <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800">
-                      This course has been archived. You can still finish it from your library.
+                      This {isDocumentProduct ? 'document' : 'course'} has been archived. You can still access it from your library.
                     </div>
                   )}
 
@@ -189,8 +190,8 @@ export default function MyCoursesPage() {
                         to={`/courses/${enrollment.courseId}/learn`}
                         className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 py-2.5 text-sm font-bold text-white transition hover:bg-indigo-600 dark:bg-indigo-900 dark:hover:bg-indigo-800"
                       >
-                        <PlayCircle className="h-4 w-4" />
-                        {progress > 0 ? 'Continue learning' : 'Start learning'}
+                        {isDocumentProduct ? <Eye className="h-4 w-4" /> : <PlayCircle className="h-4 w-4" />}
+                        {isDocumentProduct ? 'Open document' : progress > 0 ? 'Continue learning' : 'Start learning'}
                       </Link>
                       {canViewCertificate && (
                         <button
@@ -214,7 +215,7 @@ export default function MyCoursesPage() {
                           className="flex w-full items-center justify-center gap-2 rounded-xl border border-amber-200 bg-amber-50 py-2.5 text-sm font-bold text-amber-700 transition hover:bg-amber-100"
                         >
                           <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
-                          {existingReview ? 'Edit review' : 'Review course'}
+                          {existingReview ? 'Edit review' : `Review ${isDocumentProduct ? 'document' : 'course'}`}
                         </button>
                       )}
                     </div>
