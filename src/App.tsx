@@ -157,11 +157,12 @@ function App() {
             {/* Chat Routes */}
             <Route path="/chat" element={<ChatListPage />} />
             <Route path="/chat/demo" element={<ChatDemoPage />} />
-            <Route path="/courses/:courseId/learn" element={<CourseLearnPage />} />
-            <Route path="/courses/:courseId/learn/sections/:sectionId" element={<CourseLearnPage />} />
-            <Route path="/courses/:courseId/learn/sections/:sectionId/lessons/:lessonId" element={<CourseLearnPage />} />
 
           </Route>
+
+          <Route path="/courses/:courseId/learn" element={<ProtectedRoute><CourseLearnPage /></ProtectedRoute>} />
+          <Route path="/courses/:courseId/learn/sections/:sectionId" element={<ProtectedRoute><CourseLearnPage /></ProtectedRoute>} />
+          <Route path="/courses/:courseId/learn/sections/:sectionId/lessons/:lessonId" element={<ProtectedRoute><CourseLearnPage /></ProtectedRoute>} />
 
           {/* Profile Routes with ProfileLayout */}
           <Route element={<ProtectedRoute><ProfileLayout /></ProtectedRoute>}>

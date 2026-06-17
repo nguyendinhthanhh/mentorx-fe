@@ -76,10 +76,7 @@ export enum BudgetType {
 }
 
 export enum CourseStatus {
-  DRAFT = "DRAFT",
-  PENDING_REVIEW = "PENDING_REVIEW",
   PUBLISHED = "PUBLISHED",
-  REJECTED = "REJECTED",
   ARCHIVED = "ARCHIVED",
 }
 
@@ -695,6 +692,11 @@ export interface CourseResponse {
   description?: string;
   thumbnailUrl?: string;
   priceMxc?: number;
+  discountPriceMxc?: number;
+  discountStartAt?: string;
+  discountEndAt?: string;
+  effectivePriceMxc?: number;
+  activeDiscount?: boolean;
   language?: SupportedLanguage;
   level?: string;
   isCertificate: boolean;
@@ -724,6 +726,9 @@ export interface CourseCreateRequest {
   description?: string;
   thumbnailUrl?: string;
   priceMxc?: number;
+  discountPriceMxc?: number;
+  discountStartAt?: string;
+  discountEndAt?: string;
   language?: SupportedLanguage;
   level?: string;
   isCertificate?: boolean;
@@ -739,6 +744,10 @@ export interface CourseUpdateRequest {
   description?: string;
   thumbnailUrl?: string;
   priceMxc?: number;
+  discountPriceMxc?: number;
+  discountStartAt?: string;
+  discountEndAt?: string;
+  clearDiscount?: boolean;
   language?: SupportedLanguage;
   level?: string;
   isCertificate?: boolean;
@@ -760,6 +769,7 @@ export interface CourseEnrollmentResponse {
   certificateCode?: string;
   certificateIssuedAt?: string;
   enrolledAt: string;
+  lastAccessedAt?: string;
   completedAt?: string;
 }
 
@@ -839,6 +849,11 @@ export interface CourseStatsResponse {
   totalEnrollments: number;
   completedEnrollments: number;
   completionRate: number;
+  totalRevenueMxc?: number;
+  last7DaysRevenueMxc?: number;
+  last7DaysEnrollments?: number;
+  previous7DaysRevenueMxc?: number;
+  previous7DaysEnrollments?: number;
 }
 
 export interface CourseLessonResponse {

@@ -201,7 +201,7 @@ export default function CourseLearnPage() {
   )
 
   useEffect(() => {
-    if (!activeLesson || !enrollment || activeLesson.lessonType === LessonType.QUIZ || activeLesson.videoUrl) return
+    if (!activeLesson || !enrollment || activeLesson.lessonType === LessonType.QUIZ) return
 
     const restoreScroll = window.setTimeout(() => {
       const element = articleRef.current
@@ -227,7 +227,7 @@ export default function CourseLearnPage() {
           lesson: activeLesson,
           payload: {
             scrollPercent: percent,
-            progressPercent: percent,
+            progressPercent: activeLesson.videoUrl ? undefined : percent,
             activeTimeSec: Math.max((activeLesson.durationMinutes ?? 1) * 30, 30),
           },
         })
@@ -384,8 +384,41 @@ export default function CourseLearnPage() {
   }
 
   return (
-    <div className="grid min-h-[calc(100vh-8rem)] gap-6 xl:grid-cols-[320px_minmax(0,1fr)_340px]">
-      <aside className="h-max rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-950 xl:sticky xl:top-24">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
+      <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 px-4 py-3 backdrop-blur dark:border-slate-800 dark:bg-slate-950/95">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex min-w-0 items-center gap-3">
+            <button
+              type="button"
+              onClick={() => {
+                if (window.history.length > 1) {
+                  navigate(-1)
+                  return
+                }
+                navigate('/profile/courses')
+              }}
+              className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 dark:border-slate-800 dark:text-slate-200 dark:hover:bg-slate-900"
+              aria-label="Go back"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </button>
+            <Link to="/" className="flex shrink-0 items-center gap-2" aria-label="Mentor X home">
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-600 text-sm font-black text-white">MX</span>
+              <span className="hidden text-sm font-black text-slate-950 dark:text-white sm:inline">Mentor X</span>
+            </Link>
+            <div className="hidden min-w-0 border-l border-slate-200 pl-3 dark:border-slate-800 md:block">
+              <p className="truncate text-sm font-black text-slate-900 dark:text-white">{course.title}</p>
+              <p className="text-xs font-semibold text-slate-500">Learning room</p>
+            </div>
+          </div>
+          <Link to="/profile/courses" className="shrink-0 rounded-xl border border-slate-200 px-3 py-2 text-xs font-black text-slate-700 hover:bg-slate-50 dark:border-slate-800 dark:text-slate-200 dark:hover:bg-slate-900">
+            My learning
+          </Link>
+        </div>
+      </header>
+
+      <div className="grid min-h-[calc(100vh-65px)] gap-6 p-4 xl:grid-cols-[320px_minmax(0,1fr)_340px]">
+      <aside className="h-max rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-950 xl:sticky xl:top-20">
         <div className="mb-4">
           <Link to="/profile/courses" className="text-xs font-black uppercase tracking-widest text-indigo-600">
             My learning
@@ -543,17 +576,6 @@ export default function CourseLearnPage() {
               <ResourcePanel lesson={activeLesson} onDownload={() => downloadResource(activeLesson)} />
             )}
 
-            {activeLesson.lessonType !== LessonType.QUIZ && (
-              <button
-                onClick={() => updateProgress.mutate({ lesson: activeLesson, payload: buildCompletionPayload(activeLesson) })}
-                disabled={updateProgress.isLoading}
-                className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2 text-sm font-bold text-white hover:bg-indigo-600 disabled:opacity-60 dark:bg-indigo-900 dark:hover:bg-indigo-800"
-              >
-                {updateProgress.isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
-                Mark {activeLesson.lessonType === LessonType.DOCUMENT ? 'document' : 'lesson'} complete
-              </button>
-            )}
-
             <div className="flex flex-col gap-3 border-t border-slate-200 pt-5 dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between">
               <button
                 onClick={() => previousLesson && selectLesson(previousLesson.id)}
@@ -588,7 +610,7 @@ export default function CourseLearnPage() {
         )}
       </main>
 
-      <aside className="h-max rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-950 xl:sticky xl:top-24">
+      <aside className="h-max rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-950 xl:sticky xl:top-20">
         <h2 className="mb-4 flex items-center gap-2 text-lg font-black text-slate-900 dark:text-white">
           <MessageSquare className="h-5 w-5 text-indigo-600" />
           Course Q&A
@@ -626,6 +648,7 @@ export default function CourseLearnPage() {
           </button>
         </form>
       </aside>
+      </div>
     </div>
   )
 }
@@ -959,6 +982,15 @@ function buildLessonGroups(sections: CourseSectionResponse[], lessons: CourseLes
 }
 
 function buildCompletionPayload(lesson: CourseLessonResponse): Partial<LessonProgressResponse> {
+  if (lesson.lessonType === LessonType.DOCUMENT) {
+    return {
+      isCompleted: true,
+      progressPercent: 100,
+      scrollPercent: 100,
+      activeTimeSec: Math.max((lesson.durationMinutes ?? 1) * 60, 60),
+    }
+  }
+
   if (lesson.videoUrl) {
     return {
       progressPercent: 100,

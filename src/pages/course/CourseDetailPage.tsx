@@ -142,9 +142,10 @@ export default function CourseDetailPage() {
     return <BookOpen className="h-4 w-4 text-indigo-600" />
   }
 
-  const isPaidCourse = !!course?.priceMxc && course.priceMxc > 0
   const isDocumentProduct = course?.productType === CourseProductType.DOCUMENT
   const isPublished = course?.status === CourseStatus.PUBLISHED
+  const displayPrice = course?.effectivePriceMxc ?? course?.priceMxc ?? 0
+  const isPaidCourse = displayPrice > 0
   const canDownload = !!user && (!isPaidCourse || isEnrolled)
   const isPreviewLimited = isPaidCourse && !isEnrolled && !isEnrollmentLoading
 
@@ -309,7 +310,7 @@ export default function CourseDetailPage() {
 
               {/* Meta Info */}
               <div className="flex flex-wrap items-center gap-6 text-sm">
-                <div className="flex items-center gap-2">
+                <Link to={`/mentors/${course.instructorId}`} className="flex items-center gap-2 rounded-xl transition hover:bg-white/10">
                   <img
                     src={getInstructorAvatar(course, instructorProfile)}
                     alt={getInstructorName(course, instructorProfile)}
@@ -322,7 +323,7 @@ export default function CourseDetailPage() {
                       <p className="text-xs text-indigo-100">{getInstructorHeadline(instructorProfile)}</p>
                     )}
                   </div>
-                </div>
+                </Link>
 
                 {course.averageRating && (
                   <div className="flex items-center gap-1.5">
@@ -530,15 +531,15 @@ export default function CourseDetailPage() {
           <div>
             <p className="text-sm text-gray-500">Price</p>
             <p className="text-2xl font-bold text-indigo-600">
-              {course.priceMxc ? formatCurrency(course.priceMxc) : 'Free'}
+              {displayPrice ? formatCurrency(displayPrice) : 'Free'}
             </p>
           </div>
           <button
             onClick={handleEnroll}
-            disabled={enrollMutation.isLoading || !isPublished}
+            disabled={enrollMutation.isLoading || (!isPublished && !isEnrolled)}
             className="flex-1 bg-indigo-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-indigo-700 transition-colors disabled:bg-gray-300"
           >
-            {!isPublished ? 'Not published' : enrollMutation.isLoading ? 'Enrolling...' : isEnrolled ? (isDocumentProduct ? 'Open Document' : 'Continue Learning') : (isDocumentProduct ? 'Get Document' : 'Enroll Now')}
+            {!isPublished && !isEnrolled ? 'Archived' : enrollMutation.isLoading ? 'Enrolling...' : isEnrolled ? (isDocumentProduct ? 'Open Document' : 'Continue Learning') : (isDocumentProduct ? 'Get Document' : 'Enroll Now')}
           </button>
         </div>
       </div>
@@ -601,6 +602,7 @@ function getInstructorBio(instructor: any, mentorProfile?: MentorProfileResponse
 // Course Preview Card Component
 function CoursePreviewCard({ course, isEnrolled, isEnrollmentLoading, isEnrolling, isPublished = true, totalDuration = 0, lessonCount = 0, instructorName, onEnroll }: any) {
   const isDocumentProduct = course.productType === CourseProductType.DOCUMENT
+  const displayPrice = course.effectivePriceMxc ?? course.priceMxc ?? 0
   return (
     <div className={`bg-white rounded-2xl border overflow-hidden shadow-lg ${isDocumentProduct ? 'border-amber-200' : 'border-gray-200'}`}>
       {/* Thumbnail */}
@@ -641,8 +643,11 @@ function CoursePreviewCard({ course, isEnrolled, isEnrollmentLoading, isEnrollin
         {/* Price */}
         <div>
           <p className="text-3xl font-bold text-gray-900">
-            {course.priceMxc ? formatCurrency(course.priceMxc) : 'Free'}
+            {displayPrice ? formatCurrency(displayPrice) : 'Free'}
           </p>
+          {course.activeDiscount && displayPrice < (course.priceMxc || 0) && (
+            <p className="text-sm font-bold text-gray-400 line-through">{formatCurrency(course.priceMxc)}</p>
+          )}
           <p className="mt-1 text-sm font-medium text-gray-500">{isDocumentProduct ? 'Document by' : 'Course by'} {instructorName}</p>
         </div>
 
@@ -656,10 +661,10 @@ function CoursePreviewCard({ course, isEnrolled, isEnrollmentLoading, isEnrollin
           ) : (
             <button
               onClick={onEnroll}
-              disabled={isEnrollmentLoading || isEnrolling || !isPublished}
+              disabled={isEnrollmentLoading || isEnrolling || (!isPublished && !isEnrolled)}
               className="w-full bg-indigo-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-indigo-700 transition-colors disabled:bg-gray-300"
             >
-              {!isPublished ? 'Not published' : isEnrolling ? 'Enrolling...' : isDocumentProduct ? 'Get Document' : 'Enroll Now'}
+              {!isPublished && !isEnrolled ? 'Archived' : isEnrolling ? 'Enrolling...' : isDocumentProduct ? 'Get Document' : 'Enroll Now'}
             </button>
           )}
         </div>
