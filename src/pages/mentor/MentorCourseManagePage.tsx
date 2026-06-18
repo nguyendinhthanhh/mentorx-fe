@@ -520,7 +520,7 @@ export default function MentorCourseManagePage() {
         clearDiscount: courseDetails.clearDiscount,
         language: courseDetails.language,
         level: courseDetails.level || undefined,
-        isCertificate: isDocumentProduct ? false : courseDetails.isCertificate,
+        isCertificate: !isDocumentProduct,
       }, {
         thumbnailFile: courseDetails.pendingThumbnailFile,
         previewVideoFile: courseDetails.pendingPreviewVideoFile,
@@ -1079,10 +1079,9 @@ export default function MentorCourseManagePage() {
               </Field>
               <div className="space-y-3">
                 {!isDocumentProduct && (
-                <label className="inline-flex items-center gap-2 text-sm font-bold text-slate-700">
-                  <input type="checkbox" checked={courseDetails.isCertificate} onChange={(event) => updateCourseDetails({ isCertificate: event.target.checked })} className="h-4 w-4 rounded border-slate-300" />
-                  Offer certificate upon completion
-                </label>
+                <div className="rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-700">
+                  Certificate is included upon completion
+                </div>
                 )}
                 <div>
                   <button

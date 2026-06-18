@@ -92,6 +92,10 @@ export default function CourseDetailPage() {
     () => lessons.filter((lesson) => lesson.isPublished !== false),
     [lessons]
   )
+  const firstFreePreviewLesson = useMemo(
+    () => publishedLessons.find((lesson) => lesson.isFreePreview),
+    [publishedLessons]
+  )
 
   const lessonsBySection = useMemo(() => {
     if (!sections.length) {
@@ -223,6 +227,11 @@ export default function CourseDetailPage() {
       return
     }
     enrollMutation.mutate()
+  }
+
+  const handlePreview = () => {
+    if (!courseId || !firstFreePreviewLesson) return
+    navigate(lessonPath(courseId, firstFreePreviewLesson))
   }
 
   if (isLoading) {
@@ -386,7 +395,9 @@ export default function CourseDetailPage() {
                 totalDuration={totalDuration}
                 lessonCount={publishedLessons.length}
                 instructorName={getInstructorName(course, instructorProfile)}
+                previewLesson={firstFreePreviewLesson}
                 onEnroll={handleEnroll}
+                onPreview={handlePreview}
               />
             </div>
           </div>
@@ -405,7 +416,9 @@ export default function CourseDetailPage() {
             totalDuration={totalDuration}
             lessonCount={publishedLessons.length}
             instructorName={getInstructorName(course, instructorProfile)}
+            previewLesson={firstFreePreviewLesson}
             onEnroll={handleEnroll}
+            onPreview={handlePreview}
           />
         </div>
 
@@ -507,6 +520,7 @@ export default function CourseDetailPage() {
                 canDownload={canDownload}
                 isPreviewLimited={isPreviewLimited}
                 isEnrollmentLoading={isEnrollmentLoading}
+                courseId={courseId}
               />
             )}
 
@@ -582,6 +596,10 @@ function formatDurationText(minutes: number) {
   return `${mins}m`
 }
 
+function lessonPath(courseId: string, lesson: CourseLessonResponse) {
+  return `/courses/${courseId}/learn/sections/${lesson.sectionId}/lessons/${lesson.id}`
+}
+
 function getInstructorName(course: CourseResponse, mentorProfile?: MentorProfileResponse | null) {
   return mentorProfile?.user?.fullName || course.instructor?.fullName || course.instructorName || 'Instructor'
 }
@@ -600,7 +618,7 @@ function getInstructorBio(instructor: any, mentorProfile?: MentorProfileResponse
 }
 
 // Course Preview Card Component
-function CoursePreviewCard({ course, isEnrolled, isEnrollmentLoading, isEnrolling, isPublished = true, totalDuration = 0, lessonCount = 0, instructorName, onEnroll }: any) {
+function CoursePreviewCard({ course, isEnrolled, isEnrollmentLoading, isEnrolling, isPublished = true, totalDuration = 0, lessonCount = 0, instructorName, previewLesson, onEnroll, onPreview }: any) {
   const isDocumentProduct = course.productType === CourseProductType.DOCUMENT
   const displayPrice = course.effectivePriceMxc ?? course.priceMxc ?? 0
   return (
@@ -659,13 +677,25 @@ function CoursePreviewCard({ course, isEnrolled, isEnrollmentLoading, isEnrollin
               {isDocumentProduct ? 'Open Document' : 'Continue Learning'}
             </button>
           ) : (
-            <button
-              onClick={onEnroll}
-              disabled={isEnrollmentLoading || isEnrolling || (!isPublished && !isEnrolled)}
-              className="w-full bg-indigo-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-indigo-700 transition-colors disabled:bg-gray-300"
-            >
-              {!isPublished && !isEnrolled ? 'Archived' : isEnrolling ? 'Enrolling...' : isDocumentProduct ? 'Get Document' : 'Enroll Now'}
-            </button>
+            <>
+              {previewLesson && (
+                <button
+                  type="button"
+                  onClick={onPreview}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-indigo-200 px-6 py-3 font-semibold text-indigo-700 transition-colors hover:bg-indigo-50"
+                >
+                  <PlayCircle className="h-5 w-5" />
+                  Preview course
+                </button>
+              )}
+              <button
+                onClick={onEnroll}
+                disabled={isEnrollmentLoading || isEnrolling || (!isPublished && !isEnrolled)}
+                className="w-full bg-indigo-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-indigo-700 transition-colors disabled:bg-gray-300"
+              >
+                {!isPublished && !isEnrolled ? 'Archived' : isEnrolling ? 'Enrolling...' : isDocumentProduct ? 'Get Document' : 'Enroll Now'}
+              </button>
+            </>
           )}
         </div>
 
@@ -706,6 +736,7 @@ function CurriculumTab({
   canDownload,
   isPreviewLimited,
   isEnrollmentLoading,
+  courseId,
 }: any) {
   return (
     <div className="space-y-4">
@@ -759,11 +790,17 @@ function CurriculumTab({
               <div className="divide-y divide-gray-100 bg-white">
                 {sectionLessons.map((lesson: CourseLessonResponse) => {
                   const isLocked = isPaidCourse && !isEnrolled && !lesson.isFreePreview
+                  const canOpenLearning = !!courseId && (isEnrolled || lesson.isFreePreview)
                   
                   return (
                     <div
                       key={lesson.id}
-                      className="flex flex-col gap-4 p-5 transition hover:bg-gray-50 sm:flex-row sm:items-center sm:justify-between"
+                      onClick={() => {
+                        if (canOpenLearning) window.location.href = lessonPath(courseId, lesson)
+                      }}
+                      className={`flex flex-col gap-4 p-5 transition sm:flex-row sm:items-center sm:justify-between ${
+                        canOpenLearning ? 'cursor-pointer hover:bg-gray-50' : 'opacity-80'
+                      }`}
                     >
                       <div className="flex flex-1 items-start gap-4">
                         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100">
@@ -795,38 +832,39 @@ function CurriculumTab({
                       </div>
 
                       {/* Action Buttons */}
-                      {lesson.resourceUrl && (
+                      {canOpenLearning && (
                         <div className="ml-0 flex flex-wrap items-center gap-2 sm:ml-4">
                           <button
                             type="button"
                             onClick={() => {
-                              if (!user) {
-                                window.location.href = '/login'
-                                return
-                              }
-                              openDocumentPreview(lesson.id)
+                              window.location.href = lessonPath(courseId, lesson)
                             }}
-                            disabled={!user || previewingLessonId === lesson.id}
+                            disabled={previewingLessonId === lesson.id}
                             className="rounded-lg border border-indigo-200 px-4 py-2 text-sm font-medium text-indigo-600 transition hover:border-indigo-300 hover:bg-indigo-50 disabled:opacity-60"
                           >
-                            {previewingLessonId === lesson.id ? 'Opening...' : 'Preview'}
+                            {previewingLessonId === lesson.id ? 'Opening...' : lesson.isFreePreview && !isEnrolled ? 'Preview' : 'Open'}
                           </button>
-                          <button
-                            type="button"
-                            onClick={() => downloadDocument(lesson.id, `${lesson.title}.pdf`)}
-                            disabled={!canDownload || downloadingLessonId === lesson.id}
-                            className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
-                              canDownload
-                                ? 'border border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50'
-                                : 'border border-gray-100 text-gray-300 cursor-not-allowed'
-                            }`}
-                          >
-                            {downloadingLessonId === lesson.id
-                              ? 'Preparing...'
-                              : canDownload
-                              ? 'Download'
-                              : 'Locked'}
-                          </button>
+                          {lesson.resourceUrl && isEnrolled && (
+                            <button
+                              type="button"
+                              onClick={(event) => {
+                                event.stopPropagation()
+                                downloadDocument(lesson.id, `${lesson.title}.pdf`)
+                              }}
+                              disabled={!canDownload || downloadingLessonId === lesson.id}
+                              className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
+                                canDownload
+                                  ? 'border border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50'
+                                  : 'border border-gray-100 text-gray-300 cursor-not-allowed'
+                              }`}
+                            >
+                              {downloadingLessonId === lesson.id
+                                ? 'Preparing...'
+                                : canDownload
+                                ? 'Download'
+                                : 'Locked'}
+                            </button>
+                          )}
                         </div>
                       )}
                     </div>

@@ -160,9 +160,9 @@ function App() {
 
           </Route>
 
-          <Route path="/courses/:courseId/learn" element={<ProtectedRoute><CourseLearnPage /></ProtectedRoute>} />
-          <Route path="/courses/:courseId/learn/sections/:sectionId" element={<ProtectedRoute><CourseLearnPage /></ProtectedRoute>} />
-          <Route path="/courses/:courseId/learn/sections/:sectionId/lessons/:lessonId" element={<ProtectedRoute><CourseLearnPage /></ProtectedRoute>} />
+          <Route path="/courses/:courseId/learn" element={<CourseLearnPage />} />
+          <Route path="/courses/:courseId/learn/sections/:sectionId" element={<CourseLearnPage />} />
+          <Route path="/courses/:courseId/learn/sections/:sectionId/lessons/:lessonId" element={<CourseLearnPage />} />
 
           {/* Profile Routes with ProfileLayout */}
           <Route element={<ProtectedRoute><ProfileLayout /></ProtectedRoute>}>
