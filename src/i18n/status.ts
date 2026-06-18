@@ -1,6 +1,27 @@
-import { ContractStatus, CourseStatus, JobStatus, ProposalStatus, VerificationStatus } from '@/types'
+import { ComplaintStatus, ContractStatus, CourseStatus, JobStatus, ProposalStatus, VerificationStatus } from '@/types'
 
 import { TranslationKey } from './translations'
+
+export const complaintStatusKeys: Record<ComplaintStatus, TranslationKey> = {
+  [ComplaintStatus.OPEN]: 'admin.complaints.status.open',
+  [ComplaintStatus.AWAITING_RESPONSE]: 'admin.complaints.status.awaiting_response',
+  [ComplaintStatus.INVESTIGATING]: 'admin.complaints.status.investigating',
+  [ComplaintStatus.EVIDENCE_REVIEW]: 'admin.complaints.status.evidence_review',
+  [ComplaintStatus.IN_MEDIATION]: 'admin.complaints.status.in_mediation',
+  [ComplaintStatus.RESOLVED]: 'admin.complaints.status.resolved',
+  [ComplaintStatus.CLOSED]: 'admin.complaints.status.closed',
+  [ComplaintStatus.WITHDRAWN]: 'admin.complaints.status.withdrawn',
+  [ComplaintStatus.EXPIRED]: 'admin.complaints.status.expired',
+}
+
+export type ComplaintPriorityBucket = 'low' | 'medium' | 'high' | 'urgent'
+
+export const complaintPriorityKeys: Record<ComplaintPriorityBucket, TranslationKey> = {
+  low: 'admin.complaints.priority.low',
+  medium: 'admin.complaints.priority.medium',
+  high: 'admin.complaints.priority.high',
+  urgent: 'admin.complaints.priority.urgent',
+}
 
 export const jobStatusKeys: Record<JobStatus, TranslationKey> = {
   [JobStatus.DRAFT]: 'status.job.draft',
