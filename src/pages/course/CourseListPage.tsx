@@ -1,19 +1,25 @@
 import { useQuery } from 'react-query'
 import { courseApi } from '@/api/courseApi'
 import { categoryApi } from '@/api/categoryApi'
+import { skillApi } from '@/api/skillApi'
 import { Link } from 'react-router-dom'
 import { formatCurrency } from '@/utils/formatters'
-import { Plus, BookOpen, Star, Search, Users, FileText, Download } from 'lucide-react'
+import { Plus, BookOpen, Star, Search, Users, FileText, Download, Tag } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useI18n } from '@/i18n/I18nProvider'
-import { CourseProductType, SupportedLanguage } from '@/types'
+import { CategoryResponse, CourseProductType, SkillResponse, SupportedLanguage } from '@/types'
+import { categoryLabel, skillLabel } from '@/utils/freeFormTaxonomy'
 
 export default function CourseListPage() {
   const { t } = useI18n()
   const [search, setSearch] = useState('')
   const [typeFilter, setTypeFilter] = useState<'all' | 'course' | 'document'>('all')
   const [categoryFilter, setCategoryFilter] = useState('')
+  const [categorySearch, setCategorySearch] = useState('')
   const [skillFilter, setSkillFilter] = useState('')
+  const [isSearchMenuOpen, setIsSearchMenuOpen] = useState(false)
+  const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false)
+  const [isSkillMenuOpen, setIsSkillMenuOpen] = useState(false)
   const [languageFilter, setLanguageFilter] = useState<'' | SupportedLanguage>('')
   const [levelFilter, setLevelFilter] = useState('')
 
@@ -44,6 +50,9 @@ export default function CourseListPage() {
   const { data: categories = [] } = useQuery('course-filter-categories', categoryApi.getAllActive, {
     staleTime: 5 * 60 * 1000,
   })
+  const { data: skills = [] } = useQuery('course-filter-skills', skillApi.getAllActive, {
+    staleTime: 5 * 60 * 1000,
+  })
 
   const resolveCourseType = (productType?: CourseProductType) => {
     return productType === CourseProductType.DOCUMENT ? 'document' : 'course'
@@ -59,6 +68,59 @@ export default function CourseListPage() {
     if (!matchesSearch) return false
     return true
   })
+  const categoryNameById = useMemo(() => {
+    return categories.reduce<Record<number, string>>((acc, category) => {
+      acc[category.id] = categoryLabel(category)
+      return acc
+    }, {})
+  }, [categories])
+  const courseSearchSuggestions = useMemo(() => {
+    const query = search.trim().toLowerCase()
+    if (!query) return []
+    const suggestions = new Set<string>()
+    ;(data?.content || []).forEach((course) => {
+      const values = [
+        course.title,
+        course.instructor?.fullName,
+        course.instructorName,
+        course.categoryId ? categoryNameById[course.categoryId] : '',
+        ...(course.skills || []),
+      ].filter(Boolean) as string[]
+      values.forEach((value) => {
+        if (value.toLowerCase().includes(query)) suggestions.add(value)
+      })
+    })
+    return Array.from(suggestions).slice(0, 8)
+  }, [categoryNameById, data?.content, search])
+  const categorySuggestions = useMemo(() => {
+    const query = categorySearch.trim().toLowerCase()
+    return categories
+      .filter((category) => {
+        if (!query) return true
+        return [category.name, category.slug].some((value) => value?.toLowerCase().includes(query))
+      })
+      .slice(0, 8)
+  }, [categories, categorySearch])
+  const skillSuggestions = useMemo(() => {
+    const query = skillFilter.trim().toLowerCase()
+    return skills
+      .filter((skill) => {
+        if (!query) return true
+        return [skill.labelEn, skill.labelVi, skill.slug].some((value) => value?.toLowerCase().includes(query))
+      })
+      .slice(0, 8)
+  }, [skills, skillFilter])
+
+  const selectCategory = (category: CategoryResponse) => {
+    setCategoryFilter(String(category.id))
+    setCategorySearch(categoryLabel(category))
+    setIsCategoryMenuOpen(false)
+  }
+
+  const selectSkill = (skill: SkillResponse) => {
+    setSkillFilter(skillLabel(skill))
+    setIsSkillMenuOpen(false)
+  }
 
   return (
     <div className="min-h-screen bg-[#f6f7fb] text-slate-950">
@@ -88,10 +150,34 @@ export default function CourseListPage() {
               <input
                 type="text"
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) => {
+                  setSearch(e.target.value)
+                  setIsSearchMenuOpen(true)
+                }}
+                onFocus={() => setIsSearchMenuOpen(true)}
+                onBlur={() => window.setTimeout(() => setIsSearchMenuOpen(false), 120)}
                 placeholder={t('courses.searchPlaceholder')}
                 className="h-12 w-full rounded-xl border border-slate-300 bg-white pl-12 pr-4 text-sm font-medium text-slate-950 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
               />
+              {isSearchMenuOpen && courseSearchSuggestions.length > 0 && (
+                <div className="absolute z-20 mt-2 max-h-72 w-full overflow-auto rounded-xl border border-slate-200 bg-white p-2 shadow-lg">
+                  {courseSearchSuggestions.map((suggestion) => (
+                    <button
+                      key={suggestion}
+                      type="button"
+                      onMouseDown={(event) => event.preventDefault()}
+                      onClick={() => {
+                        setSearch(suggestion)
+                        setIsSearchMenuOpen(false)
+                      }}
+                      className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-semibold text-slate-800 hover:bg-indigo-50"
+                    >
+                      <Search className="h-4 w-4 text-slate-400" />
+                      {suggestion}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
@@ -114,24 +200,90 @@ export default function CourseListPage() {
                 {item.label}
               </button>
             ))}
-            <select
-              value={categoryFilter}
-              onChange={(event) => setCategoryFilter(event.target.value)}
-              className="rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-700 outline-none transition hover:border-indigo-300 focus:border-indigo-500"
-            >
-              <option value="">All domains</option>
-              {categories.map((category) => (
-                <option key={category.id} value={String(category.id)}>
-                  {category.name}
-                </option>
-              ))}
-            </select>
-            <input
-              value={skillFilter}
-              onChange={(event) => setSkillFilter(event.target.value)}
-              placeholder="Filter by skill"
-              className="rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-700 outline-none transition hover:border-indigo-300 focus:border-indigo-500"
-            />
+            <div className="relative w-44">
+              <input
+                value={categorySearch}
+                onChange={(event) => {
+                  setCategorySearch(event.target.value)
+                  setCategoryFilter('')
+                  setIsCategoryMenuOpen(true)
+                }}
+                onFocus={() => setIsCategoryMenuOpen(true)}
+                onBlur={() => window.setTimeout(() => setIsCategoryMenuOpen(false), 120)}
+                placeholder="All domains"
+                className="w-full rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-700 outline-none transition hover:border-indigo-300 focus:border-indigo-500"
+                autoComplete="off"
+              />
+              {isCategoryMenuOpen && (
+                <div className="absolute z-20 mt-2 max-h-72 w-64 overflow-auto rounded-xl border border-slate-200 bg-white p-2 shadow-lg">
+                  <button
+                    type="button"
+                    onMouseDown={(event) => event.preventDefault()}
+                    onClick={() => {
+                      setCategoryFilter('')
+                      setCategorySearch('')
+                      setIsCategoryMenuOpen(false)
+                    }}
+                    className="flex w-full flex-col rounded-lg px-3 py-2 text-left hover:bg-indigo-50"
+                  >
+                    <span className="text-sm font-semibold text-slate-900">All domains</span>
+                  </button>
+                  {categorySuggestions.map((category) => (
+                    <button
+                      key={category.id}
+                      type="button"
+                      onMouseDown={(event) => event.preventDefault()}
+                      onClick={() => selectCategory(category)}
+                      className="flex w-full flex-col rounded-lg px-3 py-2 text-left hover:bg-indigo-50"
+                    >
+                      <span className="text-sm font-semibold text-slate-900">{categoryLabel(category)}</span>
+                      <span className="text-xs text-slate-500">{category.slug}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div className="relative w-44">
+              <input
+                value={skillFilter}
+                onChange={(event) => {
+                  setSkillFilter(event.target.value)
+                  setIsSkillMenuOpen(true)
+                }}
+                onFocus={() => setIsSkillMenuOpen(true)}
+                onBlur={() => window.setTimeout(() => setIsSkillMenuOpen(false), 120)}
+                placeholder="All skills"
+                className="w-full rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-700 outline-none transition hover:border-indigo-300 focus:border-indigo-500"
+                autoComplete="off"
+              />
+              {isSkillMenuOpen && (
+                <div className="absolute z-20 mt-2 max-h-72 w-64 overflow-auto rounded-xl border border-slate-200 bg-white p-2 shadow-lg">
+                  <button
+                    type="button"
+                    onMouseDown={(event) => event.preventDefault()}
+                    onClick={() => {
+                      setSkillFilter('')
+                      setIsSkillMenuOpen(false)
+                    }}
+                    className="flex w-full flex-col rounded-lg px-3 py-2 text-left hover:bg-indigo-50"
+                  >
+                    <span className="text-sm font-semibold text-slate-900">All skills</span>
+                  </button>
+                  {skillSuggestions.map((skill) => (
+                    <button
+                      key={skill.id}
+                      type="button"
+                      onMouseDown={(event) => event.preventDefault()}
+                      onClick={() => selectSkill(skill)}
+                      className="flex w-full flex-col rounded-lg px-3 py-2 text-left hover:bg-indigo-50"
+                    >
+                      <span className="text-sm font-semibold text-slate-900">{skillLabel(skill)}</span>
+                      <span className="text-xs text-slate-500">{skill.slug}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
             <select
               value={languageFilter}
               onChange={(event) => setLanguageFilter(event.target.value as '' | SupportedLanguage)}
@@ -189,6 +341,8 @@ export default function CourseListPage() {
                 courseType === 'document'
                   ? 'hover:border-amber-200 hover:shadow-amber-500/10'
                   : 'hover:border-indigo-200 hover:shadow-indigo-500/10'
+              const domainName = course.categoryId ? categoryNameById[course.categoryId] : ''
+              const courseSkills = course.skills || []
 
               return (
                 <Link
@@ -227,6 +381,7 @@ export default function CourseListPage() {
                     <p className="mt-2 line-clamp-2 text-sm leading-6 text-slate-600">
                       {course.description || t('courses.noDescription')}
                     </p>
+                    <CourseMetadata domainName={domainName} skills={courseSkills} />
 
                     {course.totalLessons ? (
                       <div className="mt-3 flex flex-wrap items-center gap-2 text-xs font-semibold text-slate-500">
@@ -243,9 +398,11 @@ export default function CourseListPage() {
                     ) : null}
 
                     <div className="mt-4 flex items-center justify-between text-sm">
-                      <span className="mr-2 truncate font-bold text-slate-500">
-                        {course.instructor?.fullName || t('courses.unknownInstructor')}
-                      </span>
+                      {(course.instructor?.fullName || course.instructorName) ? (
+                        <span className="mr-2 truncate font-bold text-slate-500">
+                          {course.instructor?.fullName || course.instructorName}
+                        </span>
+                      ) : <span />}
                       {course.averageRating && (
                         <div className="flex items-center gap-1">
                           <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
@@ -289,6 +446,34 @@ export default function CourseListPage() {
           </div>
         )}
       </main>
+    </div>
+  )
+}
+
+function CourseMetadata({ domainName, skills }: { domainName?: string; skills: string[] }) {
+  if (!domainName && skills.length === 0) return null
+  return (
+    <div className="mt-3 space-y-2">
+      {domainName && (
+        <div className="inline-flex max-w-full items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-600">
+          <Tag className="h-3.5 w-3.5 shrink-0 text-slate-400" />
+          <span className="truncate">{domainName}</span>
+        </div>
+      )}
+      {skills.length > 0 && (
+        <div className="flex flex-wrap gap-1.5">
+          {skills.slice(0, 3).map((skill) => (
+            <span key={skill} className="rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-bold text-indigo-700">
+              {skill}
+            </span>
+          ))}
+          {skills.length > 3 && (
+            <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-500">
+              +{skills.length - 3}
+            </span>
+          )}
+        </div>
+      )}
     </div>
   )
 }

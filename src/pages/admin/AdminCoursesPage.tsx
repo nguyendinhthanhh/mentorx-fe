@@ -26,17 +26,6 @@ export default function AdminCoursesPage() {
     })
   )
 
-  const updateStatusMutation = useMutation(
-    ({ courseId, status, reason }: { courseId: string; status: CourseStatus; reason?: string }) => 
-      courseApi.updateStatus(courseId, status, reason),
-    {
-      onSuccess: () => {
-        toast.success('Course status updated')
-        queryClient.invalidateQueries('admin-courses')
-      }
-    }
-  )
-
   const archiveMutation = useMutation((courseId: string) => courseApi.archive(courseId), {
     onSuccess: () => {
       toast.success('Course archived')
@@ -48,10 +37,7 @@ export default function AdminCoursesPage() {
   const getStatusColor = (status: CourseStatus) => {
     switch (status) {
       case CourseStatus.PUBLISHED: return 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400'
-      case CourseStatus.PENDING_REVIEW: return 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400'
-      case CourseStatus.DRAFT: return 'bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400'
       case CourseStatus.ARCHIVED: return 'bg-gray-50 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
-      case CourseStatus.REJECTED: return 'bg-rose-50 text-rose-600 dark:bg-rose-900/20 dark:text-rose-400'
       default: return 'bg-gray-50 text-gray-600'
     }
   }
@@ -77,7 +63,7 @@ export default function AdminCoursesPage() {
             className="px-6 py-3.5 rounded-2xl bg-gray-50 dark:bg-gray-800 border border-transparent focus:bg-white dark:focus:bg-gray-900 focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500/30 transition-all text-sm font-bold text-gray-600 dark:text-gray-400"
           >
             <option value="">All Statuses</option>
-            {Object.values(CourseStatus).filter((s) => s !== CourseStatus.REJECTED).map(s => (
+            {Object.values(CourseStatus).map(s => (
               <option key={s} value={s}>{s}</option>
             ))}
           </select>
@@ -119,8 +105,7 @@ export default function AdminCoursesPage() {
                 data?.content
                   .filter((course) => {
                     const keyword = search.trim().toLowerCase()
-                    return course.status !== CourseStatus.REJECTED
-                      && (!keyword || course.title.toLowerCase().includes(keyword) || course.description?.toLowerCase().includes(keyword))
+                    return !keyword || course.title.toLowerCase().includes(keyword) || course.description?.toLowerCase().includes(keyword)
                   })
                   .map((course) => (
                   <tr key={course.courseId} className="group hover:bg-gray-50/30 dark:hover:bg-gray-800/30 transition-all">
@@ -164,16 +149,8 @@ export default function AdminCoursesPage() {
                           className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm font-black text-gray-700 shadow-sm hover:border-primary-200 hover:text-primary-600"
                         >
                           <Eye className="w-4 h-4" />
-                          Review
+                          View
                         </Link>
-                        {course.status === CourseStatus.PENDING_REVIEW && (
-                          <button
-                            onClick={() => updateStatusMutation.mutate({ courseId: course.courseId, status: CourseStatus.PUBLISHED })}
-                            className="inline-flex items-center gap-2 rounded-xl border border-emerald-200 bg-white px-3 py-2 text-sm font-black text-emerald-700 shadow-sm hover:border-emerald-300 hover:bg-emerald-50"
-                          >
-                            Approve
-                          </button>
-                        )}
                         {course.status === CourseStatus.PUBLISHED && (
                           <button
                             onClick={() => setArchiveTarget({ courseId: course.courseId, courseTitle: course.title })}

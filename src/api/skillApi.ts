@@ -10,6 +10,17 @@ export const skillApi = {
     return response.data.data
   },
 
+  create: async (label: string): Promise<SkillResponse> => {
+    const trimmed = label.trim().replace(/\s+/g, ' ')
+    const response = await apiClient.post<ApiResponse<SkillResponse>>('/system/skills', {
+      slug: buildSlug(trimmed),
+      labelEn: trimmed,
+      labelVi: trimmed,
+      isActive: true,
+    })
+    return response.data.data
+  },
+
   updateUserSkills: async (data: UserSkillRequest[]): Promise<UserSkillResponse[]> => {
     const response = await apiClient.post<ApiResponse<UserSkillResponse[]>>('/system/user-skills', data)
     return response.data.data
@@ -19,4 +30,8 @@ export const skillApi = {
     const response = await apiClient.get<ApiResponse<UserSkillResponse[]>>('/system/user-skills/me')
     return response.data.data
   },
+}
+
+function buildSlug(value: string) {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
 }

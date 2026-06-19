@@ -1,18 +1,34 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useMutation, useQueries, useQuery, useQueryClient } from 'react-query'
 import { courseApi } from '@/api/courseApi'
 import { reviewApi } from '@/api/reviewApi'
 import { fileApi } from '@/api/fileApi'
 import { categoryApi } from '@/api/categoryApi'
 import { skillApi } from '@/api/skillApi'
-import { useAuthStore } from '@/store/authStore'
+import CourseNameConfirmModal from '@/components/course/CourseNameConfirmModal'
 import { CourseMediaDropZone, CourseMediaKind, validateCourseMedia } from '@/components/course/CourseMediaDropZone'
-import { CategoryResponse, CourseProductType, CourseStatus, LessonType, QuizQuestionType, ReviewResponse, ReviewTargetType, SkillResponse, SupportedLanguage } from '@/types'
+import { CategoryResponse, CourseProductType, CourseQaMessageResponse, CourseStatus, LessonType, QuizQuestionType, ReviewResponse, ReviewTargetType, SkillResponse, SupportedLanguage } from '@/types'
+import { formatCurrency } from '@/utils/formatters'
+import {
+  SkillChip,
+  TaxonomySelection,
+  categoryLabel,
+  findExistingCategory,
+  findExistingSkill,
+  labelsEqual,
+  normalizeLabel,
+  resolveCategory,
+  resolveSkillChips,
+  skillLabel,
+} from '@/utils/freeFormTaxonomy'
 import {
   ArrowLeft,
   AlertTriangle,
+  Archive,
   Bold,
+  Calendar,
+  CircleDollarSign,
   Download,
   FileText,
   HelpCircle,
@@ -21,12 +37,15 @@ import {
   List,
   ListOrdered,
   Loader2,
+  MessageSquare,
   Plus,
   Save,
   Send,
   Star,
+  TrendingUp,
   Trash2,
   Upload,
+  Users,
   X,
 } from 'lucide-react'
 
@@ -91,9 +110,13 @@ type CourseDetailsDraft = {
   description: string
   thumbnailUrl: string
   previewVideoUrl: string
-  categoryId: string
-  skillIds: number[]
+  domain: TaxonomySelection
+  skillChips: SkillChip[]
   priceMxc: string
+  discountPriceMxc: string
+  discountStartAt: string
+  discountEndAt: string
+  clearDiscount: boolean
   language: SupportedLanguage
   level: string
   isCertificate: boolean
@@ -104,7 +127,8 @@ type CourseDetailsDraft = {
   pendingPreviewVideoPreviewUrl?: string
 }
 
-type ManageTab = 'content' | 'info' | 'reviews'
+type ManageTab = 'content' | 'info' | 'sale' | 'qa' | 'reviews'
+type ManageCourseAction = 'archive' | 'delete'
 
 const newId = () => `tmp-${Date.now()}-${Math.random().toString(36).slice(2)}`
 
@@ -147,7 +171,7 @@ const createQuizQuestion = (index: number): DraftQuizQuestion => ({
 
 export default function MentorCourseManagePage() {
   const { courseId } = useParams<{ courseId: string }>()
-  const { user } = useAuthStore()
+  const navigate = useNavigate()
   const queryClient = useQueryClient()
   const [sections, setSections] = useState<DraftSection[]>([])
   const [selection, setSelection] = useState<Selection | null>(null)
@@ -155,17 +179,24 @@ export default function MentorCourseManagePage() {
   const [error, setError] = useState('')
   const [uploadingField, setUploadingField] = useState<'videoUrl' | 'resourceUrl' | null>(null)
   const [activeTab, setActiveTab] = useState<ManageTab>('info')
+  const [confirmAction, setConfirmAction] = useState<ManageCourseAction | null>(null)
   const [skillQuery, setSkillQuery] = useState('')
+  const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false)
   const [isSkillMenuOpen, setIsSkillMenuOpen] = useState(false)
+  const [qaReplyDrafts, setQaReplyDrafts] = useState<Record<string, string>>({})
   const [reviewResponseDrafts, setReviewResponseDrafts] = useState<Record<string, string>>({})
   const [courseDetails, setCourseDetails] = useState<CourseDetailsDraft>({
     title: '',
     description: '',
     thumbnailUrl: '',
     previewVideoUrl: '',
-    categoryId: '',
-    skillIds: [],
+    domain: { label: '' },
+    skillChips: [],
     priceMxc: '0',
+    discountPriceMxc: '',
+    discountStartAt: '',
+    discountEndAt: '',
+    clearDiscount: false,
     language: SupportedLanguage.EN,
     level: 'Beginner',
     isCertificate: false,
@@ -187,10 +218,21 @@ export default function MentorCourseManagePage() {
     () => courseApi.getCourseStats(courseId!),
     { enabled: !!courseId && coursePublished, refetchInterval: 30000 }
   )
+  const totalEnrollments = course?.totalEnrollments ?? courseStats?.totalEnrollments ?? 0
   const { data: courseReviewsData, isLoading: reviewsLoading } = useQuery(
     ['reviews', ReviewTargetType.COURSE, courseId, 'mentor-manage'],
     () => reviewApi.getByTarget(ReviewTargetType.COURSE, courseId!, { page: 0, size: 100 }),
     { enabled: !!courseId && coursePublished }
+  )
+  const { data: qaMessages = [], isLoading: qaLoading } = useQuery(
+    ['course-qa', courseId, 'mentor-manage'],
+    () => courseApi.getCourseQaMessages(courseId!),
+    { enabled: !!courseId }
+  )
+  const { data: qaSummary } = useQuery(
+    ['course-qa-summary', courseId],
+    () => courseApi.getCourseQaSummary(courseId!),
+    { enabled: !!courseId }
   )
   const { data: categories = [] } = useQuery(['course-editor-categories'], () => categoryApi.getAllActive())
   const { data: skills = [] } = useQuery(['course-editor-skills'], () => skillApi.getAllActive())
@@ -238,20 +280,37 @@ export default function MentorCourseManagePage() {
 
   useEffect(() => {
     if (!course || detailsDirty) return
+    const hydratedCategory = course.categoryId
+      ? categories.find((category: CategoryResponse) => category.id === course.categoryId)
+      : undefined
+    const hydratedSkillChips = (course.skillIds || []).map((skillId, index) => {
+      const skill = skills.find((item: SkillResponse) => item.id === skillId)
+      return {
+        id: skillId,
+        label: skill ? skillLabel(skill) : course.skills?.[index] || `Skill ${skillId}`,
+      }
+    })
     setCourseDetails({
       title: course.title || '',
       description: course.description || '',
       thumbnailUrl: course.thumbnailUrl || '',
       previewVideoUrl: course.previewVideoUrl || '',
-      categoryId: course.categoryId ? String(course.categoryId) : '',
-      skillIds: course.skillIds || [],
+      domain: {
+        id: course.categoryId,
+        label: hydratedCategory ? categoryLabel(hydratedCategory) : course.categoryId ? `Category ${course.categoryId}` : '',
+      },
+      skillChips: hydratedSkillChips,
       priceMxc: course.priceMxc != null ? String(course.priceMxc) : '0',
+      discountPriceMxc: course.discountPriceMxc != null ? String(course.discountPriceMxc) : '',
+      discountStartAt: toDateTimeLocalValue(course.discountStartAt),
+      discountEndAt: toDateTimeLocalValue(course.discountEndAt),
+      clearDiscount: false,
       language: course.language || SupportedLanguage.EN,
       level: course.level || 'Beginner',
       isCertificate: course.isCertificate === true,
       productType: course.productType || CourseProductType.COURSE,
     })
-  }, [course, detailsDirty])
+  }, [course, categories, skills, detailsDirty])
 
   useEffect(() => {
     if (sectionsLoading || lessonsLoading || quizQuestionsLoading) return
@@ -347,14 +406,21 @@ export default function MentorCourseManagePage() {
     }
     return null
   }, [sections])
-  const selectedCourseSkills = useMemo(
-    () => skills.filter((skill: SkillResponse) => courseDetails.skillIds.includes(skill.id)),
-    [skills, courseDetails.skillIds]
-  )
+  const selectedCourseSkills = courseDetails.skillChips
+  const categoryQuery = courseDetails.domain.label
+  const suggestedCategories = useMemo(() => {
+    const query = normalizeLabel(categoryQuery).toLowerCase()
+    return categories
+      .filter((category: CategoryResponse) => {
+        if (!query) return true
+        return [category.name, category.slug].some((value) => value?.toLowerCase().includes(query))
+      })
+      .slice(0, 8)
+  }, [categories, categoryQuery])
   const suggestedCourseSkills = useMemo(() => {
-    const query = skillQuery.trim().toLowerCase()
+    const query = normalizeLabel(skillQuery).toLowerCase()
     return skills
-      .filter((skill: SkillResponse) => !courseDetails.skillIds.includes(skill.id))
+      .filter((skill: SkillResponse) => !courseDetails.skillChips.some((chip) => chip.id === skill.id || labelsEqual(chip.label, skillLabel(skill))))
       .filter((skill: SkillResponse) => {
         if (!query) return true
         return [
@@ -364,12 +430,37 @@ export default function MentorCourseManagePage() {
         ].some((value) => value?.toLowerCase().includes(query))
       })
       .slice(0, 8)
-  }, [skills, courseDetails.skillIds, skillQuery])
+  }, [skills, courseDetails.skillChips, skillQuery])
 
   const courseReviews = courseReviewsData?.content || []
   const averageReviewRating = courseReviews.length
     ? courseReviews.reduce((sum, review) => sum + (review.overallRating || 0), 0) / courseReviews.length
     : 0
+  const qaThreads = useMemo(() => groupQaMessagesByLearner(qaMessages, course?.instructorId), [qaMessages, course?.instructorId])
+  const saleStats = useMemo(() => {
+    const basePrice = Number(courseDetails.priceMxc || 0)
+    const effectivePrice = Number(course?.effectivePriceMxc ?? basePrice)
+    const discountPrice = courseDetails.discountPriceMxc ? Number(courseDetails.discountPriceMxc) : undefined
+    const discountAmount = discountPrice != null ? Math.max(basePrice - discountPrice, 0) : Math.max(basePrice - effectivePrice, 0)
+    const discountPercent = basePrice > 0 && discountAmount > 0 ? Math.round((discountAmount / basePrice) * 100) : 0
+    const last7Revenue = Number(courseStats?.last7DaysRevenueMxc || 0)
+    const previous7Revenue = Number(courseStats?.previous7DaysRevenueMxc || 0)
+    const revenueDelta = last7Revenue - previous7Revenue
+    const revenueDeltaPercent = previous7Revenue > 0 ? Math.round((revenueDelta / previous7Revenue) * 100) : null
+    return {
+      basePrice,
+      effectivePrice,
+      discountAmount,
+      discountPercent,
+      last7Revenue,
+      previous7Revenue,
+      revenueDelta,
+      revenueDeltaPercent,
+      last7Enrollments: courseStats?.last7DaysEnrollments || 0,
+      previous7Enrollments: courseStats?.previous7DaysEnrollments || 0,
+      totalRevenue: Number(courseStats?.totalRevenueMxc || 0),
+    }
+  }, [course, courseDetails.discountPriceMxc, courseDetails.priceMxc, courseStats])
 
   const saveMutation = useMutation(
     async () => {
@@ -434,27 +525,45 @@ export default function MentorCourseManagePage() {
     }
   )
 
-  const submitReviewMutation = useMutation(() => courseApi.submitForReview(courseId!), {
-    onSuccess: () => queryClient.invalidateQueries(['course', courseId]),
-  })
-
   const updateCourseDetailsMutation = useMutation(
     async () => {
       const title = courseDetails.title.trim()
       const priceMxc = Number(courseDetails.priceMxc || 0)
+      const discountPriceMxc = courseDetails.discountPriceMxc ? Number(courseDetails.discountPriceMxc) : undefined
+      const hasDiscount = discountPriceMxc != null || !!courseDetails.discountStartAt || !!courseDetails.discountEndAt
       if (title.length < 5) throw new Error(`${isDocumentProduct ? 'Document' : 'Course'} title must be at least 5 characters.`)
       if (!Number.isInteger(priceMxc) || priceMxc < 0) throw new Error(`${isDocumentProduct ? 'Document' : 'Course'} price must be a full number and cannot be negative.`)
-      if (!courseDetails.categoryId) throw new Error(`Choose a ${isDocumentProduct ? 'document' : 'course'} domain.`)
-      if (!courseDetails.skillIds.length) throw new Error('Choose at least one skill.')
+      if (hasDiscount && !courseDetails.clearDiscount) {
+        if (discountPriceMxc == null || !Number.isInteger(discountPriceMxc) || discountPriceMxc < 0) throw new Error('Sale price must be a full number and cannot be negative.')
+        if (discountPriceMxc >= priceMxc) throw new Error('Sale price must be lower than the base price.')
+        if (!courseDetails.discountStartAt || !courseDetails.discountEndAt) throw new Error('Sale start and end time are required.')
+        if (new Date(courseDetails.discountStartAt) >= new Date(courseDetails.discountEndAt)) throw new Error('Sale end time must be after start time.')
+      }
+      if (!normalizeLabel(courseDetails.domain.label)) throw new Error(`Choose a ${isDocumentProduct ? 'document' : 'course'} domain.`)
+      if (!courseDetails.skillChips.length) throw new Error('Choose at least one skill.')
+      const categoryId = await resolveCategory(courseDetails.domain, categories, (category) => {
+        queryClient.setQueryData<CategoryResponse[]>(['course-editor-categories'], (current = []) => (
+          current.some((item) => item.id === category.id) ? current : [...current, category]
+        ))
+      })
+      const skillIds = await resolveSkillChips(courseDetails.skillChips, skills, (skill) => {
+        queryClient.setQueryData<SkillResponse[]>(['course-editor-skills'], (current = []) => (
+          current.some((item) => item.id === skill.id) ? current : [...current, skill]
+        ))
+      })
       const updatedCourse = await courseApi.updateDetailsWithMedia(courseId!, {
         title,
         description: courseDetails.description.trim() || undefined,
-        categoryId: Number(courseDetails.categoryId),
-        skillIds: courseDetails.skillIds,
+        categoryId,
+        skillIds,
         priceMxc,
+        discountPriceMxc: courseDetails.clearDiscount ? undefined : discountPriceMxc,
+        discountStartAt: !courseDetails.clearDiscount && courseDetails.discountStartAt ? toApiDateTime(courseDetails.discountStartAt) : undefined,
+        discountEndAt: !courseDetails.clearDiscount && courseDetails.discountEndAt ? toApiDateTime(courseDetails.discountEndAt) : undefined,
+        clearDiscount: courseDetails.clearDiscount,
         language: courseDetails.language,
         level: courseDetails.level || undefined,
-        isCertificate: isDocumentProduct ? false : courseDetails.isCertificate,
+        isCertificate: !isDocumentProduct,
       }, {
         thumbnailFile: courseDetails.pendingThumbnailFile,
         previewVideoFile: courseDetails.pendingPreviewVideoFile,
@@ -502,6 +611,10 @@ export default function MentorCourseManagePage() {
           ...current,
           thumbnailUrl: updatedCourse.thumbnailUrl || '',
           previewVideoUrl: updatedCourse.previewVideoUrl || '',
+          discountPriceMxc: updatedCourse.discountPriceMxc != null ? String(updatedCourse.discountPriceMxc) : '',
+          discountStartAt: toDateTimeLocalValue(updatedCourse.discountStartAt),
+          discountEndAt: toDateTimeLocalValue(updatedCourse.discountEndAt),
+          clearDiscount: false,
           pendingThumbnailFile: undefined,
           pendingThumbnailPreviewUrl: undefined,
           pendingPreviewVideoFile: undefined,
@@ -532,6 +645,48 @@ export default function MentorCourseManagePage() {
       onError: (err: any) => setError(err.message || err.response?.data?.message || 'Failed to save review response.'),
     }
   )
+
+  const sendQaReplyMutation = useMutation(
+    ({ recipientId, content }: { recipientId: string; content: string }) => courseApi.sendCourseQaMessage(courseId!, { recipientId, content }),
+    {
+      onSuccess: (_message, variables) => {
+        setQaReplyDrafts((current) => ({ ...current, [variables.recipientId]: '' }))
+        queryClient.invalidateQueries(['course-qa', courseId, 'mentor-manage'])
+        queryClient.invalidateQueries(['course-qa-summary', courseId])
+        queryClient.invalidateQueries(['mentor-course-qa-summaries'])
+      },
+      onError: (err: any) => setError(err.message || err.response?.data?.message || 'Failed to send Q&A reply.'),
+    }
+  )
+
+  const archiveCourseMutation = useMutation(() => courseApi.archive(courseId!), {
+    onSuccess: () => {
+      setConfirmAction(null)
+      setError('')
+      queryClient.invalidateQueries(['course', courseId])
+      queryClient.invalidateQueries(['course-stats', courseId])
+    },
+    onError: (err: any) => setError(err.message || err.response?.data?.message || 'Failed to archive product.'),
+  })
+
+  const deleteCourseMutation = useMutation(() => courseApi.delete(courseId!), {
+    onSuccess: () => {
+      setConfirmAction(null)
+      navigate('/mentor/courses')
+    },
+    onError: (err: any) => setError(err.message || err.response?.data?.message || 'Failed to delete product.'),
+  })
+
+  const actionLoading = archiveCourseMutation.isLoading || deleteCourseMutation.isLoading
+
+  const confirmCourseAction = () => {
+    if (!confirmAction || !courseId) return
+    if (confirmAction === 'archive') {
+      archiveCourseMutation.mutate()
+      return
+    }
+    deleteCourseMutation.mutate()
+  }
 
   const markDirty = (next: DraftSection[]) => {
     setSections(next)
@@ -587,15 +742,40 @@ export default function MentorCourseManagePage() {
     })
   }
 
-  const addCourseSkill = (skillId: number) => {
-    if (!skillId || courseDetails.skillIds.includes(skillId)) return
-    updateCourseDetails({ skillIds: [...courseDetails.skillIds, skillId] })
+  const selectCourseCategory = (category: CategoryResponse) => {
+    updateCourseDetails({ domain: { id: category.id, label: categoryLabel(category) } })
+    setIsCategoryMenuOpen(false)
+  }
+
+  const updateCourseDomainLabel = (label: string) => {
+    const normalized = normalizeLabel(label)
+    const existing = findExistingCategory(normalized, categories)
+    updateCourseDetails({ domain: { id: existing?.id, label } })
+  }
+
+  const addCourseSkill = (chip: SkillChip) => {
+    const label = normalizeLabel(chip.label)
+    if (!label || courseDetails.skillChips.some((current) => labelsEqual(current.label, label))) return
+    const existing = findExistingSkill(label, skills)
+    updateCourseDetails({
+      skillChips: [
+        ...courseDetails.skillChips,
+        existing ? { id: existing.id, label: skillLabel(existing) } : { id: chip.id, label },
+      ],
+    })
     setSkillQuery('')
     setIsSkillMenuOpen(false)
   }
 
-  const removeCourseSkill = (skillId: number) => {
-    updateCourseDetails({ skillIds: courseDetails.skillIds.filter((id) => id !== skillId) })
+  const removeCourseSkill = (label: string) => {
+    updateCourseDetails({ skillChips: courseDetails.skillChips.filter((skill) => !labelsEqual(skill.label, label)) })
+  }
+
+  const commitCourseSkillQuery = () => {
+    const label = normalizeLabel(skillQuery)
+    if (!label) return
+    const existing = findExistingSkill(label, skills)
+    addCourseSkill(existing ? { id: existing.id, label: skillLabel(existing) } : { label })
   }
 
   const addSection = () => {
@@ -719,31 +899,49 @@ export default function MentorCourseManagePage() {
     return pendingImage
   }
 
-  const documentReadyForReview = !!documentLesson?.lesson.resourceUrl
-  const canSubmitForReview = (course?.status === CourseStatus.DRAFT || course?.status === CourseStatus.REJECTED)
-    && (isDocumentProduct ? !dirty && documentReadyForReview : !dirty && sections.length > 0 && sections.some((section) => section.lessons.length > 0))
   return (
     <div className="min-h-[calc(100vh-8rem)] space-y-4">
-      <Link to="/mentor/my-courses" className="inline-flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-slate-900">
+      <Link to="/mentor/courses" className="inline-flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-slate-900">
         <ArrowLeft className="h-4 w-4" />
-        Back to my courses
+        Back to products
       </Link>
 
       <div className="flex flex-col gap-4 border-b border-slate-200 pb-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <p className="text-xs font-black uppercase tracking-widest text-indigo-600">{course?.status || 'DRAFT'}</p>
+          <p className="text-xs font-black uppercase tracking-widest text-indigo-600">{course?.status || 'PUBLISHED'}</p>
           <h1 className="text-2xl font-black text-slate-900">{course?.title || 'Course editor'}</h1>
         </div>
         <div className="flex flex-wrap gap-2">
           {activeTab === 'content' && dirty && <span className="rounded-full bg-amber-50 px-3 py-2 text-xs font-black text-amber-700">Unsaved changes</span>}
-          {activeTab === 'info' && (detailsDirty || (isDocumentProduct && dirty)) && <span className="rounded-full bg-amber-50 px-3 py-2 text-xs font-black text-amber-700">Unsaved info</span>}
+          {(activeTab === 'info' || activeTab === 'sale') && (detailsDirty || (isDocumentProduct && dirty)) && <span className="rounded-full bg-amber-50 px-3 py-2 text-xs font-black text-amber-700">Unsaved info</span>}
+          {courseId && (
+            <Link
+              to={`/courses/${courseId}`}
+              className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2 text-sm font-bold text-white hover:bg-slate-800"
+            >
+              View course page
+            </Link>
+          )}
+          {course?.status === CourseStatus.PUBLISHED && (
+            <button
+              type="button"
+              onClick={() => setConfirmAction('archive')}
+              disabled={actionLoading}
+              className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-60"
+            >
+              <Archive className="h-4 w-4" />
+              Archive
+            </button>
+          )}
           <button
-            disabled={!canSubmitForReview || submitReviewMutation.isLoading}
-            onClick={() => submitReviewMutation.mutate()}
-            className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2 text-sm font-bold text-white disabled:bg-slate-300"
+            type="button"
+            onClick={() => setConfirmAction('delete')}
+            disabled={!course || totalEnrollments > 0 || actionLoading}
+            title={totalEnrollments > 0 ? 'Products with enrollments cannot be deleted. Archive instead.' : 'Delete product'}
+            className="inline-flex items-center gap-2 rounded-xl border border-rose-200 px-4 py-2 text-sm font-bold text-rose-600 hover:bg-rose-50 disabled:cursor-not-allowed disabled:border-slate-200 disabled:text-slate-300"
           >
-            {submitReviewMutation.isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-            Submit for Review
+            <Trash2 className="h-4 w-4" />
+            Delete
           </button>
         </div>
       </div>
@@ -758,26 +956,45 @@ export default function MentorCourseManagePage() {
         </div>
       )}
 
-      <div className="flex rounded-2xl border border-slate-200 bg-white p-1">
+      <div className="flex gap-1 overflow-x-auto rounded-2xl border border-slate-200 bg-white p-1">
         <button
           type="button"
           onClick={() => setActiveTab('info')}
-          className={`flex-1 rounded-xl px-4 py-2 text-sm font-black ${activeTab === 'info' ? 'bg-indigo-600 text-white' : 'text-slate-600 hover:bg-slate-50'}`}
+          className={`shrink-0 rounded-xl px-4 py-2 text-sm font-black ${activeTab === 'info' ? 'bg-indigo-600 text-white' : 'text-slate-600 hover:bg-slate-50'}`}
         >
           {isDocumentProduct ? 'Document info' : 'Course info'}
         </button>
         {!isDocumentProduct && <button
           type="button"
           onClick={() => setActiveTab('content')}
-          className={`flex-1 rounded-xl px-4 py-2 text-sm font-black ${activeTab === 'content' ? 'bg-indigo-600 text-white' : 'text-slate-600 hover:bg-slate-50'}`}
+          className={`shrink-0 rounded-xl px-4 py-2 text-sm font-black ${activeTab === 'content' ? 'bg-indigo-600 text-white' : 'text-slate-600 hover:bg-slate-50'}`}
         >
           Course content
         </button>}
+        <button
+          type="button"
+          onClick={() => setActiveTab('sale')}
+          className={`shrink-0 rounded-xl px-4 py-2 text-sm font-black ${activeTab === 'sale' ? 'bg-indigo-600 text-white' : 'text-slate-600 hover:bg-slate-50'}`}
+        >
+          Sales
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab('qa')}
+          className={`shrink-0 rounded-xl px-4 py-2 text-sm font-black ${activeTab === 'qa' ? 'bg-indigo-600 text-white' : 'text-slate-600 hover:bg-slate-50'}`}
+        >
+          Q&A
+          {(qaSummary?.unansweredLearners || 0) > 0 && (
+            <span className={`ml-2 rounded-full px-2 py-0.5 text-[10px] ${activeTab === 'qa' ? 'bg-white/20 text-white' : 'bg-rose-50 text-rose-700'}`}>
+              {qaSummary?.unansweredLearners}
+            </span>
+          )}
+        </button>
         {coursePublished && !isDocumentProduct && (
           <button
             type="button"
             onClick={() => setActiveTab('reviews')}
-            className={`flex-1 rounded-xl px-4 py-2 text-sm font-black ${activeTab === 'reviews' ? 'bg-indigo-600 text-white' : 'text-slate-600 hover:bg-slate-50'}`}
+            className={`shrink-0 rounded-xl px-4 py-2 text-sm font-black ${activeTab === 'reviews' ? 'bg-indigo-600 text-white' : 'text-slate-600 hover:bg-slate-50'}`}
           >
             Reviews
           </button>
@@ -845,12 +1062,42 @@ export default function MentorCourseManagePage() {
               )}
               <div className="grid gap-4 md:grid-cols-3">
                 <Field label="Domain">
-                  <select value={courseDetails.categoryId} onChange={(event) => updateCourseDetails({ categoryId: event.target.value })} className={editorInputClass}>
-                    <option value="">Choose domain</option>
-                    {categories.map((category: CategoryResponse) => (
-                      <option key={category.id} value={category.id}>{category.name}</option>
-                    ))}
-                  </select>
+                  <div className="rounded-xl border border-slate-200 p-3">
+                    <div className="relative">
+                      <input
+                        value={courseDetails.domain.label}
+                        onChange={(event) => {
+                          updateCourseDomainLabel(event.target.value)
+                          setIsCategoryMenuOpen(true)
+                        }}
+                        onFocus={() => setIsCategoryMenuOpen(true)}
+                        onBlur={() => window.setTimeout(() => setIsCategoryMenuOpen(false), 120)}
+                        className={editorInputClass}
+                        placeholder="Type a domain"
+                        autoComplete="off"
+                      />
+                      {isCategoryMenuOpen && (
+                        <div className="absolute z-20 mt-2 max-h-72 w-full overflow-auto rounded-xl border border-slate-200 bg-white p-2 shadow-lg">
+                          {suggestedCategories.length > 0 ? (
+                            suggestedCategories.map((category: CategoryResponse) => (
+                              <button
+                                key={category.id}
+                                type="button"
+                                onMouseDown={(event) => event.preventDefault()}
+                                onClick={() => selectCourseCategory(category)}
+                                className="flex w-full flex-col rounded-lg px-3 py-2 text-left hover:bg-indigo-50"
+                              >
+                                <span className="text-sm font-semibold text-slate-900">{categoryLabel(category)}</span>
+                                <span className="text-xs text-slate-500">{category.slug}</span>
+                              </button>
+                            ))
+                          ) : (
+                            <div className="px-3 py-2 text-sm text-slate-500">No matching active domains.</div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </Field>
                 <Field label="Language">
                   <select value={courseDetails.language} onChange={(event) => updateCourseDetails({ language: event.target.value as SupportedLanguage })} className={editorInputClass}>
@@ -881,10 +1128,9 @@ export default function MentorCourseManagePage() {
                       onFocus={() => setIsSkillMenuOpen(true)}
                       onBlur={() => window.setTimeout(() => setIsSkillMenuOpen(false), 120)}
                       onKeyDown={(event) => {
-                        if (event.key === 'Enter') {
+                        if (event.key === 'Enter' || event.key === ',') {
                           event.preventDefault()
-                          const firstSuggestion = suggestedCourseSkills[0]
-                          if (firstSuggestion) addCourseSkill(firstSuggestion.id)
+                          commitCourseSkillQuery()
                         }
                         if (event.key === 'Escape') {
                           setIsSkillMenuOpen(false)
@@ -897,29 +1143,51 @@ export default function MentorCourseManagePage() {
                     {isSkillMenuOpen && (
                       <div className="absolute z-20 mt-2 max-h-72 w-full overflow-auto rounded-xl border border-slate-200 bg-white p-2 shadow-lg">
                         {suggestedCourseSkills.length > 0 ? (
-                          suggestedCourseSkills.map((skill: SkillResponse) => (
-                            <button
-                              key={skill.id}
-                              type="button"
-                              onMouseDown={(event) => event.preventDefault()}
-                              onClick={() => addCourseSkill(skill.id)}
-                              className="flex w-full flex-col rounded-lg px-3 py-2 text-left hover:bg-indigo-50"
-                            >
-                              <span className="text-sm font-semibold text-slate-900">{skill.labelEn}</span>
-                              <span className="text-xs text-slate-500">{skill.slug}</span>
-                            </button>
-                          ))
+                          <>
+                            {normalizeLabel(skillQuery).length > 0 && !findExistingSkill(skillQuery, skills) && (
+                              <button
+                                type="button"
+                                onMouseDown={(event) => event.preventDefault()}
+                                onClick={commitCourseSkillQuery}
+                                className="flex w-full flex-col rounded-lg px-3 py-2 text-left text-indigo-700 hover:bg-indigo-50"
+                              >
+                                <span className="text-sm font-black">Add "{normalizeLabel(skillQuery)}"</span>
+                                <span className="text-xs">Use this skill for the course</span>
+                              </button>
+                            )}
+                            {suggestedCourseSkills.map((skill: SkillResponse) => (
+                              <button
+                                key={skill.id}
+                                type="button"
+                                onMouseDown={(event) => event.preventDefault()}
+                                onClick={() => addCourseSkill({ id: skill.id, label: skillLabel(skill) })}
+                                className="flex w-full flex-col rounded-lg px-3 py-2 text-left hover:bg-indigo-50"
+                              >
+                                <span className="text-sm font-semibold text-slate-900">{skill.labelEn}</span>
+                                <span className="text-xs text-slate-500">{skill.slug}</span>
+                              </button>
+                            ))}
+                          </>
                         ) : (
-                          <div className="px-3 py-2 text-sm text-slate-500">No matching active skills.</div>
+                          <button
+                            type="button"
+                            onMouseDown={(event) => event.preventDefault()}
+                            onClick={commitCourseSkillQuery}
+                            disabled={!normalizeLabel(skillQuery)}
+                            className="flex w-full flex-col rounded-lg px-3 py-2 text-left text-indigo-700 hover:bg-indigo-50 disabled:cursor-not-allowed disabled:text-slate-400"
+                          >
+                            <span className="text-sm font-black">{normalizeLabel(skillQuery) ? `Add "${normalizeLabel(skillQuery)}"` : 'No matching active skills.'}</span>
+                            {normalizeLabel(skillQuery) && <span className="text-xs">Use this skill for the course</span>}
+                          </button>
                         )}
                       </div>
                     )}
                   </div>
                   <div className="mt-3 flex flex-wrap gap-2">
-                    {selectedCourseSkills.map((skill: SkillResponse) => (
-                      <span key={skill.id} className="inline-flex items-center gap-2 rounded-full bg-indigo-50 px-3 py-1 text-sm font-semibold text-indigo-700">
-                        {skill.labelEn}
-                        <button type="button" onClick={() => removeCourseSkill(skill.id)} className="text-indigo-400 hover:text-indigo-700" title="Remove skill">
+                    {selectedCourseSkills.map((skill: SkillChip) => (
+                      <span key={skill.label.toLowerCase()} className="inline-flex items-center gap-2 rounded-full bg-indigo-50 px-3 py-1 text-sm font-semibold text-indigo-700">
+                        {skill.label}
+                        <button type="button" onClick={() => removeCourseSkill(skill.label)} className="text-indigo-400 hover:text-indigo-700" title="Remove skill">
                           <X className="h-3.5 w-3.5" />
                         </button>
                       </span>
@@ -930,10 +1198,9 @@ export default function MentorCourseManagePage() {
               </Field>
               <div className="space-y-3">
                 {!isDocumentProduct && (
-                <label className="inline-flex items-center gap-2 text-sm font-bold text-slate-700">
-                  <input type="checkbox" checked={courseDetails.isCertificate} onChange={(event) => updateCourseDetails({ isCertificate: event.target.checked })} className="h-4 w-4 rounded border-slate-300" />
-                  Offer certificate upon completion
-                </label>
+                <div className="rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-700">
+                  Certificate is included upon completion
+                </div>
                 )}
                 <div>
                   <button
@@ -947,6 +1214,108 @@ export default function MentorCourseManagePage() {
                   </button>
                 </div>
               </div>
+          </div>
+        </section>
+      )}
+
+      {activeTab === 'sale' && (
+        <section className="space-y-5 rounded-2xl border border-slate-200 bg-white p-5">
+          <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+            <div>
+              <h2 className="text-base font-black text-slate-900">Sales</h2>
+              <p className="text-sm font-medium text-slate-500">Track course sales performance and manage the scheduled sale window.</p>
+            </div>
+            {course?.activeDiscount ? (
+              <span className="rounded-full bg-emerald-50 px-3 py-2 text-xs font-black text-emerald-700">Sale active</span>
+            ) : (
+              <span className="rounded-full bg-slate-100 px-3 py-2 text-xs font-black text-slate-600">No active sale</span>
+            )}
+          </div>
+
+          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+            <SaleMetricCard label="Lifetime revenue" value={formatCurrency(saleStats.totalRevenue)} helper={`${totalEnrollments} total enrollments`} icon={<CircleDollarSign className="h-5 w-5" />} />
+            <SaleMetricCard label="Last 7 days" value={formatCurrency(saleStats.last7Revenue)} helper={`${saleStats.last7Enrollments} new enrollments`} icon={<TrendingUp className="h-5 w-5" />} tone="emerald" />
+            <SaleMetricCard label="Previous 7 days" value={formatCurrency(saleStats.previous7Revenue)} helper={`${saleStats.previous7Enrollments} enrollments`} icon={<Calendar className="h-5 w-5" />} tone="slate" />
+            <SaleMetricCard label="7-day change" value={saleStats.revenueDeltaPercent == null ? 'New' : `${saleStats.revenueDeltaPercent >= 0 ? '+' : ''}${saleStats.revenueDeltaPercent}%`} helper={`${saleStats.revenueDelta >= 0 ? '+' : ''}${formatCurrency(saleStats.revenueDelta)} vs previous period`} icon={<Users className="h-5 w-5" />} tone={saleStats.revenueDelta >= 0 ? 'emerald' : 'rose'} />
+          </div>
+
+          <div className="grid gap-4 lg:grid-cols-[1fr_1.3fr]">
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+              <p className="text-xs font-black uppercase tracking-widest text-slate-400">Current pricing</p>
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                <PriceStat label="Base price" value={formatCurrency(saleStats.basePrice)} />
+                <PriceStat label="Effective price" value={saleStats.effectivePrice ? formatCurrency(saleStats.effectivePrice) : 'Free'} />
+                <PriceStat label="Discount" value={saleStats.discountAmount ? formatCurrency(saleStats.discountAmount) : 'None'} />
+                <PriceStat label="Discount rate" value={saleStats.discountPercent ? `${saleStats.discountPercent}%` : '0%'} />
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-slate-200 p-4">
+              <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                  <p className="text-sm font-black text-slate-900">Sale schedule</p>
+                  <p className="text-xs font-semibold text-slate-500">Set or clear the scheduled sale window.</p>
+                </div>
+                {(courseDetails.discountPriceMxc || courseDetails.discountStartAt || courseDetails.discountEndAt || course?.discountPriceMxc) && (
+                  <button
+                    type="button"
+                    onClick={() => updateCourseDetails({
+                      discountPriceMxc: '',
+                      discountStartAt: '',
+                      discountEndAt: '',
+                      clearDiscount: true,
+                    })}
+                    className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-black text-slate-600 hover:bg-rose-50 hover:text-rose-600"
+                  >
+                    Clear sale
+                  </button>
+                )}
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-3">
+                <Field label="Sale price (MXC)">
+                  <input
+                    type="number"
+                    min="0"
+                    step="1"
+                    value={courseDetails.discountPriceMxc}
+                    onChange={(event) => updateCourseDetails({ discountPriceMxc: event.target.value, clearDiscount: false })}
+                    className={editorInputClass}
+                    placeholder="Lower than base price"
+                  />
+                </Field>
+                <Field label="Starts">
+                  <input
+                    type="datetime-local"
+                    value={courseDetails.discountStartAt}
+                    onChange={(event) => updateCourseDetails({ discountStartAt: event.target.value, clearDiscount: false })}
+                    className={editorInputClass}
+                  />
+                </Field>
+                <Field label="Ends">
+                  <input
+                    type="datetime-local"
+                    value={courseDetails.discountEndAt}
+                    onChange={(event) => updateCourseDetails({ discountEndAt: event.target.value, clearDiscount: false })}
+                    className={editorInputClass}
+                  />
+                </Field>
+              </div>
+
+              {courseDetails.clearDiscount && (
+                <p className="mt-3 rounded-xl bg-amber-50 px-4 py-3 text-xs font-bold text-amber-700">Save sale schedule to remove the current sale.</p>
+              )}
+
+              <button
+                type="button"
+                onClick={() => updateCourseDetailsMutation.mutate()}
+                disabled={!detailsDirty || updateCourseDetailsMutation.isLoading}
+                className="mt-4 inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2 text-sm font-bold text-white disabled:bg-slate-300"
+              >
+                {updateCourseDetailsMutation.isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                Save sale schedule
+              </button>
+            </div>
           </div>
         </section>
       )}
@@ -1061,6 +1430,85 @@ export default function MentorCourseManagePage() {
         </div>
       </section>}
 
+      {activeTab === 'qa' && (
+        <section className="space-y-5 rounded-2xl border border-slate-200 bg-white p-5">
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div>
+              <h2 className="flex items-center gap-2 text-base font-black text-slate-900">
+                <MessageSquare className="h-5 w-5 text-indigo-600" />
+                Course Q&A
+              </h2>
+              <p className="text-sm font-medium text-slate-500">Answer learner questions for this product.</p>
+            </div>
+            <span className={`rounded-full px-3 py-2 text-xs font-black ${qaSummary?.unansweredLearners ? 'bg-rose-50 text-rose-700' : 'bg-emerald-50 text-emerald-700'}`}>
+              {qaSummary?.unansweredLearners || 0} unanswered
+            </span>
+          </div>
+
+          {qaLoading ? (
+            <div className="flex min-h-48 items-center justify-center">
+              <Loader2 className="h-7 w-7 animate-spin text-indigo-600" />
+            </div>
+          ) : qaThreads.length === 0 ? (
+            <div className="rounded-2xl border border-dashed border-slate-200 p-8 text-center">
+              <MessageSquare className="mx-auto mb-3 h-8 w-8 text-slate-300" />
+              <p className="text-sm font-bold text-slate-600">No learner questions yet.</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {qaThreads.map((thread) => {
+                const draft = qaReplyDrafts[thread.learnerId] || ''
+                return (
+                  <article key={thread.learnerId} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                    <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                      <div>
+                        <p className="text-sm font-black text-slate-900">{thread.learnerName}</p>
+                        <p className="text-xs font-semibold text-slate-500">{thread.messages.length} message{thread.messages.length === 1 ? '' : 's'}</p>
+                      </div>
+                      {thread.unanswered && <span className="rounded-full bg-rose-100 px-3 py-1 text-xs font-black text-rose-700">Needs reply</span>}
+                    </div>
+
+                    <div className="max-h-96 space-y-3 overflow-auto rounded-xl border border-slate-200 bg-white p-3">
+                      {thread.messages.map((message) => {
+                        const fromMentor = message.senderId === course?.instructorId
+                        return (
+                          <div key={message.id} className={`flex ${fromMentor ? 'justify-end' : 'justify-start'}`}>
+                            <div className={`max-w-[82%] rounded-xl px-3 py-2 ${fromMentor ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-800'}`}>
+                              <p className={`text-[11px] font-black ${fromMentor ? 'text-indigo-100' : 'text-slate-500'}`}>{message.senderName}</p>
+                              <p className="mt-1 whitespace-pre-wrap text-sm leading-6">{message.content}</p>
+                              <p className={`mt-2 text-[11px] font-semibold ${fromMentor ? 'text-indigo-100' : 'text-slate-400'}`}>{new Date(message.createdAt).toLocaleString()}</p>
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+
+                    <div className="mt-3 space-y-2">
+                      <label className="text-xs font-black uppercase tracking-widest text-slate-400">Reply</label>
+                      <textarea
+                        value={draft}
+                        onChange={(event) => setQaReplyDrafts((current) => ({ ...current, [thread.learnerId]: event.target.value }))}
+                        className="min-h-24 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10"
+                        placeholder={`Reply to ${thread.learnerName}`}
+                      />
+                      <button
+                        type="button"
+                        disabled={!draft.trim() || sendQaReplyMutation.isLoading}
+                        onClick={() => sendQaReplyMutation.mutate({ recipientId: thread.learnerId, content: draft.trim() })}
+                        className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-bold text-white disabled:bg-slate-300"
+                      >
+                        {sendQaReplyMutation.isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                        Send reply
+                      </button>
+                    </div>
+                  </article>
+                )
+              })}
+            </div>
+          )}
+        </section>
+      )}
+
       {activeTab === 'reviews' && coursePublished && (
         <section className="space-y-5 rounded-2xl border border-slate-200 bg-white p-5">
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
@@ -1141,6 +1589,56 @@ export default function MentorCourseManagePage() {
           )}
         </section>
       )}
+
+      <CourseNameConfirmModal
+        isOpen={!!confirmAction}
+        courseName={course?.title || ''}
+        title={confirmAction === 'delete' ? 'Delete product?' : 'Archive product?'}
+        message={confirmAction === 'delete'
+          ? 'This product will be removed. Deletion is only allowed when it has zero enrollments.'
+          : 'This product will leave the marketplace. Enrolled learners can still access it from their library.'}
+        confirmText={confirmAction === 'delete' ? 'Delete Product' : 'Archive Product'}
+        confirmTone={confirmAction === 'delete' ? 'rose' : 'slate'}
+        isLoading={actionLoading}
+        onClose={() => {
+          if (!actionLoading) setConfirmAction(null)
+        }}
+        onConfirm={confirmCourseAction}
+      />
+    </div>
+  )
+}
+
+function SaleMetricCard({ label, value, helper, icon, tone = 'indigo' }: {
+  label: string
+  value: string
+  helper: string
+  icon: React.ReactNode
+  tone?: 'indigo' | 'emerald' | 'rose' | 'slate'
+}) {
+  const toneClass = {
+    indigo: 'bg-indigo-50 text-indigo-600',
+    emerald: 'bg-emerald-50 text-emerald-600',
+    rose: 'bg-rose-50 text-rose-600',
+    slate: 'bg-slate-100 text-slate-600',
+  }[tone]
+  return (
+    <div className="rounded-2xl border border-slate-200 p-4">
+      <div className={`mb-3 flex h-10 w-10 items-center justify-center rounded-xl ${toneClass}`}>
+        {icon}
+      </div>
+      <p className="text-xs font-black uppercase tracking-widest text-slate-400">{label}</p>
+      <p className="mt-2 text-xl font-black text-slate-900">{value}</p>
+      <p className="mt-1 text-xs font-semibold text-slate-500">{helper}</p>
+    </div>
+  )
+}
+
+function PriceStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-xl bg-white p-3">
+      <p className="text-[11px] font-black uppercase tracking-widest text-slate-400">{label}</p>
+      <p className="mt-1 text-sm font-black text-slate-900">{value}</p>
     </div>
   )
 }
@@ -2091,4 +2589,59 @@ function validateAsset(file: File, field: 'videoUrl' | 'resourceUrl') {
     if (file.size > 100 * 1024 * 1024) return 'Downloadable file must be 100 MB or smaller.'
   }
   return ''
+}
+
+type QaThread = {
+  learnerId: string
+  learnerName: string
+  messages: CourseQaMessageResponse[]
+  unanswered: boolean
+}
+
+function groupQaMessagesByLearner(messages: CourseQaMessageResponse[], instructorId?: string): QaThread[] {
+  if (!instructorId) return []
+  const byLearner = new Map<string, QaThread>()
+  for (const message of messages) {
+    const fromMentor = message.senderId === instructorId
+    const learnerId = fromMentor ? message.recipientId : message.senderId
+    if (!learnerId) continue
+    const existing = byLearner.get(learnerId)
+    if (existing) {
+      existing.messages.push(message)
+      if (!fromMentor) existing.learnerName = message.senderName
+      continue
+    }
+    byLearner.set(learnerId, {
+      learnerId,
+      learnerName: fromMentor ? 'Learner' : message.senderName,
+      messages: [message],
+      unanswered: false,
+    })
+  }
+  return Array.from(byLearner.values())
+    .map((thread) => {
+      const sortedMessages = [...thread.messages].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+      const lastLearnerMessage = [...sortedMessages].reverse().find((message) => message.senderId !== instructorId)
+      const lastMentorReply = [...sortedMessages].reverse().find((message) => message.senderId === instructorId)
+      return {
+        ...thread,
+        messages: sortedMessages,
+        unanswered: !!lastLearnerMessage && (!lastMentorReply || new Date(lastLearnerMessage.createdAt) > new Date(lastMentorReply.createdAt)),
+      }
+    })
+    .sort((a, b) => {
+      if (a.unanswered !== b.unanswered) return a.unanswered ? -1 : 1
+      const aLast = a.messages[a.messages.length - 1]?.createdAt || ''
+      const bLast = b.messages[b.messages.length - 1]?.createdAt || ''
+      return new Date(bLast).getTime() - new Date(aLast).getTime()
+    })
+}
+
+function toApiDateTime(value: string) {
+  return value.length === 16 ? `${value}:00` : value
+}
+
+function toDateTimeLocalValue(value?: string) {
+  if (!value) return ''
+  return value.slice(0, 16)
 }

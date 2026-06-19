@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { courseApi } from '@/api/courseApi'
 import { mentorApi } from '@/api/mentorApi'
+import { categoryApi } from '@/api/categoryApi'
 import { formatCurrency } from '@/utils/formatters'
 import {
   BookOpen,
@@ -24,10 +25,14 @@ import {
   PlayCircle,
   Calendar,
   TrendingUp,
+  Tag,
+  Wallet,
+  X,
 } from 'lucide-react'
 import ReviewList from '@/components/review/ReviewList'
-import { CourseLessonResponse, CourseProductType, CourseResponse, CourseStatus, MentorProfileResponse, ReviewTargetType } from '@/types'
+import { CategoryResponse, CourseLessonResponse, CourseProductType, CourseResponse, CourseStatus, MentorProfileResponse, ReviewTargetType } from '@/types'
 import { useAuthStore } from '@/store/authStore'
+import { categoryLabel } from '@/utils/freeFormTaxonomy'
 
 type TabType = 'overview' | 'curriculum' | 'instructor' | 'reviews'
 
@@ -40,6 +45,8 @@ export default function CourseDetailPage() {
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set())
   const [previewingLessonId, setPreviewingLessonId] = useState<string | null>(null)
   const [downloadingLessonId, setDownloadingLessonId] = useState<string | null>(null)
+  const [enrollError, setEnrollError] = useState<string | null>(null)
+  const [showAddCoinsPrompt, setShowAddCoinsPrompt] = useState(false)
 
   const { data: course, isLoading } = useQuery(
     ['course', courseId],
@@ -80,10 +87,22 @@ export default function CourseDetailPage() {
     () => courseApi.enrollCurrentUser(courseId!),
     {
       onSuccess: () => {
+        setEnrollError(null)
         queryClient.invalidateQueries(['course-enrollment-status', courseId, user?.userId])
         queryClient.invalidateQueries(['my-enrollments', user?.userId])
         queryClient.invalidateQueries(['course', courseId])
+        queryClient.invalidateQueries(['userBalance', user?.userId])
         navigate(`/courses/${courseId}/learn`)
+      },
+      onError: (error: any) => {
+        const message = error?.response?.data?.message || error?.message || 'Could not complete enrollment.'
+        const normalizedMessage = message.toLowerCase()
+        if (normalizedMessage.includes('not enough mxc') || normalizedMessage.includes('insufficient balance')) {
+          setEnrollError(null)
+          setShowAddCoinsPrompt(true)
+          return
+        }
+        setEnrollError(message)
       },
     }
   )
@@ -91,6 +110,13 @@ export default function CourseDetailPage() {
   const publishedLessons = useMemo(
     () => lessons.filter((lesson) => lesson.isPublished !== false),
     [lessons]
+  )
+  const { data: categories = [] } = useQuery('course-detail-categories', categoryApi.getAllActive, {
+    staleTime: 5 * 60 * 1000,
+  })
+  const firstFreePreviewLesson = useMemo(
+    () => publishedLessons.find((lesson) => lesson.isFreePreview),
+    [publishedLessons]
   )
 
   const lessonsBySection = useMemo(() => {
@@ -142,11 +168,18 @@ export default function CourseDetailPage() {
     return <BookOpen className="h-4 w-4 text-indigo-600" />
   }
 
-  const isPaidCourse = !!course?.priceMxc && course.priceMxc > 0
   const isDocumentProduct = course?.productType === CourseProductType.DOCUMENT
   const isPublished = course?.status === CourseStatus.PUBLISHED
+  const displayPrice = course?.effectivePriceMxc ?? course?.priceMxc ?? 0
+  const isPaidCourse = displayPrice > 0
   const canDownload = !!user && (!isPaidCourse || isEnrolled)
   const isPreviewLimited = isPaidCourse && !isEnrolled && !isEnrollmentLoading
+  const domainName = useMemo(() => {
+    if (!course?.categoryId) return ''
+    return categories.find((category: CategoryResponse) => category.id === course.categoryId)
+      ? categoryLabel(categories.find((category: CategoryResponse) => category.id === course.categoryId)!)
+      : ''
+  }, [categories, course?.categoryId])
 
   const openDocumentPreview = async (lessonId: string) => {
     try {
@@ -221,7 +254,14 @@ export default function CourseDetailPage() {
       navigate(`/courses/${courseId}/learn`)
       return
     }
+    setEnrollError(null)
+    setShowAddCoinsPrompt(false)
     enrollMutation.mutate()
+  }
+
+  const handlePreview = () => {
+    if (!courseId || !firstFreePreviewLesson) return
+    navigate(lessonPath(courseId, firstFreePreviewLesson))
   }
 
   if (isLoading) {
@@ -260,6 +300,12 @@ export default function CourseDetailPage() {
 
   return (
     <div className="bg-gray-50 min-h-screen">
+      {showAddCoinsPrompt && (
+        <AddCoinsPrompt
+          onClose={() => setShowAddCoinsPrompt(false)}
+        />
+      )}
+
       {/* Breadcrumb */}
       <div className="bg-white border-b border-gray-100">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -286,7 +332,7 @@ export default function CourseDetailPage() {
               {/* Category Badge */}
               <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-1.5 text-sm font-medium">
                 {isDocumentProduct ? <FileText className="w-4 h-4" /> : <BookOpen className="w-4 h-4" />}
-                {isDocumentProduct ? 'Document resource' : course.level || course.language || 'Course'}
+                {domainName || (isDocumentProduct ? 'Document resource' : course.level || course.language || 'Course')}
               </div>
               {isDocumentProduct && (
                 <div className="inline-flex items-center gap-2 rounded-full bg-amber-400/20 px-4 py-1.5 text-sm font-black text-amber-100 backdrop-blur-sm">
@@ -309,7 +355,7 @@ export default function CourseDetailPage() {
 
               {/* Meta Info */}
               <div className="flex flex-wrap items-center gap-6 text-sm">
-                <div className="flex items-center gap-2">
+                <Link to={`/mentors/${course.instructorId}`} className="flex items-center gap-2 rounded-xl transition hover:bg-white/10">
                   <img
                     src={getInstructorAvatar(course, instructorProfile)}
                     alt={getInstructorName(course, instructorProfile)}
@@ -322,7 +368,7 @@ export default function CourseDetailPage() {
                       <p className="text-xs text-indigo-100">{getInstructorHeadline(instructorProfile)}</p>
                     )}
                   </div>
-                </div>
+                </Link>
 
                 {course.averageRating && (
                   <div className="flex items-center gap-1.5">
@@ -347,6 +393,17 @@ export default function CourseDetailPage() {
 
               {/* Key Features */}
               <div className="flex flex-wrap gap-3">
+                {domainName && (
+                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2">
+                    <Tag className="w-4 h-4" />
+                    <span className="text-sm font-medium">{domainName}</span>
+                  </div>
+                )}
+                {(course.skills || []).slice(0, 4).map((skill) => (
+                  <div key={skill} className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2">
+                    <span className="text-sm font-medium">{skill}</span>
+                  </div>
+                ))}
                 {course.level && (
                   <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2">
                     <BarChart3 className="w-4 h-4" />
@@ -385,7 +442,10 @@ export default function CourseDetailPage() {
                 totalDuration={totalDuration}
                 lessonCount={publishedLessons.length}
                 instructorName={getInstructorName(course, instructorProfile)}
+                previewLesson={firstFreePreviewLesson}
+                enrollError={enrollError}
                 onEnroll={handleEnroll}
+                onPreview={handlePreview}
               />
             </div>
           </div>
@@ -404,7 +464,10 @@ export default function CourseDetailPage() {
             totalDuration={totalDuration}
             lessonCount={publishedLessons.length}
             instructorName={getInstructorName(course, instructorProfile)}
+            previewLesson={firstFreePreviewLesson}
+            enrollError={enrollError}
             onEnroll={handleEnroll}
+            onPreview={handlePreview}
           />
         </div>
 
@@ -449,6 +512,9 @@ export default function CourseDetailPage() {
                 </div>
 
                 {/* Requirements */}
+                <CourseTaxonomyPanel domainName={domainName} skills={course.skills || []} />
+
+                {/* Requirements */}
                 <div>
                   <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
                     <Target className="w-6 h-6 text-indigo-600" />
@@ -474,6 +540,8 @@ export default function CourseDetailPage() {
                       { icon: FileText, text: isDocumentProduct ? `${documentCount || 1} document file` : `${documentCount} resource or article lessons` },
                       { icon: Clock, text: totalDuration > 0 ? `${formatDuration(totalDuration)} content` : 'Self-paced content' },
                       { icon: Globe, text: `${formatLanguage(course.language)} language` },
+                      ...(domainName ? [{ icon: Tag, text: `${domainName} domain` }] : []),
+                      ...(course.skills?.length ? [{ icon: Tag, text: `${course.skills.slice(0, 3).join(', ')} skills` }] : []),
                       { icon: Award, text: isDocumentProduct ? 'No certificate' : course.isCertificate ? 'Certificate of completion' : 'No certificate' },
                       { icon: TrendingUp, text: course.level ? `${course.level} level` : 'Open level' },
                       { icon: TrendingUp, text: `${Math.round(courseStats?.completionRate || 0)}% completion rate` },
@@ -506,6 +574,7 @@ export default function CourseDetailPage() {
                 canDownload={canDownload}
                 isPreviewLimited={isPreviewLimited}
                 isEnrollmentLoading={isEnrollmentLoading}
+                courseId={courseId}
               />
             )}
 
@@ -530,15 +599,15 @@ export default function CourseDetailPage() {
           <div>
             <p className="text-sm text-gray-500">Price</p>
             <p className="text-2xl font-bold text-indigo-600">
-              {course.priceMxc ? formatCurrency(course.priceMxc) : 'Free'}
+              {displayPrice ? formatCurrency(displayPrice) : 'Free'}
             </p>
           </div>
           <button
             onClick={handleEnroll}
-            disabled={enrollMutation.isLoading || !isPublished}
+            disabled={enrollMutation.isLoading || (!isPublished && !isEnrolled)}
             className="flex-1 bg-indigo-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-indigo-700 transition-colors disabled:bg-gray-300"
           >
-            {!isPublished ? 'Not published' : enrollMutation.isLoading ? 'Enrolling...' : isEnrolled ? (isDocumentProduct ? 'Open Document' : 'Continue Learning') : (isDocumentProduct ? 'Get Document' : 'Enroll Now')}
+            {!isPublished && !isEnrolled ? 'Archived' : enrollMutation.isLoading ? 'Enrolling...' : isEnrolled ? (isDocumentProduct ? 'Open Document' : 'Continue Learning') : (isDocumentProduct ? 'Get Document' : 'Enroll Now')}
           </button>
         </div>
       </div>
@@ -581,6 +650,35 @@ function formatDurationText(minutes: number) {
   return `${mins}m`
 }
 
+function CourseTaxonomyPanel({ domainName, skills }: { domainName?: string; skills: string[] }) {
+  if (!domainName && skills.length === 0) return null
+  return (
+    <div className="rounded-xl border border-indigo-100 bg-indigo-50/60 p-5">
+      <h2 className="mb-3 flex items-center gap-2 text-lg font-bold text-gray-900">
+        <Tag className="h-5 w-5 text-indigo-600" />
+        Domain and skills
+      </h2>
+      <div className="flex flex-wrap gap-2">
+        {domainName && (
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-sm font-bold text-slate-700">
+            <Tag className="h-3.5 w-3.5 text-slate-400" />
+            {domainName}
+          </span>
+        )}
+        {skills.map((skill) => (
+          <span key={skill} className="rounded-full bg-indigo-600 px-3 py-1.5 text-sm font-bold text-white">
+            {skill}
+          </span>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function lessonPath(courseId: string, lesson: CourseLessonResponse) {
+  return `/courses/${courseId}/learn/sections/${lesson.sectionId}/lessons/${lesson.id}`
+}
+
 function getInstructorName(course: CourseResponse, mentorProfile?: MentorProfileResponse | null) {
   return mentorProfile?.user?.fullName || course.instructor?.fullName || course.instructorName || 'Instructor'
 }
@@ -598,9 +696,66 @@ function getInstructorBio(instructor: any, mentorProfile?: MentorProfileResponse
   return mentorProfile?.professionalBio || mentorProfile?.user?.bio || instructor?.bio || 'This instructor has not provided a bio yet.'
 }
 
+function AddCoinsPrompt({ onClose }: { onClose: () => void }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 px-4">
+      <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="rounded-xl bg-indigo-50 p-3 text-indigo-600">
+              <Wallet className="h-6 w-6" />
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-slate-900">Add more MXC</h2>
+              <p className="mt-1 text-sm text-slate-600">
+                You do not have enough MXC to buy this resource.
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+            aria-label="Close"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+          <Link
+            to="/wallet"
+            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-indigo-700"
+          >
+            <Wallet className="h-4 w-4" />
+            Go to wallet
+          </Link>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+          >
+            Not now
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // Course Preview Card Component
-function CoursePreviewCard({ course, isEnrolled, isEnrollmentLoading, isEnrolling, isPublished = true, totalDuration = 0, lessonCount = 0, instructorName, onEnroll }: any) {
+function CoursePreviewCard({ course, isEnrolled, isEnrollmentLoading, isEnrolling, isPublished = true, totalDuration = 0, lessonCount = 0, instructorName, previewLesson, enrollError, onEnroll, onPreview }: any) {
   const isDocumentProduct = course.productType === CourseProductType.DOCUMENT
+  const displayPrice = course.effectivePriceMxc ?? course.priceMxc ?? 0
+  const isPaid = displayPrice > 0
+  const actionLabel = isPaid
+    ? isDocumentProduct
+      ? `Pay ${formatCurrency(displayPrice)} and get document`
+      : `Pay ${formatCurrency(displayPrice)} and enroll`
+    : isDocumentProduct
+      ? 'Get Document'
+      : 'Enroll Now'
+
   return (
     <div className={`bg-white rounded-2xl border overflow-hidden shadow-lg ${isDocumentProduct ? 'border-amber-200' : 'border-gray-200'}`}>
       {/* Thumbnail */}
@@ -641,8 +796,11 @@ function CoursePreviewCard({ course, isEnrolled, isEnrollmentLoading, isEnrollin
         {/* Price */}
         <div>
           <p className="text-3xl font-bold text-gray-900">
-            {course.priceMxc ? formatCurrency(course.priceMxc) : 'Free'}
+            {displayPrice ? formatCurrency(displayPrice) : 'Free'}
           </p>
+          {course.activeDiscount && displayPrice < (course.priceMxc || 0) && (
+            <p className="text-sm font-bold text-gray-400 line-through">{formatCurrency(course.priceMxc)}</p>
+          )}
           <p className="mt-1 text-sm font-medium text-gray-500">{isDocumentProduct ? 'Document by' : 'Course by'} {instructorName}</p>
         </div>
 
@@ -654,13 +812,30 @@ function CoursePreviewCard({ course, isEnrolled, isEnrollmentLoading, isEnrollin
               {isDocumentProduct ? 'Open Document' : 'Continue Learning'}
             </button>
           ) : (
-            <button
-              onClick={onEnroll}
-              disabled={isEnrollmentLoading || isEnrolling || !isPublished}
-              className="w-full bg-indigo-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-indigo-700 transition-colors disabled:bg-gray-300"
-            >
-              {!isPublished ? 'Not published' : isEnrolling ? 'Enrolling...' : isDocumentProduct ? 'Get Document' : 'Enroll Now'}
-            </button>
+            <>
+              {previewLesson && (
+                <button
+                  type="button"
+                  onClick={onPreview}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-indigo-200 px-6 py-3 font-semibold text-indigo-700 transition-colors hover:bg-indigo-50"
+                >
+                  <PlayCircle className="h-5 w-5" />
+                  Preview course
+                </button>
+              )}
+              <button
+                onClick={onEnroll}
+                disabled={isEnrollmentLoading || isEnrolling || (!isPublished && !isEnrolled)}
+                className="w-full bg-indigo-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-indigo-700 transition-colors disabled:bg-gray-300"
+              >
+                {!isPublished && !isEnrolled ? 'Archived' : isEnrolling ? (isPaid ? 'Processing...' : 'Enrolling...') : actionLabel}
+              </button>
+              {enrollError && (
+                <p className="rounded-lg bg-rose-50 px-3 py-2 text-sm font-medium text-rose-700">
+                  {enrollError}
+                </p>
+              )}
+            </>
           )}
         </div>
 
@@ -701,6 +876,7 @@ function CurriculumTab({
   canDownload,
   isPreviewLimited,
   isEnrollmentLoading,
+  courseId,
 }: any) {
   return (
     <div className="space-y-4">
@@ -754,11 +930,17 @@ function CurriculumTab({
               <div className="divide-y divide-gray-100 bg-white">
                 {sectionLessons.map((lesson: CourseLessonResponse) => {
                   const isLocked = isPaidCourse && !isEnrolled && !lesson.isFreePreview
+                  const canOpenLearning = !!courseId && (isEnrolled || lesson.isFreePreview)
                   
                   return (
                     <div
                       key={lesson.id}
-                      className="flex flex-col gap-4 p-5 transition hover:bg-gray-50 sm:flex-row sm:items-center sm:justify-between"
+                      onClick={() => {
+                        if (canOpenLearning) window.location.href = lessonPath(courseId, lesson)
+                      }}
+                      className={`flex flex-col gap-4 p-5 transition sm:flex-row sm:items-center sm:justify-between ${
+                        canOpenLearning ? 'cursor-pointer hover:bg-gray-50' : 'opacity-80'
+                      }`}
                     >
                       <div className="flex flex-1 items-start gap-4">
                         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100">
@@ -790,38 +972,39 @@ function CurriculumTab({
                       </div>
 
                       {/* Action Buttons */}
-                      {lesson.resourceUrl && (
+                      {canOpenLearning && (
                         <div className="ml-0 flex flex-wrap items-center gap-2 sm:ml-4">
                           <button
                             type="button"
                             onClick={() => {
-                              if (!user) {
-                                window.location.href = '/login'
-                                return
-                              }
-                              openDocumentPreview(lesson.id)
+                              window.location.href = lessonPath(courseId, lesson)
                             }}
-                            disabled={!user || previewingLessonId === lesson.id}
+                            disabled={previewingLessonId === lesson.id}
                             className="rounded-lg border border-indigo-200 px-4 py-2 text-sm font-medium text-indigo-600 transition hover:border-indigo-300 hover:bg-indigo-50 disabled:opacity-60"
                           >
-                            {previewingLessonId === lesson.id ? 'Opening...' : 'Preview'}
+                            {previewingLessonId === lesson.id ? 'Opening...' : lesson.isFreePreview && !isEnrolled ? 'Preview' : 'Open'}
                           </button>
-                          <button
-                            type="button"
-                            onClick={() => downloadDocument(lesson.id, `${lesson.title}.pdf`)}
-                            disabled={!canDownload || downloadingLessonId === lesson.id}
-                            className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
-                              canDownload
-                                ? 'border border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50'
-                                : 'border border-gray-100 text-gray-300 cursor-not-allowed'
-                            }`}
-                          >
-                            {downloadingLessonId === lesson.id
-                              ? 'Preparing...'
-                              : canDownload
-                              ? 'Download'
-                              : 'Locked'}
-                          </button>
+                          {lesson.resourceUrl && isEnrolled && (
+                            <button
+                              type="button"
+                              onClick={(event) => {
+                                event.stopPropagation()
+                                downloadDocument(lesson.id, `${lesson.title}.pdf`)
+                              }}
+                              disabled={!canDownload || downloadingLessonId === lesson.id}
+                              className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
+                                canDownload
+                                  ? 'border border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50'
+                                  : 'border border-gray-100 text-gray-300 cursor-not-allowed'
+                              }`}
+                            >
+                              {downloadingLessonId === lesson.id
+                                ? 'Preparing...'
+                                : canDownload
+                                ? 'Download'
+                                : 'Locked'}
+                            </button>
+                          )}
                         </div>
                       )}
                     </div>
@@ -856,7 +1039,10 @@ function InstructorTab({ instructor, mentorProfile, course }: { instructor: any;
   return (
     <div className="space-y-6">
       {/* Instructor Profile */}
-      <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
+      <Link
+        to={`/mentors/${course.instructorId}`}
+        className="flex flex-col gap-6 rounded-2xl border border-gray-100 p-4 transition hover:border-indigo-200 hover:bg-indigo-50/40 sm:flex-row sm:items-start"
+      >
         <img
           src={instructorAvatar}
           alt={instructorName}
@@ -885,7 +1071,7 @@ function InstructorTab({ instructor, mentorProfile, course }: { instructor: any;
             )}
           </div>
         </div>
-      </div>
+      </Link>
 
       {/* About */}
       <div>

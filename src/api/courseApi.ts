@@ -26,6 +26,43 @@ export const courseApi = {
     return response.data.data
   },
 
+  createWithCurriculum: async (data: {
+    course: CourseCreateRequest
+    curriculum?: {
+      sections: Array<{
+        title: string
+        description?: string
+        sectionOrder: number
+        isPublished?: boolean
+        lessons: Array<{
+          title: string
+          description?: string
+          lessonType: string
+          lessonOrder: number
+          durationMinutes?: number
+          videoUrl?: string
+          articleContent?: string
+          resourceUrl?: string
+          isFreePreview?: boolean
+          isPublished?: boolean
+          isMandatory?: boolean
+          metadata?: Record<string, unknown>
+          quizQuestions?: Array<{
+            questionType: QuizQuestionType
+            questionText: string
+            answerDataJson: string
+            points?: number
+            explanation?: string
+            orderIndex?: number
+          }>
+        }>
+      }>
+    }
+  }): Promise<CourseResponse> => {
+    const response = await apiClient.post<ApiResponse<CourseResponse>>('/courses/with-curriculum', data)
+    return response.data.data
+  },
+
   getById: async (courseId: string): Promise<CourseResponse> => {
     const response = await apiClient.get<ApiResponse<CourseResponse>>(`/courses/${courseId}`)
     return response.data.data
@@ -129,18 +166,6 @@ export const courseApi = {
         params,
       }
     )
-    return response.data.data
-  },
-
-  updateStatus: async (courseId: string, status: CourseStatus, reason?: string): Promise<CourseResponse> => {
-    let url = `/courses/${courseId}/status?status=${status}`
-    if (reason) url += `&reason=${encodeURIComponent(reason)}`
-    const response = await apiClient.patch<ApiResponse<CourseResponse>>(url)
-    return response.data.data
-  },
-
-  submitForReview: async (courseId: string): Promise<CourseResponse> => {
-    const response = await apiClient.post<ApiResponse<CourseResponse>>(`/courses/${courseId}/submit-for-review`)
     return response.data.data
   },
 

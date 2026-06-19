@@ -32,9 +32,9 @@ export function CourseMediaDropZone({ label, kind, file, mediaUrl, onFile, onCle
         {mediaUrl ? (
           <div className="space-y-3">
             {kind === 'image' ? (
-              <img src={mediaUrl} alt="" className="aspect-video w-full rounded-lg bg-white object-cover" />
+              <img key={mediaUrl} src={mediaUrl} alt="" className="aspect-video w-full rounded-lg bg-white object-cover" />
             ) : (
-              <video src={mediaUrl} controls className="aspect-video w-full rounded-lg bg-black" />
+              <video key={mediaUrl} src={mediaUrl} controls preload="metadata" playsInline className="aspect-video w-full rounded-lg bg-black object-contain" />
             )}
             <div className="flex items-center justify-between gap-3">
               <p className="min-w-0 truncate text-sm font-semibold text-slate-700">{file?.name || label}</p>
@@ -54,7 +54,16 @@ export function CourseMediaDropZone({ label, kind, file, mediaUrl, onFile, onCle
             </span>
           </label>
         )}
-        <input id={inputId} type="file" accept={accept} className="hidden" onChange={(event) => handleFiles(event.target.files)} />
+        <input
+          id={inputId}
+          type="file"
+          accept={accept}
+          className="hidden"
+          onChange={(event) => {
+            handleFiles(event.target.files)
+            event.currentTarget.value = ''
+          }}
+        />
       </div>
     </div>
   )

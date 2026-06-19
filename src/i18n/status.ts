@@ -37,9 +37,7 @@ export const contractStatusKeys: Partial<Record<ContractStatus, TranslationKey>>
 }
 
 export const courseStatusKeys: Partial<Record<CourseStatus, TranslationKey>> = {
-  [CourseStatus.DRAFT]: 'status.course.draft',
   [CourseStatus.PUBLISHED]: 'status.course.published',
-  [CourseStatus.REJECTED]: 'status.course.rejected',
   [CourseStatus.ARCHIVED]: 'status.course.archived',
 }
 
