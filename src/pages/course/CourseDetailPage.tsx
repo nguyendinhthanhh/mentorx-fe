@@ -43,6 +43,7 @@ export default function CourseDetailPage() {
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set())
   const [previewingLessonId, setPreviewingLessonId] = useState<string | null>(null)
   const [downloadingLessonId, setDownloadingLessonId] = useState<string | null>(null)
+  const [enrollError, setEnrollError] = useState<string | null>(null)
 
   const { data: course, isLoading } = useQuery(
     ['course', courseId],
@@ -83,10 +84,15 @@ export default function CourseDetailPage() {
     () => courseApi.enrollCurrentUser(courseId!),
     {
       onSuccess: () => {
+        setEnrollError(null)
         queryClient.invalidateQueries(['course-enrollment-status', courseId, user?.userId])
         queryClient.invalidateQueries(['my-enrollments', user?.userId])
         queryClient.invalidateQueries(['course', courseId])
+        queryClient.invalidateQueries(['userBalance', user?.userId])
         navigate(`/courses/${courseId}/learn`)
+      },
+      onError: (error: any) => {
+        setEnrollError(error?.response?.data?.message || error?.message || 'Could not complete enrollment.')
       },
     }
   )
@@ -238,6 +244,7 @@ export default function CourseDetailPage() {
       navigate(`/courses/${courseId}/learn`)
       return
     }
+    setEnrollError(null)
     enrollMutation.mutate()
   }
 
@@ -419,6 +426,7 @@ export default function CourseDetailPage() {
                 lessonCount={publishedLessons.length}
                 instructorName={getInstructorName(course, instructorProfile)}
                 previewLesson={firstFreePreviewLesson}
+                enrollError={enrollError}
                 onEnroll={handleEnroll}
                 onPreview={handlePreview}
               />
@@ -440,6 +448,7 @@ export default function CourseDetailPage() {
             lessonCount={publishedLessons.length}
             instructorName={getInstructorName(course, instructorProfile)}
             previewLesson={firstFreePreviewLesson}
+            enrollError={enrollError}
             onEnroll={handleEnroll}
             onPreview={handlePreview}
           />
@@ -671,9 +680,18 @@ function getInstructorBio(instructor: any, mentorProfile?: MentorProfileResponse
 }
 
 // Course Preview Card Component
-function CoursePreviewCard({ course, isEnrolled, isEnrollmentLoading, isEnrolling, isPublished = true, totalDuration = 0, lessonCount = 0, instructorName, previewLesson, onEnroll, onPreview }: any) {
+function CoursePreviewCard({ course, isEnrolled, isEnrollmentLoading, isEnrolling, isPublished = true, totalDuration = 0, lessonCount = 0, instructorName, previewLesson, enrollError, onEnroll, onPreview }: any) {
   const isDocumentProduct = course.productType === CourseProductType.DOCUMENT
   const displayPrice = course.effectivePriceMxc ?? course.priceMxc ?? 0
+  const isPaid = displayPrice > 0
+  const actionLabel = isPaid
+    ? isDocumentProduct
+      ? `Pay ${formatCurrency(displayPrice)} and get document`
+      : `Pay ${formatCurrency(displayPrice)} and enroll`
+    : isDocumentProduct
+      ? 'Get Document'
+      : 'Enroll Now'
+
   return (
     <div className={`bg-white rounded-2xl border overflow-hidden shadow-lg ${isDocumentProduct ? 'border-amber-200' : 'border-gray-200'}`}>
       {/* Thumbnail */}
@@ -746,8 +764,13 @@ function CoursePreviewCard({ course, isEnrolled, isEnrollmentLoading, isEnrollin
                 disabled={isEnrollmentLoading || isEnrolling || (!isPublished && !isEnrolled)}
                 className="w-full bg-indigo-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-indigo-700 transition-colors disabled:bg-gray-300"
               >
-                {!isPublished && !isEnrolled ? 'Archived' : isEnrolling ? 'Enrolling...' : isDocumentProduct ? 'Get Document' : 'Enroll Now'}
+                {!isPublished && !isEnrolled ? 'Archived' : isEnrolling ? (isPaid ? 'Processing...' : 'Enrolling...') : actionLabel}
               </button>
+              {enrollError && (
+                <p className="rounded-lg bg-rose-50 px-3 py-2 text-sm font-medium text-rose-700">
+                  {enrollError}
+                </p>
+              )}
             </>
           )}
         </div>
