@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useMutation, useQuery } from 'react-query'
 import { useRecordView, useViewCount } from '@/hooks/useAnalytics'
+import ViewTimelineChart from '@/components/analytics/ViewTimelineChart'
 import {
   Award,
   BookOpen,
@@ -406,6 +407,9 @@ export default function MentorPublicProfilePage() {
           <ReviewList targetType={ReviewTargetType.MENTOR} targetId={mentor.userId} />
         </section>
       )}
+
+      {/* Owner-only: View Timeline */}
+      {isOwnProfile && <ViewTimelineChart targetType="user" targetId={userId} />}
     </div>
   )
 }

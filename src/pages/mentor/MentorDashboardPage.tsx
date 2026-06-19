@@ -28,6 +28,7 @@ import { formatCurrency, formatRelativeTime } from '@/utils/formatters'
 import { LoadingRows, StateCard, StatusPill } from './shared/MentorHubUI'
 import { useJobStats } from '@/hooks/useAnalytics'
 import StatsGrid from '@/components/analytics/StatsGrid'
+import ConversionFunnel from '@/components/analytics/ConversionFunnel'
 
 type DashboardAgendaItem = {
   id: string
@@ -479,6 +480,9 @@ export default function MentorDashboardPage() {
 
       {/* Analytics: Job Stats */}
       <JobStatsSection />
+
+      {/* Analytics: Conversion Funnel */}
+      <ConversionFunnel />
     </div>
   )
 }
