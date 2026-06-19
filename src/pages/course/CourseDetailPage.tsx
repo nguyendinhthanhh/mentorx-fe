@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
+import { useRecordView } from '@/hooks/useAnalytics'
 import { courseApi } from '@/api/courseApi'
 import { mentorApi } from '@/api/mentorApi'
 import { categoryApi } from '@/api/categoryApi'
@@ -38,6 +39,7 @@ type TabType = 'overview' | 'curriculum' | 'instructor' | 'reviews'
 
 export default function CourseDetailPage() {
   const { courseId } = useParams<{ courseId: string }>()
+  useRecordView('course', courseId)
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const { user } = useAuthStore()

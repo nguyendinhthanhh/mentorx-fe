@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useMutation, useQuery } from 'react-query'
+import { useRecordView, useViewCount } from '@/hooks/useAnalytics'
 import {
   Award,
   BookOpen,
@@ -48,6 +49,8 @@ type ScheduleDay = { dayLabel: string; dateLabel: string; slots: MentorAvailabil
 
 export default function MentorPublicProfilePage() {
   const { userId } = useParams<{ userId: string }>()
+  useRecordView('user', userId)
+  const { data: viewCountData } = useViewCount('user', userId)
   const navigate = useNavigate()
   const { t, language } = useI18n()
   const { user } = useAuthStore()
@@ -246,6 +249,7 @@ export default function MentorPublicProfilePage() {
           onBook={requestBooking}
           onEdit={() => setIsEditing(true)}
           language={language}
+          viewCount={viewCountData?.viewCount}
         />
 
         <IntroPanel
@@ -420,6 +424,7 @@ function IdentityCard({
   onBook,
   onEdit,
   language,
+  viewCount,
 }: {
   mentor: MentorProfileResponse
   name: string
@@ -434,6 +439,7 @@ function IdentityCard({
   onBook: () => void
   onEdit: () => void
   language: 'en' | 'vi'
+  viewCount?: number
 }) {
   const { t } = useI18n()
   const stats = [
@@ -472,6 +478,12 @@ function IdentityCard({
           {mentor.averageRating?.toFixed(1) || 'N/A'}
           <span className="h-4 w-px bg-slate-200" />
           <span className="text-slate-500">{t('mentor.public.ratingReviews', { count: mentor.totalReviews })}</span>
+          {viewCount ? (
+            <>
+              <span className="h-4 w-px bg-slate-200" />
+              <span className="text-slate-500">{viewCount.toLocaleString()} views</span>
+            </>
+          ) : null}
         </div>
       </div>
 
