@@ -26,6 +26,8 @@ import {
   Calendar,
   TrendingUp,
   Tag,
+  Wallet,
+  X,
 } from 'lucide-react'
 import ReviewList from '@/components/review/ReviewList'
 import { CategoryResponse, CourseLessonResponse, CourseProductType, CourseResponse, CourseStatus, MentorProfileResponse, ReviewTargetType } from '@/types'
@@ -44,6 +46,7 @@ export default function CourseDetailPage() {
   const [previewingLessonId, setPreviewingLessonId] = useState<string | null>(null)
   const [downloadingLessonId, setDownloadingLessonId] = useState<string | null>(null)
   const [enrollError, setEnrollError] = useState<string | null>(null)
+  const [showAddCoinsPrompt, setShowAddCoinsPrompt] = useState(false)
 
   const { data: course, isLoading } = useQuery(
     ['course', courseId],
@@ -92,7 +95,14 @@ export default function CourseDetailPage() {
         navigate(`/courses/${courseId}/learn`)
       },
       onError: (error: any) => {
-        setEnrollError(error?.response?.data?.message || error?.message || 'Could not complete enrollment.')
+        const message = error?.response?.data?.message || error?.message || 'Could not complete enrollment.'
+        const normalizedMessage = message.toLowerCase()
+        if (normalizedMessage.includes('not enough mxc') || normalizedMessage.includes('insufficient balance')) {
+          setEnrollError(null)
+          setShowAddCoinsPrompt(true)
+          return
+        }
+        setEnrollError(message)
       },
     }
   )
@@ -245,6 +255,7 @@ export default function CourseDetailPage() {
       return
     }
     setEnrollError(null)
+    setShowAddCoinsPrompt(false)
     enrollMutation.mutate()
   }
 
@@ -289,6 +300,12 @@ export default function CourseDetailPage() {
 
   return (
     <div className="bg-gray-50 min-h-screen">
+      {showAddCoinsPrompt && (
+        <AddCoinsPrompt
+          onClose={() => setShowAddCoinsPrompt(false)}
+        />
+      )}
+
       {/* Breadcrumb */}
       <div className="bg-white border-b border-gray-100">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -677,6 +694,53 @@ function getInstructorHeadline(mentorProfile?: MentorProfileResponse | null) {
 
 function getInstructorBio(instructor: any, mentorProfile?: MentorProfileResponse | null) {
   return mentorProfile?.professionalBio || mentorProfile?.user?.bio || instructor?.bio || 'This instructor has not provided a bio yet.'
+}
+
+function AddCoinsPrompt({ onClose }: { onClose: () => void }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 px-4">
+      <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="rounded-xl bg-indigo-50 p-3 text-indigo-600">
+              <Wallet className="h-6 w-6" />
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-slate-900">Add more MXC</h2>
+              <p className="mt-1 text-sm text-slate-600">
+                You do not have enough MXC to buy this resource.
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+            aria-label="Close"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+          <Link
+            to="/wallet"
+            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-indigo-700"
+          >
+            <Wallet className="h-4 w-4" />
+            Go to wallet
+          </Link>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+          >
+            Not now
+          </button>
+        </div>
+      </div>
+    </div>
+  )
 }
 
 // Course Preview Card Component
