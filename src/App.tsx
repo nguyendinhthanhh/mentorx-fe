@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from 'react-query'
+import { CourseProductType } from '@/types'
 import MainLayout from './layouts/MainLayout'
 import AuthLayout from './layouts/AuthLayout'
 import AdminLayout from './layouts/AdminLayout'
@@ -209,6 +210,7 @@ function App() {
           {/* Mentor Routes */}
           <Route element={<ProtectedRoute><MentorRoute><MentorLayout /></MentorRoute></ProtectedRoute>}>
             <Route path="/courses/create" element={<CourseCreatePage />} />
+            <Route path="/documents/create" element={<CourseCreatePage productType={CourseProductType.DOCUMENT} />} />
             <Route path="/mentor" element={<Navigate to="/mentor/dashboard" replace />} />
             <Route path="/mentor/dashboard" element={<MentorDashboardPage />} />
             <Route path="/mentor/profile" element={<MentorProfileSetupPage initialTab="profile" />} />

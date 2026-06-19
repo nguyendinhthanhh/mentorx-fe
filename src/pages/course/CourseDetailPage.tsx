@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { courseApi } from '@/api/courseApi'
 import { mentorApi } from '@/api/mentorApi'
+import { categoryApi } from '@/api/categoryApi'
 import { formatCurrency } from '@/utils/formatters'
 import {
   BookOpen,
@@ -24,10 +25,12 @@ import {
   PlayCircle,
   Calendar,
   TrendingUp,
+  Tag,
 } from 'lucide-react'
 import ReviewList from '@/components/review/ReviewList'
-import { CourseLessonResponse, CourseProductType, CourseResponse, CourseStatus, MentorProfileResponse, ReviewTargetType } from '@/types'
+import { CategoryResponse, CourseLessonResponse, CourseProductType, CourseResponse, CourseStatus, MentorProfileResponse, ReviewTargetType } from '@/types'
 import { useAuthStore } from '@/store/authStore'
+import { categoryLabel } from '@/utils/freeFormTaxonomy'
 
 type TabType = 'overview' | 'curriculum' | 'instructor' | 'reviews'
 
@@ -92,6 +95,9 @@ export default function CourseDetailPage() {
     () => lessons.filter((lesson) => lesson.isPublished !== false),
     [lessons]
   )
+  const { data: categories = [] } = useQuery('course-detail-categories', categoryApi.getAllActive, {
+    staleTime: 5 * 60 * 1000,
+  })
   const firstFreePreviewLesson = useMemo(
     () => publishedLessons.find((lesson) => lesson.isFreePreview),
     [publishedLessons]
@@ -152,6 +158,12 @@ export default function CourseDetailPage() {
   const isPaidCourse = displayPrice > 0
   const canDownload = !!user && (!isPaidCourse || isEnrolled)
   const isPreviewLimited = isPaidCourse && !isEnrolled && !isEnrollmentLoading
+  const domainName = useMemo(() => {
+    if (!course?.categoryId) return ''
+    return categories.find((category: CategoryResponse) => category.id === course.categoryId)
+      ? categoryLabel(categories.find((category: CategoryResponse) => category.id === course.categoryId)!)
+      : ''
+  }, [categories, course?.categoryId])
 
   const openDocumentPreview = async (lessonId: string) => {
     try {
@@ -296,7 +308,7 @@ export default function CourseDetailPage() {
               {/* Category Badge */}
               <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-1.5 text-sm font-medium">
                 {isDocumentProduct ? <FileText className="w-4 h-4" /> : <BookOpen className="w-4 h-4" />}
-                {isDocumentProduct ? 'Document resource' : course.level || course.language || 'Course'}
+                {domainName || (isDocumentProduct ? 'Document resource' : course.level || course.language || 'Course')}
               </div>
               {isDocumentProduct && (
                 <div className="inline-flex items-center gap-2 rounded-full bg-amber-400/20 px-4 py-1.5 text-sm font-black text-amber-100 backdrop-blur-sm">
@@ -357,6 +369,17 @@ export default function CourseDetailPage() {
 
               {/* Key Features */}
               <div className="flex flex-wrap gap-3">
+                {domainName && (
+                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2">
+                    <Tag className="w-4 h-4" />
+                    <span className="text-sm font-medium">{domainName}</span>
+                  </div>
+                )}
+                {(course.skills || []).slice(0, 4).map((skill) => (
+                  <div key={skill} className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2">
+                    <span className="text-sm font-medium">{skill}</span>
+                  </div>
+                ))}
                 {course.level && (
                   <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2">
                     <BarChart3 className="w-4 h-4" />
@@ -463,6 +486,9 @@ export default function CourseDetailPage() {
                 </div>
 
                 {/* Requirements */}
+                <CourseTaxonomyPanel domainName={domainName} skills={course.skills || []} />
+
+                {/* Requirements */}
                 <div>
                   <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
                     <Target className="w-6 h-6 text-indigo-600" />
@@ -488,6 +514,8 @@ export default function CourseDetailPage() {
                       { icon: FileText, text: isDocumentProduct ? `${documentCount || 1} document file` : `${documentCount} resource or article lessons` },
                       { icon: Clock, text: totalDuration > 0 ? `${formatDuration(totalDuration)} content` : 'Self-paced content' },
                       { icon: Globe, text: `${formatLanguage(course.language)} language` },
+                      ...(domainName ? [{ icon: Tag, text: `${domainName} domain` }] : []),
+                      ...(course.skills?.length ? [{ icon: Tag, text: `${course.skills.slice(0, 3).join(', ')} skills` }] : []),
                       { icon: Award, text: isDocumentProduct ? 'No certificate' : course.isCertificate ? 'Certificate of completion' : 'No certificate' },
                       { icon: TrendingUp, text: course.level ? `${course.level} level` : 'Open level' },
                       { icon: TrendingUp, text: `${Math.round(courseStats?.completionRate || 0)}% completion rate` },
@@ -594,6 +622,31 @@ function formatDurationText(minutes: number) {
     return `${hours}h ${mins}m`
   }
   return `${mins}m`
+}
+
+function CourseTaxonomyPanel({ domainName, skills }: { domainName?: string; skills: string[] }) {
+  if (!domainName && skills.length === 0) return null
+  return (
+    <div className="rounded-xl border border-indigo-100 bg-indigo-50/60 p-5">
+      <h2 className="mb-3 flex items-center gap-2 text-lg font-bold text-gray-900">
+        <Tag className="h-5 w-5 text-indigo-600" />
+        Domain and skills
+      </h2>
+      <div className="flex flex-wrap gap-2">
+        {domainName && (
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-sm font-bold text-slate-700">
+            <Tag className="h-3.5 w-3.5 text-slate-400" />
+            {domainName}
+          </span>
+        )}
+        {skills.map((skill) => (
+          <span key={skill} className="rounded-full bg-indigo-600 px-3 py-1.5 text-sm font-bold text-white">
+            {skill}
+          </span>
+        ))}
+      </div>
+    </div>
+  )
 }
 
 function lessonPath(courseId: string, lesson: CourseLessonResponse) {
@@ -899,7 +952,10 @@ function InstructorTab({ instructor, mentorProfile, course }: { instructor: any;
   return (
     <div className="space-y-6">
       {/* Instructor Profile */}
-      <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
+      <Link
+        to={`/mentors/${course.instructorId}`}
+        className="flex flex-col gap-6 rounded-2xl border border-gray-100 p-4 transition hover:border-indigo-200 hover:bg-indigo-50/40 sm:flex-row sm:items-start"
+      >
         <img
           src={instructorAvatar}
           alt={instructorName}
@@ -928,7 +984,7 @@ function InstructorTab({ instructor, mentorProfile, course }: { instructor: any;
             )}
           </div>
         </div>
-      </div>
+      </Link>
 
       {/* About */}
       <div>

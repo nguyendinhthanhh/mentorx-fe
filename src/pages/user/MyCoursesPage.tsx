@@ -2,11 +2,13 @@ import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useQueries, useQuery } from 'react-query'
 import { courseApi } from '@/api/courseApi'
+import { categoryApi } from '@/api/categoryApi'
 import { reviewApi } from '@/api/reviewApi'
 import { useAuthStore } from '@/store/authStore'
-import { CourseProductType, CourseResponse, CourseStatus, ReviewResponse, ReviewTargetType } from '@/types'
+import { CategoryResponse, CourseProductType, CourseResponse, CourseStatus, ReviewResponse, ReviewTargetType } from '@/types'
 import ReviewForm from '@/components/review/ReviewForm'
-import { AlertTriangle, Award, BookOpen, Clock, Eye, FileText, Loader2, PlayCircle, Star, X } from 'lucide-react'
+import { AlertTriangle, Award, BookOpen, Clock, Eye, FileText, Loader2, PlayCircle, Star, Tag, X } from 'lucide-react'
+import { categoryLabel } from '@/utils/freeFormTaxonomy'
 
 export default function MyCoursesPage() {
   const { user } = useAuthStore()
@@ -28,6 +30,9 @@ export default function MyCoursesPage() {
     }),
     [enrollments]
   )
+  const { data: categories = [] } = useQuery('my-course-categories', categoryApi.getAllActive, {
+    staleTime: 5 * 60 * 1000,
+  })
   const latestEnrollments = useMemo(
     () => enrollments.slice().sort((a, b) => new Date(b.enrolledAt).getTime() - new Date(a.enrolledAt).getTime()).slice(0, 6),
     [enrollments]
@@ -54,6 +59,12 @@ export default function MyCoursesPage() {
     })
     return map
   }, [courseQueries])
+  const categoryNameById = useMemo(() => {
+    return categories.reduce<Record<number, string>>((acc, category: CategoryResponse) => {
+      acc[category.id] = categoryLabel(category)
+      return acc
+    }, {})
+  }, [categories])
 
   const completedCount = enrollments.filter((enrollment) => enrollment.isCompleted).length
   const reviewByCourseId = useMemo(() => {
@@ -113,8 +124,8 @@ export default function MyCoursesPage() {
 
       {enrollments.length > 0 && (
         <div className="space-y-5">
-          <CourseRow title="Latest courses" enrollments={latestEnrollments} courseById={courseById} />
-          <CourseRow title="Recently learned" enrollments={recentlyLearned} courseById={courseById} />
+          <CourseRow title="Latest courses" enrollments={latestEnrollments} courseById={courseById} categoryNameById={categoryNameById} />
+          <CourseRow title="Recently learned" enrollments={recentlyLearned} courseById={courseById} categoryNameById={categoryNameById} />
         </div>
       )}
 
@@ -144,6 +155,7 @@ export default function MyCoursesPage() {
             const canViewCertificate = enrollment.isCompleted && progress >= 100 && course?.isCertificate
             const canReview = enrollment.isCompleted && progress >= 100
             const existingReview = reviewByCourseId.get(enrollment.courseId)
+            const domainName = course?.categoryId ? categoryNameById[course.categoryId] : ''
 
             return (
               <div
@@ -178,6 +190,7 @@ export default function MyCoursesPage() {
                     {course?.instructorName && (
                       <p className="mt-1 text-xs font-bold text-slate-500">By {course.instructorName}</p>
                     )}
+                    <CourseMetadata domainName={domainName} skills={course?.skills || []} />
                     <div className="mt-2 flex flex-wrap items-center gap-2 text-xs font-bold text-slate-500">
                       <div className="flex items-center gap-1">
                         <Clock className="h-3.5 w-3.5 text-slate-400" />
@@ -289,6 +302,7 @@ function CourseRow({
   title,
   enrollments,
   courseById,
+  categoryNameById,
 }: {
   title: string
   enrollments: Array<{
@@ -300,6 +314,7 @@ function CourseRow({
     lastAccessedAt?: string
   }>
   courseById: Map<string, CourseResponse>
+  categoryNameById: Record<number, string>
 }) {
   if (enrollments.length === 0) return null
   return (
@@ -313,6 +328,7 @@ function CourseRow({
             key={`${title}-${enrollment.id}`}
             enrollment={enrollment}
             course={courseById.get(enrollment.courseId)}
+            categoryNameById={categoryNameById}
           />
         ))}
       </div>
@@ -323,6 +339,7 @@ function CourseRow({
 function CompactCourseCard({
   enrollment,
   course,
+  categoryNameById,
 }: {
   enrollment: {
     courseId: string
@@ -332,10 +349,12 @@ function CompactCourseCard({
     lastAccessedAt?: string
   }
   course?: CourseResponse
+  categoryNameById: Record<number, string>
 }) {
   const isDocumentProduct = course?.productType === CourseProductType.DOCUMENT
   const progress = Math.min(Math.max(enrollment.progressPercent || 0, 0), 100)
   const title = course?.title || enrollment.courseTitle
+  const domainName = course?.categoryId ? categoryNameById[course.categoryId] : ''
 
   return (
     <Link
@@ -365,6 +384,7 @@ function CompactCourseCard({
         <p className="mt-1 text-[11px] font-semibold text-slate-500">
           {enrollment.lastAccessedAt ? `Last learned ${new Date(enrollment.lastAccessedAt).toLocaleDateString()}` : `Enrolled ${new Date(enrollment.enrolledAt).toLocaleDateString()}`}
         </p>
+        <CourseMetadata domainName={domainName} skills={course?.skills || []} compact />
         <div className="mt-3">
           <div className="mb-1 flex justify-between text-[11px] font-bold text-slate-500">
             <span>Progress</span>
@@ -376,5 +396,33 @@ function CompactCourseCard({
         </div>
       </div>
     </Link>
+  )
+}
+
+function CourseMetadata({ domainName, skills, compact = false }: { domainName?: string; skills: string[]; compact?: boolean }) {
+  if (!domainName && skills.length === 0) return null
+  return (
+    <div className={compact ? 'mt-2 space-y-1.5' : 'mt-2 space-y-2'}>
+      {domainName && (
+        <div className="inline-flex max-w-full items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-bold text-slate-600 dark:bg-slate-900 dark:text-slate-300">
+          <Tag className="h-3 w-3 shrink-0 text-slate-400" />
+          <span className="truncate">{domainName}</span>
+        </div>
+      )}
+      {skills.length > 0 && (
+        <div className="flex flex-wrap gap-1.5">
+          {skills.slice(0, compact ? 2 : 3).map((skill) => (
+            <span key={skill} className="rounded-full bg-indigo-50 px-2.5 py-1 text-[11px] font-bold text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-300">
+              {skill}
+            </span>
+          ))}
+          {skills.length > (compact ? 2 : 3) && (
+            <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-bold text-slate-500 dark:bg-slate-900">
+              +{skills.length - (compact ? 2 : 3)}
+            </span>
+          )}
+        </div>
+      )}
+    </div>
   )
 }

@@ -1,7 +1,7 @@
 import { MouseEvent, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useMutation } from 'react-query'
-import { Archive, BookOpen, Plus, Search, Settings, Star, Trash2 } from 'lucide-react'
+import { Archive, BookOpen, FileText, Search, Settings, Star, Trash2 } from 'lucide-react'
 import { categoryApi } from '@/api/categoryApi'
 import { courseApi } from '@/api/courseApi'
 import CourseNameConfirmModal from '@/components/course/CourseNameConfirmModal'
@@ -112,13 +112,19 @@ export default function MentorCoursesPage() {
   return (
     <PageShell
       eyebrow="MentorHub"
-      title="Learning Products"
+      title="Courses and Documents"
       description="Manage published and archived courses and documents from one workspace."
       actions={
-        <Link to="/courses/create" className="inline-flex h-11 items-center gap-2 rounded-xl bg-indigo-600 px-4 text-sm font-black text-white shadow-sm transition hover:bg-indigo-700">
-          <Plus className="h-4 w-4" />
-          New product
-        </Link>
+        <div className="flex flex-wrap gap-2">
+          <Link to="/courses/create" className="inline-flex h-11 items-center gap-2 rounded-xl bg-indigo-600 px-4 text-sm font-black text-white shadow-sm transition hover:bg-indigo-700">
+            <BookOpen className="h-4 w-4" />
+            Create course
+          </Link>
+          <Link to="/documents/create" className="inline-flex h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-black text-slate-700 shadow-sm transition hover:border-indigo-200 hover:text-indigo-700">
+            <FileText className="h-4 w-4" />
+            Create document
+          </Link>
+        </div>
       }
     >
       <Toolbar>
@@ -153,12 +159,17 @@ export default function MentorCoursesPage() {
       {loading ? (
         <LoadingRows rows={5} />
       ) : error ? (
-        <StateCard tone="error" title="Unable to load products" message={error} action={<button onClick={loadCourses} className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-black text-white">Retry</button>} />
+        <StateCard tone="error" title="Unable to load courses and documents" message={error} action={<button onClick={loadCourses} className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-black text-white">Retry</button>} />
       ) : filteredCourses.length === 0 ? (
         <StateCard
-          title={courses.length === 0 ? 'No products yet' : 'No products match this filter'}
+          title={courses.length === 0 ? 'No courses or documents yet' : 'No courses or documents match this filter'}
           message={courses.length === 0 ? 'Create your first course or document.' : 'Adjust search, status, or type filters.'}
-          action={<Link to="/courses/create" className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-black text-white">New product</Link>}
+          action={
+            <div className="flex flex-wrap justify-center gap-2">
+              <Link to="/courses/create" className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-black text-white">Create course</Link>
+              <Link to="/documents/create" className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-black text-slate-700">Create document</Link>
+            </div>
+          }
         />
       ) : (
         <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
@@ -166,7 +177,7 @@ export default function MentorCoursesPage() {
             <table className="w-full min-w-[980px]">
               <thead className="border-b border-slate-100 bg-slate-50 text-left text-[11px] font-black uppercase tracking-widest text-slate-400">
                 <tr>
-                  <th className="px-4 py-3">Product</th>
+                  <th className="px-4 py-3">Course / document</th>
                   <th className="px-4 py-3">Status</th>
                   <th className="px-4 py-3">Price</th>
                   <th className="px-4 py-3">Enrollments</th>
@@ -252,7 +263,7 @@ export default function MentorCoursesPage() {
                             type="button"
                             onClick={(event) => requestAction('delete', course, event)}
                             disabled={hasEnrollments || deleteMutation.isLoading}
-                            title={hasEnrollments ? 'Products with enrollments cannot be deleted. Archive instead.' : 'Delete product'}
+                            title={hasEnrollments ? 'Courses or documents with enrollments cannot be deleted. Archive instead.' : 'Delete'}
                             className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-rose-200 px-3 text-xs font-black text-rose-600 hover:bg-rose-50 disabled:cursor-not-allowed disabled:border-slate-200 disabled:text-slate-300"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
@@ -272,11 +283,11 @@ export default function MentorCoursesPage() {
       <CourseNameConfirmModal
         isOpen={!!confirmAction}
         courseName={confirmAction?.courseTitle || ''}
-        title={confirmAction?.type === 'delete' ? 'Delete product?' : 'Archive product?'}
+        title={confirmAction?.type === 'delete' ? 'Delete item?' : 'Archive item?'}
         message={confirmAction?.type === 'delete'
-          ? 'This product will be removed. Deletion is only allowed when it has zero enrollments.'
-          : 'This product will leave the marketplace. Enrolled learners can still access it from their library.'}
-        confirmText={confirmAction?.type === 'delete' ? 'Delete Product' : 'Archive Product'}
+          ? 'This course or document will be removed. Deletion is only allowed when it has zero enrollments.'
+          : 'This course or document will leave the marketplace. Enrolled learners can still access it from their library.'}
+        confirmText={confirmAction?.type === 'delete' ? 'Delete' : 'Archive'}
         confirmTone={confirmAction?.type === 'delete' ? 'rose' : 'slate'}
         isLoading={actionLoading}
         onClose={() => {

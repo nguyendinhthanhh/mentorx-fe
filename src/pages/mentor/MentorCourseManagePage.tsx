@@ -11,6 +11,18 @@ import { CourseMediaDropZone, CourseMediaKind, validateCourseMedia } from '@/com
 import { CategoryResponse, CourseProductType, CourseQaMessageResponse, CourseStatus, LessonType, QuizQuestionType, ReviewResponse, ReviewTargetType, SkillResponse, SupportedLanguage } from '@/types'
 import { formatCurrency } from '@/utils/formatters'
 import {
+  SkillChip,
+  TaxonomySelection,
+  categoryLabel,
+  findExistingCategory,
+  findExistingSkill,
+  labelsEqual,
+  normalizeLabel,
+  resolveCategory,
+  resolveSkillChips,
+  skillLabel,
+} from '@/utils/freeFormTaxonomy'
+import {
   ArrowLeft,
   AlertTriangle,
   Archive,
@@ -98,8 +110,8 @@ type CourseDetailsDraft = {
   description: string
   thumbnailUrl: string
   previewVideoUrl: string
-  categoryId: string
-  skillIds: number[]
+  domain: TaxonomySelection
+  skillChips: SkillChip[]
   priceMxc: string
   discountPriceMxc: string
   discountStartAt: string
@@ -169,6 +181,7 @@ export default function MentorCourseManagePage() {
   const [activeTab, setActiveTab] = useState<ManageTab>('info')
   const [confirmAction, setConfirmAction] = useState<ManageCourseAction | null>(null)
   const [skillQuery, setSkillQuery] = useState('')
+  const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false)
   const [isSkillMenuOpen, setIsSkillMenuOpen] = useState(false)
   const [qaReplyDrafts, setQaReplyDrafts] = useState<Record<string, string>>({})
   const [reviewResponseDrafts, setReviewResponseDrafts] = useState<Record<string, string>>({})
@@ -177,8 +190,8 @@ export default function MentorCourseManagePage() {
     description: '',
     thumbnailUrl: '',
     previewVideoUrl: '',
-    categoryId: '',
-    skillIds: [],
+    domain: { label: '' },
+    skillChips: [],
     priceMxc: '0',
     discountPriceMxc: '',
     discountStartAt: '',
@@ -267,13 +280,26 @@ export default function MentorCourseManagePage() {
 
   useEffect(() => {
     if (!course || detailsDirty) return
+    const hydratedCategory = course.categoryId
+      ? categories.find((category: CategoryResponse) => category.id === course.categoryId)
+      : undefined
+    const hydratedSkillChips = (course.skillIds || []).map((skillId, index) => {
+      const skill = skills.find((item: SkillResponse) => item.id === skillId)
+      return {
+        id: skillId,
+        label: skill ? skillLabel(skill) : course.skills?.[index] || `Skill ${skillId}`,
+      }
+    })
     setCourseDetails({
       title: course.title || '',
       description: course.description || '',
       thumbnailUrl: course.thumbnailUrl || '',
       previewVideoUrl: course.previewVideoUrl || '',
-      categoryId: course.categoryId ? String(course.categoryId) : '',
-      skillIds: course.skillIds || [],
+      domain: {
+        id: course.categoryId,
+        label: hydratedCategory ? categoryLabel(hydratedCategory) : course.categoryId ? `Category ${course.categoryId}` : '',
+      },
+      skillChips: hydratedSkillChips,
       priceMxc: course.priceMxc != null ? String(course.priceMxc) : '0',
       discountPriceMxc: course.discountPriceMxc != null ? String(course.discountPriceMxc) : '',
       discountStartAt: toDateTimeLocalValue(course.discountStartAt),
@@ -284,7 +310,7 @@ export default function MentorCourseManagePage() {
       isCertificate: course.isCertificate === true,
       productType: course.productType || CourseProductType.COURSE,
     })
-  }, [course, detailsDirty])
+  }, [course, categories, skills, detailsDirty])
 
   useEffect(() => {
     if (sectionsLoading || lessonsLoading || quizQuestionsLoading) return
@@ -380,14 +406,21 @@ export default function MentorCourseManagePage() {
     }
     return null
   }, [sections])
-  const selectedCourseSkills = useMemo(
-    () => skills.filter((skill: SkillResponse) => courseDetails.skillIds.includes(skill.id)),
-    [skills, courseDetails.skillIds]
-  )
+  const selectedCourseSkills = courseDetails.skillChips
+  const categoryQuery = courseDetails.domain.label
+  const suggestedCategories = useMemo(() => {
+    const query = normalizeLabel(categoryQuery).toLowerCase()
+    return categories
+      .filter((category: CategoryResponse) => {
+        if (!query) return true
+        return [category.name, category.slug].some((value) => value?.toLowerCase().includes(query))
+      })
+      .slice(0, 8)
+  }, [categories, categoryQuery])
   const suggestedCourseSkills = useMemo(() => {
-    const query = skillQuery.trim().toLowerCase()
+    const query = normalizeLabel(skillQuery).toLowerCase()
     return skills
-      .filter((skill: SkillResponse) => !courseDetails.skillIds.includes(skill.id))
+      .filter((skill: SkillResponse) => !courseDetails.skillChips.some((chip) => chip.id === skill.id || labelsEqual(chip.label, skillLabel(skill))))
       .filter((skill: SkillResponse) => {
         if (!query) return true
         return [
@@ -397,7 +430,7 @@ export default function MentorCourseManagePage() {
         ].some((value) => value?.toLowerCase().includes(query))
       })
       .slice(0, 8)
-  }, [skills, courseDetails.skillIds, skillQuery])
+  }, [skills, courseDetails.skillChips, skillQuery])
 
   const courseReviews = courseReviewsData?.content || []
   const averageReviewRating = courseReviews.length
@@ -506,13 +539,23 @@ export default function MentorCourseManagePage() {
         if (!courseDetails.discountStartAt || !courseDetails.discountEndAt) throw new Error('Sale start and end time are required.')
         if (new Date(courseDetails.discountStartAt) >= new Date(courseDetails.discountEndAt)) throw new Error('Sale end time must be after start time.')
       }
-      if (!courseDetails.categoryId) throw new Error(`Choose a ${isDocumentProduct ? 'document' : 'course'} domain.`)
-      if (!courseDetails.skillIds.length) throw new Error('Choose at least one skill.')
+      if (!normalizeLabel(courseDetails.domain.label)) throw new Error(`Choose a ${isDocumentProduct ? 'document' : 'course'} domain.`)
+      if (!courseDetails.skillChips.length) throw new Error('Choose at least one skill.')
+      const categoryId = await resolveCategory(courseDetails.domain, categories, (category) => {
+        queryClient.setQueryData<CategoryResponse[]>(['course-editor-categories'], (current = []) => (
+          current.some((item) => item.id === category.id) ? current : [...current, category]
+        ))
+      })
+      const skillIds = await resolveSkillChips(courseDetails.skillChips, skills, (skill) => {
+        queryClient.setQueryData<SkillResponse[]>(['course-editor-skills'], (current = []) => (
+          current.some((item) => item.id === skill.id) ? current : [...current, skill]
+        ))
+      })
       const updatedCourse = await courseApi.updateDetailsWithMedia(courseId!, {
         title,
         description: courseDetails.description.trim() || undefined,
-        categoryId: Number(courseDetails.categoryId),
-        skillIds: courseDetails.skillIds,
+        categoryId,
+        skillIds,
         priceMxc,
         discountPriceMxc: courseDetails.clearDiscount ? undefined : discountPriceMxc,
         discountStartAt: !courseDetails.clearDiscount && courseDetails.discountStartAt ? toApiDateTime(courseDetails.discountStartAt) : undefined,
@@ -699,15 +742,40 @@ export default function MentorCourseManagePage() {
     })
   }
 
-  const addCourseSkill = (skillId: number) => {
-    if (!skillId || courseDetails.skillIds.includes(skillId)) return
-    updateCourseDetails({ skillIds: [...courseDetails.skillIds, skillId] })
+  const selectCourseCategory = (category: CategoryResponse) => {
+    updateCourseDetails({ domain: { id: category.id, label: categoryLabel(category) } })
+    setIsCategoryMenuOpen(false)
+  }
+
+  const updateCourseDomainLabel = (label: string) => {
+    const normalized = normalizeLabel(label)
+    const existing = findExistingCategory(normalized, categories)
+    updateCourseDetails({ domain: { id: existing?.id, label } })
+  }
+
+  const addCourseSkill = (chip: SkillChip) => {
+    const label = normalizeLabel(chip.label)
+    if (!label || courseDetails.skillChips.some((current) => labelsEqual(current.label, label))) return
+    const existing = findExistingSkill(label, skills)
+    updateCourseDetails({
+      skillChips: [
+        ...courseDetails.skillChips,
+        existing ? { id: existing.id, label: skillLabel(existing) } : { id: chip.id, label },
+      ],
+    })
     setSkillQuery('')
     setIsSkillMenuOpen(false)
   }
 
-  const removeCourseSkill = (skillId: number) => {
-    updateCourseDetails({ skillIds: courseDetails.skillIds.filter((id) => id !== skillId) })
+  const removeCourseSkill = (label: string) => {
+    updateCourseDetails({ skillChips: courseDetails.skillChips.filter((skill) => !labelsEqual(skill.label, label)) })
+  }
+
+  const commitCourseSkillQuery = () => {
+    const label = normalizeLabel(skillQuery)
+    if (!label) return
+    const existing = findExistingSkill(label, skills)
+    addCourseSkill(existing ? { id: existing.id, label: skillLabel(existing) } : { label })
   }
 
   const addSection = () => {
@@ -994,12 +1062,42 @@ export default function MentorCourseManagePage() {
               )}
               <div className="grid gap-4 md:grid-cols-3">
                 <Field label="Domain">
-                  <select value={courseDetails.categoryId} onChange={(event) => updateCourseDetails({ categoryId: event.target.value })} className={editorInputClass}>
-                    <option value="">Choose domain</option>
-                    {categories.map((category: CategoryResponse) => (
-                      <option key={category.id} value={category.id}>{category.name}</option>
-                    ))}
-                  </select>
+                  <div className="rounded-xl border border-slate-200 p-3">
+                    <div className="relative">
+                      <input
+                        value={courseDetails.domain.label}
+                        onChange={(event) => {
+                          updateCourseDomainLabel(event.target.value)
+                          setIsCategoryMenuOpen(true)
+                        }}
+                        onFocus={() => setIsCategoryMenuOpen(true)}
+                        onBlur={() => window.setTimeout(() => setIsCategoryMenuOpen(false), 120)}
+                        className={editorInputClass}
+                        placeholder="Type a domain"
+                        autoComplete="off"
+                      />
+                      {isCategoryMenuOpen && (
+                        <div className="absolute z-20 mt-2 max-h-72 w-full overflow-auto rounded-xl border border-slate-200 bg-white p-2 shadow-lg">
+                          {suggestedCategories.length > 0 ? (
+                            suggestedCategories.map((category: CategoryResponse) => (
+                              <button
+                                key={category.id}
+                                type="button"
+                                onMouseDown={(event) => event.preventDefault()}
+                                onClick={() => selectCourseCategory(category)}
+                                className="flex w-full flex-col rounded-lg px-3 py-2 text-left hover:bg-indigo-50"
+                              >
+                                <span className="text-sm font-semibold text-slate-900">{categoryLabel(category)}</span>
+                                <span className="text-xs text-slate-500">{category.slug}</span>
+                              </button>
+                            ))
+                          ) : (
+                            <div className="px-3 py-2 text-sm text-slate-500">No matching active domains.</div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </Field>
                 <Field label="Language">
                   <select value={courseDetails.language} onChange={(event) => updateCourseDetails({ language: event.target.value as SupportedLanguage })} className={editorInputClass}>
@@ -1030,10 +1128,9 @@ export default function MentorCourseManagePage() {
                       onFocus={() => setIsSkillMenuOpen(true)}
                       onBlur={() => window.setTimeout(() => setIsSkillMenuOpen(false), 120)}
                       onKeyDown={(event) => {
-                        if (event.key === 'Enter') {
+                        if (event.key === 'Enter' || event.key === ',') {
                           event.preventDefault()
-                          const firstSuggestion = suggestedCourseSkills[0]
-                          if (firstSuggestion) addCourseSkill(firstSuggestion.id)
+                          commitCourseSkillQuery()
                         }
                         if (event.key === 'Escape') {
                           setIsSkillMenuOpen(false)
@@ -1046,29 +1143,51 @@ export default function MentorCourseManagePage() {
                     {isSkillMenuOpen && (
                       <div className="absolute z-20 mt-2 max-h-72 w-full overflow-auto rounded-xl border border-slate-200 bg-white p-2 shadow-lg">
                         {suggestedCourseSkills.length > 0 ? (
-                          suggestedCourseSkills.map((skill: SkillResponse) => (
-                            <button
-                              key={skill.id}
-                              type="button"
-                              onMouseDown={(event) => event.preventDefault()}
-                              onClick={() => addCourseSkill(skill.id)}
-                              className="flex w-full flex-col rounded-lg px-3 py-2 text-left hover:bg-indigo-50"
-                            >
-                              <span className="text-sm font-semibold text-slate-900">{skill.labelEn}</span>
-                              <span className="text-xs text-slate-500">{skill.slug}</span>
-                            </button>
-                          ))
+                          <>
+                            {normalizeLabel(skillQuery).length > 0 && !findExistingSkill(skillQuery, skills) && (
+                              <button
+                                type="button"
+                                onMouseDown={(event) => event.preventDefault()}
+                                onClick={commitCourseSkillQuery}
+                                className="flex w-full flex-col rounded-lg px-3 py-2 text-left text-indigo-700 hover:bg-indigo-50"
+                              >
+                                <span className="text-sm font-black">Add "{normalizeLabel(skillQuery)}"</span>
+                                <span className="text-xs">Use this skill for the course</span>
+                              </button>
+                            )}
+                            {suggestedCourseSkills.map((skill: SkillResponse) => (
+                              <button
+                                key={skill.id}
+                                type="button"
+                                onMouseDown={(event) => event.preventDefault()}
+                                onClick={() => addCourseSkill({ id: skill.id, label: skillLabel(skill) })}
+                                className="flex w-full flex-col rounded-lg px-3 py-2 text-left hover:bg-indigo-50"
+                              >
+                                <span className="text-sm font-semibold text-slate-900">{skill.labelEn}</span>
+                                <span className="text-xs text-slate-500">{skill.slug}</span>
+                              </button>
+                            ))}
+                          </>
                         ) : (
-                          <div className="px-3 py-2 text-sm text-slate-500">No matching active skills.</div>
+                          <button
+                            type="button"
+                            onMouseDown={(event) => event.preventDefault()}
+                            onClick={commitCourseSkillQuery}
+                            disabled={!normalizeLabel(skillQuery)}
+                            className="flex w-full flex-col rounded-lg px-3 py-2 text-left text-indigo-700 hover:bg-indigo-50 disabled:cursor-not-allowed disabled:text-slate-400"
+                          >
+                            <span className="text-sm font-black">{normalizeLabel(skillQuery) ? `Add "${normalizeLabel(skillQuery)}"` : 'No matching active skills.'}</span>
+                            {normalizeLabel(skillQuery) && <span className="text-xs">Use this skill for the course</span>}
+                          </button>
                         )}
                       </div>
                     )}
                   </div>
                   <div className="mt-3 flex flex-wrap gap-2">
-                    {selectedCourseSkills.map((skill: SkillResponse) => (
-                      <span key={skill.id} className="inline-flex items-center gap-2 rounded-full bg-indigo-50 px-3 py-1 text-sm font-semibold text-indigo-700">
-                        {skill.labelEn}
-                        <button type="button" onClick={() => removeCourseSkill(skill.id)} className="text-indigo-400 hover:text-indigo-700" title="Remove skill">
+                    {selectedCourseSkills.map((skill: SkillChip) => (
+                      <span key={skill.label.toLowerCase()} className="inline-flex items-center gap-2 rounded-full bg-indigo-50 px-3 py-1 text-sm font-semibold text-indigo-700">
+                        {skill.label}
+                        <button type="button" onClick={() => removeCourseSkill(skill.label)} className="text-indigo-400 hover:text-indigo-700" title="Remove skill">
                           <X className="h-3.5 w-3.5" />
                         </button>
                       </span>

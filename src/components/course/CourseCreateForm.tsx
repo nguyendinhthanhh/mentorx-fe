@@ -10,12 +10,22 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Bold, Download, FileText, HelpCircle, Image, Italic, List, ListOrdered, Loader2, Plus, Trash2, Upload, Video, X } from 'lucide-react'
 import { CategoryResponse, CourseProductType, LessonType, QuizQuestionType, SkillResponse, SupportedLanguage } from '@/types'
+import {
+  SkillChip,
+  TaxonomySelection,
+  categoryLabel,
+  findExistingCategory,
+  findExistingSkill,
+  labelsEqual,
+  normalizeLabel,
+  resolveCategory,
+  resolveSkillChips,
+  skillLabel,
+} from '@/utils/freeFormTaxonomy'
 
 const courseSchema = z.object({
   title: z.string().min(5, 'Title must be at least 5 characters').max(200),
   description: z.string().min(20, 'Description must be at least 20 characters').optional().or(z.literal('')),
-  categoryId: z.coerce.number().int().positive('Please choose a domain/category'),
-  skillIds: z.array(z.number()).min(1, 'Please choose at least one skill'),
   priceMxc: z.coerce.number({
     invalid_type_error: 'Price must be a full number',
   }).int('Price must be a full number').min(0, 'Price cannot be negative'),
@@ -29,7 +39,7 @@ type CreateLessonDraft = {
   clientId: string
   title: string
   description: string
-  lessonType: LessonType.LESSON | LessonType.QUIZ
+  lessonType: LessonType.LESSON | LessonType.QUIZ | LessonType.DOCUMENT
   durationMinutes: string
   videoUrl: string
   articleContent: string
@@ -93,7 +103,7 @@ const createQuizQuestionDraft = (index = 0): CreateQuizQuestionDraft => ({
 
 const createLessonDraft = (type: CreateLessonDraft['lessonType'] = LessonType.LESSON, index = 0): CreateLessonDraft => ({
   clientId: newClientId(),
-  title: type === LessonType.QUIZ ? `Quiz ${index + 1}` : `Lesson ${index + 1}`,
+  title: type === LessonType.QUIZ ? `Quiz ${index + 1}` : type === LessonType.DOCUMENT ? 'Document file' : `Lesson ${index + 1}`,
   description: '',
   lessonType: type,
   durationMinutes: '',
@@ -118,21 +128,31 @@ const createSectionDraft = (index = 0): CreateSectionDraft => ({
   lessons: [],
 })
 
-export default function CourseCreateForm({ instructorId }: { instructorId: string }) {
+export default function CourseCreateForm({ instructorId, productType = CourseProductType.COURSE }: { instructorId: string; productType?: CourseProductType }) {
   const navigate = useNavigate()
+  const isDocumentProduct = productType === CourseProductType.DOCUMENT
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [categories, setCategories] = useState<CategoryResponse[]>([])
   const [skills, setSkills] = useState<SkillResponse[]>([])
+  const [domain, setDomain] = useState<TaxonomySelection>({ label: '' })
   const [skillQuery, setSkillQuery] = useState('')
+  const [skillChips, setSkillChips] = useState<SkillChip[]>([])
+  const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false)
   const [isSkillMenuOpen, setIsSkillMenuOpen] = useState(false)
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null)
   const [thumbnailPreviewUrl, setThumbnailPreviewUrl] = useState('')
   const [previewVideoFile, setPreviewVideoFile] = useState<File | null>(null)
   const [previewVideoPreviewUrl, setPreviewVideoPreviewUrl] = useState('')
+  const [documentFile, setDocumentFile] = useState<File | null>(null)
+  const [documentPreviewUrl, setDocumentPreviewUrl] = useState('')
   const [sections, setSections] = useState<CreateSectionDraft[]>([])
   const [selection, setSelection] = useState<CreateSelection | null>(null)
   const [activeTab, setActiveTab] = useState<'info' | 'content'>('info')
+
+  useEffect(() => {
+    setActiveTab('info')
+  }, [productType])
 
   useEffect(() => {
     void categoryApi.getAllActive().then(setCategories).catch(() => setCategories([]))
@@ -142,28 +162,31 @@ export default function CourseCreateForm({ instructorId }: { instructorId: strin
   const {
     register,
     handleSubmit,
-    watch,
-    setValue,
-    formState: { errors },
+    formState: { errors, submitCount },
   } = useForm<CourseFormData>({
     resolver: zodResolver(courseSchema),
     defaultValues: {
       language: SupportedLanguage.EN,
       level: 'Beginner',
-      skillIds: [],
     },
   })
 
-  const selectedSkillIds = watch('skillIds') || []
-  const selectedSkills = skills.filter((skill) => selectedSkillIds.includes(skill.id))
   const selectedSection = sections.find((section) => section.clientId === selection?.sectionClientId)
   const selectedLesson = selection?.type === 'lesson'
     ? selectedSection?.lessons.find((lesson) => lesson.clientId === selection.lessonClientId)
     : null
-  const availableSkills = skills.filter((skill) => !selectedSkillIds.includes(skill.id))
+  const categoryQuery = domain.label
+  const suggestedCategories = categories
+    .filter((category) => {
+      const query = normalizeLabel(categoryQuery).toLowerCase()
+      if (!query) return true
+      return [category.name, category.slug].some((value) => value?.toLowerCase().includes(query))
+    })
+    .slice(0, 8)
+  const availableSkills = skills.filter((skill) => !skillChips.some((chip) => chip.id === skill.id || labelsEqual(chip.label, skillLabel(skill))))
   const suggestedSkills = availableSkills
     .filter((skill) => {
-      const query = skillQuery.trim().toLowerCase()
+      const query = normalizeLabel(skillQuery).toLowerCase()
       if (!query) return true
       return [
         skill.labelEn,
@@ -187,41 +210,55 @@ export default function CourseCreateForm({ instructorId }: { instructorId: strin
       let thumbnailUrl: string | undefined
       let previewVideoUrl: string | undefined
       let curriculum: Parameters<typeof courseApi.createWithCurriculum>[0]['curriculum'] | undefined
+      if (!normalizeLabel(domain.label)) throw new Error('Domain is required.')
+      if (skillChips.length === 0) throw new Error('Add at least one skill.')
+      const resolvedCategoryId = await resolveCategory(domain, categories, (category) => {
+        setCategories((current) => current.some((item) => item.id === category.id) ? current : [...current, category])
+      })
+      const resolvedSkillIds = await resolveSkillChips(skillChips, skills, (skill) => {
+        setSkills((current) => current.some((item) => item.id === skill.id) ? current : [...current, skill])
+      })
 
       if (thumbnailFile) {
         const result = await fileApi.uploadCourseMedia(thumbnailFile, 'mentorx/courses/previews/images')
         thumbnailUrl = result.fileUrl
       }
 
-      if (previewVideoFile) {
+      if (!isDocumentProduct && previewVideoFile) {
         const result = await fileApi.uploadCourseMedia(previewVideoFile, 'mentorx/courses/previews/videos')
         previewVideoUrl = result.fileUrl
       }
 
-      const validationError = validateCourseSections(sections)
-      if (validationError) throw new Error(validationError)
-      curriculum = await buildCourseCurriculum(sections)
+      if (isDocumentProduct) {
+        if (!documentFile) throw new Error('Upload the downloadable document file before creating this document.')
+        const result = await fileApi.uploadCourseMedia(documentFile, 'mentorx/courses/lessons/files')
+        curriculum = buildDocumentCurriculum(data, result.fileUrl)
+      } else {
+        const validationError = validateCourseSections(sections)
+        if (validationError) throw new Error(validationError)
+        curriculum = await buildCourseCurriculum(sections)
+      }
 
       const course = await courseApi.createWithCurriculum({
         course: {
           ...data,
           slug: buildSlug(data.title),
           instructorId,
-          categoryId: data.categoryId,
-          skillIds: data.skillIds,
+          categoryId: resolvedCategoryId,
+          skillIds: resolvedSkillIds,
           description: data.description || undefined,
           thumbnailUrl,
-          previewVideoUrl,
+          previewVideoUrl: isDocumentProduct ? undefined : previewVideoUrl,
           language: data.language as SupportedLanguage | undefined,
-          productType: CourseProductType.COURSE,
-          isCertificate: true,
+          productType,
+          isCertificate: !isDocumentProduct,
         },
         curriculum,
       })
       const createdCourseId = course.courseId || course.id
       navigate(`/mentor/courses/${createdCourseId}/manage`)
     } catch (err: any) {
-      setError(err.response?.data?.message || err.message || 'Failed to create course. Please try again.')
+      setError(err.response?.data?.message || err.message || `Failed to create ${isDocumentProduct ? 'document' : 'course'}. Please try again.`)
     } finally {
       setLoading(false)
     }
@@ -230,15 +267,35 @@ export default function CourseCreateForm({ instructorId }: { instructorId: strin
   const inputClass = 'w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm text-slate-900 outline-none transition focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10'
   const labelClass = 'mb-1.5 block text-sm font-bold text-slate-700'
 
-  const addSkill = (id: number) => {
-    if (!id || selectedSkillIds.includes(id)) return
-    setValue('skillIds', [...selectedSkillIds, id], { shouldValidate: true, shouldDirty: true })
+  const selectCategory = (category: CategoryResponse) => {
+    setDomain({ id: category.id, label: categoryLabel(category) })
+    setIsCategoryMenuOpen(false)
+  }
+
+  const updateDomainLabel = (label: string) => {
+    const normalized = normalizeLabel(label)
+    const existing = findExistingCategory(normalized, categories)
+    setDomain({ id: existing?.id, label })
+  }
+
+  const addSkillChip = (chip: SkillChip) => {
+    const label = normalizeLabel(chip.label)
+    if (!label || skillChips.some((current) => labelsEqual(current.label, label))) return
+    const existing = findExistingSkill(label, skills)
+    setSkillChips((current) => [...current, existing ? { id: existing.id, label: skillLabel(existing) } : { id: chip.id, label }])
     setSkillQuery('')
     setIsSkillMenuOpen(false)
   }
 
-  const removeSkill = (id: number) => {
-    setValue('skillIds', selectedSkillIds.filter((skillId) => skillId !== id), { shouldValidate: true, shouldDirty: true })
+  const removeSkillChip = (label: string) => {
+    setSkillChips((current) => current.filter((skill) => !labelsEqual(skill.label, label)))
+  }
+
+  const commitSkillQuery = () => {
+    const label = normalizeLabel(skillQuery)
+    if (!label) return
+    const existing = findExistingSkill(label, skills)
+    addSkillChip(existing ? { id: existing.id, label: skillLabel(existing) } : { label })
   }
 
   const selectCourseMedia = (kind: CourseMediaKind, file: File) => {
@@ -270,6 +327,24 @@ export default function CourseCreateForm({ instructorId }: { instructorId: strin
       setPreviewVideoFile(null)
       setPreviewVideoPreviewUrl('')
     }
+  }
+
+  const selectDocumentFile = (file: File) => {
+    const validation = validateDocumentFile(file)
+    if (validation) {
+      setError(validation)
+      return
+    }
+    if (documentPreviewUrl) URL.revokeObjectURL(documentPreviewUrl)
+    setDocumentFile(file)
+    setDocumentPreviewUrl(URL.createObjectURL(file))
+    setError('')
+  }
+
+  const clearDocumentFile = () => {
+    if (documentPreviewUrl) URL.revokeObjectURL(documentPreviewUrl)
+    setDocumentFile(null)
+    setDocumentPreviewUrl('')
   }
 
   const updateSection = (sectionId: string, patch: Partial<CreateSectionDraft>) => {
@@ -394,9 +469,28 @@ export default function CourseCreateForm({ instructorId }: { instructorId: strin
     }))),
   })
 
+  const buildDocumentCurriculum = (data: CourseFormData, resourceUrl: string): Parameters<typeof courseApi.createWithCurriculum>[0]['curriculum'] => ({
+    sections: [{
+      title: 'Document',
+      description: data.description?.trim() || undefined,
+      sectionOrder: 1,
+      isPublished: true,
+      lessons: [{
+        title: data.title.trim(),
+        description: data.description?.trim() || undefined,
+        lessonType: LessonType.DOCUMENT,
+        lessonOrder: 1,
+        resourceUrl,
+        isFreePreview: false,
+        isPublished: true,
+        isMandatory: true,
+      }],
+    }],
+  })
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-      <div className="flex gap-1 overflow-x-auto rounded-2xl border border-slate-200 bg-white p-1">
+      {!isDocumentProduct && <div className="flex gap-1 overflow-x-auto rounded-2xl border border-slate-200 bg-white p-1">
         {[
           { key: 'info' as const, label: 'Course info' },
           { key: 'content' as const, label: 'Course content' },
@@ -414,30 +508,58 @@ export default function CourseCreateForm({ instructorId }: { instructorId: strin
             {tab.label}
           </button>
         ))}
-      </div>
+      </div>}
 
       <div className={activeTab === 'info' ? 'space-y-5 rounded-2xl border border-slate-200 bg-white p-5' : 'hidden'}>
       <div>
-        <label className={labelClass}>Course Title</label>
+        <label className={labelClass}>{isDocumentProduct ? 'Document title' : 'Course Title'}</label>
         <input
           {...register('title')}
           className={inputClass}
-          placeholder="e.g., Introduction to Machine Learning"
+          placeholder={isDocumentProduct ? 'e.g., Product Roadmap Template' : 'e.g., Introduction to Machine Learning'}
         />
         {errors.title && <p className="text-xs text-red-500 mt-1">{errors.title.message}</p>}
       </div>
 
       <div>
         <label className={labelClass}>Domain</label>
-        <select {...register('categoryId')} className={inputClass}>
-          <option value="">Select a domain</option>
-          {categories.map((category) => (
-            <option key={category.id} value={category.id}>
-              {category.name}
-            </option>
-          ))}
-        </select>
-        {errors.categoryId && <p className="text-xs text-red-500 mt-1">{errors.categoryId.message}</p>}
+        <div className="rounded-xl border border-slate-200 p-3">
+          <div className="relative">
+            <input
+              value={domain.label}
+              onChange={(event) => {
+                updateDomainLabel(event.target.value)
+                setIsCategoryMenuOpen(true)
+              }}
+              onFocus={() => setIsCategoryMenuOpen(true)}
+              onBlur={() => window.setTimeout(() => setIsCategoryMenuOpen(false), 120)}
+              className={inputClass}
+              placeholder="Type a domain, e.g. Software Engineering"
+              autoComplete="off"
+            />
+            {isCategoryMenuOpen && (
+              <div className="absolute z-20 mt-2 max-h-72 w-full overflow-auto rounded-xl border border-slate-200 bg-white p-2 shadow-lg">
+                {suggestedCategories.length > 0 ? (
+                  suggestedCategories.map((category) => (
+                    <button
+                      key={category.id}
+                      type="button"
+                      onMouseDown={(event) => event.preventDefault()}
+                      onClick={() => selectCategory(category)}
+                      className="flex w-full flex-col rounded-lg px-3 py-2 text-left hover:bg-indigo-50"
+                    >
+                      <span className="text-sm font-semibold text-slate-900">{categoryLabel(category)}</span>
+                      <span className="text-xs text-slate-500">{category.slug}</span>
+                    </button>
+                  ))
+                ) : (
+                  <div className="px-3 py-2 text-sm text-slate-500">No matching active domains.</div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+        {submitCount > 0 && !normalizeLabel(domain.label) && <p className="text-xs text-red-500 mt-1">Domain is required.</p>}
       </div>
 
       <div>
@@ -453,10 +575,9 @@ export default function CourseCreateForm({ instructorId }: { instructorId: strin
               onFocus={() => setIsSkillMenuOpen(true)}
               onBlur={() => window.setTimeout(() => setIsSkillMenuOpen(false), 120)}
               onKeyDown={(event) => {
-                if (event.key === 'Enter') {
+                if (event.key === 'Enter' || event.key === ',') {
                   event.preventDefault()
-                  const firstSuggestion = suggestedSkills[0]
-                  if (firstSuggestion) addSkill(firstSuggestion.id)
+                  commitSkillQuery()
                 }
                 if (event.key === 'Escape') {
                   setIsSkillMenuOpen(false)
@@ -469,37 +590,59 @@ export default function CourseCreateForm({ instructorId }: { instructorId: strin
             {isSkillMenuOpen && (
               <div className="absolute z-20 mt-2 max-h-72 w-full overflow-auto rounded-xl border border-slate-200 bg-white p-2 shadow-lg">
                 {suggestedSkills.length > 0 ? (
-                  suggestedSkills.map((skill) => (
-                    <button
-                      key={skill.id}
-                      type="button"
-                      onMouseDown={(event) => event.preventDefault()}
-                      onClick={() => addSkill(skill.id)}
-                      className="flex w-full flex-col rounded-lg px-3 py-2 text-left hover:bg-indigo-50"
-                    >
-                      <span className="text-sm font-semibold text-slate-900">{skill.labelEn}</span>
-                      <span className="text-xs text-slate-500">{skill.slug}</span>
-                    </button>
-                  ))
+                  <>
+                    {normalizeLabel(skillQuery).length > 0 && !findExistingSkill(skillQuery, skills) && (
+                      <button
+                        type="button"
+                        onMouseDown={(event) => event.preventDefault()}
+                        onClick={commitSkillQuery}
+                        className="flex w-full flex-col rounded-lg px-3 py-2 text-left text-indigo-700 hover:bg-indigo-50"
+                      >
+                        <span className="text-sm font-black">Add "{normalizeLabel(skillQuery)}"</span>
+                        <span className="text-xs">Use this skill for the {isDocumentProduct ? 'document' : 'course'}</span>
+                      </button>
+                    )}
+                    {suggestedSkills.map((skill) => (
+                      <button
+                        key={skill.id}
+                        type="button"
+                        onMouseDown={(event) => event.preventDefault()}
+                        onClick={() => addSkillChip({ id: skill.id, label: skillLabel(skill) })}
+                        className="flex w-full flex-col rounded-lg px-3 py-2 text-left hover:bg-indigo-50"
+                      >
+                        <span className="text-sm font-semibold text-slate-900">{skill.labelEn}</span>
+                        <span className="text-xs text-slate-500">{skill.slug}</span>
+                      </button>
+                    ))}
+                  </>
                 ) : (
-                  <div className="px-3 py-2 text-sm text-slate-500">No matching active skills.</div>
+                  <button
+                    type="button"
+                    onMouseDown={(event) => event.preventDefault()}
+                    onClick={commitSkillQuery}
+                    disabled={!normalizeLabel(skillQuery)}
+                    className="flex w-full flex-col rounded-lg px-3 py-2 text-left text-indigo-700 hover:bg-indigo-50 disabled:cursor-not-allowed disabled:text-slate-400"
+                  >
+                    <span className="text-sm font-black">{normalizeLabel(skillQuery) ? `Add "${normalizeLabel(skillQuery)}"` : 'No matching active skills.'}</span>
+                    {normalizeLabel(skillQuery) && <span className="text-xs">Use this skill for the {isDocumentProduct ? 'document' : 'course'}</span>}
+                  </button>
                 )}
               </div>
             )}
           </div>
           <div className="mt-3 flex flex-wrap gap-2">
-            {selectedSkills.map((skill) => (
-              <span key={skill.id} className="inline-flex items-center gap-2 rounded-full bg-indigo-50 px-3 py-1 text-sm font-semibold text-indigo-700">
-                {skill.labelEn}
-                <button type="button" onClick={() => removeSkill(skill.id)} className="text-indigo-400 hover:text-indigo-700">
+            {skillChips.map((skill) => (
+              <span key={skill.label.toLowerCase()} className="inline-flex items-center gap-2 rounded-full bg-indigo-50 px-3 py-1 text-sm font-semibold text-indigo-700">
+                {skill.label}
+                <button type="button" onClick={() => removeSkillChip(skill.label)} className="text-indigo-400 hover:text-indigo-700">
                   <X className="h-3.5 w-3.5" />
                 </button>
               </span>
             ))}
-            {selectedSkills.length === 0 && <span className="text-sm text-slate-400">No skills selected.</span>}
+            {skillChips.length === 0 && <span className="text-sm text-slate-400">No skills selected.</span>}
           </div>
         </div>
-        {errors.skillIds && <p className="text-xs text-red-500 mt-1">{errors.skillIds.message}</p>}
+        {submitCount > 0 && skillChips.length === 0 && <p className="text-xs text-red-500 mt-1">Add at least one skill.</p>}
       </div>
 
       <div>
@@ -508,29 +651,42 @@ export default function CourseCreateForm({ instructorId }: { instructorId: strin
           {...register('description')}
           rows={5}
           className={inputClass}
-          placeholder="What will students learn in this course? What are the prerequisites?"
+          placeholder={isDocumentProduct ? 'What does this document include, and who is it for?' : 'What will students learn in this course? What are the prerequisites?'}
         />
         {errors.description && <p className="text-xs text-red-500 mt-1">{errors.description.message}</p>}
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className={`grid gap-4 ${isDocumentProduct ? 'md:grid-cols-1' : 'md:grid-cols-2'}`}>
         <CourseMediaDropZone
-          label="Course thumbnail"
+          label={isDocumentProduct ? 'Document cover image' : 'Course thumbnail'}
           kind="image"
           file={thumbnailFile}
           mediaUrl={thumbnailPreviewUrl}
           onFile={(file) => selectCourseMedia('image', file)}
           onClear={() => clearCourseMedia('image')}
         />
-        <CourseMediaDropZone
+        {!isDocumentProduct && <CourseMediaDropZone
           label="Preview video"
           kind="video"
           file={previewVideoFile}
           mediaUrl={previewVideoPreviewUrl}
           onFile={(file) => selectCourseMedia('video', file)}
           onClear={() => clearCourseMedia('video')}
-        />
+        />}
       </div>
+
+      {isDocumentProduct && (
+        <CreateFileDropZone
+          label="Document file"
+          accept=".pdf,.doc,.docx,.ppt,.pptx,.zip,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/zip"
+          file={documentFile}
+          kind="resource"
+          helper="PDF, Word, PowerPoint, or ZIP up to 100 MB"
+          previewUrl={documentPreviewUrl}
+          onFile={selectDocumentFile}
+          onClear={clearDocumentFile}
+        />
+      )}
 
       <div className="grid grid-cols-3 gap-4">
         <div>
@@ -568,7 +724,7 @@ export default function CourseCreateForm({ instructorId }: { instructorId: strin
 
       </div>
 
-      {activeTab === 'content' && (
+      {activeTab === 'content' && !isDocumentProduct && (
         <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
           <div className="grid h-[calc(100vh-15rem)] min-h-[520px] overflow-hidden lg:grid-cols-[320px_1fr]">
             <aside className="min-h-0 overflow-y-auto border-r border-slate-200 bg-slate-50">
@@ -704,10 +860,10 @@ export default function CourseCreateForm({ instructorId }: { instructorId: strin
         {loading ? (
           <>
             <Loader2 className="w-4 h-4 animate-spin" />
-            Creating course...
+            Creating {isDocumentProduct ? 'document' : 'course'}...
           </>
         ) : (
-          'Create Course'
+          isDocumentProduct ? 'Create Document' : 'Create Course'
         )}
       </button>
     </form>
