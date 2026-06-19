@@ -26,6 +26,8 @@ import { useAuthStore } from '@/store/authStore'
 import { ContractResponse, ContractStatus, CourseResponse, MentorProfileResponse, ProposalResponse, ProposalStatus } from '@/types'
 import { formatCurrency, formatRelativeTime } from '@/utils/formatters'
 import { LoadingRows, StateCard, StatusPill } from './shared/MentorHubUI'
+import { useJobStats } from '@/hooks/useAnalytics'
+import StatsGrid from '@/components/analytics/StatsGrid'
 
 type DashboardAgendaItem = {
   id: string
@@ -474,8 +476,27 @@ export default function MentorDashboardPage() {
           </DashboardPanel>
         </aside>
       </section>
+
+      {/* Analytics: Job Stats */}
+      <JobStatsSection />
     </div>
   )
+}
+
+function JobStatsSection() {
+  const { data: jobStats } = useJobStats('MENTOR')
+  if (!jobStats) return null
+
+  const stats = [
+    { label: 'Proposals sent', value: jobStats.proposalsSent },
+    { label: 'Proposals accepted', value: jobStats.proposalsAccepted },
+    { label: 'Acceptance rate', value: `${(jobStats.proposalAcceptanceRate * 100).toFixed(1)}%` },
+    { label: 'Contracts active', value: jobStats.contractsActive },
+    { label: 'Contracts completed', value: jobStats.contractsCompleted },
+    { label: 'Completion rate', value: `${(jobStats.contractCompletionRate * 100).toFixed(1)}%` },
+  ]
+
+  return <StatsGrid title="Job Analytics" stats={stats} />
 }
 
 function DashboardPanel({
