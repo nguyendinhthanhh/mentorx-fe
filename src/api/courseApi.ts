@@ -179,6 +179,21 @@ export const courseApi = {
     return response.data
   },
 
+  getEnrollmentByCourseAndStudent: async (
+    courseId: string,
+    studentId: string
+  ): Promise<CourseEnrollmentResponse | null> => {
+    try {
+      const response = await apiClient.get<CourseEnrollmentResponse>(
+        `/v1/course-enrollments/course/${courseId}/student/${studentId}`
+      )
+      return response.data
+    } catch (error: any) {
+      if (error?.response?.status === 404) return null
+      throw error
+    }
+  },
+
   getPublishedSections: async (courseId: string): Promise<CourseSectionResponse[]> => {
     const response = await apiClient.get<CourseSectionResponse[]>(
       `/v1/course-sections/course/${courseId}/published`

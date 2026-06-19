@@ -54,6 +54,8 @@ export default function CourseLearnPage() {
   const [latestAttempt, setLatestAttempt] = useState<QuizAttemptResponse | null>(null)
   const [quizResults, setQuizResults] = useState<QuizQuestionResult>({})
   const [lockedLesson, setLockedLesson] = useState<CourseLessonResponse | null>(null)
+  const [viewingCertificate, setViewingCertificate] = useState(false)
+  const [authHydrated, setAuthHydrated] = useState(useAuthStore.persist.hasHydrated())
   const articleRef = useRef<HTMLElement | null>(null)
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const restoredVideoLessonRef = useRef<string | null>(null)
@@ -61,6 +63,14 @@ export default function CourseLearnPage() {
   const lastTrackedVideoPercentRef = useRef<Record<string, number>>({})
   const lastTrackedVideoSecondRef = useRef<Record<string, number>>({})
   const lastTrackedArticlePercentRef = useRef<Record<string, number>>({})
+
+  useEffect(() => {
+    if (useAuthStore.persist.hasHydrated()) {
+      setAuthHydrated(true)
+      return
+    }
+    return useAuthStore.persist.onFinishHydration(() => setAuthHydrated(true))
+  }, [])
 
   const { data: course, isLoading: courseLoading } = useQuery(
     ['course', courseId],
@@ -77,12 +87,13 @@ export default function CourseLearnPage() {
     () => courseApi.getLessonsByCourse(courseId!),
     { enabled: !!courseId }
   )
-  const { data: enrollmentsData, isLoading: enrollmentsLoading } = useQuery(
-    ['my-enrollments', user?.userId],
-    () => courseApi.getEnrollmentsByStudent(user!.userId, { page: 0, size: 100 }),
-    { enabled: !!user?.userId }
+  const enrollmentQueryKey = ['course-enrollment', courseId, user?.userId]
+  const shouldCheckEnrollment = !!courseId && !!user?.userId
+  const { data: enrollment = null, isLoading: enrollmentLoading, isFetched: enrollmentFetched } = useQuery(
+    enrollmentQueryKey,
+    () => courseApi.getEnrollmentByCourseAndStudent(courseId!, user!.userId),
+    { enabled: shouldCheckEnrollment }
   )
-  const enrollment = enrollmentsData?.content.find((item) => item.courseId === courseId)
   const { data: progress = [] } = useQuery(
     ['course-progress', user?.userId, courseId],
     () => courseApi.getProgressByStudentAndCourse(user!.userId, courseId!),
@@ -97,7 +108,8 @@ export default function CourseLearnPage() {
   const publishedLessons = useMemo(() => lessons.filter((lesson) => lesson.isPublished !== false), [lessons])
   const lessonGroups = useMemo(() => buildLessonGroups(sections, publishedLessons), [sections, publishedLessons])
   const orderedLessons = useMemo(() => lessonGroups.flatMap((group) => group.lessons), [lessonGroups])
-  const isPreviewMode = !enrollment
+  const enrollmentCheckComplete = !shouldCheckEnrollment || enrollmentFetched
+  const isPreviewMode = authHydrated && enrollmentCheckComplete && !enrollment
   const firstPreviewLesson = useMemo(() => orderedLessons.find((lesson) => lesson.isFreePreview), [orderedLessons])
   const activeLesson = orderedLessons.find((lesson) => lesson.id === lessonId)
   const activeLessonLocked = !!activeLesson && isPreviewMode && !activeLesson.isFreePreview
@@ -146,6 +158,12 @@ export default function CourseLearnPage() {
   }, [activeLesson, activeLessonLocked])
 
   useEffect(() => {
+    if (enrollment) {
+      setLockedLesson(null)
+    }
+  }, [enrollment])
+
+  useEffect(() => {
     if (courseId && enrollment && activeLesson?.lessonType === LessonType.QUIZ) {
       setQuizAnswers(readQuizDraft(courseId, enrollment.id, activeLesson.id))
     } else {
@@ -187,6 +205,7 @@ export default function CourseLearnPage() {
           }
         )
         if (savedProgress.isCompleted) {
+          queryClient.invalidateQueries(enrollmentQueryKey)
           queryClient.invalidateQueries(['my-enrollments', user?.userId])
         }
       },
@@ -213,6 +232,7 @@ export default function CourseLearnPage() {
           window.localStorage.removeItem(quizDraftKey(courseId, enrollment.id, activeLesson.id))
         }
         queryClient.invalidateQueries(['course-progress', user?.userId, courseId])
+        queryClient.invalidateQueries(enrollmentQueryKey)
         queryClient.invalidateQueries(['my-enrollments', user?.userId])
       },
     }
@@ -292,10 +312,17 @@ export default function CourseLearnPage() {
     }
   )
 
-  const downloadCertificate = async () => {
+  const viewCertificate = async () => {
     if (!enrollment) return
-    const { blob, fileName } = await courseApi.downloadCertificate(enrollment.id)
-    downloadBlob(blob, fileName || 'mentorx-certificate.pdf')
+    try {
+      setViewingCertificate(true)
+      const { blob } = await courseApi.downloadCertificate(enrollment.id)
+      const url = URL.createObjectURL(blob)
+      window.open(url, '_blank', 'noopener,noreferrer')
+      window.setTimeout(() => URL.revokeObjectURL(url), 30000)
+    } finally {
+      setViewingCertificate(false)
+    }
   }
 
   const downloadResource = async (lesson: CourseLessonResponse) => {
@@ -397,7 +424,7 @@ export default function CourseLearnPage() {
     })
   }
 
-  if (courseLoading || lessonsLoading || enrollmentsLoading) {
+  if (courseLoading || lessonsLoading || !authHydrated || (shouldCheckEnrollment && enrollmentLoading)) {
     return (
       <div className="flex min-h-[360px] items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
@@ -554,11 +581,12 @@ export default function CourseLearnPage() {
 
         {enrollment?.isCompleted && course.isCertificate && (
           <button
-            onClick={downloadCertificate}
+            onClick={viewCertificate}
+            disabled={viewingCertificate}
             className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white"
           >
-            <Award className="h-4 w-4" />
-            Certificate
+            {viewingCertificate ? <Loader2 className="h-4 w-4 animate-spin" /> : <Award className="h-4 w-4" />}
+            {viewingCertificate ? 'Opening...' : 'Certificate'}
           </button>
         )}
       </aside>
