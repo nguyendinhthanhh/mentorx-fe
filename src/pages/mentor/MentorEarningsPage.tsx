@@ -9,8 +9,18 @@ import { useAuthStore } from '@/store/authStore'
 import { BankAccountResponse, ContractResponse, ContractStatus, MentorProfileResponse, TxnType, WalletAccountType, WalletResponse, WalletTransactionResponse } from '@/types'
 import { formatCurrency, formatDateTime } from '@/utils/formatters'
 import { LoadingRows, MetricCard, PageShell, SelectInput, StateCard, StatusPill, Toolbar } from './shared/MentorHubUI'
+import { useEarningsSummary } from '@/hooks/useAnalytics'
+import { AnalyticsPeriod } from '@/api/analyticsApi'
+import EarningsChart from '@/components/analytics/EarningsChart'
 
 type TabKey = 'overview' | 'transactions' | 'contracts' | 'withdrawals'
+
+const PERIOD_OPTIONS: { value: AnalyticsPeriod; label: string }[] = [
+  { value: 'DAY', label: 'Daily' },
+  { value: 'WEEK', label: 'Weekly' },
+  { value: 'MONTH', label: 'Monthly' },
+  { value: 'YEAR', label: 'Yearly' },
+]
 
 const releasedTxnTypes = new Set<string>([TxnType.JOB_RELEASE, TxnType.COURSE_PURCHASE])
 
@@ -25,6 +35,8 @@ export default function MentorEarningsPage() {
   const [error, setError] = useState('')
   const [activeTab, setActiveTab] = useState<TabKey>('overview')
   const [transactionFilter, setTransactionFilter] = useState('ALL')
+  const [earningsPeriod, setEarningsPeriod] = useState<AnalyticsPeriod>('MONTH')
+  const { data: earningsSummary } = useEarningsSummary(earningsPeriod)
 
   useEffect(() => {
     void loadEarnings()
@@ -139,7 +151,48 @@ export default function MentorEarningsPage() {
       ) : error ? (
         <StateCard tone="error" title="Unable to load earnings" message={error} action={<button onClick={loadEarnings} className="rounded-2xl bg-indigo-600 px-4 py-2 text-sm font-black text-white">Retry</button>} />
       ) : activeTab === 'overview' ? (
-        <div className="grid gap-5 xl:grid-cols-[1fr_380px]">
+        <div className="space-y-5">
+          {/* Analytics Earnings Summary */}
+          {earningsSummary ? (
+            <section className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <h2 className="text-lg font-black text-slate-950">Earnings Overview</h2>
+                <div className="flex gap-1 rounded-xl bg-slate-100 p-1">
+                  {PERIOD_OPTIONS.map((opt) => (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => setEarningsPeriod(opt.value)}
+                      className={`rounded-lg px-3 py-1.5 text-xs font-bold transition ${earningsPeriod === opt.value ? 'bg-white text-indigo-700 shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                <MetricCard label="Total earned" value={formatCurrency(earningsSummary.totalEarnedMxc)} tone="indigo" />
+                <MetricCard label="Available" value={formatCurrency(earningsSummary.availableBalanceMxc)} tone="emerald" />
+                <MetricCard label="In escrow" value={formatCurrency(earningsSummary.escrowBalanceMxc)} tone="amber" />
+                <MetricCard label="Withdrawn" value={formatCurrency(earningsSummary.withdrawnMxc)} tone="slate" />
+              </div>
+              {earningsSummary.bySource.length > 0 && (
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {earningsSummary.bySource.map((src) => (
+                    <span key={src.source} className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 px-3 py-1.5 text-xs font-bold text-indigo-700">
+                      {formatSourceLabel(src.source)}
+                      <span className="text-indigo-500">{formatCurrency(src.amountMxc)}</span>
+                    </span>
+                  ))}
+                </div>
+              )}
+              <div className="mt-5">
+                <EarningsChart data={earningsSummary.timeline} />
+              </div>
+            </section>
+          ) : null}
+
+          <div className="grid gap-5 xl:grid-cols-[1fr_380px]">
           <section className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm">
             <div className="flex items-center justify-between gap-3">
               <h2 className="text-lg font-black text-slate-950">Recent transactions</h2>
@@ -178,6 +231,7 @@ export default function MentorEarningsPage() {
               )}
             </section>
           </aside>
+        </div>
         </div>
       ) : activeTab === 'transactions' ? (
         filteredTransactions.length === 0 ? (
@@ -307,4 +361,13 @@ function maskAccount(account?: string) {
   if (!account) return 'Account not provided'
   const last4 = account.slice(-4)
   return `**** ${last4}`
+}
+
+function formatSourceLabel(source: string) {
+  const labels: Record<string, string> = {
+    LONG_TERM_MENTORING: 'Mentoring',
+    FREELANCE_PROJECT: 'Freelance',
+    COURSE_SALE: 'Courses',
+  }
+  return labels[source] || source.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase())
 }

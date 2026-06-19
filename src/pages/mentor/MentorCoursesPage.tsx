@@ -9,6 +9,7 @@ import { useAuthStore } from '@/store/authStore'
 import { CategoryResponse, CourseProductType, CourseResponse, CourseStatus } from '@/types'
 import { formatCurrency, formatDate } from '@/utils/formatters'
 import { LoadingRows, PageShell, SelectInput, StateCard, StatusPill, TextInput, Toolbar } from './shared/MentorHubUI'
+import { useCourseStats } from '@/hooks/useAnalytics'
 
 type CourseAction = 'delete' | 'archive'
 
@@ -295,6 +296,7 @@ export default function MentorCoursesPage() {
         }}
         onConfirm={confirmCourseAction}
       />
+      <CourseAnalyticsSection />
     </PageShell>
   )
 }
@@ -305,4 +307,60 @@ function formatStatusLabel(status: string) {
     ARCHIVED: 'Archived',
   }
   return labels[status] || status.replace(/_/g, ' ').toLowerCase()
+}
+
+function CourseAnalyticsSection() {
+  const { data: courseStats } = useCourseStats()
+  if (!courseStats || courseStats.courses.length === 0) return null
+
+  return (
+    <section className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm">
+      <h2 className="text-lg font-black text-slate-950">Course Analytics</h2>
+      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="rounded-2xl bg-slate-50 px-4 py-3">
+          <p className="text-xs font-bold uppercase tracking-wide text-slate-400">Total courses</p>
+          <p className="mt-1 text-xl font-black text-slate-950">{courseStats.totalCourses}</p>
+        </div>
+        <div className="rounded-2xl bg-slate-50 px-4 py-3">
+          <p className="text-xs font-bold uppercase tracking-wide text-slate-400">Total revenue</p>
+          <p className="mt-1 text-xl font-black text-slate-950">{courseStats.totalRevenueMxc.toLocaleString()} MXC</p>
+        </div>
+        <div className="rounded-2xl bg-slate-50 px-4 py-3">
+          <p className="text-xs font-bold uppercase tracking-wide text-slate-400">Total enrollments</p>
+          <p className="mt-1 text-xl font-black text-slate-950">{courseStats.totalEnrollments}</p>
+        </div>
+        <div className="rounded-2xl bg-slate-50 px-4 py-3">
+          <p className="text-xs font-bold uppercase tracking-wide text-slate-400">Avg completion</p>
+          <p className="mt-1 text-xl font-black text-slate-950">{(courseStats.averageCompletionRate * 100).toFixed(1)}%</p>
+        </div>
+      </div>
+
+      <div className="mt-5 overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-slate-100 text-left text-xs font-bold uppercase tracking-wide text-slate-400">
+              <th className="pb-2 pr-4">Course</th>
+              <th className="pb-2 pr-4">Revenue</th>
+              <th className="pb-2 pr-4">Enrollments</th>
+              <th className="pb-2 pr-4">Completion</th>
+              <th className="pb-2 pr-4">Views</th>
+              <th className="pb-2">Rating</th>
+            </tr>
+          </thead>
+          <tbody>
+            {courseStats.courses.map((course) => (
+              <tr key={course.courseId} className="border-b border-slate-50">
+                <td className="py-2 pr-4 font-semibold text-slate-900">{course.courseTitle}</td>
+                <td className="py-2 pr-4 text-slate-600">{course.totalRevenueMxc.toLocaleString()} MXC</td>
+                <td className="py-2 pr-4 text-slate-600">{course.totalEnrollments}</td>
+                <td className="py-2 pr-4 text-slate-600">{(course.completionRate * 100).toFixed(1)}%</td>
+                <td className="py-2 pr-4 text-slate-600">{course.lessonViews.toLocaleString()}</td>
+                <td className="py-2 text-slate-600">{course.averageRating > 0 ? course.averageRating.toFixed(1) : '—'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  )
 }

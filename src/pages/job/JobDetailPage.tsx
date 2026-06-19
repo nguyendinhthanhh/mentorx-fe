@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
+import { useRecordView } from '@/hooks/useAnalytics'
 import { toast } from 'react-hot-toast'
 import {
   ArrowLeft,
@@ -83,6 +84,7 @@ export default function JobDetailPage() {
   const { user, isAuthenticated } = useAuthStore()
   const queryClient = useQueryClient()
   const { jobId } = useParams<{ jobId: string }>()
+  useRecordView('job', jobId)
   const [showApplyModal, setShowApplyModal] = useState(false)
   const [showProposalDetail, setShowProposalDetail] = useState(false)
   const [forceEditMode, setForceEditMode] = useState(false) // Track if we should force edit mode

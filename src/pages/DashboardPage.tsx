@@ -5,6 +5,7 @@ import { Briefcase, BookOpen, Users, Wallet, TrendingUp, ArrowUpRight, Bell, Clo
 import { Skeleton } from '@/components/ui/Skeleton'
 import apiClient from '@/api/client'
 import { formatMxc } from '@/utils/formatters'
+import { useDashboard } from '@/hooks/useAnalytics'
 
 interface DashboardStats {
   activeJobs: number
@@ -204,6 +205,49 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+
+      {/* Analytics Section */}
+      <AnalyticsDashboardSection />
     </div>
   )
+}
+
+function AnalyticsDashboardSection() {
+  const { data: dashboard } = useDashboard()
+
+  if (!dashboard || dashboard.sections.length === 0) return null
+
+  return (
+    <div className="space-y-6">
+      <h2 className="text-xl font-black text-gray-900 dark:text-white tracking-tight">Analytics</h2>
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        {dashboard.sections.map((section) => (
+          <div key={section.section} className="rounded-[28px] border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-5 shadow-sm">
+            <h3 className="text-xs font-black uppercase tracking-[0.16em] text-indigo-500 dark:text-indigo-400">
+              {formatSectionLabel(section.section)}
+            </h3>
+            <div className="mt-3 space-y-2">
+              {section.tiles.map((tile) => (
+                <div key={tile.label} className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-gray-500 dark:text-gray-400">{tile.label}</span>
+                  <span className="text-sm font-black text-gray-900 dark:text-white">{tile.value}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function formatSectionLabel(section: string): string {
+  const labels: Record<string, string> = {
+    earnings: 'Earnings',
+    jobs: 'Jobs',
+    courses: 'Courses',
+    views: 'Views',
+    conversions: 'Conversions',
+  }
+  return labels[section] || section.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
 }
