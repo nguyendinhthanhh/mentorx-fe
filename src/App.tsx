@@ -90,6 +90,7 @@ import HomePage from './pages/HomePage'
 import AboutPage from './pages/AboutPage'
 import GuidePage from './pages/GuidePage'
 import { Toaster } from 'react-hot-toast'
+import { AiAssistantWidget } from './components/ui/AiAssistantWidget'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -105,6 +106,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <Toaster position="top-right" reverseOrder={false} />
+        <AiAssistantWidget />
         <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <Routes>
           {/* Auth Routes */}
