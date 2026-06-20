@@ -1389,6 +1389,86 @@ export interface ActivityItem {
   actionUrl?: string;
 }
 
+// Complaint Types
+export enum ComplaintStatus {
+  OPEN = "OPEN",
+  AWAITING_RESPONSE = "AWAITING_RESPONSE",
+  INVESTIGATING = "INVESTIGATING",
+  EVIDENCE_REVIEW = "EVIDENCE_REVIEW",
+  IN_MEDIATION = "IN_MEDIATION",
+  RESOLVED = "RESOLVED",
+  CLOSED = "CLOSED",
+  WITHDRAWN = "WITHDRAWN",
+  EXPIRED = "EXPIRED",
+}
+
+export enum ComplaintOutcome {
+  FAVOR_COMPLAINANT = "FAVOR_COMPLAINANT",
+  FAVOR_RESPONDENT = "FAVOR_RESPONDENT",
+  COMPROMISE = "COMPROMISE",
+  MUTUAL_AGREEMENT = "MUTUAL_AGREEMENT",
+  INVALID_COMPLAINT = "INVALID_COMPLAINT",
+  WARNING_ISSUED = "WARNING_ISSUED",
+  NO_OUTCOME = "NO_OUTCOME",
+}
+
+export interface ComplaintEvidence {
+  id: string;
+  complaintId: string;
+  submittedByUserId: string;
+  evidenceType: string;
+  title: string;
+  description?: string;
+  fileUrl?: string;
+  filename?: string;
+  mimeType?: string;
+  fileSize?: number;
+  isReviewed: boolean;
+  reviewedAt?: string;
+  reviewedByUserId?: string;
+  reviewNotes?: string;
+  isFlagged: boolean;
+  flagReason?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ComplaintResponse {
+  id: string;
+  complainantId: string;
+  respondentId: string;
+  sessionId?: string;
+  bookingId?: string;
+  title: string;
+  description: string;
+  complaintCategory: string;
+  status: ComplaintStatus;
+  priorityLevel: number;
+  mediatorId?: string;
+  mediatorAssignedAt?: string;
+  respondentNotifiedAt?: string;
+  respondentRespondedAt?: string;
+  respondentResponse?: string;
+  responseDeadline?: string;
+  mediationStartedAt?: string;
+  resolvedAt?: string;
+  outcome?: ComplaintOutcome;
+  resolutionDetails?: string;
+  resolutionTimeHours?: number;
+  slaMet?: boolean;
+  evidence?: ComplaintEvidence[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export function complaintPriorityBucket(level?: number): 'low' | 'medium' | 'high' | 'urgent' {
+  if (level === undefined || level === null) return 'medium'
+  if (level >= 5) return 'urgent'
+  if (level >= 4) return 'high'
+  if (level >= 2) return 'medium'
+  return 'low'
+}
+
 // Feed Types
 export enum FeedItemType {
   MENTOR = "MENTOR",

@@ -24,6 +24,8 @@ import MentorListPage from './pages/mentor/MentorListPage'
 import MentorPublicProfilePage from './pages/mentor/MentorPublicProfilePage'
 import RecommendedMentorsPage from './pages/mentor/RecommendedMentorsPage'
 import NotificationListPage from './pages/user/NotificationListPage'
+import MyComplaintsPage from './pages/user/MyComplaintsPage'
+import NewComplaintPage from './pages/user/NewComplaintPage'
 
 // Job Pages
 import JobListPage from './pages/job/JobListPage'
@@ -62,6 +64,8 @@ import AdminReportsPage from './pages/admin/AdminReportsPage'
 import AdminWalletPage from './pages/admin/AdminWalletPage'
 import AdminMentorApplicationsPage from './pages/admin/AdminMentorApplicationsPage'
 import AdminSupportPage from './pages/admin/AdminSupportPage'
+import AdminComplaintsPage from './pages/admin/AdminComplaintsPage'
+import AdminComplaintDetailPage from './pages/admin/AdminComplaintDetailPage'
 
 // Mentor Pages
 import MentorDashboardPage from './pages/mentor/MentorDashboardPage'
@@ -179,6 +183,8 @@ function App() {
             <Route path="/profile/appointments" element={<div>Appointments (Coming Soon)</div>} />
             <Route path="/profile/transactions" element={<div>Transactions (Coming Soon)</div>} />
             <Route path="/profile/saved" element={<SavedMentorsPage />} />
+            <Route path="/profile/complaints" element={<MyComplaintsPage />} />
+            <Route path="/profile/complaints/new" element={<NewComplaintPage />} />
             <Route path="/profile/reviews" element={<div>Reviews (Coming Soon)</div>} />
             <Route path="/profile/payments" element={<div>Payment Methods (Coming Soon)</div>} />
             <Route path="/my-jobs" element={<MyJobsPage />} />
@@ -205,6 +211,8 @@ function App() {
             <Route path="/admin/courses/:courseId/review" element={<AdminCourseReviewPage />} />
             <Route path="/admin/reports" element={<AdminReportsPage />} />
             <Route path="/admin/support" element={<AdminSupportPage />} />
+            <Route path="/admin/complaints" element={<AdminComplaintsPage />} />
+            <Route path="/admin/complaints/:id" element={<AdminComplaintDetailPage />} />
             <Route path="/admin/wallet" element={<AdminOnlyRoute><AdminWalletPage /></AdminOnlyRoute>} />
             <Route path="/admin/settings" element={<AdminOnlyRoute><div>Platform Settings (Coming Soon)</div></AdminOnlyRoute>} />
           </Route>
