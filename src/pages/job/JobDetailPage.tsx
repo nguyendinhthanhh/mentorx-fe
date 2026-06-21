@@ -55,6 +55,8 @@ import { formatCurrency, formatDate, formatDateTime, formatRelativeTime } from '
 import { getJobChatRoute } from '@/utils/jobWorkspace'
 import ProposalCreateForm from '@/components/job/ProposalCreateForm'
 import ProposalList from '@/components/job/ProposalList'
+import { AiExplainModal } from '@/components/ai/AiExplainModal'
+import { AiTaskType } from '@/api/aiApi'
 
 const JOB_TYPE_META: Record<JobType, { label: string; className: string }> = {
   [JobType.FREELANCE_PROJECT]: {
@@ -89,6 +91,7 @@ export default function JobDetailPage() {
   const [showProposalDetail, setShowProposalDetail] = useState(false)
   const [forceEditMode, setForceEditMode] = useState(false) // Track if we should force edit mode
   const [showWithdrawConfirm, setShowWithdrawConfirm] = useState(false)
+  const [showAiExplain, setShowAiExplain] = useState(false)
   const [showCompleteContractConfirm, setShowCompleteContractConfirm] = useState(false)
   const [withdrawing, setWithdrawing] = useState(false)
   const [saved, setSaved] = useState(() => Boolean(jobId && localStorage.getItem(`saved-job-${jobId}`)))
@@ -801,7 +804,7 @@ export default function JobDetailPage() {
                       )}
 
                       {(existingProposal.status === 'SUBMITTED' || existingProposal.status === 'UNDER_REVIEW' || existingProposal.status === 'NEGOTIATING') && (
-                        <button
+                      <button
                           type="button"
                           onClick={() => setShowWithdrawConfirm(true)}
                           className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-4 text-sm font-bold text-rose-700 shadow-sm hover:bg-rose-100 transition"
@@ -810,6 +813,14 @@ export default function JobDetailPage() {
                           Thu hồi
                         </button>
                       )}
+                      <button
+                        type="button"
+                        onClick={() => setShowAiExplain(true)}
+                        className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-indigo-200 bg-indigo-50 px-4 text-sm font-bold text-indigo-700 shadow-sm transition hover:bg-indigo-100"
+                      >
+                        <Sparkles className="h-4 w-4" />
+                        Hỏi AI giải thích
+                      </button>
                     </>
                   ) : null}
                 </div>
@@ -860,24 +871,32 @@ export default function JobDetailPage() {
                         </button>
                      )
                    )}
-                   <div className="flex gap-3 mt-2">
-                     <button
-                       type="button"
-                       onClick={toggleSaved}
-                       className="flex h-12 w-12 shrink-0 items-center justify-center gap-2 rounded-xl border border-[#E6EAF0] bg-[#FFFFFF] text-[#475569] hover:bg-[#F5F6FA] shadow-sm transition"
-                       title={saved ? 'Đã lưu' : 'Lưu tin'}
-                     >
-                       {saved ? <BookmarkCheck className="h-5 w-5 text-[#4F46E5]" /> : <Bookmark className="h-5 w-5" />}
-                     </button>
-                     <button
-                       type="button"
-                       onClick={copyLink}
-                       className="flex h-12 flex-1 items-center justify-center gap-2 rounded-xl border border-[#E6EAF0] bg-[#FFFFFF] text-[14px] font-extrabold text-[#475569] hover:bg-[#F5F6FA] shadow-sm transition"
-                     >
-                       <Share2 className="h-4 w-4" />
-                       {copied ? 'Đã copy link' : 'Chia sẻ công việc'}
-                     </button>
-                   </div>
+                    <div className="flex gap-3 mt-2">
+                      <button
+                        type="button"
+                        onClick={toggleSaved}
+                        className="flex h-12 w-12 shrink-0 items-center justify-center gap-2 rounded-xl border border-[#E6EAF0] bg-[#FFFFFF] text-[#475569] hover:bg-[#F5F6FA] shadow-sm transition"
+                        title={saved ? 'Đã lưu' : 'Lưu tin'}
+                      >
+                        {saved ? <BookmarkCheck className="h-5 w-5 text-[#4F46E5]" /> : <Bookmark className="h-5 w-5" />}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={copyLink}
+                        className="flex h-12 flex-1 items-center justify-center gap-2 rounded-xl border border-[#E6EAF0] bg-[#FFFFFF] text-[14px] font-extrabold text-[#475569] hover:bg-[#F5F6FA] shadow-sm transition"
+                      >
+                        <Share2 className="h-4 w-4" />
+                        {copied ? 'Đã copy link' : 'Chia sẻ công việc'}
+                      </button>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setShowAiExplain(true)}
+                      className="mt-2 flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-indigo-200 bg-indigo-50 px-4 text-sm font-bold text-indigo-700 shadow-sm transition hover:bg-indigo-100"
+                    >
+                      <Sparkles className="h-4 w-4" />
+                      Hỏi AI giải thích
+                    </button>
                  </div>
               ) : (
                  <Link
@@ -1226,6 +1245,15 @@ export default function JobDetailPage() {
           </div>
         </div>
       )}
+
+      {/* AI Explain Modal */}
+      <AiExplainModal
+        open={showAiExplain}
+        onOpenChange={setShowAiExplain}
+        taskType={AiTaskType.JOB}
+        taskId={job.jobId}
+        taskTitle={job.title}
+      />
 
       {/* Withdraw Confirmation Modal */}
       {showWithdrawConfirm && existingProposal && (

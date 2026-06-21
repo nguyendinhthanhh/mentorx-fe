@@ -2,8 +2,7 @@ const OPENROUTER_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 
 const MODELS = [
-  "qwen/qwen3-coder:free",
-  "openai/gpt-4o-mini",
+  "qwen/qwen-2.5-72b-instruct",
 ];
 
 interface OpenRouterMessage {

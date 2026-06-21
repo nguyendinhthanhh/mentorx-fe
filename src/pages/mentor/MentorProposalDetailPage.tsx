@@ -11,11 +11,14 @@ import {
   Paperclip,
   PencilLine,
   ShieldCheck,
+  Sparkles,
   Wallet,
   X,
   ChevronDown,
   Eye,
 } from 'lucide-react'
+import { AiExplainModal } from '@/components/ai/AiExplainModal'
+import { AiTaskType } from '@/api/aiApi'
 import { Skeleton, SkeletonCircle } from '@/components/ui/Skeleton'
 import ContextualChatDrawer from '@/components/chat/ContextualChatDrawer'
 import { categoryApi } from '@/api/categoryApi'
@@ -60,6 +63,7 @@ export default function MentorProposalDetailPage() {
   const [showRejectModal, setShowRejectModal] = useState(false)
   const [rejectReason, setRejectReason] = useState('')
   const [showRespondForm, setShowRespondForm] = useState(false)
+  const [showAiExplain, setShowAiExplain] = useState(false)
 
   useEffect(() => {
     void loadData()
@@ -562,6 +566,14 @@ export default function MentorProposalDetailPage() {
                     <ArrowUpRight className="h-4 w-4" />
                     View Original Job
                   </Link>
+                  <button
+                    type="button"
+                    onClick={() => setShowAiExplain(true)}
+                    className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-xl border border-indigo-200 bg-indigo-50 px-4 text-sm font-bold text-indigo-700 transition hover:border-indigo-300 hover:bg-indigo-100"
+                  >
+                    <Sparkles className="h-4 w-4" />
+                    Hỏi AI giải thích
+                  </button>
                 </div>
               </div>
 
@@ -811,6 +823,16 @@ export default function MentorProposalDetailPage() {
           </div>
         </div>
       ) : null}
+
+      {proposal?.id && (
+        <AiExplainModal
+          open={showAiExplain}
+          onOpenChange={setShowAiExplain}
+          taskType={AiTaskType.PROPOSAL}
+          taskId={proposal.id}
+          taskTitle={job?.title}
+        />
+      )}
 
       <ContextualChatDrawer
         open={isChatDrawerOpen}
