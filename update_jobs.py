@@ -1,4 +1,6 @@
-import { useState } from 'react'
+import os
+
+content = """import { useState } from 'react'
 import { useQuery } from 'react-query'
 import { Link, useSearchParams } from 'react-router-dom'
 import {
@@ -47,15 +49,6 @@ const SORT_OPTIONS: { value: JobSort; labelKey: TranslationKey }[] = [
   { value: JobSort.RELEVANCE, labelKey: 'jobs.sort.relevance' },
 ]
 
-const EXPERIENCE_OPTIONS = [
-  { value: 'ALL', label: 'Tất cả mức độ' },
-  { value: 'Fresher', label: 'Fresher / Sinh viên' },
-  { value: 'Junior', label: 'Junior (Dưới 2 năm)' },
-  { value: 'Mid-Level', label: 'Mid-Level (2-5 năm)' },
-  { value: 'Senior', label: 'Senior (Từ 5 năm)' },
-  { value: 'Expert', label: 'Chuyên gia (Expert)' },
-]
-
 const BUDGET_TYPE_OPTIONS = [
   { value: 'ALL', labelKey: 'jobs.filter.budgetTypeAll' },
   { value: BudgetType.FIXED, labelKey: 'jobs.filter.budgetTypeFixed' },
@@ -79,7 +72,6 @@ export default function JobListPage() {
   const [budgetType, setBudgetType] = useState<string>('ALL')
   const [statusFilter, setStatusFilter] = useState<JobStatus>(JobStatus.OPEN)
   const [categoryId, setCategoryId] = useState<string>('')
-  const [experienceFilter, setExperienceFilter] = useState<string>('ALL')
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [page, setPage] = useState(0)
 
@@ -87,7 +79,6 @@ export default function JobListPage() {
   const apiJobType = jobType === 'ALL' ? undefined : (jobType as JobType)
   const apiBudgetType = budgetType === 'ALL' ? undefined : (budgetType as BudgetType)
   const apiCategoryId = categoryId ? Number(categoryId) : undefined
-  const apiExperienceLevel = experienceFilter === 'ALL' ? undefined : experienceFilter
 
   const { data: skills = [] } = useQuery('job-filter-skills', skillApi.getAllActive, {
     staleTime: 5 * 60 * 1000,
@@ -98,14 +89,13 @@ export default function JobListPage() {
   })
 
   const { data, isLoading } = useQuery(
-    ['jobs', page, apiJobType, skillFilter, apiExperienceLevel, debouncedKeyword, sort, budgetMin, budgetMax, apiBudgetType, statusFilter, apiCategoryId],
+    ['jobs', page, apiJobType, skillFilter, debouncedKeyword, sort, budgetMin, budgetMax, apiBudgetType, statusFilter, apiCategoryId],
     () =>
       jobApi.getOpenJobs({
         page,
         size: PAGE_SIZE,
         jobType: apiJobType,
         skill: skillFilter.trim() || undefined,
-        experienceLevel: apiExperienceLevel,
         keyword: debouncedKeyword.trim() || undefined,
         sort,
         budgetMin: budgetMin ? Number(budgetMin) : undefined,
@@ -124,7 +114,6 @@ export default function JobListPage() {
     keyword.trim().length > 0 ||
     jobType !== 'ALL' ||
     !!skillFilter ||
-    experienceFilter !== 'ALL' ||
     sort !== JobSort.NEWEST ||
     !!budgetMin ||
     !!budgetMax ||
@@ -146,7 +135,6 @@ export default function JobListPage() {
     setKeyword('')
     setJobType('ALL')
     setSkillFilter('')
-    setExperienceFilter('ALL')
     setSort(JobSort.NEWEST)
     setBudgetMin('')
     setBudgetMax('')
@@ -165,23 +153,23 @@ export default function JobListPage() {
         <div className="absolute top-[-10%] right-[10%] w-[450px] h-[450px] bg-purple-300/40 mix-blend-multiply rounded-[60%_40%_30%_70%/60%_30%_70%_40%] filter blur-3xl opacity-70 animate-[spin_12s_linear_infinite_reverse] pointer-events-none"></div>
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-sky-300/30 mix-blend-multiply rounded-full filter blur-3xl opacity-60 animate-[pulse_4s_ease-in-out_infinite] pointer-events-none"></div>
         
-        <div className="relative mx-auto max-w-[1600px] z-10 flex flex-col items-center justify-center text-center">
-          <div className="flex flex-col items-center justify-center gap-4 mb-8">
-            <div className="flex flex-col items-center">
-              <div className="flex items-center justify-center gap-2 mb-4">
+        <div className="relative mx-auto max-w-[1600px] z-10">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-5">
+            <div>
+              <div className="flex items-center gap-2 mb-2">
                  <div className="px-3 py-1 rounded-full bg-white/70 border border-white flex items-center gap-1.5 w-fit shadow-sm backdrop-blur-md">
                     <Sparkles className="w-4 h-4 text-[#4f46e5]" />
                     <span className="text-[12px] font-bold text-[#4f46e5] tracking-wider uppercase">MentorX Discovery</span>
                  </div>
               </div>
-              <h1 className="text-4xl font-extrabold text-[#1b2252] sm:text-5xl tracking-tight leading-tight max-w-4xl">
+              <h1 className="text-4xl font-extrabold text-[#1b2252] sm:text-5xl tracking-tight leading-tight">
                 Khám phá cơ hội, <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#4f46e5] to-[#7c3aed]">Kết nối chuyên gia</span>
               </h1>
             </div>
           </div>
           
           {/* Synchronized Search Bar */}
-          <div className="max-w-5xl w-full flex flex-col sm:flex-row bg-white/70 backdrop-blur-xl rounded-2xl p-2.5 border border-white/50 shadow-lg">
+          <div className="flex flex-col sm:flex-row bg-white/70 backdrop-blur-xl rounded-2xl p-2.5 border border-white/50 shadow-lg">
              <div className="sm:w-[280px] relative flex items-center border-b sm:border-b-0 sm:border-r border-[#e2e6f5]/50 shrink-0">
                 <Briefcase className="absolute left-5 h-6 w-6 text-slate-400" />
                 <select 
@@ -335,29 +323,6 @@ export default function JobListPage() {
                       </div>
                    </div>
 
-                   {/* Experience Filter */}
-                   <div>
-                      <h4 className="text-[13px] font-bold text-[#1b2252] mb-4">Kinh nghiệm</h4>
-                      <div className="flex flex-col gap-4">
-                        {EXPERIENCE_OPTIONS.map((opt) => (
-                          <label key={opt.value} className="flex items-center gap-3 cursor-pointer group">
-                            <div className="relative flex items-center justify-center">
-                              <input 
-                                type="radio" 
-                                name="experienceFilter" 
-                                value={opt.value} 
-                                checked={experienceFilter === opt.value}
-                                onChange={(e) => setFilter(setExperienceFilter)(e.target.value)}
-                                className="appearance-none w-5 h-5 rounded border border-slate-300 bg-slate-50 checked:bg-[#4f46e5] checked:border-[#4f46e5] transition-all cursor-pointer relative"
-                              />
-                              {experienceFilter === opt.value && <CheckCircle2 className="absolute w-4 h-4 text-white pointer-events-none" />}
-                            </div>
-                            <span className="text-[15px] font-medium text-slate-600 group-hover:text-[#4f46e5] transition-colors">{opt.label}</span>
-                          </label>
-                        ))}
-                      </div>
-                   </div>
-
                    {/* Skills Filter */}
                    <div>
                       <h4 className="text-[13px] font-bold text-[#1b2252] mb-4">Kỹ năng</h4>
@@ -448,28 +413,11 @@ export default function JobListPage() {
   )
 }
 
-
-function getTimeRemaining(deadlineAt: string | undefined | null) {
-  if (!deadlineAt) return 'Không giới hạn';
-  const deadline = new Date(deadlineAt);
-  const now = new Date();
-  const diff = deadline.getTime() - now.getTime();
-  
-  if (diff <= 0) return 'Đã hết hạn';
-  
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  
-  if (days > 0) return `Còn ${days} ngày`;
-  if (hours > 0) return `Còn ${hours} giờ`;
-  return `Sắp hết hạn`;
-}
-
 function JobCard({ job, showRelevance, viewMode }: { job: JobResponse; showRelevance: boolean; viewMode?: 'grid' | 'list' }) {
   const { t } = useI18n()
   const clientName = getClientName(job)
   const budget = formatBudget(job, t)
-  const timeRemaining = getTimeRemaining(job.deadlineAt)
+  const deadline = job.deadlineAt ? formatDeadline(job.deadlineAt) : t('common.noDeadline')
   const relevancePercent = job.relevanceScore != null ? Math.min(Math.round(job.relevanceScore * 100), 100) : null
   const initial = clientName.charAt(0).toUpperCase()
 
@@ -523,14 +471,7 @@ function JobCard({ job, showRelevance, viewMode }: { job: JobResponse; showRelev
             <div className="flex items-center gap-5 text-[14px] text-slate-500 font-medium">
                <div className="flex items-center gap-1.5">
                  <Timer className="h-4 w-4 text-slate-400" />
-                 Hoàn thành trước: 
-                 <span className={`px-2 py-0.5 rounded text-[12px] font-bold border ${
-                    timeRemaining === 'Đã hết hạn'
-                      ? 'text-rose-600 bg-rose-50 border-rose-200'
-                      : 'text-[#00b14f] bg-green-50 border-green-100'
-                 }`}>
-                    {timeRemaining}
-                 </span>
+                 <span>Hạn: <span className="text-slate-700 font-semibold">{deadline}</span></span>
                </div>
             </div>
          </div>
@@ -655,3 +596,9 @@ function getClientName(job: JobResponse) {
 function getProposalCount(job: JobResponse) {
   return job.proposalCount || 0
 }
+"""
+
+with open(r"d:\Mentor X\mentorx-fe\src\pages\job\JobListPage.tsx", "w", encoding="utf-8") as f:
+    f.write(content)
+
+print("Updated JobListPage.tsx successfully.")
