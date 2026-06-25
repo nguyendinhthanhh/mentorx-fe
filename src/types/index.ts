@@ -242,6 +242,13 @@ export enum ReviewTargetType {
   JOB = "JOB",
 }
 
+export enum AppointmentStatus {
+  SCHEDULED = "SCHEDULED",
+  COMPLETED = "COMPLETED",
+  CANCELLED = "CANCELLED",
+  NO_SHOW = "NO_SHOW",
+}
+
 // API Response Types
 export interface ApiResponse<T> {
   success: boolean;
@@ -552,6 +559,21 @@ export interface JobResponse {
   createdAt: string;
   updatedAt: string;
   relevanceScore?: number;
+}
+
+export interface AppointmentResponse {
+  id: string;
+  mentorId: string;
+  mentorName: string;
+  userId: string;
+  userName: string;
+  startTime: string;
+  endTime: string;
+  status: AppointmentStatus;
+  meetingUrl?: string;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface ContractResponse {
@@ -1213,6 +1235,7 @@ export interface ReviewResponse {
   canBeEdited: boolean;
   createdAt: string;
   updatedAt: string;
+  currentUserVote?: boolean | null;
 }
 
 // Moderation Types

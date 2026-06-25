@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
   BookOpen,
@@ -59,8 +60,10 @@ export default function ContextRail({
   linkedContract,
   isLinkedContractLoading,
   onClose,
-  compact,
+  compact = false,
 }: ContextRailProps) {
+  const [isJobModalOpen, setIsJobModalOpen] = useState(false)
+
   if (!selectedRoom) return null
 
   const availabilitySummary = summarizeWeeklyAvailability(weeklyAvailability)
@@ -174,9 +177,12 @@ export default function ContextRail({
                 Thông tin Job
               </h3>
               {linkedJob && (
-                <Link to={`/jobs/${linkedJob.jobId}`} className="text-[12px] font-semibold text-emerald-600 hover:text-emerald-700">
+                <button 
+                  onClick={() => setIsJobModalOpen(true)}
+                  className="text-[12px] font-semibold text-emerald-600 hover:text-emerald-700"
+                >
                   Xem chi tiết
-                </Link>
+                </button>
               )}
             </div>
 
@@ -424,7 +430,110 @@ export default function ContextRail({
           )}
         </section>
       </div>
+      {/* Job Details Modal */}
+      <JobDetailsModal 
+        job={linkedJob} 
+        isOpen={isJobModalOpen} 
+        onClose={() => setIsJobModalOpen(false)} 
+      />
     </aside>
+  )
+}
+
+function JobDetailsModal({
+  job,
+  isOpen,
+  onClose,
+}: {
+  job: JobResponse | null | undefined
+  isOpen: boolean
+  onClose: () => void
+}) {
+  if (!isOpen || !job) return null
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+      <div className="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-hidden shadow-2xl flex flex-col">
+        {/* Header */}
+        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+          <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+            <span className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
+              <BookOpen className="w-4 h-4 text-emerald-600" />
+            </span>
+            Chi tiết yêu cầu
+          </h2>
+          <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-lg transition-colors">
+            <X className="w-5 h-5 text-slate-400" />
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+          <div>
+            <h3 className="text-xl font-black text-slate-900 mb-2">{job.title}</h3>
+            <p className="text-sm text-slate-600 whitespace-pre-wrap">{job.description}</p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
+              <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Ngân sách</p>
+              <p className="text-base font-black text-emerald-600">
+                {job.budgetType === 'FIXED' 
+                  ? formatCurrency(job.budgetMaxMxc || 0)
+                  : formatCurrency(job.hourlyRateMxc || 0).replace(' MXC', ' MXC/hr')}
+              </p>
+            </div>
+            <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
+              <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Thời hạn</p>
+              <p className="text-base font-black text-slate-900">
+                {job.deadlineAt ? new Date(job.deadlineAt).toLocaleDateString('vi-VN') : 'Thỏa thuận'}
+              </p>
+            </div>
+            <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
+              <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Kinh nghiệm</p>
+              <p className="text-base font-black text-slate-900 capitalize">
+                {job.experienceLevel?.toLowerCase().replace('_', ' ') || 'Không yêu cầu'}
+              </p>
+            </div>
+            <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
+              <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Hình thức</p>
+              <p className="text-base font-black text-slate-900 capitalize">
+                {job.jobType?.toLowerCase().replace('_', ' ') || 'Không rõ'}
+              </p>
+            </div>
+          </div>
+          
+          {job.requiredSkills && job.requiredSkills.length > 0 && (
+            <div>
+              <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Kỹ năng yêu cầu</p>
+              <div className="flex flex-wrap gap-2">
+                {job.requiredSkills.map((skill: string, idx: number) => (
+                  <span key={idx} className="px-2.5 py-1 bg-indigo-50 text-indigo-600 rounded-md text-xs font-semibold">
+                    {skill}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="p-6 border-t border-slate-100 bg-slate-50/50 flex items-center justify-end gap-3">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors"
+          >
+            Đóng
+          </button>
+          <Link
+            to={`/jobs/${job.jobId}`}
+            className="px-5 py-2 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition-colors shadow-sm"
+          >
+            Xem trang chi tiết đầy đủ
+          </Link>
+        </div>
+      </div>
+    </div>
   )
 }
 

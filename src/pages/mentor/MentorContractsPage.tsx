@@ -359,11 +359,11 @@ export default function MentorContractsPage() {
   if (dashboardQuery.isError) {
     return (
       <div className="mx-auto max-w-[1480px] space-y-6">
-        <div className="rounded-[28px] border border-rose-200 bg-rose-50 px-6 py-5 text-rose-700 shadow-sm">
+        <div className="rounded-2xl border border-rose-200 bg-rose-50 px-6 py-5 text-rose-700 shadow-sm">
           <div className="flex items-start gap-3">
             <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" />
             <div>
-              <h1 className="text-lg font-black text-rose-900">Unable to load active contracts</h1>
+              <h1 className="text-lg font-bold text-rose-900">Unable to load active contracts</h1>
               <p className="mt-1 text-sm leading-6">
                 {((dashboardQuery.error as any)?.response?.data?.message as string) || 'Please try again in a moment.'}
               </p>
@@ -386,7 +386,7 @@ export default function MentorContractsPage() {
       <div className="mx-auto max-w-[1540px] space-y-6">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <h1 className="text-[32px] font-black tracking-tight text-slate-950">Active Contracts</h1>
+            <h1 className="text-[32px] font-bold tracking-tight text-slate-950">Active Contracts</h1>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">
               Stay on top of live work, escrow status, cancellations, and contract history without leaving mentor mode.
             </p>
@@ -442,7 +442,7 @@ export default function MentorContractsPage() {
         </section>
 
         <div className="grid gap-6 2xl:grid-cols-[minmax(0,1fr)_420px]">
-          <section className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm">
+          <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
             <div className="border-b border-slate-100 px-5 py-4">
               <div className="flex flex-wrap items-center gap-2">
                 {contractTabs.map((tab) => {
@@ -457,7 +457,7 @@ export default function MentorContractsPage() {
                       }`}
                     >
                       {tab.label}
-                      <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-black ${isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'}`}>
+                      <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'}`}>
                         {tabCounts[tab.key]}
                       </span>
                     </button>
@@ -499,11 +499,11 @@ export default function MentorContractsPage() {
 
             <div className="space-y-3 p-4">
               {filteredContracts.length === 0 ? (
-                <div className="rounded-[24px] border border-dashed border-slate-200 bg-slate-50 px-6 py-12 text-center">
-                  <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-slate-400 shadow-sm">
+                <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-6 py-12 text-center">
+                  <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-slate-400 shadow-sm">
                     <FolderKanban className="h-5 w-5" />
                   </div>
-                  <h2 className="mt-4 text-lg font-black text-slate-900">No contracts match this filter.</h2>
+                  <h2 className="mt-4 text-lg font-bold text-slate-900">No contracts match this filter.</h2>
                   <p className="mt-2 text-sm leading-6 text-slate-500">
                     Try a different tab or search term, or review your proposals to pick up new work.
                   </p>
@@ -524,7 +524,7 @@ export default function MentorContractsPage() {
                   return (
                     <article
                       key={contract.id}
-                      className={`rounded-[24px] border px-5 py-5 shadow-sm transition ${
+                      className={`rounded-xl border px-5 py-5 shadow-sm transition ${
                         isSelected
                           ? 'border-indigo-200 bg-indigo-50/40 shadow-indigo-100/60'
                           : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/50'
@@ -533,7 +533,7 @@ export default function MentorContractsPage() {
                       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                         <div className="min-w-0 flex-1">
                           <div className="flex flex-wrap items-center gap-2">
-                            <span className={`inline-flex h-7 items-center rounded-full border px-2.5 text-[11px] font-black uppercase tracking-[0.18em] ${contractStatusTone[contract.status]}`}>
+                            <span className={`inline-flex h-7 items-center rounded-full border px-2.5 text-[11px] font-semibold uppercase tracking-wider ${contractStatusTone[contract.status]}`}>
                               {contractStatusLabel[contract.status]}
                             </span>
                             <span className={`inline-flex h-7 items-center rounded-full border px-2.5 text-[11px] font-bold ${getEscrowTone(contract, primaryDispute)}`}>
@@ -547,12 +547,12 @@ export default function MentorContractsPage() {
                           </div>
 
                           <div className="mt-3 flex flex-wrap items-start gap-3">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-500">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-100 text-slate-500">
                               <FileText className="h-5 w-5" />
                             </div>
                             <div className="min-w-0 flex-1">
                               <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-                                <h2 className="truncate text-lg font-black tracking-tight text-slate-950">{contract.jobTitle}</h2>
+                                <h2 className="truncate text-lg font-bold tracking-tight text-slate-950">{contract.jobTitle}</h2>
                                 <button
                                   type="button"
                                   onClick={() => {
@@ -747,12 +747,12 @@ function ContractDetailPanel({
 }) {
   if (!contract) {
     return (
-      <div className="sticky top-6 rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
+      <div className="sticky top-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         <div className="flex h-[420px] flex-col items-center justify-center text-center">
           <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
             <FolderKanban className="h-5 w-5" />
           </div>
-          <h2 className="mt-4 text-lg font-black text-slate-900">Select a contract</h2>
+          <h2 className="mt-4 text-lg font-bold text-slate-900">Select a contract</h2>
           <p className="mt-2 max-w-xs text-sm leading-6 text-slate-500">
             Open any contract from the list to inspect escrow, terms, cancellation status, and client context.
           </p>
@@ -770,19 +770,19 @@ function ContractDetailPanel({
     !dispute
 
   return (
-    <div className="sticky top-6 overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm">
+    <div className="sticky top-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
       <div className="border-b border-slate-100 px-6 py-5">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <span className={`inline-flex h-7 items-center rounded-full border px-2.5 text-[11px] font-black uppercase tracking-[0.18em] ${contractStatusTone[contract.status]}`}>
+              <span className={`inline-flex h-7 items-center rounded-full border px-2.5 text-[11px] font-semibold uppercase tracking-wider ${contractStatusTone[contract.status]}`}>
                 {contractStatusLabel[contract.status]}
               </span>
               <span className={`inline-flex h-7 items-center rounded-full border px-2.5 text-[11px] font-bold ${getEscrowTone(contract, dispute)}`}>
                 {getEscrowLabel(contract, dispute)}
               </span>
             </div>
-            <h2 className="mt-3 text-2xl font-black tracking-tight text-slate-950">{contract.jobTitle}</h2>
+            <h2 className="mt-3 text-2xl font-bold tracking-tight text-slate-950">{contract.jobTitle}</h2>
             <div className="mt-2 space-y-1 text-sm text-slate-500">
               <p>
                 Client <span className="font-semibold text-slate-700">{contract.clientName}</span>
@@ -818,13 +818,13 @@ function ContractDetailPanel({
         </PanelSection>
 
         <PanelSection title="Escrow status">
-          <div className="rounded-[22px] border border-slate-200 bg-slate-50 p-4">
+          <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
             <div className="flex items-start gap-3">
               <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-indigo-500 shadow-sm">
                 <ShieldCheck className="h-5 w-5" />
               </div>
               <div className="min-w-0 flex-1">
-                <h3 className="text-sm font-black text-slate-900">{getEscrowLabel(contract, dispute)}</h3>
+                <h3 className="text-sm font-bold text-slate-900">{getEscrowLabel(contract, dispute)}</h3>
                 <p className="mt-1 text-sm leading-6 text-slate-500">{getEscrowDescription(contract, dispute)}</p>
               </div>
             </div>
@@ -862,7 +862,7 @@ function ContractDetailPanel({
             </div>
           ) : null}
 
-          <div className="space-y-3 rounded-[22px] border border-slate-200 bg-white p-4">
+          <div className="space-y-3 rounded-xl border border-slate-200 bg-white p-4">
             <LongField label="Deliverables" value={contract.deliverables} />
             <LongField label="Payment terms" value={contract.paymentTerms} />
             <LongField label="Terms and conditions" value={contract.termsAndConditions} />
@@ -928,9 +928,9 @@ function ContractDetailPanel({
           ) : null}
 
           {showCancellationActions ? (
-            <div className="space-y-3 rounded-[22px] border border-amber-200 bg-amber-50/80 p-4">
+            <div className="space-y-3 rounded-xl border border-amber-200 bg-amber-50/80 p-4">
               <div>
-                <h3 className="text-sm font-black text-slate-900">Client requested cancellation</h3>
+                <h3 className="text-sm font-bold text-slate-900">Client requested cancellation</h3>
                 <p className="mt-1 text-sm leading-6 text-slate-600">
                   Respond to the request. Approving will refund escrow to the client. Keeping the contract active lets the client continue or open a dispute.
                 </p>
@@ -966,7 +966,7 @@ function ContractDetailPanel({
               </div>
 
               {decisionMode ? (
-                <div className="space-y-3 rounded-[20px] border border-white/80 bg-white/90 p-4">
+                <div className="space-y-3 rounded-xl border border-white/80 bg-white/90 p-4">
                   <label className="block space-y-2">
                     <span className="text-sm font-bold text-slate-700">
                       {decisionMode === 'APPROVE' ? 'Note before refunding escrow' : 'Why should the contract continue?'}
@@ -1040,13 +1040,13 @@ function SummaryCard({
   }
 
   return (
-    <article className="rounded-[24px] border border-slate-200 bg-white px-5 py-5 shadow-sm">
+    <article className="rounded-xl border border-slate-200 bg-white px-5 py-5 shadow-sm">
       <div className={`flex h-11 w-11 items-center justify-center rounded-2xl ${toneMap[tone]}`}>
         {icon}
       </div>
       <div className="mt-4">
         <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">{label}</p>
-        <p className="mt-2 text-3xl font-black tracking-tight text-slate-950">{value}</p>
+        <p className="mt-2 text-3xl font-bold tracking-tight text-slate-950">{value}</p>
         <p className="mt-2 text-sm leading-6 text-slate-500">{caption}</p>
       </div>
     </article>
@@ -1068,7 +1068,7 @@ function DataFact({ label, value, icon }: { label: string; value: string; icon: 
 function PanelSection({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="space-y-3">
-      <h3 className="text-xs font-black uppercase tracking-[0.18em] text-slate-400">{title}</h3>
+      <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-400">{title}</h3>
       {children}
     </section>
   )
@@ -1077,7 +1077,7 @@ function PanelSection({ title, children }: { title: string; children: ReactNode 
 function PanelFact({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-      <p className="text-[11px] font-black uppercase tracking-[0.16em] text-slate-400">{label}</p>
+      <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">{label}</p>
       <p className="mt-1 text-sm font-bold text-slate-800">{value}</p>
     </div>
   )
@@ -1086,7 +1086,7 @@ function PanelFact({ label, value }: { label: string; value: string }) {
 function LongField({ label, value }: { label: string; value?: string | null }) {
   return (
     <div>
-      <p className="text-[11px] font-black uppercase tracking-[0.16em] text-slate-400">{label}</p>
+      <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">{label}</p>
       <p className="mt-1 text-sm leading-6 text-slate-600">{value?.trim() ? value : 'Not specified'}</p>
     </div>
   )
@@ -1095,7 +1095,7 @@ function LongField({ label, value }: { label: string; value?: string | null }) {
 function StatusLine({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex flex-col gap-1 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-      <p className="text-[11px] font-black uppercase tracking-[0.16em] text-slate-400">{label}</p>
+      <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">{label}</p>
       <p className="text-sm leading-6 text-slate-600">{value}</p>
     </div>
   )
@@ -1141,7 +1141,7 @@ function MentorContractsLoadingState() {
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {Array.from({ length: 4 }).map((_, index) => (
-          <div key={index} className="rounded-[24px] border border-slate-200 bg-white px-5 py-5 shadow-sm">
+          <div key={index} className="rounded-xl border border-slate-200 bg-white px-5 py-5 shadow-sm">
             <Skeleton className="h-11 w-11 rounded-2xl" />
             <Skeleton className="mt-4 h-3 w-28" />
             <Skeleton className="mt-2 h-8 w-16" />
@@ -1151,7 +1151,7 @@ function MentorContractsLoadingState() {
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_420px]">
-        <section className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm">
+        <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
           <div className="border-b border-slate-100 px-5 py-4">
             <div className="flex gap-2">
               {Array.from({ length: 5 }).map((_, index) => (
@@ -1164,9 +1164,9 @@ function MentorContractsLoadingState() {
           </div>
           <div className="space-y-3 p-4">
             {Array.from({ length: 3 }).map((_, index) => (
-              <div key={index} className="rounded-[24px] border border-slate-200 bg-white px-5 py-5 shadow-sm">
+              <div key={index} className="rounded-xl border border-slate-200 bg-white px-5 py-5 shadow-sm">
                 <div className="flex gap-4">
-                  <Skeleton className="h-12 w-12 rounded-2xl" />
+                  <Skeleton className="h-10 w-10 rounded-2xl" />
                   <div className="min-w-0 flex-1 space-y-3">
                     <Skeleton className="h-6 w-48" />
                     <Skeleton className="h-4 w-60" />
@@ -1183,9 +1183,9 @@ function MentorContractsLoadingState() {
         </section>
 
         <aside className="hidden xl:block">
-          <div className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
             <div className="flex items-start gap-4">
-              <SkeletonCircle size="h-12 w-12" />
+              <SkeletonCircle size="h-10 w-10" />
               <div className="flex-1 space-y-2">
                 <Skeleton className="h-6 w-44" />
                 <Skeleton className="h-4 w-32" />

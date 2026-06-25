@@ -346,12 +346,13 @@ export default function MentorPublicProfilePage() {
                     <div>
                       <SectionHeader title={language === 'vi' ? 'Gói Mentoring 1-1 nổi bật' : t('mentor.public.featuredPackages')} />
                       {packages.length > 0 ? (
-                        <div className="grid gap-5 lg:grid-cols-2">
-                          {sortPackages(packages).slice(0, 4).map((item) => (
+                        <div className="mt-5 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+                          {sortPackages(packages).slice(0, 6).map((item, idx) => (
                             <MentoringPackageCard
                               key={item.id}
                               item={item}
                               language={language}
+                              featured={idx === 0}
                               pending={pendingAction === `package-${item.id}`}
                               onBook={() =>
                                 openMentorChat(
@@ -480,63 +481,103 @@ export default function MentorPublicProfilePage() {
 
           {/* RIGHT COLUMN: Sticky Booking Sidebar */}
           <div className="hidden lg:block relative">
-             <aside className="sticky top-24 rounded-[32px] border border-slate-200 bg-white p-6 shadow-xl shadow-slate-200/50">
-               <div className="mb-6 border-b border-slate-100 pb-6 text-center">
-                 <h2 className="text-xl font-black text-gray-900">Work with {name.split(' ')[0]}</h2>
-                 <p className="mt-1 text-sm font-medium text-gray-500">Top-rated mentor on MentorX</p>
-               </div>
-               
-               <div className="space-y-3">
-                 {isOwnProfile ? (
-                   <button type="button" onClick={() => setIsEditing(true)} className="h-12 w-full rounded-full bg-indigo-600 text-sm font-black text-white shadow-lg shadow-indigo-600/20 transition-colors hover:bg-indigo-700">
-                     {t('mentor.public.editProfile')}
+             <aside className="sticky top-24 space-y-5">
+               <div className="rounded-[32px] border border-slate-200 bg-white p-6 shadow-xl shadow-slate-200/50">
+                 <div className="mb-6 border-b border-slate-100 pb-6 text-center">
+                   <h2 className="text-xl font-black text-gray-900">Work with {name.split(' ')[0]}</h2>
+                   <p className="mt-1 text-sm font-medium text-gray-500">Top-rated mentor on MentorX</p>
+                 </div>
+                 
+                 <div className="space-y-3">
+                   {isOwnProfile ? (
+                     <button type="button" onClick={() => setIsEditing(true)} className="h-12 w-full rounded-full bg-indigo-600 text-sm font-black text-white shadow-lg shadow-indigo-600/20 transition-colors hover:bg-indigo-700">
+                       {t('mentor.public.editProfile')}
+                     </button>
+                   ) : (
+                     <>
+                       <button
+                         type="button"
+                         onClick={requestBooking}
+                         disabled={Boolean(pendingAction)}
+                         className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-indigo-600 text-[15px] font-black text-white shadow-lg shadow-indigo-600/20 transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-gray-300"
+                       >
+                         <Calendar className="h-4 w-4" />
+                         {pendingAction === 'book-profile' ? t('mentor.public.openingChat') : t('mentor.public.bookSession')}
+                       </button>
+                       <button
+                         type="button"
+                         onClick={() => openMentorChat(undefined, 'message')}
+                         disabled={Boolean(pendingAction)}
+                         className="flex h-12 w-full items-center justify-center gap-2 rounded-full border-2 border-indigo-100 bg-white text-[15px] font-black text-indigo-700 transition hover:bg-indigo-50 disabled:cursor-not-allowed disabled:text-gray-400"
+                       >
+                         <MessageSquare className="h-4 w-4" />
+                         {pendingAction === 'message' ? t('mentor.public.openingChat') : t('mentor.public.messageMentor')}
+                       </button>
+                     </>
+                   )}
+                 </div>
+
+                 <div className="mt-6 space-y-4 rounded-2xl bg-slate-50 p-4 border border-slate-100">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-semibold text-gray-500">{t('mentor.public.responseRate')}</span>
+                      <span className="text-sm font-black text-gray-900">{mentor.successRate != null ? `${Number(mentor.successRate).toFixed(0)}%` : language === 'vi' ? 'Chưa có' : 'N/A'}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-semibold text-gray-500">{t('mentor.public.responseTime')}</span>
+                      <span className="text-sm font-black text-gray-900">{mentor.responseTimeHours != null ? `< ${mentor.responseTimeHours}h` : language === 'vi' ? 'Chưa có' : 'N/A'}</span>
+                    </div>
+                 </div>
+
+                 {!isOwnProfile && (
+                   <button
+                     type="button"
+                     onClick={toggleSavedMentor}
+                     disabled={savedLoading || saveMentorMutation.isLoading}
+                     className="mt-6 flex h-11 w-full items-center justify-center gap-2 rounded-full bg-white border border-slate-200 text-sm font-black text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:text-gray-400"
+                   >
+                     <Heart className={`h-4 w-4 ${isSaved ? 'fill-rose-500 text-rose-500' : ''}`} />
+                     {savedLoading || saveMentorMutation.isLoading ? t('mentor.public.updating') : isSaved ? t('mentor.public.savedMentor') : t('mentor.public.saveMentor')}
                    </button>
-                 ) : (
-                   <>
-                     <button
-                       type="button"
-                       onClick={requestBooking}
-                       disabled={Boolean(pendingAction)}
-                       className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-indigo-600 text-[15px] font-black text-white shadow-lg shadow-indigo-600/20 transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-gray-300"
-                     >
-                       <Calendar className="h-4 w-4" />
-                       {pendingAction === 'book-profile' ? t('mentor.public.openingChat') : t('mentor.public.bookSession')}
-                     </button>
-                     <button
-                       type="button"
-                       onClick={() => openMentorChat(undefined, 'message')}
-                       disabled={Boolean(pendingAction)}
-                       className="flex h-12 w-full items-center justify-center gap-2 rounded-full border-2 border-indigo-100 bg-white text-[15px] font-black text-indigo-700 transition hover:bg-indigo-50 disabled:cursor-not-allowed disabled:text-gray-400"
-                     >
-                       <MessageSquare className="h-4 w-4" />
-                       {pendingAction === 'message' ? t('mentor.public.openingChat') : t('mentor.public.messageMentor')}
-                     </button>
-                   </>
                  )}
                </div>
 
-               <div className="mt-6 space-y-4 rounded-2xl bg-slate-50 p-4 border border-slate-100">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-semibold text-gray-500">{t('mentor.public.responseRate')}</span>
-                    <span className="text-sm font-black text-gray-900">{mentor.successRate != null ? `${Number(mentor.successRate).toFixed(0)}%` : language === 'vi' ? 'Chưa có' : 'N/A'}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-semibold text-gray-500">{t('mentor.public.responseTime')}</span>
-                    <span className="text-sm font-black text-gray-900">{mentor.responseTimeHours != null ? `< ${mentor.responseTimeHours}h` : language === 'vi' ? 'Chưa có' : 'N/A'}</span>
-                  </div>
+               {/* Detail Info Card */}
+               <div className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm">
+                 <h3 className="mb-5 text-[11px] font-black uppercase tracking-[0.14em] text-slate-500">
+                   {language === 'vi' ? 'Thông tin chi tiết' : 'Details'}
+                 </h3>
+                 <div className="space-y-5">
+                   {mentor.currentTitle && (
+                     <ProfileInfoItem
+                       icon={<Briefcase className="h-4 w-4 text-indigo-600" />}
+                       label={language === 'vi' ? 'Vị trí hiện tại' : 'Current role'}
+                       value={mentor.currentCompany ? `${mentor.currentTitle} @ ${mentor.currentCompany}` : mentor.currentTitle}
+                     />
+                   )}
+                   {mentor.location && (
+                     <ProfileInfoItem
+                       icon={<Globe className="h-4 w-4 text-indigo-600" />}
+                       label={language === 'vi' ? 'Địa điểm / múi giờ' : 'Location / timezone'}
+                       value={mentor.location}
+                     />
+                   )}
+                   {mentor.languages?.length ? (
+                     <ProfileInfoItem
+                       icon={<Users className="h-4 w-4 text-indigo-600" />}
+                       label={language === 'vi' ? 'Ngôn ngữ' : 'Languages'}
+                       value={mentor.languages.join(', ')}
+                     />
+                   ) : null}
+                   {mentor.portfolioUrl && (
+                     <ProfileInfoItem
+                       icon={<ExternalLink className="h-4 w-4 text-indigo-600" />}
+                       label={t('mentor.public.portfolio')}
+                       value={language === 'vi' ? 'Mở portfolio' : 'Open portfolio'}
+                       href={mentor.portfolioUrl}
+                     />
+                   )}
+                 </div>
                </div>
-
-               {!isOwnProfile && (
-                 <button
-                   type="button"
-                   onClick={toggleSavedMentor}
-                   disabled={savedLoading || saveMentorMutation.isLoading}
-                   className="mt-6 flex h-11 w-full items-center justify-center gap-2 rounded-full bg-white border border-slate-200 text-sm font-black text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:text-gray-400"
-                 >
-                   <Heart className={`h-4 w-4 ${isSaved ? 'fill-rose-500 text-rose-500' : ''}`} />
-                   {savedLoading || saveMentorMutation.isLoading ? t('mentor.public.updating') : isSaved ? t('mentor.public.savedMentor') : t('mentor.public.saveMentor')}
-                 </button>
-               )}
              </aside>
           </div>
         </div>
@@ -697,166 +738,152 @@ function IntroPanel({
   const professionalSummary = mentor.professionalBio || mentor.helpDescription || t('mentor.public.fallbackBio', { name })
   const quickFacts = [
     {
-      icon: <Globe className="h-4 w-4 text-blue-600" />,
-      value: mentor.primaryDomain || t('common.notSpecifiedYet'),
+      icon: <Globe className="h-4 w-4" />,
+      label: mentor.primaryDomain || t('common.notSpecifiedYet'),
     },
     {
-      icon: <Clock className="h-4 w-4 text-blue-600" />,
-      value: mentor.hourlyRateMxc ? t('mentor.public.ratePerHour', { amount: formatMxc(mentor.hourlyRateMxc, language) }) : t('common.contact'),
+      icon: <Clock className="h-4 w-4" />,
+      label: mentor.hourlyRateMxc ? t('mentor.public.ratePerHour', { amount: formatMxc(mentor.hourlyRateMxc, language) }) : t('common.contact'),
     },
     {
-      icon: <Calendar className="h-4 w-4 text-blue-600" />,
-      value: mentor.yearsOfExperience ? t('mentor.public.yearsCount', { count: mentor.yearsOfExperience }) : t('common.notSpecifiedYet'),
+      icon: <Calendar className="h-4 w-4" />,
+      label: mentor.yearsOfExperience ? t('mentor.public.yearsCount', { count: mentor.yearsOfExperience }) : t('common.notSpecifiedYet'),
     },
-  ].filter((item) => Boolean(item.value))
+  ].filter((item) => Boolean(item.label))
 
-  const introTitle = language === 'vi' ? 'Gioi thieu ban than' : 'About this mentor'
-  const achievementTitle = language === 'vi' ? 'Thanh tich noi bat' : 'Top achievements'
-  const experienceTitle = language === 'vi' ? 'Da tung lam viec tai:' : 'Worked with:'
+  const introTitle = language === 'vi' ? 'Giới thiệu bản thân' : 'About this mentor'
+  const achievementTitle = language === 'vi' ? 'Thành tích nổi bật' : 'Top achievements'
+  const experienceTitle = language === 'vi' ? 'Đã từng làm việc tại:' : 'Worked with:'
 
   return (
-    <section className="rounded-[30px] border border-slate-200 bg-white p-6 shadow-[0_22px_65px_-40px_rgba(15,23,42,0.45)] lg:p-8">
-      <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_280px]">
-        <div>
-          <h2 className="flex items-center gap-2 text-xl font-black text-gray-950">
-            <Users className="h-5 w-5 text-blue-600" />
-            {introTitle}
-          </h2>
-          <p className="mt-4 text-sm leading-7 text-gray-600">{professionalSummary}</p>
-
-          {quickFacts.length > 0 && (
-            <div className="mt-5 flex flex-wrap gap-2">
-              {quickFacts.map((metric) => (
-                <div key={metric.value} className="inline-flex items-center gap-2 rounded-full border border-blue-100 bg-blue-50/70 px-3 py-2 text-xs font-bold text-blue-800">
-                  {metric.icon}
-                  <span>{metric.value}</span>
-                </div>
-              ))}
-            </div>
-          )}
-
-          <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_280px]">
-            <IntroVideoCard visual={introVisual} videoUrl={mentor.videoIntroUrl} />
-
-            <div className="rounded-[24px] bg-slate-50 p-5">
-              <h3 className="mb-4 flex items-center gap-2 text-sm font-black text-slate-950">
-                <Trophy className="h-4 w-4 text-blue-600" />
-                {achievementTitle}
-              </h3>
-
-              <div className="space-y-3">
-                {proofLinks.slice(0, 2).map((link) => (
-                  <a
-                    key={`${link.label}-${link.url}`}
-                    href={link.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex items-center gap-2 text-sm font-medium text-blue-700 hover:text-blue-800"
-                  >
-                    <ExternalLink className="h-4 w-4 flex-none" />
-                    <span>{link.label}</span>
-                  </a>
-                ))}
-
-                {achievements.length > 0 ? (
-                  achievements.slice(0, 4).map((achievement) => (
-                    <div key={achievement.id} className="flex gap-2 text-sm font-medium text-slate-600">
-                      <Award className="mt-0.5 h-4 w-4 flex-none text-amber-500" />
-                      <span>{achievement.title}</span>
-                    </div>
-                  ))
-                ) : (
-                  <div className="flex gap-2 text-sm font-medium text-slate-600">
-                    <Award className="mt-0.5 h-4 w-4 flex-none text-amber-500" />
-                    <span>{t('mentor.public.noPublicAchievementsYet')}</span>
-                  </div>
-                )}
-              </div>
-            </div>
+    <section className="space-y-8">
+      {/* Bio + Quick Facts */}
+      <div>
+        <h2 className="flex items-center gap-2.5 text-xl font-black text-gray-950">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-100 text-indigo-600">
+            <Users className="h-4.5 w-4.5" />
           </div>
+          {introTitle}
+        </h2>
+        <p className="mt-4 text-[15px] leading-7 text-gray-600">{professionalSummary}</p>
 
-          <div className="mt-6">
-            <p className="mb-3 text-sm font-black text-gray-950">{experienceTitle}</p>
-            {companies.length > 0 ? (
-              <div className="flex flex-wrap gap-3">
-                {companies.map((company) => (
-                  <CompanyBadge key={company} company={company} />
-                ))}
+        {quickFacts.length > 0 && (
+          <div className="mt-6 grid grid-cols-3 gap-3">
+            {quickFacts.map((metric, i) => (
+              <div key={i} className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50/80 px-4 py-3">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-indigo-100 text-indigo-600">
+                  {metric.icon}
+                </div>
+                <span className="text-sm font-bold text-slate-800">{metric.label}</span>
               </div>
-            ) : experiences.length > 0 ? (
-              <div className="flex flex-wrap gap-4">
-                {experiences.slice(0, 4).map((experience) => (
-                  <ExperienceBadge key={experience.id} asset={experience} />
-                ))}
-              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Video + Achievements side by side - now with more room */}
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(280px,1fr)]">
+        <IntroVideoCard visual={introVisual} videoUrl={mentor.videoIntroUrl} />
+
+        <div className="rounded-[24px] border border-slate-200 bg-gradient-to-b from-white to-slate-50/80 p-5 shadow-sm">
+          <h3 className="mb-5 flex items-center gap-2 text-base font-black text-slate-950">
+            <Trophy className="h-5 w-5 text-amber-500" />
+            {achievementTitle}
+          </h3>
+
+          <div className="space-y-3.5">
+            {proofLinks.slice(0, 2).map((link) => (
+              <a
+                key={`${link.label}-${link.url}`}
+                href={link.url}
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-start gap-2.5 rounded-xl bg-blue-50/60 px-3 py-2.5 text-sm font-medium text-blue-700 transition hover:bg-blue-50"
+              >
+                <ExternalLink className="mt-0.5 h-4 w-4 flex-none" />
+                <span className="line-clamp-2">{link.label}</span>
+              </a>
+            ))}
+
+            {achievements.length > 0 ? (
+              achievements.slice(0, 4).map((achievement) => (
+                <div key={achievement.id} className="flex items-start gap-2.5 text-sm font-medium text-slate-600">
+                  <Award className="mt-0.5 h-4 w-4 flex-none text-amber-500" />
+                  <span className="line-clamp-2">{achievement.title}</span>
+                </div>
+              ))
             ) : (
-              <span className="text-sm font-medium text-gray-500">{t('mentor.public.noPublicExperienceYet')}</span>
+              <div className="flex items-start gap-2.5 text-sm font-medium text-slate-400">
+                <Award className="mt-0.5 h-4 w-4 flex-none" />
+                <span>{t('mentor.public.noPublicAchievementsYet')}</span>
+              </div>
             )}
           </div>
-
-          <div className="mt-6">
-            <p className="mb-3 text-sm font-black text-gray-950">{t('mentor.public.skills')}</p>
-            <div className="flex flex-wrap gap-2">
-              {(mentor.skills || []).length > 0 ? (
-                mentor.skills!.map((skill) => (
-                  <span key={skill} className="inline-flex rounded-full border border-blue-100 bg-blue-50 px-3 py-1.5 text-xs font-bold text-blue-700">
-                    {skill}
-                  </span>
-                ))
-              ) : (
-                <span className="text-sm font-medium text-gray-500">{t('mentor.public.noSkillsListedYet')}</span>
-              )}
-            </div>
-          </div>
         </div>
+      </div>
 
-        <div className="space-y-3">
-          {mentor.currentTitle && (
-            <ProfileDetailCard
-              icon={<Briefcase className="h-4 w-4 text-blue-600" />}
-              label={language === 'vi' ? 'Vi tri hien tai' : 'Current role'}
-              value={mentor.currentCompany ? `${mentor.currentTitle} @ ${mentor.currentCompany}` : mentor.currentTitle}
-            />
-          )}
-          {mentor.location && (
-            <ProfileDetailCard
-              icon={<Globe className="h-4 w-4 text-blue-600" />}
-              label={language === 'vi' ? 'Dia diem / mui gio' : 'Location / timezone'}
-              value={mentor.location}
-            />
-          )}
-          {mentor.languages?.length ? (
-            <ProfileDetailCard
-              icon={<Users className="h-4 w-4 text-blue-600" />}
-              label={language === 'vi' ? 'Ngon ngu' : 'Languages'}
-              value={mentor.languages.join(', ')}
-            />
-          ) : null}
-          {mentor.portfolioUrl && (
-            <ProfileDetailCard
-              icon={<ExternalLink className="h-4 w-4 text-blue-600" />}
-              label={t('mentor.public.portfolio')}
-              value={t('mentor.public.openPortfolio')}
-              href={mentor.portfolioUrl}
-            />
-          )}
-          {assets.length > 0 && (
-            <div className="rounded-[24px] border border-slate-200 bg-white p-4">
-              <p className="mb-3 text-[11px] font-black uppercase tracking-[0.16em] text-slate-500">
-                {language === 'vi' ? 'Noi dung cong khai' : 'Public assets'}
-              </p>
-              <div className="space-y-2">
-                {assets.slice(0, 4).map((asset) => (
-                  <div key={asset.id} className="rounded-2xl bg-slate-50 px-3 py-3 text-sm font-medium text-slate-700">
-                    {asset.title}
-                  </div>
-                ))}
-              </div>
-            </div>
+      {/* Experience */}
+      <div>
+        <p className="mb-3 flex items-center gap-2 text-sm font-black text-gray-950">
+          <Briefcase className="h-4 w-4 text-slate-500" />
+          {experienceTitle}
+        </p>
+        {companies.length > 0 ? (
+          <div className="flex flex-wrap gap-3">
+            {companies.map((company) => (
+              <CompanyBadge key={company} company={company} />
+            ))}
+          </div>
+        ) : experiences.length > 0 ? (
+          <div className="flex flex-wrap gap-4">
+            {experiences.slice(0, 4).map((experience) => (
+              <ExperienceBadge key={experience.id} asset={experience} />
+            ))}
+          </div>
+        ) : (
+          <span className="text-sm font-medium text-gray-500">{t('mentor.public.noPublicExperienceYet')}</span>
+        )}
+      </div>
+
+      {/* Skills */}
+      <div>
+        <p className="mb-3 flex items-center gap-2 text-sm font-black text-gray-950">
+          <BookOpen className="h-4 w-4 text-slate-500" />
+          {t('mentor.public.skills')}
+        </p>
+        <div className="flex flex-wrap gap-2.5">
+          {(mentor.skills || []).length > 0 ? (
+            mentor.skills!.map((skill) => (
+              <span key={skill} className="inline-flex rounded-full border border-indigo-100 bg-indigo-50 px-3.5 py-1.5 text-xs font-bold text-indigo-700 shadow-sm transition hover:bg-indigo-100">
+                {skill}
+              </span>
+            ))
+          ) : (
+            <span className="text-sm font-medium text-gray-500">{t('mentor.public.noSkillsListedYet')}</span>
           )}
         </div>
       </div>
     </section>
+  )
+}
+
+function ProfileInfoItem({ icon, label, value, href }: { icon: React.ReactNode; label: string; value: string; href?: string }) {
+  return (
+    <div className="flex items-start gap-3">
+      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-50">
+        {icon}
+      </div>
+      <div>
+        <p className="text-[11px] font-black uppercase tracking-[0.1em] text-slate-500">{label}</p>
+        {href ? (
+          <a href={href} target="_blank" rel="noreferrer" className="mt-0.5 block text-sm font-black text-blue-600 hover:text-blue-800 hover:underline">
+            {value}
+          </a>
+        ) : (
+          <p className="mt-0.5 text-sm font-bold text-slate-900">{value}</p>
+        )}
+      </div>
+    </div>
   )
 }
 
@@ -865,55 +892,101 @@ function MentoringPackageCard({
   onBook,
   pending,
   language,
+  featured = false,
 }: {
   item: MentorPackageResponse
   onBook: () => void
   pending: boolean
   language: 'en' | 'vi'
+  featured?: boolean
 }) {
   const { t } = useI18n()
-  const durationLabel = `${item.durationHours * 60} min`
-  const features = (item.features || []).slice(0, 3)
+  const totalMinutes = item.durationHours * 60
+  const durationLabel = totalMinutes >= 60
+    ? `${Math.floor(totalMinutes / 60)}h${totalMinutes % 60 > 0 ? ` ${totalMinutes % 60}m` : ''}`
+    : `${totalMinutes} phút`
+  const features = (item.features || []).slice(0, 4)
+
+  const packageTypeLabel: Record<string, { vi: string; en: string; color: string }> = {
+    SINGLE_SESSION: { vi: 'Buổi đơn', en: 'Single session', color: 'bg-sky-100 text-sky-700' },
+    PACKAGE_DEAL: { vi: 'Gói nhiều buổi', en: 'Multi-session', color: 'bg-violet-100 text-violet-700' },
+    SUBSCRIPTION: { vi: 'Định kỳ', en: 'Recurring', color: 'bg-emerald-100 text-emerald-700' },
+  }
+  const typeInfo = packageTypeLabel[item.packageType] || packageTypeLabel.SINGLE_SESSION
 
   return (
-    <article className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 transition-all duration-300 hover:-translate-y-1 hover:border-slate-900 hover:shadow-xl">
-      <div className="flex items-start justify-between gap-4">
-        <h3 className="text-[18px] font-bold tracking-tight text-slate-900 line-clamp-2">
+    <article className={`group relative flex h-full flex-col rounded-2xl border bg-white transition-all duration-200 hover:shadow-lg ${
+      featured ? 'border-indigo-200 ring-1 ring-indigo-100' : 'border-slate-200 hover:border-slate-300'
+    }`}>
+      {/* Header */}
+      <div className="p-5 pb-0">
+        <div className="flex items-center gap-2 mb-3">
+          <span className={`inline-flex rounded-md px-2 py-0.5 text-[11px] font-semibold ${typeInfo.color}`}>
+            {language === 'vi' ? typeInfo.vi : typeInfo.en}
+          </span>
+          <span className="inline-flex items-center gap-1 text-[12px] font-medium text-slate-500">
+            <Clock3 className="h-3 w-3" />
+            {durationLabel}
+          </span>
+          {featured && (
+            <span className="ml-auto inline-flex items-center gap-1 rounded-md bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-700">
+              <Star className="h-3 w-3 fill-amber-500 text-amber-500" />
+              {language === 'vi' ? 'Phổ biến' : 'Popular'}
+            </span>
+          )}
+        </div>
+
+        <h3 className="text-[17px] font-bold text-slate-900 leading-snug line-clamp-2">
           {item.title}
         </h3>
-        <span className="shrink-0 inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[12px] font-medium text-slate-600">
-          <Clock3 className="h-3.5 w-3.5 text-slate-400" />
-          {durationLabel}
-        </span>
+        <p className="mt-2 text-[13px] leading-relaxed text-slate-500 line-clamp-2">
+          {item.description}
+        </p>
       </div>
 
-      <p className="mt-3 text-[14px] leading-relaxed text-slate-500 line-clamp-2">
-        {item.description}
-      </p>
-      
+      {/* Features */}
       {features.length > 0 && (
-        <ul className="mt-5 flex-1 space-y-3">
-          {features.map((feature, index) => (
-            <li key={`${item.id}-${index}`} className="flex items-start gap-3 text-[13px] text-slate-600">
-              <Check className="mt-[2px] h-4 w-4 shrink-0 text-slate-900" strokeWidth={2.5} />
-              <span className="leading-snug">{feature}</span>
-            </li>
-          ))}
-        </ul>
-      )}
-      
-      <div className="mt-6 flex items-center justify-between border-t border-slate-100 pt-5">
-        <div className="flex items-baseline gap-1">
-          <span className="text-[24px] font-bold tracking-tight text-slate-900">{formatMxc(item.priceMxc, language)}</span>
+        <div className="px-5 pt-4 flex-1">
+          <ul className="space-y-2">
+            {features.map((feature, index) => (
+              <li key={`${item.id}-${index}`} className="flex items-start gap-2 text-[13px] text-slate-600">
+                <div className="mt-[3px] flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-emerald-100">
+                  <Check className="h-2.5 w-2.5 text-emerald-600" strokeWidth={3} />
+                </div>
+                <span className="leading-snug">{feature}</span>
+              </li>
+            ))}
+          </ul>
         </div>
-        <button
-          type="button"
-          onClick={onBook}
-          disabled={pending}
-          className="flex h-10 items-center justify-center gap-2 rounded-lg bg-slate-900 px-5 text-[14px] font-medium text-white transition-all hover:bg-black active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : t('mentor.public.package.book')}
-        </button>
+      )}
+
+      {/* Price + CTA */}
+      <div className="p-5 pt-4 mt-auto">
+        <div className="flex items-end justify-between gap-3 rounded-xl bg-slate-50 px-4 py-3">
+          <div>
+            <p className="text-[11px] font-medium text-slate-400 uppercase tracking-wide">
+              {language === 'vi' ? 'Giá' : 'Price'}
+            </p>
+            <p className="text-xl font-bold text-slate-900 tracking-tight">
+              {formatMxc(item.priceMxc, language)}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onBook}
+            disabled={pending}
+            className="flex h-9 items-center justify-center gap-1.5 rounded-lg bg-indigo-600 px-4 text-[13px] font-semibold text-white shadow-sm shadow-indigo-600/20 transition-all hover:bg-indigo-700 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {pending ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <>
+                <Calendar className="h-3.5 w-3.5" />
+                {t('mentor.public.package.book')}
+              </>
+            )}
+          </button>
+        </div>
       </div>
     </article>
   )
@@ -1114,17 +1187,17 @@ function IntroVideoCard({ visual, videoUrl }: { visual: IntroVisual; videoUrl?: 
 function ExperienceBadge({ asset }: { asset: MentorProfileAssetResponse }) {
   const imageUrl = getAssetImage(asset)
   return (
-    <div className="inline-flex items-center gap-3 rounded-2xl border border-gray-200 bg-white px-4 py-3">
+    <div className="inline-flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-[0_8px_20px_-12px_rgba(15,23,42,0.08)] transition hover:-translate-y-0.5 hover:shadow-[0_12px_24px_-12px_rgba(15,23,42,0.15)]">
       {imageUrl ? (
         <img src={imageUrl} alt={asset.title} className="h-10 w-10 rounded-xl object-cover" />
       ) : (
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
           <Briefcase className="h-5 w-5" />
         </div>
       )}
       <div>
-        <p className="text-sm font-black text-gray-950">{asset.title}</p>
-        {asset.issuer && <p className="text-xs font-medium text-gray-500">{asset.issuer}</p>}
+        <p className="text-sm font-black text-gray-950 line-clamp-1">{asset.title}</p>
+        {asset.issuer && <p className="text-xs font-medium text-gray-500 line-clamp-1">{asset.issuer}</p>}
       </div>
     </div>
   )
@@ -1132,7 +1205,7 @@ function ExperienceBadge({ asset }: { asset: MentorProfileAssetResponse }) {
 
 function CompanyBadge({ company }: { company: string }) {
   return (
-    <div className="inline-flex items-center rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-black text-slate-700 shadow-[0_16px_36px_-32px_rgba(15,23,42,0.45)]">
+    <div className="inline-flex items-center rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-black text-slate-800 shadow-[0_8px_20px_-12px_rgba(15,23,42,0.08)] transition hover:-translate-y-0.5 hover:shadow-[0_12px_24px_-12px_rgba(15,23,42,0.15)]">
       {company}
     </div>
   )
@@ -1157,32 +1230,9 @@ function ResourceCard({ title, description, href }: { title: string; description
   )
 }
 
-function ProfileDetailCard({
-  icon,
-  label,
-  value,
-  href,
-}: {
-  icon: React.ReactNode
-  label: string
-  value: string
-  href?: string
-}) {
-  return (
-    <div className="rounded-[24px] border border-slate-200 bg-slate-50/80 p-4">
-      <div className="flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.16em] text-gray-500">
-        {icon}
-        {label}
-      </div>
-      {href ? (
-        <a href={href} target="_blank" rel="noreferrer" className="mt-1 inline-flex text-sm font-black text-blue-700 hover:text-blue-800">
-          {value}
-        </a>
-      ) : (
-        <p className="mt-1 text-sm font-black text-gray-950">{value}</p>
-      )}
-    </div>
-  )
+function ProfileDetailCard() {
+  // Empty definition to avoid TS errors if imported elsewhere, but it should be unused now
+  return null;
 }
 
 function SectionHeader({ title, action }: { title: string; action?: React.ReactNode }) {

@@ -103,7 +103,7 @@ export default function MentorEarningsPage() {
       actions={
         <Link
           to={canWithdraw ? '/wallet' : '/mentor/settings'}
-          className={`inline-flex h-11 items-center gap-2 rounded-2xl px-4 text-sm font-black transition ${canWithdraw ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200 hover:bg-indigo-700' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}
+          className={`inline-flex h-11 items-center gap-2 rounded-2xl px-4 text-sm font-bold transition ${canWithdraw ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200 hover:bg-indigo-700' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}
         >
           <CreditCard className="h-4 w-4" />
           {canWithdraw ? 'Request withdrawal' : 'Set up payout'}
@@ -129,7 +129,7 @@ export default function MentorEarningsPage() {
               key={key}
               type="button"
               onClick={() => setActiveTab(key as TabKey)}
-              className={`h-10 whitespace-nowrap rounded-xl px-4 text-sm font-black transition ${activeTab === key ? 'bg-white text-indigo-700 shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}
+              className={`h-10 whitespace-nowrap rounded-xl px-4 text-sm font-bold transition ${activeTab === key ? 'bg-white text-indigo-700 shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}
             >
               {label}
             </button>
@@ -149,14 +149,14 @@ export default function MentorEarningsPage() {
       {loading ? (
         <LoadingRows rows={4} />
       ) : error ? (
-        <StateCard tone="error" title="Unable to load earnings" message={error} action={<button onClick={loadEarnings} className="rounded-2xl bg-indigo-600 px-4 py-2 text-sm font-black text-white">Retry</button>} />
+        <StateCard tone="error" title="Unable to load earnings" message={error} action={<button onClick={loadEarnings} className="rounded-2xl bg-indigo-600 px-4 py-2 text-sm font-bold text-white">Retry</button>} />
       ) : activeTab === 'overview' ? (
         <div className="space-y-5">
           {/* Analytics Earnings Summary */}
           {earningsSummary ? (
-            <section className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm">
+            <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <h2 className="text-lg font-black text-slate-950">Earnings Overview</h2>
+                <h2 className="text-lg font-bold text-slate-950">Earnings Overview</h2>
                 <div className="flex gap-1 rounded-xl bg-slate-100 p-1">
                   {PERIOD_OPTIONS.map((opt) => (
                     <button
@@ -193,17 +193,17 @@ export default function MentorEarningsPage() {
           ) : null}
 
           <div className="grid gap-5 xl:grid-cols-[1fr_380px]">
-          <section className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm">
+          <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
             <div className="flex items-center justify-between gap-3">
-              <h2 className="text-lg font-black text-slate-950">Recent transactions</h2>
-              <button type="button" onClick={() => setActiveTab('transactions')} className="text-sm font-black text-indigo-600">View all</button>
+              <h2 className="text-lg font-bold text-slate-950">Recent transactions</h2>
+              <button type="button" onClick={() => setActiveTab('transactions')} className="text-sm font-bold text-indigo-600">View all</button>
             </div>
             <TransactionList transactions={transactions.slice(0, 6)} />
           </section>
 
           <aside className="space-y-5">
-            <section className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm">
-              <h2 className="text-lg font-black text-slate-950">Withdrawal readiness</h2>
+            <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+              <h2 className="text-lg font-bold text-slate-950">Withdrawal readiness</h2>
               <div className="mt-4 space-y-3">
                 <ReadinessItem label="Mentor approved" passed={user?.mentorStatus === 'APPROVED'} />
                 <ReadinessItem label="Payout account approved" passed={payoutStatus === 'APPROVED'} />
@@ -217,8 +217,8 @@ export default function MentorEarningsPage() {
               ) : null}
             </section>
 
-            <section className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm">
-              <h2 className="text-lg font-black text-slate-950">Payout account</h2>
+            <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+              <h2 className="text-lg font-bold text-slate-950">Payout account</h2>
               {defaultPayout ? (
                 <div className="mt-4 space-y-2 text-sm font-semibold text-slate-600">
                   <p>{defaultPayout.accountHolderName}</p>
@@ -237,7 +237,7 @@ export default function MentorEarningsPage() {
         filteredTransactions.length === 0 ? (
           <StateCard title="No transactions yet" message="Released earnings, escrow movements, withdrawals, and refunds will appear here when they exist." />
         ) : (
-          <section className="rounded-[28px] border border-slate-200 bg-white shadow-sm">
+          <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
             <TransactionList transactions={filteredTransactions} />
           </section>
         )
@@ -247,10 +247,10 @@ export default function MentorEarningsPage() {
         ) : (
           <div className="grid gap-4 xl:grid-cols-2">
             {contracts.map((contract) => (
-              <article key={contract.id} className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm">
+              <article key={contract.id} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <h2 className="text-lg font-black text-slate-950">{contract.jobTitle || contract.title}</h2>
+                    <h2 className="text-lg font-bold text-slate-950">{contract.jobTitle || contract.title}</h2>
                     <p className="mt-1 text-sm font-semibold text-slate-500">Client: {contract.clientName}</p>
                   </div>
                   <StatusPill label={formatContractStatus(contract.status)} tone={contract.status === ContractStatus.COMPLETED ? 'emerald' : contract.status === ContractStatus.IN_DISPUTE ? 'rose' : contract.status === ContractStatus.CANCELLED ? 'slate' : 'indigo'} />
@@ -261,7 +261,7 @@ export default function MentorEarningsPage() {
                   <MiniAmount label="Total" value={contract.totalAmount} />
                   <MiniAmount label="Started" value={contract.createdAt} isDate />
                 </div>
-                <Link to="/mentor/contracts" className="mt-5 inline-flex rounded-2xl border border-slate-200 px-4 py-2 text-xs font-black text-slate-700 transition hover:bg-slate-50">
+                <Link to="/mentor/contracts" className="mt-5 inline-flex rounded-2xl border border-slate-200 px-4 py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-50">
                   View contract
                 </Link>
               </article>
@@ -289,16 +289,16 @@ function TransactionList({ transactions }: { transactions: WalletTransactionResp
               <ReceiptText className="h-4 w-4" />
             </div>
             <div>
-              <p className="text-sm font-black text-slate-950">{formatTxnType(txn.txnType)}</p>
+              <p className="text-sm font-bold text-slate-950">{formatTxnType(txn.txnType)}</p>
               <p className="mt-1 text-xs font-semibold text-slate-500">{txn.note || txn.referenceType || 'Wallet transaction'}</p>
               <p className="mt-1 text-xs font-semibold text-slate-400">{formatDateTime(txn.createdAt)}</p>
             </div>
           </div>
           <div className="text-left sm:text-right">
-            <p className={`text-sm font-black ${txn.direction === 'CREDIT' ? 'text-emerald-600' : 'text-slate-900'}`}>
+            <p className={`text-sm font-bold ${txn.direction === 'CREDIT' ? 'text-emerald-600' : 'text-slate-900'}`}>
               {txn.direction === 'CREDIT' ? '+' : '-'}{formatCurrency(txn.amountMxc)}
             </p>
-            <p className="mt-1 text-xs font-black uppercase tracking-[0.12em] text-slate-400">{txn.txnStatus}</p>
+            <p className="mt-1 text-xs font-semibold uppercase tracking-wider text-slate-400">{txn.txnStatus}</p>
           </div>
         </div>
       ))}
@@ -318,8 +318,8 @@ function ReadinessItem({ label, passed }: { label: string; passed: boolean }) {
 function MiniAmount({ label, value, isDate = false }: { label: string; value?: number | string; isDate?: boolean }) {
   return (
     <div className="rounded-2xl bg-slate-50 p-4">
-      <p className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400">{label}</p>
-      <p className="mt-1 text-sm font-black text-slate-900">{isDate && value ? formatDateTime(String(value)) : formatCurrency(value || 0)}</p>
+      <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">{label}</p>
+      <p className="mt-1 text-sm font-bold text-slate-900">{isDate && value ? formatDateTime(String(value)) : formatCurrency(value || 0)}</p>
     </div>
   )
 }

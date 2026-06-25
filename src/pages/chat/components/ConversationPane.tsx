@@ -74,7 +74,7 @@ export default function ConversationPane({
   onShowDetails,
   onBackToList,
   showBackButton,
-  heightClassName = 'h-[calc(100dvh-73px)]',
+  heightClassName = 'h-dvh',
   contextStatusLabel,
   contextStatusToneClassName = 'border-slate-200 bg-slate-100 text-slate-600',
   contextActionLabel,
@@ -245,9 +245,10 @@ export default function ConversationPane({
 
                   <div className={`flex gap-3 ${mine ? 'justify-end' : 'justify-start'}`}>
                     {!mine && (
-                      <div className="mt-auto hidden h-9 w-9 shrink-0 overflow-hidden rounded-full sm:block">
+                      <div className="hidden h-9 w-9 shrink-0 overflow-hidden rounded-full sm:block">
                         {message.senderAvatarUrl ? (
                           <img src={message.senderAvatarUrl} alt={message.senderName} className="h-full w-full object-cover" />
+
                         ) : (
                           <div className="flex h-full w-full items-center justify-center bg-slate-200 text-[11px] font-semibold text-[#52608b]">
                             {message.senderName

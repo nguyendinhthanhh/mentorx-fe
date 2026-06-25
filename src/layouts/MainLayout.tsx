@@ -1,4 +1,4 @@
-import { Outlet, useLocation, Link } from 'react-router-dom'
+import { Outlet, Link } from 'react-router-dom'
 import { useI18n } from '@/i18n/I18nProvider'
 import AppHeader from '@/components/AppHeader'
 import { AiAssistantWidget } from '@/components/ui/AiAssistantWidget'
@@ -60,8 +60,6 @@ function SiteFooter() {
 
 export default function MainLayout() {
   const { t } = useI18n()
-  const location = useLocation()
-  const hideFooter = location.pathname.startsWith('/chat')
 
   return (
     <div className="flex min-h-screen flex-col bg-[#f8fafc]">
@@ -69,7 +67,7 @@ export default function MainLayout() {
       <main className="flex-1">
         <Outlet />
       </main>
-      {!hideFooter && <SiteFooter />}
+      <SiteFooter />
       <AiAssistantWidget />
     </div>
   )

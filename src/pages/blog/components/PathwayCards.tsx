@@ -8,7 +8,7 @@ function PathIcon({ icon }: { icon: Pathway['icon'] }) {
   return <BookOpen className="h-5 w-5" />
 }
 
-export function PathwayCards({ pathways }: { pathways: Pathway[] }) {
+export function PathwayCards({ pathways, onSelect }: { pathways: Pathway[], onSelect?: (query: string) => void }) {
   return (
     <section>
       <div className="mb-4">
@@ -20,7 +20,8 @@ export function PathwayCards({ pathways }: { pathways: Pathway[] }) {
         {pathways.map((path) => (
           <article
             key={path.id}
-            className="group rounded-[24px] border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-md"
+            onClick={() => onSelect && onSelect(path.title)}
+            className="group relative flex flex-col justify-between overflow-hidden rounded-[24px] border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md dark:border-slate-800 dark:bg-slate-900"
           >
             <div className="flex items-start gap-3">
               <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-blue-600 text-white shadow-sm">
