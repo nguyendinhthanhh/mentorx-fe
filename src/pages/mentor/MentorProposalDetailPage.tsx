@@ -359,19 +359,19 @@ export default function MentorProposalDetailPage() {
           </div>
         )}
 
-        <section className="flex flex-col gap-4 rounded-[24px] border border-slate-200 bg-white px-4 py-3 shadow-sm sm:flex-row sm:items-center sm:gap-6">
+        <section className="flex flex-col gap-4 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm sm:flex-row sm:items-center sm:gap-6 dark:border-slate-800 dark:bg-slate-900">
           <button
             type="button"
             onClick={() => navigate('/mentor/proposals')}
             aria-label="Back to proposals"
-            className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-[20px] bg-slate-50 text-slate-500 transition hover:bg-slate-100 hover:text-indigo-600"
+            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 transition hover:bg-slate-50 hover:text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-white"
           >
             <ArrowLeft className="h-5 w-5" />
           </button>
 
           <div className="relative min-w-0 flex-1 overflow-x-auto pb-2 sm:pb-0">
             <div className="relative flex min-w-[360px] justify-between pr-4 sm:min-w-0">
-            <div className="absolute left-0 top-4 h-[2px] w-full bg-slate-100" />
+            <div className="absolute left-0 top-4 h-[2px] w-full bg-slate-100 dark:bg-slate-800" />
             <div
               className="absolute left-0 top-4 h-[2px] bg-indigo-600 transition-all duration-500"
               style={{ width: `${(journeyStageIndex / (journeyLabels.length - 1)) * 100}%` }}
@@ -386,11 +386,11 @@ export default function MentorProposalDetailPage() {
 
         <div className="grid gap-6 lg:grid-cols-12">
           <div className="min-w-0 space-y-6 lg:col-span-8">
-            <section className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-sm">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+            <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3 dark:border-slate-800">
                 <div className="flex items-center gap-3">
-                  <h2 className="text-sm font-bold text-slate-900">Negotiation Timeline</h2>
-                  <span className="rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-500">
+                  <h2 className="text-sm font-bold text-slate-900 dark:text-white">Negotiation Timeline</h2>
+                  <span className="rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-500 dark:bg-slate-800 dark:text-slate-400">
                     {threadItems.length} updates
                   </span>
                 </div>
@@ -422,14 +422,13 @@ export default function MentorProposalDetailPage() {
             </section>
             
             {canRespond && showRespondForm ? (
-              <section id="mentor-proposal-response" className="mt-6 rounded-[24px] border border-indigo-200/80 bg-[linear-gradient(180deg,rgba(245,247,255,0.95),rgba(255,255,255,1))] p-5 shadow-sm">
-                <div className="flex flex-col gap-2 border-b border-indigo-100 pb-3 lg:flex-row lg:items-center lg:justify-between">
+              <section id="mentor-proposal-response" className="mt-6 rounded-xl border border-indigo-200 bg-indigo-50/50 p-5 shadow-sm dark:border-indigo-500/30 dark:bg-indigo-500/5">
+                <div className="flex flex-col gap-2 border-b border-indigo-100 pb-3 lg:flex-row lg:items-center lg:justify-between dark:border-indigo-500/20">
                   <div>
                     <div className="flex items-center gap-2">
-                      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-500">Respond</p>
-                      <h2 className="text-base font-black tracking-tight text-slate-950">Shape the next offer</h2>
+                      <h2 className="text-base font-bold tracking-tight text-slate-900 dark:text-white">Shape the next offer</h2>
                     </div>
-                    <p className="mt-0.5 text-[13px] text-slate-500">Update price, deadline, and work details before sending.</p>
+                    <p className="mt-0.5 text-[13px] text-slate-500 dark:text-slate-400">Update price, deadline, and work details before sending.</p>
                   </div>
                   <span className="rounded-full bg-white px-2.5 py-1 text-[10px] font-bold text-slate-600 ring-1 ring-slate-200">
                     Last message {formatShortInboxTime(latestNegotiation?.createdAt)}
@@ -502,7 +501,7 @@ export default function MentorProposalDetailPage() {
                     type="button"
                     disabled={submitting}
                     onClick={() => setShowRespondForm(false)}
-                    className="inline-flex h-10 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-600 transition hover:bg-slate-50 disabled:opacity-60"
+                    className="inline-flex h-10 items-center justify-center rounded-lg border border-slate-200 bg-white px-4 text-sm font-medium text-slate-600 transition hover:bg-slate-50 disabled:opacity-60 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
                   >
                     Cancel
                   </button>
@@ -511,17 +510,16 @@ export default function MentorProposalDetailPage() {
             ) : canRespond && !showRespondForm ? (
               <div className="mt-6"></div>
             ) : !isFinalized ? (
-              <section className="mt-6 rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm">
+              <section className="mt-6 rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                   <div>
-                    <p className="text-[11px] font-black uppercase tracking-[0.22em] text-slate-400">Status</p>
-                    <h2 className="mt-2 text-lg font-black tracking-tight text-slate-950">Your latest offer is with the client</h2>
-                    <p className="mt-1 text-sm text-slate-500">No edits here, until the client replies or accepts. This keeps the negotiation history consistent.</p>
+                    <h2 className="text-base font-bold tracking-tight text-slate-900 dark:text-white">Your latest offer is with the client</h2>
+                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">No edits here, until the client replies or accepts. This keeps the negotiation history consistent.</p>
                   </div>
                   <button
                     type="button"
                     onClick={() => setIsChatDrawerOpen(true)}
-                    className="inline-flex h-11 items-center justify-center rounded-2xl border border-indigo-200 bg-indigo-50 px-4 text-sm font-bold text-indigo-700 transition hover:bg-indigo-100"
+                    className="inline-flex h-10 items-center justify-center rounded-lg border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
                   >
                     Open discussion
                   </button>
@@ -531,23 +529,23 @@ export default function MentorProposalDetailPage() {
           </div>
           <aside className="space-y-4 lg:col-span-4">
             <section className="sticky top-[104px] space-y-4">
-              <div className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm">
+              <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
                 <div className="flex items-center gap-3">
                   <StatusBadge label={agreementStatus} tone={getStatusTone(currentStatus, isClientOffer)} />
-                  <span className="text-sm font-bold text-slate-500">#{proposal.id.slice(0, 8)}</span>
+                  <span className="text-sm font-medium text-slate-500 dark:text-slate-400">#{proposal.id.slice(0, 8)}</span>
                 </div>
-                <h1 className="mt-3 text-xl font-black tracking-tight text-slate-950 sm:text-2xl">{job.title}</h1>
-                <div className="mt-4 flex flex-col gap-2 text-sm text-slate-500">
+                <h1 className="mt-3 text-lg font-bold tracking-tight text-slate-900 sm:text-xl dark:text-white">{job.title}</h1>
+                <div className="mt-4 flex flex-col gap-2 text-sm text-slate-500 dark:text-slate-400">
                   <span className="inline-flex items-center gap-2">
                     <Avatar avatarUrl={clientAvatar} initials={clientInitials} size="sm" />
-                    <span className="font-bold text-slate-700">{clientName}</span>
+                    <span className="font-medium text-slate-700 dark:text-slate-300">{clientName}</span>
                   </span>
                   <span className="inline-flex items-center gap-1.5">
                     Started {formatDate(proposal.createdAt)}
                     {proposal.viewCount !== undefined ? (
                       <>
-                        <span className="h-1 w-1 rounded-full bg-slate-300" />
-                        <span className="inline-flex items-center gap-1 font-medium">
+                        <span className="h-1 w-1 rounded-full bg-slate-300 dark:bg-slate-600" />
+                        <span className="inline-flex items-center gap-1 font-medium text-slate-700 dark:text-slate-300">
                           <Eye className="h-4 w-4 text-indigo-500" />
                           {proposal.viewCount} views
                         </span>
@@ -555,13 +553,13 @@ export default function MentorProposalDetailPage() {
                     ) : null}
                   </span>
                 </div>
-                <div className="mt-4 flex flex-col gap-3 border-t border-slate-100 pt-4">
+                <div className="mt-4 flex flex-col gap-3 border-t border-slate-100 pt-4 dark:border-slate-800">
                   <div className="flex flex-wrap gap-2">
-                    <span className="inline-flex items-center rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-bold text-slate-600">{categoryName}</span>
+                    <span className="inline-flex items-center rounded-md bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600 dark:bg-slate-800 dark:text-slate-400">{categoryName}</span>
                   </div>
                   <Link
                     to={`/jobs/${job.jobId}`}
-                    className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-xl border border-indigo-200 bg-indigo-50 px-4 text-sm font-bold text-indigo-700 transition hover:border-indigo-300 hover:bg-indigo-100"
+                    className="inline-flex h-9 w-full items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
                   >
                     <ArrowUpRight className="h-4 w-4" />
                     View Original Job
@@ -569,7 +567,7 @@ export default function MentorProposalDetailPage() {
                   <button
                     type="button"
                     onClick={() => setShowAiExplain(true)}
-                    className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-xl border border-indigo-200 bg-indigo-50 px-4 text-sm font-bold text-indigo-700 transition hover:border-indigo-300 hover:bg-indigo-100"
+                    className="inline-flex h-9 w-full items-center justify-center gap-2 rounded-lg border border-indigo-200 bg-indigo-50 px-4 text-sm font-medium text-indigo-700 transition hover:border-indigo-300 hover:bg-indigo-100"
                   >
                     <Sparkles className="h-4 w-4" />
                     Hỏi AI giải thích
@@ -577,12 +575,12 @@ export default function MentorProposalDetailPage() {
                 </div>
               </div>
 
-              <div className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm">
-                <div className="bg-[linear-gradient(160deg,rgba(243,247,255,1),rgba(255,255,255,0.92))] px-5 py-5">
+              <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                <div className="bg-slate-50 px-5 py-5 dark:bg-slate-800/50">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-[11px] font-black uppercase tracking-[0.22em] text-slate-400">Current Proposal</p>
-                      <h2 className="mt-2 text-lg font-black tracking-tight text-slate-950">{currentBudgetLabel}</h2>
+                      <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Current Proposal</p>
+                      <h2 className="mt-1 text-lg font-bold tracking-tight text-slate-900 dark:text-white">{currentBudgetLabel}</h2>
                     </div>
                   </div>
                   <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
@@ -590,18 +588,18 @@ export default function MentorProposalDetailPage() {
                     <RailMetric icon={<Clock3 className="h-4 w-4" />} label="Deadline" value={currentDeadlineLabel} />
                     <RailMetric icon={<CircleDashed className="h-4 w-4" />} label="Time left" value={currentTimeRemainingLabel} />
                   </div>
-                  <div className="mt-3 rounded-[20px] bg-white px-4 py-3 ring-1 ring-slate-200/80">
-                    <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">Message / Offer details</p>
-                    <p className="mt-2 text-sm leading-6 text-slate-700">
+                  <div className="mt-4 rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Message / Offer details</p>
+                    <p className="mt-2 text-sm leading-6 text-slate-700 dark:text-slate-300">
                       {truncateText(currentOfferMessage, 180)}
                     </p>
                   </div>
                   {currentStatus === ProposalStatus.OFFER_ACCEPTED ? (
-                    <p className="mt-3 rounded-2xl bg-emerald-50 px-4 py-3 text-xs font-bold leading-5 text-emerald-700">
+                    <p className="mt-4 rounded-xl bg-emerald-50 px-4 py-3 text-xs font-medium leading-5 text-emerald-700">
                       Offer terms agreed. Waiting for client to accept mentor and lock escrow.
                     </p>
                   ) : currentStatus === ProposalStatus.ACCEPTED ? (
-                    <p className="mt-3 rounded-2xl bg-indigo-50 px-4 py-3 text-xs font-bold leading-5 text-indigo-700">
+                    <p className="mt-4 rounded-xl bg-indigo-50 px-4 py-3 text-xs font-medium leading-5 text-indigo-700">
                       Contract active. Escrow locked.
                     </p>
                   ) : null}
@@ -614,7 +612,7 @@ export default function MentorProposalDetailPage() {
                           type="button"
                           disabled={submitting}
                           onClick={() => setShowAcceptModal(true)}
-                          className="inline-flex h-12 w-full items-center justify-center rounded-2xl bg-indigo-600 text-sm font-bold text-white transition hover:bg-indigo-700 disabled:opacity-60"
+                          className="inline-flex h-10 w-full items-center justify-center rounded-lg bg-indigo-600 text-sm font-medium text-white transition hover:bg-indigo-700 disabled:opacity-60"
                         >
                           Accept offer terms
                         </button>
@@ -622,7 +620,7 @@ export default function MentorProposalDetailPage() {
                           type="button"
                           disabled={submitting}
                           onClick={() => handleOpenCounter('COUNTER')}
-                          className="inline-flex h-12 w-full items-center justify-center rounded-2xl border border-slate-200 bg-white text-sm font-bold text-slate-700 transition hover:border-indigo-200 hover:text-indigo-700 disabled:opacity-60"
+                          className="inline-flex h-10 w-full items-center justify-center rounded-lg border border-slate-200 bg-white text-sm font-medium text-slate-700 transition hover:border-indigo-200 hover:text-indigo-700 disabled:opacity-60 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
                         >
                           Prepare counter offer
                         </button>
@@ -634,7 +632,7 @@ export default function MentorProposalDetailPage() {
                             setRejectReason('')
                             setShowRejectModal(true)
                           }}
-                          className="inline-flex h-12 w-full items-center justify-center rounded-2xl border border-rose-200 bg-white text-sm font-bold text-rose-500 transition hover:bg-rose-50 disabled:opacity-60"
+                          className="inline-flex h-10 w-full items-center justify-center rounded-lg border border-rose-200 bg-white text-sm font-medium text-rose-600 transition hover:bg-rose-50 disabled:opacity-60 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-400 dark:hover:bg-rose-500/20"
                         >
                           Reject proposal
                         </button>
@@ -645,7 +643,7 @@ export default function MentorProposalDetailPage() {
                     <button
                       type="button"
                       onClick={() => setIsChatDrawerOpen(true)}
-                      className="inline-flex h-12 w-full items-center justify-center rounded-2xl border border-indigo-200 bg-indigo-50 text-sm font-bold text-indigo-700 transition hover:bg-indigo-100"
+                      className="inline-flex h-10 w-full items-center justify-center rounded-lg border border-indigo-200 bg-indigo-50 text-sm font-medium text-indigo-700 transition hover:bg-indigo-100"
                     >
                       Open project chat
                     </button>
@@ -865,12 +863,12 @@ function ConversationCard({ item, isLast, onCounter, onAccept }: { item: Convers
   const isClientOffer = !isMentor && item.type === 'offer'
   const bubbleTone =
     item.tone === 'amber'
-      ? 'border-amber-100 bg-[linear-gradient(180deg,rgba(255,251,235,1),rgba(255,255,255,1))]'
+      ? 'border-amber-200 bg-amber-50/50 dark:border-amber-500/20 dark:bg-amber-500/5'
       : item.tone === 'violet'
-        ? 'border-violet-100 bg-[linear-gradient(180deg,rgba(245,243,255,1),rgba(255,255,255,1))]'
+        ? 'border-violet-200 bg-violet-50/50 dark:border-violet-500/20 dark:bg-violet-500/5'
         : item.tone === 'indigo'
-          ? 'border-indigo-100 bg-[linear-gradient(180deg,rgba(238,242,255,1),rgba(255,255,255,1))]'
-          : 'border-slate-200 bg-white'
+          ? 'border-indigo-200 bg-indigo-50/50 dark:border-indigo-500/20 dark:bg-indigo-500/5'
+          : 'border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800'
 
   const accentText =
     item.tone === 'amber' ? 'text-amber-600' : item.tone === 'violet' ? 'text-violet-600' : 'text-indigo-600'
@@ -881,14 +879,13 @@ function ConversationCard({ item, isLast, onCounter, onAccept }: { item: Convers
         <Avatar initials={getInitials(item.senderName)} size="sm" />
       </div>
       <div className="min-w-0 max-w-[92%]">
-        <div className={`relative overflow-hidden rounded-[28px] border px-4 py-4 shadow-sm ${bubbleTone}`}>
-          <div className="absolute inset-x-5 top-0 h-px bg-white/70" />
+        <div className={`relative overflow-hidden rounded-xl border px-4 py-4 shadow-sm ${bubbleTone}`}>
           <div className="flex flex-wrap items-start justify-between gap-3">
-            <p className="text-xs font-medium text-slate-400">{formatDateTime(item.createdAt)}</p>
+            <p className="text-xs font-medium text-slate-500 dark:text-slate-400">{formatDateTime(item.createdAt)}</p>
           </div>
 
           {item.type === 'offer' ? (
-            <div className="mt-4 grid gap-3 rounded-[22px] border border-white/70 bg-white/90 p-3 sm:grid-cols-3">
+            <div className="mt-4 grid gap-3 rounded-lg border border-slate-200/60 bg-white/60 p-3 sm:grid-cols-3 dark:border-slate-700 dark:bg-slate-900/50">
               <OfferFact icon={<Wallet className="h-3.5 w-3.5" />} value={item.amount ? formatCurrency(item.amount) : 'To discuss'} label="Price" />
               <OfferFact icon={<Clock3 className="h-3.5 w-3.5" />} value={formatDeadlineWithSeconds(item.deadlineAt)} label="Deadline" />
               <OfferFact icon={<CircleDashed className="h-3.5 w-3.5" />} value={formatTimeRemaining(item.deadlineAt)} label="Time left" />
@@ -896,18 +893,18 @@ function ConversationCard({ item, isLast, onCounter, onAccept }: { item: Convers
           ) : null}
 
           {item.note ? (
-            <p className={`mt-4 text-sm leading-6 ${item.type === 'offer' ? 'text-slate-600' : 'text-slate-700'}`}>
+            <p className={`mt-4 text-sm leading-6 ${item.type === 'offer' ? 'text-slate-600 dark:text-slate-300' : 'text-slate-700 dark:text-slate-200'}`}>
               {item.note}
             </p>
           ) : null}
 
           {isLast && isClientOffer && onCounter ? (
-            <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-white/60 pt-4">
-              <button type="button" onClick={onAccept} className="inline-flex h-9 items-center gap-1.5 rounded-xl bg-emerald-600 px-3 text-xs font-bold text-white transition hover:bg-emerald-700">
+            <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-slate-200/60 pt-4 dark:border-slate-700">
+              <button type="button" onClick={onAccept} className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-indigo-600 px-3 text-xs font-semibold text-white transition hover:bg-indigo-700">
                 <Check className="h-3.5 w-3.5" />
                 Accept offer terms
               </button>
-              <button type="button" onClick={onCounter} className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-indigo-200 bg-indigo-50 px-3 text-xs font-bold text-indigo-600 transition hover:bg-indigo-100">
+              <button type="button" onClick={onCounter} className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700">
                 <PencilLine className="h-3.5 w-3.5" />
                 Counter Offer
               </button>
@@ -930,15 +927,15 @@ function CompactMetaPill({ label, value }: { label: string; value: string }) {
 
 function StatusBadge({ label, tone }: { label: string; tone: 'indigo' | 'amber' | 'emerald' | 'rose' | 'slate' }) {
   const toneClass = {
-    indigo: 'bg-indigo-50 text-indigo-700 ring-indigo-100',
-    amber: 'bg-amber-50 text-amber-700 ring-amber-100',
-    emerald: 'bg-emerald-50 text-emerald-700 ring-emerald-100',
-    rose: 'bg-rose-50 text-rose-700 ring-rose-100',
-    slate: 'bg-slate-100 text-slate-700 ring-slate-200',
+    indigo: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-400',
+    amber: 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400',
+    emerald: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400',
+    rose: 'bg-rose-100 text-rose-700 dark:bg-rose-500/20 dark:text-rose-400',
+    slate: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300',
   }[tone]
 
   return (
-    <span className={`inline-flex items-center justify-center rounded-full px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.18em] ring-1 ${toneClass}`}>
+    <span className={`inline-flex items-center justify-center rounded-md px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest ${toneClass}`}>
       {label}
     </span>
   )
@@ -958,18 +955,18 @@ function JourneyStep({
 
   return (
     <div className="relative z-10 flex w-20 flex-col items-center sm:w-24">
-      <div className="bg-white px-2">
+      <div className="bg-white px-2 dark:bg-slate-900">
         <div
-          className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-black transition-colors ${
-            isDone || isActive ? 'bg-indigo-600 text-white shadow-md shadow-indigo-200' : 'bg-slate-100 text-slate-400'
+          className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold transition-colors ${
+            isDone || isActive ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500'
           }`}
         >
           {isDone ? <Check className="h-4 w-4 stroke-[3]" /> : index + 1}
         </div>
       </div>
       <p
-        className={`mt-3 text-center text-xs font-bold ${
-          isActive ? 'text-indigo-600' : isDone ? 'text-slate-900' : 'text-slate-400'
+        className={`mt-2 text-center text-[11px] font-semibold ${
+          isActive ? 'text-indigo-600 dark:text-indigo-400' : isDone ? 'text-slate-900 dark:text-white' : 'text-slate-400 dark:text-slate-500'
         }`}
       >
         {label}
@@ -980,20 +977,20 @@ function JourneyStep({
 
 function MiniFact({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-[20px] bg-slate-50 px-4 py-3">
-      <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">{label}</p>
-      <p className="mt-2 text-sm font-black text-slate-900">{value}</p>
+    <div className="rounded-xl bg-slate-50 px-4 py-3 dark:bg-slate-800/50">
+      <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">{label}</p>
+      <p className="mt-1 text-sm font-bold text-slate-900 dark:text-white">{value}</p>
     </div>
   )
 }
 
 function RailMetric({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
-    <div className="flex items-center gap-3 rounded-[20px] bg-white px-4 py-3 ring-1 ring-slate-200/80">
-      <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600">{icon}</div>
+    <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-100 text-slate-500 dark:bg-slate-700 dark:text-slate-300">{icon}</div>
       <div>
-        <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">{label}</p>
-        <p className="mt-1 text-sm font-black text-slate-950">{value}</p>
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">{label}</p>
+        <p className="mt-0.5 text-sm font-bold text-slate-900 dark:text-white">{value}</p>
       </div>
     </div>
   )

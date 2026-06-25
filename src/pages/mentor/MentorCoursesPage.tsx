@@ -117,11 +117,11 @@ export default function MentorCoursesPage() {
       description="Manage published and archived courses and documents from one workspace."
       actions={
         <div className="flex flex-wrap gap-2">
-          <Link to="/courses/create" className="inline-flex h-11 items-center gap-2 rounded-xl bg-indigo-600 px-4 text-sm font-black text-white shadow-sm transition hover:bg-indigo-700">
+          <Link to="/courses/create" className="inline-flex h-11 items-center gap-2 rounded-xl bg-indigo-600 px-4 text-sm font-bold text-white shadow-sm transition hover:bg-indigo-700">
             <BookOpen className="h-4 w-4" />
             Create course
           </Link>
-          <Link to="/documents/create" className="inline-flex h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-black text-slate-700 shadow-sm transition hover:border-indigo-200 hover:text-indigo-700">
+          <Link to="/documents/create" className="inline-flex h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-700 shadow-sm transition hover:border-indigo-200 hover:text-indigo-700">
             <FileText className="h-4 w-4" />
             Create document
           </Link>
@@ -160,15 +160,15 @@ export default function MentorCoursesPage() {
       {loading ? (
         <LoadingRows rows={5} />
       ) : error ? (
-        <StateCard tone="error" title="Unable to load courses and documents" message={error} action={<button onClick={loadCourses} className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-black text-white">Retry</button>} />
+        <StateCard tone="error" title="Unable to load courses and documents" message={error} action={<button onClick={loadCourses} className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-bold text-white">Retry</button>} />
       ) : filteredCourses.length === 0 ? (
         <StateCard
           title={courses.length === 0 ? 'No courses or documents yet' : 'No courses or documents match this filter'}
           message={courses.length === 0 ? 'Create your first course or document.' : 'Adjust search, status, or type filters.'}
           action={
             <div className="flex flex-wrap justify-center gap-2">
-              <Link to="/courses/create" className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-black text-white">Create course</Link>
-              <Link to="/documents/create" className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-black text-slate-700">Create document</Link>
+              <Link to="/courses/create" className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-bold text-white">Create course</Link>
+              <Link to="/documents/create" className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-700">Create document</Link>
             </div>
           }
         />
@@ -176,7 +176,7 @@ export default function MentorCoursesPage() {
         <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full min-w-[980px]">
-              <thead className="border-b border-slate-100 bg-slate-50 text-left text-[11px] font-black uppercase tracking-widest text-slate-400">
+              <thead className="border-b border-slate-100 bg-slate-50 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-400">
                 <tr>
                   <th className="px-4 py-3">Course / document</th>
                   <th className="px-4 py-3">Status</th>
@@ -210,7 +210,7 @@ export default function MentorCoursesPage() {
                             )}
                           </div>
                           <div className="min-w-0">
-                            <p className="truncate text-sm font-black text-slate-950">{course.title}</p>
+                            <p className="truncate text-sm font-bold text-slate-950">{course.title}</p>
                             <p className="mt-1 text-xs font-bold text-slate-500">
                               {course.productType === CourseProductType.DOCUMENT ? 'Document' : 'Course'}
                               {course.categoryId ? ` - ${categoryNameById[course.categoryId] || `Category ${course.categoryId}`}` : ''}
@@ -221,7 +221,7 @@ export default function MentorCoursesPage() {
                       <td className="px-4 py-4">
                         <StatusPill label={formatStatusLabel(course.status)} tone={course.status === CourseStatus.PUBLISHED ? 'emerald' : 'slate'} />
                       </td>
-                      <td className="px-4 py-4 text-sm font-black text-slate-900">
+                      <td className="px-4 py-4 text-sm font-bold text-slate-900">
                         {hasDiscount ? (
                           <span className="flex flex-col">
                             <span>{formatCurrency(effectivePrice)}</span>
@@ -244,7 +244,7 @@ export default function MentorCoursesPage() {
                           <Link
                             to={`/mentor/courses/${courseId}/manage`}
                             onClick={(event) => event.stopPropagation()}
-                            className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-200 px-3 text-xs font-black text-slate-700 hover:bg-white"
+                            className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-200 px-3 text-xs font-bold text-slate-700 hover:bg-white"
                           >
                             <Settings className="h-3.5 w-3.5" />
                             Manage
@@ -254,7 +254,7 @@ export default function MentorCoursesPage() {
                               type="button"
                               onClick={(event) => requestAction('archive', course, event)}
                               disabled={archiveMutation.isLoading}
-                              className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-200 px-3 text-xs font-black text-slate-700 hover:bg-white disabled:opacity-60"
+                              className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-200 px-3 text-xs font-bold text-slate-700 hover:bg-white disabled:opacity-60"
                             >
                               <Archive className="h-3.5 w-3.5" />
                               Archive
@@ -265,7 +265,7 @@ export default function MentorCoursesPage() {
                             onClick={(event) => requestAction('delete', course, event)}
                             disabled={hasEnrollments || deleteMutation.isLoading}
                             title={hasEnrollments ? 'Courses or documents with enrollments cannot be deleted. Archive instead.' : 'Delete'}
-                            className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-rose-200 px-3 text-xs font-black text-rose-600 hover:bg-rose-50 disabled:cursor-not-allowed disabled:border-slate-200 disabled:text-slate-300"
+                            className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-rose-200 px-3 text-xs font-bold text-rose-600 hover:bg-rose-50 disabled:cursor-not-allowed disabled:border-slate-200 disabled:text-slate-300"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
                             Delete
@@ -314,24 +314,24 @@ function CourseAnalyticsSection() {
   if (!courseStats || courseStats.courses.length === 0) return null
 
   return (
-    <section className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm">
-      <h2 className="text-lg font-black text-slate-950">Course Analytics</h2>
+    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+      <h2 className="text-lg font-bold text-slate-950">Course Analytics</h2>
       <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <div className="rounded-2xl bg-slate-50 px-4 py-3">
           <p className="text-xs font-bold uppercase tracking-wide text-slate-400">Total courses</p>
-          <p className="mt-1 text-xl font-black text-slate-950">{courseStats.totalCourses}</p>
+          <p className="mt-1 text-xl font-bold text-slate-950">{courseStats.totalCourses}</p>
         </div>
         <div className="rounded-2xl bg-slate-50 px-4 py-3">
           <p className="text-xs font-bold uppercase tracking-wide text-slate-400">Total revenue</p>
-          <p className="mt-1 text-xl font-black text-slate-950">{courseStats.totalRevenueMxc.toLocaleString()} MXC</p>
+          <p className="mt-1 text-xl font-bold text-slate-950">{courseStats.totalRevenueMxc.toLocaleString()} MXC</p>
         </div>
         <div className="rounded-2xl bg-slate-50 px-4 py-3">
           <p className="text-xs font-bold uppercase tracking-wide text-slate-400">Total enrollments</p>
-          <p className="mt-1 text-xl font-black text-slate-950">{courseStats.totalEnrollments}</p>
+          <p className="mt-1 text-xl font-bold text-slate-950">{courseStats.totalEnrollments}</p>
         </div>
         <div className="rounded-2xl bg-slate-50 px-4 py-3">
           <p className="text-xs font-bold uppercase tracking-wide text-slate-400">Avg completion</p>
-          <p className="mt-1 text-xl font-black text-slate-950">{(courseStats.averageCompletionRate * 100).toFixed(1)}%</p>
+          <p className="mt-1 text-xl font-bold text-slate-950">{(courseStats.averageCompletionRate * 100).toFixed(1)}%</p>
         </div>
       </div>
 
@@ -351,10 +351,10 @@ function CourseAnalyticsSection() {
             {courseStats.courses.map((course) => (
               <tr key={course.courseId} className="border-b border-slate-50">
                 <td className="py-2 pr-4 font-semibold text-slate-900">{course.courseTitle}</td>
-                <td className="py-2 pr-4 text-slate-600">{course.totalRevenueMxc.toLocaleString()} MXC</td>
+                <td className="py-2 pr-4 text-slate-600">{(course.totalRevenueMxc || 0).toLocaleString()} MXC</td>
                 <td className="py-2 pr-4 text-slate-600">{course.totalEnrollments}</td>
                 <td className="py-2 pr-4 text-slate-600">{(course.completionRate * 100).toFixed(1)}%</td>
-                <td className="py-2 pr-4 text-slate-600">{course.lessonViews.toLocaleString()}</td>
+                <td className="py-2 pr-4 text-slate-600">{(course.lessonViews || 0).toLocaleString()}</td>
                 <td className="py-2 text-slate-600">{course.averageRating > 0 ? course.averageRating.toFixed(1) : '—'}</td>
               </tr>
             ))}

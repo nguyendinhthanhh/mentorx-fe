@@ -24,6 +24,7 @@ import { proposalApi } from '@/api/proposalApi'
 import { useAuthStore } from '@/store/authStore'
 import { CategoryResponse, JobResponse, ProposalResponse } from '@/types'
 import { formatCurrency, formatRelativeTime, formatDeadline } from '@/utils/formatters'
+import { PageShell } from './shared/MentorHubUI'
 
 interface NegotiationInfo {
   id: string
@@ -237,7 +238,6 @@ export default function MentorProposalsPage() {
               ))}
             </div>
           </div>
-
         </div>
       </div>
     )
@@ -245,80 +245,74 @@ export default function MentorProposalsPage() {
 
   return (
     <div className="mx-auto max-w-[1440px] px-4 py-8 md:px-8">
-      <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-        <h1 className="text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">
-          My <span className="bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">Proposals</span>
-        </h1>
-
-        <div className="flex shrink-0 items-center gap-3">
-          {pendingNegotiationItems.length > 0 && (
-            <button
-              type="button"
-              onClick={() => setActiveTab('NEGOTIATING')}
-              className="group relative inline-flex h-10 items-center gap-2 overflow-hidden rounded-xl border border-amber-200 bg-amber-50 px-4 text-sm font-bold text-amber-700 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md hover:shadow-amber-500/10"
+      <PageShell
+        title="My Proposals"
+        description="Track and manage all your active negotiations and submitted proposals."
+        actions={
+          <>
+            {pendingNegotiationItems.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setActiveTab('NEGOTIATING')}
+                className="inline-flex h-9 items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 text-sm font-medium text-amber-700 shadow-sm hover:bg-amber-100"
+              >
+                <MessageCircleMore className="h-4 w-4" />
+                {pendingNegotiationItems.length} pending reply
+              </button>
+            )}
+            <Link
+              to="/jobs"
+              className="inline-flex h-9 items-center gap-2 rounded-lg bg-indigo-600 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700"
             >
-              <span className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/40 to-white/0 opacity-0 transition-opacity duration-500 group-hover:animate-shimmer group-hover:opacity-100"></span>
-              <MessageCircleMore className="h-4 w-4" />
-              {pendingNegotiationItems.length} pending reply
-            </button>
-          )}
-          <Link
-            to="/jobs"
-            className="group relative inline-flex h-10 items-center gap-2 overflow-hidden rounded-xl bg-slate-950 px-5 text-sm font-bold text-white shadow-md shadow-slate-950/10 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-slate-950/20"
-          >
-            <span className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 opacity-0 transition-opacity duration-500 group-hover:animate-shimmer group-hover:opacity-100"></span>
-            <Search className="h-4 w-4 text-slate-400" />
-            Browse Jobs
-          </Link>
-        </div>
-      </div>
-
-      <div className="grid gap-8">
+              <Search className="h-4 w-4" />
+              Browse Jobs
+            </Link>
+          </>
+        }
+      >
+      <div className="grid gap-6">
         <div className="space-y-6">
-          <section className="rounded-[32px] border border-slate-200 bg-white/70 p-2 shadow-sm backdrop-blur-xl">
-            {/* Filter Bar */}
-            <div className="flex flex-col gap-4 rounded-[24px] bg-white p-4 shadow-sm md:flex-row md:items-center md:justify-between">
-              {/* Premium Segmented Tabs */}
-              <div className="flex flex-wrap items-center gap-1.5 rounded-[20px] bg-slate-100/80 p-1.5">
-                {tabs.map((tab) => {
-                  const count = tabCounts[tab.key]
-                  const isActive = activeTab === tab.key
-                  return (
-                    <button
-                      key={tab.key}
-                      type="button"
-                      onClick={() => setActiveTab(tab.key)}
-                      className={`inline-flex h-9 items-center gap-2 rounded-[14px] px-4 text-[13px] font-bold transition-all duration-300 ${
-                        isActive
-                          ? 'bg-white text-indigo-700 shadow-sm ring-1 ring-slate-200/50'
-                          : 'text-slate-500 hover:bg-slate-200/60 hover:text-slate-900'
-                      }`}
-                    >
-                      {tab.label}
-                      {count > 0 && (
-                        <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-black ${isActive ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-200/80 text-slate-500'}`}>
-                          {count}
-                        </span>
-                      )}
-                    </button>
-                  )
-                })}
-              </div>
-
-              <div className="relative min-w-[240px] md:max-w-[320px] lg:flex-1">
-                <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(event) => setSearchQuery(event.target.value)}
-                  placeholder="Search proposals..."
-                  className="h-11 w-full rounded-2xl border border-slate-200 bg-slate-50/50 pl-10 pr-4 text-sm font-semibold text-slate-800 outline-none transition-all focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10"
-                />
-              </div>
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between border-b border-slate-200 pb-4 dark:border-slate-800">
+            <div className="flex flex-wrap items-center gap-2">
+              {tabs.map((tab) => {
+                const count = tabCounts[tab.key]
+                const isActive = activeTab === tab.key
+                return (
+                  <button
+                    key={tab.key}
+                    type="button"
+                    onClick={() => setActiveTab(tab.key)}
+                    className={`inline-flex h-9 items-center gap-2 rounded-lg px-3 text-sm font-medium transition-colors ${
+                      isActive
+                        ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900'
+                        : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white'
+                    }`}
+                  >
+                    {tab.label}
+                    {count > 0 && (
+                      <span className={`rounded-full px-1.5 py-0.5 text-xs font-semibold ${isActive ? 'bg-slate-700 text-slate-100 dark:bg-slate-200 dark:text-slate-700' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'}`}>
+                        {count}
+                      </span>
+                    )}
+                  </button>
+                )
+              })}
             </div>
 
+            <div className="relative min-w-[240px] md:max-w-[320px]">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(event) => setSearchQuery(event.target.value)}
+                placeholder="Search proposals..."
+                className="h-9 w-full rounded-lg border border-slate-200 bg-white pl-9 pr-3 text-sm font-medium text-slate-900 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:focus:border-indigo-500"
+              />
+            </div>
+          </div>
+
             {/* Sub-filters */}
-            <div className="flex flex-wrap items-center gap-3 px-4 py-3">
+            <div className="flex flex-wrap items-center gap-3">
               <MiniSelect
                 value={statusFilter}
                 onChange={setStatusFilter}
@@ -346,7 +340,7 @@ export default function MentorProposalsPage() {
                     setCategoryFilter('ALL')
                     setSearchQuery('')
                   }}
-                  className="inline-flex h-9 items-center gap-1.5 rounded-xl px-3 text-xs font-bold text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
+                  className="inline-flex h-9 items-center gap-1.5 rounded-lg px-3 text-sm font-medium text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-slate-800 dark:hover:text-white"
                 >
                   <RefreshCw className="h-3.5 w-3.5" />
                   Reset
@@ -354,7 +348,7 @@ export default function MentorProposalsPage() {
               )}
             </div>
 
-            <div className="space-y-4 px-2 pb-2">
+            <div className="space-y-4 pt-2">
               {error && (
                 <div className="mx-2 rounded-2xl border border-rose-200 bg-rose-50 px-5 py-4 text-sm font-bold text-rose-700">
                   {error}
@@ -388,101 +382,71 @@ export default function MentorProposalsPage() {
                   return (
                     <article
                       key={proposal.id}
-                      className="group relative overflow-hidden rounded-[24px] border border-slate-200 bg-white p-2 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.05)] transition-all duration-300 hover:-translate-y-1 hover:border-indigo-200 hover:shadow-[0_20px_40px_-10px_rgba(6,81,237,0.08)]"
+                      className="flex flex-col gap-4 rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition-all hover:border-slate-300 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700"
                     >
-                      <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/0 to-indigo-50/0 opacity-0 transition-opacity duration-300 group-hover:from-indigo-50/40 group-hover:to-transparent group-hover:opacity-100" />
-                      <div className="relative rounded-[18px] bg-white p-5">
-                        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                          <div className="flex items-start gap-4">
-                            <div className="flex h-[52px] w-[52px] shrink-0 items-center justify-center overflow-hidden rounded-[16px] bg-slate-100 ring-1 ring-slate-200/60">
-                              {clientAvatar ? (
-                                <img src={clientAvatar} alt={clientName} className="h-full w-full object-cover" />
-                              ) : (
-                                <span className="text-lg font-black text-slate-500">{clientName.charAt(0)}</span>
-                              )}
-                            </div>
-                            <div className="min-w-0">
-                              <div className="flex flex-wrap items-center gap-2">
-                                <h2 className="truncate text-base font-black tracking-tight text-slate-950 transition-colors group-hover:text-indigo-600">
-                                  {proposal.jobTitle}
-                                </h2>
-                                <span className={`inline-flex shrink-0 items-center rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-widest ${rowTone.badge}`}>
-                                  {getStatusLabel(proposal.status)}
-                                </span>
-                              </div>
-                              <p className="mt-1 flex flex-wrap items-center gap-1.5 text-[11px] font-bold text-slate-400">
-                                <span className="text-slate-600">{clientName}</span>
-                                <span className="h-1 w-1 rounded-full bg-slate-300" />
-                                <span>{categoryName}</span>
-                                <span className="h-1 w-1 rounded-full bg-slate-300" />
-                                <span>{lastActivityLabel}</span>
-                              </p>
-                              <p className={`mt-2 flex items-center gap-1.5 text-[11.5px] font-bold ${rowTone.message}`}>
-                                {statusMeta.icon}
-                                {statusMeta.helper}
-                              </p>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center gap-2 lg:flex-col lg:items-end">
-                            {job?.clientId && (
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  setChatDrawer({
-                                    recipientId: job.clientId,
-                                    contextId: proposal.id,
-                                    title: clientName,
-                                    subtitle: 'Proposal discussion',
-                                  })
-                                }
-                                className="inline-flex h-9 items-center justify-center rounded-xl bg-slate-50 px-4 text-xs font-bold text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900"
-                              >
-                                Message
-                              </button>
+                      <div className="flex flex-col justify-between gap-4 md:flex-row md:items-start">
+                        <div className="flex items-start gap-3">
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-slate-100 ring-1 ring-slate-200/60 dark:bg-slate-800 dark:ring-slate-700">
+                            {clientAvatar ? (
+                              <img src={clientAvatar} alt={clientName} className="h-full w-full object-cover" />
+                            ) : (
+                              <span className="text-sm font-bold text-slate-500 dark:text-slate-400">{clientName.charAt(0)}</span>
                             )}
-                            <Link
-                              to={`/mentor/proposals/${proposal.id}`}
-                              className={`inline-flex h-9 items-center justify-center gap-1.5 rounded-xl px-4 text-xs font-black shadow-sm transition-all ${cta.className}`}
-                            >
-                              {cta.label}
-                              <ArrowRight className="h-3 w-3" />
-                            </Link>
+                          </div>
+                          <div className="min-w-0">
+                            <h2 className="truncate text-base font-semibold tracking-tight text-slate-900 dark:text-white">
+                              {proposal.jobTitle}
+                            </h2>
+                            <p className="mt-0.5 flex flex-wrap items-center gap-1.5 text-[13px] text-slate-500 dark:text-slate-400">
+                              <span className="font-medium text-slate-700 dark:text-slate-300">{clientName}</span>
+                              <span className="h-1 w-1 rounded-full bg-slate-300 dark:bg-slate-600" />
+                              <span>{categoryName}</span>
+                              <span className="h-1 w-1 rounded-full bg-slate-300 dark:bg-slate-600" />
+                              <span>{lastActivityLabel}</span>
+                            </p>
                           </div>
                         </div>
 
-                        <div className="mt-5 rounded-[16px] bg-slate-50/70 p-4 ring-1 ring-slate-100/80 transition-colors group-hover:bg-indigo-50/30">
-                          <div className="grid gap-4 md:grid-cols-2">
-                            <div className="grid grid-cols-2 gap-4">
-                              <ProposalMetric icon={<Wallet className="h-3 w-3 text-slate-400" />} label="Client Budget" value={getClientBudget(job)} />
-                              <ProposalMetric icon={<Sparkles className="h-3 w-3 text-indigo-500" />} label="Your Offer" value={currentOffer.primary} />
-                              <ProposalMetric icon={<Clock3 className="h-3 w-3 text-slate-400" />} label="Timeline" value={getTimelineValue(proposal, negotiation)} />
-                            </div>
-                            <div className="flex items-center justify-start md:justify-end">
-                              <div className="flex w-full max-w-[280px] items-center gap-0">
-                                {stageLabels.map((label, index) => {
-                                  const step = index + 1
-                                  const currentStep = getCurrentStep(proposal.status)
-                                  const reached = step <= currentStep
-                                  const active = step === currentStep
+                        <div className="flex flex-col items-start md:items-end">
+                          <p className="text-lg font-bold text-slate-900 dark:text-white">{currentOffer.primary}</p>
+                          <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Your Offer</p>
+                        </div>
+                      </div>
 
-                                  return (
-                                    <div key={label} className="flex flex-1 items-center last:flex-none">
-                                      <div className="relative flex flex-col items-center">
-                                        <div className={`z-10 flex h-3 w-3 items-center justify-center rounded-full ring-4 ring-slate-50 transition-colors ${reached ? 'bg-indigo-500' : 'bg-slate-200'}`}>
-                                           {active && <span className="absolute -top-1 -right-1 h-2 w-2 animate-ping rounded-full bg-indigo-400 opacity-75" />}
-                                        </div>
-                                        {active && <span className="absolute top-5 whitespace-nowrap text-[10px] font-black text-indigo-600">{label}</span>}
-                                      </div>
-                                      {step < stageLabels.length && (
-                                        <div className={`h-1 flex-1 transition-colors ${step < currentStep ? 'bg-indigo-500' : 'bg-slate-200'}`} />
-                                      )}
-                                    </div>
-                                  )
-                                })}
-                              </div>
-                            </div>
-                          </div>
+                      <div className="flex flex-col justify-between gap-4 border-t border-slate-100 pt-4 sm:flex-row sm:items-center dark:border-slate-800">
+                        <div className="flex flex-wrap items-center gap-3">
+                          <span className={`inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold ${rowTone.badge}`}>
+                            {getStatusLabel(proposal.status)}
+                          </span>
+                          <p className={`flex items-center gap-1.5 text-sm font-medium ${rowTone.message}`}>
+                            {statusMeta.icon}
+                            {statusMeta.helper}
+                          </p>
+                        </div>
+
+                        <div className="flex w-full items-center gap-2 sm:w-auto">
+                          {job?.clientId && (
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setChatDrawer({
+                                  recipientId: job.clientId,
+                                  contextId: proposal.id,
+                                  title: clientName,
+                                  subtitle: 'Proposal discussion',
+                                })
+                              }
+                              className="inline-flex h-9 flex-1 items-center justify-center rounded-lg border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 transition hover:bg-slate-50 sm:flex-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+                            >
+                              Message
+                            </button>
+                          )}
+                          <Link
+                            to={`/mentor/proposals/${proposal.id}`}
+                            className="inline-flex h-9 flex-1 items-center justify-center rounded-lg bg-slate-900 px-4 text-sm font-medium text-white transition hover:bg-slate-800 sm:flex-none dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200"
+                          >
+                            View details
+                          </Link>
                         </div>
                       </div>
                     </article>
@@ -490,11 +454,9 @@ export default function MentorProposalsPage() {
                 })
               )}
             </div>
-          </section>
+          </div>
         </div>
-
-
-      </div>
+      </PageShell>
 
       <ContextualChatDrawer
         open={!!chatDrawer}
@@ -528,7 +490,7 @@ function MiniSelect({
     <select
       value={value}
       onChange={(event) => onChange(event.target.value)}
-      className="h-9 cursor-pointer appearance-none rounded-xl border border-slate-200 bg-white px-3.5 pr-8 text-[12.5px] font-bold text-slate-600 shadow-sm outline-none transition-all focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 hover:border-slate-300"
+      className="h-9 cursor-pointer appearance-none rounded-lg border border-slate-200 bg-white px-3.5 pr-8 text-[13px] font-medium text-slate-700 shadow-sm outline-none transition hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-slate-600"
       style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: 'right 0.5rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.5em 1.5em' }}
     >
       {options.map(([optionValue, label]) => (
@@ -543,11 +505,11 @@ function MiniSelect({
 function ProposalMetric({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
     <div className="flex flex-col gap-1">
-      <div className="flex items-center gap-1.5">
-        {icon}
-        <span className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">{label}</span>
+      <div className="flex items-center gap-2">
+        <div className="text-slate-400 dark:text-slate-500">{icon}</div>
+        <span className="text-xs font-medium text-slate-500 dark:text-slate-400">{label}</span>
       </div>
-      <p className="pl-5 text-xs font-black text-slate-900">{value}</p>
+      <p className="text-sm font-semibold text-slate-900 dark:text-white">{value}</p>
     </div>
   )
 }

@@ -355,8 +355,8 @@ export default function ChatListPage() {
 
   return (
     <div className="bg-[#f7f8fe]">
-      <div className="overflow-hidden border-t border-slate-200 bg-white">
-        <div className="grid h-[calc(100dvh-73px)] lg:grid-cols-[340px_minmax(0,1fr)] 2xl:grid-cols-[380px_minmax(0,1fr)_360px]">
+      <div className="overflow-hidden bg-white">
+        <div className="grid h-dvh lg:grid-cols-[340px_minmax(0,1fr)] 2xl:grid-cols-[380px_minmax(0,1fr)_360px]">
           <InboxSidebar
             rooms={filteredRooms}
             currentUserId={user.userId}
@@ -370,7 +370,7 @@ export default function ChatListPage() {
             hiddenOnMobile={showConversationMobile}
           />
 
-          <div className={`${showConversationMobile ? 'flex' : 'hidden'} h-[calc(100dvh-73px)] min-w-0 flex-1 flex-col lg:flex`}>
+          <div className={`${showConversationMobile ? 'flex' : 'hidden'} h-dvh min-w-0 flex-1 flex-col lg:flex`}>
             <ConversationPane
               selectedRoom={selectedRoom}
               selectedMessages={selectedMessages}
@@ -391,10 +391,11 @@ export default function ChatListPage() {
               onShowDetails={() => setIsDetailsOpen(true)}
               onBackToList={handleBackToList}
               showBackButton={showConversationMobile}
+              heightClassName="h-dvh"
             />
           </div>
 
-          <div className="hidden h-[calc(100dvh-73px)] border-l border-slate-200 2xl:block">
+          <div className="hidden h-dvh border-l border-slate-200 2xl:block">
             <ContextRail
               selectedRoom={selectedRoom}
               otherMember={otherMember}

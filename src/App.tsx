@@ -6,6 +6,7 @@ import AuthLayout from './layouts/AuthLayout'
 import AdminLayout from './layouts/AdminLayout'
 import MentorLayout from './layouts/MentorLayout'
 import ProfileLayout from './layouts/ProfileLayout'
+import ChatLayout from './layouts/ChatLayout'
 
 // Auth Pages
 import LoginPage from './pages/auth/LoginPage'
@@ -17,8 +18,11 @@ import VerifyEmailPage from './pages/auth/VerifyEmailPage'
 import GithubCallback from './pages/auth/GithubCallback'
 
 // Dashboard Pages
-import ProfilePage from './pages/user/ProfilePage'
+import ProfileDashboardPage from './pages/user/ProfileDashboardPage'
+import SettingsPage from './pages/user/SettingsPage'
 import SavedMentorsPage from './pages/user/SavedMentorsPage'
+import UserAppointmentsPage from './pages/user/UserAppointmentsPage'
+import UserTransactionsPage from './pages/user/UserTransactionsPage'
 import MentorProfilePage from './pages/mentor/MentorProfilePage'
 import MentorListPage from './pages/mentor/MentorListPage'
 import MentorPublicProfilePage from './pages/mentor/MentorPublicProfilePage'
@@ -161,10 +165,12 @@ function App() {
             <Route path="/payment/momo-return" element={<MomoReturnPage />} />
             <Route path="/payment/payos-return" element={<PayOSReturnPage />} />
 
-            {/* Chat Routes */}
+          </Route>
+
+          {/* Chat Routes — Dedicated full-screen layout */}
+          <Route element={<ProtectedRoute><ChatLayout /></ProtectedRoute>}>
             <Route path="/chat" element={<ChatListPage />} />
             <Route path="/chat/demo" element={<ChatDemoPage />} />
-
           </Route>
 
           <Route path="/courses/:courseId/learn" element={<CourseLearnPage />} />
@@ -173,15 +179,15 @@ function App() {
 
           {/* Profile Routes with ProfileLayout */}
           <Route element={<ProtectedRoute><ProfileLayout /></ProtectedRoute>}>
-            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/profile" element={<ProfileDashboardPage />} />
             <Route path="/profile/dashboard" element={<Navigate to="/profile" replace />} />
-            <Route path="/profile/settings" element={<div>Settings Page (Coming Soon)</div>} />
+            <Route path="/profile/settings" element={<SettingsPage />} />
             <Route path="/profile/notifications" element={<NotificationListPage />} />
             <Route path="/profile/jobs" element={<Navigate to="/users/requests" replace />} />
             <Route path="/profile/proposals" element={<div>Proposals (Coming Soon)</div>} />
             <Route path="/profile/courses" element={<MyCoursesPage />} />
-            <Route path="/profile/appointments" element={<div>Appointments (Coming Soon)</div>} />
-            <Route path="/profile/transactions" element={<div>Transactions (Coming Soon)</div>} />
+            <Route path="/profile/appointments" element={<UserAppointmentsPage />} />
+            <Route path="/profile/transactions" element={<UserTransactionsPage />} />
             <Route path="/profile/saved" element={<SavedMentorsPage />} />
             <Route path="/profile/complaints" element={<MyComplaintsPage />} />
             <Route path="/profile/complaints/new" element={<NewComplaintPage />} />

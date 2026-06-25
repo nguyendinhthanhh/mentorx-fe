@@ -29,10 +29,8 @@ const baseTabs: SidebarItem[] = [
   { to: '/profile/courses', label: 'Khóa học đã mua', icon: ShoppingBag, matches: ['/profile/courses'] },
   { to: '/profile/appointments', label: 'Lịch hẹn', icon: CalendarDays, matches: ['/profile/appointments'] },
   { to: '/profile/complaints', label: 'Khiếu nại của tôi', icon: Flag, matches: ['/profile/complaints'] },
-  { to: '/wallet', label: 'Ví MXC', icon: Wallet, matches: ['/wallet'] },
   { to: '/profile/transactions', label: 'Giao dịch', icon: ReceiptText, matches: ['/profile/transactions'] },
   { to: '/profile/reviews', label: 'Đánh giá của tôi', icon: Star, matches: ['/profile/reviews'] },
-  { to: '/profile/settings', label: 'Cài đặt', icon: Settings, matches: ['/profile/settings'] },
 ]
 
 export default function ProfileLayout() {

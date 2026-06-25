@@ -4,10 +4,12 @@ import {
   Lightbulb,
   Scale,
   Sparkles,
-  ArrowLeft
+  ArrowLeft,
+  Home
 } from 'lucide-react'
 import JobCreateForm from '@/components/job/JobCreateForm'
 import { useAuthStore } from '@/store/authStore'
+import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 
 export default function JobCreatePage() {
   const { user } = useAuthStore()
@@ -23,10 +25,14 @@ export default function JobCreatePage() {
       <main className="relative mx-auto max-w-[1400px] px-4 pt-10 sm:px-6 lg:px-8 z-10">
         <div className="mb-10 text-center md:text-left flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
-            <Link to="/jobs" className="inline-flex items-center gap-2 text-[13px] font-bold text-slate-500 hover:text-[#4f46e5] mb-4 transition-colors group bg-white/50 backdrop-blur-md px-4 py-1.5 rounded-full border border-slate-200 hover:border-[#4f46e5]/30">
-              <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
-              Quay lại danh sách công việc
-            </Link>
+            <Breadcrumbs
+              items={[
+                { label: 'Trang chủ', to: '/', icon: <Home className="w-4 h-4" /> },
+                { label: 'Việc làm', to: '/jobs' },
+                { label: 'Tạo Yêu Cầu Mới' },
+              ]}
+              className="mb-4"
+            />
             <div className="flex items-center gap-2 mb-2 md:justify-start justify-center">
                <div className="px-3 py-1 rounded-full bg-white/70 border border-white flex items-center gap-1.5 w-fit shadow-sm backdrop-blur-md">
                   <Sparkles className="w-4 h-4 text-[#4f46e5]" />

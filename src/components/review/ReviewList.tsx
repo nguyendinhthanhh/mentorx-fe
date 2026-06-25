@@ -4,7 +4,7 @@ import { useAuthStore } from '@/store/authStore'
 import { Star, ThumbsUp, ThumbsDown, CheckCircle, User, ChevronDown, MessageCircle, Award } from 'lucide-react'
 import { formatRelativeTime } from '@/utils/formatters'
 import { ReviewTargetType, ReviewResponse } from '@/types'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import ReviewForm from './ReviewForm'
 
 interface Props {
@@ -30,13 +30,50 @@ function RatingBar({ label, value }: { label: string; value: number }) {
 function ReviewCard({ review }: { review: ReviewResponse }) {
   const [expanded, setExpanded] = useState(false)
   const [editing, setEditing] = useState(false)
+  
+  // Local state for optimistic UI (Facebook-style toggle)
+  const [votedType, setVotedType] = useState<'helpful' | 'notHelpful' | null>(
+    review.currentUserVote === true ? 'helpful' : review.currentUserVote === false ? 'notHelpful' : null
+  )
+  const [localHelpfulCount, setLocalHelpfulCount] = useState(review.helpfulCount)
+  const [localNotHelpfulCount, setLocalNotHelpfulCount] = useState(review.notHelpfulCount)
+  
   const { user } = useAuthStore()
-  const queryClient = useQueryClient()
+
+  useEffect(() => {
+    setVotedType(review.currentUserVote === true ? 'helpful' : review.currentUserVote === false ? 'notHelpful' : null)
+    setLocalHelpfulCount(review.helpfulCount)
+    setLocalNotHelpfulCount(review.notHelpfulCount)
+  }, [review.currentUserVote, review.helpfulCount, review.notHelpfulCount])
 
   const voteMutation = useMutation(
-    (isHelpful: boolean) => reviewApi.vote(review.id, isHelpful),
-    { onSuccess: () => queryClient.invalidateQueries(['reviews']) }
+    (isHelpful: boolean) => reviewApi.vote(review.id, isHelpful)
+    // We don't invalidate queries here to avoid the server count immediately overwriting our optimistic local count,
+    // since the server response doesn't include the current user's vote state to calculate the diff.
   )
+
+  const handleVote = (isHelpful: boolean) => {
+    if (!user) return
+    const newType = isHelpful ? 'helpful' : 'notHelpful'
+    
+    if (votedType === newType) {
+      // Toggle off (unlike / undislike)
+      setVotedType(null)
+      if (isHelpful) setLocalHelpfulCount(prev => Math.max(0, prev - 1))
+      else setLocalNotHelpfulCount(prev => Math.max(0, prev - 1))
+      voteMutation.mutate(isHelpful)
+    } else {
+      // Switch vote or new vote
+      if (votedType === 'helpful') setLocalHelpfulCount(prev => Math.max(0, prev - 1))
+      if (votedType === 'notHelpful') setLocalNotHelpfulCount(prev => Math.max(0, prev - 1))
+      
+      setVotedType(newType)
+      if (isHelpful) setLocalHelpfulCount(prev => prev + 1)
+      else setLocalNotHelpfulCount(prev => prev + 1)
+      
+      voteMutation.mutate(isHelpful)
+    }
+  }
 
   if (editing) {
     return (
@@ -104,20 +141,36 @@ function ReviewCard({ review }: { review: ReviewResponse }) {
             </button>
           )}
           <button
-            onClick={() => user && voteMutation.mutate(true)}
-            disabled={!user}
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-gray-100 dark:border-gray-800 hover:bg-green-50 dark:hover:bg-green-900/20 hover:border-green-200 dark:hover:border-green-800 transition-colors disabled:opacity-50 group"
+            onClick={() => handleVote(true)}
+            disabled={!user || voteMutation.isLoading}
+            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg border transition-colors disabled:opacity-50 disabled:cursor-not-allowed group ${
+              votedType === 'helpful'
+                ? 'border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-900/20'
+                : 'border-gray-100 dark:border-gray-800 hover:bg-green-50 dark:hover:bg-green-900/20 hover:border-green-200 dark:hover:border-green-800'
+            }`}
           >
-            <ThumbsUp className="w-3 h-3 text-gray-400 group-hover:text-green-500" />
-            <span className="text-xs font-bold text-gray-500 group-hover:text-green-600">{review.helpfulCount}</span>
+            <ThumbsUp className={`w-3 h-3 transition-colors ${
+              votedType === 'helpful' ? 'text-green-500' : 'text-gray-400 group-hover:text-green-500'
+            }`} />
+            <span className={`text-xs font-bold transition-colors ${
+              votedType === 'helpful' ? 'text-green-600' : 'text-gray-500 group-hover:text-green-600'
+            }`}>{localHelpfulCount}</span>
           </button>
           <button
-            onClick={() => user && voteMutation.mutate(false)}
-            disabled={!user}
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-gray-100 dark:border-gray-800 hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-200 dark:hover:border-red-800 transition-colors disabled:opacity-50 group"
+            onClick={() => handleVote(false)}
+            disabled={!user || voteMutation.isLoading}
+            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg border transition-colors disabled:opacity-50 disabled:cursor-not-allowed group ${
+              votedType === 'notHelpful'
+                ? 'border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/20'
+                : 'border-gray-100 dark:border-gray-800 hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-200 dark:hover:border-red-800'
+            }`}
           >
-            <ThumbsDown className="w-3 h-3 text-gray-400 group-hover:text-red-500" />
-            <span className="text-xs font-bold text-gray-500 group-hover:text-red-600">{review.notHelpfulCount}</span>
+            <ThumbsDown className={`w-3 h-3 transition-colors ${
+              votedType === 'notHelpful' ? 'text-red-500' : 'text-gray-400 group-hover:text-red-500'
+            }`} />
+            <span className={`text-xs font-bold transition-colors ${
+              votedType === 'notHelpful' ? 'text-red-600' : 'text-gray-500 group-hover:text-red-600'
+            }`}>{localNotHelpfulCount}</span>
           </button>
         </div>
       </div>

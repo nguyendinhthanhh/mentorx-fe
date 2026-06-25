@@ -281,10 +281,10 @@ export default function MentorSettingsPage() {
       {loading ? (
         <LoadingRows rows={5} />
       ) : error ? (
-        <StateCard tone="error" title="Unable to load settings" message={error} action={<button onClick={loadSettings} className="rounded-2xl bg-indigo-600 px-4 py-2 text-sm font-black text-white">Retry</button>} />
+        <StateCard tone="error" title="Unable to load settings" message={error} action={<button onClick={loadSettings} className="rounded-2xl bg-indigo-600 px-4 py-2 text-sm font-bold text-white">Retry</button>} />
       ) : (
         <div className="grid gap-5 xl:grid-cols-[280px_1fr]">
-          <aside className="h-fit rounded-[28px] border border-slate-200 bg-white p-3 shadow-sm">
+          <aside className="h-fit rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
             {tabs.map((tab) => {
               const Icon = tab.icon
               return (
@@ -292,7 +292,7 @@ export default function MentorSettingsPage() {
                   key={tab.key}
                   type="button"
                   onClick={() => setActiveTab(tab.key)}
-                  className={`flex h-12 w-full items-center gap-3 rounded-2xl px-4 text-left text-sm font-black transition ${activeTab === tab.key ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-950'}`}
+                  className={`flex h-10 w-full items-center gap-3 rounded-2xl px-4 text-left text-sm font-bold transition ${activeTab === tab.key ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-950'}`}
                 >
                   <Icon className="h-4 w-4" />
                   {tab.label}
@@ -301,7 +301,7 @@ export default function MentorSettingsPage() {
             })}
           </aside>
 
-          <section className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
+          <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
             {activeTab === 'profile' ? (
               <SettingsForm title="Profile" subtitle="Basic account fields visible around Mentor X." onSubmit={saveProfile} saving={saving}>
                 <Field label="Full name"><TextInput value={profileForm.fullName} onChange={(event) => setProfileForm({ ...profileForm, fullName: event.target.value })} className="w-full" required /></Field>
@@ -361,15 +361,15 @@ export default function MentorSettingsPage() {
 
             {activeTab === 'availability' ? (
               <div>
-                <h2 className="text-xl font-black text-slate-950">Availability</h2>
+                <h2 className="text-xl font-bold text-slate-950">Availability</h2>
                 <p className="mt-2 text-sm font-medium leading-6 text-slate-500">Weekly schedule is managed on the Schedule page so booked sessions and free slots stay in one place.</p>
-                <Link to="/mentor/schedule" className="mt-5 inline-flex rounded-2xl bg-indigo-600 px-4 py-2 text-sm font-black text-white">Open schedule settings</Link>
+                <Link to="/mentor/schedule" className="mt-5 inline-flex rounded-2xl bg-indigo-600 px-4 py-2 text-sm font-bold text-white">Open schedule settings</Link>
               </div>
             ) : null}
 
             {activeTab === 'notifications' && notifications ? (
               <div>
-                <h2 className="text-xl font-black text-slate-950">Notifications</h2>
+                <h2 className="text-xl font-bold text-slate-950">Notifications</h2>
                 <p className="mt-2 text-sm font-medium leading-6 text-slate-500">Control broad delivery channels. Notification type granularity is stored by backend JSON settings when available.</p>
                 <div className="mt-6 space-y-3">
                   <ToggleRow label="Email notifications" checked={notificationForm.emailEnabled} onChange={(checked) => saveNotifications({ ...notificationForm, emailEnabled: checked })} disabled={saving} />
@@ -392,14 +392,14 @@ export default function MentorSettingsPage() {
 
             {activeTab === 'account' ? (
               <div>
-                <h2 className="text-xl font-black text-slate-950">Account mode</h2>
+                <h2 className="text-xl font-bold text-slate-950">Account mode</h2>
                 <div className="mt-5 grid gap-3 md:grid-cols-2">
                   <ReadonlyStatus label="Current mode" value="Mentor Mode" tone="indigo" />
                   <ReadonlyStatus label="Mentor status" value={user?.mentorStatus || 'UNKNOWN'} tone={user?.mentorStatus === 'APPROVED' ? 'emerald' : 'amber'} />
                   <ReadonlyStatus label="Identity status" value={user?.identityStatus || mentorProfile?.identityStatus || 'NOT_SUBMITTED'} tone="slate" />
                   <ReadonlyStatus label="Payout status" value={payoutStatus} tone={payoutStatus === 'APPROVED' ? 'emerald' : 'amber'} />
                 </div>
-                <Link to="/" className="mt-6 inline-flex rounded-2xl border border-slate-200 px-4 py-2 text-sm font-black text-slate-700 transition hover:bg-slate-50">Switch back to User mode</Link>
+                <Link to="/" className="mt-6 inline-flex rounded-2xl border border-slate-200 px-4 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50">Switch back to User mode</Link>
               </div>
             ) : null}
           </section>
@@ -426,10 +426,10 @@ function SettingsForm({
     <form onSubmit={onSubmit}>
       <div className="flex flex-col gap-3 border-b border-slate-100 pb-5 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h2 className="text-xl font-black text-slate-950">{title}</h2>
+          <h2 className="text-xl font-bold text-slate-950">{title}</h2>
           <p className="mt-2 text-sm font-medium leading-6 text-slate-500">{subtitle}</p>
         </div>
-        <button disabled={saving} className="inline-flex h-11 items-center justify-center gap-2 rounded-2xl bg-indigo-600 px-4 text-sm font-black text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60">
+        <button disabled={saving} className="inline-flex h-11 items-center justify-center gap-2 rounded-2xl bg-indigo-600 px-4 text-sm font-bold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60">
           <Save className="h-4 w-4" />
           Save
         </button>
@@ -442,7 +442,7 @@ function SettingsForm({
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
     <label className="block">
-      <span className="text-xs font-black uppercase tracking-[0.16em] text-slate-400">{label}</span>
+      <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">{label}</span>
       <div className="mt-2">{children}</div>
     </label>
   )
@@ -451,7 +451,7 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
 function ToggleRow({ label, checked, onChange, disabled }: { label: string; checked: boolean; onChange: (checked: boolean) => void; disabled?: boolean }) {
   return (
     <div className="flex items-center justify-between gap-4 rounded-2xl bg-slate-50 px-4 py-3">
-      <span className="text-sm font-black text-slate-800">{label}</span>
+      <span className="text-sm font-bold text-slate-800">{label}</span>
       <button
         type="button"
         disabled={disabled}
@@ -468,7 +468,7 @@ function ToggleRow({ label, checked, onChange, disabled }: { label: string; chec
 function ReadonlyStatus({ label, value, tone }: { label: string; value: string; tone: 'indigo' | 'emerald' | 'amber' | 'rose' | 'slate' }) {
   return (
     <div className="rounded-2xl bg-slate-50 p-4">
-      <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-400">{label}</p>
+      <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">{label}</p>
       <div className="mt-3">
         <StatusPill label={formatStatus(value)} tone={tone} />
       </div>

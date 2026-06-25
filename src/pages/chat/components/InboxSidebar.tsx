@@ -1,4 +1,18 @@
-import { Edit3, Megaphone, Search, X } from 'lucide-react'
+import { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { useQuery } from 'react-query'
+import {
+  Bell,
+  ChevronDown,
+  Edit3,
+  LogOut,
+  Megaphone,
+  Search,
+  Sparkles,
+  User,
+  Wallet,
+  X,
+} from 'lucide-react'
 import { ChatRoomResponse } from '@/types'
 import {
   formatRoomTime,
@@ -8,6 +22,11 @@ import {
   InboxFilter,
 } from '../chatShared'
 import SegmentedButton from '@/components/ui/segmented-button'
+import { useAuthStore } from '@/store/authStore'
+import { walletApi } from '@/api/walletApi'
+import { formatMxc } from '@/utils/formatters'
+import { useI18n } from '@/i18n/I18nProvider'
+import NotificationDropdown from '@/components/notification/NotificationDropdown'
 
 type InboxSidebarProps = {
   rooms: ChatRoomResponse[]
@@ -42,6 +61,17 @@ export default function InboxSidebar({
   isLoading,
   hiddenOnMobile,
 }: InboxSidebarProps) {
+  const { user, logout } = useAuthStore()
+  const { language } = useI18n()
+  const navigate = useNavigate()
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false)
+
+  const { data: balance } = useQuery(
+    ['userBalance', user?.userId],
+    () => walletApi.getUserBalance(user!.userId),
+    { enabled: !!user?.userId, staleTime: 30_000 }
+  )
+
   const counts = {
     all: rooms.length,
     unread: rooms.filter((room) => room.unreadCount > 0 && !room.isArchived).length,
@@ -56,13 +86,107 @@ export default function InboxSidebar({
     { title: 'Recent', rooms: recentRooms },
   ].filter((section) => section.rooms.length > 0)
 
+  const handleLogout = () => {
+    logout()
+    navigate('/login')
+  }
+
   return (
     <aside
-      className={`flex h-[calc(100dvh-73px)] min-w-0 flex-col border-r border-slate-200 bg-white ${
+      className={`flex h-dvh min-w-0 flex-col border-r border-slate-200 bg-white ${
         hiddenOnMobile ? 'hidden lg:flex' : 'flex'
       }`}
     >
-      <div className="px-4 pb-4 pt-6 sm:px-7 sm:pt-7">
+      {/* ── Mini Navigation Header ── */}
+      <div className="flex items-center justify-between gap-2 border-b border-slate-100 px-4 py-3 sm:px-5">
+        <Link to="/" className="group flex items-center gap-2">
+          <div className="relative flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg bg-slate-950 shadow transition-transform group-hover:scale-105 group-active:scale-95">
+            <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 opacity-90 transition-opacity group-hover:opacity-100" />
+            <Sparkles className="relative h-4 w-4 text-white mix-blend-overlay" />
+          </div>
+          <span className="text-[15px] font-black tracking-tight text-slate-900">
+            Mentor<span className="text-indigo-600">X</span>
+          </span>
+        </Link>
+
+        <div className="flex items-center gap-1">
+          {/* Wallet Balance */}
+          <Link
+            to="/wallet"
+            className="hidden items-center gap-1.5 rounded-lg bg-amber-50 px-2 py-1.5 text-[11px] font-bold text-amber-700 transition-colors hover:bg-amber-100 sm:flex"
+          >
+            <Wallet className="h-3 w-3" />
+            {formatMxc(balance?.available || 0, language)}
+          </Link>
+
+          {/* Notifications */}
+          {user && (
+            <NotificationDropdown userId={user.userId} />
+          )}
+
+          {/* User Avatar Dropdown */}
+          {user && (
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg ring-2 ring-transparent transition-all hover:ring-indigo-200"
+              >
+                {user.avatarUrl ? (
+                  <img src={user.avatarUrl} alt={user.fullName} className="h-full w-full object-cover rounded-lg" />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center rounded-lg bg-indigo-600 text-[11px] font-bold text-white">
+                    {user.fullName.charAt(0)}
+                  </div>
+                )}
+              </button>
+
+              {userDropdownOpen && (
+                <>
+                  <div className="fixed inset-0 z-30" onClick={() => setUserDropdownOpen(false)} />
+                  <div className="absolute left-0 z-40 mt-2 w-56 origin-top-left rounded-2xl border border-slate-200 bg-white p-2 shadow-xl">
+                    <div className="mb-1 border-b border-slate-100 px-3 py-2">
+                      <p className="truncate text-sm font-black text-slate-900">{user.fullName}</p>
+                      <p className="truncate text-[11px] text-slate-500">{user.email}</p>
+                    </div>
+                    <Link
+                      to="/profile"
+                      onClick={() => setUserDropdownOpen(false)}
+                      className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50 hover:text-indigo-600"
+                    >
+                      <User className="h-4 w-4" />
+                      Hồ sơ
+                    </Link>
+                    <Link
+                      to="/wallet"
+                      onClick={() => setUserDropdownOpen(false)}
+                      className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50 hover:text-indigo-600"
+                    >
+                      <Wallet className="h-4 w-4" />
+                      Ví MXC
+                    </Link>
+                    <div className="my-1 border-t border-slate-100" />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setUserDropdownOpen(false)
+                        handleLogout()
+                      }}
+                      className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-red-600 transition hover:bg-red-50"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      Đăng xuất
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ── Inbox Header ── */}
+      <div className="px-4 pb-4 pt-5 sm:px-7 sm:pt-6">
         <div className="flex items-center justify-between gap-3">
           <h1 className="text-[28px] font-bold tracking-tight text-[#10164a]">Messages</h1>
           <button
@@ -74,7 +198,7 @@ export default function InboxSidebar({
           </button>
         </div>
 
-        <label className="mt-6 flex h-11 items-center gap-3 rounded-xl border border-[#dce2f2] bg-white px-4 text-slate-400 transition-colors focus-within:border-indigo-300 focus-within:text-indigo-500">
+        <label className="mt-5 flex h-11 items-center gap-3 rounded-xl border border-[#dce2f2] bg-white px-4 text-slate-400 transition-colors focus-within:border-indigo-300 focus-within:text-indigo-500">
           <Search className="h-[18px] w-[18px]" />
           <input
             value={searchTerm}
@@ -117,6 +241,7 @@ export default function InboxSidebar({
         </div>
       </div>
 
+      {/* ── Room List ── */}
       <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-4 pt-2 sm:px-6">
         {isLoading ? (
           <div className="space-y-3 px-2 pt-2">
@@ -153,34 +278,14 @@ export default function InboxSidebar({
               </div>
             ))}
 
-            <div className="mt-auto hidden rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50 to-white p-4 xl:block">
-              <div className="flex items-start gap-3">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-white">
-                  <Megaphone className="h-5 w-5" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-start justify-between gap-2">
-                    <p className="text-sm font-bold text-[#10164a]">Bring a friend to Mentor X</p>
-                    <button type="button" className="text-indigo-400 hover:text-indigo-700" title="Dismiss invite">
-                      <X className="h-4 w-4" />
-                    </button>
-                  </div>
-                  <p className="mt-1 text-xs leading-5 text-[#66729d]">Invite your network and keep project context together.</p>
-                  <button
-                    type="button"
-                    className="mt-3 h-9 w-full rounded-xl border border-indigo-200 bg-white text-xs font-semibold text-indigo-700"
-                  >
-                    Invite now
-                  </button>
-                </div>
-              </div>
-            </div>
+
           </div>
         )}
       </div>
     </aside>
   )
 }
+
 
 function RoomListItem({
   room,

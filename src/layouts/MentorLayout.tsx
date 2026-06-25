@@ -20,6 +20,7 @@ import {
   X,
   User,
   Wallet,
+  Layers,
 } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { useThemeStore } from '@/store/themeStore'
@@ -70,15 +71,15 @@ export default function MentorLayout() {
   return (
     <div className={`min-h-screen ${isDarkMode ? 'dark bg-slate-950' : 'bg-[#faf9ff]'}`}>
       <div className="flex min-h-screen">
-        <aside className="hidden max-h-screen w-[248px] shrink-0 overflow-hidden border-r border-slate-200/80 bg-white xl:flex xl:flex-col">
-          <div className="flex h-[88px] shrink-0 items-center border-b border-slate-100 px-6">
-            <Link to="/" className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 shadow-lg shadow-violet-200">
-                <span className="text-lg font-black text-white">M</span>
+        <aside className="hidden max-h-screen w-[280px] shrink-0 overflow-hidden border-r border-slate-200 bg-white dark:border-slate-800/60 dark:bg-[#09090b] xl:flex xl:flex-col">
+          <div className="flex h-[80px] shrink-0 items-center px-6">
+            <Link to="/mentor" className="group flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-900 text-white shadow-md dark:bg-white dark:text-slate-900 transition-transform group-hover:scale-105">
+                <Layers className="h-5 w-5" />
               </div>
-              <div className="min-w-0">
-                <p className="text-[22px] font-black leading-none tracking-tight text-slate-950">MentorHub</p>
-                <p className="mt-1 text-[10px] font-black uppercase tracking-[0.2em] text-indigo-500">Premium Mentor</p>
+              <div className="min-w-0 flex flex-col">
+                <p className="text-[19px] font-bold leading-none tracking-tight text-slate-900 dark:text-white">MentorX</p>
+                <p className="mt-1 text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Workspace</p>
               </div>
             </Link>
           </div>
@@ -91,14 +92,20 @@ export default function MentorLayout() {
                 <Link
                   key={item.to}
                   to={item.to}
-                  className={`group flex h-12 items-center gap-3 rounded-2xl px-4 text-[14px] font-bold transition ${
-                    active ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                  className={`group flex min-h-[48px] items-center gap-4 rounded-xl px-4 text-[15px] font-semibold transition-all ${
+                    active 
+                      ? 'bg-indigo-50/80 text-indigo-700 shadow-sm dark:bg-indigo-500/10 dark:text-indigo-400' 
+                      : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800/50 dark:hover:text-slate-100'
                   }`}
                 >
-                  <item.icon className={`h-4 w-4 ${active ? 'text-white' : 'text-slate-400 group-hover:text-slate-700'}`} />
-                  <span className="flex-1">{item.label}</span>
+                  <item.icon className={`h-[20px] w-[20px] shrink-0 transition-colors ${
+                    active ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400 group-hover:text-slate-500 dark:text-slate-500 dark:group-hover:text-slate-300'
+                  }`} />
+                  <span className="flex-1 truncate tracking-wide">{item.label}</span>
                   {badge ? (
-                    <span className={`inline-flex h-6 min-w-6 items-center justify-center rounded-full px-1.5 text-xs font-black ${active ? 'bg-white/20 text-white' : 'bg-violet-100 text-violet-700'}`}>
+                    <span className={`inline-flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-[10px] font-bold ${
+                      active ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-400' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
+                    }`}>
                       {badge}
                     </span>
                   ) : null}
@@ -107,35 +114,28 @@ export default function MentorLayout() {
             })}
           </nav>
 
-          <div className="px-4 pb-4">
-            <div className="rounded-[24px] border border-slate-200 bg-gradient-to-br from-white to-violet-50 p-5 shadow-sm">
-              <div className="mb-4 flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-sm font-black text-slate-900">Complete your profile</p>
-                  <p className="mt-1 text-xs leading-5 text-slate-500">Higher chance of getting hired</p>
-                </div>
-                <div className="flex h-12 w-12 items-center justify-center rounded-full border-4 border-violet-200 text-[11px] font-black text-indigo-600">
-                  85%
-                </div>
+          <div className="border-t border-slate-100 p-4 dark:border-slate-800/60">
+            <div className="flex items-center gap-3 rounded-xl p-2 transition hover:bg-slate-50 dark:hover:bg-slate-800/50">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300 overflow-hidden border border-slate-200 dark:border-slate-700">
+                {user?.avatarUrl ? (
+                  <img src={user.avatarUrl} alt="Avatar" className="h-full w-full object-cover" />
+                ) : (
+                  <User className="h-5 w-5" />
+                )}
               </div>
-              <Link
-                to="/become-a-mentor"
-                className="inline-flex h-11 w-full items-center justify-center rounded-2xl bg-indigo-600 px-4 text-sm font-bold text-white transition hover:bg-indigo-700"
+              <div className="flex-1 min-w-0">
+                <p className="truncate text-[13px] font-bold text-slate-900 dark:text-white">{user?.fullName || 'Mentor'}</p>
+                <p className="truncate text-[11px] font-medium text-slate-500 dark:text-slate-400">{user?.email || 'mentor@mentorx.com'}</p>
+              </div>
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-400 transition hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-500/10"
+                title="Logout"
               >
-                Improve Profile
-              </Link>
+                <LogOut className="h-4 w-4" />
+              </button>
             </div>
-          </div>
-
-          <div className="border-t border-slate-100 px-4 py-4">
-            <button
-              type="button"
-              onClick={handleLogout}
-              className="flex h-12 w-full items-center gap-3 rounded-2xl px-4 text-sm font-bold text-rose-500 transition hover:bg-rose-50"
-            >
-              <LogOut className="h-4 w-4" />
-              Logout
-            </button>
           </div>
         </aside>
 
@@ -147,43 +147,50 @@ export default function MentorLayout() {
               className="absolute inset-0 bg-slate-950/40"
               onClick={() => setMobileNavOpen(false)}
             />
-            <div className="relative flex h-full w-[min(84vw,320px)] flex-col bg-white shadow-2xl">
-              <div className="flex h-[76px] items-center justify-between border-b border-slate-100 px-5">
-                <Link to="/" className="flex items-center gap-3" onClick={() => setMobileNavOpen(false)}>
-                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 shadow-lg shadow-violet-200">
-                    <span className="text-lg font-black text-white">M</span>
+            <div className="relative flex h-full w-[min(84vw,320px)] flex-col bg-white shadow-2xl dark:bg-[#09090b]">
+              <div className="flex h-[80px] shrink-0 items-center justify-between px-5">
+                <Link to="/mentor" className="flex items-center gap-3" onClick={() => setMobileNavOpen(false)}>
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-900 text-white shadow-md dark:bg-white dark:text-slate-900">
+                    <Layers className="h-5 w-5" />
                   </div>
-                  <div className="min-w-0">
-                    <p className="text-lg font-black leading-none tracking-tight text-slate-950">MentorHub</p>
-                    <p className="mt-1 text-[10px] font-black uppercase tracking-[0.2em] text-indigo-500">Premium Mentor</p>
+                  <div className="min-w-0 flex flex-col">
+                    <p className="text-[19px] font-bold leading-none tracking-tight text-slate-900 dark:text-white">MentorX</p>
+                    <p className="mt-1 text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Workspace</p>
                   </div>
                 </Link>
                 <button
                   type="button"
                   onClick={() => setMobileNavOpen(false)}
-                  className="flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-200 text-slate-500"
+                  className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400"
                 >
-                  <X className="h-4 w-4" />
+                  <X className="h-5 w-5" />
                 </button>
               </div>
 
-              <nav className="flex-1 space-y-2 overflow-y-auto px-4 py-5">
+              <nav className="flex-1 overflow-y-auto space-y-2 px-4 py-5">
                 {navigationItems.map((item) => {
                   const active = isActive(item.to)
+                  const badge = item.to === '/mentor/courses' ? unansweredCourseQaCount : item.badge
                   return (
                     <Link
                       key={item.to}
                       to={item.to}
                       onClick={() => setMobileNavOpen(false)}
-                      className={`group flex min-h-12 items-center gap-3 rounded-2xl px-4 py-3 text-[14px] font-bold transition ${
-                        active ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                      className={`group flex min-h-[48px] items-center gap-4 rounded-xl px-4 text-[15px] font-semibold transition-all ${
+                        active 
+                          ? 'bg-indigo-50/80 text-indigo-700 shadow-sm dark:bg-indigo-500/10 dark:text-indigo-400' 
+                          : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800/50 dark:hover:text-slate-100'
                       }`}
                     >
-                      <item.icon className={`h-4 w-4 ${active ? 'text-white' : 'text-slate-400 group-hover:text-slate-700'}`} />
-                      <span className="flex-1">{item.label}</span>
-                      {item.badge ? (
-                        <span className={`inline-flex h-6 min-w-6 items-center justify-center rounded-full px-1.5 text-xs font-black ${active ? 'bg-white/20 text-white' : 'bg-violet-100 text-violet-700'}`}>
-                          {item.badge}
+                      <item.icon className={`h-[20px] w-[20px] shrink-0 transition-colors ${
+                        active ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400 group-hover:text-slate-500 dark:text-slate-500 dark:group-hover:text-slate-300'
+                      }`} />
+                      <span className="flex-1 truncate tracking-wide">{item.label}</span>
+                      {badge ? (
+                        <span className={`inline-flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-[10px] font-bold ${
+                          active ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-400' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
+                        }`}>
+                          {badge}
                         </span>
                       ) : null}
                     </Link>
@@ -191,18 +198,31 @@ export default function MentorLayout() {
                 })}
               </nav>
 
-              <div className="border-t border-slate-100 p-4">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMobileNavOpen(false)
-                    handleLogout()
-                  }}
-                  className="flex h-12 w-full items-center gap-3 rounded-2xl px-4 text-sm font-bold text-rose-500 transition hover:bg-rose-50"
-                >
-                  <LogOut className="h-4 w-4" />
-                  Logout
-                </button>
+              <div className="border-t border-slate-100 p-4 dark:border-slate-800/60">
+                <div className="flex items-center gap-3 rounded-xl p-2 transition hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300 overflow-hidden border border-slate-200 dark:border-slate-700">
+                    {user?.avatarUrl ? (
+                      <img src={user.avatarUrl} alt="Avatar" className="h-full w-full object-cover" />
+                    ) : (
+                      <User className="h-5 w-5" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="truncate text-[13px] font-bold text-slate-900 dark:text-white">{user?.fullName || 'Mentor'}</p>
+                    <p className="truncate text-[11px] font-medium text-slate-500 dark:text-slate-400">{user?.email || 'mentor@mentorx.com'}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMobileNavOpen(false)
+                      handleLogout()
+                    }}
+                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-400 transition hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-500/10"
+                    title="Logout"
+                  >
+                    <LogOut className="h-4 w-4" />
+                  </button>
+                </div>
               </div>
             </div>
           </div>
