@@ -147,122 +147,142 @@ export default function MentorListPage() {
   }
 
   return (
-    <div className="topcv-job-font min-h-screen bg-[#F8FAFC] text-[#111827]">
-      <section className="sticky top-16 z-30 border-b border-[#E5E7EB] bg-[#FFFFFF]/95 backdrop-blur">
-        <div className="mx-auto max-w-[1600px] px-4 py-4 sm:px-6 lg:px-8">
-          <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_auto]">
-            <div className="relative">
-              <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#9CA3AF]" />
+    <div className="topcv-job-font min-h-screen bg-[#F8FAFC] text-gray-900">
+            <section className="bg-gradient-to-b from-indigo-50 to-[#F8FAFC] border-b border-gray-200 pb-8 pt-16">
+        <div className="mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-8">
+          <div className="mb-10 text-center max-w-3xl mx-auto">
+             <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 sm:text-5xl">Find the right mentor</h1>
+             <p className="mt-4 text-lg text-gray-600">Learn from verified experts and accelerate your growth.</p>
+          </div>
+          
+          {/* Main Composite Search Bar */}
+          <div className="flex flex-col xl:flex-row items-center rounded-2xl border border-gray-200 bg-white p-2 shadow-sm transition-all focus-within:border-[#4f46e5] focus-within:ring-4 focus-within:ring-indigo-50">
+            {/* Keyword */}
+            <div className="relative flex w-full xl:w-2/5 items-center px-4 py-2 border-b xl:border-b-0 xl:border-r border-gray-100">
+              <Search className="h-5 w-5 shrink-0 text-gray-400" />
               <input
                 value={searchText}
                 onChange={(event) => setSearchText(event.target.value)}
-                placeholder="Search mentor name, expertise, career goal..."
-                className="h-12 w-full rounded-xl border border-[#E5E7EB] bg-[#FFFFFF] pl-12 pr-12 text-sm font-medium text-[#111827] outline-none transition focus:border-gray-400 focus:ring-4 focus:ring-gray-100"
+                placeholder="Search mentor by name, expertise..."
+                className="w-full bg-transparent pl-3 text-[15px] font-medium text-gray-900 outline-none placeholder:text-gray-400"
               />
               {searchText && (
-                <button
-                  type="button"
-                  onClick={() => setSearchText('')}
-                  className="absolute right-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-lg text-[#9CA3AF] transition hover:bg-[#F9FAFB] hover:text-[#4B5563]"
-                  aria-label="Clear search"
-                >
+                <button onClick={() => setSearchText('')} className="absolute right-4 text-gray-400 hover:text-gray-600">
                   <X className="h-4 w-4" />
                 </button>
               )}
             </div>
 
-            <div className="grid gap-2 sm:grid-cols-2 xl:flex xl:flex-wrap xl:items-center">
-              <SelectControl label="Sort" value={sortBy} onChange={applySort} options={SORT_OPTIONS} />
-              <button
-                type="button"
-                onClick={() => setFilterOpen((open) => !open)}
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-[#E5E7EB] bg-[#FFFFFF] px-4 text-sm font-medium text-[#111827] transition hover:bg-[#F9FAFB]"
+            {/* Domain */}
+            <div className="relative flex w-full xl:w-1/4 items-center px-4 py-2 border-b xl:border-b-0 xl:border-r border-gray-100">
+              <Briefcase className="h-5 w-5 shrink-0 text-gray-400" />
+              <select
+                value={primaryDomain || ''}
+                onChange={(e) => { setPrimaryDomain(e.target.value || undefined); setPage(0); }}
+                className="w-full appearance-none bg-transparent pl-3 pr-8 text-[15px] font-medium text-gray-900 outline-none cursor-pointer"
               >
-                <SlidersHorizontal className="h-4 w-4 text-[#9CA3AF]" />
-                Filters
-                {activeFilterCount > 0 && (
-                  <span className="rounded-full bg-[#111827] px-2 py-0.5 text-xs text-white">{activeFilterCount}</span>
-                )}
+                <option value="">Any domain</option>
+                {categories.map((c) => (
+                  <option key={c.id} value={c.name}>{c.name}</option>
+                ))}
+              </select>
+              <ChevronDown className="pointer-events-none absolute right-4 h-4 w-4 text-gray-400" />
+            </div>
+
+            {/* Skill */}
+            <div className="relative flex w-full xl:w-1/4 items-center px-4 py-2 border-b xl:border-b-0 xl:border-r border-gray-100">
+              <Code2 className="h-5 w-5 shrink-0 text-gray-400" />
+              <select
+                value={skillKeyword || ''}
+                onChange={(e) => { setSkillKeyword(e.target.value || undefined); setPage(0); }}
+                className="w-full appearance-none bg-transparent pl-3 pr-8 text-[15px] font-medium text-gray-900 outline-none cursor-pointer"
+              >
+                <option value="">Any skill</option>
+                {skills.slice(0, 60).map((s) => (
+                  <option key={s.id} value={s.labelEn}>{s.labelEn}</option>
+                ))}
+              </select>
+              <ChevronDown className="pointer-events-none absolute right-4 h-4 w-4 text-gray-400" />
+            </div>
+
+            {/* Search CTA */}
+            <div className="w-full xl:w-auto px-2 mt-2 xl:mt-0 shrink-0">
+              <button 
+                className="flex h-[46px] w-full items-center justify-center gap-2 rounded-xl bg-[#4f46e5] px-8 text-[15px] font-bold text-white shadow-sm transition hover:bg-indigo-700"
+              >
+                Find Mentors
               </button>
             </div>
           </div>
 
-          {filterOpen && (
-            <div className="mt-4 grid gap-3 rounded-xl border border-[#E5E7EB] bg-[#FFFFFF] p-4 shadow-sm sm:grid-cols-2 xl:grid-cols-6">
-              <SelectControl
-                label="Domain"
-                value={primaryDomain || ''}
-                onChange={(value) => {
-                  setPrimaryDomain(value || undefined)
-                  setPage(0)
-                }}
-                options={[
-                  { value: '', label: 'Any domain' },
-                  ...categories.map((category) => ({ value: category.name, label: category.name })),
-                ]}
-              />
-              <SelectControl
-                label="Skill"
-                value={skillKeyword || ''}
-                onChange={(value) => {
-                  setSkillKeyword(value || undefined)
-                  setPage(0)
-                }}
-                options={[
-                  { value: '', label: 'Any skill' },
-                  ...skills.slice(0, 60).map((skill) => ({ value: skill.labelEn, label: skill.labelEn })),
-                ]}
-              />
-              <SelectControl
-                label="Rating"
-                value={minRating?.toString() || ''}
-                onChange={(value) => {
-                  setMinRating(value ? Number(value) : undefined)
-                  setPage(0)
-                }}
-                options={[
-                  { value: '', label: 'Any rating' },
-                  { value: '4', label: '4+ stars' },
-                  { value: '3', label: '3+ stars' },
-                ]}
-              />
-              <SelectControl
-                label="Budget"
-                value={maxRate?.toString() || ''}
-                onChange={(value) => {
-                  setMaxRate(value ? Number(value) : undefined)
-                  setPage(0)
-                }}
-                options={RATE_OPTIONS.map((item) => ({ value: item.value?.toString() || '', label: item.label }))}
-              />
-              <SelectControl
-                label="Availability"
-                value={availability || ''}
-                onChange={(value) => {
-                  setAvailability(value || undefined)
-                  setPage(0)
-                }}
-                options={[{ value: '', label: 'Any availability' }, ...AVAILABILITY_OPTIONS]}
-              />
-              <div className="flex items-end">
-                <button
-                  type="button"
-                  onClick={clearSearchAndFilters}
-                  className="h-12 w-full rounded-xl border border-[#E5E7EB] bg-[#FFFFFF] text-sm font-medium text-[#4B5563] transition hover:bg-[#F9FAFB]"
+          {/* Secondary Filters Bar */}
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-4">
+             <div className="flex flex-wrap items-center gap-3">
+                <span className="text-[13px] font-bold text-gray-500 uppercase tracking-wide mr-2">Filters:</span>
+                
+                <select
+                  value={minRating?.toString() || ''}
+                  onChange={(e) => { setMinRating(e.target.value ? Number(e.target.value) : undefined); setPage(0); }}
+                  className="appearance-none rounded-full border border-gray-200 bg-white px-4 py-2 text-[13px] font-bold text-gray-700 outline-none hover:bg-gray-50 transition cursor-pointer"
                 >
-                  Reset filters
-                </button>
-              </div>
-            </div>
-          )}
+                  <option value="">Rating</option>
+                  <option value="4">4+ stars</option>
+                  <option value="3">3+ stars</option>
+                </select>
+
+                <select
+                  value={maxRate?.toString() || ''}
+                  onChange={(e) => { setMaxRate(e.target.value ? Number(e.target.value) : undefined); setPage(0); }}
+                  className="appearance-none rounded-full border border-gray-200 bg-white px-4 py-2 text-[13px] font-bold text-gray-700 outline-none hover:bg-gray-50 transition cursor-pointer"
+                >
+                  <option value="">Budget</option>
+                  {RATE_OPTIONS.filter(o => o.value).map(o => (
+                    <option key={o.label} value={o.value?.toString()}>{o.label}</option>
+                  ))}
+                </select>
+
+                <select
+                  value={availability || ''}
+                  onChange={(e) => { setAvailability(e.target.value || undefined); setPage(0); }}
+                  className="appearance-none rounded-full border border-gray-200 bg-white px-4 py-2 text-[13px] font-bold text-gray-700 outline-none hover:bg-gray-50 transition cursor-pointer"
+                >
+                  <option value="">Availability</option>
+                  {AVAILABILITY_OPTIONS.map(o => (
+                    <option key={o.value} value={o.value}>{o.label}</option>
+                  ))}
+                </select>
+
+                {activeFilterCount > 0 && (
+                  <button onClick={clearSearchAndFilters} className="text-[13px] font-bold text-rose-600 hover:text-rose-700 transition px-2">
+                    Clear all
+                  </button>
+                )}
+             </div>
+
+             <div className="flex items-center gap-3">
+                <span className="text-[13px] font-bold text-gray-500 uppercase tracking-wide">Sort by:</span>
+                <div className="relative">
+                  <select
+                    value={sortBy}
+                    onChange={(e) => applySort(e.target.value)}
+                    className="appearance-none border-none bg-transparent py-2 pl-2 pr-8 text-[14px] font-bold text-gray-900 outline-none cursor-pointer"
+                  >
+                    {SORT_OPTIONS.map(o => (
+                      <option key={o.value} value={o.value}>{o.label}</option>
+                    ))}
+                  </select>
+                  <ChevronDown className="pointer-events-none absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                </div>
+             </div>
+          </div>
         </div>
       </section>
 
       <main className="mx-auto max-w-[1600px] px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-[#111827] sm:text-4xl">Find the right mentor</h1>
-            <p className="mt-2 text-base text-[#4B5563]">
+            <h1 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Find the right mentor</h1>
+            <p className="mt-2 text-base text-gray-700">
               Learn from verified experts and accelerate your growth.
             </p>
           </div>
@@ -274,8 +294,8 @@ export default function MentorListPage() {
                    <img src={mentorFallbackImages[2]} className="w-10 h-10 rounded-full border-2 border-[#FFFFFF] object-cover" />
                 </div>
                 <div className="text-sm">
-                   <p className="font-semibold text-[#111827]">{totalMentors} approved mentors</p>
-                   <p className="text-[#9CA3AF]">in this marketplace</p>
+                   <p className="font-semibold text-gray-900">{totalMentors} approved mentors</p>
+                   <p className="text-gray-500">in this marketplace</p>
                 </div>
              </div>
           </div>
@@ -284,7 +304,7 @@ export default function MentorListPage() {
         {isLoading ? (
           <MentorGridSkeleton />
         ) : mentors.length > 0 ? (
-          <div className="flex flex-col gap-5">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {mentors.map((mentor, index) => (
               <MentorCard key={mentor.userId} mentor={mentor} index={index} />
             ))}
@@ -315,83 +335,73 @@ function MentorCard({ mentor, index }: { mentor: MentorProfileResponse; index: n
   const isTopRated = mentor.averageRating && mentor.averageRating >= 4.8
 
   return (
-    <article className="flex flex-col items-start gap-5 overflow-hidden rounded-xl border border-[#E5E7EB] bg-[#FFFFFF] p-5 transition-all hover:border-gray-300 sm:flex-row sm:p-6">
+    <article className="group flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-[#4f46e5] hover:shadow-xl relative">
+      {/* Subtle Cover Background */}
+      <div className="h-20 w-full bg-gradient-to-r from-indigo-50 to-slate-100"></div>
       
-      {/* Avatar Column */}
-      <div className="shrink-0 flex flex-col items-center">
-        <div className="h-16 w-16 sm:h-20 sm:w-20 overflow-hidden rounded-full border border-[#E5E7EB] bg-[#F8FAFC]">
+      {/* Avatar Container */}
+      <div className="px-6 relative flex justify-between items-end -mt-10 mb-3">
+        <div className="h-20 w-20 shrink-0 overflow-hidden rounded-2xl border-4 border-white bg-slate-50 shadow-sm relative z-10 pointer-events-none">
            <img src={image} alt={name} className="h-full w-full object-cover" />
+        </div>
+        <div className="mb-2 relative z-10 pointer-events-none">
+           <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-bold text-emerald-700 border border-emerald-100 shadow-sm">
+              <ShieldCheck className="h-3.5 w-3.5" />
+              {isTopRated ? 'Top Rated' : 'Verified'}
+           </span>
         </div>
       </div>
 
-      {/* Main Info Column */}
-      <div className="flex w-full min-w-0 flex-1 flex-col justify-start">
-        <div className="flex items-center gap-2">
-           <h2 className="text-lg font-bold text-[#111827] truncate">{name}</h2>
-           {isTopRated ? (
-             <span className="flex items-center gap-0.5 text-xs font-semibold text-[#15803D]">
-               <ShieldCheck className="h-3.5 w-3.5" />
-             </span>
-           ) : (
-             <span className="flex items-center gap-0.5 text-xs font-semibold text-[#15803D]">
-               <CheckCircle2 className="h-3.5 w-3.5" />
-             </span>
-           )}
-        </div>
-        <p className="mt-0.5 text-sm font-medium text-[#4B5563] truncate">{headline}</p>
+      <div className="flex flex-1 flex-col px-6 pb-6">
+        {/* Name and Headline */}
+        <h2 className="text-[17px] font-bold text-gray-900 group-hover:text-[#4f46e5] transition-colors truncate">
+           <Link to={`/mentors/${mentor.userId}`} className="focus:outline-none">
+             <span className="absolute inset-0 z-0" aria-hidden="true" />
+             {name}
+           </Link>
+        </h2>
+        <p className="mt-1 text-[13px] font-medium text-gray-600 line-clamp-1">{headline}</p>
         
-        {/* Trust Line */}
-        <div className="mt-2 flex flex-wrap items-center gap-2 text-xs font-medium text-[#9CA3AF]">
-           <span className="flex items-center gap-1 text-[#111827]">
-             <Star className="h-3.5 w-3.5 fill-current" />
-             {rating}
-           </span>
-           <span>·</span>
-           <span>{reviews} reviews</span>
-           <span>·</span>
-           <span>{mentor.totalJobsDone || 0} completed jobs</span>
-           <span>·</span>
-           <span>{responseTime}</span>
+        {/* Rating and Metrics */}
+        <div className="mt-3 flex items-center gap-2 text-[12px] font-bold text-gray-700">
+           <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+           {rating} <span className="font-medium text-gray-500">({reviews} reviews)</span>
         </div>
 
         {/* Bio */}
-        <p className="mt-3 text-sm text-[#4B5563] line-clamp-2">
+        <p className="mt-4 text-[13px] leading-relaxed text-gray-600 line-clamp-3">
           {/* @ts-ignore */}
           {mentor.bio || `I help individuals and teams master their craft, build scalable solutions, and accelerate their careers.`}
         </p>
 
         {/* Skills */}
-        <div className="mt-4 flex flex-wrap gap-2">
-           <span className="rounded border border-[#E5E7EB] bg-[#F9FAFB] px-2 py-1 text-xs font-medium text-[#4B5563]">
-             <span className="break-words">{mentor.primaryDomain || 'Software Engineering'}</span>
+        <div className="mt-4 flex flex-wrap gap-1.5">
+           <span className="rounded bg-slate-100 px-2 py-1 text-[11px] font-bold text-gray-700">
+             {mentor.primaryDomain || 'Software Engineering'}
            </span>
-           <span className="rounded border border-[#E5E7EB] bg-[#F9FAFB] px-2 py-1 text-xs font-medium text-[#4B5563]">
+           <span className="rounded bg-slate-100 px-2 py-1 text-[11px] font-bold text-gray-700">
              Consulting
            </span>
         </div>
-      </div>
 
-      {/* Right Column: Pricing & Actions */}
-      <div className="flex w-full shrink-0 flex-col items-stretch pt-2 sm:w-[180px] sm:items-end sm:pt-0">
-        <div className="flex items-baseline gap-1">
-          <span className="text-lg font-bold text-[#111827]">{rate}</span>
-          <span className="text-xs text-[#9CA3AF]">/ session</span>
-        </div>
-        <span className="mt-1 text-xs font-medium text-[#4B5563]">{availability}</span>
-        
-        <div className="mt-5 w-full flex flex-col gap-2">
-          <Link
-            to={`/mentors/${mentor.userId}`}
-            className="flex w-full items-center justify-center rounded-lg bg-[#111827] px-4 py-2 text-sm font-semibold text-[#FFFFFF] transition hover:bg-[#1F2937]"
-          >
-            View profile
-          </Link>
-          <a
-            href="#"
-            className="flex w-full items-center justify-center rounded-lg border border-[#E5E7EB] bg-[#FFFFFF] px-4 py-2 text-sm font-semibold text-[#4B5563] transition hover:bg-[#F9FAFB]"
-          >
-            Portfolio
-          </a>
+        <div className="mt-auto pt-6">
+           {/* Rate and Availability */}
+           <div className="flex items-center justify-between border-t border-slate-100 pt-4 mb-4">
+              <div>
+                 <span className="text-[16px] font-black text-[#4f46e5]">{rate}</span>
+                 <span className="text-[11px] text-gray-500 font-medium"> / hr</span>
+              </div>
+              <div className="flex items-center gap-1.5 text-[12px] text-gray-600 font-medium">
+                 <Clock3 className="h-3.5 w-3.5" />
+                 {availability}
+              </div>
+           </div>
+
+           {/* Full Width CTA */}
+           <Link to={`/mentors/${mentor.userId}`} className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#4f46e5] py-2.5 text-[14px] font-bold text-white shadow-sm transition hover:bg-indigo-700 relative z-20">
+              View Profile
+              <ArrowRight className="h-4 w-4" />
+           </Link>
         </div>
       </div>
     </article>
@@ -415,7 +425,7 @@ function SelectControl({
       <select
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="h-12 w-full appearance-none rounded-xl border border-[#E5E7EB] bg-[#FFFFFF] px-3 pr-9 text-sm font-medium text-[#111827] outline-none transition focus:border-gray-400 focus:ring-4 focus:ring-gray-100"
+        className="h-12 w-full appearance-none rounded-xl border border-[#E5E7EB] bg-[#FFFFFF] px-3 pr-9 text-sm font-medium text-gray-900 outline-none transition focus:border-gray-400 focus:ring-4 focus:ring-gray-100"
       >
         {options.map((option) => (
           <option key={option.value} value={option.value}>
@@ -423,28 +433,28 @@ function SelectControl({
           </option>
         ))}
       </select>
-      <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9CA3AF]" />
+      <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
     </label>
   )
 }
 
 function MentorGridSkeleton() {
   return (
-    <div className="flex flex-col gap-5">
-      {Array.from({ length: 5 }).map((_, index) => (
-        <div key={index} className="flex flex-col sm:flex-row items-start gap-5 p-5 sm:p-6 rounded-xl border border-[#E5E7EB] bg-[#FFFFFF]">
-           <div className="shrink-0 flex flex-col items-center">
-              <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-full bg-[#F9FAFB] animate-pulse border border-[#E5E7EB]" />
+    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      {Array.from({ length: 8 }).map((_, index) => (
+        <div key={index} className="flex h-[420px] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white">
+           <div className="h-20 w-full bg-slate-100 animate-pulse"></div>
+           <div className="px-6 -mt-10 mb-4">
+              <div className="h-20 w-20 rounded-2xl bg-slate-200 border-4 border-white animate-pulse" />
            </div>
-           <div className="flex-1 w-full space-y-3">
-              <div className="h-5 w-1/3 bg-[#F9FAFB] rounded animate-pulse" />
-              <div className="h-4 w-1/4 bg-[#F9FAFB] rounded animate-pulse" />
-              <div className="h-3 w-1/2 bg-[#F9FAFB] rounded animate-pulse mt-4" />
-              <div className="h-3 w-full bg-[#F9FAFB] rounded animate-pulse mt-2" />
-           </div>
-           <div className="w-full shrink-0 space-y-3 pt-4 sm:w-[180px] sm:pt-0">
-              <div className="h-6 w-20 bg-[#F9FAFB] rounded animate-pulse sm:ml-auto" />
-              <div className="h-10 w-full bg-[#F9FAFB] rounded-lg animate-pulse mt-4" />
+           <div className="px-6 flex-1 space-y-4">
+              <div className="h-5 w-2/3 bg-slate-100 rounded animate-pulse" />
+              <div className="h-3 w-1/2 bg-slate-100 rounded animate-pulse" />
+              <div className="space-y-2 mt-4">
+                 <div className="h-3 w-full bg-slate-100 rounded animate-pulse" />
+                 <div className="h-3 w-full bg-slate-100 rounded animate-pulse" />
+                 <div className="h-3 w-3/4 bg-slate-100 rounded animate-pulse" />
+              </div>
            </div>
         </div>
       ))}

@@ -35,6 +35,7 @@ export const jobApi = {
     jobType?: JobType
     categoryId?: number
     skill?: string
+    experienceLevel?: string
     keyword?: string
     budgetMin?: number
     budgetMax?: number

@@ -466,12 +466,14 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 rounded-[20px] bg-white p-6 shadow-[0_2px_12px_rgba(0,0,0,0.04)] sm:p-8">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 rounded-[24px] border border-white/60 bg-white/70 backdrop-blur-xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] sm:p-10 relative overflow-hidden">
+      {/* Decorative gradient corner inside form */}
+      <div className="absolute -top-24 -right-24 w-48 h-48 bg-gradient-to-br from-[#4f46e5]/10 to-purple-500/10 rounded-full blur-2xl pointer-events-none"></div>
       <div>
-        <label className="mb-2 block text-sm font-bold text-slate-800">Job title</label>
+        <label className="mb-2 block text-sm font-bold text-[#1b2252]">Job title</label>
         <input
           {...register('title')}
-          className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition"
+          className="w-full rounded-xl border border-slate-200 bg-white/80 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300 transition"
           placeholder="Example: Need a React Native mentor to review booking app architecture"
         />
         {errors.title && <p className="mt-1.5 text-xs font-medium text-rose-500">{errors.title.message}</p>}
@@ -479,11 +481,11 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label className="mb-2 block text-sm font-bold text-slate-800">Category</label>
+          <label className="mb-2 block text-sm font-bold text-[#1b2252]">Category</label>
           <div className="relative">
             <select
               {...register('categoryId')}
-              className="w-full appearance-none rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition"
+              className="w-full appearance-none rounded-xl border border-slate-200 bg-white/80 px-4 py-3 text-sm text-slate-900 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300 transition"
             >
               <option value="">Choose a category</option>
               {categories.map((category) => (
@@ -498,7 +500,7 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
             <div className="mt-3">
               <input
                 {...register('customCategoryName')}
-                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition"
+                className="w-full rounded-xl border border-slate-200 bg-white/80 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300 transition"
                 placeholder="Enter your own category"
               />
               {errors.customCategoryName && <p className="mt-1.5 text-xs font-medium text-rose-500">{errors.customCategoryName.message}</p>}
@@ -507,15 +509,15 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-bold text-slate-800">End date and time</label>
+          <label className="mb-2 block text-sm font-bold text-[#1b2252]">End date and time</label>
           <input
             type="datetime-local"
             step={1}
             {...register('deadlineDate')}
-            className="w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition"
+            className="w-full rounded-xl border border-slate-200 bg-white/80 px-3 py-3 text-sm text-slate-900 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300 transition"
           />
           <div className="mt-2 space-y-1 rounded-xl border border-slate-100 bg-slate-50 px-3 py-2">
-            <p className="text-xs font-semibold text-slate-700">
+            <p className="text-xs font-semibold text-[#1b2252]/80">
               Selected: <span className="font-black text-slate-900">{selectedDeadlinePreview}</span>
             </p>
             <p className={`text-xs font-semibold ${selectedDeadline && new Date(selectedDeadline).getTime() > Date.now() ? 'text-emerald-700' : 'text-slate-500'}`}>
@@ -527,21 +529,21 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
       </div>
 
       <div>
-        <label className="mb-2 block text-sm font-bold text-slate-800">Description</label>
+        <label className="mb-2 block text-sm font-bold text-[#1b2252]">Description</label>
         <textarea
           {...register('description')}
           rows={5}
-          className="w-full resize-none rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm leading-6 text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition"
+          className="w-full resize-none rounded-xl border border-slate-200 bg-white/80 px-4 py-3 text-sm leading-6 text-slate-900 placeholder:text-slate-400 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300 transition"
           placeholder="Describe the problem, goal, scope, and what kind of mentor support you need."
         />
         {errors.description && <p className="mt-1.5 text-xs font-medium text-rose-500">{errors.description.message}</p>}
       </div>
 
       <div>
-        <label className="mb-2 block text-sm font-bold text-slate-800">Required skills or topics</label>
+        <label className="mb-2 block text-sm font-bold text-[#1b2252]">Required skills or topics</label>
         <input
           {...register('requiredSkillsInput')}
-          className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition"
+          className="w-full rounded-xl border border-slate-200 bg-white/80 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300 transition"
           placeholder="React Native, Expo, performance optimization..."
         />
         {errors.requiredSkillsInput && <p className="mt-1.5 text-xs font-medium text-rose-500">{errors.requiredSkillsInput.message}</p>}
@@ -551,7 +553,7 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
         <button
           type="button"
           onClick={() => setShowAdvanced((value) => !value)}
-          className="flex w-full items-center justify-between px-5 py-4 text-left text-sm font-bold text-slate-700 hover:bg-slate-100/50"
+          className="flex w-full items-center justify-between px-5 py-4 text-left text-sm font-bold text-[#1b2252]/80 hover:bg-slate-100/50"
         >
           <span>Advanced details</span>
           <ChevronDown className={`h-4 w-4 text-slate-400 transition-transform ${showAdvanced ? 'rotate-180' : ''}`} />
@@ -560,19 +562,19 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
         {showAdvanced && (
           <div className="grid gap-4 border-t border-slate-100 p-5 pt-4 sm:grid-cols-2">
             <div>
-              <label className="mb-2 block text-xs font-bold text-slate-700">Your current level</label>
+              <label className="mb-2 block text-xs font-bold text-[#1b2252]/80">Your current level</label>
               <input
                 {...register('currentLevel')}
-                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                className="w-full rounded-lg border border-slate-200 bg-white/80 px-3 py-2.5 text-sm text-slate-900 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300"
                 placeholder="Example: I can build screens but need architecture help"
               />
             </div>
 
             <div>
-              <label className="mb-2 block text-xs font-bold text-slate-700">Preferred mentor level</label>
+              <label className="mb-2 block text-xs font-bold text-[#1b2252]/80">Preferred mentor level</label>
               <select
                 {...register('experiencePreset')}
-                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                className="w-full rounded-lg border border-slate-200 bg-white/80 px-3 py-2.5 text-sm text-slate-900 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300"
               >
                 {experienceOptions.map((option) => (
                   <option key={option.value || 'default'} value={option.value}>{option.label}</option>
@@ -581,7 +583,7 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
               {experiencePreset === EXPERIENCE_CUSTOM && (
                 <input
                   {...register('customExperienceLevel')}
-                  className="mt-3 w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  className="mt-3 w-full rounded-lg border border-slate-200 bg-white/80 px-3 py-2.5 text-sm text-slate-900 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300"
                   placeholder="Enter your own preferred mentor level"
                 />
               )}
@@ -589,30 +591,30 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
             </div>
 
             <div className="sm:col-span-2">
-              <label className="mb-2 block text-xs font-bold text-slate-700">Learning goals</label>
+              <label className="mb-2 block text-xs font-bold text-[#1b2252]/80">Learning goals</label>
               <textarea
                 {...register('learningGoals')}
                 rows={2}
-                className="w-full resize-none rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                className="w-full resize-none rounded-lg border border-slate-200 bg-white/80 px-3 py-2 text-sm text-slate-900 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300"
                 placeholder="What should change after working with the mentor?"
               />
             </div>
 
             <div className="sm:col-span-2">
-              <label className="mb-2 block text-xs font-bold text-slate-700">Success criteria</label>
+              <label className="mb-2 block text-xs font-bold text-[#1b2252]/80">Success criteria</label>
               <textarea
                 {...register('successCriteria')}
                 rows={2}
-                className="w-full resize-none rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                className="w-full resize-none rounded-lg border border-slate-200 bg-white/80 px-3 py-2 text-sm text-slate-900 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300"
                 placeholder="How will you know this job is done well?"
               />
             </div>
 
             <div>
-              <label className="mb-2 block text-xs font-bold text-slate-700">Preferred communication</label>
+              <label className="mb-2 block text-xs font-bold text-[#1b2252]/80">Preferred communication</label>
               <select
                 {...register('communicationPreset')}
-                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                className="w-full rounded-lg border border-slate-200 bg-white/80 px-3 py-2.5 text-sm text-slate-900 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300"
               >
                 {communicationOptions.map((option) => (
                   <option key={option.value || 'default'} value={option.value}>{option.label}</option>
@@ -621,7 +623,7 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
               {communicationPreset === COMMUNICATION_CUSTOM && (
                 <input
                   {...register('customCommunicationPreference')}
-                  className="mt-3 w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  className="mt-3 w-full rounded-lg border border-slate-200 bg-white/80 px-3 py-2.5 text-sm text-slate-900 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300"
                   placeholder="Enter your own communication preference"
                 />
               )}
@@ -629,10 +631,10 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
             </div>
 
             <div>
-              <label className="mb-2 block text-xs font-bold text-slate-700">Availability note</label>
+              <label className="mb-2 block text-xs font-bold text-[#1b2252]/80">Availability note</label>
               <input
                 {...register('availabilityExpectation')}
-                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                className="w-full rounded-lg border border-slate-200 bg-white/80 px-3 py-2.5 text-sm text-slate-900 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300"
                 placeholder="Example: Weeknights or weekends"
               />
             </div>
@@ -643,19 +645,19 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
 
       <div>
         <div className="mb-4 flex items-center justify-between">
-          <label className="block text-sm font-bold text-slate-800">Budget</label>
+          <label className="block text-sm font-bold text-[#1b2252]">Budget</label>
           <div className="flex items-center rounded-lg border border-slate-200 bg-slate-50 p-1">
             <button
               type="button"
               onClick={() => setValue('budgetType', 'FIXED')}
-              className={`rounded-md px-3 py-1.5 text-xs font-bold transition ${budgetType === 'FIXED' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+              className={`rounded-md px-3 py-1.5 text-xs font-bold transition ${budgetType === 'FIXED' ? 'bg-white/80 text-blue-600 shadow-sm' : 'text-slate-500 hover:text-[#1b2252]/80'}`}
             >
               Fixed
             </button>
             <button
               type="button"
               onClick={() => setValue('budgetType', 'HOURLY')}
-              className={`rounded-md px-3 py-1.5 text-xs font-bold transition ${budgetType === 'HOURLY' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+              className={`rounded-md px-3 py-1.5 text-xs font-bold transition ${budgetType === 'HOURLY' ? 'bg-white/80 text-blue-600 shadow-sm' : 'text-slate-500 hover:text-[#1b2252]/80'}`}
             >
               Hourly
             </button>
@@ -667,10 +669,10 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
             <input
               type="number"
               {...register('budgetAmount')}
-              className="w-full rounded-xl border border-slate-200 bg-white pl-4 pr-24 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition"
+              className="w-full rounded-xl border border-slate-200 bg-white/80 pl-4 pr-24 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300 transition"
               placeholder="Total budget"
             />
-            <div className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-bold text-slate-700">
+            <div className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-bold text-[#1b2252]/80">
               MXC
             </div>
             {errors.budgetAmount && <p className="mt-1.5 text-xs font-medium text-rose-500">{errors.budgetAmount.message}</p>}
@@ -681,10 +683,10 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
               <input
                 type="number"
                 {...register('hourlyRate')}
-                className="w-full rounded-xl border border-slate-200 bg-white pl-4 pr-24 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition"
+                className="w-full rounded-xl border border-slate-200 bg-white/80 pl-4 pr-24 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300 transition"
                 placeholder="Hourly rate"
               />
-              <div className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-bold text-slate-700">
+              <div className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-bold text-[#1b2252]/80">
                 MXC/h
               </div>
               {errors.hourlyRate && <p className="mt-1.5 text-xs font-medium text-rose-500">{errors.hourlyRate.message}</p>}
@@ -694,10 +696,10 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
               <input
                 type="number"
                 {...register('estimatedHours')}
-                className="w-full rounded-xl border border-slate-200 bg-white pl-4 pr-16 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition"
+                className="w-full rounded-xl border border-slate-200 bg-white/80 pl-4 pr-16 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300 transition"
                 placeholder="Estimated hours"
               />
-              <div className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-bold text-slate-700">
+              <div className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-bold text-[#1b2252]/80">
                 hrs
               </div>
               {errors.estimatedHours && <p className="mt-1.5 text-xs font-medium text-rose-500">{errors.estimatedHours.message}</p>}
@@ -707,22 +709,22 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
       </div>
 
       <div className="flex items-start gap-3 rounded-xl border border-[#e5eeff] bg-[#f4f8ff] px-4 py-3 text-[13px] leading-relaxed text-blue-900">
-        <Info className="mt-[3px] h-4 w-4 shrink-0 text-blue-500" />
+        <Info className="mt-[3px] h-4 w-4 shrink-0 text-[#4f46e5]" />
         <p>
           Payment stays protected in escrow until the work is completed and accepted.
         </p>
       </div>
 
       <div>
-        <label className="mb-2 block text-sm font-bold text-slate-800">Attachments (multiple files supported)</label>
+        <label className="mb-2 block text-sm font-bold text-[#1b2252]">Attachments (multiple files supported)</label>
         <p className="mb-3 text-xs font-medium text-slate-500">{attachmentSummary}</p>
 
-        <label className="group flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 bg-[#fafafa] px-6 py-8 transition hover:border-blue-400 hover:bg-blue-50/30">
+        <label className="group flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 bg-[#fafafa] px-6 py-8 transition hover:border-[#4f46e5]/50 hover:bg-[#4f46e5]/5">
           <input type="file" multiple onChange={handleFilesUpload} className="hidden" disabled={uploading} />
           {uploading ? (
-            <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+            <Loader2 className="h-8 w-8 animate-spin text-[#4f46e5]" />
           ) : (
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f1f5f9] text-[#94a3b8] transition-all group-hover:scale-110 group-hover:text-blue-500">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f1f5f9] text-[#94a3b8] transition-all group-hover:scale-110 group-hover:text-[#4f46e5]">
               <Upload className="h-6 w-6" />
             </div>
           )}
@@ -737,7 +739,7 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
             {attachments.map((attachment) => (
               <div key={attachment.fileUrl} className="flex items-center justify-between gap-3 rounded-xl border border-indigo-100 bg-indigo-50/50 p-4">
                 <div className="flex min-w-0 items-center gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-indigo-100/50 bg-white text-indigo-500 shadow-sm">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-indigo-100/50 bg-white/80 text-indigo-500 shadow-sm">
                     <FileIcon className="h-5 w-5" />
                   </div>
                   <div className="min-w-0">
@@ -750,7 +752,7 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
                 <button
                   type="button"
                   onClick={() => handleRemoveAttachment(attachment.fileUrl)}
-                  className="flex h-8 w-8 items-center justify-center rounded-lg text-indigo-400 transition hover:bg-white hover:text-rose-500"
+                  className="flex h-8 w-8 items-center justify-center rounded-lg text-indigo-400 transition hover:bg-white/80 hover:text-rose-500"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -764,7 +766,7 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
         <div className="relative flex h-5 w-5 shrink-0 items-center justify-center">
           <input
             type="checkbox"
-            className="peer h-5 w-5 cursor-pointer appearance-none rounded border border-slate-300 bg-white transition checked:border-[#3b82f6] checked:bg-[#3b82f6] hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+            className="peer h-5 w-5 cursor-pointer appearance-none rounded border border-slate-300 bg-white/80 transition checked:border-[#4f46e5] checked:bg-[#4f46e5] hover:border-[#4f46e5] focus:outline-none focus:ring-2 focus:ring-[#4f46e5]/20"
             checked={agreeTerms}
             onChange={(event) => setAgreeTerms(event.target.checked)}
           />
@@ -789,7 +791,7 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
           type="button"
           disabled={loading || uploading}
           onClick={handleSaveDraft}
-          className="flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-6 py-3.5 text-[15px] font-bold text-slate-700 shadow-sm transition-all hover:bg-slate-50 hover:shadow focus:outline-none focus:ring-4 focus:ring-slate-500/10 disabled:cursor-not-allowed disabled:opacity-70"
+          className="flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white/80 px-6 py-3.5 text-[15px] font-bold text-[#1b2252] shadow-sm transition-all hover:bg-slate-50 hover:shadow-md hover:-translate-y-0.5 focus:outline-none focus:ring-4 focus:ring-slate-500/10 disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0"
         >
           {loading && submitStatus === 'DRAFT' ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4 text-slate-400" />}
           {isEditing ? 'Update draft' : 'Save draft'}

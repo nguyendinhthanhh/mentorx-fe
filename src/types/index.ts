@@ -419,6 +419,7 @@ export interface MentorProfileResponse {
   responseTimeHours?: number;
   totalJobsDone?: number;
   successRate?: number;
+  coverUrl?: string;
   cvUrl?: string;
   portfolioUrl?: string;
   videoIntroUrl?: string;
@@ -491,6 +492,7 @@ export interface MentorProfileRequest {
   hourlyRateMxc?: number;
   yearsOfExperience?: number;
   availability?: string;
+  coverUrl?: string;
   cvUrl?: string;
   portfolioUrl?: string;
   videoIntroUrl?: string;

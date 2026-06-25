@@ -10,11 +10,12 @@ import {
   FileText,
   Globe,
   Loader2,
-  UploadCloud,
+  UploadCloud, User,
 } from 'lucide-react'
 
 import { FILE_UPLOAD_DIRS, fileApi } from '@/api/fileApi'
 import { mentorApi } from '@/api/mentorApi'
+import { userApi } from '@/api/userApi'
 import { MentorProfileRequest } from '@/types'
 import { useAuthStore } from '@/store/authStore'
 import { deriveLegacyProofFields, getMentorProofLinks, normalizeProofLinks } from '@/utils/proofLinks'
@@ -110,6 +111,8 @@ const schema = z
         url: z.string().optional(),
       })
     ).default([]),
+    avatarUrl: z.string().optional(),
+    coverUrl: z.string().optional(),
     cvUrl: z.string().optional(),
     certificateUrl: z.string().optional(),
     mentorAgreementAccepted: z.boolean().refine(Boolean, 'You must accept the mentor terms.'),
@@ -262,7 +265,7 @@ export default function MentorProfileForm({
   onSaved,
 }: Props) {
   const navigate = useNavigate()
-  const { refreshUser } = useAuthStore()
+  const { user, refreshUser } = useAuthStore()
   const [uploading, setUploading] = useState<Record<string, boolean>>({})
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
@@ -306,6 +309,8 @@ export default function MentorProfileForm({
       languagesOption: resolvedLanguages,
       languagesCustom: resolvedLanguages === 'Other' ? initialLanguagesText : '',
       proofLinks: getMentorProofLinks(initialData).map((item) => ({ label: item.label, url: item.url })),
+      avatarUrl: user?.avatarUrl || '',
+      coverUrl: initialData?.coverUrl || '',
       cvUrl: initialData?.cvUrl || '',
       certificateUrl: initialData?.certificateUrl || '',
       mentorAgreementAccepted: Boolean(initialData?.mentorAgreementAccepted),
@@ -313,7 +318,30 @@ export default function MentorProfileForm({
     },
   })
 
-  const { fields: proofLinkFields, append: appendProofLink, remove: removeProofLink } = useFieldArray({
+  
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, fieldName: 'avatarUrl' | 'coverUrl') => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (!allowedMimeTypes.has(file.type)) {
+      setError('Invalid file type for ' + fieldName)
+      return
+    }
+
+    try {
+      setUploading((prev) => ({ ...prev, [fieldName]: true }))
+      setError('')
+      const response = await fileApi.uploadCourseMedia(file, fieldName === 'avatarUrl' ? 'mentorx/avatars' : 'mentorx/covers')
+      setValue(fieldName, response.fileUrl, { shouldValidate: true, shouldDirty: true })
+    } catch (err) {
+      console.error(err)
+      setError(getApiErrorMessage(err, 'Failed to upload image.'))
+    } finally {
+      setUploading((prev) => ({ ...prev, [fieldName]: false }))
+    }
+  }
+
+const { fields: proofLinkFields, append: appendProofLink, remove: removeProofLink } = useFieldArray({
     control,
     name: 'proofLinks',
   })
@@ -439,6 +467,7 @@ export default function MentorProfileForm({
         proofLinks: proofLinks.length > 0 ? proofLinks : undefined,
         cvUrl: data.cvUrl || undefined,
         certificateUrl: data.certificateUrl || undefined,
+        coverUrl: data.coverUrl || undefined,
         mentorAgreementAccepted: data.mentorAgreementAccepted,
         disputePolicyAccepted: data.disputePolicyAccepted,
       }
@@ -447,6 +476,10 @@ export default function MentorProfileForm({
         await mentorApi.updateMentorProfile(userId, payload)
       } else {
         await mentorApi.createMentorProfile(userId, payload)
+      }
+
+      if (data.avatarUrl) {
+        await userApi.updateUser(userId, { avatarUrl: data.avatarUrl })
       }
 
       await refreshUser()
@@ -488,6 +521,60 @@ export default function MentorProfileForm({
         </section>
       )}
       <fieldset disabled={isLocked} className="space-y-6 disabled:cursor-not-allowed disabled:opacity-70">
+
+      <section className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm overflow-hidden dark:border-slate-800 dark:bg-slate-950">
+        <div className="mb-4">
+          <h2 className="text-xl font-black text-slate-950 dark:text-white">Visual Branding</h2>
+          <p className="text-sm text-slate-600 dark:text-slate-400">Make your profile stand out with a custom cover photo and professional avatar.</p>
+        </div>
+
+        <div className="relative mt-4">
+          {/* Cover Photo Area */}
+          <div className="relative h-48 w-full rounded-2xl bg-slate-100 overflow-hidden border-2 border-dashed border-slate-300 flex items-center justify-center group transition-colors hover:border-indigo-400 dark:bg-slate-900 dark:border-slate-800">
+            {values.coverUrl ? (
+              <img src={values.coverUrl} alt="Cover" className="h-full w-full object-cover" />
+            ) : (
+              <div className="text-center text-slate-500">
+                <UploadCloud className="mx-auto h-8 w-8 mb-2 opacity-50" />
+                <span className="text-sm font-medium">Upload Cover Photo (16:9)</span>
+              </div>
+            )}
+            
+            <label className="absolute inset-0 cursor-pointer flex items-center justify-center bg-black/0 group-hover:bg-black/20 transition-all">
+              <input type="file" className="hidden" accept="image/jpeg,image/png,image/webp" onChange={(e) => handleImageUpload(e, 'coverUrl')} disabled={uploading.coverUrl || isLocked} />
+              {uploading.coverUrl && <Loader2 className="h-8 w-8 animate-spin text-white" />}
+            </label>
+          </div>
+
+          {/* Avatar Area */}
+          <div className="absolute -bottom-10 left-8 z-10">
+            <div className="relative h-28 w-28 rounded-full border-4 border-white bg-white shadow-md overflow-hidden group dark:border-slate-950 dark:bg-slate-900">
+              {values.avatarUrl ? (
+                <img src={values.avatarUrl} alt="Avatar" className="h-full w-full object-cover" />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center bg-indigo-100 text-indigo-400 dark:bg-indigo-900 dark:text-indigo-300">
+                  <User className="h-12 w-12" />
+                </div>
+              )}
+              
+              <label className="absolute inset-0 cursor-pointer flex items-center justify-center bg-black/0 group-hover:bg-black/40 transition-all rounded-full">
+                <input type="file" className="hidden" accept="image/jpeg,image/png,image/webp" onChange={(e) => handleImageUpload(e, 'avatarUrl')} disabled={uploading.avatarUrl || isLocked} />
+                {uploading.avatarUrl ? (
+                  <Loader2 className="h-6 w-6 animate-spin text-white" />
+                ) : (
+                  <UploadCloud className="h-6 w-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                )}
+              </label>
+            </div>
+          </div>
+        </div>
+        
+        <div className="mt-14 flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+          <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+          Recommended: Cover (1600x400px), Avatar (400x400px). JPG, PNG, WEBP up to 10MB.
+        </div>
+      </section>
+
       <section className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
         <div className="flex items-start gap-4">
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950/40 dark:text-indigo-400">

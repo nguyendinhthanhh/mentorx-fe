@@ -60,42 +60,42 @@ export default function HomePage() {
       <section className="bg-white pb-16 pt-12">
         <div className="mx-auto grid max-w-[1600px] gap-10 px-4 sm:px-6 lg:grid-cols-[1.3fr_1fr] lg:px-8 items-center">
           <div>
-            <h1 className="text-4xl font-extrabold leading-tight text-[#1b2252] lg:text-[54px]">
+            <h1 className="text-4xl font-bold leading-tight text-gray-900 lg:text-[54px]">
               {t('home.hero.titleLine1')}
               <br />
               {t('home.hero.titleLine2')}
             </h1>
-            <p className="mt-5 max-w-lg text-base text-slate-600 leading-relaxed">
+            <p className="mt-5 max-w-lg text-base text-gray-700 leading-[1.6]">
               {t('home.hero.subtitle')}
             </p>
 
             <div className="mt-8 flex items-center rounded-2xl border border-[#e2e6f5] bg-white p-2 shadow-sm">
                 <div className="flex flex-1 items-center px-3">
-                  <Search className="h-5 w-5 text-slate-400 shrink-0" />
+                  <Search className="h-5 w-5 text-gray-500 shrink-0" />
                   <input
                     value={keyword}
                     onChange={(event) => setKeyword(event.target.value)}
                     placeholder={t('home.hero.searchPlaceholder')}
-                    className="w-full bg-transparent pl-3 text-sm outline-none text-[#1b2252] placeholder:text-slate-400"
+                    className="w-full bg-transparent pl-3 text-sm outline-none text-gray-900 placeholder:text-gray-500"
                   />
                 </div>
                 <div className="h-6 w-[1px] bg-slate-200 hidden md:block"></div>
                 <div className="hidden md:flex w-[160px] items-center px-3">
-                  <MapPin className="h-5 w-5 text-slate-400 shrink-0" />
+                  <MapPin className="h-5 w-5 text-gray-500 shrink-0" />
                   <input
                     value={location}
                     onChange={(event) => setLocation(event.target.value)}
                     placeholder={t('home.hero.locationPlaceholder')}
-                    className="w-full bg-transparent pl-3 text-sm outline-none text-[#1b2252] placeholder:text-slate-400"
+                    className="w-full bg-transparent pl-3 text-sm outline-none text-gray-900 placeholder:text-gray-500"
                   />
                 </div>
                 <div className="h-6 w-[1px] bg-slate-200 hidden lg:block"></div>
                 <div className="hidden lg:flex w-[140px] items-center justify-between px-3 cursor-pointer">
-                   <div className="flex items-center gap-2 text-slate-500 text-sm">
+                   <div className="flex items-center gap-2 text-gray-600 text-sm">
                       <LayoutGrid className="h-4 w-4" />
                       <span>{t('common.category')}</span>
                    </div>
-                   <ChevronDown className="h-4 w-4 text-slate-400" />
+                   <ChevronDown className="h-4 w-4 text-gray-500" />
                 </div>
                 <Link
                   to={searchHref}
@@ -105,8 +105,8 @@ export default function HomePage() {
                 </Link>
             </div>
             
-            <div className="mt-6 flex flex-wrap items-center gap-2 px-1 text-xs text-slate-500">
-              <span className="font-semibold text-[#1b2252]">{t('home.hero.quickSearch')}</span>
+            <div className="mt-6 flex flex-wrap items-center gap-2 px-1 text-xs text-gray-600">
+              <span className="font-semibold text-gray-900">{t('home.hero.quickSearch')}</span>
               {['IT', 'Marketing', 'Design', 'Data', 'Product', 'Interview Prep'].map((item) => (
                 <Link key={item} to={`/jobs?q=${encodeURIComponent(item)}`} className="rounded-full border border-[#e2e6f5] bg-white px-3 py-1.5 hover:border-[#4f46e5] hover:text-[#4f46e5] transition">
                   {item}
@@ -126,18 +126,18 @@ export default function HomePage() {
             <div className="absolute -left-6 top-16 w-[280px] rounded-2xl border border-white/40 bg-white/95 p-4 shadow-xl backdrop-blur-md animate-[bounce_6s_ease-in-out_infinite]">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                   <div className="flex h-8 w-8 items-center justify-center rounded bg-gradient-to-br from-orange-400 to-amber-500 text-[10px] font-black text-white shadow-sm">FPT</div>
-                   <span className="text-xs font-bold text-slate-700">FPT Software</span>
+                   <div className="flex h-8 w-8 items-center justify-center rounded bg-gradient-to-br from-orange-400 to-amber-500 text-[10px] font-bold text-white shadow-sm">FPT</div>
+                   <span className="text-xs font-bold text-gray-800">FPT Software</span>
                 </div>
                 <span className="rounded bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-600">{t('home.hero.companyCard.new')}</span>
               </div>
-              <div className="mt-3 text-sm font-bold text-[#1b2252]">{t('home.hero.companyCard.title')}</div>
-              <div className="mt-1.5 flex gap-3 text-[11px] text-slate-500">
+              <div className="mt-3 text-sm font-bold text-gray-900">{t('home.hero.companyCard.title')}</div>
+              <div className="mt-1.5 flex gap-3 text-[11px] text-gray-600">
                 <span className="flex items-center gap-1"><MapPin className="h-3 w-3" /> Hanoi</span>
                 <span className="flex items-center gap-1"><Briefcase className="h-3 w-3" /> {t('common.remote')}</span>
               </div>
               <div className="mt-2 text-xs font-bold text-amber-500">{t('home.hero.companyCard.salary')}</div>
-              <div className="mt-3 flex flex-wrap gap-1 text-[9px] text-slate-600 font-medium">
+              <div className="mt-3 flex flex-wrap gap-1 text-[9px] text-gray-700 font-medium">
                 <span className="rounded bg-slate-100 px-2 py-1">Java</span>
                 <span className="rounded bg-slate-100 px-2 py-1">Spring Boot</span>
                 <span className="rounded bg-slate-100 px-2 py-1">MySQL</span>
@@ -145,7 +145,7 @@ export default function HomePage() {
               </div>
               <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3">
                 <span className="text-[11px] font-bold text-[#4f46e5] cursor-pointer">{t('common.viewDetails')}</span>
-                <Bookmark className="h-4 w-4 text-slate-300 cursor-pointer hover:text-[#4f46e5]" />
+                <Bookmark className="h-4 w-4 text-gray-400 cursor-pointer hover:text-[#4f46e5]" />
               </div>
             </div>
 
@@ -157,15 +157,15 @@ export default function HomePage() {
               <div className="flex items-center gap-3">
                  <img src="https://i.pravatar.cc/150?u=12" alt="Avatar" className="h-12 w-12 rounded-full border-2 border-white shadow-sm object-cover" />
                  <div>
-                    <div className="text-sm font-bold text-[#1b2252]">Nguyễn Hoàng Anh</div>
-                    <div className="text-[9px] text-slate-500 mt-0.5">{t('home.hero.mentorCard.role')}<br/>MoMo</div>
+                    <div className="text-sm font-bold text-gray-900">Nguyễn Hoàng Anh</div>
+                    <div className="text-[9px] text-gray-600 mt-0.5">{t('home.hero.mentorCard.role')}<br/>MoMo</div>
                  </div>
               </div>
-              <div className="mt-2.5 flex items-center gap-1 text-[11px] font-bold text-slate-700">
+              <div className="mt-2.5 flex items-center gap-1 text-[11px] font-bold text-gray-800">
                 <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-                4.9 <span className="font-medium text-slate-400">(128 {t('common.reviews')})</span>
+                4.9 <span className="font-medium text-gray-500">(128 {t('common.reviews')})</span>
               </div>
-              <div className="mt-3 flex flex-wrap gap-1 text-[9px] text-slate-600 font-medium">
+              <div className="mt-3 flex flex-wrap gap-1 text-[9px] text-gray-700 font-medium">
                 <span className="rounded-full border border-slate-100 bg-slate-50 px-2 py-1">Leadership</span>
                 <span className="rounded-full border border-slate-100 bg-slate-50 px-2 py-1">System Design</span>
                 <span className="rounded-full border border-slate-100 bg-slate-50 px-2 py-1">Career Coaching</span>
@@ -191,7 +191,7 @@ export default function HomePage() {
                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-50 group-hover:bg-indigo-50 transition mb-3">
                     {CATEGORY_ICONS[cat.slug] || <LayoutGrid className="h-7 w-7 text-indigo-500" />}
                  </div>
-                 <span className="text-[13px] font-bold text-[#1b2252] text-center whitespace-pre-line">{cat.name}</span>
+                 <span className="text-[13px] font-bold text-gray-900 text-center whitespace-pre-line">{cat.name}</span>
               </Link>
             ))}
           </div>
@@ -201,7 +201,7 @@ export default function HomePage() {
       {/* FEATURED JOBS */}
       <section className="mx-auto max-w-[1600px] px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-2xl font-black text-[#1b2252] md:text-3xl">
+          <h2 className="text-2xl font-bold text-gray-900 md:text-3xl">
             {isAuthenticated ? 'Recommended jobs for you' : t('home.featuredJobs.title')}
           </h2>
           <Link to="/jobs" className="inline-flex items-center gap-1 text-sm font-bold text-[#4f46e5] hover:underline">
@@ -209,7 +209,7 @@ export default function HomePage() {
           </Link>
         </div>
         {isAuthenticated && (
-          <p className="-mt-3 mb-5 text-sm text-slate-600">
+          <p className="-mt-3 mb-5 text-sm text-gray-700">
             Prioritized by your selected domains and skills.
           </p>
         )}
@@ -224,10 +224,10 @@ export default function HomePage() {
           <div className="rounded-2xl border border-dashed border-[#e2e6f5] bg-white p-10 text-center">
             {isAuthenticated ? (
               <div className="space-y-3">
-                <p className="text-slate-600 font-semibold">No strong matches yet.</p>
-                <p className="text-sm text-slate-500">Update your interests or explore all jobs across Mentor X.</p>
+                <p className="text-gray-700 font-semibold">No strong matches yet.</p>
+                <p className="text-sm text-gray-600">Update your interests or explore all jobs across Mentor X.</p>
                 <div className="flex items-center justify-center gap-3">
-                  <Link to="/profile" className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+                  <Link to="/profile" className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-gray-800 hover:bg-slate-50">
                     Update interests
                   </Link>
                   <Link to="/jobs" className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">
@@ -236,7 +236,7 @@ export default function HomePage() {
                 </div>
               </div>
             ) : (
-              <p className="text-slate-500">{t('home.featuredJobs.empty')}</p>
+              <p className="text-gray-600">{t('home.featuredJobs.empty')}</p>
             )}
           </div>
         ) : (
@@ -253,19 +253,19 @@ export default function HomePage() {
                         <div className="h-10 w-10 shrink-0 rounded-xl border border-slate-100 flex items-center justify-center bg-white overflow-hidden p-1 shadow-sm">
                             <img src={avatarUrl} alt="logo" className="h-full w-full object-contain rounded-lg" />
                         </div>
-                        <span className="text-sm font-bold text-slate-600 line-clamp-1">{clientName}</span>
+                        <span className="text-sm font-bold text-gray-700 line-clamp-1">{clientName}</span>
                       </div>
                   </div>
-                  <p className="mt-4 text-[17px] font-bold text-[#1b2252] group-hover:text-[#4f46e5] transition line-clamp-2">{job.title}</p>
-                  <div className="mt-2.5 flex gap-4 text-[13px] text-slate-500 font-medium">
+                  <p className="mt-4 text-[17px] font-bold text-gray-900 group-hover:text-[#4f46e5] transition line-clamp-2">{job.title}</p>
+                  <div className="mt-2.5 flex gap-4 text-[13px] text-gray-600 font-medium">
                     <span className="flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5" /> {t('common.remote')}</span>
                     <span className="flex items-center gap-1.5"><Briefcase className="h-3.5 w-3.5" /> {jobType}</span>
                   </div>
-                  <p className="mt-3 text-sm font-black text-amber-500">{formatBudget(job, t('common.negotiable'))}</p>
+                  <p className="mt-3 text-sm font-bold text-amber-500">{formatBudget(job, t('common.negotiable'))}</p>
                 </div>
                 <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-4">
                   <span className="text-xs font-bold text-[#4f46e5]">{t('common.viewDetails')}</span>
-                  <Bookmark className="h-5 w-5 text-slate-300 group-hover:text-[#4f46e5] transition" />
+                  <Bookmark className="h-5 w-5 text-gray-400 group-hover:text-[#4f46e5] transition" />
                 </div>
               </Link>
             )})}
@@ -276,7 +276,7 @@ export default function HomePage() {
       {/* FEATURED MENTORS */}
       <section className="mx-auto max-w-[1600px] px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-2xl font-black text-[#1b2252] md:text-3xl">
+          <h2 className="text-2xl font-bold text-gray-900 md:text-3xl">
             {isAuthenticated ? 'Recommended mentors for you' : t('home.featuredMentors.title')}
           </h2>
           <Link to="/mentors" className="inline-flex items-center gap-1 text-sm font-bold text-[#4f46e5] hover:underline">
@@ -284,7 +284,7 @@ export default function HomePage() {
           </Link>
         </div>
         {isAuthenticated && (
-          <p className="-mt-3 mb-5 text-sm text-slate-600">
+          <p className="-mt-3 mb-5 text-sm text-gray-700">
             Based on your interests and current learning goals.
           </p>
         )}
@@ -299,10 +299,10 @@ export default function HomePage() {
           <div className="rounded-2xl border border-dashed border-[#e2e6f5] bg-white p-10 text-center">
             {isAuthenticated ? (
               <div className="space-y-3">
-                <p className="text-slate-600 font-semibold">No strong matches yet.</p>
-                <p className="text-sm text-slate-500">Update your interests or explore all mentors across Mentor X.</p>
+                <p className="text-gray-700 font-semibold">No strong matches yet.</p>
+                <p className="text-sm text-gray-600">Update your interests or explore all mentors across Mentor X.</p>
                 <div className="flex items-center justify-center gap-3">
-                  <Link to="/profile" className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+                  <Link to="/profile" className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-gray-800 hover:bg-slate-50">
                     Update interests
                   </Link>
                   <Link to="/mentors" className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">
@@ -311,7 +311,7 @@ export default function HomePage() {
                 </div>
               </div>
             ) : (
-              <p className="text-slate-500">{t('home.featuredMentors.empty')}</p>
+              <p className="text-gray-600">{t('home.featuredMentors.empty')}</p>
             )}
           </div>
         ) : (
@@ -330,11 +330,11 @@ export default function HomePage() {
                         className="h-16 w-16 shrink-0 rounded-full object-cover shadow-sm border border-slate-100"
                       />
                       <div>
-                        <p className="text-[15px] font-bold text-[#1b2252] group-hover:text-[#4f46e5] transition line-clamp-1">{mentorName}</p>
-                        <p className="mt-1 text-[11px] text-slate-500 line-clamp-2 leading-relaxed">{mentor.headline || t('common.mentor')}</p>
-                        <div className="mt-1.5 flex items-center gap-1 text-[11px] font-bold text-slate-700">
+                        <p className="text-[15px] font-bold text-gray-900 group-hover:text-[#4f46e5] transition line-clamp-1">{mentorName}</p>
+                        <p className="mt-1 text-[11px] text-gray-600 line-clamp-2 leading-[1.6]">{mentor.headline || t('common.mentor')}</p>
+                        <div className="mt-1.5 flex items-center gap-1 text-[11px] font-bold text-gray-800">
                           <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-                          {mentor.averageRating?.toFixed(1) || '4.9'} <span className="font-medium text-slate-400">({mentor.totalReviews || 0} {t('common.reviews')})</span>
+                          {mentor.averageRating?.toFixed(1) || '4.9'} <span className="font-medium text-gray-500">({mentor.totalReviews || 0} {t('common.reviews')})</span>
                         </div>
                       </div>
                     </div>
@@ -356,8 +356,8 @@ export default function HomePage() {
       <section className="mx-auto max-w-[1600px] px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid gap-6 lg:grid-cols-4 md:grid-cols-2">
           <article className="rounded-3xl bg-transparent p-4 flex flex-col justify-center lg:col-span-1 md:col-span-2">
-            <h2 className="whitespace-pre-line text-3xl font-black text-[#1b2252] leading-tight">{t('home.why.title')}</h2>
-            <p className="mt-4 text-sm text-slate-600 leading-relaxed max-w-sm">
+            <h2 className="whitespace-pre-line text-3xl font-bold text-gray-900 leading-tight">{t('home.why.title')}</h2>
+            <p className="mt-4 text-sm text-gray-700 leading-[1.6] max-w-sm">
               {t('home.why.description')}
             </p>
             <div className="mt-6">
@@ -371,8 +371,8 @@ export default function HomePage() {
             <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-50 mb-6">
                <Search className="h-8 w-8 text-[#4f46e5]" />
             </div>
-            <h3 className="text-lg font-black text-[#1b2252]">{t('home.why.job.title')}</h3>
-            <p className="mt-3 text-[13px] text-slate-500 leading-relaxed">
+            <h3 className="text-lg font-bold text-gray-900">{t('home.why.job.title')}</h3>
+            <p className="mt-3 text-[13px] text-gray-600 leading-[1.6]">
               {t('home.why.job.description')}
             </p>
           </article>
@@ -381,8 +381,8 @@ export default function HomePage() {
             <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-50 mb-6">
                <Handshake className="h-8 w-8 text-[#4f46e5]" />
             </div>
-            <h3 className="text-lg font-black text-[#1b2252]">{t('home.why.mentor.title')}</h3>
-            <p className="mt-3 text-[13px] text-slate-500 leading-relaxed">
+            <h3 className="text-lg font-bold text-gray-900">{t('home.why.mentor.title')}</h3>
+            <p className="mt-3 text-[13px] text-gray-600 leading-[1.6]">
               {t('home.why.mentor.description')}
             </p>
           </article>
@@ -391,8 +391,8 @@ export default function HomePage() {
             <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-50 mb-6">
                <Rocket className="h-8 w-8 text-[#4f46e5]" />
             </div>
-            <h3 className="text-lg font-black text-[#1b2252]">{t('home.why.career.title')}</h3>
-            <p className="mt-3 text-[13px] text-slate-500 leading-relaxed">
+            <h3 className="text-lg font-bold text-gray-900">{t('home.why.career.title')}</h3>
+            <p className="mt-3 text-[13px] text-gray-600 leading-[1.6]">
               {t('home.why.career.description')}
             </p>
           </article>
@@ -401,7 +401,7 @@ export default function HomePage() {
 
       {/* HOW IT WORKS */}
       <section className="mx-auto max-w-[1600px] px-4 py-12 sm:px-6 lg:px-8">
-        <h2 className="text-2xl font-black text-[#1b2252] md:text-3xl mb-10">{t('home.how.title')}</h2>
+        <h2 className="text-2xl font-bold text-gray-900 md:text-3xl mb-10">{t('home.how.title')}</h2>
         
         <div className="flex flex-col md:flex-row items-stretch justify-between gap-4 relative">
            
@@ -409,45 +409,45 @@ export default function HomePage() {
            <div className="flex-1 rounded-2xl bg-white border border-[#e2e6f5] p-6 flex flex-col sm:flex-row gap-5 items-start sm:items-center relative z-10 shadow-sm hover:border-[#4f46e5] hover:shadow-md transition">
               <div className="w-14 h-14 shrink-0 rounded-full bg-[#f4f6ff] flex items-center justify-center relative">
                  <Briefcase className="h-6 w-6 text-[#4f46e5]" />
-                 <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-[#4f46e5] text-white flex items-center justify-center text-[11px] font-black border-2 border-white shadow-sm">1</div>
+                 <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-[#4f46e5] text-white flex items-center justify-center text-[11px] font-bold border-2 border-white shadow-sm">1</div>
               </div>
               <div>
-                 <h3 className="font-bold text-[#1b2252] text-base">{t('home.how.step1.title')}</h3>
-                 <p className="mt-1.5 text-[13px] text-slate-500 leading-relaxed">{t('home.how.step1.description')}</p>
+                 <h3 className="font-bold text-gray-900 text-base">{t('home.how.step1.title')}</h3>
+                 <p className="mt-1.5 text-[13px] text-gray-600 leading-[1.6]">{t('home.how.step1.description')}</p>
               </div>
            </div>
 
            {/* Arrow 1 */}
            <div className="hidden lg:flex items-center justify-center w-12 shrink-0">
-               <ChevronRight className="h-6 w-6 text-slate-300" />
+               <ChevronRight className="h-6 w-6 text-gray-400" />
            </div>
 
            {/* Step 2 */}
            <div className="flex-1 rounded-2xl bg-white border border-[#e2e6f5] p-6 flex flex-col sm:flex-row gap-5 items-start sm:items-center relative z-10 shadow-sm hover:border-[#4f46e5] hover:shadow-md transition">
               <div className="w-14 h-14 shrink-0 rounded-full bg-[#f4f6ff] flex items-center justify-center relative">
                  <Search className="h-6 w-6 text-[#4f46e5]" />
-                 <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-[#4f46e5] text-white flex items-center justify-center text-[11px] font-black border-2 border-white shadow-sm">2</div>
+                 <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-[#4f46e5] text-white flex items-center justify-center text-[11px] font-bold border-2 border-white shadow-sm">2</div>
               </div>
               <div>
-                 <h3 className="font-bold text-[#1b2252] text-base">{t('home.how.step2.title')}</h3>
-                 <p className="mt-1.5 text-[13px] text-slate-500 leading-relaxed">{t('home.how.step2.description')}</p>
+                 <h3 className="font-bold text-gray-900 text-base">{t('home.how.step2.title')}</h3>
+                 <p className="mt-1.5 text-[13px] text-gray-600 leading-[1.6]">{t('home.how.step2.description')}</p>
               </div>
            </div>
 
            {/* Arrow 2 */}
            <div className="hidden lg:flex items-center justify-center w-12 shrink-0">
-               <ChevronRight className="h-6 w-6 text-slate-300" />
+               <ChevronRight className="h-6 w-6 text-gray-400" />
            </div>
 
            {/* Step 3 */}
            <div className="flex-1 rounded-2xl bg-white border border-[#e2e6f5] p-6 flex flex-col sm:flex-row gap-5 items-start sm:items-center relative z-10 shadow-sm hover:border-[#4f46e5] hover:shadow-md transition">
               <div className="w-14 h-14 shrink-0 rounded-full bg-[#f4f6ff] flex items-center justify-center relative">
                  <TrendingUp className="h-6 w-6 text-[#4f46e5]" />
-                 <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-[#4f46e5] text-white flex items-center justify-center text-[11px] font-black border-2 border-white shadow-sm">3</div>
+                 <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-[#4f46e5] text-white flex items-center justify-center text-[11px] font-bold border-2 border-white shadow-sm">3</div>
               </div>
               <div>
-                 <h3 className="font-bold text-[#1b2252] text-base">{t('home.how.step3.title')}</h3>
-                 <p className="mt-1.5 text-[13px] text-slate-500 leading-relaxed">{t('home.how.step3.description')}</p>
+                 <h3 className="font-bold text-gray-900 text-base">{t('home.how.step3.title')}</h3>
+                 <p className="mt-1.5 text-[13px] text-gray-600 leading-[1.6]">{t('home.how.step3.description')}</p>
               </div>
            </div>
         </div>
@@ -455,7 +455,7 @@ export default function HomePage() {
 
       {/* STATS */}
       <section className="mx-auto max-w-[1600px] px-4 pb-16 pt-8 sm:px-6 lg:px-8">
-        <div className="rounded-3xl bg-[#1b2252] p-8 md:p-10 shadow-2xl relative overflow-hidden">
+        <div className="rounded-3xl bg-gray-900 p-8 md:p-10 shadow-2xl relative overflow-hidden">
           {/* Decorative shapes */}
           <div className="absolute top-0 left-0 w-64 h-64 bg-indigo-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 -translate-x-1/2 -translate-y-1/2"></div>
           <div className="absolute bottom-0 right-0 w-64 h-64 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 translate-x-1/2 translate-y-1/2"></div>
@@ -466,7 +466,7 @@ export default function HomePage() {
                  <Users className="h-7 w-7 text-indigo-300" />
               </div>
               <div>
-                <p className="text-3xl font-black text-white">{stats.users.toLocaleString('en-US')}+</p>
+                <p className="text-3xl font-bold text-white">{stats.users.toLocaleString('en-US')}+</p>
                 <p className="mt-1 text-[13px] font-medium text-indigo-200">{t('home.stats.users')}</p>
               </div>
             </div>
@@ -476,7 +476,7 @@ export default function HomePage() {
                  <Briefcase className="h-7 w-7 text-blue-300" />
               </div>
               <div>
-                <p className="text-3xl font-black text-white">{stats.openJobs.toLocaleString('en-US')}+</p>
+                <p className="text-3xl font-bold text-white">{stats.openJobs.toLocaleString('en-US')}+</p>
                 <p className="mt-1 text-[13px] font-medium text-indigo-200">{t('home.stats.activeJobs')}</p>
               </div>
             </div>
@@ -486,7 +486,7 @@ export default function HomePage() {
                  <CheckCircle2 className="h-7 w-7 text-emerald-300" />
               </div>
               <div>
-                <p className="text-3xl font-black text-white">{stats.mentors.toLocaleString('en-US')}+</p>
+                <p className="text-3xl font-bold text-white">{stats.mentors.toLocaleString('en-US')}+</p>
                 <p className="mt-1 text-[13px] font-medium text-indigo-200">{t('home.stats.qualityMentors')}</p>
               </div>
             </div>
@@ -496,7 +496,7 @@ export default function HomePage() {
                  <Handshake className="h-7 w-7 text-purple-300" />
               </div>
               <div>
-                <p className="text-3xl font-black text-white">{stats.successfulMatches.toLocaleString('en-US')}+</p>
+                <p className="text-3xl font-bold text-white">{stats.successfulMatches.toLocaleString('en-US')}+</p>
                 <p className="mt-1 text-[13px] font-medium text-indigo-200">{t('home.stats.successfulMatches')}</p>
               </div>
             </div>

@@ -2,7 +2,9 @@ import { Link } from 'react-router-dom'
 import {
   ShieldCheck,
   Lightbulb,
-  Scale
+  Scale,
+  Sparkles,
+  ArrowLeft
 } from 'lucide-react'
 import JobCreateForm from '@/components/job/JobCreateForm'
 import { useAuthStore } from '@/store/authStore'
@@ -13,63 +15,75 @@ export default function JobCreatePage() {
   if (!user) return null
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-slate-950 pb-20">
-      <main className="mx-auto max-w-6xl px-4 pt-10 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <Link to="/jobs" className="inline-flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-slate-900 mb-6">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-            Quay lại danh sách công việc
-          </Link>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight">
-            Đăng yêu cầu hỗ trợ
-          </h1>
-          <p className="mt-2 text-base text-slate-500">
-            Mô tả vấn đề của bạn và nhận đề xuất từ mentor phù hợp.
-          </p>
+    <div className="relative min-h-screen bg-[#f7f8fc] text-slate-950 pb-20 overflow-hidden">
+      {/* Background Meshes */}
+      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-300/30 mix-blend-multiply rounded-[40%_60%_70%_30%/40%_50%_60%_50%] filter blur-3xl opacity-60 animate-[spin_15s_linear_infinite] pointer-events-none"></div>
+      <div className="absolute top-[20%] right-[-5%] w-[400px] h-[400px] bg-purple-300/30 mix-blend-multiply rounded-[60%_40%_30%_70%/60%_30%_70%_40%] filter blur-3xl opacity-60 animate-[spin_12s_linear_infinite_reverse] pointer-events-none"></div>
+
+      <main className="relative mx-auto max-w-[1400px] px-4 pt-10 sm:px-6 lg:px-8 z-10">
+        <div className="mb-10 text-center md:text-left flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div>
+            <Link to="/jobs" className="inline-flex items-center gap-2 text-[13px] font-bold text-slate-500 hover:text-[#4f46e5] mb-4 transition-colors group bg-white/50 backdrop-blur-md px-4 py-1.5 rounded-full border border-slate-200 hover:border-[#4f46e5]/30">
+              <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
+              Quay lại danh sách công việc
+            </Link>
+            <div className="flex items-center gap-2 mb-2 md:justify-start justify-center">
+               <div className="px-3 py-1 rounded-full bg-white/70 border border-white flex items-center gap-1.5 w-fit shadow-sm backdrop-blur-md">
+                  <Sparkles className="w-4 h-4 text-[#4f46e5]" />
+                  <span className="text-[12px] font-bold text-[#4f46e5] tracking-wider uppercase">Tạo Yêu Cầu Mới</span>
+               </div>
+            </div>
+            <h1 className="text-4xl font-extrabold text-[#1b2252] sm:text-5xl tracking-tight leading-tight mt-2">
+              Khởi tạo <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#4f46e5] to-[#7c3aed]">Cơ Hội Mới</span>
+            </h1>
+            <p className="mt-3 text-[15px] text-slate-500 max-w-2xl mx-auto md:mx-0">
+              Mô tả chi tiết bài toán của bạn để hệ thống kết nối với những Mentor xuất sắc nhất. Một yêu cầu rõ ràng sẽ thu hút nhân tài chất lượng.
+            </p>
+          </div>
         </div>
 
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_340px]">
+        <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_360px]">
           <section className="min-w-0">
             <JobCreateForm clientId={user.userId} />
           </section>
 
           <aside className="space-y-6 lg:sticky lg:top-8 lg:self-start">
-            <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-50 text-amber-500 mb-4">
-                <Lightbulb className="h-5 w-5" />
+            <div className="rounded-[20px] border border-white/50 bg-white/60 backdrop-blur-xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition-all hover:-translate-y-1 hover:shadow-[0_8px_30px_rgb(79,70,229,0.08)]">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-100 to-amber-50 text-amber-500 mb-5 shadow-inner">
+                <Lightbulb className="h-6 w-6" />
               </div>
-              <h3 className="text-base font-bold text-slate-900">Viết yêu cầu hiệu quả</h3>
-              <ul className="mt-3 space-y-3 text-sm text-slate-600 list-disc pl-4 marker:text-slate-300">
-                <li>Mô tả rõ ràng vấn đề bạn đang gặp phải.</li>
-                <li>Nêu rõ kết quả mong muốn (Output).</li>
-                <li>Đính kèm tài liệu liên quan để Mentor dễ hình dung.</li>
+              <h3 className="text-[17px] font-bold text-[#1b2252]">Viết yêu cầu hiệu quả</h3>
+              <ul className="mt-4 space-y-3 text-[14px] text-slate-600 list-disc pl-5 marker:text-amber-300">
+                <li><strong className="text-slate-800">Cụ thể hóa:</strong> Mô tả rõ ràng bài toán bạn đang gặp phải.</li>
+                <li><strong className="text-slate-800">Kết quả:</strong> Nêu rõ Output mong muốn nhận được.</li>
+                <li><strong className="text-slate-800">Minh họa:</strong> Đính kèm tài liệu liên quan để Mentor dễ hình dung nhất.</li>
               </ul>
             </div>
 
-            <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-50 text-emerald-500 mb-4">
-                <ShieldCheck className="h-5 w-5" />
+            <div className="rounded-[20px] border border-white/50 bg-white/60 backdrop-blur-xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition-all hover:-translate-y-1 hover:shadow-[0_8px_30px_rgb(79,70,229,0.08)]">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-100 to-emerald-50 text-emerald-500 mb-5 shadow-inner">
+                <ShieldCheck className="h-6 w-6" />
               </div>
-              <h3 className="text-base font-bold text-slate-900">Thanh toán an toàn</h3>
-              <p className="mt-2 text-sm leading-6 text-slate-600">
-                Hệ thống ký quỹ (Escrow) của Mentor X đảm bảo MX Coin của bạn chỉ được chuyển đi khi bạn xác nhận hoàn thành.
+              <h3 className="text-[17px] font-bold text-[#1b2252]">Thanh toán an toàn</h3>
+              <p className="mt-3 text-[14px] leading-relaxed text-slate-600">
+                Hệ thống ký quỹ (Escrow) của MentorX đảm bảo <strong>MX Coin</strong> của bạn chỉ được chuyển đi khi bạn xác nhận công việc đã hoàn thành đúng cam kết.
               </p>
-              <a href="#" className="mt-3 inline-block text-sm font-semibold text-emerald-600 hover:text-emerald-700">
-                Tìm hiểu thêm về Escrow
-              </a>
+              <div className="mt-4 inline-flex items-center gap-1.5 text-[13px] font-bold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-full cursor-pointer hover:bg-emerald-100 transition-colors">
+                <ShieldCheck className="w-4 h-4" /> Tìm hiểu thêm về Escrow
+              </div>
             </div>
 
-            <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-50 text-blue-500 mb-4">
-                <Scale className="h-5 w-5" />
+            <div className="rounded-[20px] border border-white/50 bg-white/60 backdrop-blur-xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition-all hover:-translate-y-1 hover:shadow-[0_8px_30px_rgb(79,70,229,0.08)]">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-100 to-blue-50 text-blue-500 mb-5 shadow-inner">
+                <Scale className="h-6 w-6" />
               </div>
-              <h3 className="text-base font-bold text-slate-900">Minh bạch & Tranh chấp</h3>
-              <p className="mt-2 text-sm leading-6 text-slate-600">
-                Mọi thỏa thuận đều được ghi lại. Mentor X hỗ trợ xử lý tranh chấp công bằng 24/7.
+              <h3 className="text-[17px] font-bold text-[#1b2252]">Minh bạch & Tranh chấp</h3>
+              <p className="mt-3 text-[14px] leading-relaxed text-slate-600">
+                Mọi thỏa thuận đều được ghi lại. Đội ngũ MentorX hỗ trợ xử lý tranh chấp công bằng 24/7 bảo vệ quyền lợi hai bên.
               </p>
-              <div className="mt-4 flex items-center gap-1.5 text-xs font-medium text-slate-400">
-                <ShieldCheck className="h-3.5 w-3.5" />
-                Đã xác minh
+              <div className="mt-5 flex items-center gap-2 text-[12px] font-bold text-slate-400 border-t border-slate-100 pt-4">
+                <ShieldCheck className="h-4 w-4 text-emerald-500" />
+                Hệ thống xác minh độc lập
               </div>
             </div>
           </aside>
@@ -78,4 +92,3 @@ export default function JobCreatePage() {
     </div>
   )
 }
-

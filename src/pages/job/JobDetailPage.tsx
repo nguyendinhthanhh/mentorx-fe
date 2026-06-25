@@ -57,6 +57,7 @@ import ProposalCreateForm from '@/components/job/ProposalCreateForm'
 import ProposalList from '@/components/job/ProposalList'
 import { AiExplainModal } from '@/components/ai/AiExplainModal'
 import { AiTaskType } from '@/api/aiApi'
+import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 
 const JOB_TYPE_META: Record<JobType, { label: string; className: string }> = {
   [JobType.FREELANCE_PROJECT]: {
@@ -181,7 +182,7 @@ export default function JobDetailPage() {
 
   if (!job || !derived) {
     return (
-      <div className="min-h-screen bg-[#f7f8fc] px-4 py-12 text-[#1b2252]">
+      <div className="min-h-screen bg-[#f3f5f7] px-4 py-12 text-gray-900">
         <div className="mx-auto max-w-2xl rounded-2xl border border-[#e2e6f5] bg-white p-8 text-center shadow-sm">
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#eef2ff]">
             <Briefcase className="h-8 w-8 text-[#94A3B8]" />
@@ -260,278 +261,174 @@ export default function JobDetailPage() {
   }
 
   return (
-    <div className="job-detail-theme topcv-job-font min-h-screen bg-[#f7f8fc] text-[#1b2252] pb-24 lg:pb-12">
-      <style>{`
-        .job-detail-theme {
-          background-color: #f7f8fc;
-          color: #1b2252;
-        }
-        .job-detail-theme .job-surface {
-          border-color: #e2e6f5 !important;
-          background-color: #ffffff !important;
-        }
-        .job-detail-theme .job-soft-section {
-          border-color: #e2e6f5 !important;
-          background-color: #f8faff !important;
-        }
-        .job-detail-theme .job-metric-card {
-          border-color: #e2e6f5 !important;
-          background-color: #ffffff !important;
-        }
-        .job-detail-theme .job-metric-card p:first-of-type {
-          color: #64748b !important;
-        }
-        .job-detail-theme .job-metric-card p:last-of-type {
-          color: #1b2252 !important;
-        }
-        .job-detail-theme .job-metric-card svg,
-        .job-detail-theme .job-section-icon,
-        .job-detail-theme .job-accent-text {
-          color: #4f46e5 !important;
-        }
-        .job-detail-theme .job-accent-chip {
-          border-color: #c7d2fe !important;
-          background-color: #eef2ff !important;
-          color: #4f46e5 !important;
-        }
-        .job-detail-theme .job-warning-chip {
-          border-color: #fde68a !important;
-          background-color: #fff7e6 !important;
-          color: #d97706 !important;
-        }
-        .job-detail-theme .job-primary-btn,
-        .job-detail-theme .bg-indigo-600,
-        .job-detail-theme .bg-\\[\\#4F46E5\\] {
-          background-color: #4f46e5 !important;
-          color: #ffffff !important;
-          box-shadow: none !important;
-        }
-        .job-detail-theme .job-primary-btn:hover,
-        .job-detail-theme .hover\\:bg-indigo-700:hover,
-        .job-detail-theme .hover\\:bg-\\[\\#4338CA\\]:hover {
-          background-color: #4338ca !important;
-        }
-        .job-detail-theme .disabled\\:bg-slate-300:disabled,
-        .job-detail-theme .disabled\\:bg-\\[\\#94A3B8\\]:disabled,
-        .job-detail-theme .disabled\\:bg-emerald-400:disabled {
-          background-color: #e2e6f5 !important;
-          color: #94a3b8 !important;
-        }
-        .job-detail-theme .job-secondary-btn,
-        .job-detail-theme .border-slate-200.bg-white,
-        .job-detail-theme .border-\\[\\#E6EAF0\\].bg-\\[\\#FFFFFF\\] {
-          border-color: #e2e6f5 !important;
-        }
-        .job-detail-theme .job-secondary-btn:hover,
-        .job-detail-theme .hover\\:bg-slate-50:hover,
-        .job-detail-theme .hover\\:bg-\\[\\#F5F6FA\\]:hover {
-          background-color: #f8faff !important;
-        }
-        .job-detail-theme .text-\\[\\#4F46E5\\],
-        .job-detail-theme .text-indigo-600,
-        .job-detail-theme .text-indigo-700,
-        .job-detail-theme .text-indigo-800,
-        .job-detail-theme .text-indigo-950 {
-          color: #4f46e5 !important;
-        }
-        .job-detail-theme .text-blue-600,
-        .job-detail-theme .text-blue-700,
-        .job-detail-theme .text-blue-900,
-        .job-detail-theme .text-purple-700,
-        .job-detail-theme .text-violet-600 {
-          color: #4f46e5 !important;
-        }
-        .job-detail-theme .text-emerald-950 {
-          color: #15803d !important;
-        }
-        .job-detail-theme .text-rose-950 {
-          color: #dc2626 !important;
-        }
-        .job-detail-theme .bg-\\[\\#4F46E5\\]\\/10 {
-          background-color: #eef2ff !important;
-        }
-        .job-detail-theme .border-indigo-100,
-        .job-detail-theme .border-indigo-200,
-        .job-detail-theme .border-blue-100,
-        .job-detail-theme .border-blue-200,
-        .job-detail-theme .border-purple-200,
-        .job-detail-theme .border-violet-100 {
-          border-color: #c7d2fe !important;
-        }
-        .job-detail-theme .bg-indigo-50,
-        .job-detail-theme .bg-indigo-50\\/80,
-        .job-detail-theme .bg-blue-50,
-        .job-detail-theme .bg-blue-100,
-        .job-detail-theme .bg-purple-100,
-        .job-detail-theme .bg-violet-50 {
-          background-color: #eef2ff !important;
-        }
-        .job-detail-theme .group-hover\\:text-\\[\\#4F46E5\\]:hover,
-        .job-detail-theme .group-hover\\:text-indigo-600:hover {
-          color: #4f46e5 !important;
-        }
-        .job-detail-theme .group-hover\\:text-white:hover {
-          color: #ffffff !important;
-        }
-        .job-detail-theme .hover\\:border-indigo-300:hover,
-        .job-detail-theme .hover\\:border-indigo-400:hover,
-        .job-detail-theme .hover\\:border-\\[\\#4F46E5\\]:hover {
-          border-color: #4f46e5 !important;
-        }
-        .job-detail-theme .bg-gradient-to-r,
-        .job-detail-theme .bg-gradient-to-br {
-          background-image: none !important;
-        }
-        .job-detail-theme .backdrop-blur-sm {
-          backdrop-filter: none !important;
-        }
-        .job-detail-theme hr {
-          border-color: #e8ecf8 !important;
-        }
-      `}</style>
-      <main className="mx-auto max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8">
+    <div className="relative min-h-screen bg-[#f3f5f7] text-gray-900 pb-24 lg:pb-12 overflow-hidden">
+      {/* Background Meshes */}
+      
+      
+
+      <main className="relative mx-auto max-w-[1600px] px-4 py-8 sm:px-6 lg:px-8 z-10">
         {/* Breadcrumb */}
         <div className="mb-6">
-          <Link to="/jobs" className="inline-flex items-center gap-2 text-sm font-bold text-[#64748B] transition-colors hover:text-[#4f46e5]">
-            <ArrowLeft className="h-4 w-4" />
-            Về danh sách việc làm
-          </Link>
+          <Breadcrumbs
+            items={[
+              { label: 'Trang chủ', to: '/' },
+              { label: 'Việc làm IT', to: '/jobs' },
+              { label: job.title },
+            ]}
+          />
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_420px]">
+          {/* Main Column */}
           <div className="space-y-6">
-            <section className="job-surface overflow-hidden rounded-2xl border border-[#E8E1D8] bg-[#FFFFFF] p-5 shadow-sm sm:p-8 md:p-10">
-              {/* Header Section */}
-              <div className="mb-10">
-                <h1 className="mb-4 text-[24px] font-extrabold leading-tight text-[#111827] sm:text-[32px]">
-                  {job.title}
-                </h1>
-                <div className="flex flex-wrap items-center gap-x-6 gap-y-3 text-[15px] font-medium text-[#64748B]">
-                  <span className="flex items-center gap-2">
-                    <Clock3 className="h-4 w-4 text-[#94A3B8]" />
-                    Đăng {formatRelativeTime(job.createdAt)}
-                  </span>
-                  <span className="flex items-center gap-2">
-                    <Briefcase className="h-4 w-4 text-[#94A3B8]" />
-                    {derived.categoryName}
-                  </span>
-                  <span className="flex items-center gap-2">
-                    <MessageSquare className="h-4 w-4 text-[#94A3B8]" />
-                    <strong className="text-[#111827]">{proposalCount}</strong> lượt ứng tuyển
-                  </span>
-                </div>
-                
-                <div className="mt-5 flex flex-wrap gap-2">
-                  <Badge className="border-[#C7D2FE] bg-[#EEF2FF] text-[#4F46E5]">
-                    <Briefcase className="h-3.5 w-3.5" />
-                    {derived.categoryName}
-                  </Badge>
-                  <Badge className={JOB_TYPE_META[job.jobType]?.className || 'border-[#C7D2FE] bg-[#EEF2FF] text-[#4F46E5]'}>
-                    <Layers3 className="h-3.5 w-3.5" />
-                    {derived.jobTypeLabel}
-                  </Badge>
-                  <Badge className={STATUS_META[job.status]?.className || 'border-[#E8E1D8] bg-[#F7F3EC] text-[#64748B]'}>
-                    <CheckCircle2 className="h-3.5 w-3.5" />
-                    {derived.statusLabel}
-                  </Badge>
-                </div>
+{/* TOP HEADER CARD (TopCV Style) */}
+        <div className="rounded-sm border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="flex flex-col">
+            
+            {/* Title */}
+            <h1 className="mb-4 text-2xl font-bold leading-snug text-gray-900">
+              {job.title}
+            </h1>
 
-                {/* Inline Client Info */}
-                <div className="mt-8 flex flex-col gap-4 rounded-2xl border border-[#E8E1D8] bg-[#F7F3EC] p-4 sm:max-w-md sm:flex-row sm:items-center">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-[#C7D2FE] bg-[#EEF2FF] text-lg font-black text-[#4F46E5]">
-                    {getInitials(clientName)}
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <h3 className="text-[15px] font-extrabold text-[#111827]">{clientName}</h3>
-                      {job.client?.emailVerified ? (
-                        <span className="inline-flex items-center gap-1 rounded-full border border-[#BBF7D0] bg-[#EAF7EF] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#15803D]">
-                          <CheckCircle2 className="h-3 w-3" />
-                          Đã xác thực
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 rounded-full border border-[#FED7AA] bg-[#FFF7E6] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#D97706]">
-                          <Clock className="h-3 w-3" />
-                          Chưa xác thực
-                        </span>
-                      )}
-                    </div>
-                    <div className="mt-1 flex items-center gap-1.5 text-[13px] font-medium text-[#64748B]">
-                      <User className="h-3.5 w-3.5 text-[#94A3B8]" />
-                      <span>Thành viên từ {formatRelativeTime(job.createdAt)}</span>
-                    </div>
-                  </div>
+            {/* TopCV Key Stats Row (3 columns) */}
+            <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="flex items-center gap-4">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#4f46e5] text-white">
+                  <DollarSign className="h-6 w-6" />
                 </div>
-              </div>
-              
-              {job.statusReason && (
-                <div className="mb-6 flex items-start gap-3 rounded-xl border border-[#FED7AA] bg-[#FFF7E6] px-4 py-3 text-sm font-semibold text-[#D97706]">
-                  <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" />
-                  <div>
-                    <p className="font-bold text-amber-900">Ghi chú trạng thái</p>
-                    <p className="mt-0.5">{job.statusReason}</p>
-                  </div>
-                </div>
-              )}
-              {/* Highlights Row */}
-              <div className="mb-10 grid gap-4 min-[520px]:grid-cols-2 xl:grid-cols-4">
-                <div className="job-metric-card rounded-2xl border border-[#E8E1D8] bg-white p-5 shadow-sm">
-                  <p className="text-[12px] text-indigo-600 font-extrabold uppercase tracking-wide mb-1.5 flex items-center gap-1.5"><DollarSign className="w-4 h-4 text-indigo-500" /> Ngân sách</p>
-                  <p className="font-black text-indigo-950 text-[18px]">{derived.budget}</p>
-                </div>
-                <div className="job-metric-card rounded-2xl border border-[#E8E1D8] bg-white p-5 shadow-sm">
-                  <p className="text-[12px] text-emerald-600 font-extrabold uppercase tracking-wide mb-1.5 flex items-center gap-1.5"><Briefcase className="w-4 h-4 text-emerald-500" /> Hình thức</p>
-                  <p className="font-black text-emerald-950 text-[18px]">{derived.jobTypeLabel}</p>
-                </div>
-                <div className="job-metric-card rounded-2xl border border-[#E8E1D8] bg-white p-5 shadow-sm">
-                  <p className="text-[12px] text-amber-600 font-extrabold uppercase tracking-wide mb-1.5 flex items-center gap-1.5"><Layers3 className="w-4 h-4 text-amber-500" /> Cấp bậc</p>
-                  <p className="font-black text-amber-950 text-[18px]">{derived.experienceLevelLabel}</p>
-                </div>
-                <div className="job-metric-card rounded-2xl border border-[#E8E1D8] bg-white p-5 shadow-sm">
-                  <p className="text-[12px] text-rose-600 font-extrabold uppercase tracking-wide mb-1.5 flex items-center gap-1.5"><Clock3 className="w-4 h-4 text-rose-500" /> Hạn nộp</p>
-                  <p className="font-black text-rose-950 text-[18px]">{derived.deadline}</p>
+                <div>
+                  <p className="text-[14px] text-gray-600 mb-0.5">Ngân sách</p>
+                  <p className="text-[15px] font-bold text-gray-900">{derived.budget}</p>
                 </div>
               </div>
 
-              {/* Job Description */}
-              <div className="mb-10">
-                <h2 className="mb-5 flex items-center gap-3 text-[22px] font-black text-[#111827]">
-                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#EEF2FF]">
-                    <FileText className="job-section-icon h-5 w-5" />
-                  </span>
-                  Chi tiết công việc
-                </h2>
-              <div className="prose prose-slate max-w-none">
-                <div className="whitespace-pre-wrap text-[15px] leading-8 text-[#475569]">
-                  {job.description}
+              <div className="flex items-center gap-4">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#4f46e5] text-white">
+                  <Layers3 className="h-6 w-6" />
+                </div>
+                <div>
+                  <p className="text-[14px] text-gray-600 mb-0.5">Hình thức</p>
+                  <p className="text-[15px] font-bold text-gray-900">{derived.jobTypeLabel}</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#4f46e5] text-white">
+                  <GraduationCap className="h-6 w-6" />
+                </div>
+                <div>
+                  <p className="text-[14px] text-gray-600 mb-0.5">Cấp bậc</p>
+                  <p className="text-[15px] font-bold text-gray-900">{derived.experienceLevelLabel}</p>
                 </div>
               </div>
             </div>
 
-              <hr className="my-10 border-[#F0EAE3]" />
+            {/* Deadline */}
+            {/* Deadline */}
+            <div className="mb-6 flex items-center gap-2 text-[15px] text-gray-700">
+               Cần hoàn thành trước: 
+               <span className={`font-bold px-2 py-1 rounded-md border ${
+                  getTimeRemaining(job.deadlineAt) === 'Đã hết hạn'
+                    ? 'text-rose-600 bg-rose-50 border-rose-200'
+                    : 'text-[#00b14f] bg-green-50 border-green-100'
+               }`}>
+                  {getTimeRemaining(job.deadlineAt)}
+               </span>
+            </div>
 
-              {/* Mentor Brief Section */}
-              {hasMentorBrief(job) && (
-                <div className="mb-10">
-                  <h2 className="mb-6 flex items-center gap-3 text-[22px] font-black text-[#111827]">
-                    <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#EEF2FF]">
-                      <ListTree className="job-section-icon h-5 w-5" />
-                    </span>
-                    Yêu cầu ứng viên
+            {/* Actions */}
+            <div className="flex flex-wrap items-center gap-3">
+              {!isOwner && canApply && !existingProposal ? (
+                <>
+                  <button
+                    onClick={() => setShowApplyModal(true)}
+                    className="flex h-[40px] flex-1 min-w-[160px] items-center justify-center gap-2 rounded-lg bg-[#4f46e5] px-5 text-[14px] font-bold text-white shadow-sm transition hover:bg-indigo-700"
+                  >
+                    <Send className="h-4 w-4" /> Ứng tuyển ngay
+                  </button>
+                  <button
+                    onClick={toggleSaved}
+                    className={`flex h-[40px] shrink-0 items-center justify-center gap-2 rounded-lg border px-4 text-[14px] font-bold transition-colors ${
+                      saved
+                        ? 'border-indigo-600 bg-indigo-50 text-indigo-600'
+                        : 'border-slate-300 bg-white text-gray-800 hover:bg-slate-50 hover:text-indigo-600'
+                    }`}
+                  >
+                    {saved ? <BookmarkCheck className="h-4 w-4" /> : <Bookmark className="h-4 w-4" />}
+                    {saved ? 'Đã lưu' : 'Lưu tin'}
+                  </button>
+                </>
+              ) : isOwner ? (
+                <div className="flex-1 rounded-lg border border-indigo-100 bg-indigo-50 px-6 py-3">
+                  <p className="font-bold text-indigo-700 text-center">Job của bạn (Quản lý tại cột bên phải)</p>
+                </div>
+              ) : existingProposal ? (
+                <div className="flex-1 rounded-lg border border-emerald-100 bg-emerald-50 px-6 py-3">
+                  <p className="flex items-center justify-center gap-2 font-bold text-emerald-700">
+                    <CheckCircle2 className="h-4 w-4" /> Đã ứng tuyển ({getProposalStatusLabel(existingProposal.status)})
+                  </p>
+                </div>
+              ) : shouldPromptMentorAccess ? (
+                <Link
+                  to="/become-mentor"
+                  className="flex h-[40px] flex-1 min-w-[160px] items-center justify-center gap-2 rounded-lg bg-[#4f46e5] px-5 text-[14px] font-bold text-white shadow-sm transition hover:bg-indigo-700"
+                >
+                  Đăng ký Mentor
+                </Link>
+              ) : null}
+              
+              <button 
+                onClick={copyLink} 
+                className="flex h-[46px] shrink-0 items-center justify-center gap-2 rounded-lg bg-slate-100 px-5 text-[15px] font-bold text-gray-800 transition hover:bg-slate-200 hover:text-indigo-600"
+              >
+                <Share2 className="h-4 w-4" />
+                {copied ? 'Đã copy!' : 'Chia sẻ'}
+              </button>
+            </div>
+          </div>
+        </div>
+
+            
+            {job.statusReason && (
+              <div className="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 px-6 py-5 text-sm font-semibold text-amber-700 shadow-sm">
+                <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-bold text-amber-900 text-[15px]">Ghi chú trạng thái</p>
+                  <p className="mt-1">{job.statusReason}</p>
+                </div>
+              </div>
+            )}
+
+            {/* Chi tiết công việc Card */}
+            <section className="rounded-2xl border border-slate-200 bg-white  p-6 shadow-sm sm:p-8">
+               <h2 className="mb-5 flex items-center gap-3 text-xl font-bold text-gray-900 border-l-4 border-[#4f46e5] pl-3">
+                  Chi tiết công việc
+               </h2>
+               <div className="max-w-none">
+                 <div className="whitespace-pre-wrap text-[15px] leading-[1.6] text-gray-800 font-medium">
+                   {job.description}
+                 </div>
+               </div>
+            </section>
+
+            {/* Yêu cầu ứng viên Card */}
+            {hasMentorBrief(job) && (
+               <section className="rounded-2xl border border-slate-200 bg-white  p-6 shadow-sm sm:p-8">
+                  <h2 className="mb-6 flex items-center gap-3 text-xl font-bold text-gray-900 border-l-4 border-[#4f46e5] pl-3">
+                     Yêu cầu ứng viên
                   </h2>
                   
-                  {/* Required Skills */}
                   {job.requiredSkills && job.requiredSkills.length > 0 && (
                     <div className="mb-8">
-                      <div className="mb-4 flex items-center gap-2 text-[16px] font-extrabold text-slate-900">
-                        <Tags className="job-accent-text h-5 w-5 text-indigo-500" />
+                      <div className="mb-4 flex items-center gap-2 text-[15px] font-bold text-gray-900">
+                        <Tags className="h-4 w-4 text-[#4f46e5]" />
                         Kỹ năng bắt buộc
                       </div>
                       <div className="flex flex-wrap gap-2">
                         {job.requiredSkills.map((skill) => (
                           <span 
                             key={skill} 
-                            className="job-accent-chip inline-flex items-center gap-1.5 rounded-full border border-indigo-100 bg-indigo-50/80 px-4 py-2 text-[14px] font-bold text-indigo-700 transition hover:bg-indigo-100 hover:text-indigo-800 shadow-sm"
+                            className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-[13px] font-bold text-gray-800 transition hover:bg-slate-100 hover:text-[#4f46e5] shadow-sm"
                           >
                             {skill}
                           </span>
@@ -540,115 +437,99 @@ export default function JobDetailPage() {
                     </div>
                   )}
 
-                  {/* Other Requirements Grid */}
                   <div className="grid gap-4 xl:grid-cols-2">
-                    {job.experienceLevel && (
-                      <BriefItem icon={GraduationCap} label="Cấp độ yêu cầu" value={formatExperienceLevel(job.experienceLevel)} />
-                    )}
+                    {job.experienceLevel && <BriefItem icon={GraduationCap} label="Cấp độ yêu cầu" value={formatExperienceLevel(job.experienceLevel)} />}
                     {job.currentLevel && <BriefItem icon={Gauge} label="Trình độ hiện tại của client" value={job.currentLevel} />}
                     {job.learningGoals && <BriefItem icon={Target} label="Mục tiêu học tập" value={job.learningGoals} wide />}
                     {job.successCriteria && <BriefItem icon={CheckCircle2} label="Tiêu chí thành công" value={job.successCriteria} wide />}
                     {job.availabilityExpectation && <BriefItem icon={CalendarDays} label="Thời gian rảnh" value={job.availabilityExpectation} />}
-                    {job.communicationPreference && (
-                      <BriefItem icon={MessageCircle} label="Hình thức giao tiếp" value={formatCommunicationPreference(job.communicationPreference)} />
-                    )}
+                    {job.communicationPreference && <BriefItem icon={MessageCircle} label="Hình thức giao tiếp" value={formatCommunicationPreference(job.communicationPreference)} />}
                   </div>
-                </div>
-              )}
+               </section>
+            )}
 
-              {/* Attachments */}
-              {(job.attachmentUrl || (job.attachments && job.attachments.length > 0)) && (
-                <>
-                  {hasMentorBrief(job) && <hr className="my-10 border-[#F0EAE3]" />}
-                  <div>
-                    <h2 className="mb-6 flex items-center gap-3 text-[22px] font-black text-[#111827]">
-                      <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#EEF2FF]">
-                        <FileArchive className="job-section-icon h-5 w-5" />
-                      </span>
-                      Tài liệu đính kèm
-                    </h2>
-                    <div className="grid gap-4 lg:grid-cols-2">
-                      {[
-                        ...(job.attachmentUrl ? [job.attachmentUrl] : []),
-                        ...(job.attachments || [])
-                      ]
-                      .filter((url, index, self) => self.indexOf(url) === index)
-                      .map((url, index) => {
-                        const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(url);
-                        const attachmentMeta = getAttachmentMeta(url, index)
-                        return (
-                          <div key={index} className="space-y-2">
-                            {isImage ? (
-                              <div className="job-soft-section group relative overflow-hidden rounded-xl border border-slate-200 bg-slate-50 transition-all hover:border-indigo-300">
-                                <img 
-                                  src={url} 
-                                  alt={`Attachment ${index + 1}`} 
-                                  className="aspect-video w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                                />
-                                <div className="absolute inset-0 flex items-center justify-center bg-slate-900/0 opacity-0 transition-all group-hover:bg-slate-900/30 group-hover:opacity-100">
-                                  <a
-                                    href={url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="flex h-10 items-center gap-2 rounded-lg bg-white px-4 text-xs font-bold text-slate-900 shadow-xl transition-transform hover:scale-105"
-                                  >
-                                    <Eye className="h-4 w-4" />
-                                    Xem ảnh đầy đủ
-                                  </a>
-                                </div>
-                              </div>
-                            ) : (
-                              <a
-                                href={url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="job-surface group flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-4 transition-all hover:border-indigo-300 hover:bg-indigo-50/50"
-                              >
-                                <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-lg shadow-sm transition-transform group-hover:scale-110 ${attachmentMeta.iconClassName}`}>
-                                  <attachmentMeta.Icon className="h-5 w-5" />
-                                </div>
-                                <div className="min-w-0 flex-1">
-                                  <p className="text-[10px] font-bold uppercase tracking-wider text-[#4F46E5]">{attachmentMeta.badge}</p>
-                                  <p className="mt-0.5 truncate text-sm font-bold text-[#111827]">{attachmentMeta.name}</p>
-                                  <p className="mt-0.5 text-xs text-[#6B7280]">{attachmentMeta.description}</p>
-                                </div>
-                                <ArrowRight className="h-4 w-4 text-[#94A3B8] transition group-hover:text-[#4F46E5] group-hover:translate-x-1" />
-                              </a>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
+            {/* Tài liệu đính kèm Card */}
+            {(job.attachmentUrl || (job.attachments && job.attachments.length > 0)) && (
+               <section className="rounded-2xl border border-slate-200 bg-white  p-6 shadow-sm sm:p-8">
+                  <h2 className="mb-6 flex items-center gap-3 text-xl font-bold text-gray-900 border-l-4 border-[#4f46e5] pl-3">
+                     Tài liệu đính kèm
+                  </h2>
+                  <div className="grid gap-4 lg:grid-cols-2">
+                     {[
+                       ...(job.attachmentUrl ? [job.attachmentUrl] : []),
+                       ...(job.attachments || [])
+                     ]
+                     .filter((url, index, self) => self.indexOf(url) === index)
+                     .map((url, index) => {
+                       const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(url);
+                       const attachmentMeta = getAttachmentMeta(url, index)
+                       return (
+                         <div key={index} className="space-y-2">
+                           {isImage ? (
+                             <div className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 transition-all hover:border-blue-300">
+                               <img 
+                                 src={url} 
+                                 alt={`Attachment ${index + 1}`} 
+                                 className="aspect-video w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                               />
+                               <div className="absolute inset-0 flex items-center justify-center bg-slate-900/0 opacity-0 transition-all group-hover:bg-slate-900/30 group-hover:opacity-100">
+                                 <a
+                                   href={url}
+                                   target="_blank"
+                                   rel="noopener noreferrer"
+                                   className="flex h-10 items-center gap-2 rounded-lg bg-white px-4 text-xs font-bold text-slate-900 shadow-xl transition-transform hover:scale-105"
+                                 >
+                                   <Eye className="h-4 w-4" />
+                                   Xem ảnh
+                                 </a>
+                               </div>
+                             </div>
+                           ) : (
+                             <a
+                               href={url}
+                               target="_blank"
+                               rel="noopener noreferrer"
+                               className="group flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4 transition-all hover:border-blue-300 hover:bg-blue-50/50 shadow-sm"
+                             >
+                               <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-lg shadow-sm transition-transform group-hover:scale-110 ${attachmentMeta.iconClassName}`}>
+                                 <attachmentMeta.Icon className="h-5 w-5" />
+                               </div>
+                               <div className="min-w-0 flex-1">
+                                 <p className="text-[10px] font-bold uppercase tracking-wider text-blue-600">{attachmentMeta.badge}</p>
+                                 <p className="mt-0.5 truncate text-sm font-bold text-gray-900">{attachmentMeta.name}</p>
+                                 <p className="mt-0.5 text-xs text-gray-600">{attachmentMeta.description}</p>
+                               </div>
+                               <ArrowRight className="h-4 w-4 text-slate-400 transition group-hover:text-blue-600 group-hover:translate-x-1" />
+                             </a>
+                           )}
+                         </div>
+                       );
+                     })}
                   </div>
-                </>
-              )}
-            </section>
+               </section>
+            )}
 
-            {/* Received Proposals (Owner View) - Kept outside the paper canvas */}
+            {/* Received Proposals */}
             {isOwner && (
-              <div className="job-surface rounded-2xl border border-[#E6EAF0] bg-[#FFFFFF] p-6 shadow-sm overflow-hidden sm:p-8">
+              <section className="rounded-2xl border border-slate-200 bg-white  p-6 shadow-sm sm:p-8">
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-[18px] font-extrabold text-[#111827] flex items-center gap-2">
-                    <div className="w-1.5 h-5 bg-[#4F46E5] rounded-full"></div>
+                  <h2 className="text-xl font-bold text-gray-900 border-l-4 border-[#4f46e5] pl-3 flex items-center gap-2">
                     Proposals đã nhận
                   </h2>
                   {proposalCount > 0 && (
-                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#EEF2FF] text-sm font-black text-[#4F46E5]">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-100 text-sm font-black text-[#4f46e5]">
                       {proposalCount}
                     </span>
                   )}
                 </div>
-                <div>
-                  <ProposalList jobId={job.jobId} />
-                </div>
-              </div>
+                <ProposalList jobId={job.jobId} />
+              </section>
             )}
-
+            
             {/* Related Jobs */}
             {relatedJobs && relatedJobs.length > 0 && (
-              <div className="job-surface rounded-2xl border border-transparent bg-gradient-to-br from-white to-indigo-50/30 p-6 shadow-sm ring-1 ring-slate-200 sm:p-8">
-                <h2 className="text-[20px] font-black text-slate-900 mb-6 flex items-center gap-2">
-                  <Sparkles className="h-5 w-5 text-amber-500" />
+              <section className="rounded-2xl border border-slate-200 bg-white  p-6 shadow-sm sm:p-8">
+                <h2 className="text-xl font-bold text-gray-900 border-l-4 border-[#4f46e5] pl-3 mb-6 flex items-center gap-2">
                   Việc làm tương tự
                 </h2>
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -656,37 +537,101 @@ export default function JobDetailPage() {
                     <RelatedJobCard key={relatedJob.jobId} job={relatedJob} />
                   ))}
                 </div>
-              </div>
+              </section>
             )}
+
           </div>
 
           {/* Sidebar */}
           <aside className="space-y-6 lg:sticky lg:top-24 lg:self-start">
+            
+            {/* THÔNG TIN CHUNG CARD */}
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+               <h3 className="mb-5 text-lg font-bold text-gray-900 border-b border-slate-100 pb-3">Thông tin chung</h3>
+               <div className="flex flex-col gap-4">
+                  <div className="flex items-center gap-3">
+                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-indigo-50 text-indigo-600">
+                        <Clock className="w-5 h-5" />
+                     </div>
+                     <div>
+                        <p className="text-[13px] font-medium text-gray-600">Thời hạn hoàn thành</p>
+                        <p className="text-[14px] font-bold text-gray-900">{getFullDateTime(job.deadlineAt)}</p>
+                     </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-indigo-50 text-indigo-600">
+                        <Briefcase className="w-5 h-5" />
+                     </div>
+                     <div>
+                        <p className="text-[13px] font-medium text-gray-600">Lĩnh vực</p>
+                        <p className="text-[14px] font-bold text-gray-900">{derived.categoryName}</p>
+                     </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-indigo-50 text-indigo-600">
+                        <MessageSquare className="w-5 h-5" />
+                     </div>
+                     <div>
+                        <p className="text-[13px] font-medium text-gray-600">Lượt ứng tuyển</p>
+                        <p className="text-[14px] font-bold text-gray-900">{proposalCount}</p>
+                     </div>
+                  </div>
+               </div>
+            </div>
+            {/* Client Info Card */}
+            <div className="rounded-2xl border border-slate-200 bg-white  p-6 shadow-sm">
+              <h3 className="mb-5 text-lg font-bold text-gray-900 border-b border-slate-100 pb-3">Thông tin Client</h3>
+              <div className="flex items-center gap-4">
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-slate-100 text-xl font-bold text-gray-800">
+                  {getInitials(clientName)}
+                </div>
+                <div>
+                  <h4 className="text-[16px] font-bold text-gray-900">{clientName}</h4>
+                  {job.client?.emailVerified ? (
+                    <span className="mt-1 inline-flex items-center gap-1 text-[12px] font-bold text-emerald-600">
+                      <CheckCircle2 className="h-3.5 w-3.5" /> Đã xác thực
+                    </span>
+                  ) : (
+                    <span className="mt-1 inline-flex items-center gap-1 text-[12px] font-bold text-amber-600">
+                      <Clock className="h-3.5 w-3.5" /> Chưa xác thực
+                    </span>
+                  )}
+                </div>
+              </div>
+              <div className="mt-5 border-t border-slate-100 pt-5">
+                <div className="flex items-center gap-2 text-[13px] font-medium text-gray-700">
+                  <User className="h-4 w-4 text-slate-400" />
+                  Thành viên từ {formatRelativeTime(job.createdAt)}
+                </div>
+              </div>
+            </div>
+
+
             {/* Management Actions Card */}
             {(isOwner || existingProposal) && (
-              <div className="job-surface rounded-2xl border border-[#E6EAF0] bg-[#FFFFFF] p-6 shadow-sm">
-                <h3 className="mb-4 text-[14px] font-extrabold text-[#111827]">Quản lý công việc</h3>
+              <div className="rounded-2xl border border-slate-200 bg-white  p-6 shadow-sm">
+                <h3 className="mb-4 text-lg font-bold text-gray-900 border-b border-slate-100 pb-3">Quản lý công việc</h3>
                 <div className="space-y-3">
                   {isOwner ? (
                     <>
-                      <div className="rounded-xl border border-indigo-100 bg-indigo-50 p-4 text-sm leading-6 text-indigo-800">
-                        You posted this job. Review proposals below and accept the mentor that best fits the work.
+                      <div className="rounded-xl border border-indigo-100 bg-indigo-50 p-4 text-[13px] leading-relaxed text-indigo-800">
+                        Bạn đã đăng công việc này. Hãy xem xét các ứng viên và chọn Mentor phù hợp nhất.
                       </div>
                       {jobContract?.fundsInEscrow && (
-                        <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm leading-6 text-emerald-900">
+                        <div className="rounded-xl border border-indigo-200 bg-indigo-50 p-4 text-[13px] leading-relaxed text-emerald-900">
                           <p className="font-black">Escrow secured</p>
                           <p className="mt-1">
-                            {formatCurrency(jobContract.amountInEscrow || 0)} is being held by MentorX until you confirm the work is completed.
+                            {formatCurrency(jobContract.amountInEscrow || 0)} đang được giữ bởi MentorX cho tới khi bạn xác nhận hoàn thành.
                           </p>
                         </div>
                       )}
                       {jobContract && (
                         <Link
                           to={getJobChatRoute(job.jobId, jobContract.mentorId)}
-                          className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-indigo-200 bg-indigo-50 px-4 text-sm font-black text-indigo-700 shadow-sm hover:bg-indigo-100"
+                          className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-indigo-200 bg-indigo-50 px-4 text-sm font-black text-indigo-700 shadow-sm hover:bg-indigo-100 transition"
                         >
                           <MessageSquare className="h-4 w-4" />
-                          Open chat
+                          Mở Chat
                         </Link>
                       )}
                       {canCompleteContract && jobContract && (
@@ -694,28 +639,28 @@ export default function JobDetailPage() {
                           type="button"
                           onClick={() => setShowCompleteContractConfirm(true)}
                           disabled={completeContractMutation.isLoading}
-                          className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-black text-white shadow-sm hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+                          className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-black text-white shadow-sm hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-300 transition"
                         >
                           <CheckCircle2 className="h-4 w-4" />
-                          {completeContractMutation.isLoading ? 'Releasing escrow...' : 'Confirm completion'}
+                          {completeContractMutation.isLoading ? 'Đang xử lý...' : 'Xác nhận hoàn thành'}
                         </button>
                       )}
                       <Link
                         to={`/jobs/${job.jobId}/edit`}
-                        className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-black text-slate-700 shadow-sm hover:bg-slate-50"
+                        className="flex h-11 w-full items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 text-sm font-black text-gray-800 shadow-sm hover:bg-slate-50 transition"
                       >
                         <Edit className="h-4 w-4" />
-                        Edit job
+                        Chỉnh sửa yêu cầu
                       </Link>
                       {canCloseJob && (
                         <button
                           type="button"
                           onClick={() => ownerStatusMutation.mutate(JobStatus.CLOSED)}
                           disabled={ownerStatusMutation.isLoading}
-                          className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-amber-200 bg-white px-4 text-sm font-black text-amber-700 shadow-sm hover:bg-amber-50 disabled:cursor-not-allowed disabled:opacity-70"
+                          className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-amber-200 bg-white px-4 text-sm font-black text-amber-700 shadow-sm hover:bg-amber-50 transition disabled:cursor-not-allowed disabled:opacity-70"
                         >
                           <X className="h-4 w-4" />
-                          {ownerStatusMutation.isLoading ? 'Updating status...' : 'Close job'}
+                          {ownerStatusMutation.isLoading ? 'Đang cập nhật...' : 'Đóng yêu cầu'}
                         </button>
                       )}
                       {canReopenJob && (
@@ -723,34 +668,34 @@ export default function JobDetailPage() {
                           type="button"
                           onClick={() => ownerStatusMutation.mutate(JobStatus.OPEN)}
                           disabled={ownerStatusMutation.isLoading}
-                          className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 text-sm font-black text-white shadow-sm hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+                          className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#4f46e5] px-4 text-sm font-black text-white shadow-sm hover:bg-indigo-700 transition disabled:cursor-not-allowed disabled:bg-slate-300"
                         >
                           <RefreshCcw className="h-4 w-4" />
-                          {ownerStatusMutation.isLoading ? 'Updating status...' : 'Reopen job'}
+                          {ownerStatusMutation.isLoading ? 'Đang cập nhật...' : 'Mở lại yêu cầu'}
                         </button>
                       )}
                     </>
                   ) : existingProposal ? (
                     <>
-                      <div className={`mb-4 rounded-xl border p-4 ${existingProposal.status === 'ACCEPTED' ? 'border-[#BBF7D0] bg-[#EAF7EF]' : 'border-indigo-100 bg-indigo-50'}`}>
+                      <div className={`mb-4 rounded-xl border p-4 ${existingProposal.status === 'ACCEPTED' ? 'border-indigo-200 bg-indigo-50' : 'border-indigo-100 bg-indigo-50'}`}>
                         <div className="flex items-center justify-between mb-3">
-                          <div className={`flex items-center gap-2 text-sm font-bold ${existingProposal.status === 'ACCEPTED' ? 'text-[#15803D]' : 'text-indigo-700'}`}>
+                          <div className={`flex items-center gap-2 text-sm font-bold ${existingProposal.status === 'ACCEPTED' ? 'text-emerald-700' : 'text-indigo-700'}`}>
                             <CheckCircle2 className="w-4 h-4" /> Đã gửi proposal
                           </div>
                           <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${getProposalStatusColor(existingProposal.status)}`}>
                             {getProposalStatusLabel(existingProposal.status)}
                           </span>
                         </div>
-                        <div className="text-xs text-indigo-600/80 mb-4">{formatRelativeTime(existingProposal.createdAt)}</div>
+                        <div className="text-xs text-[#4f46e5]/80 mb-4">{formatRelativeTime(existingProposal.createdAt)}</div>
                         
                         <div className="grid gap-3 min-[420px]:grid-cols-2">
-                          <div className="rounded-lg border border-indigo-200/50 bg-white p-3 shadow-sm">
-                            <p className="text-indigo-600/80 font-bold text-[11px] uppercase tracking-wider mb-1">Giá đề xuất</p>
-                            <p className="text-indigo-950 font-black">{formatCurrency(existingProposal.proposedAmount || 0)}</p>
+                          <div className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
+                            <p className="text-gray-600 font-bold text-[11px] uppercase tracking-wider mb-1">Giá đề xuất</p>
+                            <p className="text-gray-900 font-black">{formatCurrency(existingProposal.proposedAmount || 0)}</p>
                           </div>
-                          <div className="rounded-lg border border-indigo-200/50 bg-white p-3 shadow-sm">
-                            <p className="text-indigo-600/80 font-bold text-[11px] uppercase tracking-wider mb-1">Thời gian</p>
-                            <p className="text-indigo-950 font-black">{existingProposal.estimatedDurationDays} ngày</p>
+                          <div className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
+                            <p className="text-gray-600 font-bold text-[11px] uppercase tracking-wider mb-1">Thời gian</p>
+                            <p className="text-gray-900 font-black">{existingProposal.estimatedDurationDays} ngày</p>
                           </div>
                         </div>
                       </div>
@@ -765,10 +710,10 @@ export default function JobDetailPage() {
                       {latestNegotiation && (
                         <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 mb-4">
                           <p className="text-sm font-bold text-amber-900 mb-2">Giá đề xuất mới</p>
-                          <p className="text-xl font-black text-amber-700">
+                          <p className="text-[16px] font-black text-amber-700">
                             {formatCurrency(latestNegotiation.proposedAmount || 0)}
                           </p>
-                          <p className="text-xs text-amber-600 mt-1">
+                          <p className="text-[13px] font-medium text-amber-600 mt-1">
                             Thời gian: {latestNegotiation.estimatedDurationDays || 0} ngày
                           </p>
                         </div>
@@ -777,469 +722,180 @@ export default function JobDetailPage() {
                       <button
                         type="button"
                         onClick={() => setShowProposalDetail(true)}
-                        className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 text-sm font-black text-white shadow-sm hover:bg-indigo-700 transition"
+                        className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#4f46e5] px-4 text-sm font-bold text-white shadow-sm hover:bg-indigo-700 transition"
                       >
                         <Eye className="h-4 w-4" />
-                        Xem chi tiết proposal
+                        Xem chi tiết
                       </button>
 
                       {jobContract && (
                         <Link
                           to={getJobChatRoute(job.jobId, job.clientId)}
-                          className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-indigo-200 bg-indigo-50 px-4 text-sm font-black text-indigo-700 shadow-sm hover:bg-indigo-100 transition"
+                          className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-indigo-200 bg-indigo-50 px-4 text-sm font-black text-indigo-700 shadow-sm hover:bg-indigo-100 transition mt-3"
                         >
                           <MessageSquare className="h-4 w-4" />
-                          Open chat
+                          Mở chat
                         </Link>
                       )}
 
                       {canEditSubmittedProposal && (
                         <Link
                           to={`/jobs/${job.jobId}/proposals/${existingProposal.id}/edit`}
-                          className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-700 shadow-sm hover:bg-slate-50 transition"
+                          className="flex h-11 w-full items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 text-sm font-bold text-gray-800 shadow-sm hover:bg-slate-50 transition mt-3"
                         >
                           <Edit className="h-4 w-4" />
                           Chỉnh sửa
                         </Link>
                       )}
-
-                      {(existingProposal.status === 'SUBMITTED' || existingProposal.status === 'UNDER_REVIEW' || existingProposal.status === 'NEGOTIATING') && (
-                      <button
-                          type="button"
+                      {canEditSubmittedProposal && (
+                        <button
                           onClick={() => setShowWithdrawConfirm(true)}
-                          className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-4 text-sm font-bold text-rose-700 shadow-sm hover:bg-rose-100 transition"
+                          className="flex h-11 w-full items-center justify-center gap-2 rounded-xl text-rose-600 text-[14px] font-bold hover:bg-rose-50 transition mt-2"
                         >
-                          <Trash2 className="h-4 w-4" />
-                          Thu hồi
+                          Thu hồi proposal
                         </button>
                       )}
-                      <button
-                        type="button"
-                        onClick={() => setShowAiExplain(true)}
-                        className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-indigo-200 bg-indigo-50 px-4 text-sm font-bold text-indigo-700 shadow-sm transition hover:bg-indigo-100"
-                      >
-                        <Sparkles className="h-4 w-4" />
-                        Hỏi AI giải thích
-                      </button>
                     </>
                   ) : null}
                 </div>
               </div>
             )}
 
-            {/* Action Card (Apply/Edit/View/Share) */}
-            <div className="job-surface hidden rounded-2xl border border-[#E6EAF0] bg-[#FFFFFF] p-6 shadow-sm lg:block">
-              {isOwner ? (
-                 <Link
-                   to={`/jobs/${job.jobId}/edit`}
-                   className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#4F46E5] px-8 text-[15px] font-extrabold tracking-wide text-[#FFFFFF] transition hover:bg-[#4338CA] shadow-md"
-                 >
-                   <Edit className="h-4 w-4" />
-                   Chỉnh sửa tin
-                 </Link>
-              ) : isAuthenticated ? (
-                 <div className="flex flex-col gap-3">
-                   {!existingProposal && (
-                     shouldPromptMentorAccess ? (
-                        <Link
-                          to="/mentor/profile"
-                          className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#4F46E5] px-8 text-[15px] font-extrabold tracking-wide text-[#FFFFFF] shadow-md hover:bg-[#4338CA]"
-                        >
-                          <ShieldCheck className="h-4 w-4" />
-                          Đăng ký Mentor
-                        </Link>
-                     ) : (
-                        <button
-                          type="button"
-                          disabled={!canApply || job.status === 'CLOSED'}
-                          onClick={() => setShowApplyModal(true)}
-                          className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#4F46E5] px-10 text-[15px] font-extrabold tracking-wide text-[#FFFFFF] shadow-md hover:bg-[#4338CA] disabled:cursor-not-allowed disabled:bg-[#94A3B8]"
-                        >
-                          {job.status === JobStatus.CLOSED ? (
-                            <>
-                              <X className="h-4 w-4" />
-                              Việc đã đóng
-                            </>
-                          ) : job.status === JobStatus.OPEN ? (
-                            <>
-                              <Send className="h-4 w-4" />
-                              Ứng tuyển ngay
-                            </>
-                          ) : (
-                            'Không khả dụng'
-                          )}
-                        </button>
-                     )
-                   )}
-                    <div className="flex gap-3 mt-2">
-                      <button
-                        type="button"
-                        onClick={toggleSaved}
-                        className="flex h-12 w-12 shrink-0 items-center justify-center gap-2 rounded-xl border border-[#E6EAF0] bg-[#FFFFFF] text-[#475569] hover:bg-[#F5F6FA] shadow-sm transition"
-                        title={saved ? 'Đã lưu' : 'Lưu tin'}
-                      >
-                        {saved ? <BookmarkCheck className="h-5 w-5 text-[#4F46E5]" /> : <Bookmark className="h-5 w-5" />}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={copyLink}
-                        className="flex h-12 flex-1 items-center justify-center gap-2 rounded-xl border border-[#E6EAF0] bg-[#FFFFFF] text-[14px] font-extrabold text-[#475569] hover:bg-[#F5F6FA] shadow-sm transition"
-                      >
-                        <Share2 className="h-4 w-4" />
-                        {copied ? 'Đã copy link' : 'Chia sẻ công việc'}
-                      </button>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setShowAiExplain(true)}
-                      className="mt-2 flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-indigo-200 bg-indigo-50 px-4 text-sm font-bold text-indigo-700 shadow-sm transition hover:bg-indigo-100"
-                    >
-                      <Sparkles className="h-4 w-4" />
-                      Hỏi AI giải thích
-                    </button>
-                 </div>
-              ) : (
-                 <Link
-                   to="/login"
-                   className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#4F46E5] px-10 text-[15px] font-extrabold tracking-wide text-[#FFFFFF] shadow-md hover:bg-[#4338CA]"
-                 >
-                   <Lock className="h-4 w-4" />
-                   Đăng nhập để ứng tuyển
-                 </Link>
-              )}
+            {/* AI Assistant Callout */}
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm border border-slate-200">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-100 text-[#4f46e5] mb-4 shadow-sm">
+                <Sparkles className="h-5 w-5" />
+              </div>
+              <h3 className="text-[16px] font-bold text-gray-900">MentorX AI Assistant</h3>
+              <p className="mt-2 text-[13px] leading-relaxed text-gray-700">
+                Hãy để AI phân tích yêu cầu này và gợi ý cho bạn cách tiếp cận tốt nhất.
+              </p>
+              <button
+                onClick={() => setShowAiExplain(true)}
+                className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-indigo-200 bg-white px-4 py-2.5 text-sm font-bold text-[#4f46e5] shadow-sm transition hover:border-indigo-300 hover:bg-indigo-50"
+              >
+                <Sparkles className="h-4 w-4" /> Phân tích Job
+              </button>
             </div>
           </aside>
-
         </div>
       </main>
 
-      {/* Sticky Mobile Actions */}
-      <div className="fixed bottom-0 left-0 right-0 z-30 border-t border-[#E6EAF0] bg-[#FFFFFF]/95 p-4 shadow-[0_-8px_16px_-4px_rgba(0,0,0,0.05)] backdrop-blur lg:hidden">
-        {isOwner ? (
-          <Link
-            to={`/jobs/${job.jobId}/edit`}
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#4F46E5] text-sm font-extrabold text-[#FFFFFF] shadow-md"
-          >
-            <Edit className="h-4 w-4" />
-            Chỉnh sửa tin
-          </Link>
-        ) : isAuthenticated ? (
-          existingProposal ? (
+      {/* Modals & Dialogs */}
+      {showApplyModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
+          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setShowApplyModal(false)} />
+          <div className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl sm:p-10">
             <button
-              type="button"
-              onClick={() => setShowProposalDetail(true)}
-              className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#4F46E5] text-sm font-extrabold text-[#FFFFFF] shadow-md"
+              onClick={() => setShowApplyModal(false)}
+              className="absolute right-6 top-6 flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-gray-600 transition hover:bg-slate-200 hover:text-slate-900 z-10"
             >
-              <Eye className="h-4 w-4" />
-              Xem proposal đã gửi
+              <X className="h-4 w-4" />
             </button>
-          ) : shouldPromptMentorAccess ? (
-            <Link
-              to="/mentor/profile"
-              className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#4F46E5] text-sm font-extrabold text-[#FFFFFF] shadow-md"
-            >
-              <ShieldCheck className="h-4 w-4" />
-              Đăng ký Mentor
-            </Link>
-          ) : (
-            <div className="flex gap-3">
-              <button
-                type="button"
-                onClick={toggleSaved}
-                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-[#E6EAF0] bg-[#FFFFFF] text-[#475569]"
-              >
-                {saved ? <BookmarkCheck className="h-5 w-5 text-[#4F46E5]" /> : <Bookmark className="h-5 w-5" />}
-              </button>
-              <button
-                type="button"
-                disabled={!canApply || job.status === 'CLOSED'}
-                onClick={() => setShowApplyModal(true)}
-                className="flex flex-1 h-12 items-center justify-center gap-2 rounded-xl bg-[#4F46E5] text-sm font-extrabold text-[#FFFFFF] shadow-md disabled:cursor-not-allowed disabled:bg-[#94A3B8]"
-              >
-                {job.status === JobStatus.CLOSED ? 'Việc đã đóng' : job.status === JobStatus.OPEN ? 'Ứng tuyển ngay' : 'Không khả dụng'}
-              </button>
-            </div>
-          )
-        ) : (
-          <Link
-            to="/login"
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#4F46E5] text-sm font-extrabold text-[#FFFFFF] shadow-md"
-          >
-            <Lock className="h-4 w-4" />
-            Đăng nhập để ứng tuyển
-          </Link>
-        )}
-      </div>
-
-      {showApplyModal && user && canApply && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4 backdrop-blur-sm">
-          <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl sm:p-7">
-            <div className="mb-5 flex items-start justify-between gap-4">
-              <div>
-                <p className="text-sm font-bold text-indigo-600">Proposal</p>
-                <h2 className="mt-1 text-2xl font-black text-slate-950">
-                  {existingProposal && forceEditMode ? 'Chỉnh sửa proposal' : 'Submit your offer'}
-                </h2>
-                <p className="mt-1 text-sm text-slate-500">
-                  {existingProposal && forceEditMode
-                    ? 'Cập nhật thông tin proposal của bạn'
-                    : `Send a focused proposal for ${clientName}.`
-                  }
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  setShowApplyModal(false)
-                  setForceEditMode(false)
-                }}
-                className="flex h-10 w-10 items-center justify-center rounded-xl text-slate-400 hover:bg-slate-100 hover:text-slate-700"
-                aria-label="Close proposal form"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
             <ProposalCreateForm
               jobId={job.jobId}
-              mentorId={user.userId}
+              mentorId={user!.userId}
               jobType={job.jobType}
               budgetType={job.budgetType}
-              forceEditMode={forceEditMode}
+              forceEditMode={false}
               onSuccess={() => {
                 setShowApplyModal(false)
-                setForceEditMode(false)
-                void Promise.all([
-                  queryClient.invalidateQueries(['proposal', jobId, user?.userId]),
-                  queryClient.invalidateQueries(['negotiation-latest', existingProposal?.id]),
-                ])
+                queryClient.invalidateQueries(['proposal', jobId, user?.userId])
               }}
-              onCancel={() => {
-                // When user cancels edit in force edit mode, just close modal
-                setShowApplyModal(false)
-                setForceEditMode(false)
-              }}
+              onCancel={() => setShowApplyModal(false)}
             />
           </div>
         </div>
       )}
 
       {showProposalDetail && existingProposal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4 backdrop-blur-sm">
-          <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl sm:p-7">
-            <div className="mb-5 flex items-start justify-between gap-4">
-              <div>
-                <p className="text-sm font-bold text-indigo-600">Your Proposal</p>
-                <h2 className="mt-1 text-2xl font-black text-slate-950">Proposal Details</h2>
-                <p className="mt-1 text-sm text-slate-500">
-                  Submitted {formatRelativeTime(existingProposal.submittedAt || existingProposal.createdAt)}
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setShowProposalDetail(false)}
-                className="flex h-10 w-10 items-center justify-center rounded-xl text-slate-400 hover:bg-slate-100 hover:text-slate-700"
-                aria-label="Close proposal detail"
-              >
-                <X className="h-5 w-5" />
-              </button>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
+          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setShowProposalDetail(false)} />
+          <div className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl sm:p-10">
+            <button
+              onClick={() => setShowProposalDetail(false)}
+              className="absolute right-6 top-6 flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-gray-600 transition hover:bg-slate-200 hover:text-slate-900 z-10"
+            >
+              <X className="h-4 w-4" />
+            </button>
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold text-gray-900">Chi tiết Proposal</h2>
+              <p className="mt-1 text-sm text-gray-600">Proposal bạn đã gửi cho công việc này</p>
             </div>
+            
+            <ProposalCreateForm
+              jobId={job.jobId}
+              mentorId={user!.userId}
+              jobType={job.jobType}
+              budgetType={job.budgetType}
+              forceEditMode={forceEditMode}
+              onSuccess={() => {
+                setShowProposalDetail(false)
+                setForceEditMode(false)
+                queryClient.invalidateQueries(['proposal', jobId, user?.userId])
+              }}
+              onCancel={() => setShowProposalDetail(false)}
+            />
+          </div>
+        </div>
+      )}
 
-            <div className="space-y-5">
-              {/* Status Badge */}
-              <div className="flex items-center justify-between rounded-xl bg-slate-50 p-4">
-                <div>
-                  <p className="text-xs font-bold uppercase text-slate-500">Status</p>
-                  <span className={`mt-1 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-black ${getProposalStatusColor(existingProposal.status)}`}>
-                    {getProposalStatusLabel(existingProposal.status)}
-                  </span>
-                </div>
-                {existingProposal.viewCount !== undefined && (
-                  <div className="text-right">
-                    <p className="text-xs font-bold uppercase text-slate-500">Lượt xem</p>
-                    <p className="mt-1 text-2xl font-black text-slate-900">{existingProposal.viewCount}</p>
-                  </div>
-                )}
-              </div>
-
-              {/* Budget & Duration */}
-              <div className="grid gap-4 min-[420px]:grid-cols-2">
-                <div className="rounded-xl bg-slate-50 p-4">
-                  <div className="flex items-center gap-2 text-xs font-bold uppercase text-slate-400 mb-2">
-                    <DollarSign className="h-4 w-4" />
-                    Giá đề xuất
-                  </div>
-                  <p className="text-2xl font-black text-slate-950">{formatCurrency(existingProposal.proposedAmount || 0)}</p>
-                </div>
-                <div className="rounded-xl bg-slate-50 p-4">
-                  <div className="flex items-center gap-2 text-xs font-bold uppercase text-slate-400 mb-2">
-                    <CalendarDays className="h-4 w-4" />
-                    Thời gian
-                  </div>
-                  <p className="text-2xl font-black text-slate-950">{existingProposal.estimatedDurationDays} ngày</p>
-                </div>
-              </div>
-
-              {/* Latest Negotiation Info */}
-              {existingProposal.status === 'NEGOTIATING' && latestNegotiation && (
-                <div className="relative overflow-hidden bg-gradient-to-br from-amber-50 to-white border border-amber-200 rounded-3xl p-6 shadow-sm">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-amber-200/20 rounded-full -mr-16 -mt-16 blur-3xl" />
-                  
-                  <div className="relative flex items-center justify-between mb-6">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center shadow-sm">
-                        <MessageCircle className="w-5 h-5 text-amber-600" />
-                      </div>
-                      <div>
-                        <h3 className="font-black text-slate-900">
-                          {latestNegotiation.senderType === 'CLIENT' ? 'Client đề xuất thương lượng' : 'Bạn đã phản hồi thương lượng'}
-                        </h3>
-                        <p className="text-[10px] font-black text-amber-600 uppercase tracking-widest mt-0.5">
-                          {latestNegotiation.senderType === 'CLIENT' ? 'Đang chờ bạn phản hồi' : 'Đang chờ client phản hồi'}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="relative bg-white rounded-2xl p-5 border border-amber-100 mb-6 shadow-sm italic text-slate-600 leading-relaxed text-sm">
-                    <span className="text-4xl text-amber-200 absolute -top-2 -left-1 font-serif opacity-50">“</span>
-                    {latestNegotiation.message}
-                    <span className="text-4xl text-amber-200 absolute -bottom-6 -right-1 font-serif opacity-50">”</span>
-                  </div>
-
-                  <div className="grid gap-4 min-[420px]:grid-cols-2">
-                    {latestNegotiation.proposedAmount && (
-                      <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 border border-amber-100 shadow-sm">
-                        <p className="text-[10px] font-black text-amber-600 uppercase mb-2 tracking-wider">Giá thỏa thuận</p>
-                        <div className="flex items-center gap-2">
-                          <span className="text-slate-400 line-through text-xs font-bold">{existingProposal.proposedAmount} MXC</span>
-                          <ArrowRight className="w-3 h-3 text-amber-500" />
-                          <span className="text-lg font-black text-amber-700">{latestNegotiation.proposedAmount} MXC</span>
-                        </div>
-                      </div>
-                    )}
-                    {latestNegotiation.estimatedDurationDays && (
-                      <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 border border-amber-100 shadow-sm">
-                        <p className="text-[10px] font-black text-amber-600 uppercase mb-2 tracking-wider">Thời gian mới</p>
-                        <div className="flex items-center gap-2">
-                          <span className="text-slate-400 line-through text-xs font-bold">{existingProposal.estimatedDurationDays} ngày</span>
-                          <ArrowRight className="w-3 h-3 text-amber-500" />
-                          <span className="text-lg font-black text-amber-700">{latestNegotiation.estimatedDurationDays} ngày</span>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {latestNegotiation.senderType === 'CLIENT' ? (
-                    <div className="mt-6">
-                      <Link
-                        to={`/mentor/proposals/${existingProposal.id}`}
-                        className="flex w-full h-12 items-center justify-center gap-2 rounded-2xl bg-amber-600 text-sm font-black text-white hover:bg-amber-700 shadow-lg shadow-amber-200 transition-all hover:scale-[1.02] active:scale-95"
-                      >
-                        <TrendingUp className="w-4 h-4" />
-                        Phản hồi ngay
-                      </Link>
-                    </div>
-                  ) : (
-                    <div className="mt-6 p-4 bg-amber-100/30 rounded-2xl border border-dashed border-amber-300 text-center">
-                      <p className="text-xs font-bold text-amber-800 flex items-center justify-center gap-2">
-                        <Clock className="w-4 h-4 animate-pulse" />
-                        Đang chờ client phản hồi đề xuất của bạn
-                      </p>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Cover Letter */}
-              <div>
-                <p className="text-sm font-black text-slate-950 mb-3">Cover Letter</p>
-                <div className="rounded-xl bg-slate-50 p-4 border border-slate-200">
-                  <p className="text-sm leading-7 text-slate-700 whitespace-pre-wrap">{existingProposal.coverLetter}</p>
-                </div>
-              </div>
-
-              {/* Relevant Experience */}
-              {existingProposal.relevantExperience && (
-                <div>
-                  <p className="text-sm font-black text-slate-950 mb-3">Kinh nghiệm liên quan</p>
-                  <div className="rounded-xl bg-indigo-50 p-4 border border-indigo-200">
-                    <p className="text-sm leading-7 text-slate-700 whitespace-pre-wrap">{existingProposal.relevantExperience}</p>
-                  </div>
-                </div>
-              )}
-
-              {/* Rejection Reason */}
-              {existingProposal.status === 'REJECTED' && existingProposal.rejectionReason && (
-                <div>
-                  <p className="text-sm font-black text-rose-600 mb-3">Lý do từ chối</p>
-                  <div className="rounded-xl bg-rose-50 p-4 border border-rose-200">
-                    <p className="text-sm leading-7 text-rose-700">{existingProposal.rejectionReason}</p>
-                  </div>
-                </div>
-              )}
-
-              {/* Actions */}
-              <div className="flex gap-3 pt-4 border-t border-slate-200">
-                {canEditSubmittedProposal && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowProposalDetail(false)
-                    setForceEditMode(true)
-                    setShowApplyModal(true)
-                  }}
-                  className="flex-1 inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 text-sm font-black text-white hover:bg-indigo-700"
-                >
-                  <Edit className="h-4 w-4" />
-                  Chỉnh sửa
-                </button>
-                )}
-                <button
-                  type="button"
-                  onClick={() => setShowProposalDetail(false)}
-                  className={`${canEditSubmittedProposal ? 'px-6' : 'flex-1'} inline-flex h-11 items-center justify-center rounded-xl border border-slate-200 bg-white text-sm font-black text-slate-700 hover:bg-slate-50`}
-                >
-                  Đóng
-                </button>
-              </div>
+      {showWithdrawConfirm && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
+          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => !withdrawing && setShowWithdrawConfirm(false)} />
+          <div className="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-rose-50 text-rose-600 mb-5 shadow-inner">
+              <AlertCircle className="h-6 w-6" />
+            </div>
+            <h3 className="text-center text-xl font-bold text-gray-900 mb-2">Xác nhận thu hồi</h3>
+            <p className="text-center text-sm text-gray-600 mb-6 leading-relaxed">
+              Bạn có chắc chắn muốn thu hồi proposal này không? Hành động này không thể hoàn tác và client sẽ không thể thấy proposal của bạn nữa.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowWithdrawConfirm(false)}
+                disabled={withdrawing}
+                className="flex-1 rounded-xl bg-slate-100 px-4 py-3.5 text-[15px] font-bold text-gray-800 hover:bg-slate-200 transition"
+              >
+                Hủy bỏ
+              </button>
+              <button
+                onClick={handleWithdraw}
+                disabled={withdrawing}
+                className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-rose-600 px-4 py-3.5 text-[15px] font-bold text-white hover:bg-rose-700 transition"
+              >
+                {withdrawing ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Thu hồi'}
+              </button>
             </div>
           </div>
         </div>
       )}
 
-      {showCompleteContractConfirm && jobContract && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
-            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100">
-              <CheckCircle2 className="h-6 w-6 text-emerald-600" />
+      {showCompleteContractConfirm && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
+          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => !completeContractMutation.isLoading && setShowCompleteContractConfirm(false)} />
+          <div className="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-50 text-emerald-600 mb-5 shadow-inner">
+              <CheckCircle2 className="h-6 w-6" />
             </div>
-            <h3 className="text-lg font-bold text-slate-900 text-center mb-2">Confirm job completion?</h3>
-            <p className="text-sm text-slate-600 text-center mb-6">
-              Once confirmed, {formatCurrency(jobContract.amountInEscrow || 0)} will be released from escrow and credited to the mentor wallet.
+            <h3 className="text-center text-xl font-bold text-gray-900 mb-2">Hoàn thành công việc</h3>
+            <p className="text-center text-sm text-gray-600 mb-6 leading-relaxed">
+              Bạn xác nhận công việc này đã hoàn thành? Số tiền <strong className="text-emerald-600">{formatCurrency(jobContract?.amountInEscrow || 0)}</strong> trong Escrow sẽ được chuyển cho Mentor ngay lập tức. Hành động này không thể hoàn tác.
             </p>
             <div className="flex gap-3">
               <button
-                type="button"
                 onClick={() => setShowCompleteContractConfirm(false)}
                 disabled={completeContractMutation.isLoading}
-                className="flex-1 px-4 py-2.5 border border-slate-300 text-slate-700 rounded-lg font-bold hover:bg-slate-50 disabled:opacity-50 transition-all text-sm"
+                className="flex-1 rounded-xl bg-slate-100 px-4 py-3.5 text-[15px] font-bold text-gray-800 hover:bg-slate-200 transition"
               >
-                Cancel
+                Chưa xong
               </button>
               <button
-                type="button"
-                onClick={() => completeContractMutation.mutate(jobContract.id)}
+                onClick={() => jobContract && completeContractMutation.mutate(jobContract.id)}
                 disabled={completeContractMutation.isLoading}
-                className="flex-1 flex items-center justify-center gap-2 bg-emerald-600 text-white py-2.5 rounded-lg font-bold hover:bg-emerald-700 disabled:bg-emerald-400 transition-all text-sm"
+                className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-3.5 text-[15px] font-bold text-white hover:bg-emerald-700 transition"
               >
-                {completeContractMutation.isLoading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Processing...
-                  </>
-                ) : (
-                  'Release escrow'
-                )}
+                {completeContractMutation.isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Xác nhận'}
               </button>
             </div>
           </div>
@@ -1254,88 +910,6 @@ export default function JobDetailPage() {
         taskId={job.jobId}
         taskTitle={job.title}
       />
-
-      {/* Withdraw Confirmation Modal */}
-      {showWithdrawConfirm && existingProposal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
-            <div className="w-12 h-12 rounded-full bg-rose-100 flex items-center justify-center mx-auto mb-4">
-              <AlertCircle className="w-6 h-6 text-rose-600" />
-            </div>
-            <h3 className="text-lg font-bold text-slate-900 text-center mb-2">Thu hồi Proposal?</h3>
-            <p className="text-sm text-slate-600 text-center mb-6">
-              Bạn có chắc chắn muốn thu hồi proposal này? Hành động này không thể hoàn tác.
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowWithdrawConfirm(false)}
-                disabled={withdrawing}
-                className="flex-1 px-4 py-2.5 border border-slate-300 text-slate-700 rounded-lg font-bold hover:bg-slate-50 disabled:opacity-50 transition-all text-sm"
-              >
-                Hủy
-              </button>
-              <button
-                onClick={handleWithdraw}
-                disabled={withdrawing}
-                className="flex-1 flex items-center justify-center gap-2 bg-rose-600 text-white py-2.5 rounded-lg font-bold hover:bg-rose-700 disabled:bg-rose-400 transition-all text-sm"
-              >
-                {withdrawing ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Đang xử lý...
-                  </>
-                ) : (
-                  'Xác nhận thu hồi'
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  )
-}
-
-function Panel({
-  title,
-  icon: Icon,
-  children,
-  flush = false,
-}: {
-  title: string
-  icon: React.ComponentType<{ className?: string }>
-  children: React.ReactNode
-  flush?: boolean
-}) {
-  return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-7">
-      <div className="mb-4 flex items-center gap-2">
-        <Icon className="h-5 w-5 text-indigo-600" />
-        <h2 className="text-xl font-black text-slate-950">{title}</h2>
-      </div>
-      <div className={flush ? '' : 'rounded-xl bg-white'}>{children}</div>
-    </section>
-  )
-}
-
-function BriefItem({
-  icon: Icon,
-  label,
-  value,
-  wide = false,
-}: {
-  icon: React.ComponentType<{ className?: string }>
-  label: string
-  value: string
-  wide?: boolean
-}) {
-  return (
-    <div className={`job-soft-section rounded-2xl border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-5 shadow-sm transition-all hover:border-indigo-300 ${wide ? 'md:col-span-2' : ''}`}>
-      <div className="mb-2 flex items-center gap-2 text-[12px] font-extrabold uppercase tracking-wide text-[#64748B]">
-        <Icon className="job-section-icon h-4 w-4 text-indigo-500" />
-        {label}
-      </div>
-      <p className="whitespace-pre-wrap text-[15px] font-bold leading-relaxed text-[#1F2937]">{value}</p>
     </div>
   )
 }
@@ -1352,7 +926,7 @@ function SummaryTile({
   return (
     <div className="job-soft-section rounded-2xl border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-5 shadow-sm">
       <div className="flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.14em] text-[#94A3B8]">
-        <Icon className="job-section-icon h-4 w-4 text-indigo-500" />
+        <Icon className="job-section-icon h-4 w-4 text-[#4f46e5]" />
         {label}
       </div>
       <p className="mt-3 break-words text-lg font-extrabold leading-6 tracking-tight text-[#1F2937]">{value}</p>
@@ -1370,9 +944,9 @@ function QuickMetaCard({
   value: string
 }) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
       <div className="flex items-center gap-2 text-[11px] font-black uppercase tracking-wide text-slate-400">
-        <Icon className="h-4 w-4 text-slate-500" />
+        <Icon className="h-4 w-4 text-gray-600" />
         {label}
       </div>
       <p className="mt-2 break-words text-sm font-black leading-6 text-slate-950">{value}</p>
@@ -1403,7 +977,7 @@ function SideFact({
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-start justify-between gap-4 border-b border-slate-100 pb-3 last:border-0 last:pb-0">
-      <span className="text-slate-500">{label}</span>
+      <span className="text-gray-600">{label}</span>
       <span className="max-w-[190px] text-right font-black text-slate-950">{value}</span>
     </div>
   )
@@ -1415,7 +989,7 @@ function Badge({ children, className }: { children: React.ReactNode; className: 
 
 function JobDetailSkeleton() {
   return (
-      <div className="min-h-screen bg-[#f7f8fc] px-4 py-6 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-[#f3f5f7] px-4 py-6 sm:px-6 lg:px-8">
       <div className="mx-auto grid max-w-[1600px] gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
         <div className="space-y-6">
           <div className="rounded-2xl border border-[#E8E1D8] bg-[#FFFFFF] p-7 shadow-sm">
@@ -1440,6 +1014,58 @@ function JobDetailSkeleton() {
       </div>
     </div>
   )
+}
+
+
+function BriefItem({
+  icon: Icon,
+  label,
+  value,
+  wide = false,
+}: {
+  icon: React.ComponentType<{ className?: string }>
+  label: string
+  value: string
+  wide?: boolean
+}) {
+  return (
+    <div className={`job-soft-section rounded-2xl border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-5 shadow-sm transition-all hover:border-indigo-300 ${wide ? 'md:col-span-2' : ''}`}>
+      <div className="mb-2 flex items-center gap-2 text-[12px] font-extrabold uppercase tracking-wide text-[#64748B]">
+        <Icon className="job-section-icon h-4 w-4 text-[#4f46e5]" />
+        {label}
+      </div>
+      <p className="whitespace-pre-wrap text-[15px] font-bold leading-relaxed text-[#1F2937]">{value}</p>
+    </div>
+  )
+}
+
+
+function getTimeRemaining(deadlineAt: string | undefined | null) {
+  if (!deadlineAt) return 'Không giới hạn';
+  const deadline = new Date(deadlineAt);
+  const now = new Date();
+  const diff = deadline.getTime() - now.getTime();
+  
+  if (diff <= 0) return 'Đã hết hạn';
+  
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+  
+  if (days > 0) return `Còn ${days} ngày ${hours} giờ`;
+  if (hours > 0) return `Còn ${hours} giờ ${minutes} phút`;
+  return `Còn ${minutes} phút`;
+}
+
+function getFullDateTime(deadlineAt: string | undefined | null) {
+  if (!deadlineAt) return 'Không giới hạn';
+  const d = new Date(deadlineAt);
+  const day = d.getDate();
+  const month = d.getMonth() + 1;
+  const year = d.getFullYear();
+  const hours = d.getHours().toString().padStart(2, '0');
+  const minutes = d.getMinutes().toString().padStart(2, '0');
+  return `${day} tháng ${month}, ${year} ${hours}:${minutes}`;
 }
 
 function getJobDisplayData(job: JobResponse, categories: Array<{ id?: number; categoryId?: number; name: string }>) {
@@ -1559,7 +1185,7 @@ function getProposalStatusLabel(status: string): string {
 
 function getProposalStatusColor(status: string): string {
   const statusColors: Record<string, string> = {
-    DRAFT: 'bg-slate-100 text-slate-700 border border-slate-200',
+    DRAFT: 'bg-slate-100 text-gray-800 border border-slate-200',
     SUBMITTED: 'bg-[#EEF2FF] text-[#4F46E5] border border-[#C7D2FE]',
     UNDER_REVIEW: 'bg-[#FFF7E6] text-[#D97706] border border-[#FED7AA]',
     NEGOTIATING: 'bg-[#FFF7E6] text-[#D97706] border border-[#FED7AA]',
@@ -1568,7 +1194,7 @@ function getProposalStatusColor(status: string): string {
     REJECTED: 'bg-rose-100 text-rose-700 border border-rose-200',
     WITHDRAWN: 'bg-gray-100 text-gray-700 border border-gray-200',
   }
-  return statusColors[status] || 'bg-slate-100 text-slate-700 border border-slate-200'
+  return statusColors[status] || 'bg-slate-100 text-gray-800 border border-slate-200'
 }
 
 function getAttachmentMeta(url: string, index: number) {
@@ -1581,7 +1207,7 @@ function getAttachmentMeta(url: string, index: number) {
       badge: 'Image',
       description: 'Preview and open full size',
       Icon: FileImage,
-      iconClassName: 'bg-emerald-50 text-emerald-600',
+      iconClassName: 'bg-indigo-50 text-emerald-600',
     }
   }
 
@@ -1625,7 +1251,7 @@ function RelatedJobCard({ job }: { job: JobResponse }) {
       className="job-surface group flex flex-col rounded-2xl border border-slate-200 bg-white p-5 transition-all hover:border-indigo-400"
     >
       <div className="flex items-start gap-4">
-        <div className="job-soft-section flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-50 to-white text-lg font-black text-indigo-600 ring-1 ring-indigo-100 transition-colors group-hover:bg-indigo-600 group-hover:text-white">
+        <div className="job-soft-section flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-slate-50 text-lg font-black text-[#4f46e5] ring-1 ring-indigo-100 transition-colors group-hover:bg-[#4f46e5] group-hover:text-white">
           {initial}
         </div>
         <div className="min-w-0 flex-1">

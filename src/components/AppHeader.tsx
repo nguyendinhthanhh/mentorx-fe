@@ -109,7 +109,7 @@ export default function AppHeader() {
               <Link
                 key={item.to}
                 to={item.to}
-                className={`group relative px-4 py-2 text-sm font-bold transition-all duration-300 ${
+                className={`group relative px-4 py-2 text-[16px] font-bold transition-all duration-300 ${
                   active
                     ? 'text-indigo-600'
                     : 'text-slate-600 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-white'
