@@ -1,0 +1,30 @@
+const fs = require('fs');
+const file = 'src/pages/admin/AdminMentorApplicationsPage.tsx';
+let content = fs.readFileSync(file, 'utf8');
+
+content = content.replace(/type QueueTab = 'expertise' \| 'identity' \| 'payout'/, "type QueueTab = 'expertise' | 'payout'");
+content = content.replace(/\s*\| 'approve-identity'\s*\| 'reject-identity'/, "");
+content = content.replace(/\s*\{\s*key: 'identity',\s*label: 'Identity review',\s*description: 'Trust and compliance queue for optional or policy-triggered identity checks.',\s*\},/, "");
+content = content.replace(/\s*if \(activeTab === 'identity'\) \{\s*return profile\.documentNumberMasked \|\| profile\.identityDocumentType \|\| 'Identity packet submitted'\s*\}/, "");
+content = content.replace(/\s*: activeTab === 'identity'\s*\? profile\.identityStatus/, "");
+content = content.replace(/\s*\|\| selectedApplication\.identityRejectionReason/, "");
+content = content.replace(/\s*: tab\.key === 'identity'\s*\? identityQuery\.data\?\.totalElements \?\? 0/, "");
+content = content.replace(/\s*identity: Fingerprint,/, "");
+content = content.replace(/\s*canReviewIdentity=\{canReviewIdentity\}/g, "");
+content = content.replace(/\s*canReviewIdentity,/g, "");
+content = content.replace(/\s*canReviewIdentity: boolean/g, "");
+content = content.replace(/\s*\|\| profile\.identityRejectionReason/g, "");
+content = content.replace(/\s*: activeTab === 'identity'\s*\? canReviewIdentity\s*\?\s*\[\s*\{ action: 'reject-identity' as ModerationAction, label: 'Reject identity', tone: 'danger' as const \},\s*\{ action: 'approve-identity' as ModerationAction, label: 'Approve identity', tone: 'primary' as const \},\s*\]\s*: \[\]/, "");
+content = content.replace(/\s*\|\| draftAction === 'reject-identity'/g, "");
+content = content.replace(/ \|\| profile\.identityRejectionReason/g, "");
+content = content.replace(/\s*const hasIdentityReviewData =[\s\S]*?profile\.identityVerifiedBy/, "");
+content = content.replace(/\s*const identityNote = profile\.identityRejectionReason \|\| profile\.expertiseReviewNote \|\| 'No note yet'/, "");
+content = content.replace(/\s*\{activeTab === 'identity' && \(\s*<>\s*<ActionButton tone="primary" onClick=\{.*?\} icon=\{BadgeCheck\}>\s*Approve identity\s*<\/ActionButton>\s*<ActionButton tone="danger" onClick=\{.*?\} icon=\{XCircle\}>\s*Reject identity\s*<\/ActionButton>\s*<\/>\s*\)\}/g, "");
+content = content.replace(/\s*<DetailStat label="Identity" value=\{getStatusLabel\(profile\.identityStatus\)\} \/>/, "");
+content = content.replace(/\s*\{hasIdentityReviewData && \(\s*<PanelSection\s*title="Identity review"\s*description="Only shown when identity verification is required or already in progress\."\s*>\s*<FieldGrid>\s*<FieldItem label="Country" value=\{profile\.countryOfResidence \|\| 'Not provided'\} \/>\s*<FieldItem label="Document type" value=\{profile\.identityDocumentType \|\| 'Not submitted'\} \/>\s*<FieldItem label="Document" value=\{profile\.documentNumberMasked \|\| 'Not submitted'\} mono \/>\s*<FieldItem label="Identity note" value=\{identityNote\} spanFull \/>\s*<\/FieldGrid>\s*<\/PanelSection>\s*\)\}/, "");
+content = content.replace(/\s*\|\| action === 'reject-identity'/, "");
+content = content.replace(/\s*case 'approve-identity':\s*return 'Approve identity'\s*case 'reject-identity':\s*return 'Reject identity'/, "");
+content = content.replace(/\s*case 'approve-identity':\s*return 'Use this when identity documentation is sufficient for trust, payout, or compliance\.'\s*case 'reject-identity':\s*return 'Add a specific reason so the mentor can correct or replace the identity submission\.'/,"");
+content = content.replace(/\s*case 'approve-identity':\s*return 'Identity verification approved\.'\s*case 'reject-identity':\s*return 'Identity verification rejected\.'/,"");
+
+fs.writeFileSync(file, content);

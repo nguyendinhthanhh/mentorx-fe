@@ -20,6 +20,8 @@ import GithubCallback from './pages/auth/GithubCallback'
 // Dashboard Pages
 import ProfileDashboardPage from './pages/user/ProfileDashboardPage'
 import SettingsPage from './pages/user/SettingsPage'
+import PreferencesPage from './pages/user/PreferencesPage'
+import BankAccountPage from './pages/user/BankAccountPage'
 import SavedMentorsPage from './pages/user/SavedMentorsPage'
 import UserAppointmentsPage from './pages/user/UserAppointmentsPage'
 import UserTransactionsPage from './pages/user/UserTransactionsPage'
@@ -30,6 +32,7 @@ import RecommendedMentorsPage from './pages/mentor/RecommendedMentorsPage'
 import NotificationListPage from './pages/user/NotificationListPage'
 import MyComplaintsPage from './pages/user/MyComplaintsPage'
 import NewComplaintPage from './pages/user/NewComplaintPage'
+import UserReviewsPage from './pages/user/UserReviewsPage'
 
 // Job Pages
 import JobListPage from './pages/job/JobListPage'
@@ -83,7 +86,6 @@ import MentorMessagesPage from './pages/mentor/MentorMessagesPage'
 import MentorSchedulePage from './pages/mentor/MentorSchedulePage'
 import MentorEarningsPage from './pages/mentor/MentorEarningsPage'
 import MentorReviewsPage from './pages/mentor/MentorReviewsPage'
-import MentorSettingsPage from './pages/mentor/MentorSettingsPage'
 import MyCoursesPage from './pages/user/MyCoursesPage'
 
 
@@ -181,7 +183,6 @@ function App() {
           <Route element={<ProtectedRoute><ProfileLayout /></ProtectedRoute>}>
             <Route path="/profile" element={<ProfileDashboardPage />} />
             <Route path="/profile/dashboard" element={<Navigate to="/profile" replace />} />
-            <Route path="/profile/settings" element={<SettingsPage />} />
             <Route path="/profile/notifications" element={<NotificationListPage />} />
             <Route path="/profile/jobs" element={<Navigate to="/users/requests" replace />} />
             <Route path="/profile/proposals" element={<div>Proposals (Coming Soon)</div>} />
@@ -191,7 +192,10 @@ function App() {
             <Route path="/profile/saved" element={<SavedMentorsPage />} />
             <Route path="/profile/complaints" element={<MyComplaintsPage />} />
             <Route path="/profile/complaints/new" element={<NewComplaintPage />} />
-            <Route path="/profile/reviews" element={<div>Reviews (Coming Soon)</div>} />
+            <Route path="/profile/reviews" element={<UserReviewsPage />} />
+            <Route path="/profile/preferences" element={<PreferencesPage />} />
+            <Route path="/profile/bank-accounts" element={<BankAccountPage />} />
+            <Route path="/profile/settings" element={<SettingsPage />} />
             <Route path="/profile/payments" element={<div>Payment Methods (Coming Soon)</div>} />
             <Route path="/my-jobs" element={<MyJobsPage />} />
             <Route path="/my-jobs/:jobId" element={<UserRequestDetailPage />} />
@@ -229,11 +233,12 @@ function App() {
             <Route path="/documents/create" element={<CourseCreatePage productType={CourseProductType.DOCUMENT} />} />
             <Route path="/mentor" element={<Navigate to="/mentor/dashboard" replace />} />
             <Route path="/mentor/dashboard" element={<MentorDashboardPage />} />
-            <Route path="/mentor/profile" element={<MentorProfileSetupPage initialTab="profile" />} />
-            <Route path="/mentor/profile-setup" element={<MentorProfileSetupPage initialTab="profile" />} />
-            <Route path="/mentor/packages" element={<MentorProfileSetupPage initialTab="packages" />} />
-            <Route path="/mentor/profile-courses" element={<MentorProfileSetupPage initialTab="courses" />} />
-            <Route path="/mentor/availability" element={<MentorProfileSetupPage initialTab="availability" />} />
+            <Route path="/mentor/profile-setup" element={<Navigate to="/profile/settings" replace />} />
+            <Route path="/mentor/profile" element={<Navigate to="/profile/settings" replace />} />
+            <Route path="/mentor/packages" element={<Navigate to="/profile/settings" replace />} />
+            <Route path="/mentor/profile-courses" element={<Navigate to="/profile/settings" replace />} />
+            <Route path="/mentor/availability" element={<Navigate to="/profile/settings" replace />} />
+            <Route path="/mentor/documents" element={<Navigate to="/profile/settings" replace />} />
             <Route path="/mentor/proposals" element={<MentorProposalsPage />} />
             <Route path="/mentor/proposals/:proposalId" element={<MentorProposalDetailPage />} />
             <Route path="/mentor/contracts" element={<MentorContractsPage />} />
@@ -245,7 +250,6 @@ function App() {
             <Route path="/mentor/earnings" element={<MentorEarningsPage />} />
             <Route path="/mentor/wallet" element={<Navigate to="/mentor/earnings" replace />} />
             <Route path="/mentor/reviews" element={<MentorReviewsPage />} />
-            <Route path="/mentor/settings" element={<MentorSettingsPage />} />
             <Route path="/mentor/withdraw" element={<Navigate to="/wallet" replace />} />
           </Route>
 

@@ -134,7 +134,7 @@ export default function AdminDashboardPage() {
             <h3 className="text-lg font-black text-gray-900 dark:text-white tracking-tight">Policy note</h3>
             <div className="mt-6 rounded-[2rem] border border-amber-100 bg-amber-50 p-6 dark:border-amber-900/30 dark:bg-amber-900/10">
               <p className="text-sm font-semibold leading-7 text-amber-900 dark:text-amber-100">
-                Mentors can unlock Mentor Mode through professional profile approval alone. Identity verification and payout approval stay in separate queues because they are risk-based, not application prerequisites.
+                Mentors can unlock Mentor Mode through professional profile approval alone. Payout approval stays in a separate queue because it is risk-based, not an application prerequisite.
               </p>
             </div>
           </div>

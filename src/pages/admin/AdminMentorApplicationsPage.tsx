@@ -35,7 +35,7 @@ import { getMentorProofLinks } from '@/utils/proofLinks'
 import { formatDateTime } from '@/utils/formatters'
 import { hasRole } from '@/utils/roleRedirect'
 
-type QueueTab = 'expertise' | 'identity' | 'payout'
+type QueueTab = 'expertise' | 'payout'
 type QueueStatusFilter = 'all' | VerificationStatus
 type DomainFilter = 'all' | string
 type ProofFilter = 'any' | 'linkedin' | 'cv' | 'certificate' | 'portfolio' | 'missing'
@@ -47,8 +47,6 @@ type ModerationAction =
   | 'reject-expertise'
   | 'request-more-info'
   | 'suspend'
-  | 'approve-identity'
-  | 'reject-identity'
   | 'approve-payout'
   | 'reject-payout'
 
@@ -77,11 +75,6 @@ const queueTabs: Array<{
     key: 'expertise',
     label: 'Expertise review',
     description: 'Unlock Mentor Mode after the team validates the professional profile.',
-  },
-  {
-    key: 'identity',
-    label: 'Identity review',
-    description: 'Trust and compliance queue for optional or policy-triggered identity checks.',
   },
   {
     key: 'payout',
@@ -118,10 +111,6 @@ function getStatusLabel(status?: VerificationStatus | null) {
 function getQueueFieldValue(profile: MentorProfileResponse, activeTab: QueueTab) {
   if (activeTab === 'expertise') {
     return profile.primaryDomain || profile.currentTitle || 'Professional profile submitted'
-  }
-
-  if (activeTab === 'identity') {
-    return profile.documentNumberMasked || profile.identityDocumentType || 'Identity packet submitted'
   }
 
   return profile.payoutMethod ? getPayoutMethodLabel(profile.payoutMethod) : 'Payout destination submitted'
@@ -176,8 +165,6 @@ function normalizeValue(value?: string | null) {
 function getQueueStatus(profile: MentorProfileResponse, activeTab: QueueTab) {
   return activeTab === 'expertise'
     ? profile.expertiseStatus
-    : activeTab === 'identity'
-      ? profile.identityStatus
       : profile.payoutStatus
 }
 
@@ -407,13 +394,7 @@ function buildReviewHistory(profile: MentorProfileResponse, activeTab: QueueTab)
     })
   }
 
-  if (activeTab === 'identity' && profile.identityVerifiedAt) {
-    entries.push({
-      label: 'Identity reviewed',
-      actor: profile.identityVerifiedByName || 'Reviewer',
-      timestamp: profile.identityVerifiedAt,
-    })
-  }
+
 
   if (activeTab === 'payout' && profile.payoutReviewedAt) {
     entries.push({
@@ -456,9 +437,7 @@ export default function AdminMentorApplicationsPage() {
     adminMentorVerificationApi.getExpertiseQueue({ page, size: PAGE_SIZE })
   )
 
-  const identityQuery = useQuery(['admin-mentor-identity', page], () =>
-    adminMentorVerificationApi.getIdentityQueue({ page, size: PAGE_SIZE })
-  )
+
 
   const payoutQuery = useQuery(
     ['admin-mentor-payouts', page],
@@ -486,10 +465,7 @@ export default function AdminMentorApplicationsPage() {
           return adminMentorVerificationApi.requestMoreInfo(profile.userId, note)
         case 'suspend':
           return adminMentorVerificationApi.suspendMentor(profile.userId, note)
-        case 'approve-identity':
-          return adminMentorVerificationApi.approveIdentity(profile.userId)
-        case 'reject-identity':
-          return adminMentorVerificationApi.rejectIdentity(profile.userId, note)
+
         case 'approve-payout':
           return adminMentorVerificationApi.approvePayout(profile.userId)
         case 'reject-payout':
@@ -500,7 +476,6 @@ export default function AdminMentorApplicationsPage() {
       onSuccess: (_, variables) => {
         toast.success(getSuccessMessage(variables.action))
         queryClient.invalidateQueries('admin-mentor-expertise')
-        queryClient.invalidateQueries('admin-mentor-identity')
         queryClient.invalidateQueries('admin-mentor-payouts')
         queryClient.invalidateQueries('admin-mentor-expertise-detail')
         setDraftAction(null)
@@ -514,19 +489,16 @@ export default function AdminMentorApplicationsPage() {
 
   const queueMap: Record<QueueTab, PaginatedResponse<MentorProfileResponse> | undefined> = {
     expertise: expertiseQuery.data,
-    identity: identityQuery.data,
     payout: payoutQuery.data,
   }
 
   const queueErrors: Record<QueueTab, any> = {
     expertise: expertiseQuery.error,
-    identity: identityQuery.error,
     payout: payoutQuery.error,
   }
 
   const queueLoading: Record<QueueTab, boolean> = {
     expertise: expertiseQuery.isLoading,
-    identity: identityQuery.isLoading,
     payout: payoutQuery.isLoading,
   }
 
@@ -577,7 +549,7 @@ export default function AdminMentorApplicationsPage() {
   )
 
   const canReviewExpertise = isAdmin || isModerator
-  const canReviewIdentity = isAdmin || isModerator
+
   const canReviewPayout = isAdmin
 
   const selectedApplication = activeTab === 'expertise'
@@ -606,7 +578,6 @@ export default function AdminMentorApplicationsPage() {
     setInternalNote(
       selectedApplication.expertiseReviewNote
       || selectedApplication.expertiseRejectionReason
-      || selectedApplication.identityRejectionReason
       || selectedApplication.payoutRejectionReason
       || ''
     )
@@ -638,13 +609,10 @@ export default function AdminMentorApplicationsPage() {
             {availableTabs.map((tab) => {
               const total = tab.key === 'expertise'
                 ? expertiseQuery.data?.totalElements ?? 0
-                : tab.key === 'identity'
-                  ? identityQuery.data?.totalElements ?? 0
                   : payoutQuery.data?.totalElements ?? 0
               const isActive = activeTab === tab.key
               const iconMap: Record<string, typeof ShieldCheck> = {
                 expertise: ShieldCheck,
-                identity: Fingerprint,
                 payout: Banknote,
               }
               const TabIcon = iconMap[tab.key] || ShieldCheck
@@ -851,7 +819,6 @@ export default function AdminMentorApplicationsPage() {
           onSubmitAction={submitAction}
           isSubmitting={moderationMutation.isLoading}
           canReviewExpertise={canReviewExpertise}
-          canReviewIdentity={canReviewIdentity}
           canReviewPayout={canReviewPayout}
         />
       </div>
@@ -878,7 +845,6 @@ export default function AdminMentorApplicationsPage() {
               onSubmitAction={submitAction}
               isSubmitting={moderationMutation.isLoading}
               canReviewExpertise={canReviewExpertise}
-              canReviewIdentity={canReviewIdentity}
               canReviewPayout={canReviewPayout}
               mobile
             />
@@ -906,7 +872,6 @@ function ReviewWorkspacePanel({
   onSubmitAction,
   isSubmitting,
   canReviewExpertise,
-  canReviewIdentity,
   canReviewPayout,
   mobile = false,
 }: {
@@ -926,7 +891,6 @@ function ReviewWorkspacePanel({
   onSubmitAction: (action: ModerationAction, note: string) => void
   isSubmitting: boolean
   canReviewExpertise: boolean
-  canReviewIdentity: boolean
   canReviewPayout: boolean
   mobile?: boolean
 }) {
@@ -995,7 +959,6 @@ function ReviewWorkspacePanel({
   const currentModeratorNote =
     profile.expertiseReviewNote
     || profile.expertiseRejectionReason
-    || profile.identityRejectionReason
     || profile.payoutRejectionReason
     || profile.rejectionReason
     || ''
@@ -1012,13 +975,6 @@ function ReviewWorkspacePanel({
             { action: 'approve-expertise' as ModerationAction, label: 'Approve', tone: 'primary' as const },
           ]
         : []
-      : activeTab === 'identity'
-        ? canReviewIdentity
-          ? [
-              { action: 'reject-identity' as ModerationAction, label: 'Reject identity', tone: 'danger' as const },
-              { action: 'approve-identity' as ModerationAction, label: 'Approve identity', tone: 'primary' as const },
-            ]
-          : []
         : canReviewPayout
           ? [
               { action: 'reject-payout' as ModerationAction, label: 'Reject payout', tone: 'danger' as const },
@@ -1027,14 +983,14 @@ function ReviewWorkspacePanel({
           : []
 
   const actionInputLabel =
-    draftAction === 'reject-expertise' || draftAction === 'reject-identity' || draftAction === 'reject-payout'
+    draftAction === 'reject-expertise' || draftAction === 'reject-payout'
       ? 'Reason for rejection'
       : draftAction === 'request-more-info'
         ? 'Information needed'
         : 'Optional internal note'
 
   const actionPlaceholder =
-    draftAction === 'reject-expertise' || draftAction === 'reject-identity' || draftAction === 'reject-payout'
+    draftAction === 'reject-expertise' || draftAction === 'reject-payout'
       ? 'Explain what the applicant needs to fix...'
       : draftAction === 'request-more-info'
         ? 'Tell the applicant what information or proof is missing...'
@@ -1205,16 +1161,16 @@ function ReviewWorkspacePanel({
                   </div>
                 ) : null}
 
-                {(profile.expertiseRejectionReason || profile.identityRejectionReason || profile.payoutRejectionReason || profile.rejectionReason) ? (
+                {(profile.expertiseRejectionReason || profile.payoutRejectionReason || profile.rejectionReason) ? (
                   <div className="rounded-2xl border border-rose-200/60 bg-rose-50/50 p-5 dark:border-rose-500/20 dark:bg-rose-500/10">
                     <p className="text-[11px] font-black uppercase tracking-[0.16em] text-rose-500 dark:text-rose-400">Rejection Reason</p>
                     <p className="mt-2 text-sm leading-relaxed text-rose-800 dark:text-rose-200">
-                      {profile.expertiseRejectionReason || profile.identityRejectionReason || profile.payoutRejectionReason || profile.rejectionReason}
+                      {profile.expertiseRejectionReason || profile.payoutRejectionReason || profile.rejectionReason}
                     </p>
                   </div>
                 ) : null}
 
-                {!currentModeratorNote && !(profile.expertiseRejectionReason || profile.identityRejectionReason || profile.payoutRejectionReason || profile.rejectionReason) && (
+                {!currentModeratorNote && !(profile.expertiseRejectionReason || profile.payoutRejectionReason || profile.rejectionReason) && (
                   <div className="rounded-2xl border border-dashed border-slate-200/80 bg-slate-50/50 px-4 py-4 text-center dark:border-slate-800 dark:bg-slate-900/30">
                     <p className="text-sm font-medium text-slate-500 dark:text-slate-400">No moderator notes attached yet.</p>
                   </div>
@@ -1574,19 +1530,6 @@ function QueueDetailsPanel({
 }) {
   const proofLinks = getMentorProofLinks(profile)
 
-  const hasIdentityReviewData =
-    activeTab === 'identity' ||
-    profile.identityRequired === true ||
-    (profile.identityStatus != null && profile.identityStatus !== VerificationStatus.NOT_SUBMITTED) ||
-    Boolean(
-      profile.countryOfResidence ||
-        profile.identityDocumentType ||
-        profile.documentNumberMasked ||
-        profile.identityRejectionReason ||
-        profile.identityVerifiedAt ||
-        profile.identityVerifiedBy
-    )
-
   const hasPayoutReviewData =
     activeTab === 'payout' ||
     (profile.payoutStatus != null && profile.payoutStatus !== VerificationStatus.NOT_SUBMITTED) ||
@@ -1604,7 +1547,6 @@ function QueueDetailsPanel({
 
   const queueStatus = getQueueStatus(profile, activeTab)
   const evidenceCount = getEvidenceCount(profile)
-  const identityNote = profile.identityRejectionReason || profile.expertiseReviewNote || 'No note yet'
   const payoutReference = [profile.iban, profile.swiftCode].filter(Boolean).join(' / ') || 'Not provided'
 
   return (
@@ -1688,17 +1630,6 @@ function QueueDetailsPanel({
                     </>
                   )}
 
-                  {activeTab === 'identity' && (
-                    <>
-                      <ActionButton tone="primary" onClick={() => onAction(profile, 'approve-identity')} icon={BadgeCheck}>
-                        Approve identity
-                      </ActionButton>
-                      <ActionButton tone="danger" onClick={() => onAction(profile, 'reject-identity')} icon={XCircle}>
-                        Reject identity
-                      </ActionButton>
-                    </>
-                  )}
-
                   {activeTab === 'payout' && isAdmin && (
                     <>
                       <ActionButton tone="primary" onClick={() => onAction(profile, 'approve-payout')} icon={Banknote}>
@@ -1766,7 +1697,6 @@ function QueueDetailsPanel({
                 <div className="grid gap-3 sm:grid-cols-2">
                   <DetailStat label="Mentor status" value={profile.user?.mentorStatus || 'NOT_APPLIED'} />
                   <DetailStat label="Expertise" value={getStatusLabel(profile.expertiseStatus)} />
-                  <DetailStat label="Identity" value={getStatusLabel(profile.identityStatus)} />
                   <DetailStat label="Payout" value={getStatusLabel(profile.payoutStatus)} />
                 </div>
               </PanelSection>
@@ -1784,20 +1714,6 @@ function QueueDetailsPanel({
                   />
                 </FieldGrid>
               </PanelSection>
-
-              {hasIdentityReviewData && (
-                <PanelSection
-                  title="Identity review"
-                  description="Only shown when identity verification is required or already in progress."
-                >
-                  <FieldGrid>
-                    <FieldItem label="Country" value={profile.countryOfResidence || 'Not provided'} />
-                    <FieldItem label="Document type" value={profile.identityDocumentType || 'Not submitted'} />
-                    <FieldItem label="Document" value={profile.documentNumberMasked || 'Not submitted'} mono />
-                    <FieldItem label="Identity note" value={identityNote} spanFull />
-                  </FieldGrid>
-                </PanelSection>
-              )}
 
               {hasPayoutReviewData && (
                 <PanelSection
@@ -2149,7 +2065,6 @@ function requiresReason(action: ModerationAction) {
   return action === 'reject-expertise'
     || action === 'request-more-info'
     || action === 'suspend'
-    || action === 'reject-identity'
     || action === 'reject-payout'
 }
 
@@ -2163,10 +2078,6 @@ function getActionTitle(action: ModerationAction) {
       return 'Request more information'
     case 'suspend':
       return 'Suspend mentor'
-    case 'approve-identity':
-      return 'Approve identity'
-    case 'reject-identity':
-      return 'Reject identity'
     case 'approve-payout':
       return 'Approve payout'
     case 'reject-payout':
@@ -2184,10 +2095,6 @@ function getActionDescription(action: ModerationAction) {
       return 'Use this when the mentor can qualify after improving their profile or adding evidence.'
     case 'suspend':
       return 'Suspension removes Mentor Mode access but preserves the user account and user features.'
-    case 'approve-identity':
-      return 'Use this when identity documentation is sufficient for trust, payout, or compliance.'
-    case 'reject-identity':
-      return 'Add a specific reason so the mentor can correct or replace the identity submission.'
     case 'approve-payout':
       return 'Approve this payout destination so the mentor can request withdrawals.'
     case 'reject-payout':
@@ -2205,10 +2112,6 @@ function getSuccessMessage(action: ModerationAction) {
       return 'A revision request has been sent.'
     case 'suspend':
       return 'The mentor has been suspended.'
-    case 'approve-identity':
-      return 'Identity verification approved.'
-    case 'reject-identity':
-      return 'Identity verification rejected.'
     case 'approve-payout':
       return 'Payout destination approved.'
     case 'reject-payout':

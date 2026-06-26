@@ -3,18 +3,18 @@ import RegisterForm from '@/components/auth/RegisterForm'
 
 export default function RegisterPage() {
   return (
-    <div>
+    <div className="relative z-10 flex flex-col">
       <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-gray-900">Create your account</h2>
-        <p className="text-gray-500 mt-1 text-sm">Start your journey with MentorX today</p>
+        <h2 className="text-3xl font-black tracking-tight text-slate-900">Create an account</h2>
+        <p className="mt-2 text-sm font-medium text-slate-500">Join MentorX and start your journey</p>
       </div>
 
       <RegisterForm />
 
-      <div className="mt-6 text-center">
-        <p className="text-sm text-gray-500">
+      <div className="mt-8 text-center space-y-4">
+        <p className="text-sm font-medium text-slate-500">
           Already have an account?{' '}
-          <Link to="/login" className="text-primary-600 font-medium hover:text-primary-700 hover:underline">
+          <Link to="/login" className="font-bold text-primary-600 hover:text-primary-700 hover:underline transition-colors">
             Sign in
           </Link>
         </p>

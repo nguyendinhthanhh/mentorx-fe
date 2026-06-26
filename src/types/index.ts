@@ -1202,6 +1202,7 @@ export interface ReviewResponse {
   reviewerName: string;
   targetType: ReviewTargetType;
   targetId: string;
+  targetTitle?: string;
   overallRating: number;
   communicationRating: number;
   qualityRating: number;

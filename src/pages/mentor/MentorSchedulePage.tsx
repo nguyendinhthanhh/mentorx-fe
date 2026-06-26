@@ -33,7 +33,7 @@ export default function MentorSchedulePage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
-  const [activeTab, setActiveTab] = useState<'calendar' | 'upcoming' | 'availability' | 'past'>('calendar')
+  const [activeTab, setActiveTab] = useState<'calendar' | 'upcoming' | 'availability' | 'past'>('availability')
   const [draft, setDraft] = useState({ dayOfWeek: 1, startTime: '09:00', endTime: '10:00' })
 
   useEffect(() => {
@@ -167,7 +167,7 @@ export default function MentorSchedulePage() {
           {[
             ['calendar', 'Calendar'],
             ['upcoming', 'Upcoming'],
-            ['availability', 'Availability'],
+            ['availability', 'Settings & Availability'],
             ['past', 'Past'],
           ].map(([key, label]) => (
             <button
@@ -199,28 +199,28 @@ export default function MentorSchedulePage() {
               </div>
               <StatusPill label={`${activeSlots.length} slots`} tone="indigo" />
             </div>
-            <div className="mt-5 space-y-3">
+            <div className="mt-5 divide-y divide-slate-100 rounded-2xl border border-slate-200">
               {slotsByDay.map((day) => (
-                <div key={day.value} className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
-                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                    <p className="w-32 shrink-0 text-sm font-bold text-slate-900">{day.label}</p>
-                    {day.slots.length === 0 ? (
-                      <p className="text-sm font-semibold text-slate-400">No availability</p>
-                    ) : (
-                      <div className="flex flex-1 flex-wrap gap-2">
-                        {day.slots.map((slot, index) => (
-                          <span key={slot.id || `${day.value}-${index}`} className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-700">
-                            {slot.startTime} - {slot.endTime}
-                            {slot.id ? (
-                              <button disabled={saving} onClick={() => deleteSlot(slot)} className="text-rose-500 hover:text-rose-700" aria-label="Remove slot">
-                                <Trash2 className="h-3.5 w-3.5" />
-                              </button>
-                            ) : null}
-                          </span>
-                        ))}
-                      </div>
-                    )}
+                <div key={day.value} className="flex flex-col gap-3 sm:flex-row sm:items-center p-4 transition-colors hover:bg-slate-50/50">
+                  <div className="w-32 shrink-0">
+                    <p className="text-sm font-bold text-slate-900">{day.label}</p>
                   </div>
+                  {day.slots.length === 0 ? (
+                    <p className="text-sm font-medium text-slate-400 italic">No availability</p>
+                  ) : (
+                    <div className="flex flex-1 flex-wrap gap-2">
+                      {day.slots.map((slot, index) => (
+                        <span key={slot.id || `${day.value}-${index}`} className="group inline-flex items-center gap-2 rounded-lg bg-indigo-50 px-3 py-1.5 text-xs font-bold text-indigo-700 ring-1 ring-inset ring-indigo-700/10">
+                          {slot.startTime} - {slot.endTime}
+                          {slot.id ? (
+                            <button disabled={saving} onClick={() => deleteSlot(slot)} className="text-indigo-400 opacity-0 transition-opacity hover:text-rose-600 group-hover:opacity-100" aria-label="Remove slot">
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                          ) : null}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

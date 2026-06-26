@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
-import { MessageSquareReply, Search, Star, ThumbsUp } from 'lucide-react'
+import { MessageSquareReply, Search, Star, ThumbsUp, Flag } from 'lucide-react'
+import toast from 'react-hot-toast'
 import { reviewApi } from '@/api/reviewApi'
+import { reportApi } from '@/api/reportApi'
 import { useAuthStore } from '@/store/authStore'
-import { ReviewResponse, ReviewTargetType } from '@/types'
+import { ReviewResponse, ReviewTargetType, ReportTargetType } from '@/types'
 import { formatDate } from '@/utils/formatters'
 import { LoadingRows, MetricCard, PageShell, SelectInput, StateCard, TextInput, Toolbar } from './shared/MentorHubUI'
 
@@ -15,6 +17,18 @@ export default function MentorReviewsPage() {
   const [sourceFilter, setSourceFilter] = useState('ALL')
   const [sortBy, setSortBy] = useState('newest')
   const [searchQuery, setSearchQuery] = useState('')
+  
+  // Report Modal State
+  const [reportModalOpen, setReportModalOpen] = useState(false)
+  const [selectedReviewId, setSelectedReviewId] = useState<string | null>(null)
+  const [reportCategory, setReportCategory] = useState('INAPPROPRIATE_CONTENT')
+  const [reportReason, setReportReason] = useState('')
+  const [isSubmittingReport, setIsSubmittingReport] = useState(false)
+  
+  // Reply State
+  const [replyingToReviewId, setReplyingToReviewId] = useState<string | null>(null)
+  const [replyText, setReplyText] = useState('')
+  const [isSubmittingReply, setIsSubmittingReply] = useState(false)
 
   useEffect(() => {
     void loadReviews()
@@ -31,6 +45,59 @@ export default function MentorReviewsPage() {
       setError(err.response?.data?.message || 'Unable to load mentor reviews.')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleReport = (id: string) => {
+    setSelectedReviewId(id)
+    setReportCategory('INAPPROPRIATE_CONTENT')
+    setReportReason('')
+    setReportModalOpen(true)
+  }
+
+  const submitReport = async () => {
+    if (!selectedReviewId || !user?.userId) return
+    if (!reportReason.trim()) {
+      toast.error('Vui lòng nhập lý do báo cáo.')
+      return
+    }
+
+    try {
+      setIsSubmittingReport(true)
+      await reportApi.createReport({
+        reporterId: user.userId,
+        targetType: ReportTargetType.REVIEW,
+        targetId: selectedReviewId,
+        reportCategory,
+        reason: reportReason,
+        reportedUserId: reviews.find(r => r.id === selectedReviewId)?.reviewerId,
+      })
+      toast.success('Đã gửi báo cáo thành công. Admin sẽ xem xét sớm nhất!')
+      setReportModalOpen(false)
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Có lỗi xảy ra khi gửi báo cáo.')
+    } finally {
+      setIsSubmittingReport(false)
+    }
+  }
+
+  const submitReply = async (reviewId: string) => {
+    if (!replyText.trim()) {
+      toast.error('Vui lòng nhập nội dung phản hồi.')
+      return
+    }
+    
+    try {
+      setIsSubmittingReply(true)
+      const updatedReview = await reviewApi.respond(reviewId, replyText)
+      setReviews(prev => prev.map(r => r.id === reviewId ? updatedReview : r))
+      toast.success('Đã gửi phản hồi thành công!')
+      setReplyingToReviewId(null)
+      setReplyText('')
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Có lỗi xảy ra khi gửi phản hồi.')
+    } finally {
+      setIsSubmittingReply(false)
     }
   }
 
@@ -100,7 +167,8 @@ export default function MentorReviewsPage() {
             ))}
           </div>
           <p className="mt-5 rounded-xl bg-slate-50 p-4 text-sm font-medium leading-6 text-slate-500">
-            Reply actions are not enabled because the current review update API does not expose mentor reply writes.
+            Bạn có thể phản hồi lại những đánh giá này để giải thích hoặc cảm ơn học viên/khách hàng. 
+            <strong className="block mt-1 text-slate-700">Lưu ý: Mỗi đánh giá chỉ được phản hồi một lần duy nhất.</strong>
           </p>
         </aside>
 
@@ -152,6 +220,11 @@ export default function MentorReviewsPage() {
                           <h2 className="text-base font-bold text-slate-950">{review.isAnonymous ? 'Anonymous client' : review.reviewerName}</h2>
                           <span className="rounded-full bg-slate-100 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-slate-600">{formatTargetType(review.targetType)}</span>
                         </div>
+                        {review.targetTitle && review.targetTitle !== 'Unknown Target' && (
+                          <div className="mt-1 text-[13px] font-medium text-slate-500">
+                            Về: <span className="font-semibold text-slate-700">{review.targetTitle}</span>
+                          </div>
+                        )}
                         <div className="mt-2 flex items-center gap-1">
                           {Array.from({ length: 5 }).map((_, index) => (
                             <Star key={index} className={`h-4 w-4 ${index < Math.round(Number(review.overallRating || 0)) ? 'fill-amber-400 text-amber-400' : 'text-slate-200'}`} />
@@ -160,22 +233,123 @@ export default function MentorReviewsPage() {
                         </div>
                       </div>
                     </div>
-                    {review.isVerified ? <span className="rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-emerald-700">Verified</span> : null}
+                    <div className="flex items-center gap-2">
+                      {review.isVerified ? <span className="rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-emerald-700">Verified</span> : null}
+                      <button 
+                        onClick={() => handleReport(review.id)}
+                        className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-600"
+                        title="Báo cáo vi phạm"
+                      >
+                        <Flag className="h-4 w-4" />
+                      </button>
+                    </div>
                   </div>
                   {review.reviewTitle ? <h3 className="mt-5 text-base font-bold text-slate-900">{review.reviewTitle}</h3> : null}
                   <p className="mt-3 text-sm font-medium leading-6 text-slate-600">{review.reviewText || 'No written comment provided.'}</p>
                   {review.responseText ? (
                     <div className="mt-5 rounded-xl bg-indigo-50 p-4">
-                      <p className="text-xs font-semibold uppercase tracking-wider text-indigo-500">Your reply</p>
+                      <p className="text-xs font-semibold uppercase tracking-wider text-indigo-500">Phản hồi của bạn</p>
                       <p className="mt-2 text-sm font-semibold leading-6 text-indigo-900">{review.responseText}</p>
                     </div>
-                  ) : null}
+                  ) : replyingToReviewId === review.id ? (
+                    <div className="mt-5 rounded-xl bg-slate-50 p-4">
+                      <textarea
+                        value={replyText}
+                        onChange={(e) => setReplyText(e.target.value)}
+                        placeholder="Nhập nội dung phản hồi của bạn... (Chỉ được phản hồi 1 lần duy nhất)"
+                        className="h-24 w-full rounded-xl border border-slate-200 bg-white p-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                      />
+                      <div className="mt-3 flex justify-end gap-3">
+                        <button
+                          disabled={isSubmittingReply}
+                          onClick={() => setReplyingToReviewId(null)}
+                          className="rounded-xl px-4 py-2 text-sm font-bold text-slate-600 transition hover:bg-slate-200 dark:text-slate-300 dark:hover:bg-slate-800"
+                        >
+                          Hủy
+                        </button>
+                        <button
+                          disabled={isSubmittingReply || !replyText.trim()}
+                          onClick={() => submitReply(review.id)}
+                          className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-indigo-700 disabled:opacity-50"
+                        >
+                          {isSubmittingReply ? 'Đang gửi...' : 'Gửi phản hồi'}
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        setReplyingToReviewId(review.id)
+                        setReplyText('')
+                      }}
+                      className="mt-5 flex items-center gap-2 text-sm font-bold text-indigo-600 transition-colors hover:text-indigo-700"
+                    >
+                      <MessageSquareReply className="h-4 w-4" />
+                      Phản hồi đánh giá này
+                    </button>
+                  )}
                 </article>
               ))}
             </div>
           )}
         </section>
       </div>
+
+      {/* Report Modal */}
+      {reportModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl dark:bg-slate-900">
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white">Báo cáo vi phạm</h3>
+            <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+              Vui lòng cung cấp chi tiết để giúp quản trị viên xử lý báo cáo này.
+            </p>
+
+            <div className="mt-5 space-y-4">
+              <label className="block">
+                <span className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">Phân loại</span>
+                <SelectInput 
+                  value={reportCategory} 
+                  onChange={(e) => setReportCategory(e.target.value)} 
+                  className="w-full"
+                >
+                  <option value="INAPPROPRIATE_CONTENT">Nội dung thô tục, khiếm nhã</option>
+                  <option value="SPAM">Spam, quảng cáo</option>
+                  <option value="HARASSMENT">Quấy rối, công kích cá nhân</option>
+                  <option value="FALSE_INFORMATION">Thông tin sai sự thật</option>
+                  <option value="OTHER">Lý do khác</option>
+                </SelectInput>
+              </label>
+              
+              <label className="block">
+                <span className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">Lý do chi tiết</span>
+                <textarea
+                  value={reportReason}
+                  onChange={(e) => setReportReason(e.target.value)}
+                  placeholder="Mô tả rõ tại sao đánh giá này vi phạm tiêu chuẩn cộng đồng..."
+                  className="h-24 w-full rounded-xl border border-slate-200 bg-white p-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                />
+              </label>
+            </div>
+
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                disabled={isSubmittingReport}
+                onClick={() => setReportModalOpen(false)}
+                className="rounded-xl px-4 py-2 text-sm font-bold text-slate-600 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+              >
+                Hủy
+              </button>
+              <button
+                disabled={isSubmittingReport}
+                onClick={submitReport}
+                className="flex items-center gap-2 rounded-xl bg-rose-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-rose-700 disabled:opacity-50"
+              >
+                {isSubmittingReport ? 'Đang gửi...' : 'Gửi báo cáo'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </PageShell>
   )
 }
