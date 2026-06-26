@@ -6,10 +6,12 @@ import {
   Flag,
   LayoutDashboard,
   ReceiptText,
-  Settings,
   ShoppingBag,
   Star,
   Wallet,
+  CreditCard,
+  SlidersHorizontal,
+  Settings,
 } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { canSwitchToMentorMode } from '@/utils/roleRedirect'
@@ -31,6 +33,9 @@ const baseTabs: SidebarItem[] = [
   { to: '/profile/complaints', label: 'Khiếu nại của tôi', icon: Flag, matches: ['/profile/complaints'] },
   { to: '/profile/transactions', label: 'Giao dịch', icon: ReceiptText, matches: ['/profile/transactions'] },
   { to: '/profile/reviews', label: 'Đánh giá của tôi', icon: Star, matches: ['/profile/reviews'] },
+  { to: '/profile/bank-accounts', label: 'Tài khoản ngân hàng', icon: CreditCard, matches: ['/profile/bank-accounts'] },
+  { to: '/profile/preferences', label: 'Sở thích & ghép nối', icon: SlidersHorizontal, matches: ['/profile/preferences'] },
+  { to: '/profile/settings', label: 'Cài đặt', icon: Settings, matches: ['/profile/settings'] },
 ]
 
 export default function ProfileLayout() {

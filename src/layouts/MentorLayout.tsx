@@ -37,7 +37,6 @@ const navigationItems = [
   { to: '/mentor/earnings', label: 'Earnings', icon: Wallet },
   { to: '/mentor/reviews', label: 'Reviews', icon: Star },
   { to: '/mentor/messages', label: 'Messages', icon: MessageCircle, badge: 2 },
-  { to: '/mentor/settings', label: 'Settings', icon: Settings },
 ]
 
 export default function MentorLayout() {
@@ -71,7 +70,7 @@ export default function MentorLayout() {
   return (
     <div className={`min-h-screen ${isDarkMode ? 'dark bg-slate-950' : 'bg-[#faf9ff]'}`}>
       <div className="flex min-h-screen">
-        <aside className="hidden max-h-screen w-[280px] shrink-0 overflow-hidden border-r border-slate-200 bg-white dark:border-slate-800/60 dark:bg-[#09090b] xl:flex xl:flex-col">
+        <aside className="hidden max-h-screen w-[320px] shrink-0 overflow-hidden border-r border-slate-200 bg-white dark:border-slate-800/60 dark:bg-[#09090b] xl:flex xl:flex-col">
           <div className="flex h-[80px] shrink-0 items-center px-6">
             <Link to="/mentor" className="group flex items-center gap-3">
               <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-900 text-white shadow-md dark:bg-white dark:text-slate-900 transition-transform group-hover:scale-105">
@@ -360,7 +359,7 @@ export default function MentorLayout() {
             </div>
           </header>
 
-          <main className="px-4 py-5 sm:px-6 lg:px-6">
+          <main className="mx-auto max-w-[1600px] px-4 py-5 sm:px-6 lg:px-6">
             <Outlet />
           </main>
         </div>

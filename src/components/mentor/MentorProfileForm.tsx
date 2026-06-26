@@ -895,9 +895,7 @@ const { fields: proofLinkFields, append: appendProofLink, remove: removeProofLin
           </div>
         )}
 
-        <p className="mt-5 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
-          You can apply as a mentor without uploading identity documents first. Identity verification is requested later only when trust, payout, or compliance requires it.
-        </p>
+
 
         <button
           type="submit"

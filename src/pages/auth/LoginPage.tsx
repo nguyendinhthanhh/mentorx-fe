@@ -3,22 +3,19 @@ import LoginForm from '@/components/auth/LoginForm'
 
 export default function LoginPage() {
   return (
-    <div>
+    <div className="relative z-10 flex flex-col">
       <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-gray-900">Welcome back</h2>
-        <p className="text-gray-500 mt-1 text-sm">Sign in to continue to MentorX</p>
+        <h2 className="text-3xl font-black tracking-tight text-slate-900">Welcome back</h2>
+        <p className="mt-2 text-sm font-medium text-slate-500">Sign in to your account to continue</p>
       </div>
 
       <LoginForm />
 
-      <div className="mt-6 text-center space-y-2">
-        <Link to="/forgot-password" className="text-sm text-primary-600 hover:text-primary-700 hover:underline block">
-          Forgot password?
-        </Link>
-        <p className="text-sm text-gray-500">
+      <div className="mt-8 text-center space-y-4">
+        <p className="text-sm font-medium text-slate-500">
           Don't have an account?{' '}
-          <Link to="/register" className="text-primary-600 font-medium hover:text-primary-700 hover:underline">
-            Sign up free
+          <Link to="/register" className="font-bold text-primary-600 hover:text-primary-700 hover:underline transition-colors">
+            Sign up for free
           </Link>
         </p>
       </div>

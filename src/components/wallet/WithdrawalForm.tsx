@@ -113,8 +113,7 @@ export default function WithdrawalForm({ userId, onSuccess, onOpenPayoutSetup }:
           <div>
             <h3 className="text-base font-black text-slate-950">Withdrawal eligibility</h3>
             <p className="mt-1 text-sm leading-6 text-slate-500">
-              Mentor approval unlocks Mentor Mode. Withdrawal stays locked until payout review is approved,
-              and may also require identity verification depending on policy.
+              Mentor approval unlocks Mentor Mode. Withdrawal stays locked until payout review is approved.
             </p>
           </div>
           <div
@@ -360,17 +359,7 @@ function getWithdrawalGuard({
     }
   }
 
-  if (
-    canRequestWithdrawal === false &&
-    payoutStatus === VerificationStatus.APPROVED &&
-    identityStatus !== VerificationStatus.APPROVED
-  ) {
-    return {
-      blocked: true,
-      action: 'identity' as const,
-      message: 'Identity verification is required before withdrawal under your current risk policy.',
-    }
-  }
+
 
   return {
     blocked: false,
