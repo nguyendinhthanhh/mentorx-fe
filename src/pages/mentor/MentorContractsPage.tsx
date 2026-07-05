@@ -358,7 +358,7 @@ export default function MentorContractsPage() {
 
   if (dashboardQuery.isError) {
     return (
-      <div className="mx-auto max-w-[1480px] space-y-6">
+      <div className="space-y-6 pt-6">
         <div className="rounded-2xl border border-rose-200 bg-rose-50 px-6 py-5 text-rose-700 shadow-sm">
           <div className="flex items-start gap-3">
             <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" />
@@ -383,7 +383,7 @@ export default function MentorContractsPage() {
 
   return (
     <>
-      <div className="mx-auto max-w-[1540px] space-y-6">
+      <div className="space-y-6">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <h1 className="text-[32px] font-bold tracking-tight text-slate-950">Active Contracts</h1>
@@ -1040,14 +1040,14 @@ function SummaryCard({
   }
 
   return (
-    <article className="rounded-xl border border-slate-200 bg-white px-5 py-5 shadow-sm">
-      <div className={`flex h-11 w-11 items-center justify-center rounded-2xl ${toneMap[tone]}`}>
+    <article className="flex items-start gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+      <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-[14px] ${toneMap[tone]}`}>
         {icon}
       </div>
-      <div className="mt-4">
-        <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">{label}</p>
-        <p className="mt-2 text-3xl font-bold tracking-tight text-slate-950">{value}</p>
-        <p className="mt-2 text-sm leading-6 text-slate-500">{caption}</p>
+      <div>
+        <p className="text-xs font-bold uppercase tracking-wider text-slate-500">{label}</p>
+        <p className="mt-0.5 text-2xl font-black tracking-tight text-slate-950">{value}</p>
+        <p className="mt-1 text-[11px] leading-tight text-slate-400">{caption}</p>
       </div>
     </article>
   )
@@ -1127,7 +1127,7 @@ function MiniSelect({
 
 function MentorContractsLoadingState() {
   return (
-    <div className="mx-auto max-w-[1540px] space-y-6">
+    <div className="space-y-6">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div className="space-y-3">
           <Skeleton className="h-9 w-56" />

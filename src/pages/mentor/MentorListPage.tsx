@@ -148,15 +148,15 @@ export default function MentorListPage() {
 
   return (
     <div className="topcv-job-font min-h-screen bg-[#F8FAFC] text-gray-900">
-            <section className="bg-gradient-to-b from-indigo-50 to-[#F8FAFC] border-b border-gray-200 pb-8 pt-16">
-        <div className="mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-8">
-          <div className="mb-10 text-center max-w-3xl mx-auto">
-             <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 sm:text-5xl">Find the right mentor</h1>
-             <p className="mt-4 text-lg text-gray-600">Learn from verified experts and accelerate your growth.</p>
+      <section className="border-b border-gray-200 bg-gradient-to-b from-indigo-50 to-[#F8FAFC] pb-6 pt-14">
+        <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto mb-8 max-w-3xl text-center">
+             <h1 className="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-[2.6rem]">Find the right mentor</h1>
+             <p className="mt-3 text-base text-gray-600 sm:text-[17px]">Learn from verified experts and accelerate your growth.</p>
           </div>
           
           {/* Main Composite Search Bar */}
-          <div className="flex flex-col xl:flex-row items-center rounded-2xl border border-gray-200 bg-white p-2 shadow-sm transition-all focus-within:border-[#4f46e5] focus-within:ring-4 focus-within:ring-indigo-50">
+          <div className="mx-auto flex max-w-6xl flex-col items-center rounded-2xl border border-gray-200 bg-white p-2 shadow-sm transition-all focus-within:border-[#4f46e5] focus-within:ring-4 focus-within:ring-indigo-50 xl:flex-row">
             {/* Keyword */}
             <div className="relative flex w-full xl:w-2/5 items-center px-4 py-2 border-b xl:border-b-0 xl:border-r border-gray-100">
               <Search className="h-5 w-5 shrink-0 text-gray-400" />
@@ -278,12 +278,12 @@ export default function MentorListPage() {
         </div>
       </section>
 
-      <main className="mx-auto max-w-[1600px] px-4 py-8 sm:px-6 lg:px-8">
+      <main className="mx-auto max-w-[1440px] px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Find the right mentor</h1>
-            <p className="mt-2 text-base text-gray-700">
-              Learn from verified experts and accelerate your growth.
+            <h2 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-[2rem]">Browse approved mentors</h2>
+            <p className="mt-2 text-sm text-gray-700 sm:text-[15px]">
+              Compare expertise, rating, availability, and hourly rate in one place.
             </p>
           </div>
           <div className="flex w-full items-center gap-4 sm:w-auto">
@@ -337,11 +337,11 @@ function MentorCard({ mentor, index }: { mentor: MentorProfileResponse; index: n
   return (
     <article className="group flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-[#4f46e5] hover:shadow-xl relative">
       {/* Subtle Cover Background */}
-      <div className="h-20 w-full bg-gradient-to-r from-indigo-50 to-slate-100"></div>
+      <div className="h-16 w-full bg-gradient-to-r from-indigo-50 to-slate-100"></div>
       
       {/* Avatar Container */}
-      <div className="px-6 relative flex justify-between items-end -mt-10 mb-3">
-        <div className="h-20 w-20 shrink-0 overflow-hidden rounded-2xl border-4 border-white bg-slate-50 shadow-sm relative z-10 pointer-events-none">
+      <div className="relative mb-3 flex items-end justify-between px-5 -mt-8">
+        <div className="relative z-10 h-16 w-16 shrink-0 overflow-hidden rounded-2xl border-4 border-white bg-slate-50 shadow-sm pointer-events-none">
            <img src={image} alt={name} className="h-full w-full object-cover" />
         </div>
         <div className="mb-2 relative z-10 pointer-events-none">
@@ -352,15 +352,15 @@ function MentorCard({ mentor, index }: { mentor: MentorProfileResponse; index: n
         </div>
       </div>
 
-      <div className="flex flex-1 flex-col px-6 pb-6">
+      <div className="flex flex-1 flex-col px-5 pb-5">
         {/* Name and Headline */}
-        <h2 className="text-[17px] font-bold text-gray-900 group-hover:text-[#4f46e5] transition-colors truncate">
+        <h2 className="text-[16px] font-bold text-gray-900 transition-colors truncate group-hover:text-[#4f46e5]">
            <Link to={`/mentors/${mentor.userId}`} className="focus:outline-none">
              <span className="absolute inset-0 z-0" aria-hidden="true" />
              {name}
            </Link>
         </h2>
-        <p className="mt-1 text-[13px] font-medium text-gray-600 line-clamp-1">{headline}</p>
+        <p className="mt-1 text-[12px] font-medium text-gray-600 line-clamp-1">{headline}</p>
         
         {/* Rating and Metrics */}
         <div className="mt-3 flex items-center gap-2 text-[12px] font-bold text-gray-700">
@@ -369,7 +369,7 @@ function MentorCard({ mentor, index }: { mentor: MentorProfileResponse; index: n
         </div>
 
         {/* Bio */}
-        <p className="mt-4 text-[13px] leading-relaxed text-gray-600 line-clamp-3">
+        <p className="mt-3 text-[12px] leading-relaxed text-gray-600 line-clamp-3">
           {/* @ts-ignore */}
           {mentor.bio || `I help individuals and teams master their craft, build scalable solutions, and accelerate their careers.`}
         </p>
@@ -384,11 +384,11 @@ function MentorCard({ mentor, index }: { mentor: MentorProfileResponse; index: n
            </span>
         </div>
 
-        <div className="mt-auto pt-6">
+        <div className="mt-auto pt-5">
            {/* Rate and Availability */}
-           <div className="flex items-center justify-between border-t border-slate-100 pt-4 mb-4">
+           <div className="mb-4 flex items-center justify-between border-t border-slate-100 pt-4">
               <div>
-                 <span className="text-[16px] font-black text-[#4f46e5]">{rate}</span>
+                 <span className="text-[15px] font-black text-[#4f46e5]">{rate}</span>
                  <span className="text-[11px] text-gray-500 font-medium"> / hr</span>
               </div>
               <div className="flex items-center gap-1.5 text-[12px] text-gray-600 font-medium">

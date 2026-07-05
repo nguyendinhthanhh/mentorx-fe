@@ -3,10 +3,10 @@ import toast from 'react-hot-toast'
 import { CalendarDays, Clock3, MessageCircle, Plus, Save, Trash2, Users } from 'lucide-react'
 import { mentorApi } from '@/api/mentorApi'
 import { useAuthStore } from '@/store/authStore'
-import { useQuery } from 'react-query'
+import { useQuery, useQueryClient } from 'react-query'
 import { LoadingRows, MetricCard, PageShell, SelectInput, StateCard, StatusPill, TextInput, Toolbar } from './shared/MentorHubUI'
 import { appointmentApi } from '@/api/appointmentApi'
-import { AppointmentStatus, AppointmentResponse } from '@/types'
+import { formatMxc } from '@/utils/formatters'
 
 type AvailabilitySlot = {
   id?: string
@@ -28,6 +28,7 @@ const days = [
 
 export default function MentorSchedulePage() {
   const { user } = useAuthStore()
+  const queryClient = useQueryClient()
   const [slots, setSlots] = useState<AvailabilitySlot[]>([])
   const [blockedDates, setBlockedDates] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
@@ -63,7 +64,7 @@ export default function MentorSchedulePage() {
 
   const { data: appointments, refetch: refetchAppointments } = useQuery(
     ['mentorAppointments', user?.userId],
-    () => appointmentApi.getMentorAppointments(user!.userId),
+    () => appointmentApi.getMyMentorAppointments(),
     { enabled: !!user?.userId }
   )
 
@@ -73,6 +74,18 @@ export default function MentorSchedulePage() {
     try {
       await appointmentApi.updateMeetingUrl(id, url)
       toast.success('Đã cập nhật link meeting')
+      queryClient.invalidateQueries(['wallet-balance'])
+      queryClient.invalidateQueries(['userBalance'])
+      queryClient.invalidateQueries(['wallets'])
+      queryClient.invalidateQueries(['transactions'])
+      queryClient.invalidateQueries(['userTransactions'])
+      queryClient.invalidateQueries(['appointment-bookable-slots'])
+      queryClient.invalidateQueries(['wallet-balance'])
+      queryClient.invalidateQueries(['userBalance'])
+      queryClient.invalidateQueries(['wallets'])
+      queryClient.invalidateQueries(['transactions'])
+      queryClient.invalidateQueries(['userTransactions'])
+      queryClient.invalidateQueries(['appointment-bookable-slots'])
       refetchAppointments()
     } catch (err: any) {
       toast.error(err.response?.data?.message || 'Có lỗi xảy ra')
@@ -93,7 +106,7 @@ export default function MentorSchedulePage() {
   const handleCancel = async (id: string) => {
     if (!window.confirm('Xác nhận hủy cuộc hẹn này?')) return
     try {
-      await appointmentApi.cancelAppointment(id)
+      await appointmentApi.cancelAppointment(id, { reason: 'Mentor chủ động hủy lịch' })
       toast.success('Đã hủy lịch hẹn')
       refetchAppointments()
     } catch (err: any) {
@@ -286,6 +299,12 @@ export default function MentorSchedulePage() {
                 <div key={apt.id} className="rounded-2xl border border-slate-100 bg-slate-50 p-4 flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
                   <div>
                     <h3 className="font-bold text-slate-900">User: {apt.userName}</h3>
+                    {apt.packageTitle && (
+                      <p className="mt-1 text-sm font-semibold text-indigo-600">
+                        {apt.packageTitle}
+                        {apt.priceMxc != null ? ` • ${formatMxc(apt.priceMxc, 'vi')}` : ''}
+                      </p>
+                    )}
                     <p className="text-sm text-slate-500 font-medium mt-1">
                       {new Date(apt.startTime).toLocaleString('vi-VN')} — {new Date(apt.endTime).toLocaleTimeString('vi-VN')}
                     </p>

@@ -1,15 +1,16 @@
+import { Link } from 'react-router-dom'
 import { Flame, Quote, Compass } from 'lucide-react'
-import type { MentorInsight } from '../blogData'
+import type { BlogContributor, StartHereLink } from '../blogData'
 
 export function HandbookSidebar({
   topics,
-  insights,
+  contributors,
   startHere,
   onTopicSelect,
 }: {
   topics: string[]
-  insights: MentorInsight[]
-  startHere: string[]
+  contributors: BlogContributor[]
+  startHere: StartHereLink[]
   onTopicSelect: (topic: string) => void
 }) {
   return (
@@ -36,15 +37,20 @@ export function HandbookSidebar({
       <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         <div className="mb-4 flex items-center gap-2">
           <Quote className="h-5 w-5 text-indigo-500" />
-          <h3 className="text-lg font-bold tracking-tight text-slate-900">Mentor insights</h3>
+          <h3 className="text-lg font-bold tracking-tight text-slate-900">Top contributors</h3>
         </div>
         <div className="space-y-4">
-          {insights.map((insight) => (
-            <article key={insight.id} className="rounded-xl border border-slate-100 bg-slate-50 p-4">
-              <p className="text-sm italic leading-relaxed text-slate-700">&ldquo;{insight.quote}&rdquo;</p>
-              <div className="mt-3">
-                <p className="text-xs font-bold text-slate-900">{insight.mentor}</p>
-                <p className="text-xs text-slate-500">{insight.role}</p>
+          {contributors.map((contributor) => (
+            <article key={contributor.id} className="flex items-center gap-3 rounded-xl border border-slate-100 bg-slate-50 p-4">
+              <img
+                src={contributor.avatar}
+                alt={contributor.name}
+                className="h-11 w-11 rounded-full bg-slate-100 object-cover"
+              />
+              <div className="min-w-0">
+                <p className="truncate text-sm font-bold text-slate-900">{contributor.name}</p>
+                <p className="truncate text-xs text-slate-500">{contributor.role}</p>
+                <p className="mt-1 text-xs font-semibold text-indigo-600">{contributor.articleCount} guides published</p>
               </div>
             </article>
           ))}
@@ -58,11 +64,13 @@ export function HandbookSidebar({
         </div>
         <ol className="space-y-4">
           {startHere.map((item, index) => (
-            <li key={item} className="flex items-start gap-3">
+            <li key={item.slug} className="flex items-start gap-3">
               <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-50 text-xs font-bold text-indigo-600">
                 {index + 1}
               </span>
-              <span className="text-sm leading-relaxed text-slate-700">{item}</span>
+              <Link to={`/blog/${item.slug}`} className="text-sm leading-relaxed text-slate-700 transition hover:text-indigo-600">
+                {item.title}
+              </Link>
             </li>
           ))}
         </ol>

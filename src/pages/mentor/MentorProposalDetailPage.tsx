@@ -311,7 +311,7 @@ export default function MentorProposalDetailPage() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-[1600px] space-y-6">
+      <div className="space-y-6">
         <div className="flex h-12 items-center gap-4">
           <Skeleton className="h-4 w-32" />
         </div>
@@ -351,7 +351,7 @@ export default function MentorProposalDetailPage() {
 
   return (
     <>
-      <div className="mx-auto max-w-[1600px] space-y-6">
+      <div className="space-y-6">
         {error && (
           <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-bold text-rose-600 flex items-center gap-2">
             <div className="h-5 w-5 rounded-full bg-rose-100 flex items-center justify-center shrink-0">!</div>

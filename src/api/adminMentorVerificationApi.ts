@@ -24,14 +24,6 @@ export const adminMentorVerificationApi = {
     return response.data.data
   },
 
-  getIdentityQueue: async (params: PageParams = {}): Promise<PaginatedResponse<MentorProfileResponse>> => {
-    const response = await apiClient.get<ApiResponse<PaginatedResponse<MentorProfileResponse>>>(
-      '/v1/admin/mentor-identity',
-      { params }
-    )
-    return response.data.data
-  },
-
   getPayoutQueue: async (params: PageParams = {}): Promise<PaginatedResponse<MentorProfileResponse>> => {
     const response = await apiClient.get<ApiResponse<PaginatedResponse<MentorProfileResponse>>>(
       '/v1/admin/mentor-payouts',
@@ -69,16 +61,6 @@ export const adminMentorVerificationApi = {
       { reason } satisfies ModerationReasonPayload
     )
     return response.data.data
-  },
-
-  approveIdentity: async (userId: string): Promise<void> => {
-    await apiClient.post(`/v1/admin/mentor-identity/${userId}/approve`)
-  },
-
-  rejectIdentity: async (userId: string, reason: string): Promise<void> => {
-    await apiClient.post(`/v1/admin/mentor-identity/${userId}/reject`, {
-      reason,
-    } satisfies ModerationReasonPayload)
   },
 
   approvePayout: async (userId: string): Promise<BankAccountResponse> => {

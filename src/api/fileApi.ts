@@ -11,7 +11,6 @@ export const FILE_UPLOAD_DIRS = {
   PUBLIC_CHAT: 'public/chat',
   PRIVATE_DOCUMENT: 'private/document',
   PRIVATE_VIDEO: 'private/video',
-  KYC: 'kyc',
 } as const
 
 type FileUploadDir = (typeof FILE_UPLOAD_DIRS)[keyof typeof FILE_UPLOAD_DIRS]

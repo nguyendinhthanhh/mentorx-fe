@@ -20,7 +20,7 @@ import {
   X,
   User,
   Wallet,
-  Layers,
+  Sparkles,
 } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { useThemeStore } from '@/store/themeStore'
@@ -73,8 +73,8 @@ export default function MentorLayout() {
         <aside className="hidden max-h-screen w-[320px] shrink-0 overflow-hidden border-r border-slate-200 bg-white dark:border-slate-800/60 dark:bg-[#09090b] xl:flex xl:flex-col">
           <div className="flex h-[80px] shrink-0 items-center px-6">
             <Link to="/mentor" className="group flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-900 text-white shadow-md dark:bg-white dark:text-slate-900 transition-transform group-hover:scale-105">
-                <Layers className="h-5 w-5" />
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-md dark:bg-indigo-500/20 dark:text-indigo-400 transition-transform group-hover:scale-105">
+                <Sparkles className="h-5 w-5" />
               </div>
               <div className="min-w-0 flex flex-col">
                 <p className="text-[19px] font-bold leading-none tracking-tight text-slate-900 dark:text-white">MentorX</p>
@@ -91,22 +91,26 @@ export default function MentorLayout() {
                 <Link
                   key={item.to}
                   to={item.to}
-                  className={`group flex min-h-[48px] items-center gap-4 rounded-xl px-4 text-[15px] font-semibold transition-all ${
-                    active 
-                      ? 'bg-indigo-50/80 text-indigo-700 shadow-sm dark:bg-indigo-500/10 dark:text-indigo-400' 
-                      : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800/50 dark:hover:text-slate-100'
+                  className={`group flex items-center gap-3.5 px-3.5 py-3 rounded-2xl font-semibold transition-all duration-300 ${
+                    active
+                      ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200/50 dark:bg-indigo-500/20 dark:text-indigo-400 dark:shadow-none translate-x-1'
+                      : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800'
                   }`}
                 >
-                  <item.icon className={`h-[20px] w-[20px] shrink-0 transition-colors ${
-                    active ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400 group-hover:text-slate-500 dark:text-slate-500 dark:group-hover:text-slate-300'
+                  <item.icon className={`w-5 h-5 transition-transform duration-300 ${
+                    active ? 'scale-110' : 'group-hover:scale-110'
                   }`} />
-                  <span className="flex-1 truncate tracking-wide">{item.label}</span>
+                  <span className="truncate">{item.label}</span>
                   {badge ? (
-                    <span className={`inline-flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-[10px] font-bold ${
-                      active ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-400' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
+                    <span className={`ml-auto flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-[11px] font-bold ${
+                      active 
+                        ? 'bg-white/20 text-white dark:bg-slate-900/20 dark:text-slate-900' 
+                        : 'bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-400 group-hover:bg-indigo-200 dark:group-hover:bg-indigo-500/30'
                     }`}>
                       {badge}
                     </span>
+                  ) : active ? (
+                    <ChevronDown className="-rotate-90 w-4 h-4 ml-auto opacity-50" />
                   ) : null}
                 </Link>
               )
@@ -149,8 +153,8 @@ export default function MentorLayout() {
             <div className="relative flex h-full w-[min(84vw,320px)] flex-col bg-white shadow-2xl dark:bg-[#09090b]">
               <div className="flex h-[80px] shrink-0 items-center justify-between px-5">
                 <Link to="/mentor" className="flex items-center gap-3" onClick={() => setMobileNavOpen(false)}>
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-900 text-white shadow-md dark:bg-white dark:text-slate-900">
-                    <Layers className="h-5 w-5" />
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-md dark:bg-indigo-500/20 dark:text-indigo-400">
+                    <Sparkles className="h-5 w-5" />
                   </div>
                   <div className="min-w-0 flex flex-col">
                     <p className="text-[19px] font-bold leading-none tracking-tight text-slate-900 dark:text-white">MentorX</p>
@@ -175,22 +179,26 @@ export default function MentorLayout() {
                       key={item.to}
                       to={item.to}
                       onClick={() => setMobileNavOpen(false)}
-                      className={`group flex min-h-[48px] items-center gap-4 rounded-xl px-4 text-[15px] font-semibold transition-all ${
-                        active 
-                          ? 'bg-indigo-50/80 text-indigo-700 shadow-sm dark:bg-indigo-500/10 dark:text-indigo-400' 
-                          : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800/50 dark:hover:text-slate-100'
+                      className={`group flex items-center gap-3.5 px-3.5 py-3 rounded-2xl font-semibold transition-all duration-300 ${
+                        active
+                          ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200/50 dark:bg-indigo-500/20 dark:text-indigo-400 dark:shadow-none translate-x-1'
+                          : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800'
                       }`}
                     >
-                      <item.icon className={`h-[20px] w-[20px] shrink-0 transition-colors ${
-                        active ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400 group-hover:text-slate-500 dark:text-slate-500 dark:group-hover:text-slate-300'
+                      <item.icon className={`w-5 h-5 transition-transform duration-300 ${
+                        active ? 'scale-110' : 'group-hover:scale-110'
                       }`} />
-                      <span className="flex-1 truncate tracking-wide">{item.label}</span>
+                      <span className="truncate">{item.label}</span>
                       {badge ? (
-                        <span className={`inline-flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-[10px] font-bold ${
-                          active ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-400' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
+                        <span className={`ml-auto flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-[11px] font-bold ${
+                          active 
+                            ? 'bg-white/20 text-white dark:bg-slate-900/20 dark:text-slate-900' 
+                            : 'bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-400 group-hover:bg-indigo-200 dark:group-hover:bg-indigo-500/30'
                         }`}>
                           {badge}
                         </span>
+                      ) : active ? (
+                        <ChevronDown className="-rotate-90 w-4 h-4 ml-auto opacity-50" />
                       ) : null}
                     </Link>
                   )

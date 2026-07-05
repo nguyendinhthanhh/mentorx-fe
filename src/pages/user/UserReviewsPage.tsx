@@ -22,7 +22,7 @@ export default function UserReviewsPage() {
 
   const { data: appointments, isLoading: isLoadingAppointments } = useQuery(
     ['user-appointments', user?.userId],
-    () => appointmentApi.getUserAppointments(user!.userId),
+    () => appointmentApi.getMyAppointments(),
     { enabled: !!user?.userId && activeTab === 'PENDING' }
   )
 

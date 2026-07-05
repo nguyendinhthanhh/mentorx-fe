@@ -11,10 +11,6 @@ export enum UserStatus {
 export enum MentorStatus {
   NOT_APPLIED = "NOT_APPLIED",
   NONE = "NONE",
-  PENDING_KYC = "PENDING_KYC",
-  KYC_SUBMITTED = "KYC_SUBMITTED",
-  KYC_VERIFIED = "KYC_VERIFIED",
-  KYC_REJECTED = "KYC_REJECTED",
   ACTIVE = "ACTIVE",
   PENDING = "PENDING",
   APPROVED = "APPROVED",
@@ -29,14 +25,6 @@ export enum VerificationStatus {
   APPROVED = "APPROVED",
   REJECTED = "REJECTED",
   NEEDS_MORE_INFO = "NEEDS_MORE_INFO",
-}
-
-export enum IdentityDocumentType {
-  CCCD = "CCCD",
-  CMND = "CMND",
-  PASSPORT = "PASSPORT",
-  NATIONAL_ID = "NATIONAL_ID",
-  DRIVER_LICENSE = "DRIVER_LICENSE",
 }
 
 export enum PayoutMethod {
@@ -107,6 +95,9 @@ export enum TxnType {
   JOB_REFUND = "JOB_REFUND",
   COURSE_PURCHASE = "COURSE_PURCHASE",
   COURSE_REFUND = "COURSE_REFUND",
+  APPOINTMENT_BOOKING = "APPOINTMENT_BOOKING",
+  APPOINTMENT_RELEASE = "APPOINTMENT_RELEASE",
+  APPOINTMENT_REFUND = "APPOINTMENT_REFUND",
   PLATFORM_FEE = "PLATFORM_FEE",
   WITHDRAWAL_FEE = "WITHDRAWAL_FEE",
   BONUS_CREDIT = "BONUS_CREDIT",
@@ -302,6 +293,7 @@ export interface AuthResponse {
   tokenType: string;
   expiresIn: number;
   user: UserResponse;
+  isNewUser?: boolean;
 }
 
 // User Types
@@ -327,7 +319,6 @@ export interface UserResponse {
   status: UserStatus;
   mentorStatus?: MentorStatus;
   expertiseStatus?: VerificationStatus;
-  identityStatus?: VerificationStatus;
   payoutStatus?: VerificationStatus;
   verifiedMentorBadge?: boolean;
   canSwitchToMentorMode?: boolean;
@@ -442,15 +433,6 @@ export interface MentorProfileResponse {
   legalName?: string;
   dateOfBirth?: string;
   countryOfResidence?: string;
-  identityStatus?: VerificationStatus;
-  identityRequired?: boolean;
-  identityDocumentType?: IdentityDocumentType;
-  documentNumberMasked?: string;
-  identityVerifiedAt?: string;
-  identityVerifiedBy?: string;
-  identityVerifiedByName?: string;
-  identityRejectionReason?: string;
-  verificationProvider?: string;
   phoneNumber?: string;
   phoneVerified?: boolean;
   currentTitle?: string;
@@ -567,13 +549,41 @@ export interface AppointmentResponse {
   mentorName: string;
   userId: string;
   userName: string;
+  mentorPackageId?: string;
+  packageTitle?: string;
+  packageType?: PackageType;
+  durationHours?: number;
+  priceMxc?: number;
   startTime: string;
   endTime: string;
   status: AppointmentStatus;
   meetingUrl?: string;
   notes?: string;
+  paymentTransactionGroupId?: string;
+  releaseTransactionGroupId?: string;
+  refundTransactionGroupId?: string;
+  paidAt?: string;
+  completedAt?: string;
+  cancelledAt?: string;
+  cancellationReason?: string;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface AppointmentCreateRequest {
+  mentorPackageId: string;
+  startTime: string;
+  notes?: string;
+}
+
+export interface AppointmentCancelRequest {
+  reason: string;
+  note?: string;
+}
+
+export interface AppointmentSlotResponse {
+  startTime: string;
+  endTime: string;
 }
 
 export interface ContractResponse {

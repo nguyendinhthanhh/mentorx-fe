@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { RegisterRequest } from '@/types'
+import { AuthResponse, RegisterRequest } from '@/types'
 import { authApi } from '@/api/authApi'
 import { useAuthStore } from '@/store/authStore'
 import { useState } from 'react'
@@ -10,6 +10,7 @@ import { Eye, EyeOff, Loader2 } from 'lucide-react'
 import GoogleLoginButton from './GoogleLoginButton'
 import GithubLoginButton from './GithubLoginButton'
 import EmailVerificationPending from './EmailVerificationPending'
+import { getSocialAuthRedirectPath } from '@/utils/socialAuth'
 
 const registerSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -24,7 +25,7 @@ const registerSchema = z.object({
 
 export default function RegisterForm() {
   const navigate = useNavigate()
-  const { setUser, setTokens } = useAuthStore()
+  const { setUser, setTokens, skipOnboardingForSession } = useAuthStore()
   const [error, setError] = useState<string>('')
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
@@ -53,6 +54,17 @@ export default function RegisterForm() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleSocialRegisterSuccess = (response: AuthResponse) => {
+    setTokens(response.accessToken, response.refreshToken)
+    setUser(response.user)
+
+    if (!response.isNewUser && !response.user.isOnboarded) {
+      skipOnboardingForSession()
+    }
+
+    navigate(getSocialAuthRedirectPath(response))
   }
 
   if (registered) {
@@ -152,11 +164,7 @@ export default function RegisterForm() {
 
       <div className="flex justify-center">
         <GoogleLoginButton
-          onSuccess={(response) => {
-            setTokens(response.accessToken, response.refreshToken)
-            setUser(response.user)
-            navigate('/onboarding')
-          }}
+          onSuccess={handleSocialRegisterSuccess}
           onError={(error) => setError(error)}
           text="Sign up with Google"
         />
@@ -164,11 +172,7 @@ export default function RegisterForm() {
 
       <div className="flex justify-center">
         <GithubLoginButton
-          onSuccess={(response) => {
-            setTokens(response.accessToken, response.refreshToken)
-            setUser(response.user)
-            navigate('/onboarding')
-          }}
+          onSuccess={handleSocialRegisterSuccess}
           onError={(error) => setError(error)}
           text="Sign up with GitHub"
         />

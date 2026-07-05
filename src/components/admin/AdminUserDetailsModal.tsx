@@ -225,7 +225,7 @@ export default function AdminUserDetailsModal({ isOpen, onClose, user }: AdminUs
                                      </div>
                                      <div>
                                         <p className="text-[10px] font-black text-gray-400 uppercase">Status</p>
-                                        <p className="text-xs font-bold text-gray-900 dark:text-white">{user.isMentor ? 'Mentor' : 'Member'}</p>
+                                        <p className="text-xs font-bold text-gray-900 dark:text-white">{user.mentorStatus === 'APPROVED' ? 'Mentor' : 'Member'}</p>
                                      </div>
                                   </div>
                                </div>

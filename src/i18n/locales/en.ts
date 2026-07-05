@@ -239,12 +239,12 @@ const en = {
 
   "mentor.application.title": "Mentor Application",
   "mentor.application.subtitle":
-    "Submit your public mentor profile for review to unlock Mentor Mode. Account identity stays in Account Settings, while this application covers professional mentor information only.",
+    "Submit your public mentor profile for review to unlock Mentor Mode. This application covers professional mentor information only.",
   "mentor.profile.publicProfile": "Public Mentor Profile",
   "mentor.profile.editProfile": "Edit Mentor Profile",
   "mentor.profile.editorTitle": "Public Mentor Profile Editor",
   "mentor.profile.editorSubtitle":
-    "Account identity lives in Account Settings. Public mentor information here controls your headline, professional bio, skills, domain, rate, portfolio, and proof links.",
+    "Public mentor information here controls your headline, professional bio, skills, domain, rate, portfolio, and proof links.",
   "mentor.profile.preview": "Public profile preview",
   "mentor.profile.accountSource": "Avatar and name come from Account Settings",
   "mentor.profile.viewPublic": "View Public Mentor Profile",
@@ -270,7 +270,7 @@ const en = {
   "mentor.profile.setup.tabs.availability": "Availability",
   "mentor.profile.setup.tabs.documents": "Proof & Documents",
   "mentor.profile.setup.cards.account.title": "Account Settings",
-  "mentor.profile.setup.cards.account.description": "Manage avatar, display name, and user identity fields.",
+  "mentor.profile.setup.cards.account.description": "Manage avatar, display name, and personal account details.",
   "mentor.profile.setup.cards.account.cta": "Open Account Settings",
   "mentor.profile.setup.cards.public.title": "Public Mentor Profile",
   "mentor.profile.setup.cards.public.description":

@@ -22,7 +22,7 @@ const PERIOD_OPTIONS: { value: AnalyticsPeriod; label: string }[] = [
   { value: 'YEAR', label: 'Yearly' },
 ]
 
-const releasedTxnTypes = new Set<string>([TxnType.JOB_RELEASE, TxnType.COURSE_PURCHASE])
+const releasedTxnTypes = new Set<string>([TxnType.JOB_RELEASE, TxnType.COURSE_PURCHASE, TxnType.APPOINTMENT_RELEASE])
 
 export default function MentorEarningsPage() {
   const { user } = useAuthStore()
@@ -88,7 +88,7 @@ export default function MentorEarningsPage() {
     if (transactionFilter === 'RELEASED') return transactions.filter(isReleasedCredit)
     if (transactionFilter === 'ESCROW') return transactions.filter((txn) => txn.txnType === TxnType.JOB_PAYMENT)
     if (transactionFilter === 'WITHDRAWAL') return transactions.filter((txn) => txn.txnType === TxnType.WITHDRAWAL)
-    if (transactionFilter === 'REFUND') return transactions.filter((txn) => [TxnType.JOB_REFUND, TxnType.COURSE_REFUND, TxnType.WITHDRAWAL_REFUND].includes(txn.txnType))
+    if (transactionFilter === 'REFUND') return transactions.filter((txn) => [TxnType.JOB_REFUND, TxnType.COURSE_REFUND, TxnType.APPOINTMENT_REFUND, TxnType.WITHDRAWAL_REFUND].includes(txn.txnType))
     return transactions
   }, [transactionFilter, transactions])
 
@@ -366,6 +366,7 @@ function maskAccount(account?: string) {
 function formatSourceLabel(source: string) {
   const labels: Record<string, string> = {
     LONG_TERM_MENTORING: 'Mentoring',
+    SINGLE_SESSION_MENTORING: '1:1 sessions',
     FREELANCE_PROJECT: 'Freelance',
     COURSE_SALE: 'Courses',
   }
