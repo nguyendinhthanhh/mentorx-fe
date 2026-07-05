@@ -34,7 +34,7 @@ export default function MentorProfilePage() {
   if (!user) return null
   if (isLoading && user?.mentorStatus !== MentorStatus.NOT_APPLIED) {
     return (
-      <div className="mx-auto max-w-[1600px] space-y-4 px-4 py-6 sm:px-6 lg:px-8">
+      <div className="space-y-4 py-6">
         <div className="h-28 animate-pulse rounded-[28px] bg-slate-100" />
         <div className="h-24 animate-pulse rounded-2xl bg-slate-100" />
         <div className="h-[420px] animate-pulse rounded-3xl bg-slate-100" />
@@ -44,7 +44,6 @@ export default function MentorProfilePage() {
 
   const mentorStatus = user.mentorStatus ?? MentorStatus.NOT_APPLIED
   const expertiseStatus = mentorProfile?.expertiseStatus ?? user.expertiseStatus ?? VerificationStatus.NOT_SUBMITTED
-  const identityStatus = user.identityStatus ?? VerificationStatus.NOT_SUBMITTED
   const payoutStatus = user.payoutStatus ?? VerificationStatus.NOT_SUBMITTED
 
   const approved = mentorStatus === MentorStatus.APPROVED
@@ -64,7 +63,7 @@ export default function MentorProfilePage() {
         : 'Profile editing is locked.'
 
   return (
-    <div className="mx-auto max-w-[1600px] space-y-6 px-4 py-6 sm:px-6 lg:px-8">
+    <div className="space-y-6 py-6">
       <section className="overflow-hidden rounded-[28px] border border-slate-200 bg-gradient-to-br from-white via-indigo-50/40 to-sky-50/30 shadow-sm">
         <div className="px-5 py-6 sm:px-7 sm:py-7">
           <Link

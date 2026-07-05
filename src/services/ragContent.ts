@@ -25,7 +25,7 @@ Công nghệ: Backend Spring Boot 3.2.5 (Java 21), Frontend React 18 + TypeScrip
 ## 2. CÁC MODULE TÍNH NĂNG
 
 ### Module 1 — User Management
-Đăng ký/đăng nhập (email + password, Google OAuth), 2FA (TOTP), profile, eKYC, portfolio cho mentor, onboarding wizard.
+Đăng ký/đăng nhập (email + password, Google OAuth), 2FA (TOTP), profile, portfolio cho mentor, onboarding wizard.
 
 ### Module 2 & 3 — Job Marketplace & Quick Support
 3 loại job:

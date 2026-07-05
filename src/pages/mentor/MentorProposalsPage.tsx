@@ -224,7 +224,7 @@ export default function MentorProposalsPage() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-[1600px] space-y-6 pt-6">
+      <div className="space-y-6 pt-6">
         <div className="grid gap-8">
           <div className="space-y-6">
             <div className="flex items-center justify-between">
@@ -244,7 +244,7 @@ export default function MentorProposalsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-[1440px] px-4 py-8 md:px-8">
+    <div className="space-y-8">
       <PageShell
         title="My Proposals"
         description="Track and manage all your active negotiations and submitted proposals."

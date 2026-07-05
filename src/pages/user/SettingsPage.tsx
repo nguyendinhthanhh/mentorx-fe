@@ -4,6 +4,7 @@ import UserUpdateForm from '@/components/user/UserUpdateForm'
 import PasswordChangeForm from '@/components/auth/PasswordChangeForm'
 import MentorProfileSetupPage from '@/pages/mentor/MentorProfileSetupPage'
 import { useI18n } from '@/i18n/I18nProvider'
+import { isMentorApproved } from '@/utils/roleRedirect'
 import { User, Lock, Settings as SettingsIcon, ShieldCheck } from 'lucide-react'
 
 export default function SettingsPage() {
@@ -14,7 +15,7 @@ export default function SettingsPage() {
 
   const tabs = [
     { id: 'profile', icon: User, label: t('profile.tabs.account') },
-    ...(user.isMentor ? [
+    ...(isMentorApproved(user) ? [
       { id: 'mentor', icon: ShieldCheck, label: 'Mentor Profile' },
     ] : []),
     { id: 'security', icon: Lock, label: t('profile.tabs.security') },

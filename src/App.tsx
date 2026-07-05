@@ -99,6 +99,7 @@ import ThemeProvider from './components/ThemeProvider'
 import HomePage from './pages/HomePage'
 import AboutPage from './pages/AboutPage'
 import GuidePage from './pages/GuidePage'
+import BlogDetailPage from './pages/BlogDetailPage'
 import { Toaster } from 'react-hot-toast'
 import { AiAssistantWidget } from './components/ui/AiAssistantWidget'
 
@@ -147,6 +148,7 @@ function App() {
             <Route path="/courses/:courseId" element={<CourseDetailPage />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/blog" element={<GuidePage />} />
+            <Route path="/blog/:slug" element={<BlogDetailPage />} />
             <Route path="/companies" element={<Navigate to="/courses" replace />} />
           </Route>
 

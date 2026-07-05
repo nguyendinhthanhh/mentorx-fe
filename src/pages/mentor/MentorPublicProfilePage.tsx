@@ -1,8 +1,9 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useMutation, useQuery } from 'react-query'
 import { useRecordView, useViewCount } from '@/hooks/useAnalytics'
 import ViewTimelineChart from '@/components/analytics/ViewTimelineChart'
+import SingleSessionBookingModal from '@/components/mentor/SingleSessionBookingModal'
 import {
   Eye,
   Award,
@@ -42,6 +43,7 @@ import {
   MentorProfileResponse,
   MentorWeeklyAvailabilityResponse,
   MessageType,
+  PackageType,
   ReviewTargetType,
 } from '@/types'
 import { formatMxc } from '@/utils/formatters'
@@ -65,6 +67,7 @@ export default function MentorPublicProfilePage() {
   const [showReviewForm, setShowReviewForm] = useState(false)
   const [pendingAction, setPendingAction] = useState<string | null>(null)
   const [actionError, setActionError] = useState<string | null>(null)
+  const [selectedBookingPackage, setSelectedBookingPackage] = useState<MentorPackageResponse | null>(null)
 
   const { data: mentor, isLoading: mentorLoading } = useQuery(['mentor', userId], () => mentorApi.getMentorProfile(userId!), {
     enabled: Boolean(userId),
@@ -146,6 +149,7 @@ export default function MentorPublicProfilePage() {
   const profileVisual = getProfileVisual(mentor, assets, name)
   const introVisual = getIntroVisual(mentor, assets, courses, profileVisual)
   const companyHighlights = buildCompanyHighlights(mentor, featuredExperiences)
+  const directBookingPackages = sortPackages(packages).filter((item) => item.packageType === PackageType.SINGLE_SESSION)
 
   const tabs: Array<{ key: ProfileTab; label: string }> = [
     { key: 'overview', label: t('mentor.public.tabs.overview') },
@@ -210,13 +214,34 @@ export default function MentorPublicProfilePage() {
     }
   }
 
-  const requestBooking = () =>
-    openMentorChat(
-      language === 'vi'
-        ? `Chao ${name}, toi muon dat mot buoi mentoring 1:1 voi ban. Ban co the goi y khung gio phu hop khong?`
-        : `Hi ${name}, I'd like to book a 1:1 mentoring session with you. Can you suggest a suitable time?`,
-      'book-profile'
-    )
+  const openBookingFlow = (packageItem?: MentorPackageResponse | null) => {
+    if (!user) {
+      navigate('/login')
+      return
+    }
+
+    if (isOwnProfile) {
+      navigate('/mentor/profile')
+      return
+    }
+
+    const targetPackage = packageItem || directBookingPackages[0]
+    if (!targetPackage) {
+      setActionError(language === 'vi' ? 'Mentor này chưa có gói buổi đơn để đặt trực tiếp.' : 'This mentor does not have a direct-booking session package yet.')
+      setActionError(language === 'vi' ? 'Mentor này chưa có gói buổi đơn để đặt trực tiếp.' : 'This mentor does not have a direct-booking session package yet.')
+      return
+    }
+
+    setActionError(null)
+    setSelectedBookingPackage(targetPackage)
+  }
+
+  const requestBooking = () => openBookingFlow()
+
+  const handleBookingSuccess = () => {
+    setSelectedBookingPackage(null)
+    navigate('/profile/appointments')
+  }
 
   const toggleSavedMentor = () => {
     if (!user) {
@@ -229,8 +254,8 @@ export default function MentorPublicProfilePage() {
   }
 
   return (
-    <div className="bg-[#F8FAFC] min-h-screen text-gray-900 pb-20">
-            <div className="mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-8 py-4">
+    <div className="min-h-screen bg-[#F8FAFC] pb-20 text-gray-900">
+      <div className="mx-auto max-w-[1440px] px-4 py-4 sm:px-6 lg:px-8">
         <Breadcrumbs
           items={[
             { label: 'Trang chủ', to: '/' },
@@ -241,8 +266,8 @@ export default function MentorPublicProfilePage() {
       </div>
 
       {/* 1. Hero Cover Banner */}
-      <div 
-        className={`relative h-48 sm:h-64 ${!mentor?.coverUrl ? 'bg-gradient-to-r from-slate-900 via-indigo-900 to-indigo-800' : 'bg-slate-900'}`}
+      <div
+        className={`relative h-40 sm:h-56 ${!mentor?.coverUrl ? 'bg-gradient-to-r from-slate-900 via-indigo-900 to-indigo-800' : 'bg-slate-900'}`}
       >
         {mentor?.coverUrl ? (
           <img src={mentor.coverUrl} alt="Cover" className="h-full w-full object-cover" />
@@ -251,55 +276,55 @@ export default function MentorPublicProfilePage() {
         )}
       </div>
 
-      <div className="mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-8 -mt-20">
+      <div className="mx-auto -mt-16 max-w-[1440px] px-4 sm:px-6 lg:px-8">
 
         {/* 3. Main 2-Column Grid */}
-        <div className="relative z-10 grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px] xl:grid-cols-[minmax(0,1fr)_360px] 2xl:grid-cols-[minmax(0,1fr)_400px]">
+        <div className="relative z-10 grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px] xl:grid-cols-[minmax(0,1fr)_320px]">
           
           {/* LEFT COLUMN: Avatar + IntroPanel + Main Content */}
           <div className="space-y-6">
-            <div className="rounded-3xl border border-slate-200 bg-white shadow-sm">
-              <div className="px-6 pb-8 pt-6 sm:px-8">
+            <div className="rounded-[28px] border border-slate-200 bg-white shadow-sm">
+              <div className="px-5 pb-6 pt-5 sm:px-6 sm:pb-7">
                 {/* Avatar & Basic Info */}
-                <div className="flex flex-col sm:flex-row gap-6 items-start sm:items-end mb-6 relative z-10">
-                  <div className="relative shrink-0 -mt-20 sm:-mt-28 ml-2">
-                    <div className="h-32 w-32 sm:h-40 sm:w-40 rounded-3xl border-[6px] border-white bg-white shadow-lg overflow-hidden">
+                <div className="relative z-10 mb-5 flex flex-col items-start gap-5 sm:flex-row sm:items-end">
+                  <div className="relative ml-2 shrink-0 -mt-16 sm:-mt-24">
+                    <div className="h-28 w-28 overflow-hidden rounded-[26px] border-[5px] border-white bg-white shadow-lg sm:h-32 sm:w-32">
                       {mentor.user?.avatarUrl ? (
                         <img src={mentor.user.avatarUrl} alt={name} className="h-full w-full object-cover" />
                       ) : (
-                        <div className="flex h-full w-full items-center justify-center bg-indigo-600 text-5xl font-black text-white">
+                        <div className="flex h-full w-full items-center justify-center bg-indigo-600 text-4xl font-black text-white">
                           {name.charAt(0)}
                         </div>
                       )}
                     </div>
                     {true && (
-                      <div className="absolute -bottom-1 -right-1 flex h-10 w-10 items-center justify-center rounded-full border-[3px] border-white bg-blue-500 text-white shadow-sm" title="Verified Mentor">
-                        <ShieldCheck className="h-5 w-5" />
+                      <div className="absolute -bottom-1 -right-1 flex h-8 w-8 items-center justify-center rounded-full border-[3px] border-white bg-blue-500 text-white shadow-sm" title="Verified Mentor">
+                        <ShieldCheck className="h-4 w-4" />
                       </div>
                     )}
                   </div>
                   
-                  <div className="flex-1 pb-2">
-                    <h1 className="text-3xl sm:text-4xl font-black text-gray-900 tracking-tight">{name}</h1>
-                    <p className="mt-2 text-lg sm:text-xl font-bold text-gray-600">{title}</p>
+                  <div className="flex-1 pb-1">
+                    <h1 className="text-2xl font-black tracking-tight text-gray-900 sm:text-[2rem]">{name}</h1>
+                    <p className="mt-1.5 text-base font-bold text-gray-600 sm:text-lg">{title}</p>
                     
-                    <div className="mt-4 flex flex-wrap items-center gap-4 text-sm font-bold text-gray-500">
+                    <div className="mt-3 flex flex-wrap items-center gap-3 text-xs font-bold text-gray-500 sm:text-[13px]">
                       {(mentor.averageRating || 0) > 0 && (
-                        <div className="flex items-center gap-1.5 text-amber-600 bg-amber-50 px-2 py-1 rounded-md">
-                          <Star className="h-4 w-4 fill-amber-500 text-amber-500" />
+                        <div className="flex items-center gap-1.5 rounded-md bg-amber-50 px-2 py-1 text-amber-600">
+                          <Star className="h-3.5 w-3.5 fill-amber-500 text-amber-500" />
                           <span>{mentor.averageRating?.toFixed(1)}</span>
                           <span className="text-amber-600/70">({mentor.totalReviews} reviews)</span>
                         </div>
                       )}
                       {mentor.location && (
-                        <div className="flex items-center gap-1.5 bg-slate-100 px-2 py-1 rounded-md">
-                          <Globe className="h-4 w-4" />
+                        <div className="flex items-center gap-1.5 rounded-md bg-slate-100 px-2 py-1">
+                          <Globe className="h-3.5 w-3.5" />
                           <span>{mentor.location}</span>
                         </div>
                       )}
                       {viewCountData?.viewCount != null && (
-                         <div className="flex items-center gap-1.5 bg-slate-100 px-2 py-1 rounded-md">
-                           <Eye className="h-4 w-4" />
+                         <div className="flex items-center gap-1.5 rounded-md bg-slate-100 px-2 py-1">
+                           <Eye className="h-3.5 w-3.5" />
                            <span>{viewCountData.viewCount.toLocaleString()} views</span>
                          </div>
                       )}
@@ -307,7 +332,7 @@ export default function MentorPublicProfilePage() {
                   </div>
                 </div>
 
-                <div className="mt-8 border-t border-slate-100 pt-8">
+                <div className="mt-6 border-t border-slate-100 pt-6">
                   <IntroPanel
                     mentor={mentor}
                     name={name}
@@ -324,14 +349,14 @@ export default function MentorPublicProfilePage() {
             </div>
 
             {/* Content Tabs */}
-            <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
-              <nav className="flex flex-wrap gap-x-4 gap-y-2 border-b border-gray-100 pb-2 sm:flex-nowrap sm:gap-6 sm:overflow-x-auto">
+            <div className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+              <nav className="flex flex-wrap gap-x-4 gap-y-2 border-b border-gray-100 pb-2 sm:flex-nowrap sm:gap-5 sm:overflow-x-auto">
                 {tabs.map((tab) => (
                   <button
                     key={tab.key}
                     type="button"
                     onClick={() => setActiveTab(tab.key)}
-                    className={`whitespace-nowrap border-b-2 px-1 pb-3 text-[15px] font-black transition-all sm:pb-4 ${
+                    className={`whitespace-nowrap border-b-2 px-1 pb-3 text-sm font-bold transition-all sm:pb-4 ${
                       activeTab === tab.key ? 'border-indigo-600 text-indigo-700' : 'border-transparent text-gray-500 hover:text-gray-900 hover:border-gray-300'
                     }`}
                   >
@@ -340,7 +365,7 @@ export default function MentorPublicProfilePage() {
                 ))}
               </nav>
 
-              <div className="mt-8 space-y-10">
+              <div className="mt-7 space-y-9">
                 {(activeTab === 'overview' || activeTab === 'mentoring') && (
                   <div className="space-y-10 animate-in fade-in slide-in-from-bottom-2 duration-500">
                     <div>
@@ -354,14 +379,18 @@ export default function MentorPublicProfilePage() {
                               language={language}
                               featured={idx === 0}
                               pending={pendingAction === `package-${item.id}`}
-                              onBook={() =>
+                              onBook={() => {
+                                if (item.packageType === PackageType.SINGLE_SESSION) {
+                                  openBookingFlow(item)
+                                  return
+                                }
                                 openMentorChat(
                                   language === 'vi'
-                                    ? `Chao ${name}, toi muon dat goi "${item.title}" (${formatMxc(item.priceMxc, language)}). Ban co the huong dan buoc tiep theo khong?`
-                                    : `Hi ${name}, I'd like to book the "${item.title}" package (${formatMxc(item.priceMxc, language)}). Can you help me with the next step?`,
+                                    ? `Chao ${name}, toi muon tim hieu them ve goi "${item.title}" (${formatMxc(item.priceMxc, language)}).`
+                                    : `Hi ${name}, I'd like to learn more about the "${item.title}" package (${formatMxc(item.priceMxc, language)}).`,
                                   `package-${item.id}`
                                 )
-                              }
+                              }}
                             />
                           ))}
                         </div>
@@ -373,16 +402,9 @@ export default function MentorPublicProfilePage() {
                     <div>
                       <SchedulePanel
                         schedule={schedule}
-                        pendingAction={pendingAction}
-                        onBookSlot={(slot) =>
-                          openMentorChat(
-                            language === 'vi'
-                              ? `Chao ${name}, toi muon dat buoi mentoring vao ${slot}. Khung gio nay con trong khong?`
-                              : `Hi ${name}, I'd like to book a mentoring session at ${slot}. Is this time still available?`,
-                            `slot-${slot}`
-                          )
-                        }
                         language={language}
+                        canBook={directBookingPackages.length > 0}
+                        onOpenBooking={() => openBookingFlow(directBookingPackages[0] || null)}
                       />
                     </div>
                   </div>
@@ -427,7 +449,7 @@ export default function MentorPublicProfilePage() {
                   <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
                     <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-gray-100 pb-4">
                       <div>
-                        <h2 className="text-2xl font-black text-gray-950">{t('mentor.public.learnerReviews')}</h2>
+                        <h2 className="text-xl font-black text-gray-950 sm:text-[22px]">{t('mentor.public.learnerReviews')}</h2>
                         <p className="mt-1 text-sm font-medium text-gray-500">
                           {t('mentor.public.reviewSummary', {
                             count: mentor.totalReviews,
@@ -480,17 +502,17 @@ export default function MentorPublicProfilePage() {
           </div>
 
           {/* RIGHT COLUMN: Sticky Booking Sidebar */}
-          <div className="hidden lg:block relative">
-             <aside className="sticky top-24 space-y-5">
-               <div className="rounded-[32px] border border-slate-200 bg-white p-6 shadow-xl shadow-slate-200/50">
-                 <div className="mb-6 border-b border-slate-100 pb-6 text-center">
-                   <h2 className="text-xl font-black text-gray-900">Work with {name.split(' ')[0]}</h2>
-                   <p className="mt-1 text-sm font-medium text-gray-500">Top-rated mentor on MentorX</p>
+          <div className="relative hidden lg:block">
+             <aside className="sticky top-24 space-y-4">
+               <div className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-lg shadow-slate-200/40">
+                 <div className="mb-5 border-b border-slate-100 pb-5 text-center">
+                   <h2 className="text-lg font-black text-gray-900">Work with {name.split(' ')[0]}</h2>
+                   <p className="mt-1 text-[13px] font-medium text-gray-500">Top-rated mentor on MentorX</p>
                  </div>
                  
                  <div className="space-y-3">
                    {isOwnProfile ? (
-                     <button type="button" onClick={() => setIsEditing(true)} className="h-12 w-full rounded-full bg-indigo-600 text-sm font-black text-white shadow-lg shadow-indigo-600/20 transition-colors hover:bg-indigo-700">
+                      <button type="button" onClick={() => setIsEditing(true)} className="h-11 w-full rounded-full bg-indigo-600 text-sm font-black text-white shadow-lg shadow-indigo-600/20 transition-colors hover:bg-indigo-700">
                        {t('mentor.public.editProfile')}
                      </button>
                    ) : (
@@ -498,17 +520,16 @@ export default function MentorPublicProfilePage() {
                        <button
                          type="button"
                          onClick={requestBooking}
-                         disabled={Boolean(pendingAction)}
-                         className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-indigo-600 text-[15px] font-black text-white shadow-lg shadow-indigo-600/20 transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-gray-300"
+                         className="flex h-11 w-full items-center justify-center gap-2 rounded-full bg-indigo-600 text-sm font-black text-white shadow-lg shadow-indigo-600/20 transition hover:bg-indigo-700"
                        >
                          <Calendar className="h-4 w-4" />
-                         {pendingAction === 'book-profile' ? t('mentor.public.openingChat') : t('mentor.public.bookSession')}
+                         {t('mentor.public.bookSession')}
                        </button>
                        <button
                          type="button"
                          onClick={() => openMentorChat(undefined, 'message')}
                          disabled={Boolean(pendingAction)}
-                         className="flex h-12 w-full items-center justify-center gap-2 rounded-full border-2 border-indigo-100 bg-white text-[15px] font-black text-indigo-700 transition hover:bg-indigo-50 disabled:cursor-not-allowed disabled:text-gray-400"
+                          className="flex h-11 w-full items-center justify-center gap-2 rounded-full border-2 border-indigo-100 bg-white text-sm font-black text-indigo-700 transition hover:bg-indigo-50 disabled:cursor-not-allowed disabled:text-gray-400"
                        >
                          <MessageSquare className="h-4 w-4" />
                          {pendingAction === 'message' ? t('mentor.public.openingChat') : t('mentor.public.messageMentor')}
@@ -517,7 +538,7 @@ export default function MentorPublicProfilePage() {
                    )}
                  </div>
 
-                 <div className="mt-6 space-y-4 rounded-2xl bg-slate-50 p-4 border border-slate-100">
+                  <div className="mt-5 space-y-4 rounded-2xl border border-slate-100 bg-slate-50 p-4">
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-semibold text-gray-500">{t('mentor.public.responseRate')}</span>
                       <span className="text-sm font-black text-gray-900">{mentor.successRate != null ? `${Number(mentor.successRate).toFixed(0)}%` : language === 'vi' ? 'Chưa có' : 'N/A'}</span>
@@ -542,7 +563,7 @@ export default function MentorPublicProfilePage() {
                </div>
 
                {/* Detail Info Card */}
-               <div className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm">
+                <div className="rounded-[26px] border border-slate-200 bg-white p-5 shadow-sm">
                  <h3 className="mb-5 text-[11px] font-black uppercase tracking-[0.14em] text-slate-500">
                    {language === 'vi' ? 'Thông tin chi tiết' : 'Details'}
                  </h3>
@@ -582,6 +603,15 @@ export default function MentorPublicProfilePage() {
           </div>
         </div>
       </div>
+      <SingleSessionBookingModal
+        open={Boolean(selectedBookingPackage)}
+        mentorName={name}
+        mentorUserId={userId || mentor.userId}
+        packageItem={selectedBookingPackage}
+        userId={user?.userId}
+        onClose={() => setSelectedBookingPackage(null)}
+        onBooked={handleBookingSuccess}
+      />
     </div>
   )
 
@@ -756,25 +786,25 @@ function IntroPanel({
   const experienceTitle = language === 'vi' ? 'Đã từng làm việc tại:' : 'Worked with:'
 
   return (
-    <section className="space-y-8">
+    <section className="space-y-6">
       {/* Bio + Quick Facts */}
       <div>
-        <h2 className="flex items-center gap-2.5 text-xl font-black text-gray-950">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-100 text-indigo-600">
+        <h2 className="flex items-center gap-2 text-lg font-black text-gray-950">
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-100 text-indigo-600">
             <Users className="h-4.5 w-4.5" />
           </div>
           {introTitle}
         </h2>
-        <p className="mt-4 text-[15px] leading-7 text-gray-600">{professionalSummary}</p>
+        <p className="mt-3 text-sm leading-6 text-gray-600">{professionalSummary}</p>
 
         {quickFacts.length > 0 && (
-          <div className="mt-6 grid grid-cols-3 gap-3">
+          <div className="mt-5 grid gap-3 sm:grid-cols-3">
             {quickFacts.map((metric, i) => (
-              <div key={i} className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50/80 px-4 py-3">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-indigo-100 text-indigo-600">
+              <div key={i} className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50/80 px-3.5 py-3">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-indigo-100 text-indigo-600">
                   {metric.icon}
                 </div>
-                <span className="text-sm font-bold text-slate-800">{metric.label}</span>
+                <span className="text-[13px] font-bold text-slate-800">{metric.label}</span>
               </div>
             ))}
           </div>
@@ -782,11 +812,11 @@ function IntroPanel({
       </div>
 
       {/* Video + Achievements side by side - now with more room */}
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(280px,1fr)]">
+        <div className="grid gap-5 lg:grid-cols-[minmax(0,1.15fr)_minmax(260px,0.95fr)]">
         <IntroVideoCard visual={introVisual} videoUrl={mentor.videoIntroUrl} />
 
-        <div className="rounded-[24px] border border-slate-200 bg-gradient-to-b from-white to-slate-50/80 p-5 shadow-sm">
-          <h3 className="mb-5 flex items-center gap-2 text-base font-black text-slate-950">
+        <div className="rounded-[24px] border border-slate-200 bg-gradient-to-b from-white to-slate-50/80 p-[18px] shadow-sm">
+          <h3 className="mb-4 flex items-center gap-2 text-[15px] font-black text-slate-950">
             <Trophy className="h-5 w-5 text-amber-500" />
             {achievementTitle}
           </h3>
@@ -798,7 +828,7 @@ function IntroPanel({
                 href={link.url}
                 target="_blank"
                 rel="noreferrer"
-                className="flex items-start gap-2.5 rounded-xl bg-blue-50/60 px-3 py-2.5 text-sm font-medium text-blue-700 transition hover:bg-blue-50"
+                className="flex items-start gap-2.5 rounded-xl bg-blue-50/60 px-3 py-2.5 text-[13px] font-medium text-blue-700 transition hover:bg-blue-50"
               >
                 <ExternalLink className="mt-0.5 h-4 w-4 flex-none" />
                 <span className="line-clamp-2">{link.label}</span>
@@ -807,13 +837,13 @@ function IntroPanel({
 
             {achievements.length > 0 ? (
               achievements.slice(0, 4).map((achievement) => (
-                <div key={achievement.id} className="flex items-start gap-2.5 text-sm font-medium text-slate-600">
+                <div key={achievement.id} className="flex items-start gap-2.5 text-[13px] font-medium text-slate-600">
                   <Award className="mt-0.5 h-4 w-4 flex-none text-amber-500" />
                   <span className="line-clamp-2">{achievement.title}</span>
                 </div>
               ))
             ) : (
-              <div className="flex items-start gap-2.5 text-sm font-medium text-slate-400">
+              <div className="flex items-start gap-2.5 text-[13px] font-medium text-slate-400">
                 <Award className="mt-0.5 h-4 w-4 flex-none" />
                 <span>{t('mentor.public.noPublicAchievementsYet')}</span>
               </div>
@@ -835,7 +865,7 @@ function IntroPanel({
             ))}
           </div>
         ) : experiences.length > 0 ? (
-          <div className="flex flex-wrap gap-4">
+          <div className="flex flex-wrap gap-3">
             {experiences.slice(0, 4).map((experience) => (
               <ExperienceBadge key={experience.id} asset={experience} />
             ))}
@@ -854,7 +884,7 @@ function IntroPanel({
         <div className="flex flex-wrap gap-2.5">
           {(mentor.skills || []).length > 0 ? (
             mentor.skills!.map((skill) => (
-              <span key={skill} className="inline-flex rounded-full border border-indigo-100 bg-indigo-50 px-3.5 py-1.5 text-xs font-bold text-indigo-700 shadow-sm transition hover:bg-indigo-100">
+            <span key={skill} className="inline-flex rounded-full border border-indigo-100 bg-indigo-50 px-3 py-1.5 text-[11px] font-bold text-indigo-700 shadow-sm transition hover:bg-indigo-100">
                 {skill}
               </span>
             ))
@@ -874,13 +904,13 @@ function ProfileInfoItem({ icon, label, value, href }: { icon: React.ReactNode; 
         {icon}
       </div>
       <div>
-        <p className="text-[11px] font-black uppercase tracking-[0.1em] text-slate-500">{label}</p>
+        <p className="text-[10px] font-black uppercase tracking-[0.1em] text-slate-500">{label}</p>
         {href ? (
-          <a href={href} target="_blank" rel="noreferrer" className="mt-0.5 block text-sm font-black text-blue-600 hover:text-blue-800 hover:underline">
+          <a href={href} target="_blank" rel="noreferrer" className="mt-0.5 block text-[13px] font-black text-blue-600 hover:text-blue-800 hover:underline">
             {value}
           </a>
         ) : (
-          <p className="mt-0.5 text-sm font-bold text-slate-900">{value}</p>
+          <p className="mt-0.5 text-[13px] font-bold text-slate-900">{value}</p>
         )}
       </div>
     </div>
@@ -901,6 +931,7 @@ function MentoringPackageCard({
   featured?: boolean
 }) {
   const { t } = useI18n()
+  const isDirectBooking = item.packageType === PackageType.SINGLE_SESSION
   const totalMinutes = item.durationHours * 60
   const durationLabel = totalMinutes >= 60
     ? `${Math.floor(totalMinutes / 60)}h${totalMinutes % 60 > 0 ? ` ${totalMinutes % 60}m` : ''}`
@@ -962,12 +993,12 @@ function MentoringPackageCard({
 
       {/* Price + CTA */}
       <div className="p-5 pt-4 mt-auto">
-        <div className="flex items-end justify-between gap-3 rounded-xl bg-slate-50 px-4 py-3">
-          <div>
-            <p className="text-[11px] font-medium text-slate-400 uppercase tracking-wide">
+        <div className="grid gap-3 rounded-xl bg-slate-50 px-4 py-3">
+          <div className="flex min-w-0 items-baseline gap-2 whitespace-nowrap">
+            <p className="text-[11px] font-medium uppercase tracking-wide text-slate-400">
               {language === 'vi' ? 'Giá' : 'Price'}
             </p>
-            <p className="text-xl font-bold text-slate-900 tracking-tight">
+            <p className="text-xl font-bold tracking-tight text-slate-900">
               {formatMxc(item.priceMxc, language)}
             </p>
           </div>
@@ -975,14 +1006,14 @@ function MentoringPackageCard({
             type="button"
             onClick={onBook}
             disabled={pending}
-            className="flex h-9 items-center justify-center gap-1.5 rounded-lg bg-indigo-600 px-4 text-[13px] font-semibold text-white shadow-sm shadow-indigo-600/20 transition-all hover:bg-indigo-700 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex h-10 w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-lg bg-indigo-600 px-4 text-[13px] font-semibold text-white shadow-sm shadow-indigo-600/20 transition-all hover:bg-indigo-700 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50"
           >
             {pending ? (
               <Loader2 className="h-3.5 w-3.5 animate-spin" />
             ) : (
               <>
-                <Calendar className="h-3.5 w-3.5" />
-                {t('mentor.public.package.book')}
+                {isDirectBooking ? <Calendar className="h-3.5 w-3.5" /> : <MessageSquare className="h-3.5 w-3.5" />}
+                {isDirectBooking ? t('mentor.public.package.book') : language === 'vi' ? 'Liên hệ mentor' : 'Contact mentor'}
               </>
             )}
           </button>
@@ -1021,21 +1052,21 @@ function CourseCard({
           <BookOpen className="h-10 w-10" />
         </div>
       )}
-      <h3 className="mt-4 text-lg font-black text-gray-950">{course.title}</h3>
-      <p className="mt-1 flex items-center gap-1.5 text-sm font-medium text-gray-500">
+      <h3 className="mt-4 text-[17px] font-black text-gray-950">{course.title}</h3>
+      <p className="mt-1 flex items-center gap-1.5 text-[13px] font-medium text-gray-500">
         <Clock className="h-4 w-4" />
         {t('mentor.public.course.lessons', { count: course.lessonsCount })} • {levelText}
       </p>
-      <p className="mt-2 line-clamp-2 text-sm leading-6 text-gray-500">{course.description}</p>
+      <p className="mt-2 line-clamp-2 text-[13px] leading-6 text-gray-500">{course.description}</p>
       <div className="mt-4 flex items-center justify-between">
-        <span className="text-lg font-black text-blue-600">{formatMxc(course.priceMxc, language)}</span>
+        <span className="text-[17px] font-black text-blue-600">{formatMxc(course.priceMxc, language)}</span>
         <span className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400">{course.durationHours}h</span>
       </div>
       <button
         type="button"
         onClick={onAsk}
         disabled={pending}
-        className="mt-4 h-10 w-full rounded-full border border-blue-300 text-sm font-black text-blue-700 transition-colors hover:bg-blue-50 disabled:cursor-not-allowed disabled:border-gray-200 disabled:text-gray-400"
+        className="mt-4 h-10 w-full rounded-full border border-blue-300 text-[13px] font-black text-blue-700 transition-colors hover:bg-blue-50 disabled:cursor-not-allowed disabled:border-gray-200 disabled:text-gray-400"
       >
         {pending ? t('mentor.public.openingChat') : t('mentor.public.course.ask')}
       </button>
@@ -1045,21 +1076,21 @@ function CourseCard({
 
 function SchedulePanel({
   schedule,
-  pendingAction,
-  onBookSlot,
   language,
+  canBook,
+  onOpenBooking,
 }: {
   schedule: ScheduleDay[]
-  pendingAction: string | null
-  onBookSlot: (slotLabel: string) => void
   language: 'en' | 'vi'
+  canBook: boolean
+  onOpenBooking: () => void
 }) {
   const { t } = useI18n()
   return (
-    <section className="rounded-[30px] border border-slate-200 bg-white p-5 shadow-[0_20px_45px_-38px_rgba(15,23,42,0.45)] sm:p-6">
+    <section className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-[0_20px_45px_-38px_rgba(15,23,42,0.45)] sm:p-6">
       <div className="mb-5 flex items-center justify-between gap-3">
         <div>
-          <h2 className="flex items-center gap-2 text-2xl font-black text-gray-950">
+          <h2 className="flex items-center gap-2 text-xl font-black text-gray-950">
             <Calendar className="h-5 w-5 text-blue-600" />
             {t('mentor.public.schedule.title')}
           </h2>
@@ -1072,7 +1103,7 @@ function SchedulePanel({
           {schedule.map((day) => (
             <div
               key={day.key}
-              className={`rounded-[22px] border p-3 text-center ${
+              className={`rounded-[20px] border p-3 text-center ${
                 day.today ? 'border-blue-200 bg-blue-50 shadow-md shadow-blue-100' : 'border-slate-200 bg-slate-50/70'
               }`}
             >
@@ -1081,19 +1112,15 @@ function SchedulePanel({
               <div className="mt-3 space-y-2">
                 {day.slots.length > 0 ? (
                   day.slots.map((slot) => {
-                    const slotLabel = `${day.dayLabel} ${day.dateLabel} ${slot.startTime.slice(0, 5)}`
                     return (
-                      <button
-                        type="button"
-                        key={`${day.key}-${slot.id}`}
-                        onClick={() => onBookSlot(slotLabel)}
-                        disabled={pendingAction === `slot-${slotLabel}`}
-                        className={`h-7 w-full rounded-full text-xs font-black ${
-                          day.today ? 'bg-blue-600 text-white' : 'border border-blue-300 bg-white text-blue-700 hover:bg-blue-50'
+                      <span
+                        key={`${day.key}-${slot.startTime}-${slot.endTime}`}
+                        className={`inline-flex h-7 w-full items-center justify-center rounded-full text-xs font-black ${
+                          day.today ? 'bg-blue-600 text-white' : 'border border-blue-300 bg-white text-blue-700'
                         }`}
                       >
                         {slot.startTime.slice(0, 5)}
-                      </button>
+                      </span>
                     )
                   })
                 ) : (
@@ -1108,6 +1135,23 @@ function SchedulePanel({
       ) : (
         <EmptyCard message={t('mentor.public.schedule.noAvailability')} />
       )}
+
+      <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-600">
+        <p>
+          {language === 'vi'
+            ? 'Đây là khung giờ lặp lại theo tuần. Slot đặt thật sẽ được backend tạo sau khi bạn chọn gói buổi đơn.'
+            : 'These are recurring weekly windows. Exact checkout slots are generated by the backend after you choose a single-session package.'}
+        </p>
+        {canBook ? (
+          <button
+            type="button"
+            onClick={onOpenBooking}
+            className="mt-3 inline-flex h-10 items-center justify-center rounded-full bg-indigo-600 px-4 text-sm font-black text-white transition hover:bg-indigo-700"
+          >
+            {language === 'vi' ? 'Xem slot đặt được' : 'View bookable slots'}
+          </button>
+        ) : null}
+      </div>
     </section>
   )
 }
@@ -1238,7 +1282,7 @@ function ProfileDetailCard() {
 function SectionHeader({ title, action }: { title: string; action?: React.ReactNode }) {
   return (
     <div className="flex items-center justify-between gap-4">
-      <h2 className="text-2xl font-black tracking-tight text-gray-950">{title}</h2>
+      <h2 className="text-xl font-black tracking-tight text-gray-950 sm:text-[22px]">{title}</h2>
       {action}
     </div>
   )

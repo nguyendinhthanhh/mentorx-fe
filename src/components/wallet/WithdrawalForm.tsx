@@ -68,8 +68,6 @@ export default function WithdrawalForm({ userId, onSuccess, onOpenPayoutSetup }:
   const guard = getWithdrawalGuard({
     mentorStatus: user?.mentorStatus,
     payoutStatus: user?.payoutStatus,
-    identityStatus: user?.identityStatus,
-    canRequestWithdrawal: user?.canRequestWithdrawal,
     hasPayoutAccount: !!defaultAccount,
   })
 
@@ -317,14 +315,10 @@ function hydrateWithdrawalTarget(
 function getWithdrawalGuard({
   mentorStatus,
   payoutStatus,
-  identityStatus,
-  canRequestWithdrawal,
   hasPayoutAccount,
 }: {
   mentorStatus?: MentorStatus
   payoutStatus?: VerificationStatus
-  identityStatus?: VerificationStatus
-  canRequestWithdrawal?: boolean
   hasPayoutAccount: boolean
 }) {
   if (mentorStatus !== MentorStatus.APPROVED) {

@@ -1,24 +1,24 @@
 import { BookOpen, Briefcase, GraduationCap, Lightbulb, ArrowRight } from 'lucide-react'
-import type { Pathway } from '../blogData'
+import type { BlogTrack } from '../blogData'
 
-function PathIcon({ icon }: { icon: Pathway['icon'] }) {
+function PathIcon({ icon }: { icon: BlogTrack['icon'] }) {
   if (icon === 'learner') return <GraduationCap className="h-5 w-5" />
   if (icon === 'mentor') return <Lightbulb className="h-5 w-5" />
   if (icon === 'jobs') return <Briefcase className="h-5 w-5" />
   return <BookOpen className="h-5 w-5" />
 }
 
-export function PathwayCards({ pathways, onSelect }: { pathways: Pathway[], onSelect?: (query: string) => void }) {
+export function PathwayCards({ pathways, onSelect }: { pathways: BlogTrack[], onSelect?: (query: string) => void }) {
   return (
     <section>
       <div className="mb-6 border-b border-slate-200 pb-4">
-        <h2 className="text-2xl font-bold tracking-tight text-slate-900">Learning Pathways</h2>
+        <h2 className="text-2xl font-bold tracking-tight text-slate-900">Browse by track</h2>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
         {pathways.map((path) => (
           <article
-            key={path.id}
+            key={path.key}
             onClick={() => onSelect && onSelect(path.title)}
             className="group cursor-pointer rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md"
           >
@@ -28,7 +28,9 @@ export function PathwayCards({ pathways, onSelect }: { pathways: Pathway[], onSe
               </div>
               <div>
                 <h3 className="text-lg font-bold text-slate-900 transition-colors group-hover:text-indigo-600">{path.title}</h3>
-                <p className="mt-1 line-clamp-2 text-sm text-slate-600">{path.description}</p>
+                <p className="mt-1 line-clamp-2 text-sm text-slate-600">
+                  Explore API-backed guides grouped under this track.
+                </p>
               </div>
             </div>
 

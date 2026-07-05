@@ -1,6 +1,5 @@
 import { Link, Outlet, useLocation } from 'react-router-dom'
 import {
-  Award,
   Briefcase,
   CalendarDays,
   Flag,
@@ -8,13 +7,11 @@ import {
   ReceiptText,
   ShoppingBag,
   Star,
-  Wallet,
   CreditCard,
   SlidersHorizontal,
   Settings,
 } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
-import { canSwitchToMentorMode } from '@/utils/roleRedirect'
 import AppHeader from '@/components/AppHeader'
 import { cn } from '@/utils/cn'
 
@@ -25,17 +22,17 @@ type SidebarItem = {
   matches: string[]
 }
 
-const baseTabs: SidebarItem[] = [
-  { to: '/profile', label: 'Tổng quan', icon: LayoutDashboard, matches: ['/profile'] },
-  { to: '/users/requests', label: 'Yêu cầu đã đăng', icon: Briefcase, matches: ['/users/requests', '/my-jobs'] },
-  { to: '/profile/courses', label: 'Khóa học đã mua', icon: ShoppingBag, matches: ['/profile/courses'] },
-  { to: '/profile/appointments', label: 'Lịch hẹn', icon: CalendarDays, matches: ['/profile/appointments'] },
-  { to: '/profile/complaints', label: 'Khiếu nại của tôi', icon: Flag, matches: ['/profile/complaints'] },
-  { to: '/profile/transactions', label: 'Giao dịch', icon: ReceiptText, matches: ['/profile/transactions'] },
-  { to: '/profile/reviews', label: 'Đánh giá của tôi', icon: Star, matches: ['/profile/reviews'] },
-  { to: '/profile/bank-accounts', label: 'Tài khoản ngân hàng', icon: CreditCard, matches: ['/profile/bank-accounts'] },
-  { to: '/profile/preferences', label: 'Sở thích & ghép nối', icon: SlidersHorizontal, matches: ['/profile/preferences'] },
-  { to: '/profile/settings', label: 'Cài đặt', icon: Settings, matches: ['/profile/settings'] },
+const tabs: SidebarItem[] = [
+  { to: '/profile', label: 'T\u1ed5ng quan', icon: LayoutDashboard, matches: ['/profile'] },
+  { to: '/users/requests', label: 'Y\u00eau c\u1ea7u \u0111\u00e3 \u0111\u0103ng', icon: Briefcase, matches: ['/users/requests', '/my-jobs'] },
+  { to: '/profile/courses', label: 'Kh\u00f3a h\u1ecdc \u0111\u00e3 mua', icon: ShoppingBag, matches: ['/profile/courses'] },
+  { to: '/profile/appointments', label: 'L\u1ecbch h\u1eb9n', icon: CalendarDays, matches: ['/profile/appointments'] },
+  { to: '/profile/complaints', label: 'Khi\u1ebfu n\u1ea1i c\u1ee7a t\u00f4i', icon: Flag, matches: ['/profile/complaints'] },
+  { to: '/profile/transactions', label: 'Giao d\u1ecbch', icon: ReceiptText, matches: ['/profile/transactions'] },
+  { to: '/profile/reviews', label: '\u0110\u00e1nh gi\u00e1 c\u1ee7a t\u00f4i', icon: Star, matches: ['/profile/reviews'] },
+  { to: '/profile/bank-accounts', label: 'T\u00e0i kho\u1ea3n ng\u00e2n h\u00e0ng', icon: CreditCard, matches: ['/profile/bank-accounts'] },
+  { to: '/profile/preferences', label: 'S\u1edf th\u00edch & gh\u00e9p n\u1ed1i', icon: SlidersHorizontal, matches: ['/profile/preferences'] },
+  { to: '/profile/settings', label: 'C\u00e0i \u0111\u1eb7t', icon: Settings, matches: ['/profile/settings'] },
 ]
 
 export default function ProfileLayout() {
@@ -47,14 +44,6 @@ export default function ProfileLayout() {
   const isFullWidthPage = location.pathname === '/become-a-mentor'
   const displayName = user.displayName || user.fullName || 'User'
   const initials = displayName.charAt(0).toUpperCase()
-  const mentorApproved = canSwitchToMentorMode(user)
-
-  const tabs: SidebarItem[] = [
-    ...baseTabs,
-    ...(mentorApproved
-      ? []
-      : [{ to: '/become-a-mentor', label: 'Trở thành mentor', icon: Award, matches: ['/become-a-mentor'] }]),
-  ]
 
   const isActive = (paths: string[]) => {
     return paths.some((path) => {
@@ -113,28 +102,28 @@ export default function ProfileLayout() {
 
         <div className="flex flex-col gap-8 lg:flex-row">
           {!isFullWidthPage && (
-            <aside className="hidden w-full flex-none space-y-6 lg:block lg:w-[290px]">
+            <aside className="hidden w-full flex-none space-y-6 lg:sticky lg:top-24 lg:block lg:w-[290px] lg:self-start">
               <div className="overflow-hidden rounded-[2rem] border border-slate-200/70 bg-white/90 p-4 shadow-[0_28px_70px_rgba(15,23,42,0.08)] backdrop-blur-xl dark:border-slate-800/60 dark:bg-slate-900/80 dark:shadow-none">
                 <div className="mb-6 rounded-[1.6rem] bg-[radial-gradient(circle_at_top_left,rgba(108,77,255,0.18),transparent_46%),linear-gradient(135deg,#ffffff,#f8f7ff)] px-3 py-4 dark:bg-slate-900">
                   <div className="flex items-center gap-4 px-2 py-1">
-                  <div className="relative shrink-0">
-                    <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg shadow-indigo-200 dark:shadow-none">
-                      {user.avatarUrl ? (
-                        <img src={user.avatarUrl} alt={displayName} className="h-full w-full object-cover" />
-                      ) : (
-                        <span className="text-xl font-black text-white">{initials}</span>
-                      )}
+                    <div className="relative shrink-0">
+                      <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg shadow-indigo-200 dark:shadow-none">
+                        {user.avatarUrl ? (
+                          <img src={user.avatarUrl} alt={displayName} className="h-full w-full object-cover" />
+                        ) : (
+                          <span className="text-xl font-black text-white">{initials}</span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <h1 className="truncate text-base font-black tracking-tight text-slate-950 dark:text-white">
+                        {displayName}
+                      </h1>
+                      <p className="truncate text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500">
+                        User workspace
+                      </p>
                     </div>
                   </div>
-                  <div className="min-w-0 flex-1">
-                    <h1 className="truncate text-base font-black tracking-tight text-slate-950 dark:text-white">
-                      {displayName}
-                    </h1>
-                    <p className="truncate text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500">
-                      User workspace
-                    </p>
-                  </div>
-                </div>
                 </div>
 
                 <div className="space-y-1.5">
@@ -168,21 +157,6 @@ export default function ProfileLayout() {
                     )
                   })}
                 </div>
-
-                {!mentorApproved && (
-                  <div className="mt-8 rounded-[1.6rem] border border-indigo-100 bg-indigo-50/70 px-4 py-5 dark:border-indigo-900/40 dark:bg-indigo-950/20">
-                    <p className="text-[11px] font-black uppercase tracking-[0.16em] text-indigo-500">Mentor track</p>
-                    <p className="mt-2 text-sm leading-6 text-slate-700 dark:text-slate-300">
-                      Mở rộng tài khoản để nhận job, mentor 1:1 và kiếm thêm MXC.
-                    </p>
-                    <Link
-                      to="/become-a-mentor"
-                      className="mt-4 inline-flex h-10 items-center justify-center rounded-2xl bg-[#6C4DFF] px-4 text-sm font-bold text-white transition hover:bg-[#5b3ef0]"
-                    >
-                      Trở thành mentor
-                    </Link>
-                  </div>
-                )}
               </div>
             </aside>
           )}

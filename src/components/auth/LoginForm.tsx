@@ -1,10 +1,10 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { LoginRequest } from '@/types'
+import { AuthResponse, LoginRequest } from '@/types'
 import { authApi } from '@/api/authApi'
 import { useAuthStore } from '@/store/authStore'
-import { useCallback, useRef, useState } from 'react'
+import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { Eye, EyeOff, Loader2 } from 'lucide-react'
 
@@ -12,8 +12,8 @@ import GoogleLoginButton from './GoogleLoginButton'
 import GithubLoginButton from './GithubLoginButton'
 import EmailVerificationPending from './EmailVerificationPending'
 
-import { CredentialResponse, GoogleLogin } from '@react-oauth/google'
 import { canAccessAdminWorkspace } from '@/utils/roleRedirect'
+import { getSocialAuthRedirectPath } from '@/utils/socialAuth'
 
 
 const loginSchema = z.object({
@@ -23,7 +23,7 @@ const loginSchema = z.object({
 
 export default function LoginForm() {
   const navigate = useNavigate()
-  const { setUser, setTokens } = useAuthStore()
+  const { setUser, setTokens, skipOnboardingForSession } = useAuthStore()
   const [error, setError] = useState<string>('')
   const [showVerification, setShowVerification] = useState(false)
   const [verificationEmail, setVerificationEmail] = useState<string>('')
@@ -62,6 +62,17 @@ export default function LoginForm() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleSocialLoginSuccess = (response: AuthResponse) => {
+    setTokens(response.accessToken, response.refreshToken)
+    setUser(response.user)
+
+    if (!response.isNewUser && !response.user.isOnboarded) {
+      skipOnboardingForSession()
+    }
+
+    navigate(getSocialAuthRedirectPath(response))
   }
 
   if (showVerification) {
@@ -139,38 +150,14 @@ export default function LoginForm() {
 
       <div className="flex justify-center">
         <GoogleLoginButton
-          onSuccess={(response) => {
-            setTokens(response.accessToken, response.refreshToken)
-            setUser(response.user)
-
-            const userRoles = response.user.roles.map(r => r.roleName.toUpperCase())
-            if (userRoles.includes('ADMIN')) {
-              navigate('/admin/dashboard')
-            } else if (userRoles.includes('MENTOR') || response.user.mentorStatus === 'APPROVED') {
-              navigate('/mentor/dashboard')
-            } else {
-              navigate('/dashboard')
-            }
-          }}
+          onSuccess={handleSocialLoginSuccess}
           onError={(error) => setError(error)}
         />
       </div>
 
       <div className="flex justify-center">
         <GithubLoginButton
-          onSuccess={(response) => {
-            setTokens(response.accessToken, response.refreshToken)
-            setUser(response.user)
-
-            const userRoles = response.user.roles.map(r => r.roleName.toUpperCase())
-            if (userRoles.includes('ADMIN')) {
-              navigate('/admin/dashboard')
-            } else if (userRoles.includes('MENTOR') || response.user.mentorStatus === 'APPROVED') {
-              navigate('/mentor/dashboard')
-            } else {
-              navigate('/dashboard')
-            }
-          }}
+          onSuccess={handleSocialLoginSuccess}
           onError={(error) => setError(error)}
         />
       </div>

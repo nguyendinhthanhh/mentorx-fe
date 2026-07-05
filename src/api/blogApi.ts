@@ -95,6 +95,16 @@ const blogApi = {
       date: new Date(p.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
     }))
   },
+
+  getPostBySlug: async (slug: string) => {
+    const { data } = await client.get<ApiResponse<BlogPost>>(`/blogs/${slug}`)
+    return {
+      ...data.data,
+      category: formatCategory(data.data.category as any) as any,
+      audience: formatAudience(data.data.audience as any) as any,
+      date: new Date(data.data.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
+    }
+  },
 }
 
 export default blogApi

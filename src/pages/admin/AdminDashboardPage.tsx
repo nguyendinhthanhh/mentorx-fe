@@ -69,15 +69,11 @@ export default function AdminDashboardPage() {
   const { data: expertiseQueue } = useQuery(['admin-dashboard-expertise-queue'], () =>
     adminMentorVerificationApi.getExpertiseQueue({ page: 0, size: 1 })
   )
-  const { data: identityQueue } = useQuery(['admin-dashboard-identity-queue'], () =>
-    adminMentorVerificationApi.getIdentityQueue({ page: 0, size: 1 })
-  )
   const pendingWithdrawalsCount = walletSummary?.pendingWithdrawals || 0
 
   if (!financeAdmin) {
     const moderationCards = [
       { label: 'Expertise reviews', value: expertiseQueue?.totalElements || 0, icon: ShieldCheck, color: 'bg-indigo-50 text-indigo-600 dark:bg-indigo-900/20 dark:text-indigo-400' },
-      { label: 'Identity reviews', value: identityQueue?.totalElements || 0, icon: Users, color: 'bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400' },
       { label: 'Content moderation', value: 'Live', icon: BookOpen, color: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400' },
       { label: 'Support inbox', value: 'Active', icon: Activity, color: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200' },
     ]
@@ -110,7 +106,7 @@ export default function AdminDashboardPage() {
             <h3 className="text-lg font-black text-gray-900 dark:text-white tracking-tight">Primary moderation workflows</h3>
             <div className="mt-6 space-y-4">
               {[
-                { title: 'Mentor verification queue', detail: 'Approve expertise, request more info, and handle identity review.', href: '/admin/mentor-applications' },
+                { title: 'Mentor verification queue', detail: 'Approve expertise and request more information for public mentor profiles.', href: '/admin/mentor-applications' },
                 { title: 'Jobs moderation', detail: 'Inspect public jobs and moderate risky or low-quality postings.', href: '/admin/jobs' },
                 { title: 'Courses moderation', detail: 'Review mentor-created courses before or after publication.', href: '/admin/courses' },
                 { title: 'Support operations', detail: 'Respond to user issues and route abuse or trust cases.', href: '/admin/support' },
