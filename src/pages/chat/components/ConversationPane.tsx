@@ -21,6 +21,9 @@ import {
 } from '../chatShared'
 import { PromptInputBox } from '@/components/ui/ai-prompt-box'
 import JobContextBanner from './JobContextBanner'
+import { Bubble, BubbleContent } from '@/components/ui/bubble'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Message, MessageAvatar, MessageContent, MessageFooter } from '@/components/ui/message'
 
 type ConversationPaneProps = {
   selectedRoom: ChatRoomResponse | null
@@ -243,44 +246,38 @@ export default function ConversationPane({
                     </div>
                   )}
 
-                  <div className={`flex gap-3 ${mine ? 'justify-end' : 'justify-start'}`}>
-                    {!mine && (
-                      <div className="hidden h-9 w-9 shrink-0 overflow-hidden rounded-full sm:block">
-                        {message.senderAvatarUrl ? (
-                          <img src={message.senderAvatarUrl} alt={message.senderName} className="h-full w-full object-cover" />
-
-                        ) : (
-                          <div className="flex h-full w-full items-center justify-center bg-slate-200 text-[11px] font-semibold text-[#52608b]">
+                  <Message align={mine ? "end" : "start"}>
+                    {(!mine || mine) && (
+                      <MessageAvatar className="hidden sm:block">
+                        <Avatar className="h-10 w-10">
+                          <AvatarImage src={message.senderAvatarUrl || undefined} alt={message.senderName} />
+                          <AvatarFallback>
                             {message.senderName
                               .split(' ')
                               .filter(Boolean)
                               .slice(0, 2)
                               .map((part) => part[0]?.toUpperCase())
                               .join('')}
-                          </div>
-                        )}
-                      </div>
+                          </AvatarFallback>
+                        </Avatar>
+                      </MessageAvatar>
                     )}
 
-                    <div className={`max-w-[86%] sm:max-w-[64%] ${mine ? 'items-end' : 'items-start'}`}>
-                      {showSenderName && <p className="mb-1 ml-1 text-xs font-medium text-[#66729d]">{message.senderName}</p>}
+                    <MessageContent>
+                      {showSenderName && !mine && <p className="mb-1 ml-1 text-xs font-medium text-[#66729d]">{message.senderName}</p>}
 
-                      <div
-                        className={`rounded-xl px-4 py-3 shadow-sm ${
-                          mine
-                            ? 'border border-indigo-200 bg-[#e9e7ff] text-[#10164a]'
-                            : 'border border-slate-200 bg-white text-[#10164a]'
-                        }`}
-                      >
-                        <MessageText content={message.content} mine={false} />
-                        <MessageAttachment message={message} mine={false} />
-                      </div>
+                      <Bubble align={mine ? "end" : "start"} variant={mine ? "default" : "muted"} className="max-w-full">
+                        <BubbleContent className={mine ? "border-0 shadow-sm" : "shadow-sm border-0"}>
+                          <MessageText content={message.content} mine={mine} />
+                          <MessageAttachment message={message} mine={mine} />
+                        </BubbleContent>
+                      </Bubble>
 
-                      <p className={`mt-1 px-1 text-[11px] ${mine ? 'text-right text-[#66729d]' : 'text-[#66729d]'}`}>
+                      <MessageFooter>
                         {formatMessageTime(message.sentAt)}
-                      </p>
-                    </div>
-                  </div>
+                      </MessageFooter>
+                    </MessageContent>
+                  </Message>
                 </div>
               )
             })}

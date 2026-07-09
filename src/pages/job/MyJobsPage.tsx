@@ -172,7 +172,7 @@ export default function MyJobsPage() {
             <Briefcase className="h-6 w-6" />
           </div>
           <div>
-            <h1 className="text-xl font-black tracking-tight text-slate-950 sm:text-2xl">
+            <h1 className="text-xl font-bold tracking-tight text-slate-950 sm:text-2xl">
               Yêu cầu đã đăng
             </h1>
             <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-slate-500">
@@ -329,7 +329,7 @@ function RequestCard({
                 </span>
                 <span className="text-[12px] text-slate-400">• Cập nhật {formatRelativeTime(job.updatedAt || job.createdAt)}</span>
               </div>
-              <h2 className="mt-2 truncate text-lg font-black tracking-tight text-slate-950 sm:text-xl">
+              <h2 className="mt-2 truncate text-lg font-bold tracking-tight text-slate-950 sm:text-xl">
                 {job.title}
               </h2>
             </div>
@@ -556,7 +556,7 @@ function EmptyState({ hasFilters, onClear }: { hasFilters: boolean; onClear: () 
       <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-slate-100 text-slate-400">
         <Briefcase className="h-7 w-7" />
       </div>
-      <h2 className="mt-5 text-2xl font-black tracking-tight text-slate-950">Chưa có yêu cầu phù hợp</h2>
+      <h2 className="mt-5 text-2xl font-bold tracking-tight text-slate-950">Chưa có yêu cầu phù hợp</h2>
       <p className="mx-auto mt-2 max-w-md text-sm leading-7 text-slate-600">
         {hasFilters
           ? 'Hãy thử thay đổi bộ lọc hoặc từ khóa để tìm lại yêu cầu bạn cần quản lý.'

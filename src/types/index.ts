@@ -345,6 +345,7 @@ export interface UserCreateRequest {
   phone?: string;
   countryCode?: string;
   preferredLanguage?: SupportedLanguage;
+  roleName?: string;
 }
 
 export interface UserUpdateRequest {

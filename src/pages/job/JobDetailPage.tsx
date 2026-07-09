@@ -578,15 +578,16 @@ export default function JobDetailPage() {
                   </div>
                </div>
             </div>
+            
             {/* Client Info Card */}
             <div className="rounded-2xl border border-slate-200 bg-white  p-6 shadow-sm">
-              <h3 className="mb-5 text-lg font-bold text-gray-900 border-b border-slate-100 pb-3">Thông tin Client</h3>
-              <div className="flex items-center gap-4">
-                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-slate-100 text-xl font-bold text-gray-800">
+              <h3 className="mb-6 text-xl font-extrabold text-slate-900">Thông tin Client</h3>
+              <Link to={`/users/${job.clientId}`} className="group flex items-center gap-4">
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-slate-100 text-xl font-bold text-gray-800 transition-colors group-hover:bg-indigo-50 group-hover:text-indigo-600">
                   {getInitials(clientName)}
                 </div>
                 <div>
-                  <h4 className="text-[16px] font-bold text-gray-900">{clientName}</h4>
+                  <h4 className="text-[18px] font-bold text-gray-900 group-hover:text-indigo-600 transition-colors">{clientName}</h4>
                   {job.client?.emailVerified ? (
                     <span className="mt-1 inline-flex items-center gap-1 text-[12px] font-bold text-emerald-600">
                       <CheckCircle2 className="h-3.5 w-3.5" /> Đã xác thực
@@ -597,7 +598,7 @@ export default function JobDetailPage() {
                     </span>
                   )}
                 </div>
-              </div>
+              </Link>
               <div className="mt-5 border-t border-slate-100 pt-5">
                 <div className="flex items-center gap-2 text-[13px] font-medium text-gray-700">
                   <User className="h-4 w-4 text-slate-400" />

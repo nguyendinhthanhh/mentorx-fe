@@ -71,58 +71,75 @@ export default function AdminLayout() {
             <button
               type="button"
               aria-label="Close admin navigation"
-              className="absolute inset-0 bg-slate-950/45"
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
               onClick={() => setIsMobileSidebarOpen(false)}
             />
-            <aside className="relative flex h-full w-[min(84vw,320px)] flex-col bg-white shadow-2xl dark:bg-gray-900">
-              <div className="h-20 flex items-center justify-between px-6 border-b border-gray-50 dark:border-gray-800 bg-white/50 dark:bg-gray-900/50 backdrop-blur-md">
-                <Link to="/" className="flex items-center gap-4 overflow-hidden" onClick={() => setIsMobileSidebarOpen(false)}>
-                  <div className="w-10 h-10 rounded-2xl bg-gray-900 dark:bg-white flex items-center justify-center flex-shrink-0 shadow-lg shadow-gray-200 dark:shadow-none">
-                    <ShieldAlert className="w-6 h-6 text-white dark:text-gray-900" />
+            <aside className="relative flex h-full w-[min(84vw,320px)] flex-col bg-white shadow-2xl dark:bg-[#09090b]">
+              <div className="flex h-[80px] shrink-0 items-center justify-between px-5">
+                <Link to="/" className="flex items-center gap-3" onClick={() => setIsMobileSidebarOpen(false)}>
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-md dark:bg-indigo-500/20 dark:text-indigo-400">
+                    <ShieldAlert className="h-5 w-5 text-white" />
                   </div>
-                  <div className="flex flex-col">
-                    <span className="text-xl font-black text-gray-900 dark:text-white tracking-tighter">AdminHub</span>
-                    <span className="text-[10px] font-black text-primary-600 dark:text-primary-400 uppercase tracking-[0.2em] -mt-1">Control Panel</span>
+                  <div className="min-w-0 flex flex-col">
+                    <p className="text-[19px] font-bold leading-none tracking-tight text-slate-900 dark:text-white">MentorX</p>
+                    <p className="mt-1 text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest leading-none">Admin Workspace</p>
                   </div>
                 </Link>
                 <button
                   type="button"
                   onClick={() => setIsMobileSidebarOpen(false)}
-                  className="flex h-10 w-10 items-center justify-center rounded-2xl border border-gray-100 text-gray-500 dark:border-gray-700 dark:text-gray-400"
+                  className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400"
                 >
-                  <X className="w-4 h-4" />
+                  <X className="h-5 w-5" />
                 </button>
               </div>
 
-              <nav className="flex-1 p-5 space-y-2 overflow-y-auto custom-scrollbar">
-                {visibleAdminLinks.map((link) => (
+              <nav className="flex-1 px-4 py-5 space-y-2 overflow-y-auto custom-scrollbar">
+                {visibleAdminLinks.map((link) => {
+                  const active = isActive(link.to)
+                  return (
                   <Link
                     key={link.to}
                     to={link.to}
                     onClick={() => setIsMobileSidebarOpen(false)}
-                    className={`flex items-center gap-4 px-4 py-3.5 rounded-[1.25rem] text-sm font-bold transition-all group relative ${
-                      isActive(link.to)
-                        ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900 shadow-xl shadow-gray-200 dark:shadow-none'
-                        : 'text-gray-400 dark:text-gray-500 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800'
+                    className={`group flex items-center gap-3.5 px-3.5 py-3 rounded-2xl font-semibold transition-all duration-300 ${
+                      active
+                        ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200/50 dark:bg-indigo-500/20 dark:text-indigo-400 dark:shadow-none translate-x-1'
+                        : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800'
                     }`}
                   >
-                    <link.icon className={`w-5 h-5 flex-shrink-0 ${isActive(link.to) ? 'text-blue-400 dark:text-blue-600' : 'text-gray-300 dark:text-gray-600 group-hover:text-gray-900 dark:group-hover:text-white'}`} />
-                    <span className="tracking-tight">{link.label}</span>
+                    <link.icon className={`w-5 h-5 flex-shrink-0 transition-transform duration-300 ${active ? 'scale-110' : 'group-hover:scale-110'}`} />
+                    <span className="truncate">{link.label}</span>
                   </Link>
-                ))}
+                  )
+                })}
               </nav>
 
-              <div className="p-5 border-t border-gray-50 dark:border-gray-800">
-                <button
-                  onClick={() => {
-                    setIsMobileSidebarOpen(false)
-                    handleLogout()
-                  }}
-                  className="w-full flex items-center gap-4 px-4 py-3.5 rounded-[1.25rem] text-sm font-bold text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-all"
-                >
-                  <LogOut className="w-5 h-5 flex-shrink-0" />
-                  <span>Sign Out</span>
-                </button>
+              <div className="border-t border-slate-100 p-4 dark:border-slate-800/60">
+                <div className="flex items-center gap-3 rounded-xl p-2 transition hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300 overflow-hidden border border-slate-200 dark:border-slate-700">
+                    {user?.avatarUrl ? (
+                      <img src={user.avatarUrl} alt="Avatar" className="h-full w-full object-cover" />
+                    ) : (
+                      <UserCheck className="h-5 w-5" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="truncate text-[13px] font-bold text-slate-900 dark:text-white">{user?.fullName || 'Admin'}</p>
+                    <p className="truncate text-[11px] font-medium text-slate-500 dark:text-slate-400">{user?.email}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsMobileSidebarOpen(false)
+                      handleLogout()
+                    }}
+                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-400 transition hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-500/10"
+                    title="Logout"
+                  >
+                    <LogOut className="h-4 w-4" />
+                  </button>
+                </div>
               </div>
             </aside>
           </div>
@@ -131,85 +148,104 @@ export default function AdminLayout() {
         {/* Sidebar */}
         <aside 
           className={`${
-            isSidebarCollapsed ? 'w-24' : 'w-72'
-          } hidden bg-white dark:bg-gray-900 border-r border-gray-100 dark:border-gray-800 xl:flex flex-col transition-all duration-500 ease-in-out sticky top-0 h-screen z-50 shadow-[4px_0_24px_rgba(0,0,0,0.02)]`}
+            isSidebarCollapsed ? 'w-[80px]' : 'w-[280px]'
+          } hidden bg-white dark:bg-[#09090b] border-r border-slate-100 dark:border-slate-800/60 shrink-0 xl:flex flex-col transition-all duration-300 ease-in-out sticky top-0 h-screen z-50`}
         >
           {/* Sidebar Header */}
-          <div className="h-20 flex items-center px-8 border-b border-gray-50 dark:border-gray-800 bg-white/50 dark:bg-gray-900/50 backdrop-blur-md">
-            <Link to="/" className="flex items-center gap-4 overflow-hidden">
-              <div className="w-10 h-10 rounded-2xl bg-gray-900 dark:bg-white flex items-center justify-center flex-shrink-0 shadow-lg shadow-gray-200 dark:shadow-none group hover:bg-primary-600 dark:hover:bg-primary-400 transition-colors">
-                <ShieldAlert className="w-6 h-6 text-white dark:text-gray-900" />
+          <div className="h-[80px] shrink-0 flex items-center px-5 border-b border-slate-100 dark:border-slate-800/60">
+            <Link to="/" className="flex items-center gap-3 overflow-hidden w-full">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-md dark:bg-indigo-500/20 dark:text-indigo-400 flex-shrink-0">
+                <ShieldAlert className="w-5 h-5 text-white" />
               </div>
               {!isSidebarCollapsed && (
-                <div className="flex flex-col">
-                  <span className="text-xl font-black text-gray-900 dark:text-white tracking-tighter">AdminHub</span>
-                  <span className="text-[10px] font-black text-primary-600 dark:text-primary-400 uppercase tracking-[0.2em] -mt-1">Control Panel</span>
+                <div className="flex flex-col justify-center min-w-0 opacity-100 transition-opacity duration-300 delay-100">
+                  <span className="text-[19px] font-bold text-slate-900 dark:text-white tracking-tight leading-none">MentorX</span>
+                  <span className="mt-1 text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest leading-none">Admin Workspace</span>
                 </div>
               )}
             </Link>
           </div>
 
           {/* Sidebar Nav */}
-          <nav className="flex-1 p-6 space-y-2 overflow-y-auto custom-scrollbar">
+          <nav className="flex-1 px-4 py-5 space-y-2 overflow-y-auto custom-scrollbar">
             {/* Admin Links */}
-            {visibleAdminLinks.map((link) => (
+            {visibleAdminLinks.map((link) => {
+              const active = isActive(link.to)
+              return (
               <Link
                 key={link.to}
                 to={link.to}
-                className={`flex items-center gap-4 px-4 py-3.5 rounded-[1.25rem] text-sm font-bold transition-all group relative ${
-                  isActive(link.to)
-                    ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900 shadow-xl shadow-gray-200 dark:shadow-none'
-                    : 'text-gray-400 dark:text-gray-500 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800'
-                }`}
+                title={isSidebarCollapsed ? link.label : undefined}
+                className={`group flex items-center gap-3.5 px-3.5 py-3 rounded-2xl font-semibold transition-all duration-300 ${
+                  active
+                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200/50 dark:bg-indigo-500/20 dark:text-indigo-400 dark:shadow-none translate-x-1'
+                    : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800'
+                } ${isSidebarCollapsed ? 'justify-center' : ''}`}
               >
-                <link.icon className={`w-5 h-5 flex-shrink-0 transition-transform group-hover:scale-110 ${isActive(link.to) ? 'text-blue-400 dark:text-blue-600' : 'text-gray-300 dark:text-gray-600 group-hover:text-gray-900 dark:group-hover:text-white'}`} />
-                {!isSidebarCollapsed && <span className="tracking-tight">{link.label}</span>}
-                {!isSidebarCollapsed && isActive(link.to) && (
-                  <div className="absolute right-4 w-1.5 h-1.5 rounded-full bg-blue-400 dark:bg-blue-600" />
-                )}
+                <link.icon className={`w-5 h-5 flex-shrink-0 transition-transform duration-300 ${active ? 'scale-110' : 'group-hover:scale-110'}`} />
+                {!isSidebarCollapsed && <span className="truncate">{link.label}</span>}
               </Link>
-            ))}
+              )
+            })}
           </nav>
 
           {/* Sidebar Footer */}
-          <div className="p-6 border-t border-gray-50 dark:border-gray-800">
-            <button
-              onClick={handleLogout}
-              className={`w-full flex items-center gap-4 px-4 py-3.5 rounded-[1.25rem] text-sm font-bold text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-all overflow-hidden group`}
-            >
-              <LogOut className="w-5 h-5 flex-shrink-0 group-hover:-translate-x-1 transition-transform" />
-              {!isSidebarCollapsed && <span>Sign Out</span>}
-            </button>
+          <div className="p-4 border-t border-slate-100 dark:border-slate-800/60">
+            <div className={`flex items-center gap-3 rounded-xl p-2 transition hover:bg-slate-50 dark:hover:bg-slate-800/50 ${isSidebarCollapsed ? 'justify-center' : ''}`}>
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300 overflow-hidden border border-slate-200 dark:border-slate-700">
+                {user?.avatarUrl ? (
+                  <img src={user.avatarUrl} alt="Avatar" className="h-full w-full object-cover" />
+                ) : (
+                  <UserCheck className="h-5 w-5" />
+                )}
+              </div>
+              {!isSidebarCollapsed && (
+                <>
+                  <div className="flex-1 min-w-0">
+                    <p className="truncate text-[13px] font-bold text-slate-900 dark:text-white">{user?.fullName || 'Admin'}</p>
+                    <p className="truncate text-[11px] font-medium text-slate-500 dark:text-slate-400">{user?.email}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-400 transition hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-500/10"
+                    title="Logout"
+                  >
+                    <LogOut className="h-4 w-4" />
+                  </button>
+                </>
+              )}
+            </div>
           </div>
 
           {/* Collapse Toggle */}
           <button 
             onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-            className="absolute -right-4 top-24 hidden h-8 w-8 items-center justify-center rounded-2xl border border-gray-100 bg-white text-gray-400 shadow-xl transition-all z-50 group hover:border-primary-100 hover:text-primary-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-500 dark:hover:text-primary-400 xl:flex"
+            className="absolute -right-3.5 top-24 hidden h-7 w-7 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 shadow-sm transition-all z-50 hover:border-gray-300 hover:text-gray-900 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:text-white xl:flex"
           >
-            {isSidebarCollapsed ? <ChevronRight className="w-4 h-4 transition-transform group-hover:scale-125" /> : <ChevronRight className="w-4 h-4 rotate-180 transition-transform group-hover:scale-125" />}
+            <ChevronRight className={`w-4 h-4 transition-transform duration-300 ${isSidebarCollapsed ? '' : 'rotate-180'}`} />
           </button>
         </aside>
 
         {/* Main Content */}
         <div className="flex-1 flex flex-col min-w-0">
           {/* Top Header */}
-          <header className="sticky top-0 z-40 flex h-20 items-center justify-between border-b border-gray-100 bg-white/80 px-4 backdrop-blur-xl dark:border-gray-800 dark:bg-gray-900/80 sm:px-6 lg:px-8">
+          <header className="sticky top-0 z-40 flex h-20 items-center justify-between border-b border-gray-100 bg-white/90 px-4 backdrop-blur-md dark:border-gray-800 dark:bg-gray-900/90 sm:px-6 lg:px-8">
             <div className="flex items-center gap-3 sm:gap-6">
               <button
                 type="button"
                 onClick={() => setIsMobileSidebarOpen(true)}
-                className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-gray-100 bg-white text-gray-500 transition hover:text-primary-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 xl:hidden"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-500 transition hover:text-gray-900 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:text-white xl:hidden"
                 aria-label="Open admin navigation"
               >
                 <Menu className="w-5 h-5" />
               </button>
-              <h2 className="text-xl font-black text-gray-900 dark:text-white tracking-tight">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight hidden sm:block">
                 {adminLinks.find(l => isActive(l.to))?.label || 'Dashboard'}
               </h2>
-              <div className="hidden xl:flex items-center gap-2 px-4 py-2 rounded-2xl bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700">
+              <div className="hidden md:flex items-center gap-2 px-3 py-2 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500/50 transition-all">
                 <Search className="w-4 h-4 text-gray-400 dark:text-gray-500" />
-                <input type="text" placeholder="Global search..." className="bg-transparent border-none text-xs font-medium focus:ring-0 w-48 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-600" />
+                <input type="text" placeholder="Search..." className="bg-transparent border-none text-sm focus:ring-0 w-32 lg:w-48 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400" />
               </div>
             </div>
 
@@ -217,28 +253,26 @@ export default function AdminLayout() {
               <div className="flex items-center gap-2">
                 <button 
                   onClick={toggleTheme}
-                  className="p-2.5 rounded-2xl bg-gray-50 dark:bg-gray-800 text-gray-400 dark:text-gray-500 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-white dark:hover:bg-gray-700 border border-transparent hover:border-gray-100 dark:hover:border-gray-600 transition-all"
+                  className="p-2.5 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                   title="Toggle Theme"
                 >
-                  {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                  {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
                 </button>
-                <button className="p-2.5 rounded-2xl bg-gray-50 dark:bg-gray-800 text-gray-400 dark:text-gray-500 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-white dark:hover:bg-gray-700 border border-transparent hover:border-gray-100 dark:hover:border-gray-600 transition-all relative">
-                  <Bell className="w-5 h-5" />
-                  <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-rose-500 rounded-full border-2 border-white dark:border-gray-900" />
+                <button className="p-2.5 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors relative">
+                  <Bell className="w-4 h-4" />
+                  <span className="absolute top-2.5 right-2.5 w-1.5 h-1.5 bg-rose-500 rounded-full" />
                 </button>
               </div>
 
-              <div className="hidden h-8 w-px bg-gray-100 dark:bg-gray-800 sm:block" />
+              <div className="hidden h-6 w-px bg-gray-200 dark:bg-gray-700 sm:block" />
 
-              <div className="flex items-center gap-4">
-                <div className="text-right hidden 2xl:block">
-                  <p className="text-sm font-black text-gray-900 dark:text-white leading-none">{user?.fullName}</p>
-                  <p className="text-[10px] text-primary-600 dark:text-primary-400 mt-1 font-black uppercase tracking-[0.2em]">{userRoleLabel}</p>
+              <div className="flex items-center gap-3">
+                <div className="text-right hidden sm:block">
+                  <p className="text-sm font-bold text-gray-900 dark:text-white leading-none">{user?.fullName}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 font-medium">{userRoleLabel}</p>
                 </div>
-                <div className="w-12 h-12 rounded-[1.25rem] bg-gray-900 dark:bg-gray-700 border-4 border-gray-50 dark:border-gray-800 flex items-center justify-center shadow-lg shadow-gray-200 dark:shadow-none overflow-hidden">
-                  <span className="text-white text-sm font-black">
-                    {user?.fullName.charAt(0).toUpperCase()}
-                  </span>
+                <div className="w-9 h-9 rounded-xl bg-gray-900 dark:bg-gray-700 flex items-center justify-center text-white text-sm font-bold shadow-sm">
+                  {user?.fullName.charAt(0).toUpperCase()}
                 </div>
               </div>
             </div>

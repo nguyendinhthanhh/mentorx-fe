@@ -124,88 +124,88 @@ export default function UserTransactionsPage() {
     switch (txn.txnType) {
       case TxnType.DEPOSIT:
         return {
-          title: 'Nap tien vao vi',
-          description: txn.note || 'So du MXC da duoc cong vao vi cua ban.',
+          title: 'Nạp tiền vào ví',
+          description: txn.note || 'Số dư MXC đã được cộng vào ví của bạn.',
         }
       case TxnType.WITHDRAWAL:
         return {
-          title: 'Rut tien tu vi',
-          description: txn.note || 'Ban da tao yeu cau rut tien tu vi MXC.',
+          title: 'Rút tiền từ ví',
+          description: txn.note || 'Bạn đã tạo yêu cầu rút tiền từ ví MXC.',
         }
       case TxnType.JOB_PAYMENT:
         return {
-          title: 'Tam giu thanh toan cong viec',
-          description: txn.note || 'Tien duoc khoa tam thoi trong escrow de bao dam giao dich job.',
+          title: 'Tạm giữ thanh toán công việc',
+          description: txn.note || 'Tiền được khóa tạm thời trong escrow để bảo đảm giao dịch job.',
         }
       case TxnType.JOB_RELEASE:
         return {
-          title: 'Giai ngan thanh toan cong viec',
-          description: txn.note || 'Tien da duoc giai ngan tu escrow cho ben nhan thanh toan.',
+          title: 'Giải ngân thanh toán công việc',
+          description: txn.note || 'Tiền đã được giải ngân từ escrow cho bên nhận thanh toán.',
         }
       case TxnType.JOB_REFUND:
         return {
-          title: 'Hoan tien cong viec',
-          description: txn.note || 'Tien job da duoc hoan lai vao vi cua ban.',
+          title: 'Hoàn tiền công việc',
+          description: txn.note || 'Tiền job đã được hoàn lại vào ví của bạn.',
         }
       case TxnType.COURSE_PURCHASE:
         return {
-          title: 'Thanh toan khoa hoc',
-          description: txn.note || 'Ban da thanh toan khoa hoc bang so du vi MXC.',
+          title: 'Thanh toán khóa học',
+          description: txn.note || 'Bạn đã thanh toán khóa học bằng số dư ví MXC.',
         }
       case TxnType.COURSE_REFUND:
         return {
-          title: 'Hoan tien khoa hoc',
-          description: txn.note || 'Khoan thanh toan khoa hoc da duoc tra lai vao vi.',
+          title: 'Hoàn tiền khóa học',
+          description: txn.note || 'Khoản thanh toán khóa học đã được trả lại vào ví.',
         }
       case TxnType.APPOINTMENT_BOOKING:
         return {
-          title: 'Tam giu phi dat lich mentor',
-          description: txn.note || 'Phi buoi mentoring duoc tam giu trong escrow sau khi dat lich.',
+          title: 'Tạm giữ phí đặt lịch mentor',
+          description: txn.note || 'Phí buổi mentoring được tạm giữ trong escrow sau khi đặt lịch.',
         }
       case TxnType.APPOINTMENT_RELEASE:
         return {
-          title: 'Giai ngan buoi mentoring',
-          description: txn.note || 'Tien da duoc giai ngan sau khi buoi mentoring hoan tat.',
+          title: 'Giải ngân buổi mentoring',
+          description: txn.note || 'Tiền đã được giải ngân sau khi buổi mentoring hoàn tất.',
         }
       case TxnType.APPOINTMENT_REFUND:
         return {
-          title: 'Hoan tien buoi mentoring',
-          description: txn.note || 'Phi dat lich mentor da duoc hoan lai vao vi cua ban.',
+          title: 'Hoàn tiền buổi mentoring',
+          description: txn.note || 'Phí đặt lịch mentor đã được hoàn lại vào ví của bạn.',
         }
       case TxnType.PLATFORM_FEE:
         return {
-          title: 'Phi nen tang',
-          description: txn.note || 'Khoan phi dich vu duoc tru theo giao dich tren nen tang.',
+          title: 'Phí nền tảng',
+          description: txn.note || 'Khoản phí dịch vụ được trừ theo giao dịch trên nền tảng.',
         }
       case TxnType.WITHDRAWAL_FEE:
         return {
-          title: 'Phi rut tien',
-          description: txn.note || 'Phi xu ly rut tien duoc tru cung giao dich.',
+          title: 'Phí rút tiền',
+          description: txn.note || 'Phí xử lý rút tiền được trừ cùng giao dịch.',
         }
       case TxnType.BONUS_CREDIT:
         return {
-          title: 'Thuong cong vao vi',
-          description: txn.note || 'He thong da cong them thuong hoac uu dai vao vi cua ban.',
+          title: 'Thưởng cộng vào ví',
+          description: txn.note || 'Hệ thống đã cộng thêm thưởng hoặc ưu đãi vào ví của bạn.',
         }
       case TxnType.PENALTY_DEDUCTION:
         return {
-          title: 'Khau tru theo quy dinh',
-          description: txn.note || 'He thong da tru mot khoan theo quy dinh xu ly.',
+          title: 'Khấu trừ theo quy định',
+          description: txn.note || 'Hệ thống đã trừ một khoản theo quy định xử lý.',
         }
       case TxnType.WITHDRAWAL_REFUND:
         return {
-          title: 'Hoan tien rut tien',
-          description: txn.note || 'Yeu cau rut tien khong thanh cong va tien da duoc tra lai vao vi.',
+          title: 'Hoàn tiền rút tiền',
+          description: txn.note || 'Yêu cầu rút tiền không thành công và tiền đã được trả lại vào ví.',
         }
       case TxnType.ADJUSTMENT:
         return {
-          title: 'Dieu chinh so du',
-          description: txn.note || 'He thong da thuc hien dieu chinh so du vi.',
+          title: 'Điều chỉnh số dư',
+          description: txn.note || 'Hệ thống đã thực hiện điều chỉnh số dư ví.',
         }
       default:
         return {
-          title: 'Giao dich vi',
-          description: txn.note || 'Bien dong so du trong vi MXC.',
+          title: 'Giao dịch ví',
+          description: txn.note || 'Biến động số dư trong ví MXC.',
         }
     }
   }
@@ -213,17 +213,17 @@ export default function UserTransactionsPage() {
   const getStatusCopy = (status: TxnStatus) => {
     switch (status) {
       case TxnStatus.COMPLETED:
-        return 'Thanh cong'
+        return 'Thành công'
       case TxnStatus.PENDING:
-        return 'Dang xu ly'
+        return 'Đang xử lý'
       case TxnStatus.FAILED:
-        return 'That bai'
+        return 'Thất bại'
       case TxnStatus.REVERSED:
-        return 'Da dao nguoc'
+        return 'Đã đảo ngược'
       case TxnStatus.FLAGGED:
-        return 'Can kiem tra'
+        return 'Cần kiểm tra'
       case TxnStatus.CANCELLED:
-        return 'Da huy'
+        return 'Đã hủy'
       default:
         return status
     }
@@ -255,10 +255,10 @@ export default function UserTransactionsPage() {
     <div className="space-y-8">
       <div className="flex flex-col gap-2">
         <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white">
-          Lich su giao dich
+          Lịch sử giao dịch
         </h1>
         <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
-          Xem lai toan bo cac khoan nap, tru, tam giu, giai ngan va hoan tien trong vi cua ban.
+          Xem lại toàn bộ các khoản nạp, trừ, tạm giữ, giải ngân và hoàn tiền trong ví của bạn.
         </p>
       </div>
 
@@ -281,9 +281,9 @@ export default function UserTransactionsPage() {
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-slate-50 dark:bg-slate-800">
               <ReceiptText className="h-8 w-8 text-slate-400" />
             </div>
-            <h3 className="mt-4 text-lg font-bold text-slate-900 dark:text-white">Chua co giao dich</h3>
+            <h3 className="mt-4 text-lg font-bold text-slate-900 dark:text-white">Chưa có giao dịch</h3>
             <p className="mt-2 text-sm text-slate-500">
-              Cac bien dong so du se hien thi tai day khi vi cua ban phat sinh giao dich.
+              Các biến động số dư sẽ hiển thị tại đây khi ví của bạn phát sinh giao dịch.
             </p>
           </div>
         ) : (
@@ -335,7 +335,7 @@ export default function UserTransactionsPage() {
               disabled={page === 0}
               className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
             >
-              Trang truoc
+              Trang trước
             </button>
             <span className="text-sm font-medium text-slate-500">
               Trang {page + 1} / {totalPages}
@@ -345,7 +345,7 @@ export default function UserTransactionsPage() {
               disabled={page === totalPages - 1}
               className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
             >
-              Trang tiep
+              Trang tiếp
             </button>
           </div>
         )}

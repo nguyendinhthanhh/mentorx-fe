@@ -22,7 +22,7 @@ const URL_ARRAY_KEYS = new Set(['attachments', 'evidenceUrls'])
 // Do not try to refresh session on auth endpoints (wrong password → 401 is expected)
 function isAuthEndpoint(config: InternalAxiosRequestConfig): boolean {
   const path = `${config.baseURL ?? ''}${config.url ?? ''}`.replace(/\\/g, '/')
-  return /\/auth\/(login|register|refresh|forgot-password|reset-password)/i.test(path)
+  return /\/auth\/(login|register|google|github|refresh|forgot-password|reset-password|send-verification|verify-email)(?:\?|$)/i.test(path)
 }
 
 // Create axios instance
@@ -100,8 +100,8 @@ apiClient.interceptors.response.use(
   async (error: AxiosError) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean }
 
-    // Handle 401 Unauthorized or 403 Forbidden with expired token
-    if ((error.response?.status === 401 || error.response?.status === 403) && !originalRequest._retry) {
+    // Refresh only on 401. A 403 is usually a real permission error, not an expired token.
+    if (error.response?.status === 401 && !originalRequest._retry) {
       if (isAuthEndpoint(originalRequest)) {
         return Promise.reject(error)
       }
@@ -111,7 +111,7 @@ apiClient.interceptors.response.use(
       try {
         const refreshToken = useAuthStore.getState().refreshToken
         if (import.meta.env.DEV) {
-          console.debug('401/403: attempting token refresh...')
+          console.debug('401: attempting token refresh...')
         }
 
         if (refreshToken && refreshToken !== 'undefined' && refreshToken !== 'null') {

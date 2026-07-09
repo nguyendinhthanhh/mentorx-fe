@@ -57,8 +57,8 @@ export default function AdminNotifyModal({ isOpen, onClose, userId, referenceId,
       await notificationApi.sendNotification({
         userId,
         title,
-        content,
-        type: 'SYSTEM'
+        message: content,
+        notificationType: 'SYSTEM'
       })
       
       if (onConfirm) {

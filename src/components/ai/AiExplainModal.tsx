@@ -103,7 +103,7 @@ export function AiExplainModal({ open, onOpenChange, taskType, taskId, taskTitle
               <Bot className="h-5 w-5" />
             </div>
             <div>
-              <h2 className="text-base font-black text-slate-950">AI giải thích</h2>
+              <h2 className="text-base font-bold text-slate-950">AI giải thích</h2>
               <p className="text-xs text-slate-500">
                 {typeLabel}: {taskTitle ? taskTitle.slice(0, 60) : taskId.slice(0, 8)}
                 {taskTitle && taskTitle.length > 60 ? '...' : ''}
@@ -150,7 +150,7 @@ export function AiExplainModal({ open, onOpenChange, taskType, taskId, taskTitle
               <div className="rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50 to-white p-5">
                 <div className="mb-3 flex items-center gap-2">
                   <Sparkles className="h-4 w-4 text-indigo-500" />
-                  <span className="text-xs font-black uppercase tracking-wider text-indigo-600">
+                  <span className="text-xs font-semibold uppercase tracking-widerr text-indigo-600">
                     {i === 0 ? 'Giải thích từ AI' : 'AI trả lời'}
                   </span>
                 </div>

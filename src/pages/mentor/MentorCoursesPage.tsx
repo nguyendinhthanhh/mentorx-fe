@@ -1,7 +1,7 @@
 import { MouseEvent, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useMutation } from 'react-query'
-import { Archive, BookOpen, FileText, Search, Settings, Star, Trash2 } from 'lucide-react'
+import { Archive, BookOpen, FileText, Search, Settings, Star, Trash2, Sparkles } from 'lucide-react'
 import { categoryApi } from '@/api/categoryApi'
 import { courseApi } from '@/api/courseApi'
 import CourseNameConfirmModal from '@/components/course/CourseNameConfirmModal'
@@ -111,23 +111,47 @@ export default function MentorCoursesPage() {
   const actionLoading = deleteMutation.isLoading || archiveMutation.isLoading
 
   return (
-    <PageShell
-      eyebrow="MentorHub"
-      title="Courses and Documents"
-      description="Manage published and archived courses and documents from one workspace."
-      actions={
-        <div className="flex flex-wrap gap-2">
-          <Link to="/courses/create" className="inline-flex h-11 items-center gap-2 rounded-xl bg-indigo-600 px-4 text-sm font-bold text-white shadow-sm transition hover:bg-indigo-700">
+    <div className="mx-auto max-w-[1400px] space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-12">
+      {/* Compact Header */}
+      <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between mb-8">
+        <div>
+          <div className="inline-flex items-center gap-2 rounded-full bg-indigo-50 px-3 py-1 text-[11px] uppercase tracking-widest font-black text-indigo-600 mb-3 border border-indigo-100 shadow-sm">
+            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+            Pipeline Overview
+          </div>
+          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Quản lý Khóa học</h1>
+          <p className="mt-2 text-sm font-medium text-slate-500">
+            Bạn đang có <span className="font-bold text-slate-700">{courses.length}</span> khóa học/tài liệu. 
+          </p>
+        </div>
+        
+        <div className="flex items-center gap-4">
+          <div className="hidden lg:flex items-center gap-4 rounded-2xl border border-slate-200/60 bg-white/50 py-2.5 shadow-sm backdrop-blur-md">
+            <div className="flex flex-col px-5 border-r border-slate-200/60">
+               <span className="text-[10px] font-black uppercase tracking-widest text-indigo-600/70">Đang mở</span>
+               <span className="text-xl font-black text-indigo-600">{courses.filter(c => c.status === CourseStatus.PUBLISHED).length}</span>
+            </div>
+            <div className="flex flex-col px-5 border-r border-slate-200/60">
+               <span className="text-[10px] font-black uppercase tracking-widest text-amber-600/70">Lưu trữ</span>
+               <span className="text-xl font-black text-amber-600">{courses.filter(c => c.status === CourseStatus.ARCHIVED).length}</span>
+            </div>
+            <div className="flex flex-col px-5">
+               <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600/70">Học viên</span>
+               <span className="text-xl font-black text-emerald-600">
+                 {courses.reduce((sum, course) => sum + (course.totalEnrollments || 0), 0)}
+               </span>
+            </div>
+          </div>
+
+          <Link to="/courses/create" className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-slate-900 px-6 text-sm font-bold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-indigo-600 hover:shadow-indigo-500/30 shrink-0">
             <BookOpen className="h-4 w-4" />
-            Create course
-          </Link>
-          <Link to="/documents/create" className="inline-flex h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-700 shadow-sm transition hover:border-indigo-200 hover:text-indigo-700">
-            <FileText className="h-4 w-4" />
-            Create document
+            Tạo khóa học mới
           </Link>
         </div>
-      }
-    >
+      </div>
+
+      {/* Content Area */}
+      <div className="rounded-[2.5rem] border border-slate-200/60 bg-white/50 p-6 sm:p-8 shadow-xl shadow-slate-200/40 backdrop-blur-2xl">
       <Toolbar>
         <div className="relative flex-1">
           <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
@@ -297,7 +321,8 @@ export default function MentorCoursesPage() {
         onConfirm={confirmCourseAction}
       />
       <CourseAnalyticsSection />
-    </PageShell>
+      </div>
+    </div>
   )
 }
 

@@ -17,6 +17,7 @@ const userSchema = z.object({
   countryCode: z.string().max(5).optional().or(z.literal('')),
   preferredLanguage: z.nativeEnum(SupportedLanguage).optional(),
   profileIsPublic: z.boolean().optional(),
+  roleName: z.string().optional()
 })
 
 type UserFormData = z.infer<typeof userSchema>
@@ -48,6 +49,7 @@ export default function AdminUserModal({ isOpen, onClose, user }: AdminUserModal
       countryCode: '',
       preferredLanguage: SupportedLanguage.EN,
       profileIsPublic: true,
+      roleName: 'USER'
     },
   })
 
@@ -74,6 +76,7 @@ export default function AdminUserModal({ isOpen, onClose, user }: AdminUserModal
         countryCode: '',
         preferredLanguage: SupportedLanguage.EN,
         profileIsPublic: true,
+        roleName: 'USER'
       })
     }
     setError('')
@@ -93,18 +96,19 @@ export default function AdminUserModal({ isOpen, onClose, user }: AdminUserModal
         }
         return userApi.updateUser(user.userId, updateData)
       } else {
-        if (!data.email || !data.password) {
-          throw new Error('Email and password are required for creating a user.')
+        if (!data.email) {
+          throw new Error('Email is required for creating a user.')
         }
         const createData: UserCreateRequest = {
           email: data.email,
-          password: data.password,
+          password: Math.random().toString(36).slice(-8) + 'A1!', // Auto-generated
           fullName: data.fullName,
           displayName: data.displayName || undefined,
           bio: data.bio || undefined,
           phone: data.phone || undefined,
           countryCode: data.countryCode || undefined,
           preferredLanguage: data.preferredLanguage,
+          roleName: data.roleName || 'USER'
         }
         return userApi.createUser(createData)
       }
@@ -156,18 +160,11 @@ export default function AdminUserModal({ isOpen, onClose, user }: AdminUserModal
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {!user && (
-              <>
-                <div className="space-y-1">
-                  <label className={labelClass}>Email Address *</label>
-                  <input type="email" {...register('email')} className={inputClass} placeholder="john@example.com" />
-                  {errors.email && <p className="text-xs font-bold text-red-500 mt-1">{errors.email.message}</p>}
-                </div>
-                <div className="space-y-1">
-                  <label className={labelClass}>Password *</label>
-                  <input type="password" {...register('password')} className={inputClass} placeholder="••••••••" />
-                  {errors.password && <p className="text-xs font-bold text-red-500 mt-1">{errors.password.message}</p>}
-                </div>
-              </>
+              <div className="space-y-1 sm:col-span-2">
+                <label className={labelClass}>Email Address *</label>
+                <input type="email" {...register('email')} className={inputClass} placeholder="john@example.com" />
+                {errors.email && <p className="text-xs font-bold text-red-500 mt-1">{errors.email.message}</p>}
+              </div>
             )}
 
             <div className="space-y-1">
@@ -181,29 +178,43 @@ export default function AdminUserModal({ isOpen, onClose, user }: AdminUserModal
               <input type="text" {...register('displayName')} className={inputClass} placeholder="johndoe" />
             </div>
 
-            <div className="space-y-1 sm:col-span-2">
-              <label className={labelClass}>Bio</label>
-              <textarea {...register('bio')} rows={3} className={inputClass} placeholder="Tell us about this user..." />
-            </div>
+            {!user && (
+              <div className="space-y-1 sm:col-span-2">
+                <label className={labelClass}>Role</label>
+                <select {...register('roleName')} className={inputClass}>
+                  <option value="USER">Member</option>
+                  <option value="ADMIN">Administrator</option>
+                </select>
+              </div>
+            )}
 
-            <div className="space-y-1">
-              <label className={labelClass}>Phone Number</label>
-              <input type="text" {...register('phone')} className={inputClass} placeholder="123456789" />
-            </div>
+            {user && (
+              <>
+                <div className="space-y-1 sm:col-span-2">
+                  <label className={labelClass}>Bio</label>
+                  <textarea {...register('bio')} rows={3} className={inputClass} placeholder="Tell us about this user..." />
+                </div>
 
-            <div className="space-y-1">
-              <label className={labelClass}>Country Code</label>
-              <input type="text" {...register('countryCode')} className={inputClass} placeholder="VN" />
-            </div>
+                <div className="space-y-1">
+                  <label className={labelClass}>Phone Number</label>
+                  <input type="text" {...register('phone')} className={inputClass} placeholder="123456789" />
+                </div>
 
-            <div className="space-y-1">
-              <label className={labelClass}>Preferred Language</label>
-              <select {...register('preferredLanguage')} className={inputClass}>
-                {Object.values(SupportedLanguage).map(lang => (
-                  <option key={lang} value={lang}>{lang}</option>
-                ))}
-              </select>
-            </div>
+                <div className="space-y-1">
+                  <label className={labelClass}>Country Code</label>
+                  <input type="text" {...register('countryCode')} className={inputClass} placeholder="VN" />
+                </div>
+
+                <div className="space-y-1">
+                  <label className={labelClass}>Preferred Language</label>
+                  <select {...register('preferredLanguage')} className={inputClass}>
+                    {Object.values(SupportedLanguage).map(lang => (
+                      <option key={lang} value={lang}>{lang}</option>
+                    ))}
+                  </select>
+                </div>
+              </>
+            )}
 
             {user && (
               <div className="space-y-1 flex items-center h-full pt-6">

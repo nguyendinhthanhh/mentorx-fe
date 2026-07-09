@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { MessageSquareReply, Search, Star, ThumbsUp, Flag } from 'lucide-react'
+import { MessageSquareReply, Search, Star, ThumbsUp, Flag, Sparkles } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { reviewApi } from '@/api/reviewApi'
 import { reportApi } from '@/api/reportApi'
@@ -140,11 +140,39 @@ export default function MentorReviewsPage() {
   }, [ratingFilter, reviews, searchQuery, sortBy, sourceFilter])
 
   return (
-    <PageShell
-      eyebrow="MentorHub"
-      title="Reviews"
-      description="See client feedback, ratings, and reputation signals from real review records."
-    >
+    <div className="mx-auto max-w-[1400px] space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-12">
+      {/* Compact Header */}
+      <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between mb-8">
+        <div>
+          <div className="inline-flex items-center gap-2 rounded-full bg-indigo-50 px-3 py-1 text-[11px] uppercase tracking-widest font-black text-indigo-600 mb-3 border border-indigo-100 shadow-sm">
+            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+            Pipeline Overview
+          </div>
+          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Đánh giá của học viên</h1>
+          <p className="mt-2 text-sm font-medium text-slate-500">
+            Xem xét phản hồi, xếp hạng và uy tín của bạn.
+          </p>
+        </div>
+        
+        <div className="flex items-center gap-4">
+          <div className="hidden lg:flex items-center gap-4 rounded-2xl border border-slate-200/60 bg-white/50 py-2.5 shadow-sm backdrop-blur-md">
+            <div className="flex flex-col px-5 border-r border-slate-200/60">
+               <span className="text-[10px] font-black uppercase tracking-widest text-indigo-600/70">Trung bình</span>
+               <span className="text-xl font-black text-indigo-600">{summary.average.toFixed(1)} / 5</span>
+            </div>
+            <div className="flex flex-col px-5 border-r border-slate-200/60">
+               <span className="text-[10px] font-black uppercase tracking-widest text-amber-600/70">Tổng đánh giá</span>
+               <span className="text-xl font-black text-amber-600">{summary.total}</span>
+            </div>
+            <div className="flex flex-col px-5">
+               <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600/70">Tỷ lệ phản hồi</span>
+               <span className="text-xl font-black text-emerald-600">{summary.responseRate}%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="rounded-[2.5rem] border border-slate-200/60 bg-white/50 p-6 sm:p-8 shadow-xl shadow-slate-200/40 backdrop-blur-2xl">
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <MetricCard label="Average rating" value={`${summary.average.toFixed(1)} / 5`} helper="Public mentor reviews only." icon={<Star className="h-5 w-5" />} tone="amber" />
         <MetricCard label="Total reviews" value={summary.total} helper="Visible, public feedback." icon={<MessageSquareReply className="h-5 w-5" />} />
@@ -350,7 +378,8 @@ export default function MentorReviewsPage() {
           </div>
         </div>
       )}
-    </PageShell>
+      </div>
+    </div>
   )
 }
 

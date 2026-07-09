@@ -192,7 +192,7 @@ export default function AboutPage() {
       
       {/* Visual Hero Section */}
       <section className="border-b border-slate-200 bg-white overflow-hidden">
-        <div className="mx-auto grid max-w-7xl gap-12 px-4 py-16 sm:px-6 lg:grid-cols-[1fr_1fr] lg:items-center lg:px-8 lg:py-24">
+        <div className="mx-auto grid max-w-[1440px] gap-12 px-4 py-16 sm:px-6 lg:grid-cols-[1fr_1fr] lg:items-center lg:px-8 lg:py-24">
           <motion.div 
             initial="hidden" 
             animate="visible" 
@@ -254,7 +254,7 @@ export default function AboutPage() {
 
       {/* Stats Section */}
       <section className="border-b border-slate-200 bg-slate-50">
-        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-[1440px] px-4 py-12 sm:px-6 lg:px-8">
           <motion.div 
             className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4"
             initial="hidden"
@@ -274,7 +274,7 @@ export default function AboutPage() {
 
       {/* Problems Section */}
       <section className="bg-white">
-        <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
+        <div className="mx-auto max-w-[1440px] px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
           <SectionHeader
             badge="Mục tiêu"
             title="Định hướng rõ ràng cho hành trình công nghệ"
@@ -306,7 +306,7 @@ export default function AboutPage() {
 
       {/* Visual Workflow Section (Zig-Zag) */}
       <section className="bg-slate-50 border-t border-slate-200 overflow-hidden">
-        <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
+        <div className="mx-auto max-w-[1440px] px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
           <SectionHeader
             badge="Quy trình"
             title="Cách thức hoạt động"
@@ -413,7 +413,7 @@ export default function AboutPage() {
 
       {/* Pricing Table Section */}
       <section className="bg-slate-50 border-t border-slate-200">
-        <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
+        <div className="mx-auto max-w-[1440px] px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
           
           {/* Section intro */}
           <SectionHeader
@@ -514,7 +514,7 @@ export default function AboutPage() {
 
       {/* Roles Section */}
       <section className="bg-slate-50 border-t border-slate-200">
-        <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
+        <div className="mx-auto max-w-[1440px] px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
           <SectionHeader
             badge="Vai trò"
             title="Phát triển cùng Mentor X"
@@ -584,7 +584,7 @@ export default function AboutPage() {
 
       {/* Bottom CTA */}
       <section className="bg-white">
-        <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
+        <div className="mx-auto max-w-[1440px] px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
           <motion.div 
             className="rounded-3xl bg-slate-900 px-6 py-16 text-center shadow-2xl shadow-slate-900/20 sm:px-12 sm:py-20"
             initial="hidden"

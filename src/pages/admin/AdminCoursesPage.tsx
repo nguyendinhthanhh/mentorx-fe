@@ -36,68 +36,80 @@ export default function AdminCoursesPage() {
 
   const getStatusColor = (status: CourseStatus) => {
     switch (status) {
-      case CourseStatus.PUBLISHED: return 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400'
-      case CourseStatus.ARCHIVED: return 'bg-gray-50 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
-      default: return 'bg-gray-50 text-gray-600'
+      case CourseStatus.PUBLISHED: return 'bg-emerald-50 border border-emerald-100 text-emerald-600 dark:bg-emerald-900/20 dark:border-emerald-800/30 dark:text-emerald-400'
+      case CourseStatus.ARCHIVED: return 'bg-slate-50 border border-slate-200 text-slate-600 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-400'
+      default: return 'bg-slate-50 border border-slate-200 text-slate-600'
     }
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 pb-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      {/* Header */}
+      <div className="space-y-1">
+        <h1 className="text-4xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-400">
+          Course Catalog
+        </h1>
+        <p className="text-slate-500 dark:text-slate-400 text-sm md:text-base">
+          Manage and moderate platform courses and documents.
+        </p>
+      </div>
+
       {/* Filters */}
-      <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 p-8 shadow-sm">
-        <div className="flex flex-col md:flex-row gap-6">
+      <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl rounded-[2.5rem] border border-white/50 dark:border-slate-800 p-6 sm:p-8 shadow-xl shadow-slate-200/40 dark:shadow-none">
+        <div className="flex flex-col md:flex-row gap-5">
           <div className="relative flex-1 group">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-primary-500 transition-colors" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
             <input 
               type="text" 
               placeholder="Search courses..." 
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-12 pr-6 py-3.5 rounded-2xl bg-gray-50 dark:bg-gray-800 border border-transparent focus:bg-white dark:focus:bg-gray-900 focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500/30 transition-all text-sm font-medium text-gray-900 dark:text-white"
+              className="w-full pl-12 pr-6 py-3.5 rounded-2xl bg-white/50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700 focus:bg-white dark:focus:bg-slate-800 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500/30 transition-all text-sm font-bold text-slate-900 dark:text-white placeholder:text-slate-400 placeholder:font-medium shadow-sm hover:border-slate-300 dark:hover:border-slate-600"
             />
           </div>
-          <select 
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value as CourseStatus)}
-            className="px-6 py-3.5 rounded-2xl bg-gray-50 dark:bg-gray-800 border border-transparent focus:bg-white dark:focus:bg-gray-900 focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500/30 transition-all text-sm font-bold text-gray-600 dark:text-gray-400"
-          >
-            <option value="">All Statuses</option>
-            {Object.values(CourseStatus).map(s => (
-              <option key={s} value={s}>{s}</option>
-            ))}
-          </select>
-          <select
-            value={productTypeFilter}
-            onChange={(e) => setProductTypeFilter(e.target.value as CourseProductType)}
-            className="px-6 py-3.5 rounded-2xl bg-gray-50 dark:bg-gray-800 border border-transparent focus:bg-white dark:focus:bg-gray-900 focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500/30 transition-all text-sm font-bold text-gray-600 dark:text-gray-400"
-          >
-            <option value="">All Types</option>
-            <option value={CourseProductType.COURSE}>Courses</option>
-            <option value={CourseProductType.DOCUMENT}>Documents</option>
-          </select>
+          <div className="flex flex-col sm:flex-row gap-4">
+            <select 
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value as CourseStatus)}
+              className="w-full sm:w-auto px-6 py-3.5 rounded-2xl border border-slate-200/60 bg-white/50 text-sm font-bold text-slate-600 outline-none transition-all focus:border-indigo-500/30 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 dark:border-slate-700 dark:bg-slate-800/50 dark:text-slate-300 dark:focus:bg-slate-800 shadow-sm hover:border-slate-300 dark:hover:border-slate-600 appearance-none cursor-pointer"
+            >
+              <option value="">All Statuses</option>
+              {Object.values(CourseStatus).map(s => (
+                <option key={s} value={s}>{s}</option>
+              ))}
+            </select>
+            <select
+              value={productTypeFilter}
+              onChange={(e) => setProductTypeFilter(e.target.value as CourseProductType)}
+              className="w-full sm:w-auto px-6 py-3.5 rounded-2xl border border-slate-200/60 bg-white/50 text-sm font-bold text-slate-600 outline-none transition-all focus:border-indigo-500/30 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 dark:border-slate-700 dark:bg-slate-800/50 dark:text-slate-300 dark:focus:bg-slate-800 shadow-sm hover:border-slate-300 dark:hover:border-slate-600 appearance-none cursor-pointer"
+            >
+              <option value="">All Types</option>
+              <option value={CourseProductType.COURSE}>Courses</option>
+              <option value={CourseProductType.DOCUMENT}>Documents</option>
+            </select>
+          </div>
         </div>
       </div>
 
       {/* Table */}
-      <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
+      <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl rounded-[2.5rem] border border-white/50 dark:border-slate-800 shadow-xl shadow-slate-200/40 dark:shadow-none overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="text-[10px] text-gray-400 dark:text-gray-500 font-black uppercase tracking-[0.2em] border-b border-gray-50 dark:border-gray-800 bg-gray-50/20 dark:bg-gray-800/20">
-                <th className="px-8 py-5 text-left">Course Info & Instructor</th>
-                <th className="px-8 py-5 text-left">Price</th>
-                <th className="px-8 py-5 text-left">Enrollments</th>
-                <th className="px-8 py-5 text-left">Status</th>
-                <th className="px-8 py-5 text-right">Actions</th>
+              <tr className="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800/50">
+                <th className="px-8 py-5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Course Info & Instructor</th>
+                <th className="px-8 py-5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Price</th>
+                <th className="px-8 py-5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Enrollments</th>
+                <th className="px-8 py-5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Status</th>
+                <th className="px-8 py-5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
+            <tbody className="divide-y divide-slate-100/50 dark:divide-slate-800/50">
               {isLoading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <tr key={i} className="animate-pulse">
                     <td colSpan={5} className="px-8 py-6">
-                      <div className="h-12 bg-gray-50 dark:bg-gray-800 rounded-2xl w-full" />
+                      <div className="h-12 bg-slate-200 dark:bg-slate-700 rounded-2xl w-full" />
                     </td>
                   </tr>
                 ))
@@ -108,10 +120,10 @@ export default function AdminCoursesPage() {
                     return !keyword || course.title.toLowerCase().includes(keyword) || course.description?.toLowerCase().includes(keyword)
                   })
                   .map((course) => (
-                  <tr key={course.courseId} className="group hover:bg-gray-50/30 dark:hover:bg-gray-800/30 transition-all">
-                    <td className="px-8 py-6">
+                  <tr key={course.courseId} className="group hover:bg-slate-50/80 dark:hover:bg-slate-800/80 transition-colors">
+                    <td className="px-8 py-5">
                       <div className="flex items-center gap-4">
-                        <div className="w-14 h-14 rounded-2xl bg-purple-50 dark:bg-purple-900/20 flex items-center justify-center text-purple-600 dark:text-purple-400 border border-purple-100 dark:border-purple-800 shadow-sm overflow-hidden">
+                        <div className="w-14 h-14 rounded-2xl bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-800/30 shadow-sm overflow-hidden flex-shrink-0 group-hover:scale-105 transition-transform duration-300">
                           {course.thumbnailUrl ? (
                             <img src={course.thumbnailUrl} alt={course.title} className="w-full h-full object-cover" />
                           ) : (
@@ -119,34 +131,34 @@ export default function AdminCoursesPage() {
                           )}
                         </div>
                         <div className="flex flex-col min-w-0">
-                          <span className="text-sm font-black text-gray-900 dark:text-white tracking-tight truncate max-w-[250px]">{course.title}</span>
-                          <span className="mt-1 w-fit rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-black uppercase tracking-widest text-gray-500 dark:bg-gray-800 dark:text-gray-400">
+                          <span className="text-sm font-bold text-slate-900 dark:text-white truncate max-w-[250px] group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{course.title}</span>
+                          <span className="mt-1 w-fit rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-black uppercase tracking-widest text-slate-500 dark:bg-slate-800 dark:text-slate-400">
                             {course.productType === CourseProductType.DOCUMENT ? 'Document' : 'Course'}
                           </span>
-                          <span className="text-[10px] font-black text-primary-600 dark:text-primary-400 uppercase tracking-[0.1em] mt-0.5">By {course.instructor?.fullName || course.instructorName || 'Unknown'}</span>
+                          <span className="text-[10px] font-bold text-indigo-500 dark:text-indigo-400 uppercase tracking-wider mt-0.5">By {course.instructor?.fullName || course.instructorName || 'Unknown'}</span>
                         </div>
                       </div>
                     </td>
-                    <td className="px-8 py-6">
-                      <span className="text-sm font-black text-gray-900 dark:text-white tracking-tight">
+                    <td className="px-8 py-5">
+                      <span className="text-sm font-bold text-slate-900 dark:text-white">
                         {course.priceMxc ? formatCurrency(course.priceMxc) : 'Free'}
                       </span>
                     </td>
-                    <td className="px-8 py-6">
-                      <span className="text-sm font-bold text-gray-700 dark:text-gray-300">
+                    <td className="px-8 py-5">
+                      <span className="text-sm font-semibold text-slate-600 dark:text-slate-400">
                         {course.totalEnrollments} Students
                       </span>
                     </td>
-                    <td className="px-8 py-6">
-                      <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest ${getStatusColor(course.status)}`}>
+                    <td className="px-8 py-5">
+                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${getStatusColor(course.status)} shadow-sm`}>
                         {course.status}
                       </span>
                     </td>
-                    <td className="px-8 py-6 text-right">
-                      <div className="flex flex-wrap items-center justify-end gap-2 opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100">
+                    <td className="px-8 py-5 text-right">
+                      <div className="flex flex-wrap items-center justify-end gap-2 opacity-100 transition-all duration-300 lg:translate-x-4 lg:opacity-0 lg:group-hover:translate-x-0 lg:group-hover:opacity-100">
                         <Link
                           to={`/admin/courses/${course.courseId}/review`}
-                          className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm font-black text-gray-700 shadow-sm hover:border-primary-200 hover:text-primary-600"
+                          className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-bold text-slate-600 shadow-sm hover:border-indigo-200 hover:text-indigo-600 hover:bg-indigo-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-indigo-900/20 transition-all hover:shadow-md hover:-translate-y-0.5"
                         >
                           <Eye className="w-4 h-4" />
                           View
@@ -155,7 +167,7 @@ export default function AdminCoursesPage() {
                           <button
                             onClick={() => setArchiveTarget({ courseId: course.courseId, courseTitle: course.title })}
                             disabled={archiveMutation.isLoading}
-                            className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-black text-slate-700 shadow-sm hover:border-slate-300 hover:bg-slate-50"
+                            className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-bold text-slate-600 shadow-sm hover:border-rose-200 hover:text-rose-600 hover:bg-rose-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-rose-900/20 transition-all hover:shadow-md hover:-translate-y-0.5"
                           >
                             <Archive className="w-4 h-4" />
                             Archive
@@ -171,45 +183,45 @@ export default function AdminCoursesPage() {
         </div>
 
         {/* Pagination */}
-        <div className="px-8 py-6 border-t border-gray-50 dark:border-gray-800 flex items-center justify-between bg-gray-50/30 dark:bg-gray-800/30">
-          <p className="text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">
+        <div className="flex flex-col gap-4 border-t border-slate-100/50 bg-slate-50/30 px-6 py-5 dark:border-slate-800/50 dark:bg-slate-800/30 sm:flex-row sm:items-center sm:justify-between sm:px-8">
+          <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
             Total {data?.totalElements} courses listed
           </p>
-          <div className="flex gap-3">
+          <div className="flex gap-2">
             <button 
               disabled={page === 0}
               onClick={() => setPage(p => p - 1)}
-              className="p-3 rounded-2xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-gray-400 hover:text-primary-600 disabled:opacity-30 transition-all shadow-sm"
+              className="p-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-indigo-600 hover:border-indigo-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-sm hover:shadow-md"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
             <button 
               disabled={data?.last}
               onClick={() => setPage(p => p + 1)}
-              className="p-3 rounded-2xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-gray-400 hover:text-primary-600 disabled:opacity-30 transition-all shadow-sm"
+              className="p-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-indigo-600 hover:border-indigo-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-sm hover:shadow-md"
             >
               <ChevronRight className="w-5 h-5" />
             </button>
           </div>
-          </div>
         </div>
+      </div>
 
-        <CourseNameConfirmModal
-          isOpen={!!archiveTarget}
-          courseName={archiveTarget?.courseTitle || ''}
-          title="Archive course?"
-          message="This course will leave the marketplace. Enrolled learners can still access it from their library."
-          confirmText="Archive Course"
-          confirmTone="slate"
-          isLoading={archiveMutation.isLoading}
-          onClose={() => {
-            if (!archiveMutation.isLoading) setArchiveTarget(null)
-          }}
-          onConfirm={() => {
-            if (!archiveTarget) return
-            archiveMutation.mutate(archiveTarget.courseId)
-          }}
-        />
+      <CourseNameConfirmModal
+        isOpen={!!archiveTarget}
+        courseName={archiveTarget?.courseTitle || ''}
+        title="Archive course?"
+        message="This course will leave the marketplace. Enrolled learners can still access it from their library."
+        confirmText="Archive Course"
+        confirmTone="slate"
+        isLoading={archiveMutation.isLoading}
+        onClose={() => {
+          if (!archiveMutation.isLoading) setArchiveTarget(null)
+        }}
+        onConfirm={() => {
+          if (!archiveTarget) return
+          archiveMutation.mutate(archiveTarget.courseId)
+        }}
+      />
     </div>
   )
 }

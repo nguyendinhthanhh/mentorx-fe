@@ -518,7 +518,7 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
           />
           <div className="mt-2 space-y-1 rounded-xl border border-slate-100 bg-slate-50 px-3 py-2">
             <p className="text-xs font-semibold text-[#1b2252]/80">
-              Selected: <span className="font-black text-slate-900">{selectedDeadlinePreview}</span>
+              Selected: <span className="font-bold text-slate-900">{selectedDeadlinePreview}</span>
             </p>
             <p className={`text-xs font-semibold ${selectedDeadline && new Date(selectedDeadline).getTime() > Date.now() ? 'text-emerald-700' : 'text-slate-500'}`}>
               {selectedDeadlineRemaining}

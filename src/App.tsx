@@ -29,6 +29,7 @@ import MentorProfilePage from './pages/mentor/MentorProfilePage'
 import MentorListPage from './pages/mentor/MentorListPage'
 import MentorPublicProfilePage from './pages/mentor/MentorPublicProfilePage'
 import RecommendedMentorsPage from './pages/mentor/RecommendedMentorsPage'
+import UserPublicProfilePage from './pages/user/UserPublicProfilePage'
 import NotificationListPage from './pages/user/NotificationListPage'
 import MyComplaintsPage from './pages/user/MyComplaintsPage'
 import NewComplaintPage from './pages/user/NewComplaintPage'
@@ -142,6 +143,7 @@ function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/mentors" element={<MentorListPage />} />
             <Route path="/mentors/:userId" element={<MentorPublicProfilePage />} />
+            <Route path="/users/:userId" element={<UserPublicProfilePage />} />
             <Route path="/jobs" element={<JobListPage />} />
             <Route path="/jobs/:jobId" element={<JobDetailPage />} />
             <Route path="/courses" element={<CourseListPage />} />
@@ -205,6 +207,7 @@ function App() {
             <Route path="/users/requests/:jobId" element={<UserRequestDetailPage />} />
             
             {/* Mentor Verification */}
+            <Route path="/become-mentor" element={<Navigate to="/become-a-mentor" replace />} />
             <Route path="/become-a-mentor" element={<MentorProfilePage />} />
           </Route>
 

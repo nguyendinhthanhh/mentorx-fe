@@ -25,7 +25,7 @@ const registerSchema = z.object({
 
 export default function RegisterForm() {
   const navigate = useNavigate()
-  const { setUser, setTokens, skipOnboardingForSession } = useAuthStore()
+  const { setUser, setTokens } = useAuthStore()
   const [error, setError] = useState<string>('')
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
@@ -59,11 +59,6 @@ export default function RegisterForm() {
   const handleSocialRegisterSuccess = (response: AuthResponse) => {
     setTokens(response.accessToken, response.refreshToken)
     setUser(response.user)
-
-    if (!response.isNewUser && !response.user.isOnboarded) {
-      skipOnboardingForSession()
-    }
-
     navigate(getSocialAuthRedirectPath(response))
   }
 

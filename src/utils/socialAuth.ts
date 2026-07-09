@@ -2,7 +2,7 @@ import { AuthResponse, MentorStatus } from '@/types'
 import { canAccessAdminWorkspace } from '@/utils/roleRedirect'
 
 export function getSocialAuthRedirectPath(response: AuthResponse): string {
-  if (response.isNewUser) {
+  if (response.isNewUser || !response.user.isOnboarded) {
     return '/onboarding'
   }
 
@@ -17,5 +17,5 @@ export function getSocialAuthRedirectPath(response: AuthResponse): string {
     return '/mentor/dashboard'
   }
 
-  return '/dashboard'
+  return '/profile'
 }

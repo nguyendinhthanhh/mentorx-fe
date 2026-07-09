@@ -319,7 +319,7 @@ export default function ProposalList({ jobId }: Props) {
     return (
       <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-6 py-12 text-center">
         <User className="mx-auto h-12 w-12 text-slate-300" />
-        <h3 className="mt-3 text-lg font-black text-slate-950">Chưa có proposals</h3>
+        <h3 className="mt-3 text-lg font-bold text-slate-950">Chưa có proposals</h3>
         <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-600">
           Khi có mentor apply vào job này, proposals của họ sẽ hiển thị ở đây. Bạn có thể xem, thương lượng và chọn mentor phù hợp.
         </p>
@@ -359,7 +359,7 @@ export default function ProposalList({ jobId }: Props) {
           <CheckCircle className="w-6 h-6 text-emerald-600 flex-shrink-0 mt-0.5" />
           <div className="flex-1">
             <p className="text-sm font-bold text-emerald-900">
-              Đã chọn mentor: <span className="font-black">{acceptedProposal.mentorName}</span>
+              Đã chọn mentor: <span className="font-bold">{acceptedProposal.mentorName}</span>
             </p>
             <p className="hidden">
               Giá thỏa thuận: {formatCurrency(acceptedProposal.proposedAmount)} • 
@@ -372,7 +372,7 @@ export default function ProposalList({ jobId }: Props) {
           </div>
           <Link
             to={getJobChatRoute(jobId, acceptedProposal.mentorId)}
-            className="inline-flex h-10 w-full shrink-0 items-center justify-center rounded-xl bg-emerald-600 px-4 text-sm font-black text-white hover:bg-emerald-700 sm:w-auto"
+            className="inline-flex h-10 w-full shrink-0 items-center justify-center rounded-xl bg-emerald-600 px-4 text-sm font-bold text-white hover:bg-emerald-700 sm:w-auto"
           >
             Open chat
           </Link>
@@ -446,9 +446,9 @@ export default function ProposalList({ jobId }: Props) {
                 <CheckCircle className="h-6 w-6" />
               </div>
               <div className="min-w-0">
-                <h3 className="text-lg font-black text-slate-950">Chấp nhận đề xuất này?</h3>
+                <h3 className="text-lg font-bold text-slate-950">Chấp nhận đề xuất này?</h3>
                 <p className="mt-2 text-sm leading-6 text-slate-600">
-                  Bạn sắp chọn <span className="font-black text-slate-900">{acceptCandidate.mentorName}</span> cho công việc này.
+                  Bạn sắp chọn <span className="font-bold text-slate-900">{acceptCandidate.mentorName}</span> cho công việc này.
                 </p>
               </div>
             </div>
@@ -456,17 +456,17 @@ export default function ProposalList({ jobId }: Props) {
             <div className="mt-5 grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm">
               <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
                 <span className="font-bold text-slate-500">Mentor</span>
-                <span className="break-words text-left font-black text-slate-950 sm:text-right">{acceptCandidate.mentorName}</span>
+                <span className="break-words text-left font-bold text-slate-950 sm:text-right">{acceptCandidate.mentorName}</span>
               </div>
               <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
                 <span className="font-bold text-slate-500">Giá đề xuất</span>
-                <span className="text-left font-black text-slate-950 sm:text-right">
+                <span className="text-left font-bold text-slate-950 sm:text-right">
                   {formatCurrency(acceptCandidate.acceptedAmount || 0)}
                 </span>
               </div>
               <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
                 <span className="font-bold text-slate-500">Thời gian</span>
-                <span className="text-left font-black text-slate-950 sm:text-right">
+                <span className="text-left font-bold text-slate-950 sm:text-right">
                   {acceptCandidate.acceptedDurationDays ? `${acceptCandidate.acceptedDurationDays} ngày` : 'Chưa xác định'}
                 </span>
               </div>
@@ -481,16 +481,16 @@ export default function ProposalList({ jobId }: Props) {
                   <div className="min-w-0">
                     <p className="text-sm font-bold text-amber-900">Thiếu số dư để mở escrow</p>
                     <p className="mt-1 text-sm leading-6 text-amber-800">
-                      Bạn còn thiếu <span className="font-black">{formatCurrency(escrowMissingAmount)}</span>, tương đương{' '}
-                      <span className="font-black">
+                      Bạn còn thiếu <span className="font-bold">{formatCurrency(escrowMissingAmount)}</span>, tương đương{' '}
+                      <span className="font-bold">
                         {formatFiatCurrency(escrowMissingVnd, 'VND')}
                       </span>.
                       Nạp xong ngay tại đây, không cần rời khỏi trang này.
                       {escrowRequiresMinimumTopUp ? (
                         <>
                           {' '}
-                          PayOS yêu cầu tối thiểu <span className="font-black">{formatFiatCurrency(MIN_PAYOS_VND_AMOUNT, 'VND')}</span>, nên QR sẽ được tạo cho{' '}
-                          <span className="font-black">{formatFiatCurrency(escrowPayosAmountVnd, 'VND')}</span>.
+                          PayOS yêu cầu tối thiểu <span className="font-bold">{formatFiatCurrency(MIN_PAYOS_VND_AMOUNT, 'VND')}</span>, nên QR sẽ được tạo cho{' '}
+                          <span className="font-bold">{formatFiatCurrency(escrowPayosAmountVnd, 'VND')}</span>.
                         </>
                       ) : null}
                     </p>
@@ -517,7 +517,7 @@ export default function ProposalList({ jobId }: Props) {
                     <div className="space-y-3 text-sm">
                       <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
                         <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400">Nạp tiền thực tế</p>
-                        <p className="mt-1 font-black text-slate-950">{formatFiatCurrency(topUpPayment.amount ?? 0, 'VND')}</p>
+                        <p className="mt-1 font-bold text-slate-950">{formatFiatCurrency(topUpPayment.amount ?? 0, 'VND')}</p>
                         <p className="mt-1 text-slate-600">Order code: {topUpPayment.orderCode}</p>
                       </div>
                       {topUpPayment.checkoutUrl && (
@@ -537,7 +537,7 @@ export default function ProposalList({ jobId }: Props) {
                   </div>
                 ) : (
                   <div className="mt-4 rounded-2xl border border-dashed border-amber-300 bg-white/70 px-4 py-4 text-sm text-amber-900">
-                    Chọn nút <span className="font-black">Nạp đủ bằng QR</span> để tạo mã thanh toán PayOS ngay trong màn hình này.
+                    Chọn nút <span className="font-bold">Nạp đủ bằng QR</span> để tạo mã thanh toán PayOS ngay trong màn hình này.
                   </div>
                 )}
               </div>
@@ -548,7 +548,7 @@ export default function ProposalList({ jobId }: Props) {
                 type="button"
                 onClick={resetAcceptFlow}
                 disabled={actionLoading === acceptCandidate.id || topUpLoading}
-                className="flex-1 inline-flex h-11 items-center justify-center rounded-xl border border-slate-200 bg-white text-sm font-black text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+                className="flex-1 inline-flex h-11 items-center justify-center rounded-xl border border-slate-200 bg-white text-sm font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
               >
                 Hủy
               </button>
@@ -556,7 +556,7 @@ export default function ProposalList({ jobId }: Props) {
                 type="button"
                 onClick={confirmAccept}
                 disabled={actionLoading === acceptCandidate.id || topUpLoading}
-                className="flex-1 inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-emerald-600 text-sm font-black text-white hover:bg-emerald-700 disabled:bg-slate-300"
+                className="flex-1 inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-emerald-600 text-sm font-bold text-white hover:bg-emerald-700 disabled:bg-slate-300"
               >
                 {topUpLoading ? (
                   <>
@@ -613,7 +613,7 @@ function FilterChip({ label, count, color, active, onClick }: FilterChipProps) {
       }`}
     >
       <span>{label}</span>
-      <span className={`inline-flex items-center justify-center rounded-full px-2 py-0.5 text-[10px] font-black ${
+      <span className={`inline-flex items-center justify-center rounded-full px-2 py-0.5 text-[10px] font-bold ${
         active ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'
       }`}>
         {count}
@@ -652,12 +652,12 @@ function CompactProposalCard({
       }`}
     >
       <div className="flex items-start gap-3 sm:gap-4">
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-sm font-black text-indigo-700">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-sm font-bold text-indigo-700">
           {getInitials(proposal.mentorName)}
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-            <h4 className="break-words text-base font-black text-slate-950 transition-colors group-hover:text-indigo-600">
+            <h4 className="break-words text-base font-bold text-slate-950 transition-colors group-hover:text-indigo-600">
               {proposal.mentorName}
             </h4>
             <StatusBadge status={proposal.status} />
@@ -736,11 +736,11 @@ function ProposalDetailDrawer({
         {/* Header */}
         <div className="flex items-start justify-between gap-3 border-b border-slate-200 bg-white px-4 py-4 sm:px-6">
           <div className="flex min-w-0 items-center gap-3 sm:gap-4">
-             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-sm font-black text-indigo-700">
+             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-sm font-bold text-indigo-700">
                {getInitials(proposal.mentorName)}
              </div>
              <div className="min-w-0">
-               <h3 className="max-w-[180px] truncate text-lg font-black text-slate-950 sm:max-w-[300px]">{proposal.mentorName}</h3>
+               <h3 className="max-w-[180px] truncate text-lg font-bold text-slate-950 sm:max-w-[300px]">{proposal.mentorName}</h3>
                <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs font-bold text-slate-500">
                  <span>{formatRelativeTime(proposal.submittedAt || proposal.createdAt)}</span>
                  <span className="w-1 h-1 rounded-full bg-slate-300"></span>
@@ -766,7 +766,7 @@ function ProposalDetailDrawer({
              <div className="flex-1 pb-6">
                <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
                  <div className="mb-3 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-                   <span className="text-sm font-black text-slate-900">Original Proposal</span>
+                   <span className="text-sm font-bold text-slate-900">Original Proposal</span>
                    <span className="text-[10px] text-slate-500 font-bold">{formatRelativeTime(proposal.submittedAt || proposal.createdAt)}</span>
                  </div>
                  
@@ -775,7 +775,7 @@ function ProposalDetailDrawer({
                  </div>
                  {proposal.relevantExperience && (
                    <div className="bg-indigo-50/50 rounded-xl p-3 border border-indigo-100 mb-4">
-                     <p className="text-[10px] font-black text-indigo-500 uppercase mb-1">Kinh nghiệm liên quan</p>
+                     <p className="text-[10px] font-bold text-indigo-500 uppercase mb-1">Kinh nghiệm liên quan</p>
                      <p className="text-sm text-slate-700">{proposal.relevantExperience}</p>
                    </div>
                  )}
@@ -808,19 +808,19 @@ function ProposalDetailDrawer({
                 <div className={`flex-1 ${!isLast ? 'pb-6' : ''}`}>
                    <div className={`rounded-2xl p-4 border shadow-sm ${neg.senderType === 'CLIENT' ? 'bg-amber-50 border-amber-200' : 'bg-white border-slate-200'}`}>
                      <div className="mb-2 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-                       <span className="text-sm font-black text-slate-900">{neg.senderType === 'CLIENT' ? 'Bạn' : neg.senderName || 'Mentor'}</span>
+                       <span className="text-sm font-bold text-slate-900">{neg.senderType === 'CLIENT' ? 'Bạn' : neg.senderName || 'Mentor'}</span>
                        <span className="text-[10px] text-slate-500 font-bold">{formatRelativeTime(neg.createdAt)}</span>
                      </div>
                      <p className="text-sm text-slate-700 italic mb-3">"{neg.message}"</p>
                      <div className="flex flex-wrap gap-2 text-xs font-bold">
                        {neg.proposedAmount && (
                          <div className="bg-white px-2.5 py-1 rounded-md border border-slate-100 text-slate-700">
-                           Giá mới: <span className="font-black text-amber-700">{formatCurrency(neg.proposedAmount)}</span>
+                           Giá mới: <span className="font-bold text-amber-700">{formatCurrency(neg.proposedAmount)}</span>
                          </div>
                        )}
                        {(neg.deadlineAt || neg.estimatedDurationDays) && (
                          <div className="bg-white px-2.5 py-1 rounded-md border border-slate-100 text-slate-700">
-                           Thời gian mới: <span className="font-black text-amber-700">
+                           Thời gian mới: <span className="font-bold text-amber-700">
                              {neg.deadlineAt 
                               ? `${formatDeadlineWithSeconds(neg.deadlineAt)} (${formatTimeRemaining(neg.deadlineAt)})`
                                : `${neg.estimatedDurationDays} ngày`}
@@ -844,7 +844,7 @@ function ProposalDetailDrawer({
                </div>
                <div className="flex-1">
                   <div className="rounded-2xl p-4 border border-rose-200 bg-rose-50">
-                    <span className="text-sm font-black text-rose-700 block mb-1">Lý do từ chối</span>
+                    <span className="text-sm font-bold text-rose-700 block mb-1">Lý do từ chối</span>
                     <span className="text-sm text-rose-800">{proposal.rejectionReason}</span>
                   </div>
                </div>
@@ -862,7 +862,7 @@ function ProposalDetailDrawer({
                <div className="flex-1">
                   <div className="flex flex-col gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
                      <div className="min-w-0">
-                       <span className="text-[10px] font-black uppercase text-emerald-600 block mb-1.5">Kết quả chốt deal</span>
+                       <span className="text-[10px] font-bold uppercase text-emerald-600 block mb-1.5">Kết quả chốt deal</span>
                        <div className="flex flex-wrap items-center gap-3 text-sm font-bold">
                          <span className="bg-white px-3 py-1 rounded-lg text-emerald-900 border border-emerald-100">
                            {formatCurrency(latestNegotiation?.proposedAmount || proposal.proposedAmount || 0)}
@@ -918,7 +918,7 @@ function ProposalFact({
         <Icon className="h-3.5 w-3.5" />
         {label}
       </div>
-      <p className="text-sm font-black text-slate-950 break-words">{value}</p>
+      <p className="text-sm font-bold text-slate-950 break-words">{value}</p>
     </div>
   )
 }
@@ -939,7 +939,7 @@ function StatusBadge({ status }: { status: string }) {
   const { label, className } = config[status] || { label: status, className: 'border-slate-200 bg-slate-50 text-slate-600' }
 
   return (
-    <span className={`inline-flex shrink-0 rounded-full border px-3 py-1 text-xs font-black ${className}`}>
+    <span className={`inline-flex shrink-0 rounded-full border px-3 py-1 text-xs font-bold ${className}`}>
       {label}
     </span>
   )
@@ -1127,8 +1127,8 @@ function ProposalActions({
           <div className="flex flex-col gap-2 border-b border-indigo-100 pb-3 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <div className="flex items-center gap-2">
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-500">Respond</p>
-                <h2 className="text-base font-black tracking-tight text-slate-950">Shape the next offer</h2>
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-indigo-500">Respond</p>
+                <h2 className="text-base font-bold tracking-tight text-slate-950">Shape the next offer</h2>
               </div>
               <p className="mt-0.5 text-[13px] text-slate-500">Update price, deadline, and work details before sending.</p>
             </div>
@@ -1140,7 +1140,7 @@ function ProposalActions({
           </div>
           <div className="mt-4 grid gap-3 md:grid-cols-2">
             <label className="space-y-1.5">
-              <span className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-500">Price (MXC)</span>
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Price (MXC)</span>
               <input
                 type="number"
                 min="1"
@@ -1154,7 +1154,7 @@ function ProposalActions({
               />
             </label>
             <label className="space-y-1.5">
-              <span className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-500">Deadline date/time</span>
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Deadline date/time</span>
               <input
                 type="datetime-local"
                 step={1}
@@ -1173,7 +1173,7 @@ function ProposalActions({
             </label>
           </div>
           <label className="mt-3 block space-y-1.5">
-            <span className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-500">Message / Work details</span>
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Message / Work details</span>
             <textarea
               value={negotiateMessage}
               onChange={(event) => setNegotiateMessage(event.target.value)}
@@ -1191,14 +1191,14 @@ function ProposalActions({
                 <div className="min-w-0">
                   <p className="text-sm font-bold text-amber-900">Thieu so du de gui de xuat nay</p>
                   <p className="mt-1 text-sm leading-6 text-amber-800">
-                    Ban con thieu <span className="font-black">{formatCurrency(negotiateMissingAmount)}</span>, tuong duong{' '}
-                    <span className="font-black">{formatFiatCurrency(negotiateMissingVnd, 'VND')}</span>.
+                    Ban con thieu <span className="font-bold">{formatCurrency(negotiateMissingAmount)}</span>, tuong duong{' '}
+                    <span className="font-bold">{formatFiatCurrency(negotiateMissingVnd, 'VND')}</span>.
                     Nạp xong ngay tai day, khong can roi khoi trang nay.
                     {negotiateRequiresMinimumTopUp ? (
                       <>
                         {' '}
-                        PayOS yeu cau toi thieu <span className="font-black">{formatFiatCurrency(MIN_PAYOS_VND_AMOUNT, 'VND')}</span>, nen QR se duoc tao cho{' '}
-                        <span className="font-black">{formatFiatCurrency(negotiatePayosAmountVnd, 'VND')}</span>.
+                        PayOS yeu cau toi thieu <span className="font-bold">{formatFiatCurrency(MIN_PAYOS_VND_AMOUNT, 'VND')}</span>, nen QR se duoc tao cho{' '}
+                        <span className="font-bold">{formatFiatCurrency(negotiatePayosAmountVnd, 'VND')}</span>.
                       </>
                     ) : null}
                   </p>
@@ -1225,7 +1225,7 @@ function ProposalActions({
                   <div className="space-y-3 text-sm">
                     <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
                       <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400">Nap tien thuc te</p>
-                      <p className="mt-1 font-black text-slate-950">{formatFiatCurrency(counterTopUpPayment.amount ?? 0, 'VND')}</p>
+                      <p className="mt-1 font-bold text-slate-950">{formatFiatCurrency(counterTopUpPayment.amount ?? 0, 'VND')}</p>
                       <p className="mt-1 text-slate-600">Order code: {counterTopUpPayment.orderCode}</p>
                     </div>
                     {counterTopUpPayment.checkoutUrl && (
@@ -1245,7 +1245,7 @@ function ProposalActions({
                 </div>
               ) : (
                 <div className="mt-4 rounded-2xl border border-dashed border-amber-300 bg-white/70 px-4 py-4 text-sm text-amber-900">
-                  Chon nut <span className="font-black">Nap du bang QR</span> de tao ma thanh toan PayOS ngay trong man hinh nay.
+                  Chon nut <span className="font-bold">Nap du bang QR</span> de tao ma thanh toan PayOS ngay trong man hinh nay.
                 </div>
               )}
             </div>
@@ -1291,7 +1291,7 @@ function ProposalActions({
               type="button"
               onClick={() => onAccept(proposal, latestNegotiation)}
               disabled={Boolean(actionLoading)}
-              className="flex-1 sm:flex-none inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 text-sm font-black text-white hover:bg-emerald-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-all"
+              className="flex-1 sm:flex-none inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 text-sm font-bold text-white hover:bg-emerald-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-all"
             >
               {actionLoading === proposal.id ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -1303,7 +1303,7 @@ function ProposalActions({
             <button
               type="button"
               onClick={() => openNegotiateForm()}
-              className="flex-1 sm:flex-none inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-amber-600 px-5 text-sm font-black text-white hover:bg-amber-700 transition-all"
+              className="flex-1 sm:flex-none inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-amber-600 px-5 text-sm font-bold text-white hover:bg-amber-700 transition-all"
             >
               <MessageCircle className="h-4 w-4" />
               Thương lượng
@@ -1312,7 +1312,7 @@ function ProposalActions({
               type="button"
               onClick={() => onReject(proposal.id)}
               disabled={Boolean(actionLoading)}
-              className="flex-1 sm:flex-none inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 text-sm font-black text-slate-700 hover:bg-slate-50 disabled:opacity-50 transition-all"
+              className="flex-1 sm:flex-none inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 text-sm font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-50 transition-all"
             >
               <XCircle className="h-4 w-4" />
               Từ chối
@@ -1328,7 +1328,7 @@ function ProposalActions({
                   type="button"
                   onClick={() => onAccept(proposal, latestNegotiation)}
                   disabled={Boolean(actionLoading)}
-                  className="flex-1 sm:flex-none inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 text-sm font-black text-white hover:bg-emerald-700 disabled:bg-slate-300 transition-all shadow-lg shadow-emerald-200 hover:scale-[1.02] active:scale-95"
+                  className="flex-1 sm:flex-none inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 text-sm font-bold text-white hover:bg-emerald-700 disabled:bg-slate-300 transition-all shadow-lg shadow-emerald-200 hover:scale-[1.02] active:scale-95"
                 >
                   <CheckCircle className="h-4 w-4" />
                   Chấp nhận đề xuất
@@ -1336,7 +1336,7 @@ function ProposalActions({
                 <button
                   type="button"
                   onClick={() => openNegotiateForm()}
-                  className="flex-1 sm:flex-none inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-amber-600 px-6 text-sm font-black text-white hover:bg-amber-700 transition-all shadow-lg shadow-amber-200 hover:scale-[1.02] active:scale-95"
+                  className="flex-1 sm:flex-none inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-amber-600 px-6 text-sm font-bold text-white hover:bg-amber-700 transition-all shadow-lg shadow-amber-200 hover:scale-[1.02] active:scale-95"
                 >
                   <TrendingUp className="h-4 w-4" />
                   Đề xuất lại
@@ -1345,7 +1345,7 @@ function ProposalActions({
                   type="button"
                   onClick={() => onReject(proposal.id)}
                   disabled={Boolean(actionLoading)}
-                  className="flex-1 sm:flex-none inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-6 text-sm font-black text-slate-700 hover:bg-slate-50 transition-all hover:border-rose-200 hover:text-rose-600"
+                  className="flex-1 sm:flex-none inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-6 text-sm font-bold text-slate-700 hover:bg-slate-50 transition-all hover:border-rose-200 hover:text-rose-600"
                 >
                   <XCircle className="h-4 w-4" />
                   Từ chối
@@ -1362,7 +1362,7 @@ function ProposalActions({
                 <button
                   type="button"
                   onClick={() => openNegotiateForm({ preserveClientMessage: true })}
-                  className="flex-1 sm:flex-none inline-flex h-11 items-center justify-center gap-2 rounded-xl border-2 border-amber-200 bg-white px-6 text-sm font-black text-amber-700 hover:bg-amber-50 transition-all hover:border-amber-400"
+                  className="flex-1 sm:flex-none inline-flex h-11 items-center justify-center gap-2 rounded-xl border-2 border-amber-200 bg-white px-6 text-sm font-bold text-amber-700 hover:bg-amber-50 transition-all hover:border-amber-400"
                 >
                   <Edit className="h-4 w-4" />
                   Chỉnh sửa
@@ -1374,7 +1374,7 @@ function ProposalActions({
         
         <button
           type="button"
-          className="flex-1 sm:flex-none inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 text-sm font-black text-slate-700 hover:bg-slate-50 transition-all"
+          className="flex-1 sm:flex-none inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 text-sm font-bold text-slate-700 hover:bg-slate-50 transition-all"
         >
           <MessageSquare className="h-4 w-4" />
           Chat

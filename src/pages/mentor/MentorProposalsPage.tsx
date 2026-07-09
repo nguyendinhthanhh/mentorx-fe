@@ -2,10 +2,12 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
   ArrowRight,
+  Banknote,
   BellRing,
   CheckCircle2,
   Circle,
   Clock3,
+  FileText,
   MessageCircleMore,
   RefreshCw,
   Search,
@@ -244,226 +246,233 @@ export default function MentorProposalsPage() {
   }
 
   return (
-    <div className="space-y-8">
-      <PageShell
-        title="My Proposals"
-        description="Track and manage all your active negotiations and submitted proposals."
-        actions={
-          <>
-            {pendingNegotiationItems.length > 0 && (
-              <button
-                type="button"
-                onClick={() => setActiveTab('NEGOTIATING')}
-                className="inline-flex h-9 items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 text-sm font-medium text-amber-700 shadow-sm hover:bg-amber-100"
-              >
-                <MessageCircleMore className="h-4 w-4" />
-                {pendingNegotiationItems.length} pending reply
-              </button>
-            )}
-            <Link
-              to="/jobs"
-              className="inline-flex h-9 items-center gap-2 rounded-lg bg-indigo-600 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700"
-            >
-              <Search className="h-4 w-4" />
-              Browse Jobs
-            </Link>
-          </>
-        }
-      >
-      <div className="grid gap-6">
-        <div className="space-y-6">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between border-b border-slate-200 pb-4 dark:border-slate-800">
-            <div className="flex flex-wrap items-center gap-2">
-              {tabs.map((tab) => {
-                const count = tabCounts[tab.key]
-                const isActive = activeTab === tab.key
-                return (
-                  <button
-                    key={tab.key}
-                    type="button"
-                    onClick={() => setActiveTab(tab.key)}
-                    className={`inline-flex h-9 items-center gap-2 rounded-lg px-3 text-sm font-medium transition-colors ${
-                      isActive
-                        ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900'
-                        : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white'
-                    }`}
-                  >
-                    {tab.label}
-                    {count > 0 && (
-                      <span className={`rounded-full px-1.5 py-0.5 text-xs font-semibold ${isActive ? 'bg-slate-700 text-slate-100 dark:bg-slate-200 dark:text-slate-700' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'}`}>
-                        {count}
-                      </span>
-                    )}
-                  </button>
-                )
-              })}
+    <div className="mx-auto max-w-[1400px] space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-12">
+      {/* Compact Header */}
+      <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between mb-8">
+        <div>
+          <div className="inline-flex items-center gap-2 rounded-full bg-indigo-50 px-3 py-1 text-[11px] uppercase tracking-widest font-black text-indigo-600 mb-3 border border-indigo-100 shadow-sm">
+            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+            Pipeline Overview
+          </div>
+          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Quản lý Proposals</h1>
+          <p className="mt-2 text-sm font-medium text-slate-500">
+            Bạn có tổng cộng <span className="font-bold text-slate-700">{stats.total}</span> đề xuất. {pendingNegotiationItems.length > 0 ? <span className="font-bold text-amber-600">Bạn có {pendingNegotiationItems.length} đề xuất cần xử lý ngay.</span> : "Tất cả đều đang tiến hành tốt."}
+          </p>
+        </div>
+        
+        <div className="flex items-center gap-4">
+          <div className="hidden lg:flex items-center gap-4 rounded-2xl border border-slate-200/60 bg-white/50 py-2.5 shadow-sm backdrop-blur-md">
+            <div className="flex flex-col px-5 border-r border-slate-200/60">
+               <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Chờ phản hồi</span>
+               <span className="text-xl font-black text-slate-900">{stats.awaitingResponse}</span>
             </div>
-
-            <div className="relative min-w-[240px] md:max-w-[320px]">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(event) => setSearchQuery(event.target.value)}
-                placeholder="Search proposals..."
-                className="h-9 w-full rounded-lg border border-slate-200 bg-white pl-9 pr-3 text-sm font-medium text-slate-900 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:focus:border-indigo-500"
-              />
+            <div className="flex flex-col px-5 border-r border-slate-200/60">
+               <span className="text-[10px] font-black uppercase tracking-widest text-amber-600/70">Đang đàm phán</span>
+               <span className="text-xl font-black text-amber-600">{stats.negotiating}</span>
+            </div>
+            <div className="flex flex-col px-5">
+               <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600/70">Đã chốt</span>
+               <span className="text-xl font-black text-emerald-600">{stats.accepted}</span>
             </div>
           </div>
 
-            {/* Sub-filters */}
-            <div className="flex flex-wrap items-center gap-3">
-              <MiniSelect
-                value={statusFilter}
-                onChange={setStatusFilter}
-                options={[
-                  ['ALL', 'All Statuses'],
-                  ['SUBMITTED', 'Submitted'],
-                  ['NEGOTIATING', 'Negotiating'],
-                  ['OFFER_ACCEPTED', 'Offer agreed'],
-                  ['ACCEPTED', 'Contract active'],
-                  ['REJECTED', 'Rejected'],
-                  ['AUTO_CLOSED', 'Closed'],
-                  ['WITHDRAWN', 'Withdrawn'],
-                ]}
-              />
-              <MiniSelect
-                value={categoryFilter}
-                onChange={setCategoryFilter}
-                options={[['ALL', 'All Categories'], ...categories.map((item) => [String(item.id), item.name] as [string, string])]}
-              />
-              {(statusFilter !== 'ALL' || categoryFilter !== 'ALL' || searchQuery) && (
+          <Link to="/jobs" className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-slate-900 px-6 text-sm font-bold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-indigo-600 hover:shadow-indigo-500/30 shrink-0">
+            <Search className="h-4 w-4" />
+            Tìm Jobs
+          </Link>
+        </div>
+      </div>
+
+      {/* Content Area */}
+      <div className="rounded-[2.5rem] border border-slate-200/60 bg-white/50 p-6 sm:p-8 shadow-xl shadow-slate-200/40 backdrop-blur-2xl">
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between mb-8">
+          {/* Tabs */}
+          <div className="flex flex-wrap items-center gap-2 p-1.5 bg-slate-100/80 rounded-2xl w-full lg:w-auto overflow-x-auto hide-scrollbar">
+            {tabs.map((tab) => {
+              const count = tabCounts[tab.key]
+              const isActive = activeTab === tab.key
+              return (
                 <button
+                  key={tab.key}
                   type="button"
-                  onClick={() => {
-                    setStatusFilter('ALL')
-                    setCategoryFilter('ALL')
-                    setSearchQuery('')
-                  }}
-                  className="inline-flex h-9 items-center gap-1.5 rounded-lg px-3 text-sm font-medium text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-slate-800 dark:hover:text-white"
+                  onClick={() => setActiveTab(tab.key)}
+                  className={`whitespace-nowrap inline-flex h-10 items-center gap-2 rounded-xl px-4 text-sm font-bold transition-all ${
+                    isActive
+                      ? 'bg-white text-indigo-700 shadow-sm ring-1 ring-slate-200/50'
+                      : 'text-slate-500 hover:text-slate-900 hover:bg-slate-200/50'
+                  }`}
                 >
-                  <RefreshCw className="h-3.5 w-3.5" />
-                  Reset
+                  {tab.label}
+                  {count > 0 && (
+                    <span className={`rounded-lg px-2 py-0.5 text-[10px] font-black uppercase tracking-widest ${isActive ? 'bg-indigo-50 text-indigo-600' : 'bg-slate-200/80 text-slate-500'}`}>
+                      {count}
+                    </span>
+                  )}
                 </button>
-              )}
-            </div>
+              )
+            })}
+          </div>
 
-            <div className="space-y-4 pt-2">
-              {error && (
-                <div className="mx-2 rounded-2xl border border-rose-200 bg-rose-50 px-5 py-4 text-sm font-bold text-rose-700">
-                  {error}
-                </div>
-              )}
-
-              {filteredProposals.length === 0 ? (
-                <div className="flex min-h-[300px] flex-col items-center justify-center rounded-[24px] border-2 border-dashed border-slate-200 bg-slate-50/50 p-8 text-center">
-                  <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-3xl bg-white shadow-sm ring-1 ring-slate-200">
-                    <Search className="h-6 w-6 text-slate-400" />
-                  </div>
-                  <p className="text-[17px] font-black tracking-tight text-slate-900">No proposals found</p>
-                  <p className="mt-2 max-w-sm text-sm font-medium text-slate-500">
-                    We couldn't find any proposals matching your current filters. Try adjusting them or clear the search.
-                  </p>
-                </div>
-              ) : (
-                filteredProposals.map((proposal) => {
-                  const job = jobMap[proposal.jobId]
-                  const categoryName = categories.find((item) => item.id === job?.categoryId)?.name || 'General'
-                  const negotiation = negotiations[proposal.id]
-                  const statusMeta = getStatusMeta(proposal.status, negotiation)
-                  const rowTone = getRowTone(proposal.status, negotiation?.senderType)
-                  const currentOffer = getCurrentOffer(proposal, negotiation)
-                  const clientName = job?.clientName || job?.client?.fullName || 'Client'
-                  const clientAvatar = job?.client?.avatarUrl
-                  const cta = getProposalCta(proposal.status)
-                  const lastActivityAt = negotiation?.createdAt || proposal.updatedAt || proposal.createdAt
-                  const lastActivityLabel = proposal.submittedAt && proposal.submittedAt !== lastActivityAt ? `Last activity ${formatRelativeTime(lastActivityAt)}` : `Submitted ${formatRelativeTime(proposal.submittedAt || proposal.createdAt)}`
-
-                  return (
-                    <article
-                      key={proposal.id}
-                      className="flex flex-col gap-4 rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition-all hover:border-slate-300 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700"
-                    >
-                      <div className="flex flex-col justify-between gap-4 md:flex-row md:items-start">
-                        <div className="flex items-start gap-3">
-                          <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-slate-100 ring-1 ring-slate-200/60 dark:bg-slate-800 dark:ring-slate-700">
-                            {clientAvatar ? (
-                              <img src={clientAvatar} alt={clientName} className="h-full w-full object-cover" />
-                            ) : (
-                              <span className="text-sm font-bold text-slate-500 dark:text-slate-400">{clientName.charAt(0)}</span>
-                            )}
-                          </div>
-                          <div className="min-w-0">
-                            <h2 className="truncate text-base font-semibold tracking-tight text-slate-900 dark:text-white">
-                              {proposal.jobTitle}
-                            </h2>
-                            <p className="mt-0.5 flex flex-wrap items-center gap-1.5 text-[13px] text-slate-500 dark:text-slate-400">
-                              <span className="font-medium text-slate-700 dark:text-slate-300">{clientName}</span>
-                              <span className="h-1 w-1 rounded-full bg-slate-300 dark:bg-slate-600" />
-                              <span>{categoryName}</span>
-                              <span className="h-1 w-1 rounded-full bg-slate-300 dark:bg-slate-600" />
-                              <span>{lastActivityLabel}</span>
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="flex flex-col items-start md:items-end">
-                          <p className="text-lg font-bold text-slate-900 dark:text-white">{currentOffer.primary}</p>
-                          <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Your Offer</p>
-                        </div>
-                      </div>
-
-                      <div className="flex flex-col justify-between gap-4 border-t border-slate-100 pt-4 sm:flex-row sm:items-center dark:border-slate-800">
-                        <div className="flex flex-wrap items-center gap-3">
-                          <span className={`inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold ${rowTone.badge}`}>
-                            {getStatusLabel(proposal.status)}
-                          </span>
-                          <p className={`flex items-center gap-1.5 text-sm font-medium ${rowTone.message}`}>
-                            {statusMeta.icon}
-                            {statusMeta.helper}
-                          </p>
-                        </div>
-
-                        <div className="flex w-full items-center gap-2 sm:w-auto">
-                          {job?.clientId && (
-                            <button
-                              type="button"
-                              onClick={() =>
-                                setChatDrawer({
-                                  recipientId: job.clientId,
-                                  contextId: proposal.id,
-                                  title: clientName,
-                                  subtitle: 'Proposal discussion',
-                                })
-                              }
-                              className="inline-flex h-9 flex-1 items-center justify-center rounded-lg border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 transition hover:bg-slate-50 sm:flex-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
-                            >
-                              Message
-                            </button>
-                          )}
-                          <Link
-                            to={`/mentor/proposals/${proposal.id}`}
-                            className="inline-flex h-9 flex-1 items-center justify-center rounded-lg bg-slate-900 px-4 text-sm font-medium text-white transition hover:bg-slate-800 sm:flex-none dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200"
-                          >
-                            View details
-                          </Link>
-                        </div>
-                      </div>
-                    </article>
-                  )
-                })
-              )}
-            </div>
+          <div className="relative w-full lg:max-w-[320px]">
+            <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              placeholder="Tìm kiếm proposals..."
+              className="h-11 w-full rounded-2xl border border-slate-200 bg-white/80 pl-11 pr-4 text-sm font-medium text-slate-900 outline-none transition-all focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 placeholder:text-slate-400"
+            />
           </div>
         </div>
-      </PageShell>
+
+        {/* Filters */}
+        <div className="flex flex-wrap items-center gap-3 mb-8">
+          <MiniSelect
+            value={statusFilter}
+            onChange={setStatusFilter}
+            options={[
+              ['ALL', 'Tất cả trạng thái'],
+              ['SUBMITTED', 'Đã nộp'],
+              ['NEGOTIATING', 'Đang đàm phán'],
+              ['OFFER_ACCEPTED', 'Đã chốt offer'],
+              ['ACCEPTED', 'Contract active'],
+              ['REJECTED', 'Bị từ chối'],
+              ['AUTO_CLOSED', 'Đã đóng'],
+              ['WITHDRAWN', 'Đã rút'],
+            ]}
+          />
+          <MiniSelect
+            value={categoryFilter}
+            onChange={setCategoryFilter}
+            options={[['ALL', 'Tất cả danh mục'], ...categories.map((item) => [String(item.id), item.name] as [string, string])]}
+          />
+          {(statusFilter !== 'ALL' || categoryFilter !== 'ALL' || searchQuery) && (
+            <button
+              type="button"
+              onClick={() => {
+                setStatusFilter('ALL')
+                setCategoryFilter('ALL')
+                setSearchQuery('')
+              }}
+              className="inline-flex h-10 items-center gap-2 rounded-xl px-4 text-sm font-bold text-slate-500 transition-all hover:bg-slate-100 hover:text-slate-900"
+            >
+              <RefreshCw className="h-4 w-4" />
+              Xóa bộ lọc
+            </button>
+          )}
+        </div>
+
+        {error && (
+          <div className="mb-6 rounded-2xl border border-rose-200 bg-rose-50 px-5 py-4 text-sm font-bold text-rose-700">
+            {error}
+          </div>
+        )}
+
+        {filteredProposals.length === 0 ? (
+          <EmptyPremiumState 
+             title="Không tìm thấy proposals nào"
+             message="Hãy thử thay đổi bộ lọc hoặc tìm kiếm các job mới để gửi proposal."
+             actionHref="/jobs"
+             actionLabel="Tìm Jobs mới"
+          />
+        ) : (
+          <div className="space-y-4">
+            {filteredProposals.map((proposal) => {
+              const job = jobMap[proposal.jobId]
+              const categoryName = categories.find((item) => item.id === job?.categoryId)?.name || 'General'
+              const negotiation = negotiations[proposal.id]
+              const statusMeta = getStatusMeta(proposal.status, negotiation)
+              const rowTone = getRowTone(proposal.status, negotiation?.senderType)
+              const currentOffer = getCurrentOffer(proposal, negotiation)
+              const clientName = job?.clientName || job?.client?.fullName || 'Client'
+              const clientAvatar = job?.client?.avatarUrl
+              const lastActivityAt = negotiation?.createdAt || proposal.updatedAt || proposal.createdAt
+              const lastActivityLabel = proposal.submittedAt && proposal.submittedAt !== lastActivityAt ? `Cập nhật ${formatRelativeTime(lastActivityAt)}` : `Gửi ${formatRelativeTime(proposal.submittedAt || proposal.createdAt)}`
+
+              return (
+                <article
+                  key={proposal.id}
+                  className="group relative flex flex-col gap-5 rounded-[1.75rem] border border-slate-200/80 bg-white/70 p-6 shadow-sm backdrop-blur-md transition-all hover:-translate-y-1 hover:border-indigo-100 hover:shadow-xl hover:shadow-slate-200/50"
+                >
+                  <div className="flex flex-col justify-between gap-6 md:flex-row md:items-start">
+                    <div className="flex items-start gap-4">
+                      <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-[1.25rem] bg-gradient-to-br from-indigo-50 to-slate-100 ring-1 ring-slate-200/60 shadow-inner group-hover:ring-indigo-100 transition-all">
+                        {clientAvatar ? (
+                          <img src={clientAvatar} alt={clientName} className="h-full w-full object-cover" />
+                        ) : (
+                          <span className="text-lg font-black text-indigo-400">{clientName.charAt(0)}</span>
+                        )}
+                      </div>
+                      <div className="min-w-0 pt-0.5">
+                        <Link to={`/mentor/proposals/${proposal.id}`} className="hover:text-indigo-600 transition-colors">
+                           <h2 className="truncate text-lg font-extrabold tracking-tight text-slate-900">
+                             {proposal.jobTitle}
+                           </h2>
+                        </Link>
+                        <p className="mt-1.5 flex flex-wrap items-center gap-2 text-xs font-semibold text-slate-500">
+                          <span className="text-slate-700">{clientName}</span>
+                          <span className="h-1 w-1 rounded-full bg-slate-300" />
+                          <span>{categoryName}</span>
+                          <span className="h-1 w-1 rounded-full bg-slate-300" />
+                          <span>{lastActivityLabel}</span>
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col items-start md:items-end shrink-0 md:pl-6 md:border-l md:border-slate-100">
+                      <p className="text-2xl font-black text-slate-900">{currentOffer.primary}</p>
+                      <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-slate-400">Offer của bạn</p>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col justify-between gap-4 border-t border-slate-100/80 pt-5 sm:flex-row sm:items-center">
+                    <div className="flex flex-wrap items-center gap-3">
+                      <span className={`inline-flex items-center rounded-xl px-3 py-1.5 text-[11px] font-black uppercase tracking-widest shadow-sm ${rowTone.badge}`}>
+                        {getStatusLabel(proposal.status)}
+                      </span>
+                      <p className={`flex items-center gap-1.5 text-xs font-bold ${rowTone.message}`}>
+                        {statusMeta.icon}
+                        {statusMeta.helper}
+                      </p>
+                    </div>
+
+                    <div className="flex w-full items-center gap-3 sm:w-auto">
+                      {job?.clientId && (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setChatDrawer({
+                              recipientId: job.clientId,
+                              contextId: proposal.id,
+                              title: clientName,
+                              subtitle: 'Proposal discussion',
+                            })
+                          }
+                          className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 text-sm font-bold text-slate-700 shadow-sm transition-all hover:bg-slate-50 hover:text-indigo-600 sm:flex-none"
+                        >
+                          <MessageCircleMore className="w-4 h-4" />
+                          Nhắn tin
+                        </button>
+                      )}
+                      <Link
+                        to={`/mentor/proposals/${proposal.id}`}
+                        className="inline-flex h-10 flex-1 items-center justify-center rounded-xl bg-slate-900 px-5 text-sm font-bold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-indigo-600 hover:shadow-indigo-500/30 sm:flex-none"
+                      >
+                        Chi tiết
+                      </Link>
+                    </div>
+                  </div>
+                </article>
+              )
+            })}
+          </div>
+        )}
+      </div>
 
       <ContextualChatDrawer
         open={!!chatDrawer}
         onOpenChange={(open) => {
-          if (!open) {
-            setChatDrawer(null)
-          }
+          if (!open) setChatDrawer(null)
         }}
         recipientId={chatDrawer?.recipientId}
         contextType="PROPOSAL"
@@ -474,8 +483,6 @@ export default function MentorProposalsPage() {
     </div>
   )
 }
-
-
 
 function MiniSelect({
   value,
@@ -490,8 +497,8 @@ function MiniSelect({
     <select
       value={value}
       onChange={(event) => onChange(event.target.value)}
-      className="h-9 cursor-pointer appearance-none rounded-lg border border-slate-200 bg-white px-3.5 pr-8 text-[13px] font-medium text-slate-700 shadow-sm outline-none transition hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-slate-600"
-      style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: 'right 0.5rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.5em 1.5em' }}
+      className="h-10 cursor-pointer appearance-none rounded-xl border border-slate-200/80 bg-white/80 px-4 pr-10 text-sm font-bold text-slate-700 shadow-sm outline-none transition-all hover:border-slate-300 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 backdrop-blur-md"
+      style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: 'right 0.75rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.25em 1.25em' }}
     >
       {options.map(([optionValue, label]) => (
         <option key={optionValue} value={optionValue}>
@@ -502,19 +509,69 @@ function MiniSelect({
   )
 }
 
-function ProposalMetric({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
+function DashboardMetricCard({
+  icon,
+  iconTone,
+  eyebrow,
+  label,
+  value,
+  helper,
+}: {
+  icon: React.ReactNode
+  iconTone: 'indigo' | 'emerald' | 'amber' | 'sky'
+  eyebrow: string
+  label: string
+  value: React.ReactNode
+  helper: string
+}) {
+  const toneClass = {
+    indigo: 'bg-indigo-50/80 text-indigo-600 border-indigo-100/50 shadow-indigo-100/50',
+    emerald: 'bg-emerald-50/80 text-emerald-600 border-emerald-100/50 shadow-emerald-100/50',
+    amber: 'bg-amber-50/80 text-amber-600 border-amber-100/50 shadow-amber-100/50',
+    sky: 'bg-sky-50/80 text-sky-600 border-sky-100/50 shadow-sky-100/50',
+  }[iconTone]
+
   return (
-    <div className="flex flex-col gap-1">
-      <div className="flex items-center gap-2">
-        <div className="text-slate-400 dark:text-slate-500">{icon}</div>
-        <span className="text-xs font-medium text-slate-500 dark:text-slate-400">{label}</span>
+    <div className="group flex flex-col justify-between rounded-[1.75rem] border border-white/60 bg-white/70 p-5 sm:p-6 shadow-xl shadow-slate-200/40 backdrop-blur-xl transition-all hover:-translate-y-1 hover:shadow-2xl hover:shadow-slate-200/50">
+      <div>
+        <div className="flex items-center justify-between">
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{label}</p>
+          <div className={`flex h-12 w-12 items-center justify-center rounded-[1.25rem] border shadow-sm ${toneClass} transition-transform group-hover:scale-110`}>{icon}</div>
+        </div>
+        <div className="mt-3 flex flex-col gap-1">
+          <div className="text-3xl font-extrabold tracking-tight text-slate-900">{value}</div>
+          <span className="text-[11px] font-bold text-indigo-600">{eyebrow}</span>
+        </div>
       </div>
-      <p className="text-sm font-semibold text-slate-900 dark:text-white">{value}</p>
+      <p className="mt-4 text-xs font-semibold text-slate-400">{helper}</p>
     </div>
   )
 }
 
-
+function EmptyPremiumState({
+  title,
+  message,
+  actionHref,
+  actionLabel,
+}: {
+  title: string
+  message: string
+  actionHref: string
+  actionLabel: string
+}) {
+  return (
+    <div className="flex flex-col items-center justify-center rounded-[1.75rem] border border-slate-100/50 bg-gradient-to-b from-slate-50/50 to-white/30 px-6 py-10 text-center backdrop-blur-md">
+      <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-[1.25rem] bg-indigo-50 text-indigo-500 shadow-inner">
+        <Sparkles className="h-7 w-7" />
+      </div>
+      <h3 className="text-lg font-extrabold text-slate-900">{title}</h3>
+      <p className="mt-2 max-w-sm text-sm font-semibold leading-relaxed text-slate-500">{message}</p>
+      <Link to={actionHref} className="mt-6 rounded-2xl bg-slate-900 px-6 py-3 text-sm font-bold text-white transition-all hover:-translate-y-0.5 hover:bg-indigo-600 hover:shadow-lg hover:shadow-indigo-500/30">
+        {actionLabel}
+      </Link>
+    </div>
+  )
+}
 
 function getStatusLabel(status: string) {
   switch (status) {
@@ -545,71 +602,38 @@ function getStatusMeta(status: string, negotiation?: NegotiationInfo) {
   switch (status) {
     case 'SUBMITTED':
       return {
-        icon: <Clock3 className="h-3 w-3" />,
-        helper: 'Waiting for the client to review your proposal.',
+        icon: <Clock3 className="h-3.5 w-3.5" />,
+        helper: 'Đang đợi khách hàng xem xét.',
       }
     case 'NEGOTIATING':
       return {
-        icon: <MessageCircleMore className="h-3 w-3" />,
-        helper: negotiation?.senderType === 'CLIENT' ? 'Client countered. Action required.' : 'Negotiation sent, waiting for client.',
+        icon: <MessageCircleMore className="h-3.5 w-3.5" />,
+        helper: negotiation?.senderType === 'CLIENT' ? 'Khách hàng vừa counter offer. Cần bạn xử lý.' : 'Đã gửi offer, chờ khách phản hồi.',
       }
     case 'OFFER_ACCEPTED':
       return {
-        icon: <CheckCircle2 className="h-3 w-3" />,
-        helper: 'Terms agreed. Waiting for client to lock escrow.',
+        icon: <CheckCircle2 className="h-3.5 w-3.5" />,
+        helper: 'Đã chốt thỏa thuận. Khách đang lock tiền.',
       }
     case 'ACCEPTED':
       return {
-        icon: <Zap className="h-3 w-3" />,
-        helper: 'Contract is fully active. You can begin work.',
+        icon: <Zap className="h-3.5 w-3.5" />,
+        helper: 'Contract đã kích hoạt. Bạn có thể bắt đầu làm việc.',
       }
     case 'REJECTED':
       return {
-        icon: <Circle className="h-3 w-3" />,
-        helper: 'The client declined this proposal.',
+        icon: <Circle className="h-3.5 w-3.5" />,
+        helper: 'Khách hàng đã từ chối proposal này.',
       }
     case 'WITHDRAWN':
       return {
-        icon: <Circle className="h-3 w-3" />,
-        helper: 'You withdrew this proposal.',
+        icon: <Circle className="h-3.5 w-3.5" />,
+        helper: 'Bạn đã rút proposal này.',
       }
     default:
       return {
-        icon: <Circle className="h-3 w-3" />,
-        helper: 'Proposal is closed or archived.',
-      }
-  }
-}
-
-function getProposalCta(status: string) {
-  switch (status) {
-    case 'NEGOTIATING':
-      return {
-        label: 'View details',
-        className: 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-indigo-600/20',
-      }
-    case 'OFFER_ACCEPTED':
-      return {
-        label: 'Waiting for client',
-        className: 'bg-slate-100 text-slate-600 hover:bg-slate-200',
-      }
-    case 'ACCEPTED':
-      return {
-        label: 'View contract',
-        className: 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200',
-      }
-    case 'REJECTED':
-    case 'AUTO_CLOSED':
-    case 'CONTRACT_CANCELLED':
-    case 'WITHDRAWN':
-      return {
-        label: 'View history',
-        className: 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50',
-      }
-    default:
-      return {
-        label: 'View proposal',
-        className: 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-indigo-600/20',
+        icon: <Circle className="h-3.5 w-3.5" />,
+        helper: 'Proposal đã đóng.',
       }
   }
 }
@@ -619,35 +643,35 @@ function getRowTone(status: string, latestSender?: 'CLIENT' | 'MENTOR') {
     case 'NEGOTIATING':
       if (latestSender === 'CLIENT') {
         return {
-          badge: 'bg-amber-100 text-amber-700 ring-1 ring-amber-200',
+          badge: 'bg-amber-100 text-amber-800 ring-1 ring-amber-200/80',
           message: 'text-amber-600',
         }
       }
       return {
-        badge: 'bg-indigo-50 text-indigo-600 ring-1 ring-indigo-200/60',
-        message: 'text-indigo-500',
+        badge: 'bg-indigo-50 text-indigo-700 ring-1 ring-indigo-200/80',
+        message: 'text-indigo-600',
       }
     case 'OFFER_ACCEPTED':
       return {
-        badge: 'bg-emerald-50 text-emerald-600 ring-1 ring-emerald-200/60',
+        badge: 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/80',
         message: 'text-emerald-600',
       }
     case 'ACCEPTED':
       return {
-        badge: 'bg-emerald-100 text-emerald-700 ring-1 ring-emerald-300/60',
-        message: 'text-emerald-600',
+        badge: 'bg-emerald-100 text-emerald-800 ring-1 ring-emerald-300/80',
+        message: 'text-emerald-700',
       }
     case 'REJECTED':
     case 'AUTO_CLOSED':
     case 'CONTRACT_CANCELLED':
     case 'WITHDRAWN':
       return {
-        badge: 'bg-slate-100 text-slate-500 ring-1 ring-slate-200',
-        message: 'text-slate-400',
+        badge: 'bg-slate-100 text-slate-600 ring-1 ring-slate-200/80',
+        message: 'text-slate-500',
       }
     default:
       return {
-        badge: 'bg-blue-50 text-blue-600 ring-1 ring-blue-200/60',
+        badge: 'bg-blue-50 text-blue-700 ring-1 ring-blue-200/80',
         message: 'text-slate-500',
       }
   }
@@ -688,50 +712,22 @@ function getCurrentOffer(proposal: ProposalResponse, negotiation?: NegotiationIn
   }
 }
 
-function getTimelineValue(proposal: ProposalResponse, negotiation?: NegotiationInfo) {
-  if (negotiation?.deadlineAt) return formatDeadline(negotiation.deadlineAt)
-  if (negotiation?.estimatedDurationDays) return `${negotiation.estimatedDurationDays} days`
-  if (proposal.deadlineAt) return formatDeadline(proposal.deadlineAt)
-  if (proposal.estimatedDurationDays) return `${proposal.estimatedDurationDays} days`
-  return 'Flexible'
-}
-
-function getCurrentStep(status: string) {
-  switch (status) {
-    case 'SUBMITTED':
-    case 'UNDER_REVIEW':
-      return 2
-    case 'NEGOTIATING':
-      return 3
-    case 'OFFER_ACCEPTED':
-      return 4
-    case 'ACCEPTED':
-      return 5
-    default:
-      return 1
-  }
-}
-
 function normalizeProposalValue(proposal: ProposalResponse) {
   return proposal.proposedAmount || proposal.proposedHourlyRate || 0
 }
 
-
-
 function ProposalCardSkeleton() {
   return (
-    <div className="rounded-[24px] border border-slate-100 bg-white p-5">
+    <div className="rounded-[1.75rem] border border-slate-100/80 bg-white/70 p-6 shadow-sm">
       <div className="flex items-start gap-4">
-        <SkeletonCircle size="h-12 w-12 rounded-[16px]" />
-        <div className="flex-1 space-y-3">
-          <Skeleton className="h-5 w-1/3" />
-          <Skeleton className="h-3 w-1/4" />
+        <SkeletonCircle size="h-14 w-14 rounded-[1.25rem]" />
+        <div className="flex-1 space-y-3 pt-1">
+          <Skeleton className="h-6 w-1/3 rounded-lg" />
+          <Skeleton className="h-4 w-1/4 rounded-md" />
         </div>
       </div>
-      <div className="mt-5 grid grid-cols-2 gap-4 rounded-[16px] bg-slate-50 p-4 lg:grid-cols-4">
-        <Skeleton className="h-10 w-full" />
-        <Skeleton className="h-10 w-full" />
-        <Skeleton className="h-10 w-full lg:col-span-2" />
+      <div className="mt-6 border-t border-slate-100 pt-5">
+        <Skeleton className="h-10 w-full rounded-xl" />
       </div>
     </div>
   )
