@@ -1,16 +1,15 @@
 import { Link } from 'react-router-dom'
 import { useQuery } from 'react-query'
-import { ArrowLeft, ArrowRight, BadgeCheck, Clock3, ShieldCheck } from 'lucide-react'
+import { ArrowRight, BadgeCheck, Clock3, ShieldCheck } from 'lucide-react'
 import axios from 'axios'
 
 import { mentorApi } from '@/api/mentorApi'
 import MentorProfileForm from '@/components/mentor/MentorProfileForm'
-import { useI18n } from '@/i18n/I18nProvider'
+import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import { useAuthStore } from '@/store/authStore'
 import { MentorStatus, VerificationStatus } from '@/types'
 
 export default function MentorProfilePage() {
-  const { t } = useI18n()
   const { user } = useAuthStore()
 
   const { data: mentorProfile, isLoading } = useQuery(
@@ -44,7 +43,6 @@ export default function MentorProfilePage() {
 
   const mentorStatus = user.mentorStatus ?? MentorStatus.NOT_APPLIED
   const expertiseStatus = mentorProfile?.expertiseStatus ?? user.expertiseStatus ?? VerificationStatus.NOT_SUBMITTED
-  const payoutStatus = user.payoutStatus ?? VerificationStatus.NOT_SUBMITTED
 
   const approved = mentorStatus === MentorStatus.APPROVED
   const pending = mentorStatus === MentorStatus.PENDING || expertiseStatus === VerificationStatus.PENDING
@@ -61,23 +59,55 @@ export default function MentorProfilePage() {
       : suspended
         ? 'Mentor mode is suspended. Profile editing is locked.'
         : 'Profile editing is locked.'
+  const applicationState = approved
+    ? 'Approved'
+    : pending
+      ? 'In review'
+      : rejected
+        ? 'Needs update'
+        : suspended
+          ? 'Suspended'
+          : mentorProfile
+            ? 'Draft saved'
+            : 'Not submitted'
 
   return (
-    <div className="space-y-6 py-6">
-      <section className="overflow-hidden rounded-[28px] border border-slate-200 bg-gradient-to-br from-white via-indigo-50/40 to-sky-50/30 shadow-sm">
-        <div className="px-5 py-6 sm:px-7 sm:py-7">
-          <Link
-            to="/profile"
-            className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 hover:text-indigo-700"
-          >
-            <ArrowLeft className="h-3.5 w-3.5" />
-            Back to account
-          </Link>
+    <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8 space-y-6 py-6">
+      <section className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm shadow-slate-200/60">
+        <div className="px-5 py-5 sm:px-7 sm:py-6">
+          <Breadcrumbs
+            items={[
+              { label: 'Account', to: '/profile' },
+              { label: 'Become a Mentor' },
+            ]}
+            className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500"
+          />
 
-          <h1 className="mt-4 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">{t('mentor.application.title')}</h1>
-          <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-600 sm:text-base">
-            {t('mentor.application.subtitle')}
-          </p>
+          <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div className="max-w-2xl">
+              <div className="inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.16em] text-amber-700">
+                Mentor application
+              </div>
+              <h1 className="mt-4 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">Become a Mentor</h1>
+              <p className="mt-3 text-sm leading-7 text-slate-600 sm:text-base">
+                Create your professional mentor profile. Verified mentors can receive mentorship requests, career consultations, and teaching opportunities.
+              </p>
+              <p className="mt-3 inline-flex rounded-full bg-slate-50 px-3 py-1 text-[11px] font-semibold text-slate-500">
+                Application state: <span className="ml-1 font-bold text-slate-900">{applicationState}</span>
+              </p>
+            </div>
+
+            <div className="grid w-full gap-3 sm:w-auto sm:min-w-[280px] sm:grid-cols-2">
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+                <p className="text-[11px] font-black uppercase tracking-[0.16em] text-slate-500">Estimated time</p>
+                <p className="mt-2 text-lg font-black text-slate-950">7 minutes</p>
+              </div>
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+                <p className="text-[11px] font-black uppercase tracking-[0.16em] text-slate-500">Review time</p>
+                <p className="mt-2 text-lg font-black text-slate-950">2-5 business days</p>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -89,13 +119,6 @@ export default function MentorProfilePage() {
         />
       )}
 
-      <ReviewProgress
-        hasProfile={Boolean(mentorProfile)}
-        expertiseStatus={expertiseStatus}
-        mentorStatus={mentorStatus}
-        submittedAt={mentorProfile?.submittedAt}
-        reviewedAt={mentorProfile?.expertiseReviewedAt}
-      />
       {(mentorProfile?.expertiseReviewNote || mentorProfile?.expertiseRejectionReason || mentorProfile?.rejectionReason) && (
         <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
           <h3 className="text-sm font-black uppercase tracking-[0.16em] text-slate-500">Moderator Note</h3>
@@ -134,71 +157,6 @@ export default function MentorProfilePage() {
       )}
 
     </div>
-  )
-}
-
-function ReviewProgress({
-  hasProfile,
-  expertiseStatus,
-  mentorStatus,
-  submittedAt,
-  reviewedAt,
-}: {
-  hasProfile: boolean
-  expertiseStatus: VerificationStatus
-  mentorStatus: MentorStatus
-  submittedAt?: string
-  reviewedAt?: string
-}) {
-  const submitted = hasProfile
-  const reviewing = expertiseStatus === VerificationStatus.PENDING
-  const needsMoreInfo = expertiseStatus === VerificationStatus.NEEDS_MORE_INFO
-  const approved = mentorStatus === MentorStatus.APPROVED || expertiseStatus === VerificationStatus.APPROVED
-  const rejected = mentorStatus === MentorStatus.REJECTED || expertiseStatus === VerificationStatus.REJECTED
-
-  const steps = [
-    {
-      title: 'Profile submitted',
-      detail: submittedAt ? new Date(submittedAt).toLocaleString() : 'Waiting for submission',
-      done: submitted,
-      active: submitted && !reviewing && !approved && !rejected && !needsMoreInfo,
-    },
-    {
-      title: 'In review',
-      detail: reviewing ? 'Moderation team is reviewing your expertise.' : 'Waiting for review',
-      done: reviewing || approved || rejected || needsMoreInfo,
-      active: reviewing,
-    },
-    {
-      title: approved ? 'Approved' : rejected ? 'Rejected' : needsMoreInfo ? 'Needs more info' : 'Decision',
-      detail: reviewedAt ? new Date(reviewedAt).toLocaleString() : 'Pending decision',
-      done: approved || rejected || needsMoreInfo,
-      active: approved || rejected || needsMoreInfo,
-    },
-  ]
-
-  return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <h2 className="text-sm font-black uppercase tracking-[0.16em] text-slate-500">Application progress</h2>
-      <div className="mt-4 grid gap-3 md:grid-cols-3">
-        {steps.map((step, index) => (
-          <div
-            key={step.title}
-            className={`rounded-xl border px-4 py-3 ${
-              step.active
-                ? 'border-indigo-300 bg-indigo-50'
-                : step.done
-                  ? 'border-emerald-200 bg-emerald-50'
-                  : 'border-slate-200 bg-slate-50'
-            }`}
-          >
-            <p className="text-xs font-black text-slate-500">Step {index + 1}</p>
-            <p className="mt-1 text-sm font-black text-slate-900">{step.title}</p>
-            <p className="mt-1 text-xs text-slate-600">{step.detail}</p>
-          </div>
-        ))}
-      </div>
-    </section>
   )
 }
 

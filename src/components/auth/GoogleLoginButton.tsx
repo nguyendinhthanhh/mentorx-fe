@@ -20,10 +20,16 @@ export default function GoogleLoginButton({ onSuccess, onError, text = 'Sign in 
         const response = await authApi.googleLogin(credential)
         onSuccess(response)
       } catch (err: any) {
-        onError(err.response?.data?.message || 'Google login failed. Please try again.')
+        const message = err.response?.data?.message
+        if (err.response?.status === 401 || message === 'Incorrect email or password. Please try again.') {
+          onError('Google login failed. Please try again.')
+          return
+        }
+        onError(message || 'Google login failed. Please try again.')
       }
     },
     onError: () => onError('Google login failed.'),
+    onNonOAuthError: () => onError('Google login was cancelled or blocked before it could complete.'),
     flow: 'auth-code',
   })
 

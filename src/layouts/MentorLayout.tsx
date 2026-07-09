@@ -6,6 +6,7 @@ import {
   Briefcase,
   Calendar,
   ChevronDown,
+  ChevronRight,
   Menu,
   CreditCard,
   LayoutDashboard,
@@ -47,6 +48,7 @@ export default function MentorLayout() {
   const [availability] = useState('Available')
   const [userDropdownOpen, setUserDropdownOpen] = useState(false)
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
   const { data: qaSummaries = [] } = useQuery(
     ['mentor-course-qa-summaries', user?.userId],
     () => courseApi.getMentorQaSummaries(),
@@ -70,20 +72,26 @@ export default function MentorLayout() {
   return (
     <div className={`min-h-screen ${isDarkMode ? 'dark bg-slate-950' : 'bg-[#faf9ff]'}`}>
       <div className="flex min-h-screen">
-        <aside className="hidden max-h-screen w-[320px] shrink-0 overflow-hidden border-r border-slate-200 bg-white dark:border-slate-800/60 dark:bg-[#09090b] xl:flex xl:flex-col">
-          <div className="flex h-[80px] shrink-0 items-center px-6">
-            <Link to="/mentor" className="group flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-md dark:bg-indigo-500/20 dark:text-indigo-400 transition-transform group-hover:scale-105">
+        <aside 
+          className={`${
+            isSidebarCollapsed ? 'w-[80px]' : 'w-[280px]'
+          } hidden bg-white dark:bg-[#09090b] border-r border-slate-100 dark:border-slate-800/60 shrink-0 xl:flex flex-col transition-all duration-300 ease-in-out sticky top-0 h-screen z-50`}
+        >
+          <div className="h-[80px] shrink-0 flex items-center px-5 border-b border-slate-100 dark:border-slate-800/60">
+            <Link to="/mentor" className="group flex items-center gap-3 w-full">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-md dark:bg-indigo-500/20 dark:text-indigo-400 transition-transform group-hover:scale-105 flex-shrink-0">
                 <Sparkles className="h-5 w-5" />
               </div>
-              <div className="min-w-0 flex flex-col">
-                <p className="text-[19px] font-bold leading-none tracking-tight text-slate-900 dark:text-white">MentorX</p>
-                <p className="mt-1 text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Workspace</p>
-              </div>
+              {!isSidebarCollapsed && (
+                <div className="min-w-0 flex flex-col opacity-100 transition-opacity duration-300 delay-100">
+                  <p className="text-[19px] font-bold leading-none tracking-tight text-slate-900 dark:text-white">MentorX</p>
+                  <p className="mt-1 text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Workspace</p>
+                </div>
+              )}
             </Link>
           </div>
 
-          <nav className="flex-1 overflow-y-auto space-y-2 px-4 py-5">
+          <nav className="flex-1 px-4 py-5 space-y-2 overflow-y-auto custom-scrollbar">
             {navigationItems.map((item) => {
               const active = isActive(item.to)
               const badge = item.to === '/mentor/courses' ? unansweredCourseQaCount : item.badge
@@ -91,17 +99,18 @@ export default function MentorLayout() {
                 <Link
                   key={item.to}
                   to={item.to}
+                  title={isSidebarCollapsed ? item.label : undefined}
                   className={`group flex items-center gap-3.5 px-3.5 py-3 rounded-2xl font-semibold transition-all duration-300 ${
                     active
                       ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200/50 dark:bg-indigo-500/20 dark:text-indigo-400 dark:shadow-none translate-x-1'
                       : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800'
-                  }`}
+                  } ${isSidebarCollapsed ? 'justify-center' : ''}`}
                 >
-                  <item.icon className={`w-5 h-5 transition-transform duration-300 ${
+                  <item.icon className={`w-5 h-5 flex-shrink-0 transition-transform duration-300 ${
                     active ? 'scale-110' : 'group-hover:scale-110'
                   }`} />
-                  <span className="truncate">{item.label}</span>
-                  {badge ? (
+                  {!isSidebarCollapsed && <span className="truncate">{item.label}</span>}
+                  {!isSidebarCollapsed && badge ? (
                     <span className={`ml-auto flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-[11px] font-bold ${
                       active 
                         ? 'bg-white/20 text-white dark:bg-slate-900/20 dark:text-slate-900' 
@@ -109,7 +118,7 @@ export default function MentorLayout() {
                     }`}>
                       {badge}
                     </span>
-                  ) : active ? (
+                  ) : (!isSidebarCollapsed && active) ? (
                     <ChevronDown className="-rotate-90 w-4 h-4 ml-auto opacity-50" />
                   ) : null}
                 </Link>
@@ -118,7 +127,7 @@ export default function MentorLayout() {
           </nav>
 
           <div className="border-t border-slate-100 p-4 dark:border-slate-800/60">
-            <div className="flex items-center gap-3 rounded-xl p-2 transition hover:bg-slate-50 dark:hover:bg-slate-800/50">
+            <div className={`flex items-center gap-3 rounded-xl p-2 transition hover:bg-slate-50 dark:hover:bg-slate-800/50 ${isSidebarCollapsed ? 'justify-center' : ''}`}>
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300 overflow-hidden border border-slate-200 dark:border-slate-700">
                 {user?.avatarUrl ? (
                   <img src={user.avatarUrl} alt="Avatar" className="h-full w-full object-cover" />
@@ -126,20 +135,31 @@ export default function MentorLayout() {
                   <User className="h-5 w-5" />
                 )}
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="truncate text-[13px] font-bold text-slate-900 dark:text-white">{user?.fullName || 'Mentor'}</p>
-                <p className="truncate text-[11px] font-medium text-slate-500 dark:text-slate-400">{user?.email || 'mentor@mentorx.com'}</p>
-              </div>
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-400 transition hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-500/10"
-                title="Logout"
-              >
-                <LogOut className="h-4 w-4" />
-              </button>
+              {!isSidebarCollapsed && (
+                <>
+                  <div className="flex-1 min-w-0">
+                    <p className="truncate text-[13px] font-bold text-slate-900 dark:text-white">{user?.fullName || 'Mentor'}</p>
+                    <p className="truncate text-[11px] font-medium text-slate-500 dark:text-slate-400">{user?.email || 'mentor@mentorx.com'}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-400 transition hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-500/10"
+                    title="Logout"
+                  >
+                    <LogOut className="h-4 w-4" />
+                  </button>
+                </>
+              )}
             </div>
           </div>
+
+          <button 
+            onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+            className="absolute -right-3.5 top-24 hidden h-7 w-7 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 shadow-sm transition-all z-50 hover:border-gray-300 hover:text-gray-900 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:text-white xl:flex"
+          >
+            <ChevronRight className={`w-4 h-4 transition-transform duration-300 ${isSidebarCollapsed ? '' : 'rotate-180'}`} />
+          </button>
         </aside>
 
         {mobileNavOpen && (

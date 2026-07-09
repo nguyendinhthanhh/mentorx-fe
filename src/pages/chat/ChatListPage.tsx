@@ -5,6 +5,7 @@ import { chatApi } from '@/api/chatApi'
 import { contractApi } from '@/api/contractApi'
 import { FILE_UPLOAD_DIRS, fileApi } from '@/api/fileApi'
 import { mentorApi } from '@/api/mentorApi'
+import { userApi } from '@/api/userApi'
 import { ContractResponse, MentorOfferingResponse, MessageType } from '@/types'
 import { useAuthStore } from '@/store/authStore'
 import ConversationPane from './components/ConversationPane'
@@ -191,6 +192,19 @@ export default function ChatListPage() {
     async () => {
       if (!otherMemberId) return null
       return mentorApi.getMentorProfile(otherMemberId).catch(() => null)
+    },
+    {
+      enabled: !!otherMemberId,
+      retry: false,
+      staleTime: 60_000,
+    }
+  )
+
+  const { data: otherUserProfile, isLoading: otherUserProfileLoading } = useQuery(
+    ['chat-user-profile', otherMemberId],
+    async () => {
+      if (!otherMemberId) return null
+      return userApi.getUserById(otherMemberId).catch(() => null)
     },
     {
       enabled: !!otherMemberId,
@@ -399,13 +413,14 @@ export default function ChatListPage() {
             <ContextRail
               selectedRoom={selectedRoom}
               otherMember={otherMember}
+              userProfile={otherUserProfile}
               mentorProfile={mentorProfile}
               mentorCourses={mentorCourses}
               weeklyAvailability={weeklyAvailability}
               sharedImages={sharedImages}
               sharedFiles={sharedFiles}
               sharedLinks={sharedLinks}
-              isProfileLoading={mentorProfileLoading}
+              isProfileLoading={mentorProfileLoading || otherUserProfileLoading}
               isCoursesLoading={mentorCoursesLoading}
               isAvailabilityLoading={weeklyAvailabilityLoading}
               linkedJob={linkedJob}
@@ -428,13 +443,14 @@ export default function ChatListPage() {
             <ContextRail
               selectedRoom={selectedRoom}
               otherMember={otherMember}
+              userProfile={otherUserProfile}
               mentorProfile={mentorProfile}
               mentorCourses={mentorCourses}
               weeklyAvailability={weeklyAvailability}
               sharedImages={sharedImages}
               sharedFiles={sharedFiles}
               sharedLinks={sharedLinks}
-              isProfileLoading={mentorProfileLoading}
+              isProfileLoading={mentorProfileLoading || otherUserProfileLoading}
               isCoursesLoading={mentorCoursesLoading}
               isAvailabilityLoading={weeklyAvailabilityLoading}
               linkedJob={linkedJob}

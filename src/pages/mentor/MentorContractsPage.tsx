@@ -14,6 +14,7 @@ import {
   FolderKanban,
   Search,
   ShieldCheck,
+  Sparkles,
   Wallet,
   X,
 } from 'lucide-react'
@@ -383,66 +384,45 @@ export default function MentorContractsPage() {
 
   return (
     <>
-      <div className="space-y-6">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+      <div className="mx-auto max-w-[1400px] space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-12">
+        {/* Compact Header */}
+        <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between mb-8">
           <div>
-            <h1 className="text-[32px] font-bold tracking-tight text-slate-950">Active Contracts</h1>
-            <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">
-              Stay on top of live work, escrow status, cancellations, and contract history without leaving mentor mode.
+            <div className="inline-flex items-center gap-2 rounded-full bg-indigo-50 px-3 py-1 text-[11px] uppercase tracking-widest font-black text-indigo-600 mb-3 border border-indigo-100 shadow-sm">
+              <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+              Pipeline Overview
+            </div>
+            <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Hợp đồng & Mentee</h1>
+            <p className="mt-2 text-sm font-medium text-slate-500">
+              Bạn đang có <span className="font-bold text-slate-700">{summary.activeContracts}</span> hợp đồng đang diễn ra. 
             </p>
           </div>
-          <div className="flex flex-wrap items-center gap-3">
-            <Link
-              to="/mentor/proposals"
-              className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-700 transition hover:bg-slate-50"
-            >
-              Review proposals
+          
+          <div className="flex items-center gap-4">
+            <div className="hidden lg:flex items-center gap-4 rounded-2xl border border-slate-200/60 bg-white/50 py-2.5 shadow-sm backdrop-blur-md">
+              <div className="flex flex-col px-5 border-r border-slate-200/60">
+                 <span className="text-[10px] font-black uppercase tracking-widest text-indigo-600/70">Đang diễn ra</span>
+                 <span className="text-xl font-black text-indigo-600">{summary.activeContracts}</span>
+              </div>
+              <div className="flex flex-col px-5 border-r border-slate-200/60">
+                 <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600/70">Hoàn thành (Tháng này)</span>
+                 <span className="text-xl font-black text-emerald-600">{summary.completedThisMonth}</span>
+              </div>
+              <div className="flex flex-col px-5">
+                 <span className="text-[10px] font-black uppercase tracking-widest text-rose-600/70">Đã hủy</span>
+                 <span className="text-xl font-black text-rose-600">{tabCounts.CANCELLED}</span>
+              </div>
+            </div>
+
+            <Link to="/mentor/proposals" className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-slate-900 px-6 text-sm font-bold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-indigo-600 hover:shadow-indigo-500/30 shrink-0">
+              <Briefcase className="h-4 w-4" />
+              Xem Proposals
             </Link>
-            {selectedContract ? (
-              <Link
-                to={buildWorkspaceLink(selectedContract)}
-                className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-indigo-600 px-4 text-sm font-bold text-white shadow-sm transition hover:bg-indigo-700"
-              >
-                View workspace
-                <ArrowUpRight className="h-4 w-4" />
-              </Link>
-            ) : null}
           </div>
         </div>
 
-        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <SummaryCard
-            icon={<Briefcase className="h-4 w-4" />}
-            label="Active contracts"
-            value={summary.activeContracts}
-            tone="indigo"
-            caption="Live contracts currently in progress"
-          />
-          <SummaryCard
-            icon={<ShieldCheck className="h-4 w-4" />}
-            label="In escrow"
-            value={summary.inEscrow}
-            tone="emerald"
-            caption="Contracts with funds still locked"
-          />
-          <SummaryCard
-            icon={<Clock3 className="h-4 w-4" />}
-            label="Awaiting completion"
-            value={summary.awaitingCompletion}
-            tone="amber"
-            caption="Waiting for the client to confirm delivery"
-          />
-          <SummaryCard
-            icon={<CheckCircle2 className="h-4 w-4" />}
-            label="Completed this month"
-            value={summary.completedThisMonth}
-            tone="slate"
-            caption="Finished contracts released this month"
-          />
-        </section>
-
-        <div className="grid gap-6 2xl:grid-cols-[minmax(0,1fr)_420px]">
-          <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div className="grid gap-6 2xl:grid-cols-[minmax(0,1fr)_420px] rounded-[2.5rem] border border-slate-200/60 bg-white/50 p-6 sm:p-8 shadow-xl shadow-slate-200/40 backdrop-blur-2xl">
+          <section className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white/70 shadow-sm backdrop-blur-md">
             <div className="border-b border-slate-100 px-5 py-4">
               <div className="flex flex-wrap items-center gap-2">
                 {contractTabs.map((tab) => {
@@ -1046,7 +1026,7 @@ function SummaryCard({
       </div>
       <div>
         <p className="text-xs font-bold uppercase tracking-wider text-slate-500">{label}</p>
-        <p className="mt-0.5 text-2xl font-black tracking-tight text-slate-950">{value}</p>
+        <p className="mt-0.5 text-2xl font-bold tracking-tight text-slate-950">{value}</p>
         <p className="mt-1 text-[11px] leading-tight text-slate-400">{caption}</p>
       </div>
     </article>

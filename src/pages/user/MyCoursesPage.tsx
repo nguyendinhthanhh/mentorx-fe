@@ -103,29 +103,29 @@ export default function MyCoursesPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-2xl font-black text-slate-900 dark:text-white">My learning</h1>
+          <h1 className="text-2xl font-black text-slate-900 dark:text-white">Học tập của tôi</h1>
           <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
-            All courses and documents you have enrolled in are available here, including archived resources.
+            Tất cả các khóa học và tài liệu bạn đã đăng ký đều có ở đây, bao gồm cả tài nguyên đã lưu trữ.
           </p>
         </div>
         <Link
           to="/courses"
           className="inline-flex h-10 items-center justify-center rounded-xl bg-indigo-600 px-4 text-sm font-bold text-white transition hover:bg-indigo-700 sm:h-auto sm:py-2"
         >
-          Explore courses
+          Khám phá khóa học
         </Link>
       </div>
 
       <div className="grid gap-3 sm:grid-cols-3">
-        <StatCard label="Enrolled" value={enrollments.length.toString()} />
-        <StatCard label="Completed" value={completedCount.toString()} />
-        <StatCard label="Average progress" value={`${averageProgress}%`} />
+        <StatCard label="Đã đăng ký" value={enrollments.length.toString()} />
+        <StatCard label="Đã hoàn thành" value={completedCount.toString()} />
+        <StatCard label="Tiến độ trung bình" value={`${averageProgress}%`} />
       </div>
 
       {enrollments.length > 0 && (
         <div className="space-y-5">
-          <CourseRow title="Latest courses" enrollments={latestEnrollments} courseById={courseById} categoryNameById={categoryNameById} />
-          <CourseRow title="Recently learned" enrollments={recentlyLearned} courseById={courseById} categoryNameById={categoryNameById} />
+          <CourseRow title="Khóa học mới nhất" enrollments={latestEnrollments} courseById={courseById} categoryNameById={categoryNameById} />
+          <CourseRow title="Học gần đây" enrollments={recentlyLearned} courseById={courseById} categoryNameById={categoryNameById} />
         </div>
       )}
 
@@ -134,15 +134,15 @@ export default function MyCoursesPage() {
           <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 dark:bg-indigo-900/30">
             <BookOpen className="h-8 w-8" />
           </div>
-          <h3 className="text-lg font-black text-slate-900 dark:text-white">No enrolled resources yet</h3>
+          <h3 className="text-lg font-black text-slate-900 dark:text-white">Chưa có tài nguyên nào</h3>
           <p className="mb-6 max-w-sm text-sm font-medium text-slate-500">
-            Browse the marketplace and enroll in a course or document to start learning.
+            Hãy khám phá thị trường và đăng ký một khóa học hoặc tài liệu để bắt đầu học.
           </p>
           <Link
             to="/courses"
             className="rounded-xl border border-slate-200 bg-white px-6 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:text-white"
           >
-            View marketplace
+            Xem thị trường
           </Link>
         </div>
       ) : (
@@ -177,7 +177,7 @@ export default function MyCoursesPage() {
                   {archived && (
                     <div className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-amber-500 px-3 py-1 text-xs font-black text-white">
                       <AlertTriangle className="h-3.5 w-3.5" />
-                      Archived
+                      Đã lưu trữ
                     </div>
                   )}
                 </div>
@@ -188,32 +188,32 @@ export default function MyCoursesPage() {
                       {course?.title || enrollment.courseTitle}
                     </h3>
                     {course?.instructorName && (
-                      <p className="mt-1 text-xs font-bold text-slate-500">By {course.instructorName}</p>
+                      <p className="mt-1 text-xs font-bold text-slate-500">Bởi {course.instructorName}</p>
                     )}
                     <CourseMetadata domainName={domainName} skills={course?.skills || []} />
                     <div className="mt-2 flex flex-wrap items-center gap-2 text-xs font-bold text-slate-500">
                       <div className="flex items-center gap-1">
                         <Clock className="h-3.5 w-3.5 text-slate-400" />
-                        <span>Enrolled {new Date(enrollment.enrolledAt).toLocaleDateString()}</span>
+                        <span>Đã đăng ký {new Date(enrollment.enrolledAt).toLocaleDateString('vi-VN')}</span>
                       </div>
                       {enrollment.isCompleted && (
                         <div className="flex items-center gap-1 text-emerald-600">
                           <Award className="h-3.5 w-3.5" />
-                          <span>Completed</span>
+                          <span>Đã hoàn thành</span>
                         </div>
                       )}
                     </div>
                   </div>
 
-                  {archived && (
+                    {archived && (
                     <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800">
-                      This {isDocumentProduct ? 'document' : 'course'} has been archived. You can still access it from your library.
+                      {isDocumentProduct ? 'Tài liệu' : 'Khóa học'} này đã bị lưu trữ. Bạn vẫn có thể truy cập từ thư viện của mình.
                     </div>
-                  )}
+                    )}
 
                   <div className="mt-auto space-y-3">
                     <div className="flex items-center justify-between text-xs font-bold">
-                      <span className="text-slate-600 dark:text-slate-400">Learning progress</span>
+                      <span className="text-slate-600 dark:text-slate-400">Tiến độ học</span>
                       <span className="text-indigo-600">{Math.round(progress)}%</span>
                     </div>
                     <div className="h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-900">
@@ -228,7 +228,7 @@ export default function MyCoursesPage() {
                         className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 py-2 text-xs font-bold text-white transition hover:bg-indigo-600 dark:bg-indigo-900 dark:hover:bg-indigo-800"
                       >
                         {isDocumentProduct ? <Eye className="h-4 w-4" /> : <PlayCircle className="h-4 w-4" />}
-                        {isDocumentProduct ? 'Open document' : progress > 0 ? 'Continue learning' : 'Start learning'}
+                        {isDocumentProduct ? 'Xem tài liệu' : progress > 0 ? 'Tiếp tục học' : 'Bắt đầu học'}
                       </Link>
                       {canViewCertificate && (
                         <button
@@ -242,7 +242,7 @@ export default function MyCoursesPage() {
                           ) : (
                             <Eye className="h-4 w-4" />
                           )}
-                          View certificate
+                          Xem chứng chỉ
                         </button>
                       )}
                       {canReview && (
@@ -252,7 +252,7 @@ export default function MyCoursesPage() {
                           className="flex w-full items-center justify-center gap-2 rounded-xl border border-amber-200 bg-amber-50 py-2 text-xs font-bold text-amber-700 transition hover:bg-amber-100"
                         >
                           <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
-                          {existingReview ? 'Edit review' : `Review ${isDocumentProduct ? 'document' : 'course'}`}
+                          {existingReview ? 'Sửa đánh giá' : `Đánh giá ${isDocumentProduct ? 'tài liệu' : 'khóa học'}`}
                         </button>
                       )}
                     </div>
@@ -374,7 +374,7 @@ function CompactCourseCard({
           </div>
         )}
         <span className={`absolute right-2 top-2 rounded-lg px-2 py-1 text-[10px] font-black ${isDocumentProduct ? 'bg-amber-100 text-amber-800' : 'bg-emerald-50 text-emerald-700'}`}>
-          {isDocumentProduct ? 'Document' : 'Course'}
+          {isDocumentProduct ? 'Tài liệu' : 'Khóa học'}
         </span>
       </div>
       <div className="p-3">
@@ -382,12 +382,12 @@ function CompactCourseCard({
           {title}
         </h3>
         <p className="mt-1 text-[11px] font-semibold text-slate-500">
-          {enrollment.lastAccessedAt ? `Last learned ${new Date(enrollment.lastAccessedAt).toLocaleDateString()}` : `Enrolled ${new Date(enrollment.enrolledAt).toLocaleDateString()}`}
+          {enrollment.lastAccessedAt ? `Học lần cuối ${new Date(enrollment.lastAccessedAt).toLocaleDateString('vi-VN')}` : `Đã đăng ký ${new Date(enrollment.enrolledAt).toLocaleDateString('vi-VN')}`}
         </p>
         <CourseMetadata domainName={domainName} skills={course?.skills || []} compact />
         <div className="mt-3">
           <div className="mb-1 flex justify-between text-[11px] font-bold text-slate-500">
-            <span>Progress</span>
+            <span>Tiến độ</span>
             <span>{Math.round(progress)}%</span>
           </div>
           <div className="h-1.5 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-900">

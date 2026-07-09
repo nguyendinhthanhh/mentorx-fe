@@ -118,31 +118,31 @@ export default function AdminComplaintsPage() {
   const endIndex = Math.min((page + 1) * PAGE_SIZE, matchedCount)
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="flex flex-col justify-between gap-3 md:flex-row md:items-center">
         <div>
-          <h1 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">
+          <h1 className="text-4xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-400">
             {t('admin.complaints.title')}
           </h1>
-          <p className="mt-1 text-sm font-medium text-gray-500 dark:text-gray-400">
+          <p className="mt-2 text-sm font-bold text-slate-400 dark:text-slate-500">
             {t('admin.complaints.subtitle')}
           </p>
         </div>
-        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 dark:text-gray-500">
+        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 bg-white/50 dark:bg-slate-800/50 px-4 py-2 rounded-xl border border-white/50 dark:border-slate-700/50 shadow-sm">
           {t('admin.complaints.queue')}
         </p>
       </div>
 
-      <div className="rounded-3xl border border-gray-100 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
-        <div className="flex flex-col gap-3 border-b border-gray-50 p-5 dark:border-gray-800 sm:flex-row sm:items-center">
-          <div className="relative flex-1">
-            <Search className="pointer-events-none absolute left-4 top-1/2 w-4 h-4 -translate-y-1/2 text-gray-400" />
+      <div className="rounded-[2.5rem] border border-white/50 bg-white/70 shadow-xl shadow-slate-200/40 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/70 dark:shadow-none overflow-hidden transition-all">
+        <div className="flex flex-col gap-4 border-b border-slate-100/50 bg-slate-50/50 p-6 dark:border-slate-800/50 dark:bg-slate-800/30 sm:flex-row sm:items-center">
+          <div className="relative flex-1 group">
+            <Search className="pointer-events-none absolute left-5 top-1/2 w-5 h-5 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
             <input
               type="text"
               value={search}
               onChange={(event) => setSearch(event.target.value)}
               placeholder={t('admin.complaints.searchPlaceholder')}
-              className="w-full rounded-2xl border border-transparent bg-gray-50 py-2.5 pl-11 pr-4 text-sm font-medium text-gray-700 placeholder:text-gray-400 focus:border-primary-500/30 focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary-500/10 dark:bg-gray-800 dark:text-gray-200 dark:placeholder:text-gray-500 dark:focus:bg-gray-900"
+              className="w-full rounded-2xl border border-slate-200/60 bg-white/50 py-3.5 pl-14 pr-4 text-sm font-bold text-slate-900 placeholder:text-slate-400 focus:border-indigo-500/30 focus:bg-white focus:outline-none focus:ring-4 focus:ring-indigo-500/10 dark:border-slate-700/60 dark:bg-slate-800/50 dark:text-white dark:placeholder:text-slate-500 dark:focus:bg-slate-800 shadow-sm hover:border-slate-300 dark:hover:border-slate-600 transition-all"
             />
           </div>
           <select
@@ -151,7 +151,8 @@ export default function AdminComplaintsPage() {
               setPage(0)
               setStatusFilter(event.target.value as StatusFilter)
             }}
-            className="rounded-2xl border border-transparent bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-600 focus:border-primary-500/30 focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary-500/10 dark:bg-gray-800 dark:text-gray-300 dark:focus:bg-gray-900"
+            className="rounded-2xl border border-slate-200/60 bg-white/50 px-6 py-3.5 text-sm font-bold text-slate-600 focus:border-indigo-500/30 focus:bg-white focus:outline-none focus:ring-4 focus:ring-indigo-500/10 dark:border-slate-700/60 dark:bg-slate-800/50 dark:text-slate-300 dark:focus:bg-slate-800 shadow-sm hover:border-slate-300 dark:hover:border-slate-600 transition-all cursor-pointer outline-none appearance-none min-w-[200px]"
+            style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: 'right 1rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.5em 1.5em' }}
           >
             <option value="">{t('admin.complaints.filter.all')}</option>
             {STATUS_OPTIONS.map((status) => (
@@ -200,31 +201,31 @@ export default function AdminComplaintsPage() {
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-gray-50 bg-gray-50/40 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 dark:border-gray-800 dark:bg-gray-800/40 dark:text-gray-500">
-                  <th className="px-6 py-4 text-left">
+                <tr className="border-b border-slate-100/50 bg-slate-50/50 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:border-slate-800/50 dark:bg-slate-800/30 dark:text-slate-500">
+                  <th className="px-8 py-5 text-left">
                     {t('admin.complaints.column.title')}
                   </th>
-                  <th className="px-6 py-4 text-left">
+                  <th className="px-8 py-5 text-left">
                     {t('admin.complaints.column.complainant')}
                   </th>
-                  <th className="px-6 py-4 text-left">
+                  <th className="px-8 py-5 text-left">
                     {t('admin.complaints.column.category')}
                   </th>
-                  <th className="px-6 py-4 text-left">
+                  <th className="px-8 py-5 text-left">
                     {t('admin.complaints.column.priority')}
                   </th>
-                  <th className="px-6 py-4 text-left">
+                  <th className="px-8 py-5 text-left">
                     {t('admin.complaints.column.status')}
                   </th>
-                  <th className="px-6 py-4 text-left">
+                  <th className="px-8 py-5 text-left">
                     {t('admin.complaints.column.updatedAt')}
                   </th>
-                  <th className="px-6 py-4 text-right">
+                  <th className="px-8 py-5 text-right">
                     {t('admin.complaints.column.actions')}
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
+              <tbody className="divide-y divide-slate-100/50 dark:divide-slate-800/50">
                 {filteredContent.map((complaint) => (
                   <ComplaintRow key={complaint.id} complaint={complaint} />
                 ))}
@@ -233,20 +234,20 @@ export default function AdminComplaintsPage() {
           </div>
         )}
 
-        <div className="flex items-center justify-between border-t border-gray-50 px-6 py-4 dark:border-gray-800">
-          <p className="text-xs font-bold text-gray-400 dark:text-gray-500">
+        <div className="flex items-center justify-between border-t border-slate-100/50 px-8 py-6 bg-slate-50/30 dark:border-slate-800/50 dark:bg-slate-800/20">
+          <p className="text-xs font-bold text-slate-400 dark:text-slate-500">
             {t('admin.complaints.pagination.summary', {
               from: startIndex,
               to: endIndex,
               total: matchedCount,
             })}
           </p>
-          <div className="flex gap-2">
+          <div className="flex gap-3">
             <button
               type="button"
               onClick={() => setPage((current) => Math.max(current - 1, 0))}
               disabled={page === 0 || isFetching}
-              className="inline-flex items-center gap-1 rounded-xl border border-gray-100 bg-white px-3 py-1.5 text-xs font-bold text-gray-500 transition hover:text-primary-600 disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200/60 bg-white/50 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-slate-500 transition-all hover:bg-white hover:text-indigo-600 hover:shadow-sm hover:-translate-y-0.5 hover:border-indigo-200 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0 disabled:hover:shadow-none dark:border-slate-700/60 dark:bg-slate-800/50 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-indigo-400 dark:hover:border-indigo-800/50"
             >
               <ChevronLeft className="w-4 h-4" />
               {t('admin.complaints.pagination.prev')}
@@ -255,7 +256,7 @@ export default function AdminComplaintsPage() {
               type="button"
               onClick={() => setPage((current) => current + 1)}
               disabled={(data?.last ?? true) || isFetching}
-              className="inline-flex items-center gap-1 rounded-xl border border-gray-100 bg-white px-3 py-1.5 text-xs font-bold text-gray-500 transition hover:text-primary-600 disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200/60 bg-white/50 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-slate-500 transition-all hover:bg-white hover:text-indigo-600 hover:shadow-sm hover:-translate-y-0.5 hover:border-indigo-200 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0 disabled:hover:shadow-none dark:border-slate-700/60 dark:bg-slate-800/50 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-indigo-400 dark:hover:border-indigo-800/50"
             >
               {t('admin.complaints.pagination.next')}
               <ChevronRight className="w-4 h-4" />
@@ -272,59 +273,59 @@ function ComplaintRow({ complaint }: { complaint: ComplaintResponse }) {
   const bucket = complaintPriorityBucket(complaint.priorityLevel)
 
   return (
-    <tr className="group transition hover:bg-gray-50/50 dark:hover:bg-gray-800/40">
-      <td className="px-6 py-4">
-        <div className="flex items-start gap-3">
+    <tr className="group transition-colors hover:bg-slate-50/80 dark:hover:bg-slate-800/80">
+      <td className="px-8 py-5">
+        <div className="flex items-start gap-4">
           <div
-            className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-2xl border ${priorityIconColor(bucket)}`}
+            className={`flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl border ${priorityIconColor(bucket)} shadow-sm group-hover:scale-105 transition-transform`}
           >
-            <Flag className="w-4 h-4" />
+            <Flag className="w-5 h-5" />
           </div>
           <div className="min-w-0">
-            <p className="truncate text-sm font-black text-gray-900 dark:text-white">
+            <p className="truncate text-sm font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
               {complaint.title}
             </p>
-            <p className="mt-0.5 line-clamp-2 max-w-md text-xs font-medium text-gray-500 dark:text-gray-400">
+            <p className="mt-1 line-clamp-2 max-w-md text-xs font-medium text-slate-500 dark:text-slate-400 leading-relaxed">
               {complaint.description}
             </p>
           </div>
         </div>
       </td>
-      <td className="px-6 py-4 align-top">
-        <p className="text-xs font-bold text-gray-700 dark:text-gray-300">
+      <td className="px-8 py-5 align-top">
+        <p className="text-xs font-bold text-slate-700 dark:text-slate-300">
           {complaint.complainantId}
         </p>
-        <p className="mt-0.5 text-[10px] font-black uppercase tracking-widest text-gray-400">
+        <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-slate-400">
           {formatDateTime(complaint.createdAt)}
         </p>
       </td>
-      <td className="px-6 py-4 align-top">
-        <span className="inline-flex rounded-xl bg-gray-50 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-gray-600 dark:bg-gray-800 dark:text-gray-300">
+      <td className="px-8 py-5 align-top">
+        <span className="inline-flex rounded-xl bg-white/50 border border-slate-200/60 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-slate-600 dark:bg-slate-800/50 dark:border-slate-700/60 dark:text-slate-300 shadow-sm">
           {complaint.complaintCategory || '—'}
         </span>
       </td>
-      <td className="px-6 py-4 align-top">
+      <td className="px-8 py-5 align-top">
         <span
-          className={`inline-flex rounded-xl px-3 py-1 text-[10px] font-black uppercase tracking-widest ${priorityClass(bucket)}`}
+          className={`inline-flex rounded-xl px-3 py-1.5 text-[10px] font-black uppercase tracking-widest shadow-sm ${priorityClass(bucket)} border ${bucket === 'urgent' || bucket === 'high' ? 'border-rose-200/60 dark:border-rose-800/30' : bucket === 'medium' ? 'border-amber-200/60 dark:border-amber-800/30' : 'border-slate-200/60 dark:border-slate-700/60'}`}
         >
           {t(complaintPriorityKeys[bucket])}
-          <span className="ml-1 opacity-60">L{complaint.priorityLevel}</span>
+          <span className="ml-1 opacity-60 font-bold">L{complaint.priorityLevel}</span>
         </span>
       </td>
-      <td className="px-6 py-4 align-top">
+      <td className="px-8 py-5 align-top">
         <span
-          className={`inline-flex rounded-xl px-3 py-1 text-[10px] font-black uppercase tracking-widest ${statusClass(complaint.status)}`}
+          className={`inline-flex rounded-xl px-3 py-1.5 text-[10px] font-black uppercase tracking-widest shadow-sm border border-transparent ${statusClass(complaint.status)}`}
         >
           {t(complaintStatusKeys[complaint.status])}
         </span>
       </td>
-      <td className="px-6 py-4 align-top text-xs font-medium text-gray-500 dark:text-gray-400">
+      <td className="px-8 py-5 align-top text-xs font-medium text-slate-500 dark:text-slate-400">
         {formatDateTime(complaint.updatedAt)}
       </td>
-      <td className="px-6 py-4 align-top text-right">
+      <td className="px-8 py-5 align-top text-right">
         <Link
           to={`/admin/complaints/${complaint.id}`}
-          className="inline-flex items-center gap-1 rounded-xl border border-gray-100 bg-white px-3 py-1.5 text-xs font-bold text-gray-500 transition hover:border-primary-200 hover:text-primary-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300"
+          className="inline-flex items-center gap-1 rounded-xl border border-slate-200/60 bg-white/50 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-slate-500 transition-all hover:bg-white hover:border-indigo-200 hover:text-indigo-600 hover:shadow-sm hover:-translate-y-0.5 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 dark:border-slate-700/60 dark:bg-slate-800/50 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:border-indigo-800/50 dark:hover:text-indigo-400"
         >
           {t('admin.complaints.detail.view')}
         </Link>

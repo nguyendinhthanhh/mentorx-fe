@@ -27,13 +27,13 @@ export default function JobEditPage() {
     return (
       <div className="min-h-screen bg-[#f8fafc] px-4 py-12 text-slate-950">
         <div className="mx-auto max-w-xl rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
-          <h1 className="text-2xl font-black">Không thể chỉnh sửa yêu cầu này</h1>
+          <h1 className="text-2xl font-bold">Không thể chỉnh sửa yêu cầu này</h1>
           <p className="mt-2 text-sm leading-6 text-slate-600">
             Yêu cầu không tồn tại hoặc không thuộc tài khoản hiện tại.
           </p>
           <Link
             to="/my-jobs"
-            className="mt-6 inline-flex h-11 items-center justify-center rounded-xl bg-indigo-600 px-5 text-sm font-black text-white hover:bg-indigo-700"
+            className="mt-6 inline-flex h-11 items-center justify-center rounded-xl bg-indigo-600 px-5 text-sm font-bold text-white hover:bg-indigo-700"
           >
             Về yêu cầu của tôi
           </Link>
@@ -50,7 +50,7 @@ export default function JobEditPage() {
             <ArrowLeft className="h-4 w-4" />
             Quay lại yêu cầu của tôi
           </Link>
-          <h1 className="text-3xl font-black tracking-tight text-slate-900">Chỉnh sửa yêu cầu</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-slate-900">Chỉnh sửa yêu cầu</h1>
           <p className="mt-2 text-base text-slate-500">
             Cập nhật nội dung nháp, sau đó lưu lại hoặc đăng để mentor có thể ứng tuyển.
           </p>

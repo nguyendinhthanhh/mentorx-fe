@@ -1,234 +1,112 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { useNavigate } from 'react-router-dom'
 import {
   ArrowRight,
   Briefcase,
   CheckCircle2,
+  Clock3,
   FileText,
   Globe,
+  HelpCircle,
   Loader2,
-  UploadCloud, User,
+  GraduationCap,
+  ShieldCheck,
+  Sparkles,
+  UploadCloud,
+  User,
+  Video,
 } from 'lucide-react'
 
 import { FILE_UPLOAD_DIRS, fileApi } from '@/api/fileApi'
 import { mentorApi } from '@/api/mentorApi'
 import { userApi } from '@/api/userApi'
-import { MentorProfileRequest } from '@/types'
 import { useAuthStore } from '@/store/authStore'
+import { MentorProfileRequest } from '@/types'
 import { deriveLegacyProofFields, getMentorProofLinks, normalizeProofLinks } from '@/utils/proofLinks'
 
 const isDevEnvironment = import.meta.env.DEV
 
-function isUrlLike(value?: string) {
-  if (!value) return false
-  const normalized = value.trim().toLowerCase()
-  return normalized.startsWith('http://') || normalized.startsWith('https://') || normalized.startsWith('www.')
-}
-
-function parseUrl(value?: string) {
-  if (!value?.trim()) return null
-  try {
-    return new URL(value.trim())
-  } catch {
-    return null
-  }
-}
-
 const DOMAIN_OPTIONS = [
-  'Software Engineering',
-  'Data Science & AI',
-  'Product Management',
-  'Design',
-  'Marketing',
-  'Business & Finance',
-  'Career Coaching',
-  'Other',
+  { value: 'Software Engineering', label: 'Kỹ thuật phần mềm' },
+  { value: 'Data Science & AI', label: 'Khoa học dữ liệu & AI' },
+  { value: 'Product Management', label: 'Quản lý sản phẩm' },
+  { value: 'Design', label: 'Thiết kế (Design)' },
+  { value: 'Marketing', label: 'Marketing' },
+  { value: 'Business & Finance', label: 'Kinh doanh & Tài chính' },
+  { value: 'Career Coaching', label: 'Huấn luyện sự nghiệp (Career Coaching)' },
+  { value: 'Education', label: 'Giáo dục' },
+  { value: 'Sales', label: 'Bán hàng (Sales)' },
+  { value: 'Human Resources', label: 'Nhân sự (HR)' },
+  { value: 'Operations', label: 'Vận hành (Operations)' },
+  { value: 'Healthcare', label: 'Chăm sóc sức khỏe' },
+  { value: 'Other', label: 'Khác' },
 ] as const
 
 const LOCATION_OPTIONS = [
-  'Ho Chi Minh City, GMT+7',
-  'Ha Noi, GMT+7',
-  'Da Nang, GMT+7',
-  'Singapore, GMT+8',
-  'Tokyo, GMT+9',
-  'Remote / Flexible',
-  'Other',
+  { value: 'Ho Chi Minh City, GMT+7', label: 'Hồ Chí Minh (GMT+7)' },
+  { value: 'Ha Noi, GMT+7', label: 'Hà Nội (GMT+7)' },
+  { value: 'Da Nang, GMT+7', label: 'Đà Nẵng (GMT+7)' },
+  { value: 'Bangkok, GMT+7', label: 'Băng Cốc (GMT+7)' },
+  { value: 'Singapore, GMT+8', label: 'Singapore (GMT+8)' },
+  { value: 'Tokyo, GMT+9', label: 'Tokyo (GMT+9)' },
+  { value: 'Remote / Flexible', label: 'Làm việc từ xa / Linh hoạt' },
+  { value: 'Other', label: 'Khác' },
 ] as const
 
 const LANGUAGE_OPTIONS = [
-  'English',
-  'Vietnamese',
-  'Japanese',
-  'English, Vietnamese',
-  'English, Japanese',
-  'Vietnamese, Japanese',
-  'English, Vietnamese, Japanese',
-  'Other',
+  { value: 'English', label: 'Tiếng Anh' },
+  { value: 'Vietnamese', label: 'Tiếng Việt' },
+  { value: 'Japanese', label: 'Tiếng Nhật' },
+  { value: 'English, Vietnamese', label: 'Anh, Việt' },
+  { value: 'English, Japanese', label: 'Anh, Nhật' },
+  { value: 'Vietnamese, Japanese', label: 'Việt, Nhật' },
+  { value: 'English, Vietnamese, Japanese', label: 'Anh, Việt, Nhật' },
+  { value: 'Other', label: 'Khác' },
 ] as const
 
 const SKILL_SUGGESTIONS = [
-  'React Native',
-  'React',
-  'TypeScript',
-  'Node.js',
-  'Java',
-  'Spring Boot',
-  'Python',
+  'Frontend',
+  'Backend',
+  'Mobile',
   'Data Analysis',
-  'Product Design',
+  'Machine Learning',
+  'UI/UX Design',
+  'Product Strategy',
+  'Marketing',
   'Career Coaching',
+  'Public Speaking',
 ]
 
-const schema = z
-  .object({
-    headline: z.string().min(10, 'Add a stronger headline so learners understand your focus.').max(255),
-    currentTitle: z.string().optional(),
-    currentCompany: z.string().optional(),
-    primaryDomain: z.string().min(2, 'Primary domain is required.'),
-    primaryDomainCustom: z.string().optional(),
-    skills: z.array(z.string().min(1).max(60)).min(1, 'Add at least one skill.'),
-    professionalBio: z
-      .string()
-      .min(50, 'Professional bio must be at least 50 characters.')
-      .max(500, 'Professional bio cannot exceed 500 characters.'),
-    helpDescription: z
-      .string()
-      .min(30, 'Please add what you can help learners with (minimum 30 characters).')
-      .max(500, 'This field cannot exceed 500 characters.'),
-    yearsOfExperience: z.coerce.number().min(0).max(50),
-    hourlyRateMxc: z.coerce.number().min(0).optional(),
-    availability: z.string().optional(),
-    locationOption: z.string().optional(),
-    locationCustom: z.string().optional(),
-    languagesOption: z.string().optional(),
-    languagesCustom: z.string().optional(),
-    proofLinks: z.array(
-      z.object({
-        label: z.string().optional(),
-        url: z.string().optional(),
-      })
-    ).default([]),
-    avatarUrl: z.string().optional(),
-    coverUrl: z.string().optional(),
-    cvUrl: z.string().optional(),
-    certificateUrl: z.string().optional(),
-    mentorAgreementAccepted: z.boolean().refine(Boolean, 'You must accept the mentor terms.'),
-    disputePolicyAccepted: z.boolean().refine(Boolean, 'You must accept the dispute policy.'),
-  })
-  .superRefine((value, context) => {
-    if (value.primaryDomain === 'Other' && (!value.primaryDomainCustom || value.primaryDomainCustom.trim().length < 2)) {
-      context.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Please enter your primary domain.',
-        path: ['primaryDomainCustom'],
-      })
-    }
-    if (value.locationOption === 'Other' && (!value.locationCustom || value.locationCustom.trim().length < 2)) {
-      context.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Please enter your location / timezone.',
-        path: ['locationCustom'],
-      })
-    }
-    if (value.languagesOption === 'Other' && (!value.languagesCustom || value.languagesCustom.trim().length < 2)) {
-      context.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Please enter your languages.',
-        path: ['languagesCustom'],
-      })
-    }
+const EXPERIENCE_OPTIONS = [
+  { value: '0.5', label: 'Dưới 1 năm' },
+  { value: '1', label: '1 - 3 năm' },
+  { value: '3', label: '3 - 5 năm' },
+  { value: '5', label: '5 - 8 năm' },
+  { value: '8', label: '8 - 12 năm' },
+  { value: '12', label: '12+ năm' },
+] as const
 
-    if (isUrlLike(value.headline)) {
-      context.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Headline must be plain text, not a URL.',
-        path: ['headline'],
-      })
-    }
-    if (isUrlLike(value.currentTitle)) {
-      context.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Current title must be plain text, not a URL.',
-        path: ['currentTitle'],
-      })
-    }
-    if (isUrlLike(value.currentCompany)) {
-      context.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Current company must be plain text, not a URL.',
-        path: ['currentCompany'],
-      })
-    }
+const AVAILABILITY_OPTIONS = [
+  { value: 'Flexible', label: 'Linh hoạt' },
+  { value: 'Weekdays', label: 'Ngày thường' },
+  { value: 'Evenings', label: 'Buổi tối' },
+  { value: 'Weekends', label: 'Cuối tuần' },
+] as const
 
-    const normalizedProofLinks = normalizeProofLinks(value.proofLinks)
-    for (let index = 0; index < value.proofLinks.length; index += 1) {
-      const item = value.proofLinks[index]
-      const label = item.label?.trim() || ''
-      const url = item.url?.trim() || ''
+const RATE_SUGGESTIONS = [150, 250, 500, 800] as const
 
-      if (!label && !url) {
-        continue
-      }
-
-      if (!label) {
-        context.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'Please enter a label.',
-          path: ['proofLinks', index, 'label'],
-        })
-      }
-
-      if (!url) {
-        context.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'Please enter a URL.',
-          path: ['proofLinks', index, 'url'],
-        })
-        continue
-      }
-
-      if (label.length > 80) {
-        context.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'Label must be 80 characters or fewer.',
-          path: ['proofLinks', index, 'label'],
-        })
-      }
-
-      const parsed = parseUrl(url)
-      if (!parsed) {
-        context.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'Please enter a valid URL.',
-          path: ['proofLinks', index, 'url'],
-        })
-      } else if (
-        !isDevEnvironment &&
-        ['localhost', '127.0.0.1'].includes(parsed.hostname.toLowerCase())
-      ) {
-        context.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'Localhost URLs are not allowed outside development.',
-          path: ['proofLinks', index, 'url'],
-        })
-      }
-    }
-
-    const hasProof = normalizedProofLinks.length > 0 || Boolean(value.cvUrl?.trim() || value.certificateUrl?.trim())
-    if (!hasProof) {
-      context.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Add at least one proof item: a link, CV, or certificate.',
-        path: ['proofLinks'],
-      })
-    }
-  })
-
-type FormValues = z.infer<typeof schema>
-type UploadField = 'cvUrl' | 'certificateUrl'
+const PROOF_PRESETS = [
+  { label: 'LinkedIn', icon: Briefcase },
+  { label: 'GitHub', icon: Globe },
+  { label: 'Portfolio', icon: Sparkles },
+  { label: 'Behance', icon: Sparkles },
+  { label: 'Kaggle', icon: GraduationCap },
+  { label: 'Medium', icon: FileText },
+  { label: 'Intro Video', icon: Video },
+]
 
 interface Props {
   userId: string
@@ -248,7 +126,190 @@ interface Props {
 }
 
 const inputClass =
-  'w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:border-slate-800 dark:bg-slate-950 dark:text-white'
+  'w-full rounded-xl border border-slate-200/80 bg-white/70 px-3 py-2 text-sm font-semibold text-slate-900 outline-none transition-all duration-200 placeholder:text-slate-400 focus:border-indigo-400 focus:bg-white focus:ring-4 focus:ring-indigo-100 hover:border-slate-300 dark:border-slate-800 dark:bg-slate-950 dark:text-white backdrop-blur-md'
+
+const textareaClass = `${inputClass} min-h-[100px] resize-y`
+const sectionClass = 'rounded-[2rem] border border-white/60 bg-white/40 p-5 shadow-xl shadow-slate-200/40 backdrop-blur-2xl sm:p-7'
+
+function isUrlLike(value?: string) {
+  if (!value) return false
+  const normalized = value.trim().toLowerCase()
+  return normalized.startsWith('http://') || normalized.startsWith('https://') || normalized.startsWith('www.')
+}
+
+function parseUrl(value?: string) {
+  if (!value?.trim()) return null
+  try {
+    return new URL(value.trim())
+  } catch {
+    return null
+  }
+}
+
+function countWords(value?: string) {
+  return (value || '')
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean).length
+}
+
+function getResolvedOptionValue(option?: string, custom?: string) {
+  if (option === 'Other') return custom?.trim() || ''
+  return option?.trim() || ''
+}
+
+const schema = z
+  .object({
+    headline: z
+      .string()
+      .trim()
+      .min(20, 'Vui lòng nhập ít nhất 20 ký tự.')
+      .max(120, 'Tiêu đề không được vượt quá 120 ký tự.'),
+    currentTitle: z.string().optional(),
+    currentCompany: z.string().optional(),
+    primaryDomain: z.string().min(2, 'Vui lòng chọn lĩnh vực chuyên môn chính.'),
+    primaryDomainCustom: z.string().optional(),
+    skills: z
+      .array(z.string().trim().min(1).max(60))
+      .min(3, 'Vui lòng thêm ít nhất 3 kỹ năng.')
+      .max(15, 'Bạn chỉ có thể thêm tối đa 15 kỹ năng.'),
+    professionalBio: z.string().trim(),
+    helpDescription: z
+      .string()
+      .trim()
+      .min(40, 'Vui lòng thêm tóm tắt về những gì học viên có thể kỳ vọng.')
+      .max(500, 'Nội dung này không được vượt quá 500 ký tự.'),
+    yearsOfExperience: z.coerce.number().positive('Vui lòng chọn số năm kinh nghiệm.'),
+    hourlyRateMxc: z.coerce.number().positive('Mức phí theo giờ phải lớn hơn 0.').optional(),
+    availability: z.string().min(1, 'Vui lòng chọn khung giờ trống.'),
+    locationOption: z.string().min(1, 'Vui lòng chọn múi giờ.'),
+    locationCustom: z.string().optional(),
+    languagesOption: z.string().min(1, 'Vui lòng chọn ít nhất một ngôn ngữ.'),
+    languagesCustom: z.string().optional(),
+    proofLinks: z.array(
+      z.object({
+        label: z.string().optional(),
+        url: z.string().optional(),
+      })
+    ).default([]),
+    avatarUrl: z.string().optional(),
+    coverUrl: z.string().optional(),
+    cvUrl: z.string().optional(),
+    certificateUrl: z.string().optional(),
+    mentorAgreementAccepted: z.boolean().refine(Boolean, 'Vui lòng xác nhận thông tin là chính xác.'),
+    disputePolicyAccepted: z.boolean().refine(Boolean, 'Vui lòng đồng ý với chính sách kiểm duyệt.'),
+  })
+  .superRefine((value, context) => {
+    if (value.primaryDomain === 'Other' && (!value.primaryDomainCustom || value.primaryDomainCustom.trim().length < 2)) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Vui lòng nhập lĩnh vực chuyên môn của bạn.',
+        path: ['primaryDomainCustom'],
+      })
+    }
+
+    if (value.locationOption === 'Other' && (!value.locationCustom || value.locationCustom.trim().length < 2)) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Vui lòng nhập múi giờ của bạn.',
+        path: ['locationCustom'],
+      })
+    }
+
+    if (value.languagesOption === 'Other' && (!value.languagesCustom || value.languagesCustom.trim().length < 2)) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Vui lòng nhập ngôn ngữ của bạn.',
+        path: ['languagesCustom'],
+      })
+    }
+
+    if (isUrlLike(value.headline)) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Tiêu đề phải là văn bản thông thường, không được chứa URL.',
+        path: ['headline'],
+      })
+    }
+
+    if (isUrlLike(value.currentTitle)) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Chức danh phải là văn bản thông thường, không được chứa URL.',
+        path: ['currentTitle'],
+      })
+    }
+
+    if (isUrlLike(value.currentCompany)) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Tên công ty phải là văn bản thông thường, không được chứa URL.',
+        path: ['currentCompany'],
+      })
+    }
+
+    const bioWordCount = countWords(value.professionalBio)
+    if (bioWordCount < 150 || bioWordCount > 500) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Giới thiệu bản thân nên từ 150 đến 500 từ.',
+        path: ['professionalBio'],
+      })
+    }
+
+    const normalizedProofLinks = normalizeProofLinks(value.proofLinks)
+    for (let index = 0; index < value.proofLinks.length; index += 1) {
+      const item = value.proofLinks[index]
+      const label = item.label?.trim() || ''
+      const url = item.url?.trim() || ''
+
+      if (!label && !url) continue
+
+      if (!label) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Vui lòng nhập tên nhãn.',
+          path: ['proofLinks', index, 'label'],
+        })
+      }
+
+      if (!url) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Vui lòng nhập URL.',
+          path: ['proofLinks', index, 'url'],
+        })
+        continue
+      }
+
+      const parsed = parseUrl(url)
+      if (!parsed) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Vui lòng nhập URL hợp lệ.',
+          path: ['proofLinks', index, 'url'],
+        })
+      } else if (!isDevEnvironment && ['localhost', '127.0.0.1'].includes(parsed.hostname.toLowerCase())) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Localhost URL không được phép.',
+          path: ['proofLinks', index, 'url'],
+        })
+      }
+    }
+
+    const hasProof = normalizedProofLinks.length > 0 || Boolean(value.cvUrl?.trim() || value.certificateUrl?.trim())
+    if (!hasProof) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Vui lòng thêm ít nhất một liên kết năng lực, CV, hoặc chứng chỉ.',
+        path: ['proofLinks'],
+      })
+    }
+  })
+
+type FormValues = z.infer<typeof schema>
+type UploadField = 'cvUrl' | 'certificateUrl'
 
 export default function MentorProfileForm({
   userId,
@@ -256,8 +317,6 @@ export default function MentorProfileForm({
   isEdit,
   isLocked = false,
   lockedMessage,
-  headingTitle,
-  headingDescription,
   submitButtonLabel,
   successTitle,
   successDescription,
@@ -275,11 +334,9 @@ export default function MentorProfileForm({
   const initialDomain = initialData?.primaryDomain || ''
   const initialLocation = initialData?.location || ''
   const initialLanguagesText = initialData?.languages?.join(', ') || ''
-  const resolvedDomain = DOMAIN_OPTIONS.includes(initialDomain as (typeof DOMAIN_OPTIONS)[number]) ? initialDomain : (initialDomain ? 'Other' : '')
-  const resolvedLocation = LOCATION_OPTIONS.includes(initialLocation as (typeof LOCATION_OPTIONS)[number])
-    ? initialLocation
-    : (initialLocation ? 'Other' : '')
-  const resolvedLanguages = LANGUAGE_OPTIONS.includes(initialLanguagesText as (typeof LANGUAGE_OPTIONS)[number])
+  const resolvedDomain = DOMAIN_OPTIONS.some(o => o.value === initialDomain) ? initialDomain : (initialDomain ? 'Other' : '')
+  const resolvedLocation = LOCATION_OPTIONS.some(o => o.value === initialLocation) ? initialLocation : (initialLocation ? 'Other' : '')
+  const resolvedLanguages = LANGUAGE_OPTIONS.some(o => o.value === initialLanguagesText)
     ? initialLanguagesText
     : (initialLanguagesText ? 'Other' : '')
 
@@ -301,7 +358,7 @@ export default function MentorProfileForm({
       skills: initialData?.skills || [],
       professionalBio: initialData?.professionalBio || '',
       helpDescription: initialData?.helpDescription || '',
-      yearsOfExperience: initialData?.yearsOfExperience || 0,
+      yearsOfExperience: initialData?.yearsOfExperience || undefined,
       hourlyRateMxc: initialData?.hourlyRateMxc || undefined,
       availability: initialData?.availability || 'Flexible',
       locationOption: resolvedLocation,
@@ -318,35 +375,13 @@ export default function MentorProfileForm({
     },
   })
 
-  
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, fieldName: 'avatarUrl' | 'coverUrl') => {
-    const file = e.target.files?.[0]
-    if (!file) return
-
-    if (!allowedMimeTypes.has(file.type)) {
-      setError('Invalid file type for ' + fieldName)
-      return
-    }
-
-    try {
-      setUploading((prev) => ({ ...prev, [fieldName]: true }))
-      setError('')
-      const response = await fileApi.uploadCourseMedia(file, fieldName === 'avatarUrl' ? 'mentorx/avatars' : 'mentorx/covers')
-      setValue(fieldName, response.fileUrl, { shouldValidate: true, shouldDirty: true })
-    } catch (err) {
-      console.error(err)
-      setError(getApiErrorMessage(err, 'Failed to upload image.'))
-    } finally {
-      setUploading((prev) => ({ ...prev, [fieldName]: false }))
-    }
-  }
-
-const { fields: proofLinkFields, append: appendProofLink, remove: removeProofLink } = useFieldArray({
+  const { fields: proofLinkFields, append: appendProofLink, remove: removeProofLink } = useFieldArray({
     control,
     name: 'proofLinks',
   })
 
   const values = watch()
+  const bioWordCount = countWords(values.professionalBio)
   const maxUploadBytes = 10 * 1024 * 1024
   const allowedMimeTypes = new Set([
     'application/pdf',
@@ -355,20 +390,25 @@ const { fields: proofLinkFields, append: appendProofLink, remove: removeProofLin
     'image/webp',
   ])
   const allowedExtensions = ['.pdf', '.jpg', '.jpeg', '.png', '.webp']
+  const imageUploadDirectories = {
+    avatarUrl: FILE_UPLOAD_DIRS.PUBLIC_AVATAR,
+    coverUrl: FILE_UPLOAD_DIRS.PUBLIC_COVER,
+  } as const
 
   const getApiErrorMessage = (err: any, fallback: string) => {
     const isNetworkError =
       err?.code === 'ERR_NETWORK' ||
       (!err?.response && typeof err?.message === 'string' && err.message.toLowerCase().includes('network error'))
+
     if (isNetworkError) {
-      return 'Cannot connect to backend server (localhost:8080). Please start backend and try again.'
+      return 'Không thể kết nối đến máy chủ. Vui lòng thử lại sau.'
     }
 
     const status = err?.response?.status
-    if (status === 401) return 'Your session has expired. Please sign in again.'
-    if (status === 403) return 'You do not have permission to upload this file.'
-    if (status === 413) return 'File is too large. Maximum upload size is 10MB.'
-    if (status === 415) return 'Unsupported file type. Please upload PDF, JPG, JPEG, PNG, or WEBP.'
+    if (status === 401) return 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.'
+    if (status === 403) return 'Bạn không có quyền tải lên tệp này.'
+    if (status === 413) return 'Tệp quá lớn. Kích thước tối đa là 10MB.'
+    if (status === 415) return 'Loại tệp không được hỗ trợ. Vui lòng tải lên PDF, JPG, JPEG, PNG, hoặc WEBP.'
 
     return (
       err?.response?.data?.message ||
@@ -379,16 +419,45 @@ const { fields: proofLinkFields, append: appendProofLink, remove: removeProofLin
     )
   }
 
-  const uploadFile = async (field: UploadField, file?: File) => {
-    if (isLocked) return
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>, fieldName: 'avatarUrl' | 'coverUrl') => {
+    const file = event.target.files?.[0]
     if (!file) return
-    const extension = file.name?.toLowerCase().slice(file.name.lastIndexOf('.')) || ''
-    if (!allowedMimeTypes.has(file.type) || !allowedExtensions.includes(extension)) {
-      setError('Unsupported file type. Please upload PDF, JPG, JPEG, PNG, or WEBP.')
+
+    if (!allowedMimeTypes.has(file.type)) {
+      setError(`Loại hình ảnh không được hỗ trợ.`)
       return
     }
+
+    const previewUrl = URL.createObjectURL(file)
+    const previousValue = values[fieldName]
+
+    try {
+      setUploading((prev) => ({ ...prev, [fieldName]: true }))
+      setError('')
+      setValue(fieldName, previewUrl, { shouldValidate: true, shouldDirty: true })
+      const response = await fileApi.upload(file, { subDirectory: imageUploadDirectories[fieldName] })
+      setValue(fieldName, response.fileUrl, { shouldValidate: true, shouldDirty: true })
+    } catch (err) {
+      setValue(fieldName, previousValue || '', { shouldValidate: true, shouldDirty: true })
+      setError(getApiErrorMessage(err, 'Lỗi khi tải ảnh lên.'))
+    } finally {
+      URL.revokeObjectURL(previewUrl)
+      setUploading((prev) => ({ ...prev, [fieldName]: false }))
+      event.target.value = ''
+    }
+  }
+
+  const uploadFile = async (field: UploadField, file?: File) => {
+    if (isLocked || !file) return
+
+    const extension = file.name?.toLowerCase().slice(file.name.lastIndexOf('.')) || ''
+    if (!allowedMimeTypes.has(file.type) || !allowedExtensions.includes(extension)) {
+      setError('Định dạng tệp không được hỗ trợ. Vui lòng chọn PDF, JPG, PNG, hoặc WEBP.')
+      return
+    }
+
     if (file.size > maxUploadBytes) {
-      setError('File is too large. Maximum upload size is 10MB.')
+      setError('Tệp quá lớn. Kích thước tối đa là 10MB.')
       return
     }
 
@@ -398,7 +467,7 @@ const { fields: proofLinkFields, append: appendProofLink, remove: removeProofLin
       const response = await fileApi.upload(file, { subDirectory: FILE_UPLOAD_DIRS.PRIVATE_DOCUMENT })
       setValue(field, response.fileUrl, { shouldDirty: true, shouldValidate: true })
     } catch (err: any) {
-      setError(getApiErrorMessage(err, 'Unable to upload the selected file. Please try again.'))
+      setError(getApiErrorMessage(err, 'Không thể tải tệp lên. Vui lòng thử lại.'))
     } finally {
       setUploading((prev) => ({ ...prev, [field]: false }))
     }
@@ -408,13 +477,21 @@ const { fields: proofLinkFields, append: appendProofLink, remove: removeProofLin
     if (isLocked) return
     const normalizedSkill = rawSkill.trim()
     if (!normalizedSkill) return
+
     const currentSkills = values.skills || []
     if (currentSkills.some((item) => item.toLowerCase() === normalizedSkill.toLowerCase())) {
       setSkillInput('')
       return
     }
+
+    if (currentSkills.length >= 15) {
+      setError('Bạn chỉ có thể thêm tối đa 15 kỹ năng.')
+      return
+    }
+
     setValue('skills', [...currentSkills, normalizedSkill], { shouldDirty: true, shouldValidate: true })
     setSkillInput('')
+    setError('')
   }
 
   const removeSkill = (skillToRemove: string) => {
@@ -430,25 +507,21 @@ const { fields: proofLinkFields, append: appendProofLink, remove: removeProofLin
 
   const onSubmit = async (data: FormValues) => {
     if (isLocked) return
+
     try {
       setLoading(true)
       setError('')
-      const resolvedLocationValue = data.locationOption === 'Other'
-        ? (data.locationCustom || '').trim()
-        : (data.locationOption || '').trim()
-      const resolvedLanguagesValue = data.languagesOption === 'Other'
-        ? (data.languagesCustom || '').trim()
-        : (data.languagesOption || '').trim()
+
+      const resolvedLocationValue = getResolvedOptionValue(data.locationOption, data.locationCustom)
+      const resolvedLanguagesValue = getResolvedOptionValue(data.languagesOption, data.languagesCustom)
       const proofLinks = normalizeProofLinks(data.proofLinks)
       const legacyProofFields = deriveLegacyProofFields(proofLinks)
 
       const payload: MentorProfileRequest = {
-        headline: data.headline,
+        headline: data.headline.trim(),
         currentTitle: data.currentTitle?.trim() || undefined,
         currentCompany: data.currentCompany?.trim() || undefined,
-        primaryDomain: data.primaryDomain === 'Other'
-          ? (data.primaryDomainCustom || '').trim()
-          : data.primaryDomain,
+        primaryDomain: data.primaryDomain === 'Other' ? (data.primaryDomainCustom || '').trim() : data.primaryDomain,
         skills: data.skills,
         professionalBio: data.professionalBio.trim(),
         helpDescription: data.helpDescription.trim(),
@@ -491,7 +564,7 @@ const { fields: proofLinkFields, append: appendProofLink, remove: removeProofLin
         }
       }, 900)
     } catch (err: any) {
-      setError(getApiErrorMessage(err, 'Unable to submit your professional profile right now.'))
+      setError(getApiErrorMessage(err, 'Không thể gửi hồ sơ của bạn lúc này.'))
     } finally {
       setLoading(false)
     }
@@ -499,424 +572,528 @@ const { fields: proofLinkFields, append: appendProofLink, remove: removeProofLin
 
   if (success) {
     return (
-      <div className="rounded-[2rem] border border-emerald-100 bg-emerald-50/70 p-10 text-center dark:border-emerald-900/30 dark:bg-emerald-950/20">
-        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-500 text-white shadow-lg shadow-emerald-200">
+      <div className="rounded-[2rem] border border-emerald-200/60 bg-emerald-50/50 p-10 text-center backdrop-blur-xl">
+        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 text-white shadow-xl shadow-emerald-500/30">
           <CheckCircle2 className="h-8 w-8" />
         </div>
-        <h3 className="mt-5 text-2xl font-black text-slate-950 dark:text-white">
-          {successTitle || (isEdit ? 'Professional profile updated' : 'Professional profile submitted')}
+        <h3 className="mt-5 text-2xl font-black tracking-tight text-slate-900">
+          {successTitle || (isEdit ? 'Đã cập nhật hồ sơ' : 'Đã gửi hồ sơ ứng tuyển')}
         </h3>
-        <p className="mx-auto mt-3 max-w-lg text-sm leading-relaxed text-slate-600 dark:text-slate-400">
-          {successDescription || 'Your expertise review is now in queue. Mentor Mode will unlock after the moderation team approves your professional profile.'}
+        <p className="mx-auto mt-3 max-w-lg text-sm font-semibold text-slate-600">
+          {successDescription || 'Hồ sơ của bạn đã được gửi. Chúng tôi sẽ phản hồi trong vòng 2-5 ngày làm việc.'}
         </p>
       </div>
     )
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+    <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-6">
       {isLocked && (
-        <section className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-900">
-          {lockedMessage || 'Your profile is currently under review. Editing is locked until moderators request updates.'}
+        <section className="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm font-semibold text-amber-900 shadow-sm">
+          {lockedMessage || 'Hồ sơ của bạn đang được xét duyệt. Không thể chỉnh sửa lúc này.'}
         </section>
       )}
-      <fieldset disabled={isLocked} className="space-y-6 disabled:cursor-not-allowed disabled:opacity-70">
 
-      <section className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm overflow-hidden dark:border-slate-800 dark:bg-slate-950">
-        <div className="mb-4">
-          <h2 className="text-xl font-black text-slate-950 dark:text-white">Visual Branding</h2>
-          <p className="text-sm text-slate-600 dark:text-slate-400">Make your profile stand out with a custom cover photo and professional avatar.</p>
-        </div>
-
-        <div className="relative mt-4">
-          {/* Cover Photo Area */}
-          <div className="relative h-48 w-full rounded-2xl bg-slate-100 overflow-hidden border-2 border-dashed border-slate-300 flex items-center justify-center group transition-colors hover:border-indigo-400 dark:bg-slate-900 dark:border-slate-800">
-            {values.coverUrl ? (
-              <img src={values.coverUrl} alt="Cover" className="h-full w-full object-cover" />
-            ) : (
-              <div className="text-center text-slate-500">
-                <UploadCloud className="mx-auto h-8 w-8 mb-2 opacity-50" />
-                <span className="text-sm font-medium">Upload Cover Photo (16:9)</span>
-              </div>
-            )}
-            
-            <label className="absolute inset-0 cursor-pointer flex items-center justify-center bg-black/0 group-hover:bg-black/20 transition-all">
-              <input type="file" className="hidden" accept="image/jpeg,image/png,image/webp" onChange={(e) => handleImageUpload(e, 'coverUrl')} disabled={uploading.coverUrl || isLocked} />
-              {uploading.coverUrl && <Loader2 className="h-8 w-8 animate-spin text-white" />}
-            </label>
-          </div>
-
-          {/* Avatar Area */}
-          <div className="absolute -bottom-10 left-8 z-10">
-            <div className="relative h-28 w-28 rounded-full border-4 border-white bg-white shadow-md overflow-hidden group dark:border-slate-950 dark:bg-slate-900">
-              {values.avatarUrl ? (
-                <img src={values.avatarUrl} alt="Avatar" className="h-full w-full object-cover" />
-              ) : (
-                <div className="flex h-full w-full items-center justify-center bg-indigo-100 text-indigo-400 dark:bg-indigo-900 dark:text-indigo-300">
-                  <User className="h-12 w-12" />
-                </div>
-              )}
-              
-              <label className="absolute inset-0 cursor-pointer flex items-center justify-center bg-black/0 group-hover:bg-black/40 transition-all rounded-full">
-                <input type="file" className="hidden" accept="image/jpeg,image/png,image/webp" onChange={(e) => handleImageUpload(e, 'avatarUrl')} disabled={uploading.avatarUrl || isLocked} />
-                {uploading.avatarUrl ? (
-                  <Loader2 className="h-6 w-6 animate-spin text-white" />
-                ) : (
-                  <UploadCloud className="h-6 w-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
-                )}
-              </label>
-            </div>
-          </div>
-        </div>
+      <fieldset disabled={isLocked} className="space-y-6 disabled:cursor-not-allowed disabled:opacity-75">
         
-        <div className="mt-14 flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-          <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-          Recommended: Cover (1600x400px), Avatar (400x400px). JPG, PNG, WEBP up to 10MB.
-        </div>
-      </section>
-
-      <section className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-        <div className="flex items-start gap-4">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950/40 dark:text-indigo-400">
-            <Briefcase className="h-6 w-6" />
-          </div>
-          <div>
-            <h2 className="mt-1 text-2xl font-black text-slate-950 dark:text-white">
-              {headingTitle || 'Build your public mentor profile'}
-            </h2>
-            <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
-              {headingDescription || 'Tell Mentor X what you can teach, where you have real experience, and why learners can trust your professional background.'}
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-8 grid gap-5 md:grid-cols-2">
-          <Field label="Headline" error={errors.headline?.message}>
-            <input {...register('headline')} className={inputClass} placeholder="Senior React Native mentor for app architecture and performance" />
-          </Field>
-          <Field label="Primary domain" error={errors.primaryDomain?.message}>
-            <select {...register('primaryDomain')} className={inputClass}>
-              <option value="">Select a primary domain</option>
-              {DOMAIN_OPTIONS.map((domain) => (
-                <option key={domain} value={domain}>
-                  {domain}
-                </option>
-              ))}
-            </select>
-          </Field>
-          {values.primaryDomain === 'Other' && (
-            <Field label="Custom domain" error={errors.primaryDomainCustom?.message}>
-              <input
-                {...register('primaryDomainCustom')}
-                className={inputClass}
-                placeholder="Enter your domain (e.g. Cybersecurity, DevOps...)"
-              />
-            </Field>
-          )}
-          <Field label="Skills" error={errors.skills?.message as string | undefined}>
-            <div className="space-y-3">
-              <div className="flex flex-wrap gap-2">
-                {(values.skills || []).map((skill) => (
-                  <button
-                    key={skill}
-                    type="button"
-                    onClick={() => removeSkill(skill)}
-                    className="inline-flex items-center gap-2 rounded-full bg-indigo-100 px-3 py-1 text-xs font-bold text-indigo-700 hover:bg-indigo-200"
-                  >
-                    {skill}
-                    <span aria-hidden>×</span>
-                  </button>
-                ))}
+        {/* Ảnh đại diện & Khởi đầu */}
+        <section className={sectionClass}>
+          <div className="flex flex-col gap-6 md:flex-row md:items-center">
+            <div className="flex flex-col items-center shrink-0">
+              <div className="relative flex h-24 w-24 items-center justify-center overflow-hidden rounded-3xl bg-slate-100 ring-4 ring-white shadow-lg">
+                {values.avatarUrl ? (
+                  <img src={values.avatarUrl} alt="Mentor avatar" className="h-full w-full object-cover" />
+                ) : (
+                  <User className="h-8 w-8 text-slate-400" />
+                )}
               </div>
-              <div className="flex gap-2">
+
+              <label className="mt-4 cursor-pointer rounded-xl bg-indigo-50 px-4 py-2 text-xs font-bold text-indigo-700 transition hover:bg-indigo-100 flex items-center gap-2">
                 <input
-                  value={skillInput}
-                  onChange={(event) => setSkillInput(event.target.value)}
-                  onKeyDown={(event) => {
-                    if (event.key === 'Enter' || event.key === ',') {
-                      event.preventDefault()
-                      addSkill(skillInput)
-                    }
-                  }}
-                  className={inputClass}
-                  placeholder="Type a skill and press Enter"
+                  type="file"
+                  className="hidden"
+                  accept="image/jpeg,image/png,image/webp"
+                  onChange={(event) => handleImageUpload(event, 'avatarUrl')}
+                  disabled={uploading.avatarUrl || isLocked}
                 />
+                {uploading.avatarUrl ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <UploadCloud className="h-3.5 w-3.5" />}
+                {values.avatarUrl ? 'Đổi ảnh' : 'Tải ảnh lên'}
+              </label>
+
+              {values.avatarUrl && (
                 <button
                   type="button"
-                  onClick={() => addSkill(skillInput)}
-                  className="rounded-xl border border-slate-200 px-3 text-sm font-bold text-slate-700 hover:bg-slate-50"
+                  onClick={() => setValue('avatarUrl', '', { shouldDirty: true, shouldValidate: true })}
+                  className="mt-2 text-[10px] font-bold text-slate-400 hover:text-slate-600"
                 >
-                  Add
+                  Gỡ ảnh
                 </button>
+              )}
+            </div>
+
+            <div className="md:pl-6 md:border-l border-slate-200/60">
+              <div className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-50 px-2 py-1 text-[10px] font-black uppercase tracking-widest text-emerald-600 mb-2">
+                <CheckCircle2 className="w-3 h-3" />
+                Ấn tượng đầu tiên
               </div>
-              <div className="flex flex-wrap gap-2">
-                {SKILL_SUGGESTIONS.map((skill) => (
-                  <button
-                    key={skill}
-                    type="button"
-                    onClick={() => addSkill(skill)}
-                    className="rounded-full border border-slate-200 px-2.5 py-1 text-[11px] font-semibold text-slate-600 hover:border-indigo-300 hover:text-indigo-700"
-                  >
-                    {skill}
-                  </button>
+              <h3 className="text-xl font-black text-slate-900">Hình ảnh chuyên nghiệp, dễ nhận diện</h3>
+              <p className="mt-2 text-sm font-medium text-slate-500 leading-relaxed max-w-lg">
+                Ảnh đại diện rõ nét, khuôn mặt thân thiện sẽ giúp học viên tin tưởng bạn hơn và tăng tỷ lệ booking. File hỗ trợ: JPG, PNG, WEBP (tối đa 10MB).
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Thông tin chuyên môn */}
+        <SectionCard
+          eyebrow="Thông tin cá nhân"
+          title="Định vị chuyên môn của bạn"
+          description="Giới thiệu nhanh về bạn, lĩnh vực mạnh nhất và các kỹ năng cốt lõi."
+          icon={<Sparkles className="h-5 w-5" />}
+          tone="indigo"
+        >
+          <div className="grid gap-5 md:grid-cols-2">
+            <Field
+              label="Tiêu đề (Headline)"
+              description="Một câu ngắn gọn tóm tắt vị thế của bạn."
+              error={errors.headline?.message}
+            >
+              <input
+                {...register('headline')}
+                className={inputClass}
+                placeholder="VD: Senior Backend Engineer giúp bạn master Spring Boot"
+              />
+            </Field>
+
+            <Field
+              label="Lĩnh vực chính"
+              description="Hỗ trợ phân loại hồ sơ của bạn."
+              error={errors.primaryDomain?.message}
+            >
+              <select {...register('primaryDomain')} className={inputClass}>
+                <option value="">Chọn lĩnh vực của bạn</option>
+                {DOMAIN_OPTIONS.map((domain) => (
+                  <option key={domain.value} value={domain.value}>
+                    {domain.label}
+                  </option>
                 ))}
+              </select>
+            </Field>
+
+            {values.primaryDomain === 'Other' && (
+              <div className="md:col-span-2">
+                <Field
+                  label="Lĩnh vực khác"
+                  error={errors.primaryDomainCustom?.message}
+                >
+                  <input {...register('primaryDomainCustom')} className={inputClass} placeholder="VD: Luật, Kiến trúc, Nha khoa" />
+                </Field>
               </div>
-            </div>
-          </Field>
-          <Field label="Professional bio" error={errors.professionalBio?.message}>
-            <div>
-              <textarea
-                {...register('professionalBio')}
-                rows={4}
-                className={inputClass}
-                placeholder="Describe your background, mentoring style, and what learners can expect from you."
-              />
-              <p className="mt-1 text-xs text-slate-500">
-                Describe your background, mentoring style, and what learners can expect from you.
-              </p>
-            </div>
-          </Field>
-          <Field label="What can you help learners with?" error={errors.helpDescription?.message}>
-            <div>
-              <textarea
-                {...register('helpDescription')}
-                rows={4}
-                className={inputClass}
-                placeholder="Explain the problems, goals, or topics you can help learners with."
-              />
-              <p className="mt-1 text-xs text-slate-500">
-                Explain the problems, goals, or topics you can help learners with.
-              </p>
-            </div>
-          </Field>
-          <Field label="Current title" error={errors.currentTitle?.message}>
-            <input {...register('currentTitle')} className={inputClass} placeholder="Senior Frontend Engineer" />
-          </Field>
-          <Field label="Current company" error={errors.currentCompany?.message}>
-            <input {...register('currentCompany')} className={inputClass} placeholder="Mentor X / Freelance / Company name" />
-          </Field>
-          <Field label="Years of experience" error={errors.yearsOfExperience?.message}>
-            <input type="number" {...register('yearsOfExperience')} className={inputClass} />
-          </Field>
-          <Field label="Expected hourly rate (optional, MXC/hour)" error={errors.hourlyRateMxc?.message}>
-            <div>
-              <input type="number" step="0.01" {...register('hourlyRateMxc')} className={inputClass} placeholder="250" />
-              <p className="mt-1 text-xs text-slate-500">
-                This is only an estimate. You can configure official packages after approval.
-              </p>
-            </div>
-          </Field>
-          <Field label="Availability" error={errors.availability?.message}>
-            <select {...register('availability')} className={inputClass}>
-              <option value="Flexible">Flexible</option>
-              <option value="Weekdays">Weekdays</option>
-              <option value="Evenings">Evenings</option>
-              <option value="Weekends">Weekends</option>
-            </select>
-          </Field>
-          <div className="md:col-span-2 rounded-2xl border border-sky-100 bg-sky-50/70 px-4 py-3 text-sm text-sky-900">
-            Your actual response time will be calculated automatically after you start receiving messages.
-          </div>
-        </div>
-      </section>
+            )}
 
-      <section className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-        <div className="flex items-start gap-4">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-violet-50 text-violet-600 dark:bg-violet-950/40 dark:text-violet-400">
-            <Globe className="h-5 w-5" />
-          </div>
-          <div>
-            <h3 className="mt-1 text-lg font-black text-slate-950 dark:text-white">Show proof of expertise</h3>
-            <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
-              Add links and optional supporting files that help moderators validate your experience faster.
-            </p>
-          </div>
-        </div>
+            <div className="md:col-span-2">
+              <Field
+                label="Kỹ năng (Skills)"
+                description="Thêm 3 - 15 kỹ năng cốt lõi mà bạn tự tin mentor."
+                error={errors.skills?.message as string | undefined}
+              >
+                <div className="rounded-2xl border border-slate-200/80 bg-slate-50/50 p-4">
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {(values.skills || []).map((skill) => (
+                      <button
+                        key={skill}
+                        type="button"
+                        onClick={() => removeSkill(skill)}
+                        className="group flex items-center gap-1.5 rounded-lg bg-indigo-100 px-3 py-1.5 text-xs font-bold text-indigo-700 transition hover:bg-indigo-200"
+                      >
+                        {skill}
+                        <span className="text-indigo-400 group-hover:text-indigo-600">&times;</span>
+                      </button>
+                    ))}
+                  </div>
 
-        <div className="mt-6 grid gap-4">
-          <div>
-            <div className="mb-2 flex items-center justify-between gap-3">
-              <label className="block text-[11px] font-black uppercase tracking-[0.16em] text-slate-500">
-                Proof links
-              </label>
+                  <div className="flex gap-2">
+                    <input
+                      value={skillInput}
+                      onChange={(event) => setSkillInput(event.target.value)}
+                      onKeyDown={(event) => {
+                        if (event.key === 'Enter' || event.key === ',') {
+                          event.preventDefault()
+                          addSkill(skillInput)
+                        }
+                      }}
+                      className={inputClass}
+                      placeholder="Nhập tên kỹ năng và nhấn Enter..."
+                    />
+                    <button
+                      type="button"
+                      onClick={() => addSkill(skillInput)}
+                      className="shrink-0 rounded-xl bg-slate-900 px-5 text-sm font-bold text-white transition hover:bg-indigo-600"
+                    >
+                      Thêm
+                    </button>
+                  </div>
+
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <span className="text-xs font-semibold text-slate-400">Gợi ý:</span>
+                    {SKILL_SUGGESTIONS.map((skill) => (
+                      <button
+                        key={skill}
+                        type="button"
+                        onClick={() => addSkill(skill)}
+                        className="rounded-md border border-slate-200/80 px-2.5 py-1 text-[10px] font-bold text-slate-500 transition hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-600"
+                      >
+                        {skill}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </Field>
+            </div>
+          </div>
+        </SectionCard>
+
+        {/* Giới thiệu chi tiết */}
+        <SectionCard
+          eyebrow="Giới thiệu bản thân"
+          title="Kể câu chuyện nghề nghiệp của bạn"
+          description="Cho học viên biết phong cách mentor của bạn và họ sẽ đạt được gì khi làm việc với bạn."
+          icon={<FileText className="h-5 w-5" />}
+          tone="emerald"
+        >
+          <div className="grid gap-5 md:grid-cols-2">
+            <div className="md:col-span-2">
+              <Field
+                label="Tiểu sử chuyên môn"
+                description="Kể về kinh nghiệm, ngành nghề đã làm và những ai bạn thích giúp đỡ."
+                hint={`${bioWordCount} từ · đề xuất 150-500 từ`}
+                error={errors.professionalBio?.message}
+              >
+                <textarea
+                  {...register('professionalBio')}
+                  rows={6}
+                  className={textareaClass}
+                  placeholder="Chia sẻ về con đường sự nghiệp của bạn..."
+                />
+              </Field>
+            </div>
+
+            <div className="md:col-span-2">
+              <Field
+                label="Học viên sẽ nhận được gì?"
+                description="VD: Luyện phỏng vấn, Review CV, Roadmap nghề nghiệp..."
+                error={errors.helpDescription?.message}
+              >
+                <textarea
+                  {...register('helpDescription')}
+                  rows={4}
+                  className={textareaClass}
+                  placeholder="Mô tả cụ thể những giá trị bạn mang lại sau khóa học..."
+                />
+              </Field>
+            </div>
+          </div>
+        </SectionCard>
+
+        {/* Thông tin cơ bản */}
+        <SectionCard
+          eyebrow="Kinh nghiệm & Dịch vụ"
+          title="Chức danh và Mức phí"
+          description="Bổ sung chức danh hiện tại và thiết lập mức phí cơ bản cho các buổi học."
+          icon={<Briefcase className="h-5 w-5" />}
+          tone="amber"
+        >
+          <div className="grid gap-5 md:grid-cols-2">
+            <Field label="Chức vụ hiện tại" error={errors.currentTitle?.message}>
+              <input {...register('currentTitle')} className={inputClass} placeholder="VD: Senior Product Designer" />
+            </Field>
+
+            <Field label="Công ty" error={errors.currentCompany?.message}>
+              <input {...register('currentCompany')} className={inputClass} placeholder="VD: FPT Software, Tự do..." />
+            </Field>
+
+            <Field label="Số năm kinh nghiệm" error={errors.yearsOfExperience?.message}>
+              <select {...register('yearsOfExperience')} className={inputClass}>
+                <option value="">Chọn số năm</option>
+                {EXPERIENCE_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>{option.label}</option>
+                ))}
+              </select>
+            </Field>
+
+            <Field label="Phí dự kiến (MXC/Giờ)" description="Bạn có thể thay đổi sau." error={errors.hourlyRateMxc?.message}>
+              <div className="space-y-3">
+                <input type="number" step="1" {...register('hourlyRateMxc')} className={inputClass} placeholder="VD: 250" />
+                <div className="flex flex-wrap gap-2">
+                  {RATE_SUGGESTIONS.map((rate) => (
+                    <button
+                      key={rate}
+                      type="button"
+                      onClick={() => setValue('hourlyRateMxc', rate, { shouldDirty: true, shouldValidate: true })}
+                      className="rounded-lg border border-slate-200/80 px-3 py-1 text-xs font-bold text-slate-500 transition hover:border-amber-300 hover:bg-amber-50 hover:text-amber-700"
+                    >
+                      {rate} MXC
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </Field>
+
+            <Field label="Múi giờ (Khu vực)" error={errors.locationOption?.message}>
+              <select {...register('locationOption')} className={inputClass}>
+                <option value="">Chọn múi giờ</option>
+                {LOCATION_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
+            </Field>
+
+            <Field label="Ngôn ngữ" error={errors.languagesOption?.message}>
+              <select {...register('languagesOption')} className={inputClass}>
+                <option value="">Chọn ngôn ngữ giao tiếp</option>
+                {LANGUAGE_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
+            </Field>
+            
+            {values.locationOption === 'Other' && (
+              <Field label="Múi giờ khác" error={errors.locationCustom?.message}>
+                <input {...register('locationCustom')} className={inputClass} placeholder="Nhập múi giờ tự do..." />
+              </Field>
+            )}
+
+            {values.languagesOption === 'Other' && (
+              <Field label="Ngôn ngữ khác" error={errors.languagesCustom?.message}>
+                <input {...register('languagesCustom')} className={inputClass} placeholder="VD: Tiếng Hàn..." />
+              </Field>
+            )}
+
+            <Field label="Khung giờ hoạt động" error={errors.availability?.message}>
+              <select {...register('availability')} className={inputClass}>
+                {AVAILABILITY_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
+            </Field>
+          </div>
+        </SectionCard>
+
+        {/* Năng lực & Bằng chứng */}
+        <SectionCard
+          eyebrow="Hồ sơ năng lực"
+          title="Minh chứng kỹ năng của bạn"
+          description="Cung cấp các link profile (LinkedIn, GitHub) hoặc CV để tăng độ uy tín."
+          icon={<ShieldCheck className="h-5 w-5" />}
+          tone="sky"
+        >
+          <div className="space-y-6">
+            <div className="flex flex-wrap gap-2">
+              {PROOF_PRESETS.map((preset) => {
+                const Icon = preset.icon
+                return (
+                  <button
+                    key={preset.label}
+                    type="button"
+                    onClick={() => addProofLinkTemplate(preset.label)}
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200/80 bg-white/50 px-3 py-1.5 text-xs font-bold text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 shadow-sm"
+                  >
+                    <Icon className="h-3.5 w-3.5" />
+                    {preset.label}
+                  </button>
+                )
+              })}
               <button
                 type="button"
                 onClick={() => addProofLinkTemplate()}
-                className="rounded-full border border-slate-200 px-3 py-1 text-[11px] font-black uppercase tracking-[0.12em] text-slate-700 hover:border-indigo-300 hover:text-indigo-700"
+                className="rounded-lg border border-dashed border-slate-300 px-3 py-1.5 text-xs font-bold text-slate-500 transition hover:border-slate-400 hover:bg-slate-50"
               >
-                Add link
+                + Thêm link tùy chỉnh
               </button>
             </div>
 
-            <div className="space-y-3">
-              <div className="flex flex-wrap gap-2">
-                {['LinkedIn', 'GitHub', 'Portfolio', 'Proof of work', 'Intro video'].map((preset) => (
-                  <button
-                    key={preset}
-                    type="button"
-                    onClick={() => addProofLinkTemplate(preset)}
-                    className="rounded-full border border-slate-200 px-2.5 py-1 text-[11px] font-semibold text-slate-600 hover:border-indigo-300 hover:text-indigo-700"
-                  >
-                    + {preset}
-                  </button>
-                ))}
+            {proofLinkFields.length === 0 ? (
+              <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50/50 px-5 py-6 text-center text-sm font-semibold text-slate-400">
+                Chưa có liên kết nào. Hãy thêm LinkedIn, GitHub, hoặc Portfolio của bạn.
               </div>
-
-              {proofLinkFields.length === 0 && (
-                <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/70 px-4 py-4 text-sm text-slate-500">
-                  Add any proof you want, for example GitHub, Behance, Medium article, case study deck, YouTube intro, portfolio site.
-                </div>
-              )}
-
-              {proofLinkFields.map((field, index) => (
-                <div key={field.id} className="rounded-2xl border border-slate-200 bg-slate-50/60 p-4">
-                  <div className="grid gap-3 md:grid-cols-[minmax(0,220px)_minmax(0,1fr)_auto] md:items-start">
-                    <div>
+            ) : (
+              <div className="space-y-3">
+                {proofLinkFields.map((field, index) => (
+                  <div key={field.id} className="flex flex-col sm:flex-row sm:items-start gap-3 rounded-xl border border-slate-200/60 bg-white/60 p-3 shadow-sm">
+                    <div className="w-full sm:w-1/3">
                       <input
                         {...register(`proofLinks.${index}.label` as const)}
                         className={inputClass}
-                        placeholder="e.g. GitHub, Behance, Article"
+                        placeholder="Tên nhãn (VD: LinkedIn)"
                       />
                       {errors.proofLinks?.[index]?.label?.message && (
-                        <p className="mt-1.5 text-xs font-semibold text-rose-500">
-                          {errors.proofLinks?.[index]?.label?.message}
-                        </p>
+                        <p className="mt-1 text-xs font-bold text-rose-500">{errors.proofLinks[index]?.label?.message}</p>
                       )}
                     </div>
-                    <div>
+
+                    <div className="w-full sm:flex-1">
                       <input
                         {...register(`proofLinks.${index}.url` as const)}
                         className={inputClass}
                         placeholder="https://..."
                       />
                       {errors.proofLinks?.[index]?.url?.message && (
-                        <p className="mt-1.5 text-xs font-semibold text-rose-500">
-                          {errors.proofLinks?.[index]?.url?.message}
-                        </p>
+                        <p className="mt-1 text-xs font-bold text-rose-500">{errors.proofLinks[index]?.url?.message}</p>
                       )}
                     </div>
+
                     <button
                       type="button"
                       onClick={() => removeProofLink(index)}
-                      className="rounded-xl border border-slate-200 px-3 py-3 text-sm font-bold text-slate-600 hover:bg-white"
+                      className="shrink-0 rounded-xl bg-rose-50 px-4 py-2 text-xs font-bold text-rose-600 hover:bg-rose-100 transition-colors h-10"
                     >
-                      Remove
+                      Xóa
                     </button>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
+            )}
+            
+            {typeof errors.proofLinks?.message === 'string' && (
+              <p className="text-sm font-bold text-rose-500">{errors.proofLinks.message}</p>
+            )}
 
-              {typeof errors.proofLinks?.message === 'string' && (
-                <p className="text-xs font-semibold text-rose-500">{errors.proofLinks.message}</p>
-              )}
+            <div className="grid gap-4 sm:grid-cols-2 pt-2 border-t border-slate-100/80">
+              <UploadFieldCard
+                title="Sơ yếu lý lịch (CV)"
+                description="Đề xuất PDF. Tối đa 10MB."
+                busy={Boolean(uploading.cvUrl)}
+                value={values.cvUrl}
+                disabled={isLocked}
+                onSelect={(file) => uploadFile('cvUrl', file)}
+              />
+              <UploadFieldCard
+                title="Chứng chỉ (Tùy chọn)"
+                description="Hình ảnh hoặc PDF. Tối đa 10MB."
+                busy={Boolean(uploading.certificateUrl)}
+                value={values.certificateUrl}
+                disabled={isLocked}
+                onSelect={(file) => uploadFile('certificateUrl', file)}
+              />
             </div>
           </div>
-          <Field label="Languages" error={errors.languagesOption?.message}>
-            <select {...register('languagesOption')} className={inputClass}>
-              <option value="">Select languages</option>
-              {LANGUAGE_OPTIONS.map((languageOption) => (
-                <option key={languageOption} value={languageOption}>
-                  {languageOption}
-                </option>
-              ))}
-            </select>
-          </Field>
-          {values.languagesOption === 'Other' && (
-            <Field label="Custom languages" error={errors.languagesCustom?.message}>
+        </SectionCard>
+
+        {/* Cam kết & Submit */}
+        <div className="rounded-[2rem] border border-indigo-100/50 bg-gradient-to-b from-white/70 to-indigo-50/30 p-6 shadow-lg shadow-indigo-100/30 backdrop-blur-md sm:p-8">
+          <div className="mb-6 space-y-4">
+            <label className="flex items-start gap-3 cursor-pointer group">
               <input
-                {...register('languagesCustom')}
-                className={inputClass}
-                placeholder="English, Vietnamese, Japanese"
+                type="checkbox"
+                {...register('mentorAgreementAccepted')}
+                className="mt-1 h-5 w-5 shrink-0 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
               />
-            </Field>
-          )}
-          <Field label="Location / timezone" error={errors.locationOption?.message}>
-            <select {...register('locationOption')} className={inputClass}>
-              <option value="">Select location / timezone</option>
-              {LOCATION_OPTIONS.map((locationOption) => (
-                <option key={locationOption} value={locationOption}>
-                  {locationOption}
-                </option>
-              ))}
-            </select>
-          </Field>
-          {values.locationOption === 'Other' && (
-            <Field label="Custom location / timezone" error={errors.locationCustom?.message}>
+              <span className="text-sm font-semibold text-slate-700 group-hover:text-slate-900 transition-colors">
+                Tôi cam kết những thông tin trên là chính xác và phản ánh đúng kinh nghiệm thực tế của bản thân.
+              </span>
+            </label>
+            {errors.mentorAgreementAccepted && <p className="ml-8 text-xs font-bold text-rose-500">{errors.mentorAgreementAccepted.message}</p>}
+
+            <label className="flex items-start gap-3 cursor-pointer group">
               <input
-                {...register('locationCustom')}
-                className={inputClass}
-                placeholder="Bangkok, GMT+7"
+                type="checkbox"
+                {...register('disputePolicyAccepted')}
+                className="mt-1 h-5 w-5 shrink-0 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
               />
-            </Field>
-          )}
-        </div>
-
-        <div className="mt-5 grid gap-4 md:grid-cols-2">
-          <UploadFieldCard
-            title="Resume / CV"
-            description="Optional, but useful if you want faster review."
-            busy={Boolean(uploading.cvUrl)}
-            value={values.cvUrl}
-            onSelect={(file) => uploadFile('cvUrl', file)}
-          />
-          <UploadFieldCard
-            title="Certificate or credential"
-            description="Optional supporting proof for your specialization."
-            busy={Boolean(uploading.certificateUrl)}
-            value={values.certificateUrl}
-            onSelect={(file) => uploadFile('certificateUrl', file)}
-          />
-        </div>
-      </section>
-
-      <section className="rounded-[2rem] border border-slate-200 bg-slate-50/70 p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900/50">
-        <p className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-500">Before you submit</p>
-        <div className="mt-5 space-y-4">
-          <label className="flex items-start gap-3">
-            <input type="checkbox" {...register('mentorAgreementAccepted')} className="mt-1 h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" />
-            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-              I confirm that my professional information is accurate and that I can support learners in the areas listed above.
-            </span>
-          </label>
-          {errors.mentorAgreementAccepted && <p className="text-xs font-semibold text-rose-500">{errors.mentorAgreementAccepted.message}</p>}
-
-          <label className="flex items-start gap-3">
-            <input type="checkbox" {...register('disputePolicyAccepted')} className="mt-1 h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" />
-            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-              I agree to Mentor X moderation, quality, and dispute policies.
-            </span>
-          </label>
-          {errors.disputePolicyAccepted && <p className="text-xs font-semibold text-rose-500">{errors.disputePolicyAccepted.message}</p>}
-        </div>
-
-        {error && (
-          <div className="mt-5 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-700 dark:border-rose-900/30 dark:bg-rose-950/20 dark:text-rose-300">
-            {error}
+              <span className="text-sm font-semibold text-slate-700 group-hover:text-slate-900 transition-colors">
+                Tôi đồng ý với chính sách của Mentor X về việc kiểm duyệt hồ sơ và đảm bảo chất lượng mentor.
+              </span>
+            </label>
+            {errors.disputePolicyAccepted && <p className="ml-8 text-xs font-bold text-rose-500">{errors.disputePolicyAccepted.message}</p>}
           </div>
-        )}
 
+          {error && (
+            <div className="mb-6 rounded-2xl border border-rose-200 bg-rose-50 px-5 py-4 text-sm font-bold text-rose-700 shadow-sm">
+              {error}
+            </div>
+          )}
 
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-t border-slate-200/60 pt-6">
+            <p className="text-sm font-medium text-slate-500">
+              Thời gian xét duyệt thông thường từ <span className="font-bold text-slate-900">2-5 ngày làm việc</span>.
+            </p>
+            <button
+              type="submit"
+              disabled={loading || isLocked}
+              className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-slate-900 px-8 text-sm font-bold text-white shadow-lg transition-all hover:-translate-y-0.5 hover:bg-indigo-600 hover:shadow-indigo-500/30 disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0"
+            >
+              {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <ArrowRight className="h-5 w-5" />}
+              {submitButtonLabel || (isEdit ? 'Cập nhật hồ sơ' : 'Gửi hồ sơ đăng ký')}
+            </button>
+          </div>
+        </div>
 
-        <button
-          type="submit"
-          disabled={loading || isLocked}
-          className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-slate-300"
-        >
-          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowRight className="h-4 w-4" />}
-          {submitButtonLabel || (isEdit ? 'Update profile for review' : 'Submit for mentor review')}
-        </button>
-      </section>
       </fieldset>
     </form>
   )
 }
 
-function Field({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) {
+function SectionCard({
+  eyebrow,
+  title,
+  description,
+  icon,
+  children,
+  tone = 'indigo',
+}: {
+  eyebrow: string
+  title: string
+  description: string
+  icon: React.ReactNode
+  children: React.ReactNode
+  tone?: 'indigo' | 'emerald' | 'amber' | 'sky'
+}) {
+  const toneMap = {
+    indigo: 'bg-indigo-50 text-indigo-600 border-indigo-100',
+    emerald: 'bg-emerald-50 text-emerald-600 border-emerald-100',
+    amber: 'bg-amber-50 text-amber-600 border-amber-100',
+    sky: 'bg-sky-50 text-sky-600 border-sky-100',
+  }
+
   return (
-    <div>
-      <label className="mb-2 block text-[11px] font-black uppercase tracking-[0.16em] text-slate-500">{label}</label>
+    <section className={sectionClass}>
+      <div className="flex flex-col sm:flex-row sm:items-start gap-4 mb-6 pb-5 border-b border-slate-100/80">
+        <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border ${toneMap[tone]} shadow-sm`}>
+          {icon}
+        </div>
+        <div>
+          <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">{eyebrow}</p>
+          <h2 className="mt-1 text-xl font-extrabold tracking-tight text-slate-900">{title}</h2>
+          <p className="mt-1.5 text-sm font-semibold text-slate-500">{description}</p>
+        </div>
+      </div>
+      <div>{children}</div>
+    </section>
+  )
+}
+
+function Field({
+  label,
+  description,
+  hint,
+  error,
+  children,
+}: {
+  label: string
+  description?: string
+  hint?: string
+  error?: string
+  children: React.ReactNode
+}) {
+  return (
+    <div className="flex flex-col">
+      <div className="mb-2 flex items-center justify-between gap-3">
+        <label className="text-xs font-bold text-slate-700">{label}</label>
+        {hint && <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">{hint}</span>}
+      </div>
+      {description && <p className="mb-2 text-[13px] font-medium text-slate-500">{description}</p>}
       {children}
-      {error && <p className="mt-1.5 text-xs font-semibold text-rose-500">{error}</p>}
+      {error && <p className="mt-1.5 text-xs font-bold text-rose-500">{error}</p>}
     </div>
   )
 }
@@ -938,34 +1115,40 @@ function UploadFieldCard({
 }) {
   return (
     <label
-      className={`group flex min-h-[170px] flex-col items-center justify-center rounded-[1.75rem] border-2 border-dashed border-slate-200 bg-slate-50/60 p-5 text-center transition dark:border-slate-800 dark:bg-slate-900/60 ${disabled ? 'cursor-not-allowed opacity-70' : 'cursor-pointer hover:border-indigo-300 hover:bg-indigo-50/40'}`}
+      className={`group flex min-h-[160px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-200/80 bg-slate-50/50 p-5 text-center transition-all ${disabled ? 'cursor-not-allowed opacity-70' : 'cursor-pointer hover:-translate-y-0.5 hover:border-indigo-300 hover:bg-white hover:shadow-lg hover:shadow-indigo-100/30'}`}
     >
-      <input type="file" disabled={disabled} className="hidden" accept=".pdf,.jpg,.jpeg,.png,.webp" onChange={(event) => onSelect(event.target.files?.[0])} />
+      <input
+        type="file"
+        disabled={disabled}
+        className="hidden"
+        accept=".pdf,.jpg,.jpeg,.png,.webp"
+        onChange={(event) => onSelect(event.target.files?.[0])}
+      />
       {busy ? (
-        <>
-          <Loader2 className="h-7 w-7 animate-spin text-indigo-600" />
-          <p className="mt-3 text-sm font-semibold text-indigo-600">Uploading file...</p>
-        </>
+        <div className="flex flex-col items-center">
+          <Loader2 className="h-6 w-6 animate-spin text-indigo-600" />
+          <p className="mt-3 text-[13px] font-bold text-indigo-700">Đang tải tệp lên...</p>
+        </div>
       ) : value ? (
-        <>
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400">
-            <CheckCircle2 className="h-7 w-7" />
+        <div className="flex flex-col items-center">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600 shadow-sm">
+            <CheckCircle2 className="h-6 w-6" />
           </div>
-          <p className="mt-4 text-sm font-black text-slate-950 dark:text-white">{title} attached</p>
-          <p className="mt-1 break-all text-xs text-slate-500 dark:text-slate-400">{value}</p>
-        </>
+          <p className="mt-3 text-sm font-bold text-slate-900">Đã đính kèm {title}</p>
+          <p className="mt-1 break-all text-[11px] font-semibold text-slate-500 line-clamp-1">{value}</p>
+        </div>
       ) : (
-        <>
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-slate-400 shadow-sm transition group-hover:bg-indigo-600 group-hover:text-white dark:bg-slate-950">
-            <UploadCloud className="h-6 w-6" />
+        <div className="flex flex-col items-center">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white border border-slate-200/60 text-slate-400 shadow-sm transition-colors group-hover:border-indigo-200 group-hover:bg-indigo-50 group-hover:text-indigo-600">
+            <UploadCloud className="h-5 w-5" />
           </div>
-          <p className="mt-4 text-sm font-black text-slate-950 dark:text-white">{title}</p>
-          <p className="mt-1 text-xs leading-relaxed text-slate-500 dark:text-slate-400">{description}</p>
-          <p className="mt-4 inline-flex items-center gap-2 rounded-full bg-slate-900 px-3 py-1 text-[11px] font-bold text-white dark:bg-white dark:text-slate-950">
-            <FileText className="h-3.5 w-3.5" />
-            Select file
-          </p>
-        </>
+          <p className="mt-3 text-sm font-bold text-slate-900">{title}</p>
+          <p className="mt-1 text-[11px] font-semibold text-slate-500">{description}</p>
+          <div className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-slate-900 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-white group-hover:bg-indigo-600 transition-colors">
+            <FileText className="h-3 w-3" />
+            Chọn tệp
+          </div>
+        </div>
       )}
     </label>
   )

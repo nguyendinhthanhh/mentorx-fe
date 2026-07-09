@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { AlertTriangle, ArrowUpRight, Briefcase, CreditCard, DollarSign, LockKeyhole, ReceiptText } from 'lucide-react'
+import { AlertTriangle, ArrowUpRight, Briefcase, CreditCard, DollarSign, LockKeyhole, ReceiptText, Sparkles } from 'lucide-react'
 import { bankAccountApi } from '@/api/bankAccountApi'
 import { contractApi } from '@/api/contractApi'
 import { mentorApi } from '@/api/mentorApi'
@@ -96,20 +96,47 @@ export default function MentorEarningsPage() {
   const canWithdraw = payoutStatus === 'APPROVED' && summary.available > 0 && !!defaultPayout
 
   return (
-    <PageShell
-      eyebrow="MentorHub"
-      title="Earnings"
-      description="Track released earnings, escrow, withdrawals, and payment history. Escrow is locked money, not earned balance."
-      actions={
-        <Link
-          to={canWithdraw ? '/wallet' : '/mentor/settings'}
-          className={`inline-flex h-11 items-center gap-2 rounded-2xl px-4 text-sm font-bold transition ${canWithdraw ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200 hover:bg-indigo-700' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}
-        >
-          <CreditCard className="h-4 w-4" />
-          {canWithdraw ? 'Request withdrawal' : 'Set up payout'}
-        </Link>
-      }
-    >
+    <div className="mx-auto max-w-[1400px] space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-12">
+      {/* Compact Header */}
+      <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between mb-8">
+        <div>
+          <div className="inline-flex items-center gap-2 rounded-full bg-indigo-50 px-3 py-1 text-[11px] uppercase tracking-widest font-black text-indigo-600 mb-3 border border-indigo-100 shadow-sm">
+            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+            Pipeline Overview
+          </div>
+          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Quản lý Thu nhập</h1>
+          <p className="mt-2 text-sm font-medium text-slate-500">
+            Tổng thu nhập trọn đời: <span className="font-bold text-slate-700">{formatCurrency(summary.lifetime)}</span>
+          </p>
+        </div>
+        
+        <div className="flex items-center gap-4">
+          <div className="hidden lg:flex items-center gap-4 rounded-2xl border border-slate-200/60 bg-white/50 py-2.5 shadow-sm backdrop-blur-md">
+            <div className="flex flex-col px-5 border-r border-slate-200/60">
+               <span className="text-[10px] font-black uppercase tracking-widest text-indigo-600/70">Số dư khả dụng</span>
+               <span className="text-xl font-black text-indigo-600">{formatCurrency(summary.available)}</span>
+            </div>
+            <div className="flex flex-col px-5 border-r border-slate-200/60">
+               <span className="text-[10px] font-black uppercase tracking-widest text-amber-600/70">Đang giữ (Escrow)</span>
+               <span className="text-xl font-black text-amber-600">{formatCurrency(summary.inEscrow)}</span>
+            </div>
+            <div className="flex flex-col px-5">
+               <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600/70">Tháng này</span>
+               <span className="text-xl font-black text-emerald-600">{formatCurrency(summary.thisMonth)}</span>
+            </div>
+          </div>
+
+          <Link
+            to={canWithdraw ? '/wallet' : '/mentor/settings'}
+            className={`inline-flex h-12 items-center justify-center gap-2 rounded-xl px-6 text-sm font-bold shadow-sm transition-all hover:-translate-y-0.5 shrink-0 ${canWithdraw ? 'bg-slate-900 text-white hover:bg-indigo-600 hover:shadow-indigo-500/30' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}
+          >
+            <CreditCard className="h-4 w-4" />
+            {canWithdraw ? 'Rút tiền' : 'Cài đặt thanh toán'}
+          </Link>
+        </div>
+      </div>
+
+      <div className="rounded-[2.5rem] border border-slate-200/60 bg-white/50 p-6 sm:p-8 shadow-xl shadow-slate-200/40 backdrop-blur-2xl">
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <MetricCard label="Available balance" value={formatCurrency(summary.available)} helper="Withdrawable after payout approval." icon={<DollarSign className="h-5 w-5" />} tone="emerald" />
         <MetricCard label="In escrow" value={formatCurrency(summary.inEscrow)} helper="Released only after client confirms completion." icon={<LockKeyhole className="h-5 w-5" />} tone="amber" />
@@ -271,7 +298,8 @@ export default function MentorEarningsPage() {
       ) : (
         <StateCard title="No withdrawal list endpoint" message="Withdrawal creation exists, but the backend currently exposes withdrawal listing only to admins. Mentor withdrawal history is not shown to avoid fake data." />
       )}
-    </PageShell>
+      </div>
+    </div>
   )
 }
 

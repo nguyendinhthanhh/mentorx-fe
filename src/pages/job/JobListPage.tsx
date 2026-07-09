@@ -165,7 +165,7 @@ export default function JobListPage() {
         <div className="absolute top-[-10%] right-[10%] w-[450px] h-[450px] bg-purple-300/40 mix-blend-multiply rounded-[60%_40%_30%_70%/60%_30%_70%_40%] filter blur-3xl opacity-70 animate-[spin_12s_linear_infinite_reverse] pointer-events-none"></div>
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-sky-300/30 mix-blend-multiply rounded-full filter blur-3xl opacity-60 animate-[pulse_4s_ease-in-out_infinite] pointer-events-none"></div>
         
-        <div className="relative mx-auto max-w-[1600px] z-10 flex flex-col items-center justify-center text-center">
+        <div className="relative z-10 mx-auto flex max-w-[1440px] flex-col items-center justify-center text-center">
           <div className="flex flex-col items-center justify-center gap-4 mb-8">
             <div className="flex flex-col items-center">
               <div className="flex items-center justify-center gap-2 mb-4">
@@ -222,7 +222,7 @@ export default function JobListPage() {
       </div>
 
       {/* Main Layout */}
-      <main className="mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-8 mt-10">
+      <main className="mx-auto mt-10 max-w-[1440px] px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col lg:flex-row-reverse gap-10">
            
            {/* Left Column (Desktop view, visually right) - Main List */}
@@ -477,7 +477,7 @@ function JobCard({ job, showRelevance, viewMode }: { job: JobResponse; showRelev
   return (
     <article className={`group flex gap-6 bg-white border border-[#e2e6f5] rounded-3xl p-6 sm:p-7 transition-all duration-300 hover:-translate-y-1 hover:border-[#4f46e5] hover:shadow-xl items-start relative overflow-hidden ${viewMode === 'grid' ? 'flex-col sm:flex-row' : 'flex-col sm:flex-row'}`}>
       {/* Logo */}
-      <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-slate-50 border border-[#e2e6f5] text-2xl font-black text-slate-400">
+      <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-slate-50 border border-[#e2e6f5] text-2xl font-bold text-slate-400">
         {initial}
       </div>
 

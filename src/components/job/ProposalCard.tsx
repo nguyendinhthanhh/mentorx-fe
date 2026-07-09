@@ -13,12 +13,12 @@ export default function ProposalCard({ proposal }: ProposalCardProps) {
     <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h4 className="text-lg font-black text-slate-950">{proposal.mentorName}</h4>
+          <h4 className="text-lg font-bold text-slate-950">{proposal.mentorName}</h4>
           <p className="mt-1 text-xs font-bold text-slate-500">
             Gửi {formatRelativeTime(proposal.submittedAt || proposal.createdAt)}
           </p>
         </div>
-        <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-black text-slate-700">
+        <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-bold text-slate-700">
           {proposal.status}
         </span>
       </div>
@@ -27,14 +27,14 @@ export default function ProposalCard({ proposal }: ProposalCardProps) {
 
       <div className="mt-4 grid grid-cols-2 gap-3">
         <div className="rounded-xl bg-slate-50 p-3">
-          <p className="text-[10px] font-black uppercase text-slate-400">Giá đề xuất</p>
-          <p className="mt-1 text-sm font-black text-slate-900">
+          <p className="text-[10px] font-bold uppercase text-slate-400">Giá đề xuất</p>
+          <p className="mt-1 text-sm font-bold text-slate-900">
             {proposal.proposedAmount ? formatCurrency(proposal.proposedAmount) : 'Chưa xác định'}
           </p>
         </div>
         <div className="rounded-xl bg-slate-50 p-3">
-          <p className="text-[10px] font-black uppercase text-slate-400">Thời gian</p>
-          <p className="mt-1 text-sm font-black text-slate-900">
+          <p className="text-[10px] font-bold uppercase text-slate-400">Thời gian</p>
+          <p className="mt-1 text-sm font-bold text-slate-900">
             {proposal.estimatedDurationDays ? `${proposal.estimatedDurationDays} ngày` : 'Chưa xác định'}
           </p>
         </div>

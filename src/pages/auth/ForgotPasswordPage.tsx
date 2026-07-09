@@ -9,6 +9,7 @@ import {
   Mail,
   ShieldCheck,
   RefreshCw,
+  ArrowRight
 } from 'lucide-react'
 
 export default function ForgotPasswordPage() {
@@ -36,153 +37,146 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="space-y-7">
-      <div className="space-y-4">
-        <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
-          Account recovery
-        </div>
-
-        <div className="space-y-3">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-700 text-white shadow-lg shadow-indigo-950/15">
-            <Mail className="h-6 w-6" />
-          </div>
-          <div className="space-y-2">
-            <h2 className="text-[30px] font-semibold tracking-[-0.03em] text-slate-950">Reset your password</h2>
-            <p className="max-w-[34ch] text-sm leading-6 text-slate-500">
-              Enter the email address attached to your MentorX account. We will send a secure reset link after confirming the account exists.
-            </p>
-          </div>
-        </div>
-
-        <div className="grid gap-3 rounded-2xl border border-slate-200/80 bg-slate-50/80 p-4">
-          {[
-            'Only registered MentorX emails can request a reset link.',
-            'The newest link expires after 1 hour and invalidates older links.',
-            'Changing your password signs out previous sessions automatically.',
-          ].map((item, index) => (
-            <div key={item} className="flex items-start gap-3">
-              <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white text-xs font-semibold text-slate-700 shadow-sm">
-                {index + 1}
-              </div>
-              <p className="text-sm leading-6 text-slate-600">{item}</p>
+    <div className="w-full">
+      {!success ? (
+        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both">
+          {/* Header Section */}
+          <div className="space-y-4">
+            <div className="inline-flex items-center gap-2 rounded-full border border-primary-100 bg-primary-50/50 px-3 py-1.5 text-xs font-semibold text-primary-700 backdrop-blur-sm">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary-500"></span>
+              </span>
+              Account Recovery
             </div>
-          ))}
-        </div>
-      </div>
 
-      {success ? (
-        <div className="space-y-6">
-          <div className="rounded-[26px] border border-emerald-200 bg-[linear-gradient(180deg,rgba(236,253,245,0.9),rgba(255,255,255,1))] p-6">
-            <div className="flex items-start gap-4">
-              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white text-emerald-600 shadow-sm shadow-emerald-950/10">
-                <CheckCircle2 className="h-7 w-7" />
+            <div className="space-y-2">
+              <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
+                Forgot password?
+              </h2>
+              <p className="text-sm leading-relaxed text-slate-500 sm:text-base">
+                No worries, we'll send you reset instructions. Please enter the email address associated with your MentorX account.
+              </p>
+            </div>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-2">
+              <label htmlFor="email" className="block text-sm font-medium text-slate-700">
+                Email address
+              </label>
+              <div className="group relative">
+                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400 transition-colors group-focus-within:text-primary-500">
+                  <Mail className="h-5 w-5" />
+                </div>
+                <input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="block w-full rounded-2xl border-0 py-3.5 pl-11 pr-4 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-200 transition-all placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-primary-500 sm:text-sm sm:leading-6 hover:ring-slate-300"
+                  placeholder="name@example.com"
+                  required
+                />
               </div>
-              <div className="min-w-0 space-y-2">
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">Email queued</p>
-                <h3 className="text-xl font-semibold tracking-[-0.02em] text-slate-950">Check your inbox</h3>
-                <p className="text-sm leading-6 text-slate-600">
-                  A reset link has been sent to <span className="font-semibold text-slate-900">{normalizedEmail}</span>.
-                  Open the latest message sent at {sentAt || 'just now'}.
+            </div>
+
+            {error && (
+              <div className="animate-in fade-in slide-in-from-top-2 duration-300 flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 shadow-sm">
+                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-red-600" />
+                <span className="leading-relaxed font-medium">{error}</span>
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading || !normalizedEmail}
+              className="group relative flex w-full items-center justify-center gap-2 rounded-2xl bg-slate-900 px-4 py-3.5 text-sm font-semibold text-white transition-all duration-300 hover:bg-slate-800 hover:shadow-xl hover:shadow-slate-900/20 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:scale-100 disabled:hover:shadow-none"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="h-5 w-5 animate-spin text-slate-400" />
+                  <span>Sending instructions...</span>
+                </>
+              ) : (
+                <>
+                  <span>Reset Password</span>
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </>
+              )}
+            </button>
+          </form>
+
+          <div className="text-center">
+            <Link 
+              to="/login" 
+              className="group inline-flex items-center gap-2 text-sm font-medium text-slate-500 transition-colors hover:text-slate-900"
+            >
+              <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
+              Back to login
+            </Link>
+          </div>
+        </div>
+      ) : (
+        <div className="animate-in fade-in zoom-in-95 duration-500 space-y-8">
+          <div className="flex flex-col items-center text-center space-y-5">
+            <div className="relative flex h-24 w-24 items-center justify-center rounded-[2rem] bg-emerald-50 shadow-sm">
+              <div className="absolute inset-0 rounded-[2rem] bg-emerald-100 opacity-50 animate-pulse"></div>
+              <CheckCircle2 className="relative h-12 w-12 text-emerald-600" />
+            </div>
+            
+            <div className="space-y-2">
+              <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
+                Check your email
+              </h2>
+              <p className="text-sm leading-relaxed text-slate-500 sm:text-base">
+                We've sent a password reset link to <br/>
+                <span className="font-semibold text-slate-900">{normalizedEmail}</span>
+              </p>
+            </div>
+          </div>
+
+          <div className="rounded-3xl border border-slate-100 bg-slate-50/50 p-6 shadow-inner backdrop-blur-sm">
+            <div className="flex items-start gap-4">
+              <div className="mt-1 rounded-2xl bg-white p-2.5 shadow-sm">
+                <ShieldCheck className="h-5 w-5 text-primary-600" />
+              </div>
+              <div className="text-sm">
+                <p className="font-semibold text-slate-900 text-base">Secure link expires in 1 hour</p>
+                <p className="mt-1 text-slate-500 leading-relaxed">
+                  If you don't see the email in your inbox, please check your spam folder or try requesting a new link below.
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="grid gap-3 rounded-2xl border border-slate-200/80 bg-white p-4">
-            <div className="flex items-start gap-3">
-              <ShieldCheck className="mt-0.5 h-5 w-5 text-indigo-600" />
-              <div>
-                <p className="text-sm font-medium text-slate-900">Look for the newest reset email</p>
-                <p className="mt-1 text-sm leading-6 text-slate-500">Spam and Promotions may delay placement. Older reset links stop working as soon as a new one is created.</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-3">
-              <Mail className="mt-0.5 h-5 w-5 text-indigo-600" />
-              <div>
-                <p className="text-sm font-medium text-slate-900">Need another link?</p>
-                <p className="mt-1 text-sm leading-6 text-slate-500">Request again if the email does not arrive. The request itself now returns faster because delivery runs in the background.</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-3 sm:flex-row">
+          <div className="space-y-5 pt-2">
             <button
               type="button"
               disabled={loading}
               onClick={handleSubmit}
-              className="inline-flex flex-1 items-center justify-center gap-2 rounded-2xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+              className="group flex w-full items-center justify-center gap-2 rounded-2xl bg-white px-4 py-3.5 text-sm font-semibold text-slate-700 border border-slate-200 transition-all duration-300 hover:bg-slate-50 hover:border-slate-300 hover:shadow-md active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-70 shadow-sm"
             >
               {loading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <Loader2 className="h-5 w-5 animate-spin text-slate-400" />
               ) : (
-                <RefreshCw className="h-4 w-4" />
+                <RefreshCw className="h-5 w-5 text-slate-400 group-hover:text-slate-600 group-hover:rotate-180 transition-all duration-500" />
               )}
-              {loading ? 'Sending...' : 'Send another email'}
+              {loading ? 'Resending...' : 'Click to resend'}
             </button>
-            <button
-              type="button"
-              onClick={() => {
-                setSuccess(false)
-                setSentAt('')
-                setEmail('')
-              }}
-              className="inline-flex flex-1 items-center justify-center rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
-            >
-              Use another email
-            </button>
+            
+            <div className="text-center">
+              <Link 
+                to="/login" 
+                className="group inline-flex items-center gap-2 text-sm font-medium text-slate-500 transition-colors hover:text-slate-900"
+              >
+                <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
+                Back to login
+              </Link>
+            </div>
           </div>
         </div>
-      ) : (
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-2">
-            <label htmlFor="email" className="block text-sm font-medium text-slate-700">
-              Email address
-            </label>
-            <div className="relative">
-              <Mail className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-              <input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-2xl border border-slate-200 bg-white px-11 py-3.5 text-sm text-slate-900 outline-none transition focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10"
-                placeholder="you@example.com"
-                required
-              />
-            </div>
-            <p className="text-xs leading-5 text-slate-500">Use the same email you registered with on MentorX.</p>
-          </div>
-
-          {error ? (
-            <div className="flex items-start gap-3 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3.5 text-sm text-rose-700">
-              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
-              <span className="leading-6">{error}</span>
-            </div>
-          ) : null}
-
-          <button
-            type="submit"
-            disabled={loading || !normalizedEmail}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-slate-950 px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {loading ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Preparing reset link...
-              </>
-            ) : (
-              'Send password reset link'
-            )}
-          </button>
-        </form>
       )}
-
-      <div className="pt-1">
-        <Link to="/login" className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-500 transition hover:text-slate-800">
-          <ArrowLeft className="h-4 w-4" />
-          Back to sign in
-        </Link>
-      </div>
     </div>
   )
 }

@@ -125,7 +125,7 @@ export default function CourseListPage() {
   return (
     <div className="min-h-screen bg-[#f6f7fb] text-slate-950">
       <section className="border-b border-slate-200 bg-white">
-        <div className="mx-auto max-w-[1600px] px-4 py-8 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-[1440px] px-4 py-8 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-2xl">
               <h1 className="text-3xl font-black tracking-tight text-slate-950 md:text-4xl">
@@ -309,7 +309,7 @@ export default function CourseListPage() {
         </div>
       </section>
 
-      <main className="mx-auto max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8">
+      <main className="mx-auto max-w-[1440px] px-4 py-6 sm:px-6 lg:px-8">
         {isLoading ? (
           <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
             {[1, 2, 3, 4, 5, 6].map((i) => (

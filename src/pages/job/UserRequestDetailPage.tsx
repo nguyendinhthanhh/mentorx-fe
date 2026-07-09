@@ -235,7 +235,7 @@ export default function UserRequestDetailPageNew() {
                       <Coins className="h-4 w-4" />
                       Ngân sách
                     </div>
-                    <p className="text-xl font-black text-slate-950">{formatBudget(job)}</p>
+                    <p className="text-xl font-bold text-slate-950">{formatBudget(job)}</p>
                   </div>
 
                   {/* Proposals */}
@@ -244,7 +244,7 @@ export default function UserRequestDetailPageNew() {
                       <Users className="h-4 w-4" />
                       Ứng tuyển
                     </div>
-                    <p className="text-xl font-black text-slate-950">{proposals.length} mentor</p>
+                    <p className="text-xl font-bold text-slate-950">{proposals.length} mentor</p>
                   </div>
 
                   {/* Status */}
@@ -253,7 +253,7 @@ export default function UserRequestDetailPageNew() {
                       <TrendingUp className="h-4 w-4" />
                       Trạng thái
                     </div>
-                    <p className="text-xl font-black text-slate-950">{statusBadge.label}</p>
+                    <p className="text-xl font-bold text-slate-950">{statusBadge.label}</p>
                   </div>
                 </div>
               </div>
@@ -305,7 +305,7 @@ export default function UserRequestDetailPageNew() {
                       <FileText className="h-5 w-5 text-indigo-600" />
                     </div>
                     <div>
-                      <h2 className="text-lg font-black text-slate-950">Thông tin yêu cầu</h2>
+                      <h2 className="text-lg font-bold text-slate-950">Thông tin yêu cầu</h2>
                       <p className="text-xs text-slate-500">Chi tiết công việc và yêu cầu</p>
                     </div>
                   </div>
@@ -378,7 +378,7 @@ export default function UserRequestDetailPageNew() {
                         <Users className="h-5 w-5 text-indigo-600" />
                       </div>
                       <div>
-                        <h2 className="text-lg font-black text-slate-950">Mentor ứng tuyển</h2>
+                        <h2 className="text-lg font-bold text-slate-950">Mentor ứng tuyển</h2>
                         <p className="text-xs text-slate-500">{proposals.length} đề xuất đã nhận</p>
                       </div>
                     </div>
@@ -396,7 +396,7 @@ export default function UserRequestDetailPageNew() {
                       <Coins className="h-5 w-5 text-emerald-600" />
                     </div>
                     <div>
-                      <h2 className="text-lg font-black text-slate-950">Thanh toán</h2>
+                      <h2 className="text-lg font-bold text-slate-950">Thanh toán</h2>
                       <p className="text-xs text-slate-500">Lịch sử giao dịch và escrow</p>
                     </div>
                   </div>
@@ -408,7 +408,7 @@ export default function UserRequestDetailPageNew() {
                         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                           <div>
                             <p className="text-sm font-bold text-emerald-900">Escrow đang giữ</p>
-                            <p className="mt-1 text-2xl font-black text-emerald-950">{formatCurrency(contract.amountInEscrow || 0)}</p>
+                            <p className="mt-1 text-2xl font-bold text-emerald-950">{formatCurrency(contract.amountInEscrow || 0)}</p>
                           </div>
                           <ShieldAlert className="h-8 w-8 text-emerald-600" />
                         </div>
@@ -441,12 +441,12 @@ export default function UserRequestDetailPageNew() {
               <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
                 <div className="border-b border-slate-100 bg-gradient-to-br from-indigo-50 to-white px-4 py-5 sm:px-6">
                   <div className="flex items-start gap-4">
-                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 text-lg font-black text-white shadow-lg">
+                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 text-lg font-bold text-white shadow-lg">
                       {acceptedProposal.mentorName?.charAt(0) || 'M'}
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Mentor đang đồng hành</p>
-                      <h3 className="mt-1 break-words text-lg font-black text-slate-950">{acceptedProposal.mentorName}</h3>
+                      <h3 className="mt-1 break-words text-lg font-bold text-slate-950">{acceptedProposal.mentorName}</h3>
                       <span className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700">
                         <CheckCircle2 className="h-3.5 w-3.5" />
                         Đã chọn
@@ -477,7 +477,7 @@ export default function UserRequestDetailPageNew() {
 
             {/* Guide Card */}
             <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-              <h3 className="text-sm font-black uppercase tracking-wider text-slate-400 mb-4">Hướng dẫn</h3>
+              <h3 className="text-sm font-semibold uppercase tracking-widerr text-slate-400 mb-4">Hướng dẫn</h3>
               <div className="space-y-3 text-sm">
                 <div className="flex gap-3">
                   <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-xs font-bold text-indigo-600">1</div>

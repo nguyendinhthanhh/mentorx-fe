@@ -160,50 +160,54 @@ export default function AdminUsersPage() {
 
   const getStatusColor = (status: UserStatus) => {
     switch (status) {
-      case UserStatus.ACTIVE: return 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400'
-      case UserStatus.PENDING: return 'bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400'
-      case UserStatus.SUSPENDED: return 'bg-rose-50 text-rose-600 dark:bg-rose-900/20 dark:text-rose-400'
-      case UserStatus.BANNED: return 'bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400'
-      case UserStatus.DEACTIVATED: return 'bg-gray-50 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
-      case UserStatus.DELETED: return 'bg-gray-100 text-gray-400 dark:bg-gray-900 dark:text-gray-600'
-      default: return 'bg-gray-50 text-gray-600'
+      case UserStatus.ACTIVE: return 'bg-emerald-50 border border-emerald-100 text-emerald-600 dark:bg-emerald-900/20 dark:border-emerald-800/30 dark:text-emerald-400'
+      case UserStatus.PENDING: return 'bg-amber-50 border border-amber-100 text-amber-600 dark:bg-amber-900/20 dark:border-amber-800/30 dark:text-amber-400'
+      case UserStatus.SUSPENDED: return 'bg-rose-50 border border-rose-100 text-rose-600 dark:bg-rose-900/20 dark:border-rose-800/30 dark:text-rose-400'
+      case UserStatus.BANNED: return 'bg-red-50 border border-red-100 text-red-600 dark:bg-red-900/20 dark:border-red-800/30 dark:text-red-400'
+      case UserStatus.DEACTIVATED: return 'bg-slate-50 border border-slate-200 text-slate-600 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-400'
+      case UserStatus.DELETED: return 'bg-slate-100 border border-slate-200 text-slate-400 dark:bg-slate-900 dark:border-slate-800 dark:text-slate-600'
+      default: return 'bg-slate-50 border border-slate-200 text-slate-600'
     }
   }
 
   return (
-    <div className="space-y-8 pb-10">
-      <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
-        <div>
-          <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">User Management</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1 font-medium italic">Control and moderate platform accounts.</p>
+    <div className="space-y-8 pb-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
+        <div className="space-y-1">
+          <h1 className="text-4xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-400">
+            User Management
+          </h1>
+          <p className="text-slate-500 dark:text-slate-400 text-sm md:text-base">
+            Control and moderate platform accounts.
+          </p>
         </div>
         <button 
           onClick={handleCreate}
-          className="flex items-center justify-center gap-2 rounded-2xl bg-primary-600 px-6 py-3.5 text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-primary-500/20 transition-all hover:bg-primary-700 sm:px-8"
+          className="group flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-medium text-white shadow-sm transition-all hover:bg-indigo-700 hover:-translate-y-0.5 active:scale-95 sm:px-8"
         >
-          <Plus className="w-5 h-5" />
+          <Plus className="w-5 h-5 transition-transform group-hover:rotate-90" />
           Create New User
         </button>
       </div>
 
       {/* Filters */}
-      <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 p-8 shadow-sm">
-        <div className="flex flex-col gap-6 md:flex-row">
+      <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-sm">
+        <div className="flex flex-col gap-5 md:flex-row">
           <div className="relative flex-1 group">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-primary-500 transition-colors" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
             <input 
               type="text" 
               placeholder="Search by name or email..." 
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-12 pr-6 py-3.5 rounded-2xl bg-gray-50 dark:bg-gray-800 border border-transparent focus:bg-white dark:focus:bg-gray-900 focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500/30 transition-all text-sm font-medium text-gray-900 dark:text-white"
+              className="w-full pl-11 pr-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500/50 transition-all text-sm font-medium text-slate-900 dark:text-white placeholder:text-slate-400"
             />
           </div>
           <div className="flex flex-col gap-4 sm:flex-row">
             <select 
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as UserStatus)}
-              className="w-full rounded-2xl border border-transparent bg-gray-50 px-6 py-3.5 text-sm font-bold text-gray-600 outline-none transition-all focus:border-primary-500/30 focus:bg-white focus:ring-4 focus:ring-primary-500/10 dark:bg-gray-800 dark:text-gray-400 dark:focus:bg-gray-900 sm:w-auto"
+              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-600 outline-none transition-all focus:border-indigo-500/50 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-700 dark:bg-slate-800/50 dark:text-slate-300 dark:focus:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-600 sm:w-auto appearance-none cursor-pointer"
             >
               <option value="">Account Status</option>
               {Object.values(UserStatus).map(s => (
@@ -213,7 +217,7 @@ export default function AdminUsersPage() {
             <select 
               value={mentorStatusFilter}
               onChange={(e) => setMentorStatusFilter(e.target.value as MentorStatus)}
-              className="w-full rounded-2xl border border-transparent bg-gray-50 px-6 py-3.5 text-sm font-bold text-gray-600 outline-none transition-all focus:border-primary-500/30 focus:bg-white focus:ring-4 focus:ring-primary-500/10 dark:bg-gray-800 dark:text-gray-400 dark:focus:bg-gray-900 sm:w-auto"
+              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-600 outline-none transition-all focus:border-indigo-500/50 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-700 dark:bg-slate-800/50 dark:text-slate-300 dark:focus:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-600 sm:w-auto appearance-none cursor-pointer"
             >
               <option value="">Mentor Role</option>
               {Object.values(MentorStatus).map(s => (
@@ -225,32 +229,32 @@ export default function AdminUsersPage() {
       </div>
 
       {/* Users Table */}
-      <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
+      <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="text-[10px] text-gray-400 dark:text-gray-500 font-black uppercase tracking-[0.2em] border-b border-gray-50 dark:border-gray-800 bg-gray-50/20 dark:bg-gray-800/20">
-                <th className="px-8 py-5 text-left">Profile</th>
-                <th className="px-8 py-5 text-left">Account</th>
-                <th className="px-8 py-5 text-left">Role Status</th>
-                <th className="px-8 py-5 text-left">Joined</th>
-                <th className="px-8 py-5 text-right">Actions</th>
+              <tr className="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800/50">
+                <th className="px-8 py-5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Profile</th>
+                <th className="px-8 py-5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Account Status</th>
+                <th className="px-8 py-5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Role Status</th>
+                <th className="px-8 py-5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Joined</th>
+                <th className="px-8 py-5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
+            <tbody className="divide-y divide-slate-100/50 dark:divide-slate-800/50">
               {isLoading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <tr key={i} className="animate-pulse">
-                    <td className="px-8 py-6"><div className="w-32 h-4 bg-gray-100 dark:bg-gray-800 rounded" /></td>
+                    <td className="px-8 py-6"><div className="w-32 h-4 bg-slate-200 dark:bg-slate-700 rounded" /></td>
                     <td colSpan={4} />
                   </tr>
                 ))
               ) : (
                 data?.content.map((user) => (
-                  <tr key={user.userId} className="group hover:bg-gray-50/30 dark:hover:bg-gray-800/30 transition-all">
-                    <td className="px-8 py-6">
+                  <tr key={user.userId} className="group hover:bg-slate-50/80 dark:hover:bg-slate-800/80 transition-colors">
+                    <td className="px-8 py-5">
                       <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-2xl bg-primary-50 dark:bg-primary-900/20 flex items-center justify-center text-primary-600 dark:text-primary-400 font-black text-lg border-2 border-white dark:border-gray-800 shadow-sm overflow-hidden flex-shrink-0">
+                        <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-extrabold text-lg border border-indigo-100 dark:border-indigo-800/30 shadow-sm overflow-hidden flex-shrink-0 group-hover:scale-105 transition-transform duration-300">
                           {user.avatarUrl ? (
                             <img src={user.avatarUrl} alt={user.fullName} className="w-full h-full object-cover" />
                           ) : (
@@ -258,42 +262,42 @@ export default function AdminUsersPage() {
                           )}
                         </div>
                         <div className="flex flex-col min-w-0">
-                          <span className="text-sm font-black text-gray-900 dark:text-white tracking-tight truncate">{user.fullName}</span>
-                          <span className="text-xs font-bold text-gray-400 dark:text-gray-500 flex items-center gap-1.5 mt-0.5 truncate">
+                          <span className="text-sm font-bold text-slate-900 dark:text-white truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{user.fullName}</span>
+                          <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 flex items-center gap-1.5 mt-0.5 truncate">
                             <Mail className="w-3 h-3" />
                             {user.email}
                           </span>
                         </div>
                       </div>
                     </td>
-                    <td className="px-8 py-6">
-                      <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest ${getStatusColor(user.status)}`}>
+                    <td className="px-8 py-5">
+                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${getStatusColor(user.status)} shadow-sm`}>
                         {user.status}
                       </span>
                     </td>
-                    <td className="px-8 py-6">
+                    <td className="px-8 py-5">
                       {user.mentorStatus ? (
-                        <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest ${
-                          user.mentorStatus === MentorStatus.APPROVED ? 'bg-indigo-50 text-indigo-600 dark:bg-indigo-900/20 dark:text-indigo-400' :
-                          user.mentorStatus === MentorStatus.PENDING ? 'bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400' :
-                          'bg-rose-50 text-rose-600 dark:bg-rose-900/20 dark:text-rose-400'
+                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm ${
+                          user.mentorStatus === MentorStatus.APPROVED ? 'bg-indigo-50 border border-indigo-100 text-indigo-600 dark:bg-indigo-900/20 dark:border-indigo-800/30 dark:text-indigo-400' :
+                          user.mentorStatus === MentorStatus.PENDING ? 'bg-amber-50 border border-amber-100 text-amber-600 dark:bg-amber-900/20 dark:border-amber-800/30 dark:text-amber-400' :
+                          'bg-rose-50 border border-rose-100 text-rose-600 dark:bg-rose-900/20 dark:border-rose-800/30 dark:text-rose-400'
                         }`}>
                           {user.mentorStatus}
                         </span>
                       ) : (
-                        <span className="text-xs font-bold text-gray-300 dark:text-gray-700 italic">Common User</span>
+                        <span className="text-xs font-bold text-slate-400 dark:text-slate-600 italic">User</span>
                       )}
                     </td>
-                    <td className="px-8 py-6">
-                      <span className="text-xs font-bold text-gray-700 dark:text-gray-300 tracking-tight">
+                    <td className="px-8 py-5">
+                      <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">
                         {formatDateTime(user.createdAt)}
                       </span>
                     </td>
-                    <td className="px-8 py-6 text-right">
-                      <div className="flex items-center justify-end gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 md:translate-x-4 md:group-hover:translate-x-0 transition-all duration-300">
+                    <td className="px-8 py-5 text-right">
+                      <div className="flex items-center justify-end gap-2 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 lg:translate-x-4 lg:group-hover:translate-x-0 transition-all duration-300">
                         <button 
                           onClick={() => handleViewDetails(user)}
-                          className="p-2.5 rounded-xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-gray-400 hover:text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-all shadow-sm"
+                          className="p-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-indigo-600 hover:border-indigo-200 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5"
                           title="View Details"
                         >
                           <Eye className="w-4 h-4" />
@@ -303,14 +307,14 @@ export default function AdminUsersPage() {
                           <>
                             <button
                               onClick={() => approveMentorMutation.mutate(user.userId)}
-                              className="p-2.5 rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-all shadow-sm"
+                              className="p-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-emerald-500 hover:border-emerald-200 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5"
                               title="Approve Mentor"
                             >
                               <UserCheck className="w-4 h-4" />
                             </button>
                             <button
                               onClick={() => handleRejectMentor(user.userId)}
-                              className="p-2.5 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 transition-all shadow-sm"
+                              className="p-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-rose-500 hover:border-rose-200 hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5"
                               title="Reject/Revision"
                             >
                               <UserX className="w-4 h-4" />
@@ -321,7 +325,7 @@ export default function AdminUsersPage() {
                         {user.mentorStatus === MentorStatus.APPROVED && (
                           <button 
                             onClick={() => handleSuspendMentor(user.userId)}
-                            className="p-2.5 rounded-xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-all shadow-sm"
+                            className="p-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-rose-500 hover:border-rose-200 hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5"
                             title="Suspend Mentor Mode"
                           >
                             <AlertCircle className="w-4 h-4" />
@@ -331,7 +335,7 @@ export default function AdminUsersPage() {
                         {user.mentorStatus === MentorStatus.SUSPENDED && (
                           <button 
                             onClick={() => restoreMentorMutation.mutate(user.userId)}
-                            className="p-2.5 rounded-xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all shadow-sm"
+                            className="p-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-indigo-500 hover:border-indigo-200 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5"
                             title="Restore Mentor Mode"
                           >
                             <UserCheck className="w-4 h-4" />
@@ -341,7 +345,7 @@ export default function AdminUsersPage() {
                         {user.status === UserStatus.ACTIVE ? (
                           <button 
                             onClick={() => updateStatusMutation.mutate({ userId: user.userId, status: UserStatus.SUSPENDED })}
-                            className="p-2.5 rounded-xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-all shadow-sm"
+                            className="p-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-amber-500 hover:border-amber-200 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5"
                             title="Freeze Account"
                           >
                             <ShieldAlert className="w-4 h-4" />
@@ -349,7 +353,7 @@ export default function AdminUsersPage() {
                         ) : (
                           <button 
                             onClick={() => updateStatusMutation.mutate({ userId: user.userId, status: UserStatus.ACTIVE })}
-                            className="p-2.5 rounded-xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all shadow-sm"
+                            className="p-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-emerald-500 hover:border-emerald-200 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5"
                             title="Unfreeze Account"
                           >
                             <ShieldCheck className="w-4 h-4" />
@@ -358,7 +362,7 @@ export default function AdminUsersPage() {
 
                         <button 
                           onClick={() => handleEdit(user)}
-                          className="p-2.5 rounded-xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all shadow-sm"
+                          className="p-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5"
                           title="Edit Profile"
                         >
                           <Edit className="w-4 h-4" />
@@ -366,7 +370,7 @@ export default function AdminUsersPage() {
 
                         <button 
                           onClick={() => handleDelete(user.userId)}
-                          className="p-2.5 rounded-xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all shadow-sm"
+                          className="p-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-red-600 hover:border-red-200 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5"
                           title="Delete User"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -381,22 +385,22 @@ export default function AdminUsersPage() {
         </div>
 
         {/* Pagination */}
-        <div className="flex flex-col gap-4 border-t border-gray-50 bg-gray-50/30 px-6 py-6 dark:border-gray-800 dark:bg-gray-800/30 sm:flex-row sm:items-center sm:justify-between sm:px-8">
-          <p className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em]">
+        <div className="flex flex-col gap-4 border-t border-slate-100/50 bg-slate-50/30 px-6 py-5 dark:border-slate-800/50 dark:bg-slate-800/30 sm:flex-row sm:items-center sm:justify-between sm:px-8">
+          <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
             Page {data?.number! + 1} of {data?.totalPages}
           </p>
-          <div className="flex gap-3">
+          <div className="flex gap-2">
             <button 
               disabled={page === 0}
               onClick={() => setPage(p => p - 1)}
-              className="p-3 rounded-2xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-gray-400 hover:text-primary-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-sm"
+              className="p-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-indigo-600 hover:border-indigo-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-sm hover:shadow-md"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
             <button 
               disabled={data?.last}
               onClick={() => setPage(p => p + 1)}
-              className="p-3 rounded-2xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-gray-400 hover:text-primary-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-sm"
+              className="p-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-indigo-600 hover:border-indigo-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-sm hover:shadow-md"
             >
               <ChevronRight className="w-5 h-5" />
             </button>
@@ -416,42 +420,45 @@ export default function AdminUsersPage() {
       />
 
       {suspendTarget && (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-gray-950/55 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-xl rounded-[2rem] border border-white/10 bg-white p-6 shadow-2xl dark:bg-gray-900">
+        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-md animate-in fade-in duration-300">
+          <div className="w-full max-w-xl rounded-[2.5rem] border border-white/20 bg-white/90 p-8 shadow-2xl backdrop-blur-xl dark:bg-slate-900/90 dark:border-slate-700 animate-in zoom-in-95 duration-300">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="text-xs font-black uppercase tracking-[0.16em] text-rose-600 dark:text-rose-400">
-                  Moderation action
-                </p>
-                <h3 className="mt-2 text-xl font-black text-gray-950 dark:text-white">Suspend mentor</h3>
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-50 border border-rose-100 text-[10px] font-black uppercase tracking-widest text-rose-600 dark:bg-rose-900/20 dark:border-rose-800/30 dark:text-rose-400 mb-3 shadow-sm">
+                  <AlertCircle className="w-3 h-3" /> Moderation Action
+                </div>
+                <h3 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Suspend Mentor</h3>
               </div>
               <button
                 type="button"
                 onClick={() => setSuspendTarget(null)}
-                className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-gray-200 text-gray-500 hover:text-gray-950 dark:border-gray-700 dark:text-gray-300 dark:hover:text-white"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-400 hover:border-slate-300 hover:text-slate-600 hover:bg-slate-50 transition-all dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 shadow-sm"
               >
-                <XCircle className="h-4 w-4" />
+                <XCircle className="h-5 w-5" />
               </button>
             </div>
 
-            <div className="mt-6 space-y-3">
-              <p className="text-sm font-semibold text-gray-700 dark:text-gray-200">
-                Suspension removes Mentor Mode access but preserves the user account and user features.
+            <div className="mt-8 space-y-4">
+              <p className="text-sm font-semibold leading-relaxed text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-100 dark:border-slate-700/50">
+                Suspension removes Mentor Mode access but preserves the user account and user features. Use this for repeated policy violations.
               </p>
-              <textarea
-                rows={5}
-                value={suspendReason}
-                onChange={(e) => setSuspendReason(e.target.value)}
-                placeholder="Enter reason for suspending mentor mode..."
-                className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm font-medium text-gray-900 outline-none transition focus:border-rose-300 focus:bg-white focus:ring-4 focus:ring-rose-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-              />
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider ml-1">Suspension Reason</label>
+                <textarea
+                  rows={4}
+                  value={suspendReason}
+                  onChange={(e) => setSuspendReason(e.target.value)}
+                  placeholder="Detail the reason for suspending mentor mode..."
+                  className="w-full rounded-2xl border border-slate-200 bg-white px-5 py-4 text-sm font-medium text-slate-900 outline-none transition-all focus:border-rose-300 focus:ring-4 focus:ring-rose-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-white shadow-sm placeholder:text-slate-400"
+                />
+              </div>
             </div>
 
-            <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+            <div className="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
               <button
                 type="button"
                 onClick={() => setSuspendTarget(null)}
-                className="inline-flex h-11 items-center justify-center rounded-2xl border border-gray-200 px-5 text-sm font-bold text-gray-600 transition hover:border-gray-300 hover:text-gray-950 dark:border-gray-700 dark:text-gray-300 dark:hover:text-white"
+                className="inline-flex h-12 items-center justify-center rounded-2xl border border-slate-200 bg-white px-6 text-sm font-bold text-slate-600 transition-all hover:border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 shadow-sm"
               >
                 Cancel
               </button>
@@ -459,9 +466,10 @@ export default function AdminUsersPage() {
                 type="button"
                 onClick={handleSuspendConfirm}
                 disabled={!suspendReason.trim() || suspendMentorMutation.isLoading}
-                className="inline-flex h-11 items-center justify-center rounded-2xl bg-rose-600 px-5 text-sm font-bold text-white transition hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex h-12 items-center justify-center rounded-2xl bg-gradient-to-r from-rose-500 to-red-600 px-6 text-sm font-bold text-white transition-all hover:shadow-lg hover:shadow-rose-500/25 hover:-translate-y-0.5 active:scale-95 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:transform-none disabled:hover:shadow-none"
               >
-                {suspendMentorMutation.isLoading ? 'Submitting...' : 'Suspend mentor'}
+                {suspendMentorMutation.isLoading ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : <AlertCircle className="w-5 h-5 mr-2" />}
+                {suspendMentorMutation.isLoading ? 'Submitting...' : 'Suspend Mentor'}
               </button>
             </div>
           </div>

@@ -242,7 +242,7 @@ export default function GuidePage() {
         onChipSelect={handleTopicSelect}
       />
 
-      <main className="mx-auto mt-8 max-w-[1600px] px-4 sm:px-6 lg:px-8">
+      <main className="mx-auto mt-8 max-w-[1440px] px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
           <AudienceTabs tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
         </div>

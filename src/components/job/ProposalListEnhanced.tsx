@@ -47,7 +47,7 @@ export default function ProposalListEnhanced({ jobId }: Props) {
     return (
       <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-6 py-12 text-center">
         <User className="mx-auto h-12 w-12 text-slate-300" />
-        <h3 className="mt-3 text-lg font-black text-slate-950">Chưa có proposals</h3>
+        <h3 className="mt-3 text-lg font-bold text-slate-950">Chưa có proposals</h3>
         <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-600">
           Khi có mentor apply vào job này, proposals của họ sẽ hiển thị ở đây. Bạn có thể xem, thương lượng và chọn mentor phù hợp.
         </p>
@@ -133,7 +133,7 @@ export default function ProposalListEnhanced({ jobId }: Props) {
           <CheckCircle className="w-6 h-6 text-emerald-600 flex-shrink-0 mt-0.5" />
           <div>
             <p className="text-sm font-bold text-emerald-900">
-              Đã chọn mentor: <span className="font-black">{acceptedProposal.mentorName}</span>
+              Đã chọn mentor: <span className="font-bold">{acceptedProposal.mentorName}</span>
             </p>
             <p className="text-xs text-emerald-700 mt-1">
               Giá thỏa thuận: {formatCurrency(acceptedProposal.proposedAmount)} • 
@@ -241,7 +241,7 @@ function StatCard({ label, value, icon: Icon, color, active, onClick }: StatCard
         <span className="text-xs font-bold text-slate-600">{label}</span>
         <Icon className={`w-4 h-4 ${iconColorClasses[color]}`} />
       </div>
-      <p className="text-2xl font-black text-slate-900">{value}</p>
+      <p className="text-2xl font-bold text-slate-900">{value}</p>
     </button>
   )
 }

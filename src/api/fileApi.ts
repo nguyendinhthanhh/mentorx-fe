@@ -36,11 +36,8 @@ export const fileApi = {
       formData.append('subDirectory', options.subDirectory)
     }
     
-    const response = await client.post<ApiResponse<FileResponse>>('/v1/files/upload', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    })
+    // Do not pass Content-Type explicitly to let Axios attach the boundary
+    const response = await client.post<ApiResponse<FileResponse>>('/v1/files/upload', formData)
     return response.data.data
   },
 
