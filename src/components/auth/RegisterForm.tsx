@@ -45,7 +45,7 @@ export default function RegisterForm() {
       setLoading(true)
       setError('')
       const response = await authApi.register(data)
-      setTokens(response.accessToken, response.refreshToken)
+      setTokens(response.accessToken)
       setUser(response.user)
       setRegisteredEmail(data.email)
       setRegistered(true)
@@ -57,7 +57,7 @@ export default function RegisterForm() {
   }
 
   const handleSocialRegisterSuccess = (response: AuthResponse) => {
-    setTokens(response.accessToken, response.refreshToken)
+    setTokens(response.accessToken)
     setUser(response.user)
     navigate(getSocialAuthRedirectPath(response))
   }

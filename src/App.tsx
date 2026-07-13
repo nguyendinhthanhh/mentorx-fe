@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { CourseProductType } from '@/types'
 import MainLayout from './layouts/MainLayout'
@@ -63,7 +64,6 @@ import ChatDemoPage from './pages/chat/ChatDemoPage'
 
 // Admin Pages
 import AdminDashboardPage from './pages/admin/AdminDashboardPage'
-import AdminApiPage from './pages/admin/AdminApiPage'
 import AdminUsersPage from './pages/admin/AdminUsersPage'
 import AdminJobsPage from './pages/admin/AdminJobsPage'
 import AdminCoursesPage from './pages/admin/AdminCoursesPage'
@@ -74,6 +74,8 @@ import AdminMentorApplicationsPage from './pages/admin/AdminMentorApplicationsPa
 import AdminSupportPage from './pages/admin/AdminSupportPage'
 import AdminComplaintsPage from './pages/admin/AdminComplaintsPage'
 import AdminComplaintDetailPage from './pages/admin/AdminComplaintDetailPage'
+import AdminDisputesPage from './pages/admin/AdminDisputesPage'
+import AdminSettingsPage from './pages/admin/AdminSettingsPage'
 
 // Mentor Pages
 import MentorDashboardPage from './pages/mentor/MentorDashboardPage'
@@ -96,6 +98,8 @@ import AdminRoute from './components/auth/AdminRoute'
 import AdminOnlyRoute from './components/auth/AdminOnlyRoute'
 import MentorRoute from './components/auth/MentorRoute'
 import ThemeProvider from './components/ThemeProvider'
+import { authApi } from './api/authApi'
+import { useAuthStore } from './store/authStore'
 
 import HomePage from './pages/HomePage'
 import AboutPage from './pages/AboutPage'
@@ -114,6 +118,29 @@ const queryClient = new QueryClient({
 })
 
 function App() {
+  const [authReady, setAuthReady] = useState(false)
+  const setTokens = useAuthStore((state) => state.setTokens)
+  const setUser = useAuthStore((state) => state.setUser)
+
+  useEffect(() => {
+    let active = true
+    authApi.refreshToken()
+      .then((session) => {
+        if (!active) return
+        setTokens(session.accessToken)
+        setUser(session.user)
+      })
+      .catch(() => {
+        // No valid HttpOnly refresh cookie means an anonymous session.
+      })
+      .finally(() => {
+        if (active) setAuthReady(true)
+      })
+    return () => { active = false }
+  }, [setTokens, setUser])
+
+  if (!authReady) return null
+
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
@@ -218,7 +245,6 @@ function App() {
           <Route element={<ProtectedRoute><AdminRoute><AdminLayout /></AdminRoute></ProtectedRoute>}>
             <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
             <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
-            <Route path="/admin/api" element={<AdminOnlyRoute><AdminApiPage /></AdminOnlyRoute>} />
             <Route path="/admin/users" element={<AdminOnlyRoute><AdminUsersPage /></AdminOnlyRoute>} />
             <Route path="/admin/mentor-applications" element={<AdminMentorApplicationsPage />} />
             <Route path="/admin/jobs" element={<AdminJobsPage />} />
@@ -228,8 +254,9 @@ function App() {
             <Route path="/admin/support" element={<AdminSupportPage />} />
             <Route path="/admin/complaints" element={<AdminComplaintsPage />} />
             <Route path="/admin/complaints/:id" element={<AdminComplaintDetailPage />} />
+            <Route path="/admin/disputes" element={<AdminDisputesPage />} />
             <Route path="/admin/wallet" element={<AdminOnlyRoute><AdminWalletPage /></AdminOnlyRoute>} />
-            <Route path="/admin/settings" element={<AdminOnlyRoute><div>Platform Settings (Coming Soon)</div></AdminOnlyRoute>} />
+            <Route path="/admin/settings" element={<AdminOnlyRoute><AdminSettingsPage /></AdminOnlyRoute>} />
           </Route>
 
           {/* Mentor Routes */}

@@ -13,9 +13,7 @@ import {
   BookOpen,
   PieChart,
   Flag,
-  Zap,
   Inbox,
-  Bell,
   Search,
   Globe,
   Sun,
@@ -27,6 +25,7 @@ import {
 import { useState } from 'react'
 import { useThemeStore } from '@/store/themeStore'
 import { isAdmin, isModerator } from '@/utils/roleRedirect'
+import NotificationDropdown from '@/components/notification/NotificationDropdown'
 
 const adminLinks = [
   { to: '/admin/dashboard', label: 'Overview', icon: LayoutDashboard },
@@ -34,9 +33,9 @@ const adminLinks = [
   { to: '/admin/mentor-applications', label: 'Mentor Verification', icon: UserCheck },
   { to: '/admin/jobs', label: 'Jobs', icon: Briefcase },
   { to: '/admin/courses', label: 'Courses', icon: BookOpen },
-  { to: '/admin/api', label: 'API Functions', icon: Zap },
   { to: '/admin/reports', label: 'Reports', icon: Flag },
   { to: '/admin/complaints', label: 'Complaints', icon: Inbox },
+  { to: '/admin/disputes', label: 'Escrow Disputes', icon: ShieldAlert },
   { to: '/admin/support', label: 'Support Chat', icon: MessageSquare },
   { to: '/admin/wallet', label: 'Wallet Moderation', icon: DollarSign },
   { to: '/admin/settings', label: 'Settings', icon: Settings },
@@ -50,10 +49,11 @@ export default function AdminLayout() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false)
   const isFinanceAdmin = isAdmin(user)
+  const isSupportWorkspace = location.pathname === '/admin/support'
   const userRoleLabel = isAdmin(user) ? 'Admin' : isModerator(user) ? 'Moderator' : 'Operations'
   const visibleAdminLinks = adminLinks.filter((link) => {
     if (isFinanceAdmin) return true
-    return !['/admin/wallet', '/admin/users', '/admin/api', '/admin/settings'].includes(link.to)
+    return !['/admin/wallet', '/admin/users', '/admin/settings'].includes(link.to)
   })
 
   const handleLogout = () => {
@@ -258,10 +258,7 @@ export default function AdminLayout() {
                 >
                   {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
                 </button>
-                <button className="p-2.5 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors relative">
-                  <Bell className="w-4 h-4" />
-                  <span className="absolute top-2.5 right-2.5 w-1.5 h-1.5 bg-rose-500 rounded-full" />
-                </button>
+                {user?.userId && <NotificationDropdown userId={user.userId} allHref="/profile/notifications" />}
               </div>
 
               <div className="hidden h-6 w-px bg-gray-200 dark:bg-gray-700 sm:block" />
@@ -279,7 +276,7 @@ export default function AdminLayout() {
           </header>
 
           {/* Page Content */}
-          <main className="mx-auto w-full max-w-[1600px] p-4 sm:p-6 lg:p-8">
+          <main className={isSupportWorkspace ? 'min-h-0 flex-1' : 'mx-auto w-full max-w-[1600px] p-4 sm:p-6 lg:p-8'}>
             <Outlet />
           </main>
         </div>

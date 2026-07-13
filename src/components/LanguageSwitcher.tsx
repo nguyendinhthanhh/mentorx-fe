@@ -9,10 +9,10 @@ export default function LanguageSwitcher({ compact = false }: { compact?: boolea
     <div
       className={`inline-flex items-center rounded-xl border border-slate-200 bg-white p-1 shadow-sm ${
         compact ? 'w-fit' : ''
-      }`}
+      } dark:border-slate-700 dark:bg-slate-900`}
       aria-label={t('common.language')}
     >
-      <div className="hidden h-8 items-center px-2 text-slate-500 sm:flex">
+      <div className="hidden h-8 items-center px-2 text-slate-500 dark:text-slate-400 sm:flex">
         <Globe2 className="h-4 w-4" />
       </div>
       {languages.map((item) => (
@@ -23,7 +23,7 @@ export default function LanguageSwitcher({ compact = false }: { compact?: boolea
           className={`h-8 rounded-lg px-2.5 text-xs font-black transition ${
             language === item.code
               ? 'bg-indigo-600 text-white shadow-sm'
-              : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
+              : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white'
           }`}
           aria-pressed={language === item.code}
         >

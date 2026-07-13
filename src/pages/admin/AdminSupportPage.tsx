@@ -1,58 +1,66 @@
+import { type ReactNode, useRef, useState } from 'react'
 import { useQuery } from 'react-query'
+import { FileText, Image, MessageSquare, Search, X } from 'lucide-react'
+import { Link } from 'react-router-dom'
+
 import { chatApi } from '@/api/chatApi'
-import { fileApi, FILE_UPLOAD_DIRS } from '@/api/fileApi'
-import { MessageType } from '@/types'
-import { useAuthStore } from '@/store/authStore'
-import { 
-  MessageSquare, 
-  Search, 
-  Clock, 
-  User, 
-  ChevronRight,
-  Filter,
-  MoreVertical,
-  Activity,
-  ArrowLeft
-} from 'lucide-react'
-import { useState, useRef } from 'react'
-import { formatDateTime } from '@/utils/formatters'
+import { FILE_UPLOAD_DIRS, fileApi } from '@/api/fileApi'
+import { useI18n } from '@/i18n/I18nProvider'
 import ConversationPane from '@/pages/chat/components/ConversationPane'
-import { getPrimaryOtherMember } from '@/pages/chat/chatShared'
+import { buildSharedFiles, buildSharedImages, getPrimaryOtherMember } from '@/pages/chat/chatShared'
+import { useAuthStore } from '@/store/authStore'
+import { userApi } from '@/api/userApi'
+import { ChatRoomMemberSummary, MessageResponse, MessageType, UserResponse } from '@/types'
+import { formatDateTime, formatRelativeTime } from '@/utils/formatters'
 
 export default function AdminSupportPage() {
   const { user } = useAuthStore()
+  const { t } = useI18n()
   const [search, setSearch] = useState('')
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null)
   const [messageInput, setMessageInput] = useState('')
   const [isSending, setIsSending] = useState(false)
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false)
   const [composerError, setComposerError] = useState<string | null>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const { data, isLoading } = useQuery(
+  const roomsQuery = useQuery(
     ['admin-support-rooms', user?.userId],
     () => chatApi.getUserRooms(user!.userId, { page: 0, size: 50 }),
-    { enabled: !!user }
+    { enabled: !!user?.userId }
   )
 
-  const filteredRooms = data?.content.filter(room => 
-    room.roomName?.toLowerCase().includes(search.toLowerCase()) ||
-    room.lastMessagePreview?.toLowerCase().includes(search.toLowerCase())
-  )
+  const rooms = roomsQuery.data?.content ?? []
+  const query = search.trim().toLowerCase()
+  const filteredRooms = query
+    ? rooms.filter((room) => (
+      room.roomName?.toLowerCase().includes(query)
+      || room.lastMessagePreview?.toLowerCase().includes(query)
+    ))
+    : rooms
 
-  const selectedRoom = data?.content.find(r => r.id === selectedRoomId) || null
+  const selectedRoom = rooms.find((room) => room.id === selectedRoomId) ?? null
   const otherMember = selectedRoom ? getPrimaryOtherMember(selectedRoom, user?.userId) : undefined
 
-  const { data: messagesData, isLoading: messagesLoading, refetch: refetchMessages } = useQuery(
+  const messagesQuery = useQuery(
     ['admin-support-messages', selectedRoomId],
     () => chatApi.getRoomMessages(selectedRoomId!, { size: 100 }),
     { enabled: !!selectedRoomId, refetchInterval: selectedRoomId ? 5000 : false }
   )
-  const selectedMessages = messagesData?.content || []
+  const selectedMessages = messagesQuery.data?.content ?? []
+  const sharedFiles = buildSharedFiles(selectedMessages)
+  const sharedImages = buildSharedImages(selectedMessages)
+
+  const profileQuery = useQuery(
+    ['admin-support-member', otherMember?.userId],
+    () => userApi.getUserById(otherMember!.userId),
+    { enabled: !!otherMember?.userId, retry: false, staleTime: 60_000 }
+  )
 
   const handleSendMessage = async (message: string, files: File[] = []) => {
-    const trimmedMessage = message.trim()
-    if ((!trimmedMessage && files.length === 0) || !selectedRoomId || !user?.userId || isSending) return
+    const content = message.trim()
+    if ((!content && files.length === 0) || !selectedRoomId || !user?.userId || isSending) return
 
     setComposerError(null)
     setIsSending(true)
@@ -62,18 +70,17 @@ export default function AdminSupportPage() {
         await chatApi.sendMessage({
           chatRoomId: selectedRoomId,
           senderId: user.userId,
-          content: trimmedMessage,
+          content,
           messageType: MessageType.TEXT,
         })
       } else {
         for (const [index, file] of files.entries()) {
           const uploadedFile = await fileApi.upload(file, { subDirectory: FILE_UPLOAD_DIRS.PUBLIC_CHAT })
-          const isImage = file.type.startsWith('image/')
           await chatApi.sendMessage({
             chatRoomId: selectedRoomId,
             senderId: user.userId,
-            content: index === 0 ? trimmedMessage : '',
-            messageType: isImage ? MessageType.IMAGE : MessageType.FILE,
+            content: index === 0 ? content : '',
+            messageType: file.type.startsWith('image/') ? MessageType.IMAGE : MessageType.FILE,
             attachmentUrl: uploadedFile.fileUrl,
             attachmentFilename: file.name,
             attachmentMimeType: file.type || uploadedFile.fileType,
@@ -85,167 +92,276 @@ export default function AdminSupportPage() {
           })
         }
       }
+
       setMessageInput('')
-      refetchMessages()
-    } catch (error: any) {
-      setComposerError(error?.response?.data?.message || 'Unable to send message.')
+      await messagesQuery.refetch()
+    } catch {
+      setComposerError(t('admin.support.sendError'))
     } finally {
       setIsSending(false)
     }
   }
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
-        <div>
-          <h1 className="text-4xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-400">Support Center</h1>
-          <p className="mt-2 text-sm font-bold text-slate-400 dark:text-slate-500">Manage incoming help requests and community messages.</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <div className="bg-emerald-50 text-emerald-600 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 border border-emerald-200/60 shadow-sm">
-             <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-             System Online
+    <div className="flex h-[calc(100dvh-5rem)]">
+      <section className="flex h-full w-full overflow-hidden bg-white dark:bg-slate-900">
+        <div className="flex h-full w-full">
+          <aside className={`flex min-h-0 flex-col border-r border-slate-200 bg-slate-50/60 dark:border-slate-800 dark:bg-slate-900 ${selectedRoomId ? 'hidden md:flex md:w-[340px]' : 'w-full md:w-[340px]'}`}>
+            <div className="border-b border-slate-200 bg-white px-4 py-4 dark:border-slate-800 dark:bg-slate-900">
+              <div className="flex items-center justify-between gap-3">
+                <h2 className="text-sm font-semibold text-slate-950 dark:text-white">{t('admin.support.inbox')}</h2>
+                <span className="text-xs text-slate-500 dark:text-slate-400">
+                  {t('admin.support.conversationCount', { count: rooms.length })}
+                </span>
+              </div>
+              <label className="relative mt-3 block">
+                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="search"
+                  value={search}
+                  onChange={(event) => setSearch(event.target.value)}
+                  placeholder={t('admin.support.searchPlaceholder')}
+                  className="h-10 w-full rounded-lg border border-slate-300 bg-white pl-9 pr-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-sky-600 focus:ring-4 focus:ring-sky-100 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:focus:ring-sky-950"
+                />
+              </label>
+            </div>
+
+            <div className="min-h-0 flex-1 overflow-y-auto">
+              {roomsQuery.isLoading ? (
+                <InboxSkeleton />
+              ) : roomsQuery.isError ? (
+                <InboxNotice
+                  icon={<MessageSquare className="h-5 w-5" />}
+                  title={t('admin.support.loadError')}
+                  action={t('admin.support.retry')}
+                  onAction={() => void roomsQuery.refetch()}
+                />
+              ) : filteredRooms.length === 0 ? (
+                <InboxNotice
+                  icon={<MessageSquare className="h-5 w-5" />}
+                  title={t('admin.support.emptyInboxTitle')}
+                  description={t('admin.support.emptyInboxDescription')}
+                />
+              ) : (
+                filteredRooms.map((room) => {
+                  const member = getPrimaryOtherMember(room, user?.userId)
+                  const roomName = member?.displayName || member?.fullName || room.roomName || t('admin.support.title')
+                  const initials = roomName
+                    .split(' ')
+                    .filter(Boolean)
+                    .slice(0, 2)
+                    .map((part) => part[0]?.toUpperCase())
+                    .join('')
+                  const active = room.id === selectedRoomId
+
+                  return (
+                    <button
+                      key={room.id}
+                      type="button"
+                      onClick={() => setSelectedRoomId(room.id)}
+                      className={`flex w-full gap-3 border-b border-slate-200 px-4 py-4 text-left transition last:border-b-0 dark:border-slate-800 ${active ? 'bg-sky-50 dark:bg-sky-950/30' : 'hover:bg-white dark:hover:bg-slate-800/60'}`}
+                    >
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-slate-200 text-sm font-semibold text-slate-700 dark:bg-slate-800 dark:text-slate-200">
+                        {member?.avatarUrl ? <img src={member.avatarUrl} alt="" className="h-full w-full object-cover" /> : initials}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-baseline justify-between gap-3">
+                          <p className="truncate text-sm font-semibold text-slate-950 dark:text-white">{roomName}</p>
+                          <span className="shrink-0 text-[11px] text-slate-400 dark:text-slate-500">
+                            {room.lastMessageAt ? formatDateTime(room.lastMessageAt) : t('admin.support.noRecentActivity')}
+                          </span>
+                        </div>
+                        <p className="mt-1 truncate text-xs leading-5 text-slate-500 dark:text-slate-400">
+                          {room.lastMessagePreview || t('admin.support.noPreview')}
+                        </p>
+                      </div>
+                    </button>
+                  )
+                })
+              )}
+            </div>
+          </aside>
+
+          <div className={`min-h-0 flex-1 ${!selectedRoomId ? 'hidden md:flex' : 'flex'}`}>
+            {selectedRoom ? (
+              <ConversationPane
+                selectedRoom={selectedRoom}
+                selectedMessages={selectedMessages}
+                currentUserId={user?.userId || ''}
+                otherMember={otherMember}
+                messagesLoading={messagesQuery.isLoading}
+                scrollRef={scrollRef}
+                messageInput={messageInput}
+                onMessageInputChange={setMessageInput}
+                queuedAttachments={[]}
+                onAttachmentSelect={() => {}}
+                onRemoveAttachment={() => {}}
+                onSendMessage={handleSendMessage}
+                fileInputRef={fileInputRef}
+                onOpenFilePicker={() => {}}
+                isSending={isSending}
+                composerError={composerError || (messagesQuery.isError ? t('admin.support.loadError') : null)}
+                onShowDetails={() => setIsDetailsOpen(true)}
+                onBackToList={() => setSelectedRoomId(null)}
+                showBackButton
+                heightClassName="h-full"
+                noMessagesTitle={t('admin.support.noMessagesTitle')}
+                noMessagesDescription={t('admin.support.noMessagesDescription')}
+                showDetailsButton
+                detailsButtonClassName=""
+                detailsButtonLabel={t('admin.support.detailsTitle')}
+                profileHref={otherMember?.userId ? `/users/${otherMember.userId}` : undefined}
+              />
+            ) : (
+              <div className="flex flex-1 items-center justify-center bg-white p-6 dark:bg-slate-900">
+                <div className="max-w-sm text-center">
+                  <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                    <MessageSquare className="h-5 w-5" />
+                  </div>
+                  <h2 className="mt-4 text-base font-semibold text-slate-950 dark:text-white">{t('admin.support.selectTitle')}</h2>
+                  <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">{t('admin.support.selectDescription')}</p>
+                </div>
+              </div>
+            )}
           </div>
         </div>
-      </div>
-
-      {/* Stats Bar */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-         <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl p-8 rounded-[2.5rem] border border-white/50 dark:border-slate-800 shadow-xl shadow-slate-200/40 dark:shadow-none transition-all hover:-translate-y-1">
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Active Conversations</p>
-            <h3 className="text-4xl font-extrabold text-slate-900 dark:text-white">{data?.totalElements || 0}</h3>
-         </div>
-         <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl p-8 rounded-[2.5rem] border border-white/50 dark:border-slate-800 shadow-xl shadow-slate-200/40 dark:shadow-none transition-all hover:-translate-y-1">
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Unread Messages</p>
-            <h3 className="text-4xl font-extrabold text-amber-500">12</h3>
-         </div>
-         <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl p-8 rounded-[2.5rem] border border-white/50 dark:border-slate-800 shadow-xl shadow-slate-200/40 dark:shadow-none transition-all hover:-translate-y-1">
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Avg. Response Time</p>
-            <h3 className="text-4xl font-extrabold text-indigo-500">~14m</h3>
-         </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="flex min-h-[700px] flex-col md:flex-row overflow-hidden rounded-[2.5rem] border border-white/50 bg-white/70 shadow-xl shadow-slate-200/40 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/70 dark:shadow-none transition-all">
-        {/* Conversations List (Left Pane) */}
-        <div className={`flex flex-col border-r border-slate-100/50 dark:border-slate-800/50 transition-all ${selectedRoomId ? 'hidden md:flex md:w-[360px]' : 'w-full md:w-[360px]'}`}>
-          {/* Search & Filter */}
-          <div className="flex flex-col gap-4 border-b border-slate-100/50 bg-slate-50/50 p-6 dark:border-slate-800/50 dark:bg-slate-800/30 sm:flex-row sm:items-center">
-             <div className="relative flex-1 group">
-                <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
-                <input 
-                  type="text" 
-                  placeholder="Search conversations..." 
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-14 pr-6 py-3.5 rounded-2xl bg-white/50 dark:bg-slate-800/50 border border-slate-200/60 focus:bg-white dark:focus:bg-slate-800 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500/30 transition-all text-sm font-bold shadow-sm hover:border-slate-300 dark:hover:border-slate-600 dark:border-slate-700/60"
-              />
-           </div>
-           <button className="self-end rounded-2xl bg-white/50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700/60 p-3.5 text-slate-400 transition-all hover:text-indigo-600 hover:border-indigo-200 dark:hover:border-indigo-800/50 hover:bg-white shadow-sm hover:shadow-md hover:-translate-y-0.5 sm:self-auto">
-              <Filter className="w-5 h-5" />
-           </button>
+      </section>
+      {isDetailsOpen && selectedRoom && (
+        <div className="fixed inset-0 z-50 flex justify-end bg-slate-950/25">
+          <button
+            type="button"
+            className="absolute inset-0 cursor-default"
+            onClick={() => setIsDetailsOpen(false)}
+            aria-label={t('admin.support.closeDetails')}
+          />
+          <SupportDetailsPanel
+            member={otherMember}
+            profile={profileQuery.data}
+            profileLoading={profileQuery.isLoading}
+            images={sharedImages}
+            files={sharedFiles}
+            onClose={() => setIsDetailsOpen(false)}
+          />
         </div>
+      )}
+    </div>
+  )
+}
 
-        {/* Conversations List */}
-        <div className="flex-1 overflow-y-auto">
-           {isLoading ? (
-             <div className="p-20 text-center space-y-4">
-                <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto" />
-                <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Scanning Secure Channels...</p>
-             </div>
-           ) : filteredRooms?.length === 0 ? (
-             <div className="p-20 text-center space-y-6">
-                <div className="w-20 h-20 bg-slate-50 dark:bg-slate-800/50 rounded-[2.5rem] flex items-center justify-center mx-auto border border-slate-100/50 dark:border-slate-800/50">
-                   <MessageSquare className="w-8 h-8 text-slate-300 dark:text-slate-600" />
-                </div>
-                <div>
-                   <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">No Active Tickets</h3>
-                   <p className="text-xs font-bold text-slate-400 mt-2">All incoming messages have been cleared. Great job!</p>
-                </div>
-             </div>
-           ) : (
-             <div className="divide-y divide-slate-100/50 dark:divide-slate-800/50">
-                {filteredRooms?.map((room) => (
-                  <div 
-                    key={room.id}
-                    onClick={() => setSelectedRoomId(room.id)}
-                    className={`group cursor-pointer p-6 transition-colors hover:bg-slate-50/80 dark:hover:bg-slate-800/80 sm:flex sm:items-center sm:justify-between ${selectedRoomId === room.id ? 'bg-indigo-50/50 dark:bg-indigo-900/10' : ''}`}
-                  >
-                     <div className="flex min-w-0 items-center gap-4 sm:gap-6">
-                        <div className="relative">
-                           <div className="w-16 h-16 rounded-[1.5rem] bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-extrabold text-2xl border border-indigo-200/60 dark:border-indigo-800/30 shadow-sm group-hover:scale-105 transition-transform">
-                              {room.roomName?.charAt(0).toUpperCase() || 'S'}
-                           </div>
-                           <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-lg bg-emerald-500 border-[3px] border-white dark:border-slate-900" />
-                        </div>
-                        <div className="min-w-0">
-                           <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                              <h4 className="break-words text-sm font-bold tracking-tight text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{room.roomName || 'Support Session'}</h4>
-                              <span className="px-3 py-1 rounded-lg bg-white/50 border border-slate-200/60 text-slate-600 dark:bg-slate-800/50 dark:border-slate-700/60 dark:text-slate-300 text-[10px] font-black uppercase tracking-widest shadow-sm">{room.roomType}</span>
-                           </div>
-                           <p className="mt-1.5 max-w-md break-words text-xs font-medium text-slate-500 dark:text-slate-400 sm:truncate">
-                              {room.lastMessagePreview || 'No messages yet...'}
-                           </p>
-                           <div className="flex items-center gap-3 mt-2.5">
-                              <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
-                                 <Clock className="w-3.5 h-3.5" /> {room.lastMessageAt ? formatDateTime(room.lastMessageAt) : 'Recent'}
-                              </span>
-                           </div>
-                        </div>
-                     </div>
-                     <div className="mt-4 flex items-center gap-4 self-end sm:mt-0 sm:self-auto">
-                        <button className="p-3 rounded-xl bg-white/50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700/60 text-slate-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 group-hover:border-indigo-200 dark:group-hover:border-indigo-800/50 group-hover:bg-white dark:group-hover:bg-slate-800 transition-all shadow-sm opacity-100 lg:opacity-0 lg:group-hover:opacity-100 hover:shadow-md group-hover:-translate-x-1">
-                           <ChevronRight className="w-5 h-5" />
-                        </button>
-                     </div>
-                  </div>
-                ))}
-             </div>
-           )}
-        </div>
+function SupportDetailsPanel({
+  member,
+  profile,
+  profileLoading,
+  images,
+  files,
+  onClose,
+}: {
+  member?: ChatRoomMemberSummary
+  profile?: UserResponse
+  profileLoading: boolean
+  images: ReturnType<typeof buildSharedImages>
+  files: ReturnType<typeof buildSharedFiles>
+  onClose: () => void
+}) {
+  const { t } = useI18n()
+  const name = profile?.displayName || profile?.fullName || member?.displayName || member?.fullName || t('admin.support.title')
+  const initials = name.split(' ').filter(Boolean).slice(0, 2).map((part) => part[0]?.toUpperCase()).join('')
+
+  return (
+    <aside className="relative z-10 flex h-full w-full max-w-[380px] flex-col border-l border-slate-200 bg-white shadow-2xl dark:border-slate-800 dark:bg-slate-900">
+      <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4 dark:border-slate-800">
+        <h2 className="text-sm font-semibold text-slate-950 dark:text-white">{t('admin.support.detailsTitle')}</h2>
+        <button type="button" onClick={onClose} className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-slate-800 dark:hover:text-white" aria-label={t('admin.support.closeDetails')}>
+          <X className="h-4 w-4" />
+        </button>
       </div>
-
-        {/* Conversation Pane (Right Pane) */}
-        <div className={`flex flex-1 flex-col ${!selectedRoomId ? 'hidden md:flex' : 'flex'}`}>
-          {selectedRoomId ? (
-            <ConversationPane
-              selectedRoom={selectedRoom}
-              selectedMessages={selectedMessages}
-              currentUserId={user?.userId || ''}
-              otherMember={otherMember}
-              messagesLoading={messagesLoading}
-              scrollRef={scrollRef}
-              messageInput={messageInput}
-              onMessageInputChange={setMessageInput}
-              queuedAttachments={[]}
-              onAttachmentSelect={() => {}}
-              onRemoveAttachment={() => {}}
-              onSendMessage={handleSendMessage}
-              fileInputRef={fileInputRef}
-              onOpenFilePicker={() => {}}
-              isSending={isSending}
-              composerError={composerError}
-              onShowDetails={() => {}}
-              onBackToList={() => setSelectedRoomId(null)}
-              showBackButton={true}
-              heightClassName="h-full"
-              noMessagesTitle="No messages yet"
-              noMessagesDescription="Start a conversation with the user to resolve their support request."
-              showDetailsButton={false}
-            />
-          ) : (
-            <div className="flex h-full items-center justify-center bg-slate-50/50 dark:bg-slate-800/30">
-              <div className="text-center">
-                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-[1.5rem] bg-indigo-50 text-indigo-500 dark:bg-indigo-900/20 dark:text-indigo-400">
-                  <MessageSquare className="h-6 w-6" />
-                </div>
-                <h2 className="mt-4 text-base font-bold text-slate-900 dark:text-white">Select a conversation</h2>
-                <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">Choose a ticket from the left panel to start chatting.</p>
-              </div>
+      <div className="min-h-0 flex-1 space-y-7 overflow-y-auto px-5 py-6">
+        <section>
+          <div className="flex items-center gap-3">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-slate-200 text-sm font-semibold text-slate-700 dark:bg-slate-800 dark:text-slate-200">
+              {profile?.avatarUrl || member?.avatarUrl ? <img src={profile?.avatarUrl || member?.avatarUrl} alt="" className="h-full w-full object-cover" /> : initials}
             </div>
+            <div className="min-w-0">
+              {member?.userId ? (
+                <Link to={`/users/${member.userId}`} className="block truncate text-base font-semibold text-slate-950 hover:text-indigo-700 hover:underline hover:underline-offset-4 dark:text-white dark:hover:text-indigo-300">
+                  {name}
+                </Link>
+              ) : <p className="truncate text-base font-semibold text-slate-950 dark:text-white">{name}</p>}
+              <p className="mt-0.5 text-sm text-slate-500 dark:text-slate-400">{member?.isOnline ? t('admin.support.online') : member?.lastSeenAt ? t('admin.support.lastActive', { value: formatRelativeTime(member.lastSeenAt) }) : t('admin.support.offline')}</p>
+            </div>
+          </div>
+          {profileLoading ? <div className="mt-5 h-16 animate-pulse rounded-lg bg-slate-100 dark:bg-slate-800" /> : (
+            <dl className="mt-5 space-y-3 text-sm">
+              <DetailRow label={t('admin.support.email')} value={profile?.email} />
+              <DetailRow label={t('admin.support.phone')} value={profile?.phone} />
+              <DetailRow label={t('admin.support.role')} value={member?.memberRole?.replace(/_/g, ' ')} />
+              {!profile?.email && !profile?.phone && !member?.memberRole && <p className="text-sm text-slate-500 dark:text-slate-400">{t('admin.support.noProfileDetails')}</p>}
+            </dl>
           )}
-        </div>
+        </section>
+
+        <section>
+          <h3 className="text-sm font-semibold text-slate-950 dark:text-white">{t('admin.support.sharedMedia')}</h3>
+          {images.length ? <div className="mt-3 grid grid-cols-3 gap-2">{images.slice(0, 9).map((image) => <a key={image.id} href={image.url} target="_blank" rel="noreferrer" className="aspect-square overflow-hidden rounded-lg bg-slate-100"><img src={image.url} alt={image.name} className="h-full w-full object-cover transition hover:scale-105" /></a>)}</div> : <EmptyDetails icon={<Image className="h-4 w-4" />} label={t('admin.support.noSharedMedia')} />}
+        </section>
+
+        <section>
+          <h3 className="text-sm font-semibold text-slate-950 dark:text-white">{t('admin.support.sharedFiles')}</h3>
+          {files.length ? <div className="mt-3 space-y-1">{files.map((file) => <a key={file.id} href={file.url} target="_blank" rel="noreferrer" className="flex items-center gap-3 rounded-lg px-2 py-2 hover:bg-slate-100 dark:hover:bg-slate-800"><FileText className="h-4 w-4 shrink-0 text-slate-500" /><span className="min-w-0 flex-1"><span className="block truncate text-sm font-medium text-slate-800 dark:text-slate-100">{file.name}</span><span className="block text-xs text-slate-500">{file.meta} · {formatRelativeTime(file.sentAt)}</span></span></a>)}</div> : <EmptyDetails icon={<FileText className="h-4 w-4" />} label={t('admin.support.noSharedFiles')} />}
+        </section>
       </div>
+    </aside>
+  )
+}
+
+function DetailRow({ label, value }: { label: string; value?: string }) {
+  if (!value) return null
+  return <div className="flex items-start justify-between gap-4"><dt className="shrink-0 text-slate-500 dark:text-slate-400">{label}</dt><dd className="break-all text-right font-medium text-slate-800 dark:text-slate-100">{value}</dd></div>
+}
+
+function EmptyDetails({ icon, label }: { icon: ReactNode; label: string }) {
+  return <div className="mt-3 flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-3 text-sm text-slate-500 dark:bg-slate-800/60 dark:text-slate-400">{icon}{label}</div>
+}
+
+function InboxSkeleton() {
+  return (
+    <div className="divide-y divide-slate-200 dark:divide-slate-800">
+      {[0, 1, 2, 3].map((item) => (
+        <div key={item} className="flex gap-3 px-4 py-4">
+          <div className="h-10 w-10 animate-pulse rounded-lg bg-slate-200 dark:bg-slate-800" />
+          <div className="min-w-0 flex-1 space-y-2">
+            <div className="h-4 w-2/3 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+            <div className="h-3 w-full animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function InboxNotice({
+  icon,
+  title,
+  description,
+  action,
+  onAction,
+}: {
+  icon: ReactNode
+  title: string
+  description?: string
+  action?: string
+  onAction?: () => void
+}) {
+  return (
+    <div className="flex min-h-56 flex-col items-center justify-center px-6 text-center">
+      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400">{icon}</div>
+      <p className="mt-3 text-sm font-semibold text-slate-950 dark:text-white">{title}</p>
+      {description && <p className="mt-1 max-w-xs text-sm leading-6 text-slate-500 dark:text-slate-400">{description}</p>}
+      {action && onAction && (
+        <button type="button" onClick={onAction} className="mt-4 text-sm font-semibold text-sky-700 hover:text-sky-800 dark:text-sky-400">
+          {action}
+        </button>
+      )}
     </div>
   )
 }

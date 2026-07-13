@@ -45,7 +45,7 @@ type StatusFilter = 'ALL' | 'SUBMITTED' | 'NEGOTIATING' | 'SHORTLISTED' | 'ACCEP
 
 type AcceptCandidate = ProposalResponse & {
   acceptedAmount?: number | null
-  acceptedDurationDays?: number | null
+  acceptedDeadlineAt?: string | null
 }
 
 const MXC_TO_VND_RATE = 1000
@@ -64,7 +64,7 @@ export default function ProposalList({ jobId }: Props) {
     mentorId: string
     mentorName: string
     acceptedAmount?: number
-    acceptedDurationDays?: number
+    acceptedDeadlineAt?: string
     jobId: string
   } | null>(null)
   const [selectedProposalId, setSelectedProposalId] = useState<string | null>(null)
@@ -146,13 +146,13 @@ export default function ProposalList({ jobId }: Props) {
       if (proposalToAccept && user) {
         try {
           let finalAmount = proposalToAccept.proposedAmount
-          let finalDays = proposalToAccept.estimatedDurationDays
+          let finalDeadline = proposalToAccept.deadlineAt
 
           try {
             const latestNeg = await negotiationApi.getLatest(proposalId)
             if (latestNeg) {
               finalAmount = latestNeg.proposedAmount || finalAmount
-              finalDays = latestNeg.estimatedDurationDays || finalDays
+              finalDeadline = latestNeg.deadlineAt || finalDeadline
             }
           } catch (e) {
             // Ignore error
@@ -164,7 +164,7 @@ export default function ProposalList({ jobId }: Props) {
             jobId,
           })
 
-          const msg = `🎉 **Dự án đã chính thức được bắt đầu!**\n\nChào mentor **${proposalToAccept.mentorName}**, tôi vừa chấp nhận đề xuất của bạn. Dưới đây là thông tin chốt:\n- **Giá thỏa thuận**: ${finalAmount} MXC\n- **Thời gian**: ${finalDays} ngày\n\nChúng ta sẽ sử dụng không gian này để trao đổi tiến độ và tài liệu công việc nhé!`
+          const msg = `🎉 **Dự án đã chính thức bắt đầu!**\n\nChào mentor **${proposalToAccept.mentorName}**, tôi vừa chấp nhận đề xuất của bạn.\n- **Giá thỏa thuận**: ${finalAmount} MXC\n- **Deadline**: ${finalDeadline ? formatDeadline(finalDeadline) : 'Chưa xác định'}\n\nChúng ta sẽ dùng không gian này để trao đổi tiến độ, tin nhắn và tài liệu.`
 
           await chatApi.sendMessage({
             chatRoomId: room.id,
@@ -209,7 +209,7 @@ export default function ProposalList({ jobId }: Props) {
       mentorName: proposal.mentorName,
       jobId,
       acceptedAmount: latestNegotiation?.proposedAmount ?? proposal.proposedAmount ?? undefined,
-      acceptedDurationDays: latestNegotiation?.estimatedDurationDays ?? proposal.estimatedDurationDays ?? undefined,
+      acceptedDeadlineAt: latestNegotiation?.deadlineAt ?? proposal.deadlineAt ?? undefined,
     })
   }
 
@@ -280,7 +280,7 @@ export default function ProposalList({ jobId }: Props) {
             jobId,
           })
 
-          const msg = `🎉 **Dự án đã chính thức được bắt đầu!**\n\nChào mentor **${acceptCandidate.mentorName}**, tôi vừa chấp nhận đề xuất của bạn. Dưới đây là thông tin chốt:\n- **Giá thỏa thuận**: ${acceptCandidate.acceptedAmount} MXC\n- **Thời gian**: ${acceptCandidate.acceptedDurationDays} ngày\n\nChúng ta sẽ sử dụng không gian này để trao đổi tiến độ và tài liệu công việc nhé!`
+          const msg = `🎉 **Dự án đã chính thức bắt đầu!**\n\nChào mentor **${acceptCandidate.mentorName}**, tôi vừa chấp nhận đề xuất của bạn.\n- **Giá thỏa thuận**: ${acceptCandidate.acceptedAmount} MXC\n- **Deadline**: ${acceptCandidate.acceptedDeadlineAt ? formatDeadline(acceptCandidate.acceptedDeadlineAt) : 'Chưa xác định'}\n\nChúng ta sẽ dùng không gian này để trao đổi tiến độ, tin nhắn và tài liệu.`
 
           await chatApi.sendMessage({
             chatRoomId: room.id,
@@ -361,13 +361,11 @@ export default function ProposalList({ jobId }: Props) {
             <p className="text-sm font-bold text-emerald-900">
               Đã chọn mentor: <span className="font-bold">{acceptedProposal.mentorName}</span>
             </p>
-            <p className="hidden">
-              Giá thỏa thuận: {formatCurrency(acceptedProposal.proposedAmount)} • 
-              Thời gian: {acceptedProposal.estimatedDurationDays} ngày
-            </p>
             <p className="mt-1 text-xs text-emerald-700">
-              Final amount: {formatCurrency(acceptedLatestNegotiation?.proposedAmount || acceptedProposal.proposedAmount)} | Timeline:{' '}
-              {acceptedLatestNegotiation?.estimatedDurationDays || acceptedProposal.estimatedDurationDays} days
+              Final amount: {formatCurrency(acceptedLatestNegotiation?.proposedAmount || acceptedProposal.proposedAmount)} | Deadline:{' '}
+              {(acceptedLatestNegotiation?.deadlineAt || acceptedProposal.deadlineAt)
+                ? formatDeadline(acceptedLatestNegotiation?.deadlineAt || acceptedProposal.deadlineAt!)
+                : 'Not specified'}
             </p>
           </div>
           <Link
@@ -465,9 +463,9 @@ export default function ProposalList({ jobId }: Props) {
                 </span>
               </div>
               <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-                <span className="font-bold text-slate-500">Thời gian</span>
+                <span className="font-bold text-slate-500">Deadline</span>
                 <span className="text-left font-bold text-slate-950 sm:text-right">
-                  {acceptCandidate.acceptedDurationDays ? `${acceptCandidate.acceptedDurationDays} ngày` : 'Chưa xác định'}
+                  {acceptCandidate.acceptedDeadlineAt ? formatDeadline(acceptCandidate.acceptedDeadlineAt) : 'Chưa xác định'}
                 </span>
               </div>
             </div>

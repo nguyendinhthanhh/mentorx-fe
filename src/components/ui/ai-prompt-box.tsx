@@ -528,20 +528,18 @@ export const PromptInputBox = React.forwardRef(
     const handleCanvasToggle = () => setShowCanvas((prev) => !prev);
 
     const isImageFile = (file: File) => file.type.startsWith("image/");
+    const maxUploadSize = 15 * 1024 * 1024;
 
     const processFile = React.useCallback((file: File) => {
-      if (!file.type.startsWith("image/")) {
-        console.log("Only image files are allowed");
+      if (file.size > maxUploadSize) {
+        console.log("File too large (max 15MB)");
         return;
       }
-      if (file.size > 10 * 1024 * 1024) {
-        console.log("File too large (max 10MB)");
-        return;
-      }
-      setFiles([file]);
+      setFiles((current) => [...current, file].slice(0, 5));
+      if (!isImageFile(file)) return;
       const reader = new FileReader();
       reader.onload = (e) =>
-        setFilePreviews({ [file.name]: e.target?.result as string });
+        setFilePreviews((current) => ({ ...current, [file.name]: e.target?.result as string }));
       reader.readAsDataURL(file);
     }, []);
 
@@ -560,16 +558,21 @@ export const PromptInputBox = React.forwardRef(
         e.preventDefault();
         e.stopPropagation();
         const files = Array.from(e.dataTransfer.files);
-        const imageFiles = files.filter((file) => isImageFile(file));
-        if (imageFiles.length > 0 && imageFiles[0]) processFile(imageFiles[0]);
+        files.slice(0, 5).forEach(processFile);
       },
       [isImageFile, processFile],
     );
 
     const handleRemoveFile = (index: number) => {
       const fileToRemove = files[index];
-      if (fileToRemove && filePreviews[fileToRemove.name]) setFilePreviews({});
-      setFiles([]);
+      if (fileToRemove && filePreviews[fileToRemove.name]) {
+        setFilePreviews((current) => {
+          const next = { ...current };
+          delete next[fileToRemove.name];
+          return next;
+        });
+      }
+      setFiles((current) => current.filter((_, fileIndex) => fileIndex !== index));
     };
 
     const openImageModal = (imageUrl: string) => setSelectedImage(imageUrl);
@@ -684,6 +687,20 @@ export const PromptInputBox = React.forwardRef(
                         </button>
                       </div>
                     )}
+                  {!file.type.startsWith("image/") && (
+                    <div className="flex h-16 min-w-44 items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 text-slate-700">
+                      <Paperclip className="h-4 w-4 shrink-0 text-slate-500" />
+                      <span className="min-w-0 flex-1 truncate text-sm font-medium">{file.name}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveFile(index)}
+                        className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-slate-500 hover:bg-slate-200 hover:text-slate-900"
+                        aria-label={`Remove ${file.name}`}
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -724,7 +741,7 @@ export const PromptInputBox = React.forwardRef(
                 isRecording ? "invisible h-0 opacity-0" : "visible opacity-100",
               )}
             >
-              <PromptInputAction tooltip="Upload image">
+              <PromptInputAction tooltip="Upload file">
                 <button
                   onClick={() => uploadInputRef.current?.click()}
                   className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-[#9CA3AF] transition-colors hover:bg-gray-600/30 hover:text-[#D1D5DB]"
@@ -737,12 +754,12 @@ export const PromptInputBox = React.forwardRef(
                     className="hidden"
                     onChange={(e) => {
                       if (e.target.files && e.target.files.length > 0) {
-                        const file = e.target.files[0];
-                        if (file) processFile(file);
+                        Array.from(e.target.files).slice(0, 5).forEach(processFile);
                       }
                       if (e.target) e.target.value = "";
                     }}
-                    accept="image/*"
+                    accept="image/*,.pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.csv,.zip,.rar,.fig,.sketch"
+                    multiple
                   />
                 </button>
               </PromptInputAction>

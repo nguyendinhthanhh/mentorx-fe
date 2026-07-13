@@ -32,6 +32,7 @@ const apiClient: AxiosInstance = axios.create({
     'Content-Type': 'application/json',
   },
   timeout: 120000,
+  withCredentials: true,
 })
 
 // Request interceptor - Add auth token
@@ -109,22 +110,19 @@ apiClient.interceptors.response.use(
       originalRequest._retry = true
 
       try {
-        const refreshToken = useAuthStore.getState().refreshToken
         if (import.meta.env.DEV) {
           console.debug('401: attempting token refresh...')
         }
 
-        if (refreshToken && refreshToken !== 'undefined' && refreshToken !== 'null') {
-          const response = await axios.post(`${API_BASE_URL}/auth/refresh`, {
-            refreshToken,
-          })
+        {
+          const response = await axios.post(`${API_BASE_URL}/auth/refresh`, undefined, { withCredentials: true })
 
-          const { accessToken: newAccessToken, refreshToken: newRefreshToken } = response.data.data || response.data
+          const { accessToken: newAccessToken } = response.data.data || response.data
           if (import.meta.env.DEV) {
             console.debug('Token refreshed')
           }
 
-          useAuthStore.getState().setTokens(newAccessToken, newRefreshToken || refreshToken)
+          useAuthStore.getState().setTokens(newAccessToken)
 
           if (originalRequest.headers) {
             originalRequest.headers.Authorization = `Bearer ${newAccessToken}`

@@ -7,10 +7,6 @@ function getBackendBaseUrl() {
     return API_BASE_URL.replace(/\/api\/?$/i, '')
   }
 
-  if (import.meta.env.DEV) {
-    return 'http://localhost:8080'
-  }
-
   if (typeof window !== 'undefined') {
     return window.location.origin
   }

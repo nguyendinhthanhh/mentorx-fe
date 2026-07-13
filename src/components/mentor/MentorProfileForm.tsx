@@ -126,10 +126,10 @@ interface Props {
 }
 
 const inputClass =
-  'w-full rounded-xl border border-slate-200/80 bg-white/70 px-3 py-2 text-sm font-semibold text-slate-900 outline-none transition-all duration-200 placeholder:text-slate-400 focus:border-indigo-400 focus:bg-white focus:ring-4 focus:ring-indigo-100 hover:border-slate-300 dark:border-slate-800 dark:bg-slate-950 dark:text-white backdrop-blur-md'
+  'w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm font-medium text-slate-900 outline-none transition-colors placeholder:text-slate-400 hover:border-slate-400 focus:border-sky-600 focus:ring-4 focus:ring-sky-100 disabled:bg-slate-100 dark:border-slate-700 dark:bg-slate-950 dark:text-white'
 
 const textareaClass = `${inputClass} min-h-[100px] resize-y`
-const sectionClass = 'rounded-[2rem] border border-white/60 bg-white/40 p-5 shadow-xl shadow-slate-200/40 backdrop-blur-2xl sm:p-7'
+const sectionClass = 'rounded-2xl border border-slate-200 bg-white p-5 sm:p-7'
 
 function isUrlLike(value?: string) {
   if (!value) return false
@@ -572,8 +572,8 @@ export default function MentorProfileForm({
 
   if (success) {
     return (
-      <div className="rounded-[2rem] border border-emerald-200/60 bg-emerald-50/50 p-10 text-center backdrop-blur-xl">
-        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 text-white shadow-xl shadow-emerald-500/30">
+      <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-10 text-center">
+        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-xl bg-emerald-600 text-white">
           <CheckCircle2 className="h-8 w-8" />
         </div>
         <h3 className="mt-5 text-2xl font-black tracking-tight text-slate-900">
@@ -587,20 +587,20 @@ export default function MentorProfileForm({
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-6">
+    <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-5">
       {isLocked && (
-        <section className="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm font-semibold text-amber-900 shadow-sm">
+        <section className="rounded-xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm font-semibold text-amber-900">
           {lockedMessage || 'Hồ sơ của bạn đang được xét duyệt. Không thể chỉnh sửa lúc này.'}
         </section>
       )}
 
-      <fieldset disabled={isLocked} className="space-y-6 disabled:cursor-not-allowed disabled:opacity-75">
+      <fieldset disabled={isLocked} className="space-y-5 disabled:cursor-not-allowed disabled:opacity-75">
         
         {/* Ảnh đại diện & Khởi đầu */}
         <section className={sectionClass}>
           <div className="flex flex-col gap-6 md:flex-row md:items-center">
             <div className="flex flex-col items-center shrink-0">
-              <div className="relative flex h-24 w-24 items-center justify-center overflow-hidden rounded-3xl bg-slate-100 ring-4 ring-white shadow-lg">
+              <div className="relative flex h-24 w-24 items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-slate-100">
                 {values.avatarUrl ? (
                   <img src={values.avatarUrl} alt="Mentor avatar" className="h-full w-full object-cover" />
                 ) : (
@@ -608,7 +608,7 @@ export default function MentorProfileForm({
                 )}
               </div>
 
-              <label className="mt-4 cursor-pointer rounded-xl bg-indigo-50 px-4 py-2 text-xs font-bold text-indigo-700 transition hover:bg-indigo-100 flex items-center gap-2">
+              <label className="mt-4 flex cursor-pointer items-center gap-2 rounded-xl border border-sky-200 bg-sky-50 px-4 py-2 text-xs font-semibold text-sky-800 transition hover:bg-sky-100">
                 <input
                   type="file"
                   className="hidden"
@@ -631,8 +631,8 @@ export default function MentorProfileForm({
               )}
             </div>
 
-            <div className="md:pl-6 md:border-l border-slate-200/60">
-              <div className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-50 px-2 py-1 text-[10px] font-black uppercase tracking-widest text-emerald-600 mb-2">
+            <div className="md:border-l md:border-slate-200 md:pl-6">
+              <div className="mb-2 inline-flex items-center gap-1.5 text-xs font-semibold text-sky-700">
                 <CheckCircle2 className="w-3 h-3" />
                 Ấn tượng đầu tiên
               </div>
@@ -980,13 +980,13 @@ export default function MentorProfileForm({
         </SectionCard>
 
         {/* Cam kết & Submit */}
-        <div className="rounded-[2rem] border border-indigo-100/50 bg-gradient-to-b from-white/70 to-indigo-50/30 p-6 shadow-lg shadow-indigo-100/30 backdrop-blur-md sm:p-8">
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8">
           <div className="mb-6 space-y-4">
             <label className="flex items-start gap-3 cursor-pointer group">
               <input
                 type="checkbox"
                 {...register('mentorAgreementAccepted')}
-                className="mt-1 h-5 w-5 shrink-0 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                className="mt-1 h-5 w-5 shrink-0 rounded border-slate-300 text-sky-700 focus:ring-sky-500"
               />
               <span className="text-sm font-semibold text-slate-700 group-hover:text-slate-900 transition-colors">
                 Tôi cam kết những thông tin trên là chính xác và phản ánh đúng kinh nghiệm thực tế của bản thân.
@@ -998,7 +998,7 @@ export default function MentorProfileForm({
               <input
                 type="checkbox"
                 {...register('disputePolicyAccepted')}
-                className="mt-1 h-5 w-5 shrink-0 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                className="mt-1 h-5 w-5 shrink-0 rounded border-slate-300 text-sky-700 focus:ring-sky-500"
               />
               <span className="text-sm font-semibold text-slate-700 group-hover:text-slate-900 transition-colors">
                 Tôi đồng ý với chính sách của Mentor X về việc kiểm duyệt hồ sơ và đảm bảo chất lượng mentor.
@@ -1008,7 +1008,7 @@ export default function MentorProfileForm({
           </div>
 
           {error && (
-            <div className="mb-6 rounded-2xl border border-rose-200 bg-rose-50 px-5 py-4 text-sm font-bold text-rose-700 shadow-sm">
+            <div className="mb-6 rounded-xl border border-rose-200 bg-rose-50 px-5 py-4 text-sm font-bold text-rose-700">
               {error}
             </div>
           )}
@@ -1020,7 +1020,7 @@ export default function MentorProfileForm({
             <button
               type="submit"
               disabled={loading || isLocked}
-              className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-slate-900 px-8 text-sm font-bold text-white shadow-lg transition-all hover:-translate-y-0.5 hover:bg-indigo-600 hover:shadow-indigo-500/30 disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0"
+              className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-slate-950 px-8 text-sm font-semibold text-white transition hover:bg-slate-800 active:translate-y-px disabled:cursor-not-allowed disabled:opacity-70"
             >
               {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <ArrowRight className="h-5 w-5" />}
               {submitButtonLabel || (isEdit ? 'Cập nhật hồ sơ' : 'Gửi hồ sơ đăng ký')}
@@ -1049,20 +1049,20 @@ function SectionCard({
   tone?: 'indigo' | 'emerald' | 'amber' | 'sky'
 }) {
   const toneMap = {
-    indigo: 'bg-indigo-50 text-indigo-600 border-indigo-100',
-    emerald: 'bg-emerald-50 text-emerald-600 border-emerald-100',
-    amber: 'bg-amber-50 text-amber-600 border-amber-100',
-    sky: 'bg-sky-50 text-sky-600 border-sky-100',
+    indigo: 'border-sky-200 bg-sky-50 text-sky-700',
+    emerald: 'border-sky-200 bg-sky-50 text-sky-700',
+    amber: 'border-sky-200 bg-sky-50 text-sky-700',
+    sky: 'border-sky-200 bg-sky-50 text-sky-700',
   }
 
   return (
     <section className={sectionClass}>
-      <div className="flex flex-col sm:flex-row sm:items-start gap-4 mb-6 pb-5 border-b border-slate-100/80">
-        <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border ${toneMap[tone]} shadow-sm`}>
+      <div className="mb-6 flex flex-col gap-4 border-b border-slate-200 pb-5 sm:flex-row sm:items-start">
+        <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border ${toneMap[tone]}`}>
           {icon}
         </div>
         <div>
-          <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">{eyebrow}</p>
+          <p className="text-xs font-semibold text-sky-700">{eyebrow}</p>
           <h2 className="mt-1 text-xl font-extrabold tracking-tight text-slate-900">{title}</h2>
           <p className="mt-1.5 text-sm font-semibold text-slate-500">{description}</p>
         </div>
@@ -1089,7 +1089,7 @@ function Field({
     <div className="flex flex-col">
       <div className="mb-2 flex items-center justify-between gap-3">
         <label className="text-xs font-bold text-slate-700">{label}</label>
-        {hint && <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">{hint}</span>}
+        {hint && <span className="text-xs font-semibold text-slate-400">{hint}</span>}
       </div>
       {description && <p className="mb-2 text-[13px] font-medium text-slate-500">{description}</p>}
       {children}
@@ -1115,7 +1115,7 @@ function UploadFieldCard({
 }) {
   return (
     <label
-      className={`group flex min-h-[160px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-200/80 bg-slate-50/50 p-5 text-center transition-all ${disabled ? 'cursor-not-allowed opacity-70' : 'cursor-pointer hover:-translate-y-0.5 hover:border-indigo-300 hover:bg-white hover:shadow-lg hover:shadow-indigo-100/30'}`}
+      className={`group flex min-h-[160px] flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 p-5 text-center transition ${disabled ? 'cursor-not-allowed opacity-70' : 'cursor-pointer hover:border-sky-400 hover:bg-sky-50'}`}
     >
       <input
         type="file"
@@ -1126,7 +1126,7 @@ function UploadFieldCard({
       />
       {busy ? (
         <div className="flex flex-col items-center">
-          <Loader2 className="h-6 w-6 animate-spin text-indigo-600" />
+          <Loader2 className="h-6 w-6 animate-spin text-sky-700" />
           <p className="mt-3 text-[13px] font-bold text-indigo-700">Đang tải tệp lên...</p>
         </div>
       ) : value ? (
@@ -1139,12 +1139,12 @@ function UploadFieldCard({
         </div>
       ) : (
         <div className="flex flex-col items-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white border border-slate-200/60 text-slate-400 shadow-sm transition-colors group-hover:border-indigo-200 group-hover:bg-indigo-50 group-hover:text-indigo-600">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-400 transition-colors group-hover:border-sky-300 group-hover:bg-sky-50 group-hover:text-sky-700">
             <UploadCloud className="h-5 w-5" />
           </div>
           <p className="mt-3 text-sm font-bold text-slate-900">{title}</p>
           <p className="mt-1 text-[11px] font-semibold text-slate-500">{description}</p>
-          <div className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-slate-900 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-white group-hover:bg-indigo-600 transition-colors">
+          <div className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-slate-950 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-white transition-colors group-hover:bg-slate-800">
             <FileText className="h-3 w-3" />
             Chọn tệp
           </div>

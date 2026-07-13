@@ -22,15 +22,15 @@ export interface FinancialSummary {
   totalCirculation: number
   totalDepositToday: number
   totalWithdrawToday: number
-  balanceDelta: number
+  balanceDelta?: number | null
   pendingWithdrawals: number
-  unmatchedDeposits: number
-  totalUnmatchedAmount: number
-  fraudAlerts: number
+  unmatchedDeposits?: number | null
+  totalUnmatchedAmount?: number | null
+  fraudAlerts?: number | null
   frozenAccountCount: number
   frozenRatio: number
-  lastReconciledAt: string
-  integrityScore: number
+  lastReconciledAt?: string | null
+  integrityScore?: number | null
 }
 
 export interface AuditLog {
@@ -163,11 +163,33 @@ export const walletApi = {
     return response.data.data
   },
 
-  approveWithdrawal: async (requestId: string, gatewayTxnId?: string): Promise<string> => {
-    let url = `/v1/wallet/admin/withdraw/${requestId}/approve`
-    if (gatewayTxnId) url += `?gatewayTxnId=${gatewayTxnId}`
-    const response = await apiClient.post<ApiResponse<string>>(url)
+  approveWithdrawal: async (requestId: string): Promise<string> => {
+    const response = await apiClient.post<ApiResponse<string>>(`/v1/wallet/admin/withdraw/${requestId}/approve`)
     return response.data.data
+  },
+
+  completeWithdrawal: async (requestId: string, gatewayTxnId: string): Promise<string> => {
+    const response = await apiClient.post<ApiResponse<string>>(
+      `/v1/wallet/admin/withdraw/${requestId}/complete?gatewayTxnId=${encodeURIComponent(gatewayTxnId)}`
+    )
+    return response.data.data
+  },
+
+  getWalletsRequiringReconciliation: async (): Promise<WalletResponse[]> => {
+    const response = await apiClient.get<ApiResponse<WalletResponse[]>>('/v1/wallet/admin/wallets/reconciliation-required')
+    return response.data.data
+  },
+
+  reconcileWallet: async (walletId: string): Promise<void> => {
+    await apiClient.post(`/v1/wallet/admin/wallets/${walletId}/reconcile`)
+  },
+
+  freezeWallet: async (walletId: string, reason: string): Promise<void> => {
+    await apiClient.post(`/v1/wallet/admin/wallets/${walletId}/freeze?reason=${encodeURIComponent(reason)}`)
+  },
+
+  unfreezeWallet: async (walletId: string): Promise<void> => {
+    await apiClient.post(`/v1/wallet/admin/wallets/${walletId}/unfreeze`)
   },
 
   rejectWithdrawal: async (requestId: string, reason: string): Promise<void> => {
@@ -182,6 +204,13 @@ export const walletApi = {
 
   getAuditLogs: async (page = 0, size = 20): Promise<PaginatedResponse<AuditLog>> => {
     const response = await apiClient.get<ApiResponse<PaginatedResponse<AuditLog>>>(`/v1/wallet/admin/audit-logs?page=${page}&size=${size}`)
+    return response.data.data
+  },
+
+  getAdminTransactions: async (page = 0, size = 20): Promise<PaginatedResponse<WalletTransactionResponse>> => {
+    const response = await apiClient.get<ApiResponse<PaginatedResponse<WalletTransactionResponse>>>(
+      `/v1/wallet/admin/transactions?page=${page}&size=${size}`
+    )
     return response.data.data
   }
 }

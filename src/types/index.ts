@@ -278,6 +278,7 @@ export interface CategoryResponse {
 export interface LoginRequest {
   email: string;
   password: string;
+  totpCode?: string;
 }
 
 export interface RegisterRequest {
@@ -289,7 +290,7 @@ export interface RegisterRequest {
 
 export interface AuthResponse {
   accessToken: string;
-  refreshToken: string;
+  refreshToken?: null;
   tokenType: string;
   expiresIn: number;
   user: UserResponse;
@@ -928,6 +929,7 @@ export interface WalletResponse {
   userFullName?: string;
   accountType: WalletAccountType;
   balanceMxc: number;
+  isActive: boolean;
   ledgerHash?: string;
   createdAt: string;
   updatedAt: string;
@@ -936,6 +938,8 @@ export interface WalletResponse {
 export interface WalletTransactionResponse {
   id: string;
   walletId: string;
+  walletOwnerUserId?: string;
+  walletOwnerName?: string;
   transactionGroupId: string;
   txnType: TxnType;
   direction: "DEBIT" | "CREDIT";
@@ -975,6 +979,11 @@ export interface DepositOrderResponse {
 export interface WithdrawalResponse {
   id: string;
   userId: string;
+  userFullName?: string;
+  /** Legacy compatibility: new wallet APIs return userFullName directly. */
+  user?: {
+    fullName: string;
+  };
   mxcAmount: number;
   feeMxc: number;
   netMxc: number;
@@ -989,9 +998,8 @@ export interface WithdrawalResponse {
   payoutReference?: string;
   status: WithdrawalStatus;
   gatewayTxnId?: string;
-  user?: {
-    fullName: string;
-  };
+  reviewedByUserId?: string;
+  completedByUserId?: string;
   rejectionReason?: string;
   reviewedAt?: string;
   payoutAt?: string;

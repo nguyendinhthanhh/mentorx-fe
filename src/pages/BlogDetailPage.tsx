@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import DOMPurify from 'dompurify'
 import { Link, useParams } from 'react-router-dom'
 import { ArrowLeft, ArrowRight } from 'lucide-react'
 import blogApi, { BlogPost } from '../api/blogApi'
@@ -126,7 +127,7 @@ export default function BlogDetailPage() {
           <div className="px-6 py-8 sm:px-10 sm:py-10">
             <div
               className="prose prose-slate max-w-none prose-headings:font-black prose-headings:tracking-tight prose-p:text-slate-700 prose-p:leading-8"
-              dangerouslySetInnerHTML={{ __html: post.content || '' }}
+              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content || '') }}
             />
 
             {post.tags.length > 0 && (
