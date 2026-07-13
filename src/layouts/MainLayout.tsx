@@ -7,7 +7,7 @@ function SiteFooter() {
   const { t } = useI18n()
 
   return (
-    <footer className="border-t border-[#e2e6f5] bg-[#101a4a] text-white">
+    <footer className="border-t border-[#e2e6f5] bg-[#101a4a] text-white dark:border-slate-800">
       <div className="mx-auto max-w-[1600px] px-4 py-10 sm:px-6 lg:px-8">
         <div className="grid gap-8 md:grid-cols-5">
           <div className="md:col-span-2">
@@ -62,7 +62,7 @@ export default function MainLayout() {
   const { t } = useI18n()
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#f8fafc]">
+    <div className="flex min-h-screen flex-col bg-[#f8fafc] text-slate-900 dark:bg-slate-950 dark:text-slate-100">
       <AppHeader />
       <main className="flex-1">
         <Outlet />

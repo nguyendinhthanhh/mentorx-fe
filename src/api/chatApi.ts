@@ -5,7 +5,7 @@ import { useAuthStore } from '@/store/authStore'
 export const chatApi = {
   resolveConversation: async (data: {
     recipientId: string
-    contextType: 'JOB' | 'PROPOSAL' | 'CONTRACT' | 'MENTOR_APPLICATION'
+      contextType: 'JOB' | 'PROPOSAL' | 'CONTRACT' | 'MENTOR_APPLICATION' | 'DISPUTE'
     contextId: string
   }): Promise<ChatRoomResponse> => {
     const response = await apiClient.post<ApiResponse<ChatRoomResponse>>('/chat/rooms/resolve', data)

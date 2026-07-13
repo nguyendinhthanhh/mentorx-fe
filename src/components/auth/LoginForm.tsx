@@ -19,6 +19,7 @@ import { getSocialAuthRedirectPath } from '@/utils/socialAuth'
 const loginSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
   password: z.string().min(1, 'Password is required'),
+  totpCode: z.string().regex(/^\d{6}$/, 'Enter the 6-digit authenticator code').optional().or(z.literal('')),
 })
 
 export default function LoginForm() {
@@ -29,6 +30,7 @@ export default function LoginForm() {
   const [verificationEmail, setVerificationEmail] = useState<string>('')
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
+  const [showTotpCode, setShowTotpCode] = useState(false)
 
   const {
     register,
@@ -43,7 +45,7 @@ export default function LoginForm() {
       setLoading(true)
       setError('')
       const response = await authApi.login(data)
-      setTokens(response.accessToken, response.refreshToken)
+      setTokens(response.accessToken)
       setUser(response.user)
       
       navigate(getSocialAuthRedirectPath(response))
@@ -52,6 +54,9 @@ export default function LoginForm() {
       if (message.includes('verify your email')) {
         setVerificationEmail(data.email)
         setShowVerification(true)
+      } else if (message.toLowerCase().includes('two-factor')) {
+        setShowTotpCode(true)
+        setError('Enter your 6-digit authenticator code to continue.')
       } else {
         setError(message || 'Invalid email or password. Please try again.')
       }
@@ -61,7 +66,7 @@ export default function LoginForm() {
   }
 
   const handleSocialLoginSuccess = (response: AuthResponse) => {
-    setTokens(response.accessToken, response.refreshToken)
+    setTokens(response.accessToken)
     setUser(response.user)
 
     navigate(getSocialAuthRedirectPath(response))
@@ -117,6 +122,25 @@ export default function LoginForm() {
           </div>
           {errors.password && <p className="animate-in slide-in-from-top-1 text-xs font-medium text-red-500">{errors.password.message}</p>}
         </div>
+
+        {showTotpCode && (
+          <div className="space-y-2">
+            <label htmlFor="totpCode" className="block text-sm font-semibold text-slate-700">
+              Authenticator code
+            </label>
+            <input
+              id="totpCode"
+              type="text"
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              maxLength={6}
+              {...register('totpCode')}
+              className="block w-full rounded-2xl border-0 px-4 py-3.5 tracking-[0.35em] text-slate-900 shadow-sm ring-1 ring-inset ring-slate-200 focus:ring-2 focus:ring-inset focus:ring-primary-600"
+              placeholder="000000"
+            />
+            {errors.totpCode && <p className="text-xs font-medium text-red-500">{errors.totpCode.message}</p>}
+          </div>
+        )}
 
         {error && (
           <div className="animate-in fade-in slide-in-from-top-2 duration-300 flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 shadow-sm">

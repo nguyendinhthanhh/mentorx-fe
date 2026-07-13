@@ -8,7 +8,9 @@ import {
 import { UserResponse, UserStatus, MentorStatus } from '@/types'
 import { formatDateTime, formatCurrency } from '@/utils/formatters'
 import { notificationApi } from '@/api/notificationApi'
+import { authApi } from '@/api/authApi'
 import { chatApi } from '@/api/chatApi'
+import { useI18n } from '@/i18n/I18nProvider'
 import { useAuthStore } from '@/store/authStore'
 import { toast } from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
@@ -27,7 +29,10 @@ export default function AdminUserDetailsModal({ isOpen, onClose, user }: AdminUs
   const [notifTitle, setNotifTitle] = useState('')
   const [notifContent, setNotifContent] = useState('')
   const [isSendingNotif, setIsSendingNotif] = useState(false)
+  const [isSendingResetEmail, setIsSendingResetEmail] = useState(false)
+  const [isForcingLogout, setIsForcingLogout] = useState(false)
   const { user: currentUser } = useAuthStore()
+  const { t } = useI18n()
   const navigate = useNavigate()
 
   if (!isOpen || !user) return null
@@ -73,6 +78,32 @@ export default function AdminUserDetailsModal({ isOpen, onClose, user }: AdminUs
       navigate(`/chat?roomId=${room.id}`)
     } catch (error) {
       toast.error('Failed to start conversation')
+    }
+  }
+
+  const handleSendResetEmail = async () => {
+    setIsSendingResetEmail(true)
+    try {
+      await authApi.forgotPassword(user.email)
+      toast.success(t('admin.userSecurity.resetEmailSent'))
+    } catch {
+      toast.error(t('admin.userSecurity.resetEmailFailed'))
+    } finally {
+      setIsSendingResetEmail(false)
+    }
+  }
+
+  const handleForceLogout = async () => {
+    if (!window.confirm(t('admin.userSecurity.forceLogoutConfirm'))) return
+
+    setIsForcingLogout(true)
+    try {
+      await authApi.logoutAll(user.userId)
+      toast.success(t('admin.userSecurity.forceLogoutSuccess'))
+    } catch {
+      toast.error(t('admin.userSecurity.forceLogoutFailed'))
+    } finally {
+      setIsForcingLogout(false)
     }
   }
 
@@ -394,21 +425,35 @@ export default function AdminUserDetailsModal({ isOpen, onClose, user }: AdminUs
                     <section className="bg-gray-900 rounded-3xl p-8 text-white space-y-6">
                        <div className="flex items-center gap-3">
                           <Lock className="w-5 h-5 text-indigo-400" />
-                          <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-200">Security Logs & Governance</h3>
+                          <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-200">{t('admin.userSecurity.title')}</h3>
                        </div>
                        <div className="grid grid-cols-2 gap-8">
                           <div className="space-y-1">
-                             <p className="text-xs font-medium text-gray-400 uppercase tracking-wider">Last Login Attempt</p>
-                             <p className="text-sm font-medium text-gray-100">{user.lastSeenAt ? formatDateTime(user.lastSeenAt) : 'Never logged in'}</p>
+                             <p className="text-xs font-medium text-gray-400 uppercase tracking-wider">{t('admin.userSecurity.lastActivity')}</p>
+                             <p className="text-sm font-medium text-gray-100">{user.lastSeenAt ? formatDateTime(user.lastSeenAt) : t('admin.userSecurity.noActivity')}</p>
                           </div>
                           <div className="space-y-1">
-                             <p className="text-xs font-medium text-gray-400 uppercase tracking-wider">Authorized Device IP</p>
-                             <p className="text-sm font-medium text-gray-100">192.168.1.104 (Vietnam)</p>
+                             <p className="text-xs font-medium text-gray-400 uppercase tracking-wider">{t('admin.userSecurity.deviceHistory')}</p>
+                             <p className="text-sm font-medium text-gray-100">{t('admin.userSecurity.deviceHistoryUnavailable')}</p>
                           </div>
                        </div>
                        <div className="pt-6 border-t border-gray-800 flex gap-3">
-                          <button className="px-4 py-2 rounded-xl bg-rose-500/10 text-rose-500 text-sm font-medium hover:bg-rose-500/20 transition-colors border border-rose-500/20">Reset Password</button>
-                          <button className="px-4 py-2 rounded-xl bg-white/10 text-white text-sm font-medium hover:bg-white/20 transition-colors border border-white/10">Force Logout</button>
+                          <button
+                            type="button"
+                            onClick={handleSendResetEmail}
+                            disabled={isSendingResetEmail || isForcingLogout}
+                            className="px-4 py-2 rounded-xl bg-rose-500/10 text-rose-300 text-sm font-medium hover:bg-rose-500/20 transition-colors border border-rose-500/20 disabled:cursor-not-allowed disabled:opacity-60"
+                          >
+                            {isSendingResetEmail ? t('admin.userSecurity.sendingResetEmail') : t('admin.userSecurity.sendResetEmail')}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={handleForceLogout}
+                            disabled={isForcingLogout || isSendingResetEmail}
+                            className="px-4 py-2 rounded-xl bg-white/10 text-white text-sm font-medium hover:bg-white/20 transition-colors border border-white/10 disabled:cursor-not-allowed disabled:opacity-60"
+                          >
+                            {isForcingLogout ? t('admin.userSecurity.forceLoggingOut') : t('admin.userSecurity.forceLogout')}
+                          </button>
                        </div>
                     </section>
                  </div>

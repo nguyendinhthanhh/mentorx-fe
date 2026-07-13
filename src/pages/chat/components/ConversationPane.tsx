@@ -55,6 +55,9 @@ type ConversationPaneProps = {
   participantRoleLabel?: string
   showUtilityActions?: boolean
   showDetailsButton?: boolean
+  detailsButtonClassName?: string
+  detailsButtonLabel?: string
+  profileHref?: string
 }
 
 export default function ConversationPane({
@@ -87,6 +90,9 @@ export default function ConversationPane({
   participantRoleLabel,
   showUtilityActions = false,
   showDetailsButton = true,
+  detailsButtonClassName = 'lg:hidden',
+  detailsButtonLabel = 'Details',
+  profileHref,
 }: ConversationPaneProps) {
   const banner = buildContextBanner(selectedRoom)
 
@@ -146,7 +152,13 @@ export default function ConversationPane({
 
               <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
-                <h2 className="truncate text-[18px] font-bold text-[#10164a]">{roomName}</h2>
+                {profileHref ? (
+                  <Link to={profileHref} className="truncate text-[18px] font-bold text-[#10164a] hover:text-indigo-700 hover:underline hover:underline-offset-4">
+                    {roomName}
+                  </Link>
+                ) : (
+                  <h2 className="truncate text-[18px] font-bold text-[#10164a]">{roomName}</h2>
+                )}
                 {otherMember?.isOnline && <span className="h-2 w-2 rounded-full bg-emerald-400" />}
                 {otherMember?.isOnline && <span className="text-[13px] font-medium text-[#10164a]">Online</span>}
               </div>
@@ -164,9 +176,9 @@ export default function ConversationPane({
             <button
               type="button"
               onClick={onShowDetails}
-              className="inline-flex h-10 items-center gap-2 rounded-xl border border-slate-200 px-4 text-sm font-medium text-[#52608b] transition-colors hover:border-indigo-200 hover:text-indigo-700 lg:hidden"
+              className={`inline-flex h-10 items-center gap-2 rounded-xl border border-slate-200 px-4 text-sm font-medium text-[#52608b] transition-colors hover:border-indigo-200 hover:text-indigo-700 ${detailsButtonClassName}`}
             >
-              Details
+              {detailsButtonLabel}
             </button>
           ) : null}
         </div>

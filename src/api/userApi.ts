@@ -72,14 +72,6 @@ export const userApi = {
     return response.data.data
   },
 
-  enable2FA: async (userId: string): Promise<void> => {
-    await apiClient.post(`/users/${userId}/2fa/enable`)
-  },
-
-  disable2FA: async (userId: string): Promise<void> => {
-    await apiClient.post(`/users/${userId}/2fa/disable`)
-  },
-
   updateLastSeenAt: async (userId: string): Promise<void> => {
     await apiClient.post(`/users/${userId}/last-seen`)
   },

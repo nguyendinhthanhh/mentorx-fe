@@ -22,13 +22,12 @@ function writeSkippedOnboardingSession(value: boolean) {
 interface AuthState {
   user: UserResponse | null
   accessToken: string | null
-  refreshToken: string | null
   isAuthenticated: boolean
   currentMode: UserMode
   skippedOnboardingThisSession: boolean
   setUser: (user: UserResponse) => void
   setCurrentMode: (mode: UserMode) => void
-  setTokens: (accessToken: string, refreshToken: string) => void
+  setTokens: (accessToken: string) => void
   skipOnboardingForSession: () => void
   clearSkippedOnboarding: () => void
   logout: () => void
@@ -40,7 +39,6 @@ export const useAuthStore = create<AuthState>()(
     (set) => ({
       user: null,
       accessToken: null,
-      refreshToken: null,
       isAuthenticated: false,
       currentMode: UserMode.USER,
       skippedOnboardingThisSession: readSkippedOnboardingSession(),
@@ -87,7 +85,7 @@ export const useAuthStore = create<AuthState>()(
           }
         }),
 
-      setTokens: (accessToken, refreshToken) => {
+      setTokens: (accessToken) => {
         if (!accessToken || accessToken === 'undefined' || accessToken === 'null') {
           console.warn('Attempted to set invalid accessToken:', accessToken);
           return;
@@ -96,7 +94,6 @@ export const useAuthStore = create<AuthState>()(
         writeSkippedOnboardingSession(false)
         set({
           accessToken,
-          refreshToken,
           currentMode: UserMode.USER,
           skippedOnboardingThisSession: false,
         })
@@ -120,11 +117,15 @@ export const useAuthStore = create<AuthState>()(
 
       logout: () =>
         set(() => {
+          const apiBase = import.meta.env.VITE_API_BASE_URL || '/api'
+          void fetch(`${apiBase}/auth/logout`, {
+            method: 'POST',
+            credentials: 'include',
+          }).catch(() => undefined)
           writeSkippedOnboardingSession(false)
           return {
             user: null,
             accessToken: null,
-            refreshToken: null,
             isAuthenticated: false,
             currentMode: UserMode.USER,
             skippedOnboardingThisSession: false,
@@ -161,10 +162,6 @@ export const useAuthStore = create<AuthState>()(
     {
       name: 'auth-storage',
       partialize: (state) => ({
-        user: state.user,
-        accessToken: state.accessToken,
-        refreshToken: state.refreshToken,
-        isAuthenticated: state.isAuthenticated,
         currentMode: state.currentMode,
       }),
     }

@@ -22,23 +22,21 @@ export const authApi = {
     return response.data.data
   },
 
-  refreshToken: async (refreshToken: string): Promise<AuthResponse> => {
-    const response = await apiClient.post<ApiResponse<AuthResponse>>('/auth/refresh', {
-      refreshToken,
-    })
+  refreshToken: async (): Promise<AuthResponse> => {
+    const response = await apiClient.post<ApiResponse<AuthResponse>>('/auth/refresh')
     return response.data.data
   },
 
-  logout: async (refreshToken: string): Promise<void> => {
-    await apiClient.post('/auth/logout', { refreshToken })
+  logout: async (): Promise<void> => {
+    await apiClient.post('/auth/logout')
   },
 
   logoutAll: async (userId: string): Promise<void> => {
-    await apiClient.post(`/auth/logout-all?userId=${encodeURIComponent(userId)}`)
+    await apiClient.post(`/auth/admin/users/${encodeURIComponent(userId)}/logout-all`)
   },
 
-  changePassword: async (userId: string, currentPassword: string, newPassword: string): Promise<void> => {
-    await apiClient.post(`/auth/change-password?userId=${encodeURIComponent(userId)}`, { currentPassword, newPassword })
+  changePassword: async (_userId: string, currentPassword: string, newPassword: string): Promise<void> => {
+    await apiClient.post('/auth/change-password', { currentPassword, newPassword })
   },
 
   forgotPassword: async (email: string): Promise<void> => {
@@ -57,17 +55,22 @@ export const authApi = {
     await apiClient.post(`/auth/verify-email?token=${encodeURIComponent(token)}`)
   },
 
-  enable2FA: async (userId: string): Promise<void> => {
-    await apiClient.post(`/auth/2fa/enable?userId=${encodeURIComponent(userId)}`)
+  setup2FA: async (): Promise<string> => {
+    const response = await apiClient.post<ApiResponse<string>>('/auth/2fa/setup')
+    return response.data.data
   },
 
-  disable2FA: async (userId: string): Promise<void> => {
-    await apiClient.post(`/auth/2fa/disable?userId=${encodeURIComponent(userId)}`)
+  enable2FA: async (_userId: string, code: string): Promise<void> => {
+    await apiClient.post(`/auth/2fa/enable?code=${encodeURIComponent(code)}`)
   },
 
-  verify2FA: async (userId: string, code: string): Promise<boolean> => {
+  disable2FA: async (_userId: string, code: string): Promise<void> => {
+    await apiClient.post(`/auth/2fa/disable?code=${encodeURIComponent(code)}`)
+  },
+
+  verify2FA: async (_userId: string, code: string): Promise<boolean> => {
     const response = await apiClient.post<ApiResponse<boolean>>(
-      `/auth/2fa/verify?userId=${encodeURIComponent(userId)}&code=${encodeURIComponent(code)}`
+      `/auth/2fa/verify?code=${encodeURIComponent(code)}`
     )
     return response.data.data
   },

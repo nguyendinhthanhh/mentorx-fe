@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useQuery } from 'react-query'
 import { proposalApi } from '@/api/proposalApi'
-import { formatCurrency, formatRelativeTime } from '@/utils/formatters'
+import { formatCurrency, formatDeadline, formatRelativeTime } from '@/utils/formatters'
 import { ProposalResponse } from '@/types'
 import { 
   CalendarDays, 
@@ -137,7 +137,7 @@ export default function ProposalListEnhanced({ jobId }: Props) {
             </p>
             <p className="text-xs text-emerald-700 mt-1">
               Giá thỏa thuận: {formatCurrency(acceptedProposal.proposedAmount)} • 
-              Thời gian: {acceptedProposal.estimatedDurationDays} ngày
+              Deadline: {acceptedProposal.deadlineAt ? formatDeadline(acceptedProposal.deadlineAt) : 'Chưa xác định'}
             </p>
           </div>
         </div>

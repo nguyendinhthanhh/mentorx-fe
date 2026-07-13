@@ -1,4 +1,5 @@
 import { FormEvent, useEffect, useMemo, useRef, useState } from 'react'
+import DOMPurify from 'dompurify'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { courseApi } from '@/api/courseApi'
@@ -656,7 +657,7 @@ export default function CourseLearnPage() {
               <article
                 ref={articleRef}
                 className="prose max-w-none dark:prose-invert"
-                dangerouslySetInnerHTML={{ __html: activeLesson.articleContent || '' }}
+                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(activeLesson.articleContent || '') }}
               />
             )}
 
@@ -1106,7 +1107,7 @@ function QuestionControl({
         <p className="text-xs font-black uppercase tracking-widest text-slate-400">Question {index + 1}</p>
         <div
           className="prose prose-sm mt-1 max-w-none font-semibold text-slate-900 dark:prose-invert dark:text-white"
-          dangerouslySetInnerHTML={{ __html: question.questionText }}
+          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(question.questionText) }}
         />
         <p className="mt-1 text-xs font-bold text-slate-400">{question.points} point{question.points === 1 ? '' : 's'}</p>
         {submitted && (

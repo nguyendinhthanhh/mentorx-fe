@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 
 import { userApi } from '@/api/userApi'
 import { useAuthStore } from '@/store/authStore'
@@ -17,7 +17,8 @@ interface I18nContextValue {
 const I18nContext = createContext<I18nContextValue | null>(null)
 
 function normalizeLanguage(value?: string | null): Language | null {
-  return isLanguage(value) ? value : null
+  const normalized = value?.toLowerCase()
+  return isLanguage(normalized) ? normalized : null
 }
 
 function detectBrowserLanguage(): Language {
@@ -41,6 +42,7 @@ function toSupportedLanguage(language: Language): SupportedLanguage {
 export function I18nProvider({ children }: { children: React.ReactNode }) {
   const { user, isAuthenticated, setUser } = useAuthStore()
   const [language, setLanguageState] = useState<Language>(getInitialLanguage)
+  const syncedPreferenceUserIdRef = useRef<string | null>(null)
 
   const applyLanguage = useCallback((nextLanguage: Language) => {
     setLanguageState(nextLanguage)
@@ -57,11 +59,19 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
   }, [language])
 
   useEffect(() => {
-    const preferredLanguage = normalizeLanguage(user?.preferredLanguage)
-    if (preferredLanguage && preferredLanguage !== language) {
+    if (!user?.userId) {
+      syncedPreferenceUserIdRef.current = null
+      return
+    }
+
+    if (syncedPreferenceUserIdRef.current === user.userId) return
+    syncedPreferenceUserIdRef.current = user.userId
+
+    const preferredLanguage = normalizeLanguage(user.preferredLanguage)
+    if (preferredLanguage) {
       applyLanguage(preferredLanguage)
     }
-  }, [applyLanguage, language, user?.preferredLanguage])
+  }, [applyLanguage, user?.preferredLanguage, user?.userId])
 
   const setLanguage = useCallback(
     (nextLanguage: Language) => {
@@ -70,6 +80,12 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
       if (!isAuthenticated || !user?.userId || normalizeLanguage(user.preferredLanguage) === nextLanguage) {
         return
       }
+
+      const optimisticUser = {
+        ...user,
+        preferredLanguage: toSupportedLanguage(nextLanguage),
+      }
+      setUser(optimisticUser)
 
       void userApi
         .updateUser(
@@ -80,7 +96,7 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
         )
         .then((updatedUser) => {
           setUser({
-            ...user,
+            ...optimisticUser,
             ...updatedUser,
           })
         })

@@ -97,11 +97,13 @@ cp .env.example .env
 Example variables:
 
 ```env
-VITE_API_BASE_URL=http://localhost:8080/api
+VITE_API_BASE_URL=/api
 VITE_APP_NAME=MentorX
 VITE_GOOGLE_CLIENT_ID=google-client-id
 VITE_GITHUB_CLIENT_ID=github-client-id
 ```
+
+Use `/api` for local development so the browser calls the Vite dev server and Vite proxies requests to the backend at `http://localhost:8080`. Direct absolute API URLs require the CSP `connect-src` directive to allow that backend origin.
 
 ### Run the App
 

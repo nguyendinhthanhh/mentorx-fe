@@ -3,8 +3,120 @@
 @tailwind utilities;
 
 @layer base {
+  html,
+  body,
+  #root {
+    min-width: 0;
+  }
+
+  html,
   body {
-    @apply bg-gray-50 text-gray-900 antialiased;
+    overflow-x: hidden;
+  }
+
+  body {
+    @apply bg-gray-50 text-gray-900 antialiased dark:bg-slate-950 dark:text-slate-100;
+  }
+
+  img,
+  video,
+  canvas,
+  svg {
+    max-width: 100%;
+  }
+
+  /*
+   * Dark-mode compatibility layer for older screens that still use light-only
+   * Tailwind neutral classes. Keep selectors at zero specificity so explicit
+   * component utilities such as dark:bg-*, bg-indigo-*, border-red-* still win.
+   */
+  :where(.dark) :where(.bg-white),
+  :where(.dark) :where(.bg-white\/95),
+  :where(.dark) :where(.bg-white\/90),
+  :where(.dark) :where(.bg-white\/80),
+  :where(.dark) :where(.bg-gray-50),
+  :where(.dark) :where(.bg-slate-50) {
+    background-color: rgb(15 23 42 / var(--tw-bg-opacity, 1));
+  }
+
+  :where(.dark) :where(.bg-gray-100),
+  :where(.dark) :where(.bg-slate-100),
+  :where(.dark) :where(.bg-gray-200),
+  :where(.dark) :where(.bg-slate-200) {
+    background-color: rgb(30 41 59 / var(--tw-bg-opacity, 1));
+  }
+
+  :where(.dark) :where(.bg-indigo-50),
+  :where(.dark) :where(.bg-blue-50),
+  :where(.dark) :where(.bg-purple-50) {
+    background-color: rgb(49 46 129 / 0.22);
+  }
+
+  :where(.dark) :where(.bg-amber-50),
+  :where(.dark) :where(.bg-yellow-50) {
+    background-color: rgb(120 53 15 / 0.22);
+  }
+
+  :where(.dark) :where(.bg-emerald-50),
+  :where(.dark) :where(.bg-green-50) {
+    background-color: rgb(6 78 59 / 0.22);
+  }
+
+  :where(.dark) :where(.bg-red-50),
+  :where(.dark) :where(.bg-rose-50) {
+    background-color: rgb(127 29 29 / 0.22);
+  }
+
+  :where(.dark) :where(.text-gray-950),
+  :where(.dark) :where(.text-gray-900),
+  :where(.dark) :where(.text-gray-800),
+  :where(.dark) :where(.text-slate-950),
+  :where(.dark) :where(.text-slate-900),
+  :where(.dark) :where(.text-slate-800) {
+    color: rgb(248 250 252 / var(--tw-text-opacity, 1));
+  }
+
+  :where(.dark) :where(.text-gray-700),
+  :where(.dark) :where(.text-gray-600),
+  :where(.dark) :where(.text-slate-700),
+  :where(.dark) :where(.text-slate-600) {
+    color: rgb(203 213 225 / var(--tw-text-opacity, 1));
+  }
+
+  :where(.dark) :where(.text-gray-500),
+  :where(.dark) :where(.text-gray-400),
+  :where(.dark) :where(.text-slate-500),
+  :where(.dark) :where(.text-slate-400) {
+    color: rgb(148 163 184 / var(--tw-text-opacity, 1));
+  }
+
+  :where(.dark) :where(.border),
+  :where(.dark) :where(.border-t),
+  :where(.dark) :where(.border-r),
+  :where(.dark) :where(.border-b),
+  :where(.dark) :where(.border-l),
+  :where(.dark) :where(.divide-y > :not([hidden]) ~ :not([hidden])),
+  :where(.dark) :where(.divide-x > :not([hidden]) ~ :not([hidden])),
+  :where(.dark) :where(.border-gray-100),
+  :where(.dark) :where(.border-gray-200),
+  :where(.dark) :where(.border-gray-300),
+  :where(.dark) :where(.border-slate-100),
+  :where(.dark) :where(.border-slate-200),
+  :where(.dark) :where(.border-slate-300) {
+    border-color: rgb(30 41 59 / var(--tw-border-opacity, 1));
+  }
+
+  :where(.dark) :where(input, textarea, select) {
+    color-scheme: dark;
+  }
+
+  :where(.dark) :where(input, textarea, select):where([class~="bg-white"], [class~="bg-gray-50"], [class~="bg-slate-50"]) {
+    background-color: rgb(15 23 42 / var(--tw-bg-opacity, 1));
+    color: rgb(248 250 252 / var(--tw-text-opacity, 1));
+  }
+
+  :where(.dark) :where(input::placeholder, textarea::placeholder) {
+    color: rgb(100 116 139);
   }
 
   .topcv-job-font {
