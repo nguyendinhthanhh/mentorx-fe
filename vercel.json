@@ -1,0 +1,5 @@
+{
+  "rewrites": [
+    { "source": "/((?!api|_next|favicon).*)", "destination": "/index.html" }
+  ]
+}
