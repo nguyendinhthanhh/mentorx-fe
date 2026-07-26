@@ -22,7 +22,7 @@ import {
   MessageSquare,
   UserCheck
 } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useThemeStore } from '@/store/themeStore'
 import { isAdmin, isModerator } from '@/utils/roleRedirect'
 import NotificationDropdown from '@/components/notification/NotificationDropdown'
@@ -56,6 +56,19 @@ export default function AdminLayout() {
     return !['/admin/wallet', '/admin/users', '/admin/settings'].includes(link.to)
   })
 
+  useEffect(() => {
+    setIsMobileSidebarOpen(false)
+  }, [location.pathname])
+
+  useEffect(() => {
+    if (!isMobileSidebarOpen) return
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = previousOverflow
+    }
+  }, [isMobileSidebarOpen])
+
   const handleLogout = () => {
     logout()
     navigate('/login')
@@ -88,7 +101,8 @@ export default function AdminLayout() {
                 <button
                   type="button"
                   onClick={() => setIsMobileSidebarOpen(false)}
-                  className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400"
+                  className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400"
+                  aria-label="Close admin navigation"
                 >
                   <X className="h-5 w-5" />
                 </button>
@@ -230,13 +244,14 @@ export default function AdminLayout() {
         {/* Main Content */}
         <div className="flex-1 flex flex-col min-w-0">
           {/* Top Header */}
-          <header className="sticky top-0 z-40 flex h-20 items-center justify-between border-b border-gray-100 bg-white/90 px-4 backdrop-blur-md dark:border-gray-800 dark:bg-gray-900/90 sm:px-6 lg:px-8">
+          <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-gray-100 bg-white/90 px-3 backdrop-blur-md dark:border-gray-800 dark:bg-gray-900/90 min-[360px]:px-4 sm:h-20 sm:px-6 lg:px-8">
             <div className="flex items-center gap-3 sm:gap-6">
               <button
                 type="button"
                 onClick={() => setIsMobileSidebarOpen(true)}
                 className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-500 transition hover:text-gray-900 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:text-white xl:hidden"
                 aria-label="Open admin navigation"
+                aria-expanded={isMobileSidebarOpen}
               >
                 <Menu className="w-5 h-5" />
               </button>
@@ -276,7 +291,7 @@ export default function AdminLayout() {
           </header>
 
           {/* Page Content */}
-          <main className={isSupportWorkspace ? 'min-h-0 flex-1' : 'mx-auto w-full max-w-[1600px] p-4 sm:p-6 lg:p-8'}>
+          <main className={isSupportWorkspace ? 'min-h-0 flex-1' : 'mx-auto w-full max-w-[1600px] p-3 min-[360px]:p-4 sm:p-6 lg:p-8'}>
             <Outlet />
           </main>
         </div>

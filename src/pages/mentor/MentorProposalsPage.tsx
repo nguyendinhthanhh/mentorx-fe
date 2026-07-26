@@ -287,7 +287,7 @@ export default function MentorProposalsPage() {
       <div className="rounded-[2.5rem] border border-slate-200/60 bg-white/50 p-6 sm:p-8 shadow-xl shadow-slate-200/40 backdrop-blur-2xl">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between mb-8">
           {/* Tabs */}
-          <div className="flex flex-wrap items-center gap-2 p-1.5 bg-slate-100/80 rounded-2xl w-full lg:w-auto overflow-x-auto hide-scrollbar">
+          <div className="scrollbar-hide flex w-full flex-wrap items-center gap-2 overflow-x-auto rounded-2xl bg-slate-100/80 p-1.5 lg:w-auto">
             {tabs.map((tab) => {
               const count = tabCounts[tab.key]
               const isActive = activeTab === tab.key

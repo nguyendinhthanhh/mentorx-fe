@@ -466,7 +466,7 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 rounded-[24px] border border-white/60 bg-white/70 backdrop-blur-xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] sm:p-10 relative overflow-hidden">
+    <form onSubmit={handleSubmit(onSubmit)} className="relative space-y-6 overflow-hidden rounded-[24px] border border-white/60 bg-white/70 p-4 shadow-[0_8px_30px_rgb(0,0,0,0.04)] backdrop-blur-xl sm:space-y-8 sm:p-8 lg:p-10">
       {/* Decorative gradient corner inside form */}
       <div className="absolute -top-24 -right-24 w-48 h-48 bg-gradient-to-br from-[#4f46e5]/10 to-purple-500/10 rounded-full blur-2xl pointer-events-none"></div>
       <div>

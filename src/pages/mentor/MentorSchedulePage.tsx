@@ -176,7 +176,7 @@ export default function MentorSchedulePage() {
       </div>
 
       <Toolbar>
-        <div className="flex w-full overflow-x-auto rounded-2xl bg-slate-100 p-1 lg:w-auto">
+        <div className="scrollbar-hide flex w-full overflow-x-auto rounded-2xl bg-slate-100 p-1 lg:w-auto">
           {[
             ['calendar', 'Calendar'],
             ['upcoming', 'Upcoming'],

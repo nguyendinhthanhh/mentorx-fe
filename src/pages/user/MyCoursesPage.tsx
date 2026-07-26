@@ -164,7 +164,7 @@ export default function MyCoursesPage() {
               >
                 <div className={`relative aspect-[16/9] ${isDocumentProduct ? 'bg-amber-50' : 'bg-indigo-50'} dark:bg-slate-900`}>
                   {course?.thumbnailUrl ? (
-                    <img src={course.thumbnailUrl} alt={course.title} className="h-full w-full object-cover" />
+                    <img src={course.thumbnailUrl} alt={course.title} loading="lazy" decoding="async" className="h-full w-full object-cover" />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center">
                       {isDocumentProduct ? (
@@ -322,7 +322,7 @@ function CourseRow({
       <div className="mb-3 flex items-center justify-between">
         <h2 className="text-sm font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">{title}</h2>
       </div>
-      <div className="flex gap-3 overflow-x-auto pb-2">
+      <div className="scrollbar-hide flex gap-3 overflow-x-auto pb-2">
         {enrollments.map((enrollment) => (
           <CompactCourseCard
             key={`${title}-${enrollment.id}`}
@@ -363,7 +363,7 @@ function CompactCourseCard({
     >
       <div className={`relative aspect-[16/9] ${isDocumentProduct ? 'bg-amber-50' : 'bg-indigo-50'} dark:bg-slate-900`}>
         {course?.thumbnailUrl ? (
-          <img src={course.thumbnailUrl} alt={title} className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
+          <img src={course.thumbnailUrl} alt={title} loading="lazy" decoding="async" className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
         ) : (
           <div className="flex h-full w-full items-center justify-center">
             {isDocumentProduct ? (

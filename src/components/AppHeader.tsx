@@ -55,6 +55,15 @@ export default function AppHeader() {
     setUserDropdownOpen(false)
   }, [location.pathname])
 
+  useEffect(() => {
+    if (!mobileOpen) return
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = previousOverflow
+    }
+  }, [mobileOpen])
+
   const mentorApproved = canSwitchToMentorMode(user)
   const { data: rooms } = useQuery(
     ['chatRooms', user?.userId],
@@ -324,22 +333,27 @@ export default function AppHeader() {
         <button
           type="button"
           onClick={() => setMobileOpen((prev) => !prev)}
-          className="rounded-lg p-2 text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 lg:hidden"
+          className="flex h-11 w-11 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 lg:hidden"
           aria-label="Toggle navigation"
+          aria-expanded={mobileOpen}
+          aria-controls="mobile-site-navigation"
         >
           {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
       </div>
 
       {mobileOpen && (
-        <div className="border-t border-[#E2E8F0] bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-950 lg:hidden">
+        <div
+          id="mobile-site-navigation"
+          className="max-h-[calc(100dvh-4rem)] overflow-y-auto overscroll-contain border-t border-[#E2E8F0] bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-950 lg:hidden"
+        >
           <div className="grid gap-2">
             {navLinks.map((item) => (
               <Link
                 key={item.to}
                 to={item.to}
                 onClick={() => setMobileOpen(false)}
-                className="rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-900"
+                className="flex min-h-11 items-center rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-900"
               >
                 {item.label}
               </Link>

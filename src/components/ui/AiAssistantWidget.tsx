@@ -86,7 +86,7 @@ export function AiAssistantWidget() {
       {/* Floating Button */}
       <button
         onClick={() => setIsOpen(true)}
-        className={`fixed bottom-6 right-6 h-14 w-14 rounded-full bg-primary-600 text-white shadow-lg flex items-center justify-center hover:bg-primary-700 hover:scale-105 hover:shadow-xl transition-all duration-300 z-40 ${
+        className={`fixed bottom-[max(1rem,env(safe-area-inset-bottom))] right-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-primary-600 text-white shadow-lg transition-all duration-300 hover:scale-105 hover:bg-primary-700 hover:shadow-xl sm:bottom-6 sm:right-6 ${
           isOpen ? "scale-0 opacity-0" : "scale-100 opacity-100"
         }`}
         aria-label="Open AI Assistant"
@@ -96,12 +96,12 @@ export function AiAssistantWidget() {
 
       {/* Chat Window */}
       <div
-        className={`fixed bottom-6 right-6 w-[400px] max-[440px]:w-[calc(100vw-32px)] bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col overflow-hidden transition-all duration-500 origin-bottom-right z-50 ${
+        className={`fixed bottom-2 right-2 z-50 flex w-[calc(100vw-1rem)] origin-bottom-right flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-2xl transition-all duration-500 sm:bottom-6 sm:right-6 sm:w-[400px] sm:rounded-2xl ${
           isOpen
             ? "scale-100 opacity-100"
             : "scale-0 opacity-0 pointer-events-none"
         }`}
-        style={{ height: "min(600px, calc(100vh - 80px))" }}
+        style={{ height: "min(600px, calc(100dvh - 16px))" }}
       >
         {/* Header */}
         <div className="bg-primary-600 px-4 py-3 flex items-center justify-between text-white shrink-0">
@@ -109,9 +109,9 @@ export function AiAssistantWidget() {
             <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center">
               <Bot className="w-5 h-5" />
             </div>
-            <div>
+            <div className="min-w-0">
               <h3 className="font-bold text-sm">MentorX AI</h3>
-              <p className="text-[11px] text-primary-100">
+              <p className="truncate text-[11px] text-primary-100">
                 {isLoading ? "Đang trả lời..." : "Hỏi về nền tảng MentorX"}
               </p>
             </div>
@@ -120,7 +120,7 @@ export function AiAssistantWidget() {
             {messages.length > 1 && (
               <button
                 onClick={handleClear}
-                className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition"
+                className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 transition hover:bg-white/20"
                 aria-label="Clear chat"
               >
                 <Trash2 className="w-4 h-4" />
@@ -128,7 +128,7 @@ export function AiAssistantWidget() {
             )}
             <button
               onClick={() => setIsOpen(false)}
-              className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition"
+              className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 transition hover:bg-white/20"
               aria-label="Close"
             >
               <X className="w-4 h-4" />
@@ -177,7 +177,7 @@ export function AiAssistantWidget() {
             <button
               onClick={handleSend}
               disabled={!input.trim() || isLoading}
-              className={`shrink-0 w-9 h-9 rounded-full flex items-center justify-center transition-all ${
+              className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition-all ${
                 input.trim() && !isLoading
                   ? "bg-primary-600 text-white hover:bg-primary-700"
                   : "bg-gray-200 text-gray-400 cursor-not-allowed"

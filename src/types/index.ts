@@ -1640,6 +1640,26 @@ export interface MentorProfileAssetRequest {
   displayOrder?: number;
 }
 
+export type MentorRecommendationReason =
+  | 'SKILL_MATCH'
+  | 'DOMAIN_MATCH'
+  | 'LANGUAGE_MATCH'
+  | 'AVAILABLE_SCHEDULE'
+  | 'STRONG_RATING'
+  | 'PROVEN_TRACK_RECORD'
+  | 'FEATURED_PROFILE'
+  | 'PROFILE_QUALITY';
+
+export type MentorRecommendationConfidence = 'LOW' | 'MEDIUM' | 'HIGH';
+
+export interface MentorMatchScoreBreakdown {
+  domain: number;
+  skills: number;
+  language: number;
+  availability: number;
+  quality: number;
+}
+
 export interface MentorRecommendationResponse {
   mentorId: string;
   userId: string;
@@ -1652,11 +1672,21 @@ export interface MentorRecommendationResponse {
   availability?: string;
   averageRating?: number;
   totalReviews: number;
+  totalJobsDone: number;
+  successRate?: number;
+  responseTimeHours?: number;
   totalEarnings?: number;
   isFeatured: boolean;
+  isAvailable: boolean;
   skills: string[];
+  matchingSkills: string[];
   categories: string[];
   matchScore: number;
+  scoreBreakdown: MentorMatchScoreBreakdown;
+  reasonCodes: MentorRecommendationReason[];
+  confidence: MentorRecommendationConfidence;
+  algorithmVersion: string;
+  personalized: boolean;
 }
 
 export interface CourseRecommendationResponse {

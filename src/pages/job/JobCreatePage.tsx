@@ -39,7 +39,7 @@ export default function JobCreatePage() {
                   <span className="text-[12px] font-bold text-[#4f46e5] tracking-wider uppercase">Tạo Yêu Cầu Mới</span>
                </div>
             </div>
-            <h1 className="text-4xl font-extrabold text-[#1b2252] sm:text-5xl tracking-tight leading-tight mt-2">
+            <h1 className="mt-2 text-3xl font-extrabold leading-tight tracking-tight text-[#1b2252] sm:text-4xl lg:text-5xl">
               Khởi tạo <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#4f46e5] to-[#7c3aed]">Cơ Hội Mới</span>
             </h1>
             <p className="mt-3 text-[15px] text-slate-500 max-w-2xl mx-auto md:mx-0">

@@ -9,6 +9,8 @@ export function BlogCard({ post }: { post: BlogPost }) {
         <img
           src={post.coverImage}
           alt={post.title}
+          loading="lazy"
+          decoding="async"
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
       </Link>
@@ -33,7 +35,7 @@ export function BlogCard({ post }: { post: BlogPost }) {
         
         <div className="mt-auto flex items-center justify-between border-t border-slate-100 pt-6">
           <div className="flex items-center gap-2.5">
-            <img src={post.authorAvatar} alt={post.author} className="h-8 w-8 rounded-full bg-slate-100 object-cover" />
+            <img src={post.authorAvatar} alt={post.author} loading="lazy" decoding="async" className="h-8 w-8 rounded-full bg-slate-100 object-cover" />
             <div className="text-sm">
               <p className="font-semibold text-slate-900">{post.author}</p>
             </div>

@@ -1,5 +1,5 @@
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useQuery } from 'react-query'
 import {
   BookOpen,
@@ -55,6 +55,20 @@ export default function MentorLayout() {
     { enabled: !!user?.userId, refetchInterval: 30000 }
   )
   const unansweredCourseQaCount = qaSummaries.reduce((sum, item) => sum + (item.unansweredLearners || 0), 0)
+
+  useEffect(() => {
+    setMobileNavOpen(false)
+    setUserDropdownOpen(false)
+  }, [location.pathname])
+
+  useEffect(() => {
+    if (!mobileNavOpen) return
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = previousOverflow
+    }
+  }, [mobileNavOpen])
 
   const handleLogout = () => {
     logout()
@@ -184,7 +198,8 @@ export default function MentorLayout() {
                 <button
                   type="button"
                   onClick={() => setMobileNavOpen(false)}
-                  className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400"
+                  className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400"
+                  aria-label="Close navigation"
                 >
                   <X className="h-5 w-5" />
                 </button>
@@ -255,15 +270,16 @@ export default function MentorLayout() {
           </div>
         )}
 
-        <div className="min-w-0 max-h-screen flex-1 overflow-y-auto">
+        <div className="min-w-0 max-h-dvh flex-1 overflow-y-auto">
           <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/95 backdrop-blur">
-            <div className="flex h-[80px] items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
+            <div className="flex h-16 items-center justify-between gap-2 px-3 min-[360px]:px-4 sm:h-20 sm:gap-3 sm:px-6 lg:px-8">
               <div className="flex min-w-0 flex-1 items-center gap-4">
                 <button
                   type="button"
                   onClick={() => setMobileNavOpen(true)}
                   className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50 xl:hidden"
                   aria-label="Open navigation"
+                  aria-expanded={mobileNavOpen}
                 >
                   <Menu className="h-4 w-4" />
                 </button>
@@ -387,7 +403,7 @@ export default function MentorLayout() {
             </div>
           </header>
 
-          <main className="mx-auto max-w-[1600px] px-4 py-5 sm:px-6 lg:px-6">
+          <main className="mx-auto w-full max-w-[1600px] px-3 py-4 min-[360px]:px-4 sm:px-6 sm:py-5 lg:px-6">
             <Outlet />
           </main>
         </div>

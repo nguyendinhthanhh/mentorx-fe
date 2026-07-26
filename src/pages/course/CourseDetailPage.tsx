@@ -477,7 +477,7 @@ export default function CourseDetailPage() {
         {/* Tab Navigation */}
         <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
           <div className="border-b border-gray-100">
-            <nav className="flex overflow-x-auto">
+            <nav className="scrollbar-hide flex overflow-x-auto">
               {[
                 { id: 'overview', label: 'Overview', icon: BookOpen },
                 { id: 'curriculum', label: isDocumentProduct ? 'Document' : 'Curriculum', icon: isDocumentProduct ? FileText : PlayCircle },

@@ -5,7 +5,7 @@ export default function LoginPage() {
   return (
     <div className="relative z-10 flex flex-col">
       <div className="text-center mb-8">
-        <h2 className="text-4xl font-extrabold tracking-tighter text-slate-900">Welcome back</h2>
+        <h2 className="text-3xl font-extrabold tracking-tighter text-slate-900 sm:text-4xl">Welcome back</h2>
         <p className="mt-3 text-sm font-medium text-slate-500">Sign in to your account to continue</p>
       </div>
 

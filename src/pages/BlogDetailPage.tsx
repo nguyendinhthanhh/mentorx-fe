@@ -65,7 +65,7 @@ export default function BlogDetailPage() {
   if (error || !post) {
     return (
       <div className="min-h-screen bg-slate-50 px-4 py-20 text-slate-900 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-3xl rounded-[28px] border border-slate-200 bg-white p-8 shadow-sm">
+        <div className="mx-auto max-w-3xl rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:rounded-[28px] sm:p-8">
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">Blog</p>
           <h1 className="mt-4 text-3xl font-black tracking-tight text-slate-900">Guide not found</h1>
           <p className="mt-3 text-slate-600">
@@ -103,7 +103,7 @@ export default function BlogDetailPage() {
             <span className="text-sm font-medium text-slate-500">{post.date}</span>
           </div>
 
-          <h1 className="mt-5 max-w-4xl text-4xl font-black tracking-tight text-slate-900 sm:text-5xl">
+          <h1 className="mt-5 max-w-4xl text-3xl font-black tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
             {post.title}
           </h1>
           <p className="mt-5 max-w-3xl text-lg leading-8 text-slate-600">

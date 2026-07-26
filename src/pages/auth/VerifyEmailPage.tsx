@@ -30,7 +30,7 @@ export default function VerifyEmailPage() {
       <div className="absolute top-[-15%] left-[-15%] w-[60%] h-[60%] bg-gradient-to-br from-blue-100/40 to-transparent rounded-full blur-[140px] animate-pulse" />
       <div className="absolute bottom-[-15%] right-[-15%] w-[60%] h-[60%] bg-gradient-to-tr from-indigo-100/40 to-transparent rounded-full blur-[140px] animate-pulse delay-1000" />
 
-      <div className="max-w-[520px] w-full bg-white/70 backdrop-blur-2xl rounded-[48px] shadow-[0_40px_80px_-20px_rgba(0,0,0,0.08)] border border-white/50 p-10 md:p-16 text-center relative z-10 transition-all hover:shadow-[0_48px_96px_-24px_rgba(0,0,0,0.12)]">
+      <div className="relative z-10 w-full max-w-[520px] rounded-2xl border border-white/50 bg-white/70 p-6 text-center shadow-[0_40px_80px_-20px_rgba(0,0,0,0.08)] backdrop-blur-2xl transition-all hover:shadow-[0_48px_96px_-24px_rgba(0,0,0,0.12)] sm:rounded-[32px] sm:p-10 md:p-16">
         <div className="relative mb-12 inline-block">
           <div className="w-28 h-28 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-[38px] flex items-center justify-center mx-auto shadow-2xl shadow-blue-500/30 transform hover:rotate-6 transition-transform duration-500">
             <Mail className="w-12 h-12 text-white" />
@@ -41,7 +41,7 @@ export default function VerifyEmailPage() {
         </div>
 
         <div className="space-y-5 mb-12">
-          <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight leading-[1.1]">
+          <h1 className="text-3xl font-black leading-[1.1] tracking-tight text-slate-900 sm:text-4xl md:text-5xl">
             {status === 'verifying' ? 'Verifying...' :
              status === 'success' ? 'Email Verified!' :
              status === 'error' ? 'Verification Failed' :

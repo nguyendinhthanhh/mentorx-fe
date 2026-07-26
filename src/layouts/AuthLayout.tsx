@@ -3,12 +3,16 @@ import { Sparkles } from 'lucide-react'
 
 export default function AuthLayout() {
   return (
-    <div className="flex min-h-screen bg-white">
+    <div className="flex min-h-dvh bg-white">
       {/* Left Panel - Visuals */}
       <div className="relative hidden w-1/2 overflow-hidden bg-slate-900 lg:block">
         <img 
-          src="/images/auth_hero.png" 
+          src="/images/auth_hero.jpg"
           alt="Mentorship Session" 
+          width="1024"
+          height="1024"
+          decoding="async"
+          fetchPriority="high"
           className="absolute inset-0 h-full w-full object-cover opacity-90 transition-transform duration-1000 ease-out hover:scale-105"
         />
         <div className="absolute inset-0 bg-gradient-to-tr from-slate-950/80 via-slate-900/40 to-transparent" />
@@ -27,10 +31,10 @@ export default function AuthLayout() {
       </div>
 
       {/* Right Panel - Form */}
-      <div className="flex w-full items-center justify-center bg-white px-4 py-12 sm:px-6 lg:w-1/2 xl:px-12">
+      <div className="flex w-full items-center justify-center bg-white px-4 py-8 sm:px-6 sm:py-12 lg:w-1/2 xl:px-12">
         <div className="w-full max-w-[440px] animate-fade-in" style={{ animationDuration: '0.6s' }}>
           
-          <Link to="/" className="mb-10 flex items-center justify-center gap-3 group w-fit mx-auto">
+          <Link to="/" className="group mx-auto mb-8 flex min-h-11 w-fit items-center justify-center gap-3 sm:mb-10">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-600 shadow-md shadow-primary-500/30 transition-transform duration-300 group-hover:scale-105">
               <Sparkles className="h-5 w-5 text-white" />
             </div>

@@ -11,7 +11,7 @@ export function AudienceTabs({
 }) {
   return (
     <div className="border-b border-slate-200">
-      <nav className="-mb-px flex gap-6 overflow-x-auto hide-scrollbar" aria-label="Tabs">
+      <nav className="scrollbar-hide -mb-px flex gap-6 overflow-x-auto" aria-label="Tabs">
         {tabs.map((tab) => {
           const active = tab === activeTab
           return (

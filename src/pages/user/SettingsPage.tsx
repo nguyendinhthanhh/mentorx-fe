@@ -5,24 +5,25 @@ import PasswordChangeForm from '@/components/auth/PasswordChangeForm'
 import MentorProfileSetupPage from '@/pages/mentor/MentorProfileSetupPage'
 import { useI18n } from '@/i18n/I18nProvider'
 import { isMentorApproved } from '@/utils/roleRedirect'
-import { User, Lock, Settings as SettingsIcon, ShieldCheck } from 'lucide-react'
+import { User, Lock, Settings as SettingsIcon, ShieldCheck, type LucideIcon } from 'lucide-react'
+
+type TabId = 'profile' | 'mentor' | 'security'
+type SettingsTab = { id: TabId; icon: LucideIcon; label: string }
 
 export default function SettingsPage() {
   const { t } = useI18n()
   const { user } = useAuthStore()
+  const [activeTab, setActiveTab] = useState<TabId>('profile')
 
   if (!user) return null
 
-  const tabs = [
+  const tabs: SettingsTab[] = [
     { id: 'profile', icon: User, label: t('profile.tabs.account') },
-    ...(isMentorApproved(user) ? [
-      { id: 'mentor', icon: ShieldCheck, label: 'Mentor Profile' },
-    ] : []),
-    { id: 'security', icon: Lock, label: t('profile.tabs.security') },
-  ] as const
-
-  type TabId = typeof tabs[number]['id']
-  const [activeTab, setActiveTab] = useState<TabId>('profile')
+  ]
+  if (isMentorApproved(user)) {
+    tabs.push({ id: 'mentor', icon: ShieldCheck, label: 'Mentor Profile' })
+  }
+  tabs.push({ id: 'security', icon: Lock, label: t('profile.tabs.security') })
 
   const isMentorTab = activeTab === 'mentor'
 
@@ -49,7 +50,7 @@ export default function SettingsPage() {
           return (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id as any)}
+              onClick={() => setActiveTab(tab.id)}
               className={`group flex items-center gap-2.5 px-4 py-3 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${
                 active
                   ? 'bg-primary-600 text-white shadow-md shadow-primary-500/20'

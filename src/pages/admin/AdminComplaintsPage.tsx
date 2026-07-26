@@ -121,7 +121,7 @@ export default function AdminComplaintsPage() {
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="flex flex-col justify-between gap-3 md:flex-row md:items-center">
         <div>
-          <h1 className="text-4xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-400">
+          <h1 className="bg-gradient-to-r from-slate-900 to-slate-600 bg-clip-text text-2xl font-extrabold tracking-tight text-transparent dark:from-white dark:to-slate-400 sm:text-3xl lg:text-4xl">
             {t('admin.complaints.title')}
           </h1>
           <p className="mt-2 text-sm font-bold text-slate-400 dark:text-slate-500">
@@ -151,7 +151,7 @@ export default function AdminComplaintsPage() {
               setPage(0)
               setStatusFilter(event.target.value as StatusFilter)
             }}
-            className="rounded-2xl border border-slate-200/60 bg-white/50 px-6 py-3.5 text-sm font-bold text-slate-600 focus:border-indigo-500/30 focus:bg-white focus:outline-none focus:ring-4 focus:ring-indigo-500/10 dark:border-slate-700/60 dark:bg-slate-800/50 dark:text-slate-300 dark:focus:bg-slate-800 shadow-sm hover:border-slate-300 dark:hover:border-slate-600 transition-all cursor-pointer outline-none appearance-none min-w-[200px]"
+            className="w-full cursor-pointer appearance-none rounded-2xl border border-slate-200/60 bg-white/50 px-6 py-3.5 text-sm font-bold text-slate-600 shadow-sm outline-none transition-all hover:border-slate-300 focus:border-indigo-500/30 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 dark:border-slate-700/60 dark:bg-slate-800/50 dark:text-slate-300 dark:hover:border-slate-600 dark:focus:bg-slate-800 sm:w-auto sm:min-w-[200px]"
             style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: 'right 1rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.5em 1.5em' }}
           >
             <option value="">{t('admin.complaints.filter.all')}</option>

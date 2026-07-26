@@ -174,7 +174,7 @@ export default function AdminUsersPage() {
     <div className="space-y-8 pb-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
         <div className="space-y-1">
-          <h1 className="text-4xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-400">
+          <h1 className="bg-gradient-to-r from-slate-900 to-slate-600 bg-clip-text text-2xl font-extrabold tracking-tight text-transparent dark:from-white dark:to-slate-400 sm:text-3xl lg:text-4xl">
             User Management
           </h1>
           <p className="text-slate-500 dark:text-slate-400 text-sm md:text-base">
@@ -387,7 +387,7 @@ export default function AdminUsersPage() {
         {/* Pagination */}
         <div className="flex flex-col gap-4 border-t border-slate-100/50 bg-slate-50/30 px-6 py-5 dark:border-slate-800/50 dark:bg-slate-800/30 sm:flex-row sm:items-center sm:justify-between sm:px-8">
           <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
-            Page {data?.number! + 1} of {data?.totalPages}
+            Page {(data?.number ?? 0) + 1} of {data?.totalPages ?? 0}
           </p>
           <div className="flex gap-2">
             <button 

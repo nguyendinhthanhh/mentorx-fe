@@ -61,7 +61,7 @@ export default function AdminAnalyticsPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-4xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-400">System Analytics</h1>
+          <h1 className="bg-gradient-to-r from-slate-900 to-slate-600 bg-clip-text text-2xl font-extrabold tracking-tight text-transparent dark:from-white dark:to-slate-400 sm:text-3xl lg:text-4xl">System Analytics</h1>
           <p className="mt-2 text-sm font-bold text-slate-400 dark:text-slate-500">Deep insights into MentorX growth and engagement.</p>
         </div>
         <div className="flex items-center gap-3">

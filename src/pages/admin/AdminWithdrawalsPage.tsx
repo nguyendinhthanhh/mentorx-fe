@@ -86,7 +86,7 @@ export default function AdminWithdrawalsPage() {
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       {/* Header */}
       <div>
-        <h1 className="text-4xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-400">Withdrawal Management</h1>
+        <h1 className="bg-gradient-to-r from-slate-900 to-slate-600 bg-clip-text text-2xl font-extrabold tracking-tight text-transparent dark:from-white dark:to-slate-400 sm:text-3xl lg:text-4xl">Withdrawal Management</h1>
         <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mt-2">Review and approve manual payout requests</p>
       </div>
 
@@ -130,7 +130,7 @@ export default function AdminWithdrawalsPage() {
       </div>
 
       {/* Filters */}
-      <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl rounded-[2.5rem] border border-white/50 dark:border-slate-800 p-8 shadow-xl shadow-slate-200/40 dark:shadow-none">
+      <div className="rounded-2xl border border-white/50 bg-white/70 p-4 shadow-xl shadow-slate-200/40 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/70 dark:shadow-none sm:rounded-[2.5rem] sm:p-8">
         <div className="flex flex-col md:flex-row gap-6">
           <div className="relative flex-1 group">
             <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
@@ -145,7 +145,7 @@ export default function AdminWithdrawalsPage() {
           <select 
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as WithdrawalStatus)}
-            className="px-6 py-4 rounded-2xl bg-white/50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700/60 focus:bg-white dark:focus:bg-slate-800 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500/30 transition-all text-sm font-bold text-slate-600 dark:text-slate-400 shadow-sm hover:border-slate-300 dark:hover:border-slate-600 cursor-pointer outline-none appearance-none min-w-[200px]"
+            className="w-full cursor-pointer appearance-none rounded-2xl border border-slate-200/60 bg-white/50 px-6 py-4 text-sm font-bold text-slate-600 shadow-sm outline-none transition-all hover:border-slate-300 focus:border-indigo-500/30 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 dark:border-slate-700/60 dark:bg-slate-800/50 dark:text-slate-400 dark:hover:border-slate-600 dark:focus:bg-slate-800 md:w-auto md:min-w-[200px]"
             style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: 'right 1rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.5em 1.5em' }}
           >
             <option value="">All Statuses</option>

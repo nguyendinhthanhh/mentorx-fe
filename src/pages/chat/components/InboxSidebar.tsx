@@ -113,7 +113,7 @@ export default function InboxSidebar({
           {/* Wallet Balance */}
           <Link
             to="/wallet"
-            className="hidden items-center gap-1.5 rounded-lg bg-amber-50 px-2 py-1.5 text-[11px] font-bold text-amber-700 transition-colors hover:bg-amber-100 sm:flex"
+            className="hidden min-h-11 items-center gap-1.5 rounded-lg bg-amber-50 px-2 py-1.5 text-[11px] font-bold text-amber-700 transition-colors hover:bg-amber-100 sm:flex"
           >
             <Wallet className="h-3 w-3" />
             {formatMxc(balance?.available || 0, language)}
@@ -130,7 +130,7 @@ export default function InboxSidebar({
               <button
                 type="button"
                 onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg ring-2 ring-transparent transition-all hover:ring-indigo-200"
+                className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-lg ring-2 ring-transparent transition-all hover:ring-indigo-200"
               >
                 {user.avatarUrl ? (
                   <img src={user.avatarUrl} alt={user.fullName} className="h-full w-full object-cover rounded-lg" />

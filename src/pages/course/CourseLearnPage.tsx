@@ -27,6 +27,7 @@ import {
   Lock,
   Loader2,
   MessageSquare,
+  PanelLeft,
   PlayCircle,
   Send,
   X,
@@ -55,6 +56,7 @@ export default function CourseLearnPage() {
   const [latestAttempt, setLatestAttempt] = useState<QuizAttemptResponse | null>(null)
   const [quizResults, setQuizResults] = useState<QuizQuestionResult>({})
   const [lockedLesson, setLockedLesson] = useState<CourseLessonResponse | null>(null)
+  const [mobileSyllabusOpen, setMobileSyllabusOpen] = useState(false)
   const [viewingCertificate, setViewingCertificate] = useState(false)
   const [authHydrated, setAuthHydrated] = useState(useAuthStore.persist.hasHydrated())
   const articleRef = useRef<HTMLElement | null>(null)
@@ -73,6 +75,15 @@ export default function CourseLearnPage() {
     return useAuthStore.persist.onFinishHydration(() => setAuthHydrated(true))
   }, [])
 
+  useEffect(() => {
+    if (!mobileSyllabusOpen) return
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = previousOverflow
+    }
+  }, [mobileSyllabusOpen])
+
   const { data: course, isLoading: courseLoading } = useQuery(
     ['course', courseId],
     () => courseApi.getById(courseId!),
@@ -83,17 +94,25 @@ export default function CourseLearnPage() {
     () => courseApi.getPublishedSections(courseId!),
     { enabled: !!courseId }
   )
-  const { data: lessons = [], isLoading: lessonsLoading } = useQuery(
-    ['course-lessons', courseId],
-    () => courseApi.getLessonsByCourse(courseId!),
-    { enabled: !!courseId }
-  )
   const enrollmentQueryKey = ['course-enrollment', courseId, user?.userId]
   const shouldCheckEnrollment = !!courseId && !!user?.userId
   const { data: enrollment = null, isLoading: enrollmentLoading, isFetched: enrollmentFetched } = useQuery(
     enrollmentQueryKey,
     () => courseApi.getEnrollmentByCourseAndStudent(courseId!, user!.userId),
     { enabled: shouldCheckEnrollment }
+  )
+  const enrollmentCheckComplete = !shouldCheckEnrollment || enrollmentFetched
+  const isPreviewMode = authHydrated && enrollmentCheckComplete && !enrollment
+  const {
+    data: lessons = [],
+    isLoading: lessonsLoading,
+    isError: lessonsError,
+  } = useQuery(
+    ['course-lessons', courseId, isPreviewMode ? 'preview' : 'enrolled'],
+    () => isPreviewMode
+      ? courseApi.getFreePreviewLessonsByCourse(courseId!)
+      : courseApi.getLessonsByCourse(courseId!),
+    { enabled: !!courseId && authHydrated && enrollmentCheckComplete }
   )
   const { data: progress = [] } = useQuery(
     ['course-progress', user?.userId, courseId],
@@ -109,8 +128,6 @@ export default function CourseLearnPage() {
   const publishedLessons = useMemo(() => lessons.filter((lesson) => lesson.isPublished !== false), [lessons])
   const lessonGroups = useMemo(() => buildLessonGroups(sections, publishedLessons), [sections, publishedLessons])
   const orderedLessons = useMemo(() => lessonGroups.flatMap((group) => group.lessons), [lessonGroups])
-  const enrollmentCheckComplete = !shouldCheckEnrollment || enrollmentFetched
-  const isPreviewMode = authHydrated && enrollmentCheckComplete && !enrollment
   const firstPreviewLesson = useMemo(() => orderedLessons.find((lesson) => lesson.isFreePreview), [orderedLessons])
   const activeLesson = orderedLessons.find((lesson) => lesson.id === lessonId)
   const activeLessonLocked = !!activeLesson && isPreviewMode && !activeLesson.isFreePreview
@@ -273,22 +290,36 @@ export default function CourseLearnPage() {
       }
     }
 
-    const handleScroll = () => trackScroll(false)
-    const handleHidden = () => {
-      if (document.visibilityState === 'hidden') trackScroll(true)
+    let scrollFrame: number | null = null
+    const scheduleScrollTracking = () => {
+      if (scrollFrame !== null) return
+      scrollFrame = window.requestAnimationFrame(() => {
+        scrollFrame = null
+        trackScroll(false)
+      })
     }
-    const handleBeforeUnload = () => trackScroll(true)
+    const flushScrollTracking = () => {
+      if (scrollFrame !== null) {
+        window.cancelAnimationFrame(scrollFrame)
+        scrollFrame = null
+      }
+      trackScroll(true)
+    }
+    const handleHidden = () => {
+      if (document.visibilityState === 'hidden') flushScrollTracking()
+    }
+    const handleBeforeUnload = () => flushScrollTracking()
 
     trackScroll()
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    window.addEventListener('resize', handleScroll)
+    window.addEventListener('scroll', scheduleScrollTracking, { passive: true })
+    window.addEventListener('resize', scheduleScrollTracking)
     document.addEventListener('visibilitychange', handleHidden)
     window.addEventListener('beforeunload', handleBeforeUnload)
     return () => {
       window.clearTimeout(restoreScroll)
-      trackScroll(true)
-      window.removeEventListener('scroll', handleScroll)
-      window.removeEventListener('resize', handleScroll)
+      flushScrollTracking()
+      window.removeEventListener('scroll', scheduleScrollTracking)
+      window.removeEventListener('resize', scheduleScrollTracking)
       document.removeEventListener('visibilitychange', handleHidden)
       window.removeEventListener('beforeunload', handleBeforeUnload)
     }
@@ -366,11 +397,13 @@ export default function CourseLearnPage() {
     if (courseId && lesson) {
       navigate(lessonPath(courseId, lesson))
     }
+    setMobileSyllabusOpen(false)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   const selectSection = (targetSectionId: string) => {
     if (courseId) navigate(sectionPath(courseId, targetSectionId))
+    setMobileSyllabusOpen(false)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
@@ -446,9 +479,22 @@ export default function CourseLearnPage() {
     )
   }
 
+  if (lessonsError) {
+    return (
+      <div className="mx-auto max-w-3xl rounded-2xl border border-slate-200 bg-white p-8 dark:border-slate-800 dark:bg-slate-950">
+        <p className="text-sm font-semibold text-slate-600 dark:text-slate-300">
+          Course lessons could not be loaded. Please try again.
+        </p>
+        <Link to={`/courses/${courseId}`} className="mt-4 inline-flex text-sm font-bold text-indigo-600">
+          Back to course
+        </Link>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
-      <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 px-4 py-3 backdrop-blur dark:border-slate-800 dark:bg-slate-950/95">
+      <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 px-3 py-2 backdrop-blur dark:border-slate-800 dark:bg-slate-950/95 min-[360px]:px-4 sm:py-3">
         <div className="flex items-center justify-between gap-3">
           <div className="flex min-w-0 items-center gap-3">
             <button
@@ -474,19 +520,49 @@ export default function CourseLearnPage() {
               <p className="text-xs font-semibold text-slate-500">{isPreviewMode ? 'Course preview' : 'Learning room'}</p>
             </div>
           </div>
-          <Link to={isPreviewMode ? `/courses/${courseId}` : '/profile/courses'} className="shrink-0 rounded-xl border border-slate-200 px-3 py-2 text-xs font-black text-slate-700 hover:bg-slate-50 dark:border-slate-800 dark:text-slate-200 dark:hover:bg-slate-900">
-            {isPreviewMode ? 'Course details' : 'My learning'}
-          </Link>
+          <div className="flex shrink-0 items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setMobileSyllabusOpen(true)}
+              className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 dark:border-slate-800 dark:text-slate-200 dark:hover:bg-slate-900 xl:hidden"
+              aria-label="Open course content"
+              aria-expanded={mobileSyllabusOpen}
+            >
+              <PanelLeft className="h-5 w-5" />
+            </button>
+            <Link to={isPreviewMode ? `/courses/${courseId}` : '/profile/courses'} className="inline-flex min-h-11 shrink-0 items-center rounded-xl border border-slate-200 px-3 py-2 text-xs font-black text-slate-700 hover:bg-slate-50 dark:border-slate-800 dark:text-slate-200 dark:hover:bg-slate-900">
+              {isPreviewMode ? 'Course details' : 'My learning'}
+            </Link>
+          </div>
         </div>
       </header>
 
-      <div className="grid min-h-[calc(100vh-65px)] gap-6 p-4 xl:grid-cols-[320px_minmax(0,1fr)_340px]">
-      <aside className="h-max rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-950 xl:sticky xl:top-20">
-        <div className="mb-4">
-          <Link to={isPreviewMode ? `/courses/${courseId}` : '/profile/courses'} className="text-xs font-black uppercase tracking-widest text-indigo-600">
-            {isPreviewMode ? 'Preview mode' : 'My learning'}
-          </Link>
-          <h2 className="mt-1 line-clamp-2 text-lg font-black text-slate-900 dark:text-white">{course.title}</h2>
+      {mobileSyllabusOpen && (
+        <button
+          type="button"
+          className="fixed inset-0 z-50 bg-slate-950/50 xl:hidden"
+          onClick={() => setMobileSyllabusOpen(false)}
+          aria-label="Close course content"
+        />
+      )}
+
+      <div className="grid min-h-[calc(100dvh-65px)] gap-4 p-3 min-[360px]:p-4 xl:grid-cols-[320px_minmax(0,1fr)_340px] xl:gap-6">
+      <aside className={`${mobileSyllabusOpen ? 'fixed inset-y-0 left-0 z-[60] block h-dvh w-[min(90vw,360px)] overflow-y-auto rounded-none' : 'hidden'} border border-slate-200 bg-white p-4 shadow-2xl dark:border-slate-800 dark:bg-slate-950 xl:sticky xl:top-20 xl:block xl:h-max xl:w-auto xl:rounded-2xl xl:shadow-none`}>
+        <div className="mb-4 flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <Link to={isPreviewMode ? `/courses/${courseId}` : '/profile/courses'} className="text-xs font-black uppercase tracking-widest text-indigo-600">
+              {isPreviewMode ? 'Preview mode' : 'My learning'}
+            </Link>
+            <h2 className="mt-1 line-clamp-2 text-lg font-black text-slate-900 dark:text-white">{course.title}</h2>
+          </div>
+          <button
+            type="button"
+            onClick={() => setMobileSyllabusOpen(false)}
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-slate-200 text-slate-500 xl:hidden dark:border-slate-800 dark:text-slate-300"
+            aria-label="Close course content"
+          >
+            <X className="h-5 w-5" />
+          </button>
         </div>
 
         <div className="mb-5 rounded-xl bg-slate-50 p-3 dark:bg-slate-900">
@@ -518,7 +594,7 @@ export default function CourseLearnPage() {
           </div>
         )}
 
-        <div className="max-h-[58vh] space-y-4 overflow-auto pr-1">
+        <div className="space-y-4 pr-1 xl:max-h-[58vh] xl:overflow-auto">
           {lessonGroups.map((group, groupIndex) => (
             <div key={group.section?.id || `ungrouped-${groupIndex}`} className="space-y-2">
               <div>

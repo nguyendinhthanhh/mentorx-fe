@@ -35,7 +35,7 @@ export function BlogHero({
                 className="h-11 w-full rounded-xl border border-slate-300 bg-slate-50 pl-10 pr-4 text-sm font-medium text-slate-900 outline-none transition focus:border-indigo-600 focus:bg-white focus:ring-1 focus:ring-indigo-600"
               />
             </label>
-            <div className="mt-2.5 flex items-center gap-2 overflow-x-auto hide-scrollbar">
+            <div className="scrollbar-hide mt-2.5 flex items-center gap-2 overflow-x-auto">
               <span className="text-xs font-medium text-slate-400">Popular:</span>
               {quickTopics.map((topic) => (
                 <button

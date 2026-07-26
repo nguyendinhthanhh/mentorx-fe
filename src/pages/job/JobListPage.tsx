@@ -174,7 +174,7 @@ export default function JobListPage() {
                     <span className="text-[12px] font-bold text-[#4f46e5] tracking-wider uppercase">MentorX Discovery</span>
                  </div>
               </div>
-              <h1 className="text-4xl font-extrabold text-[#1b2252] sm:text-5xl tracking-tight leading-tight max-w-4xl">
+              <h1 className="max-w-4xl text-3xl font-extrabold leading-tight tracking-tight text-[#1b2252] sm:text-4xl lg:text-5xl">
                 Khám phá cơ hội, <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#4f46e5] to-[#7c3aed]">Kết nối chuyên gia</span>
               </h1>
             </div>

@@ -44,7 +44,6 @@ export default function DashboardPage() {
           walletBalance: walletResult.status === 'fulfilled' ? walletResult.value.data?.data?.total ?? 0 : 0,
           unreadNotifications: notifResult.status === 'fulfilled' ? notifResult.value.data?.data?.unreadCount ?? 0 : 0,
         })
-      } catch {
       } finally {
         setLoading(false)
       }

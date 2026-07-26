@@ -60,10 +60,9 @@ export default function HomePage() {
       <section className="bg-white pb-16 pt-12 dark:bg-slate-950">
         <div className="mx-auto grid max-w-[1600px] gap-10 px-4 sm:px-6 lg:grid-cols-[1.3fr_1fr] lg:px-8 items-center">
           <div>
-            <h1 className="text-4xl font-bold leading-tight text-gray-900 dark:text-white lg:text-[54px]">
-              {t('home.hero.titleLine1')}
-              <br />
-              {t('home.hero.titleLine2')}
+            <h1 className="text-3xl font-bold leading-[1.08] tracking-[-0.04em] text-gray-900 dark:text-white min-[360px]:text-4xl sm:leading-[1.04] lg:text-[54px]">
+              <span className="block">{t('home.hero.titleLine1')}</span>
+              <span className="block pb-1">{t('home.hero.titleLine2')}</span>
             </h1>
             <p className="mt-5 max-w-lg text-base leading-[1.6] text-gray-700 dark:text-slate-300">
               {t('home.hero.subtitle')}
@@ -201,8 +200,11 @@ export default function HomePage() {
       {/* FEATURED JOBS */}
       <section className="mx-auto max-w-[1600px] px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white md:text-3xl">
-            {isAuthenticated ? t('home.recommendedJobs.title') : t('home.featuredJobs.title')}
+          <h2 className="group inline-flex w-fit flex-col text-2xl font-bold text-gray-900 transition-transform duration-300 hover:-translate-y-0.5 dark:text-white md:text-3xl">
+            <span className="transition-colors duration-300 group-hover:text-[#4f46e5] dark:group-hover:text-indigo-300">
+              {isAuthenticated ? t('home.recommendedJobs.title') : t('home.featuredJobs.title')}
+            </span>
+            <span className="mt-2 h-[3px] w-12 rounded-full bg-[#c7d2fe] transition-all duration-300 group-hover:w-24 group-hover:bg-[#4f46e5] dark:bg-indigo-500/30 dark:group-hover:bg-indigo-300"></span>
           </h2>
           <Link to="/jobs" className="inline-flex items-center gap-1 text-sm font-bold text-[#4f46e5] hover:underline">
             {isAuthenticated ? t('home.recommendedJobs.viewAll') : t('home.featuredJobs.viewAll')} <ChevronRight className="h-4 w-4" />
@@ -251,7 +253,7 @@ export default function HomePage() {
                   <div className="flex items-start justify-between">
                       <div className="flex items-center gap-3">
                         <div className="h-10 w-10 shrink-0 rounded-xl border border-slate-100 flex items-center justify-center bg-white overflow-hidden p-1 shadow-sm dark:border-slate-700 dark:bg-slate-800">
-                            <img src={avatarUrl} alt="logo" className="h-full w-full object-contain rounded-lg" />
+                            <img src={avatarUrl} alt="logo" loading="lazy" decoding="async" className="h-full w-full object-contain rounded-lg" />
                         </div>
                         <span className="text-sm font-bold text-gray-700 line-clamp-1 dark:text-slate-300">{clientName}</span>
                       </div>
@@ -276,8 +278,11 @@ export default function HomePage() {
       {/* FEATURED MENTORS */}
       <section className="mx-auto max-w-[1600px] px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white md:text-3xl">
-            {isAuthenticated ? t('home.recommendedMentors.title') : t('home.featuredMentors.title')}
+          <h2 className="group inline-flex w-fit flex-col text-2xl font-bold text-gray-900 transition-transform duration-300 hover:-translate-y-0.5 dark:text-white md:text-3xl">
+            <span className="transition-colors duration-300 group-hover:text-[#4f46e5] dark:group-hover:text-indigo-300">
+              {isAuthenticated ? t('home.recommendedMentors.title') : t('home.featuredMentors.title')}
+            </span>
+            <span className="mt-2 h-[3px] w-12 rounded-full bg-[#c7d2fe] transition-all duration-300 group-hover:w-24 group-hover:bg-[#4f46e5] dark:bg-indigo-500/30 dark:group-hover:bg-indigo-300"></span>
           </h2>
           <Link to="/mentors" className="inline-flex items-center gap-1 text-sm font-bold text-[#4f46e5] hover:underline">
             {isAuthenticated ? t('home.recommendedMentors.viewAll') : t('home.featuredMentors.viewAll')} <ChevronRight className="h-4 w-4" />
@@ -327,6 +332,8 @@ export default function HomePage() {
                       <img
                         src={avatarUrl}
                         alt={mentorName}
+                        loading="lazy"
+                        decoding="async"
                         className="h-16 w-16 shrink-0 rounded-full object-cover shadow-sm border border-slate-100 dark:border-slate-700"
                       />
                       <div>

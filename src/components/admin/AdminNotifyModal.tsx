@@ -1,5 +1,6 @@
 import { X, Send, AlertTriangle, ShieldAlert, CheckCircle2, MessageSquare } from 'lucide-react'
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import { toast } from 'react-hot-toast'
 import { notificationApi } from '@/api/notificationApi'
 
@@ -74,13 +75,13 @@ export default function AdminNotifyModal({ isOpen, onClose, userId, referenceId,
     }
   }
 
-  return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm">
+  return createPortal((
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-gray-900/40 p-2 backdrop-blur-sm sm:p-4">
       <div 
-        className="w-full max-w-lg bg-white dark:bg-gray-900 rounded-[2.5rem] shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+        className="max-h-[calc(100dvh-1rem)] w-full max-w-lg overflow-y-auto rounded-2xl bg-white shadow-2xl animate-in fade-in zoom-in-95 duration-200 dark:bg-gray-900 sm:rounded-[2.5rem]"
         onClick={e => e.stopPropagation()}
       >
-        <div className="p-8 border-b border-gray-50 dark:border-gray-800 flex items-center justify-between bg-gray-50/50 dark:bg-gray-800/20">
+        <div className="flex items-center justify-between border-b border-gray-50 bg-gray-50/50 p-4 dark:border-gray-800 dark:bg-gray-800/20 sm:p-8">
            <div className="flex items-center gap-3">
               <div className={`p-2.5 rounded-xl ${actionType === 'FREEZE' ? 'bg-rose-50 text-rose-500' : 'bg-amber-50 text-amber-500'}`}>
                  {actionType === 'FREEZE' ? <ShieldAlert className="w-5 h-5" /> : <AlertTriangle className="w-5 h-5" />}
@@ -95,7 +96,7 @@ export default function AdminNotifyModal({ isOpen, onClose, userId, referenceId,
            </button>
         </div>
 
-        <div className="p-8 space-y-6">
+        <div className="space-y-5 p-4 sm:space-y-6 sm:p-8">
            <div className="space-y-3">
               <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Select Template</label>
               <div className="grid grid-cols-1 gap-2">
@@ -136,7 +137,7 @@ export default function AdminNotifyModal({ isOpen, onClose, userId, referenceId,
            )}
         </div>
 
-        <div className="p-8 bg-gray-50/50 dark:bg-gray-800/20 border-t border-gray-50 dark:border-gray-800 flex gap-4">
+        <div className="flex flex-col-reverse gap-3 border-t border-gray-50 bg-gray-50/50 p-4 dark:border-gray-800 dark:bg-gray-800/20 min-[420px]:flex-row sm:gap-4 sm:p-8">
            <button 
             onClick={onClose}
             className="flex-1 py-4 rounded-2xl text-[10px] font-black text-gray-500 uppercase tracking-widest hover:bg-gray-100 transition-all"
@@ -154,5 +155,5 @@ export default function AdminNotifyModal({ isOpen, onClose, userId, referenceId,
         </div>
       </div>
     </div>
-  )
+  ), document.body)
 }

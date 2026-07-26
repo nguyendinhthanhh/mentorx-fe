@@ -56,10 +56,10 @@ export default function ProfileLayout() {
     <div className="min-h-screen bg-[#f7f8fc] text-slate-950 dark:bg-slate-950 dark:text-white">
       <AppHeader />
 
-      <main className="mx-auto max-w-screen-2xl px-4 py-8 sm:px-6 lg:px-8">
+      <main className="mx-auto max-w-screen-2xl px-3 py-4 min-[360px]:px-4 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
         {!isFullWidthPage && (
-          <div className="mb-6 lg:hidden">
-            <div className="rounded-[1.75rem] border border-slate-200/70 bg-white/90 p-4 shadow-[0_18px_50px_rgba(15,23,42,0.06)] backdrop-blur-xl dark:border-slate-800/60 dark:bg-slate-900/80">
+          <div className="sticky top-16 z-30 -mx-3 mb-4 border-b border-slate-200/70 bg-[#f7f8fc]/95 px-3 py-2 backdrop-blur lg:hidden dark:border-slate-800 dark:bg-slate-950/95 min-[360px]:-mx-4 min-[360px]:px-4">
+            <div className="rounded-2xl border border-slate-200/70 bg-white/95 p-3 shadow-sm dark:border-slate-800/60 dark:bg-slate-900/95">
               <div className="flex items-center gap-3">
                 <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg shadow-indigo-200 dark:shadow-none">
                   {user.avatarUrl ? (
@@ -76,7 +76,7 @@ export default function ProfileLayout() {
                 </div>
               </div>
 
-              <div className="-mx-1 mt-4 flex gap-2 overflow-x-auto px-1 pb-1">
+              <div className="scrollbar-hide -mx-1 mt-3 flex snap-x snap-proximity gap-2 overflow-x-auto px-1 pb-1">
                 {tabs.map((item) => {
                   const active = isActive(item.matches)
                   return (
@@ -84,7 +84,7 @@ export default function ProfileLayout() {
                       key={item.to}
                       to={item.to}
                       className={cn(
-                        'inline-flex shrink-0 items-center gap-2 rounded-full border px-3 py-2 text-sm font-bold transition-all',
+                        'inline-flex min-h-11 shrink-0 snap-start items-center gap-2 rounded-full border px-3 py-2 text-sm font-bold transition-all',
                         active
                           ? 'border-indigo-600 bg-indigo-600 text-white shadow-lg shadow-indigo-200 dark:shadow-indigo-900/20'
                           : 'border-slate-200 bg-white text-slate-600 hover:border-indigo-200 hover:text-indigo-600 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300'
@@ -100,7 +100,7 @@ export default function ProfileLayout() {
           </div>
         )}
 
-        <div className="flex flex-col gap-8 lg:flex-row">
+        <div className="flex min-w-0 flex-col gap-5 lg:flex-row lg:gap-8">
           {!isFullWidthPage && (
             <aside className="hidden w-full flex-none space-y-6 lg:sticky lg:top-24 lg:block lg:w-[290px] lg:self-start">
               <div className="overflow-hidden rounded-[2rem] border border-slate-200/70 bg-white/90 p-4 shadow-[0_28px_70px_rgba(15,23,42,0.08)] backdrop-blur-xl dark:border-slate-800/60 dark:bg-slate-900/80 dark:shadow-none">

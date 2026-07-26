@@ -369,7 +369,7 @@ export default function MentorProposalDetailPage() {
             <ArrowLeft className="h-5 w-5" />
           </button>
 
-          <div className="relative min-w-0 flex-1 overflow-x-auto pb-2 sm:pb-0">
+          <div className="scrollbar-hide relative min-w-0 flex-1 overflow-x-auto pb-2 sm:pb-0">
             <div className="relative flex min-w-[360px] justify-between pr-4 sm:min-w-0">
             <div className="absolute left-0 top-4 h-[2px] w-full bg-slate-100 dark:bg-slate-800" />
             <div

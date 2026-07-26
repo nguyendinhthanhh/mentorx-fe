@@ -98,7 +98,7 @@ function SavedMentorCard({
     <article className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-lg dark:border-gray-800 dark:bg-slate-950">
       <div className="flex gap-4">
         <div className="h-20 w-20 shrink-0 overflow-hidden rounded-2xl bg-gray-100 dark:bg-gray-900">
-          <img src={image} alt={name} className="h-full w-full object-cover" />
+          <img src={image} alt={name} loading="lazy" decoding="async" className="h-full w-full object-cover" />
         </div>
 
         <div className="min-w-0 flex-1">

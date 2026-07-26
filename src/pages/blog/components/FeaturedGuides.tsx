@@ -19,6 +19,8 @@ export function FeaturedGuides({
           <img
             src={mainPost.coverImage}
             alt={mainPost.title}
+            decoding="async"
+            fetchPriority="high"
             className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
@@ -49,7 +51,7 @@ export function FeaturedGuides({
           {sidePosts.map((post) => (
             <article key={post.id} className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all hover:shadow-md">
               <div className="relative h-40 w-full overflow-hidden bg-slate-100">
-                <img src={post.coverImage} alt={post.title} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                <img src={post.coverImage} alt={post.title} loading="lazy" decoding="async" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
               </div>
               <div className="flex flex-1 flex-col p-5">
                 <span className="text-[11px] font-bold uppercase tracking-wide text-indigo-600">{post.category}</span>

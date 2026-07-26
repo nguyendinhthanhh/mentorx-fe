@@ -69,13 +69,13 @@ export default function AdminComplaintDetailPage() {
         </Link>
       </div>
 
-      <div className="rounded-[2.5rem] border border-white/50 bg-white/70 p-8 shadow-xl shadow-slate-200/40 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/70 dark:shadow-none transition-all">
+      <div className="rounded-2xl border border-white/50 bg-white/70 p-4 shadow-xl shadow-slate-200/40 backdrop-blur-xl transition-all dark:border-slate-800 dark:bg-slate-900/70 dark:shadow-none sm:rounded-[2.5rem] sm:p-8">
         <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between border-b border-slate-100/50 dark:border-slate-800/50 pb-8">
           <div>
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
               {t('admin.complaints.detail.idLabel', { id: data.id })}
             </p>
-            <h1 className="mt-2 text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+            <h1 className="mt-2 break-words text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white sm:text-3xl">
               {data.title}
             </h1>
             <p className="mt-1 text-xs font-bold text-slate-500">
@@ -101,7 +101,7 @@ export default function AdminComplaintDetailPage() {
           <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
             {t('admin.complaints.detail.description')}
           </p>
-          <div className="mt-3 rounded-2xl bg-slate-50/50 dark:bg-slate-800/30 p-6 border border-slate-100/50 dark:border-slate-800/50">
+          <div className="mt-3 rounded-2xl border border-slate-100/50 bg-slate-50/50 p-4 dark:border-slate-800/50 dark:bg-slate-800/30 sm:p-6">
             <p className="whitespace-pre-line text-sm font-medium leading-loose text-slate-700 dark:text-slate-300">
               {data.description}
             </p>

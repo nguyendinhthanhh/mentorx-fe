@@ -956,7 +956,7 @@ export default function MentorCourseManagePage() {
         </div>
       )}
 
-      <div className="flex gap-1 overflow-x-auto rounded-2xl border border-slate-200 bg-white p-1">
+      <div className="scrollbar-hide flex gap-1 overflow-x-auto rounded-2xl border border-slate-200 bg-white p-1">
         <button
           type="button"
           onClick={() => setActiveTab('info')}

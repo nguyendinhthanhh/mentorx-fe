@@ -9,6 +9,12 @@
     min-width: 0;
   }
 
+  html {
+    scroll-padding-top: 5rem;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
   html,
   body {
     overflow-x: hidden;
@@ -18,11 +24,54 @@
     @apply bg-gray-50 text-gray-900 antialiased dark:bg-slate-950 dark:text-slate-100;
   }
 
+  main,
+  section,
+  article,
+  aside,
+  form,
+  fieldset {
+    min-width: 0;
+  }
+
   img,
   video,
   canvas,
   svg {
     max-width: 100%;
+  }
+
+  input,
+  select,
+  textarea {
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  :where(button, a, input, select, textarea, [tabindex]):focus-visible {
+    outline: 2px solid rgb(79 70 229);
+    outline-offset: 2px;
+  }
+
+  :where([role="dialog"]) {
+    max-height: calc(100dvh - 2rem);
+    max-width: calc(100vw - 2rem);
+    overscroll-behavior: contain;
+  }
+
+  @media (max-width: 767px) {
+    table {
+      display: block;
+      max-width: 100%;
+      overflow-x: auto;
+      overscroll-behavior-inline: contain;
+      -webkit-overflow-scrolling: touch;
+    }
+  }
+
+  @media (pointer: coarse) {
+    :where(button, [role="button"], input:not([type="checkbox"]):not([type="radio"]), select) {
+      min-height: 44px;
+    }
   }
 
   /*
@@ -126,8 +175,38 @@
 }
 
 @layer components {
+  .app-page {
+    @apply mx-auto w-full max-w-[1600px] space-y-5 px-3 py-4 min-[360px]:px-4 sm:space-y-6 sm:px-6 sm:py-6 lg:px-8 lg:py-8;
+  }
+
+  .app-page-header {
+    @apply flex min-w-0 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between;
+  }
+
+  .app-page-actions {
+    @apply flex w-full flex-col gap-2 min-[480px]:w-auto min-[480px]:flex-row min-[480px]:flex-wrap;
+  }
+
+  .app-page-actions > :where(button, a) {
+    @apply min-h-11 justify-center;
+  }
+
+  .responsive-table {
+    @apply max-w-full overflow-x-auto overscroll-x-contain rounded-xl border border-slate-200 dark:border-slate-800;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .responsive-table > table {
+    @apply min-w-[680px];
+  }
+
+  .mobile-scroll-row {
+    @apply -mx-3 flex max-w-[calc(100vw-0.75rem)] snap-x snap-proximity gap-2 overflow-x-auto px-3 pb-2 sm:mx-0 sm:max-w-full sm:px-0;
+    -webkit-overflow-scrolling: touch;
+  }
+
   .btn {
-    @apply px-4 py-2 rounded-lg font-medium transition-colors duration-200;
+    @apply inline-flex min-h-11 items-center justify-center rounded-lg px-4 py-2 font-medium transition-colors duration-200;
   }
   
   .btn-primary {
@@ -367,4 +446,15 @@ input[type="range"].onb-range::-webkit-slider-thumb:hover {
 /* Custom transitions */
 .transition-slow {
   @apply transition-all duration-700 ease-in-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

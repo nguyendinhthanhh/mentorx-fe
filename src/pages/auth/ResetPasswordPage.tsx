@@ -12,11 +12,13 @@ import {
   ShieldCheck,
 } from 'lucide-react'
 
+const SPECIAL_CHARACTER_PATTERN = /[^\p{L}\p{N}\s]/u
+
 function validatePassword(password: string, confirmPassword: string): string {
   if (password.length < 8) return 'Password must be at least 8 characters long.'
   if (!/[A-Z]/.test(password)) return 'Password must contain at least one uppercase letter.'
   if (!/[0-9]/.test(password)) return 'Password must contain at least one number.'
-  if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/.test(password)) return 'Password must contain at least one special character.'
+  if (!SPECIAL_CHARACTER_PATTERN.test(password)) return 'Password must contain at least one special character.'
   if (password !== confirmPassword) return 'Passwords do not match.'
   return ''
 }
@@ -40,7 +42,7 @@ export default function ResetPasswordPage() {
       { label: 'Minimum 8 characters', valid: password.length >= 8 },
       { label: 'At least one uppercase letter', valid: /[A-Z]/.test(password) },
       { label: 'At least one number', valid: /[0-9]/.test(password) },
-      { label: 'At least one special character', valid: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/.test(password) },
+      { label: 'At least one special character', valid: SPECIAL_CHARACTER_PATTERN.test(password) },
     ],
     [password]
   )

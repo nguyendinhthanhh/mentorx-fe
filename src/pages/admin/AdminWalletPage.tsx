@@ -243,7 +243,7 @@ export default function AdminWalletPage() {
 
       <nav
         aria-label={t("admin.wallet.sections")}
-        className="flex gap-1 overflow-x-auto border-b border-slate-200 dark:border-slate-800"
+        className="scrollbar-hide flex gap-1 overflow-x-auto border-b border-slate-200 dark:border-slate-800"
       >
         {(
           [

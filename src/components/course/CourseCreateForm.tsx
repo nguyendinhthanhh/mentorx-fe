@@ -490,7 +490,7 @@ export default function CourseCreateForm({ instructorId, productType = CoursePro
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-      {!isDocumentProduct && <div className="flex gap-1 overflow-x-auto rounded-2xl border border-slate-200 bg-white p-1">
+      {!isDocumentProduct && <div className="scrollbar-hide flex gap-1 overflow-x-auto rounded-2xl border border-slate-200 bg-white p-1">
         {[
           { key: 'info' as const, label: 'Course info' },
           { key: 'content' as const, label: 'Course content' },

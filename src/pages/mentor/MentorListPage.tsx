@@ -342,7 +342,7 @@ function MentorCard({ mentor, index }: { mentor: MentorProfileResponse; index: n
       {/* Avatar Container */}
       <div className="relative mb-3 flex items-end justify-between px-5 -mt-8">
         <div className="relative z-10 h-16 w-16 shrink-0 overflow-hidden rounded-2xl border-4 border-white bg-slate-50 shadow-sm pointer-events-none">
-           <img src={image} alt={name} className="h-full w-full object-cover" />
+           <img src={image} alt={name} loading="lazy" decoding="async" className="h-full w-full object-cover" />
         </div>
         <div className="mb-2 relative z-10 pointer-events-none">
            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-bold text-emerald-700 border border-emerald-100 shadow-sm">

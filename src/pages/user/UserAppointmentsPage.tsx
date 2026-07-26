@@ -60,7 +60,7 @@ export default function UserAppointmentsPage() {
         </p>
       </div>
 
-      <div className="flex w-full overflow-x-auto rounded-2xl border border-slate-200/60 bg-white p-1 shadow-sm dark:border-slate-800 dark:bg-slate-900 lg:w-fit">
+      <div className="scrollbar-hide flex w-full overflow-x-auto rounded-2xl border border-slate-200/60 bg-white p-1 shadow-sm dark:border-slate-800 dark:bg-slate-900 lg:w-fit">
         <button
           onClick={() => setActiveTab('upcoming')}
           className={`h-11 rounded-xl px-6 text-sm font-bold transition-all ${

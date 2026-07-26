@@ -286,6 +286,13 @@ export const courseApi = {
     return response.data
   },
 
+  getFreePreviewLessonsByCourse: async (courseId: string): Promise<CourseLessonResponse[]> => {
+    const response = await apiClient.get<CourseLessonResponse[]>(
+      `/v1/course-lessons/course/${courseId}/free-preview`
+    )
+    return response.data
+  },
+
   getLessonDocumentPreview: async (
     lessonId: string
   ): Promise<{ blob: Blob; fileName: string }> => {
