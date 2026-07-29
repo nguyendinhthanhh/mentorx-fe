@@ -131,7 +131,7 @@ export default function NotificationListPage() {
           <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
             <div className="min-w-0">
               <div className="flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-600 text-white shadow-lg shadow-indigo-200 dark:shadow-indigo-950/30">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-600 text-white shadow-lg shadow-emerald-200 dark:shadow-emerald-950/30">
                   <Bell className="h-5 w-5" />
                 </div>
                 <div>
@@ -269,7 +269,7 @@ function NotificationCard({
                   {notification.title}
                 </h3>
                 {!notification.isRead ? (
-                  <span className="mt-2 h-2.5 w-2.5 shrink-0 rounded-full bg-indigo-600 shadow-[0_0_0_5px_rgba(99,102,241,0.12)]" />
+                  <span className="mt-2 h-2.5 w-2.5 shrink-0 rounded-full bg-emerald-600 shadow-[0_0_0_5px_rgba(99,102,241,0.12)]" />
                 ) : null}
               </div>
 
@@ -307,7 +307,7 @@ function NotificationCard({
                   event.stopPropagation()
                   onMarkRead()
                 }}
-                className="inline-flex h-10 items-center gap-2 rounded-full border border-slate-200 bg-white px-4 text-sm font-bold text-slate-700 transition hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-600 dark:hover:bg-slate-800"
+                className="inline-flex h-10 items-center gap-2 rounded-full border border-slate-200 bg-white px-4 text-sm font-bold text-slate-700 transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-600 dark:hover:bg-slate-800"
               >
                 <Check className="h-4 w-4" />
                 Đánh dấu đã đọc
@@ -383,8 +383,8 @@ function FilterChip({
       className={cn(
         'inline-flex h-11 items-center gap-2 rounded-full border px-4 text-sm font-bold transition-all',
         active
-          ? 'border-indigo-600 bg-indigo-600 text-white shadow-lg shadow-indigo-200 dark:shadow-indigo-950/25'
-          : 'border-slate-200 bg-white text-slate-600 hover:border-indigo-200 hover:text-indigo-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-slate-600'
+          ? 'border-emerald-600 bg-emerald-600 text-white shadow-lg shadow-emerald-200 dark:shadow-emerald-950/25'
+          : 'border-slate-200 bg-white text-slate-600 hover:border-emerald-200 hover:text-emerald-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-slate-600'
       )}
     >
       <span>{label}</span>
@@ -411,7 +411,7 @@ function TopStat({
 }) {
   const toneClasses =
     tone === 'primary'
-      ? 'border-indigo-200 bg-indigo-50 text-indigo-700 dark:border-indigo-900 dark:bg-indigo-950/30 dark:text-indigo-300'
+      ? 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-300'
       : tone === 'warning'
         ? 'border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-300'
         : 'border-slate-200 bg-white text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200'
@@ -458,7 +458,7 @@ function EmptyState({
         <div className="mt-6 flex flex-wrap justify-center gap-3">
           <Link
             to="/mentors"
-            className="inline-flex h-11 items-center gap-2 rounded-full bg-indigo-600 px-5 text-sm font-bold text-white transition hover:bg-indigo-700"
+            className="inline-flex h-11 items-center gap-2 rounded-full bg-emerald-600 px-5 text-sm font-bold text-white transition hover:bg-emerald-700"
           >
             <UserRoundSearch className="h-4 w-4" />
             Tìm mentor
@@ -563,9 +563,9 @@ function getNotificationTone(notification: NotificationResponse) {
   if (isMessageNotification(notification)) {
     return {
       surface:
-        'border-indigo-200/80 bg-indigo-50/55 hover:border-indigo-300 hover:bg-indigo-50 dark:border-indigo-900/40 dark:bg-indigo-950/15 dark:hover:border-indigo-800/50 dark:hover:bg-indigo-950/25',
-      iconWrap: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-300',
-      badge: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-950/40 dark:text-indigo-300',
+        'border-emerald-200/80 bg-emerald-50/55 hover:border-emerald-300 hover:bg-emerald-50 dark:border-emerald-900/40 dark:bg-emerald-950/15 dark:hover:border-emerald-800/50 dark:hover:bg-emerald-950/25',
+      iconWrap: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300',
+      badge: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300',
     }
   }
 

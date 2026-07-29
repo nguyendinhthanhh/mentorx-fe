@@ -19,8 +19,8 @@ export default function JobCreatePage() {
   return (
     <div className="relative min-h-screen bg-[#f7f8fc] text-slate-950 pb-20 overflow-hidden">
       {/* Background Meshes */}
-      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-300/30 mix-blend-multiply rounded-[40%_60%_70%_30%/40%_50%_60%_50%] filter blur-3xl opacity-60 animate-[spin_15s_linear_infinite] pointer-events-none"></div>
-      <div className="absolute top-[20%] right-[-5%] w-[400px] h-[400px] bg-purple-300/30 mix-blend-multiply rounded-[60%_40%_30%_70%/60%_30%_70%_40%] filter blur-3xl opacity-60 animate-[spin_12s_linear_infinite_reverse] pointer-events-none"></div>
+      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-emerald-300/30 mix-blend-multiply rounded-[40%_60%_70%_30%/40%_50%_60%_50%] filter blur-3xl opacity-60 animate-[spin_15s_linear_infinite] pointer-events-none"></div>
+      <div className="absolute top-[20%] right-[-5%] w-[400px] h-[400px] bg-emerald-300/30 mix-blend-multiply rounded-[60%_40%_30%_70%/60%_30%_70%_40%] filter blur-3xl opacity-60 animate-[spin_12s_linear_infinite_reverse] pointer-events-none"></div>
 
       <main className="relative mx-auto max-w-[1400px] px-4 pt-10 sm:px-6 lg:px-8 z-10">
         <div className="mb-10 text-center md:text-left flex flex-col md:flex-row md:items-end justify-between gap-6">

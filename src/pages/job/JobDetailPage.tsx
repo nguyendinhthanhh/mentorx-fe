@@ -62,15 +62,15 @@ import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 const JOB_TYPE_META: Record<JobType, { label: string; className: string }> = {
   [JobType.FREELANCE_PROJECT]: {
     label: 'Freelance project',
-    className: 'border-[#C7D2FE] bg-[#EEF2FF] text-[#4F46E5]',
+    className: 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/50 dark:bg-emerald-950/30 dark:text-emerald-300',
   },
   [JobType.LONG_TERM_MENTORING]: {
     label: 'Long-term mentoring',
-    className: 'border-[#C7D2FE] bg-[#EEF2FF] text-[#4F46E5]',
+    className: 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/50 dark:bg-emerald-950/30 dark:text-emerald-300',
   },
   [JobType.QUICK_FIX]: {
     label: 'Quick fix',
-    className: 'border-[#C7D2FE] bg-[#EEF2FF] text-[#4F46E5]',
+    className: 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/50 dark:bg-emerald-950/30 dark:text-emerald-300',
   },
 }
 
@@ -184,14 +184,14 @@ export default function JobDetailPage() {
     return (
       <div className="min-h-screen bg-[#f3f5f7] px-4 py-12 text-gray-900">
         <div className="mx-auto max-w-2xl rounded-2xl border border-[#e2e6f5] bg-white p-8 text-center shadow-sm">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#eef2ff]">
-            <Briefcase className="h-8 w-8 text-[#94A3B8]" />
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50">
+            <Briefcase className="h-8 w-8 text-emerald-600" />
           </div>
           <h1 className="mt-4 text-2xl font-black">Job not found</h1>
-          <p className="mt-2 text-sm text-[#64748B]">This job may have been removed or is no longer available.</p>
+          <p className="mt-2 text-sm text-slate-500">This job may have been removed or is no longer available.</p>
           <Link
             to="/jobs"
-            className="mt-6 inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[#4f46e5] px-5 text-sm font-black text-white transition hover:bg-[#4338ca]"
+            className="mt-6 inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 text-sm font-bold text-white transition hover:bg-emerald-700"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to jobs
@@ -278,111 +278,132 @@ export default function JobDetailPage() {
           />
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_420px]">
+        <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_380px] xl:grid-cols-[minmax(0,1fr)_400px]">
           {/* Main Column */}
-          <div className="space-y-6">
-{/* TOP HEADER CARD (TopCV Style) */}
-        <div className="rounded-sm border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="flex flex-col h-max overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900 divide-y divide-slate-100 dark:divide-slate-800">
+            {/* TOP HERO CARD (Upwork / Premium Style) */}
+            <div className="p-6 sm:p-10">
           <div className="flex flex-col">
-            
+            {/* Top Metadata Bar */}
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4 dark:border-slate-800">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="inline-flex items-center rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700 dark:border-emerald-900/50 dark:bg-emerald-950/30 dark:text-emerald-300">
+                  {derived.categoryName}
+                </span>
+                <span className={`inline-flex items-center rounded-lg px-3 py-1 text-xs font-bold ${derived.statusClass}`}>
+                  {derived.statusLabel}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-4 text-xs font-medium text-slate-500 dark:text-slate-400">
+                <span className="flex items-center gap-1.5">
+                  <Clock3 className="h-3.5 w-3.5 text-slate-400" />
+                  Đăng {formatRelativeTime(job.createdAt)}
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <Briefcase className="h-3.5 w-3.5 text-slate-400" />
+                  {proposalCount} lượt đề xuất
+                </span>
+              </div>
+            </div>
+
             {/* Title */}
-            <h1 className="mb-4 text-2xl font-bold leading-snug text-gray-900">
+            <h1 className="mb-6 text-2xl font-black tracking-tight text-slate-900 sm:text-3xl dark:text-white leading-snug">
               {job.title}
             </h1>
 
-            {/* TopCV Key Stats Row (3 columns) */}
-            <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="flex items-center gap-4">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#4f46e5] text-white">
-                  <DollarSign className="h-6 w-6" />
+            {/* 4-Stat Highlight Grid */}
+            <div className="mb-8 grid grid-cols-2 gap-4 rounded-xl border border-slate-200 p-4 sm:grid-cols-4 sm:divide-x sm:divide-slate-200 dark:border-slate-800 dark:sm:divide-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
+              {/* Stat 1: Budget */}
+              <div className="px-2 sm:px-4">
+                <div className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400">
+                  <DollarSign className="h-3.5 w-3.5" /> Ngân sách
                 </div>
-                <div>
-                  <p className="text-[14px] text-gray-600 mb-0.5">Ngân sách</p>
-                  <p className="text-[15px] font-bold text-gray-900">{derived.budget}</p>
-                </div>
+                <p className="truncate text-[17px] font-bold text-slate-900 dark:text-white">{derived.budget}</p>
+                <p className="text-[11px] font-medium text-slate-500 mt-0.5">{derived.budgetTypeLabel}</p>
               </div>
 
-              <div className="flex items-center gap-4">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#4f46e5] text-white">
-                  <Layers3 className="h-6 w-6" />
+              {/* Stat 2: Job Type */}
+              <div className="px-2 sm:px-4">
+                <div className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400">
+                  <Layers3 className="h-3.5 w-3.5" /> Hình thức
                 </div>
-                <div>
-                  <p className="text-[14px] text-gray-600 mb-0.5">Hình thức</p>
-                  <p className="text-[15px] font-bold text-gray-900">{derived.jobTypeLabel}</p>
-                </div>
+                <p className="truncate text-[17px] font-bold text-slate-900 dark:text-white">{derived.jobTypeLabel}</p>
+                <p className="text-[11px] font-medium text-slate-500 mt-0.5">Hợp đồng linh hoạt</p>
               </div>
 
-              <div className="flex items-center gap-4">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#4f46e5] text-white">
-                  <GraduationCap className="h-6 w-6" />
+              {/* Stat 3: Experience */}
+              <div className="px-2 sm:px-4">
+                <div className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400">
+                  <GraduationCap className="h-3.5 w-3.5" /> Cấp bậc
                 </div>
-                <div>
-                  <p className="text-[14px] text-gray-600 mb-0.5">Cấp bậc</p>
-                  <p className="text-[15px] font-bold text-gray-900">{derived.experienceLevelLabel}</p>
-                </div>
+                <p className="truncate text-[17px] font-bold text-slate-900 dark:text-white">{derived.experienceLevelLabel}</p>
+                <p className="text-[11px] font-medium text-slate-500 mt-0.5">Trình độ chuyên môn</p>
               </div>
-            </div>
 
-            {/* Deadline */}
-            {/* Deadline */}
-            <div className="mb-6 flex items-center gap-2 text-[15px] text-gray-700">
-               Cần hoàn thành trước: 
-               <span className={`font-bold px-2 py-1 rounded-md border ${
+              {/* Stat 4: Deadline */}
+              <div className="px-2 sm:px-4">
+                <div className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400">
+                  <CalendarDays className="h-3.5 w-3.5" /> Hạn chót
+                </div>
+                <p className={`truncate text-[17px] font-bold ${
                   getTimeRemaining(job.deadlineAt) === 'Đã hết hạn'
-                    ? 'text-rose-600 bg-rose-50 border-rose-200'
-                    : 'text-[#00b14f] bg-green-50 border-green-100'
-               }`}>
+                    ? 'text-rose-600 dark:text-rose-400'
+                    : 'text-slate-900 dark:text-white'
+                }`}>
                   {getTimeRemaining(job.deadlineAt)}
-               </span>
+                </p>
+                <p className="text-[11px] font-medium text-slate-500 mt-0.5">{derived.deadline}</p>
+              </div>
             </div>
 
-            {/* Actions */}
-            <div className="flex flex-wrap items-center gap-3">
+            {/* Actions Bar */}
+            <div className="flex flex-wrap items-center gap-3 border-t border-slate-100 pt-5 dark:border-slate-800">
               {!isOwner && canApply && !existingProposal ? (
                 <>
                   <button
                     onClick={() => setShowApplyModal(true)}
-                    className="flex h-[40px] flex-1 min-w-[160px] items-center justify-center gap-2 rounded-lg bg-[#4f46e5] px-5 text-[14px] font-bold text-white shadow-sm transition hover:bg-indigo-700"
+                    className="flex h-11 flex-1 min-w-[200px] items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 text-sm font-bold text-white shadow-sm transition-all hover:bg-emerald-700 active:bg-emerald-800"
                   >
-                    <Send className="h-4 w-4" /> Ứng tuyển ngay
+                    Ứng tuyển dự án này
                   </button>
                   <button
                     onClick={toggleSaved}
-                    className={`flex h-[40px] shrink-0 items-center justify-center gap-2 rounded-lg border px-4 text-[14px] font-bold transition-colors ${
+                    className={`flex h-11 shrink-0 items-center justify-center gap-2 rounded-xl border px-5 text-sm font-bold transition-all ${
                       saved
-                        ? 'border-indigo-600 bg-indigo-50 text-indigo-600'
-                        : 'border-slate-300 bg-white text-gray-800 hover:bg-slate-50 hover:text-indigo-600'
+                        ? 'border-emerald-600 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-300'
+                        : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200'
                     }`}
                   >
-                    {saved ? <BookmarkCheck className="h-4 w-4" /> : <Bookmark className="h-4 w-4" />}
-                    {saved ? 'Đã lưu' : 'Lưu tin'}
+                    {saved ? <BookmarkCheck className="h-4 w-4 text-emerald-600" /> : <Bookmark className="h-4 w-4" />}
+                    {saved ? 'Đã lưu' : 'Lưu'}
                   </button>
                 </>
               ) : isOwner ? (
-                <div className="flex-1 rounded-lg border border-indigo-100 bg-indigo-50 px-6 py-3">
-                  <p className="font-bold text-indigo-700 text-center">Job của bạn (Quản lý tại cột bên phải)</p>
+                <div className="flex-1 rounded-2xl border border-emerald-200 bg-emerald-50/80 px-6 py-3.5 dark:border-emerald-900/50 dark:bg-emerald-950/30">
+                  <p className="font-bold text-emerald-800 dark:text-emerald-300 text-center text-sm">Công việc do bạn đăng tải (Quản lý tại cột bên phải)</p>
                 </div>
               ) : existingProposal ? (
-                <div className="flex-1 rounded-lg border border-emerald-100 bg-emerald-50 px-6 py-3">
-                  <p className="flex items-center justify-center gap-2 font-bold text-emerald-700">
-                    <CheckCircle2 className="h-4 w-4" /> Đã ứng tuyển ({getProposalStatusLabel(existingProposal.status)})
+                <div className="flex-1 rounded-2xl border border-emerald-200 bg-emerald-50/80 px-6 py-3.5 dark:border-emerald-900/50 dark:bg-emerald-950/30">
+                  <p className="flex items-center justify-center gap-2 font-bold text-emerald-800 dark:text-emerald-300 text-sm">
+                    <CheckCircle2 className="h-4 w-4" /> Đã gửi Proposal ({getProposalStatusLabel(existingProposal.status)})
                   </p>
                 </div>
               ) : shouldPromptMentorAccess ? (
-                <Link
-                  to="/become-mentor"
-                  className="flex h-[40px] flex-1 min-w-[160px] items-center justify-center gap-2 rounded-lg bg-[#4f46e5] px-5 text-[14px] font-bold text-white shadow-sm transition hover:bg-indigo-700"
-                >
-                  Đăng ký Mentor
-                </Link>
+                  <Link
+                    to="/become-mentor"
+                    className="flex h-11 flex-1 min-w-[200px] items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 text-sm font-bold text-white shadow-sm transition-all hover:bg-emerald-700"
+                  >
+                    Đăng ký tài khoản Mentor để ứng tuyển
+                  </Link>
               ) : null}
               
               <button 
                 onClick={copyLink} 
-                className="flex h-[46px] shrink-0 items-center justify-center gap-2 rounded-lg bg-slate-100 px-5 text-[15px] font-bold text-gray-800 transition hover:bg-slate-200 hover:text-indigo-600"
+                className="flex h-11 shrink-0 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 text-sm font-bold text-slate-700 transition-all hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
               >
                 <Share2 className="h-4 w-4" />
-                {copied ? 'Đã copy!' : 'Chia sẻ'}
+                {copied ? 'Đã copy' : 'Chia sẻ'}
               </button>
             </div>
           </div>
@@ -390,22 +411,22 @@ export default function JobDetailPage() {
 
             
             {job.statusReason && (
-              <div className="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 px-6 py-5 text-sm font-semibold text-amber-700 shadow-sm">
-                <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-bold text-amber-900 text-[15px]">Ghi chú trạng thái</p>
-                  <p className="mt-1">{job.statusReason}</p>
+              <div className="p-6 sm:p-8 bg-amber-50/50">
+                <div className="flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-6 py-5 text-sm font-semibold text-amber-700 shadow-sm">
+                  <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-bold text-amber-900 text-[15px]">Ghi chú trạng thái</p>
+                    <p className="mt-1">{job.statusReason}</p>
+                  </div>
                 </div>
               </div>
             )}
 
             {/* Chi tiết công việc Card */}
-            <section className="rounded-2xl border border-slate-200 bg-white  p-6 shadow-sm sm:p-8">
-               <h2 className="mb-5 flex items-center gap-3 text-xl font-bold text-gray-900 border-l-4 border-[#4f46e5] pl-3">
-                  Chi tiết công việc
-               </h2>
+            <section className="p-6 sm:p-10">
+               <h2 className="mb-5 text-xl font-bold tracking-tight text-slate-900 dark:text-white">Chi tiết công việc</h2>
                <div className="max-w-none">
-                 <div className="whitespace-pre-wrap text-[15px] leading-[1.6] text-gray-800 font-medium">
+                 <div className="whitespace-pre-wrap text-sm leading-relaxed text-slate-700 dark:text-slate-300 font-medium sm:text-base">
                    {job.description}
                  </div>
                </div>
@@ -413,22 +434,20 @@ export default function JobDetailPage() {
 
             {/* Yêu cầu ứng viên Card */}
             {hasMentorBrief(job) && (
-               <section className="rounded-2xl border border-slate-200 bg-white  p-6 shadow-sm sm:p-8">
-                  <h2 className="mb-6 flex items-center gap-3 text-xl font-bold text-gray-900 border-l-4 border-[#4f46e5] pl-3">
-                     Yêu cầu ứng viên
-                  </h2>
+               <section className="p-6 sm:p-10">
+                  <h2 className="mb-6 text-xl font-bold tracking-tight text-slate-900 dark:text-white">Yêu cầu ứng viên</h2>
                   
                   {job.requiredSkills && job.requiredSkills.length > 0 && (
                     <div className="mb-8">
-                      <div className="mb-4 flex items-center gap-2 text-[15px] font-bold text-gray-900">
-                        <Tags className="h-4 w-4 text-[#4f46e5]" />
+                      <div className="mb-3 flex items-center gap-2 text-sm font-bold text-slate-900 dark:text-white">
+                        <Tags className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                         Kỹ năng bắt buộc
                       </div>
                       <div className="flex flex-wrap gap-2">
                         {job.requiredSkills.map((skill) => (
                           <span 
                             key={skill} 
-                            className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-[13px] font-bold text-gray-800 transition hover:bg-slate-100 hover:text-[#4f46e5] shadow-sm"
+                            className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200/80 bg-emerald-50/70 px-4 py-1.5 text-xs font-bold text-emerald-800 transition hover:bg-emerald-100 shadow-sm dark:border-emerald-900/50 dark:bg-emerald-950/40 dark:text-emerald-300"
                           >
                             {skill}
                           </span>
@@ -450,10 +469,8 @@ export default function JobDetailPage() {
 
             {/* Tài liệu đính kèm Card */}
             {(job.attachmentUrl || (job.attachments && job.attachments.length > 0)) && (
-               <section className="rounded-2xl border border-slate-200 bg-white  p-6 shadow-sm sm:p-8">
-                  <h2 className="mb-6 flex items-center gap-3 text-xl font-bold text-gray-900 border-l-4 border-[#4f46e5] pl-3">
-                     Tài liệu đính kèm
-                  </h2>
+               <section className="p-6 sm:p-10">
+                  <h2 className="mb-6 text-xl font-bold tracking-tight text-slate-900 dark:text-white">Tài liệu đính kèm</h2>
                   <div className="grid gap-4 lg:grid-cols-2">
                      {[
                        ...(job.attachmentUrl ? [job.attachmentUrl] : []),
@@ -466,7 +483,7 @@ export default function JobDetailPage() {
                        return (
                          <div key={index} className="space-y-2">
                            {isImage ? (
-                             <div className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 transition-all hover:border-blue-300">
+                             <div className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 transition-all hover:border-emerald-300 dark:border-slate-800 dark:bg-slate-950">
                                <img 
                                  src={url} 
                                  alt={`Attachment ${index + 1}`} 
@@ -489,17 +506,17 @@ export default function JobDetailPage() {
                                href={url}
                                target="_blank"
                                rel="noopener noreferrer"
-                               className="group flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4 transition-all hover:border-blue-300 hover:bg-blue-50/50 shadow-sm"
+                               className="group flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4 transition-all hover:border-emerald-300 hover:bg-emerald-50/50 shadow-sm dark:border-slate-800 dark:bg-slate-950 dark:hover:border-emerald-700"
                              >
                                <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-lg shadow-sm transition-transform group-hover:scale-110 ${attachmentMeta.iconClassName}`}>
                                  <attachmentMeta.Icon className="h-5 w-5" />
                                </div>
                                <div className="min-w-0 flex-1">
-                                 <p className="text-[10px] font-bold uppercase tracking-wider text-blue-600">{attachmentMeta.badge}</p>
-                                 <p className="mt-0.5 truncate text-sm font-bold text-gray-900">{attachmentMeta.name}</p>
-                                 <p className="mt-0.5 text-xs text-gray-600">{attachmentMeta.description}</p>
+                                 <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">{attachmentMeta.badge}</p>
+                                 <p className="mt-0.5 truncate text-sm font-bold text-slate-900 dark:text-white">{attachmentMeta.name}</p>
+                                 <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{attachmentMeta.description}</p>
                                </div>
-                               <ArrowRight className="h-4 w-4 text-slate-400 transition group-hover:text-blue-600 group-hover:translate-x-1" />
+                               <ArrowRight className="h-4 w-4 text-slate-400 transition group-hover:text-emerald-600 group-hover:translate-x-1" />
                              </a>
                            )}
                          </div>
@@ -511,13 +528,11 @@ export default function JobDetailPage() {
 
             {/* Received Proposals */}
             {isOwner && (
-              <section className="rounded-2xl border border-slate-200 bg-white  p-6 shadow-sm sm:p-8">
+              <section className="p-6 sm:p-10">
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-bold text-gray-900 border-l-4 border-[#4f46e5] pl-3 flex items-center gap-2">
-                    Proposals đã nhận
-                  </h2>
+                  <h2 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">Proposals đã nhận</h2>
                   {proposalCount > 0 && (
-                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-100 text-sm font-black text-[#4f46e5]">
+                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 text-sm font-bold text-slate-700 dark:bg-slate-800 dark:text-slate-300">
                       {proposalCount}
                     </span>
                   )}
@@ -528,10 +543,8 @@ export default function JobDetailPage() {
             
             {/* Related Jobs */}
             {relatedJobs && relatedJobs.length > 0 && (
-              <section className="rounded-2xl border border-slate-200 bg-white  p-6 shadow-sm sm:p-8">
-                <h2 className="text-xl font-bold text-gray-900 border-l-4 border-[#4f46e5] pl-3 mb-6 flex items-center gap-2">
-                  Việc làm tương tự
-                </h2>
+              <section className="p-6 sm:p-10 bg-slate-50/50 dark:bg-slate-900/50">
+                <h2 className="mb-6 text-xl font-bold tracking-tight text-slate-900 dark:text-white">Việc làm tương tự</h2>
                 <div className="grid gap-4 sm:grid-cols-2">
                   {relatedJobs.map((relatedJob) => (
                     <RelatedJobCard key={relatedJob.jobId} job={relatedJob} />
@@ -543,64 +556,58 @@ export default function JobDetailPage() {
           </div>
 
           {/* Sidebar */}
-          <aside className="space-y-6 lg:sticky lg:top-24 lg:self-start">
+          <div className="flex flex-col h-max overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900 divide-y divide-slate-100 dark:divide-slate-800 m-0 p-0 lg:sticky lg:top-24">
             
             {/* THÔNG TIN CHUNG CARD */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-               <h3 className="mb-5 text-lg font-bold text-gray-900 border-b border-slate-100 pb-3">Thông tin chung</h3>
+            <div className="p-6 sm:p-8">
+               <h3 className="mb-5 text-base font-bold tracking-tight text-slate-900 dark:text-white">Thông tin chung</h3>
                <div className="flex flex-col gap-4">
-                  <div className="flex items-center gap-3">
-                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-indigo-50 text-indigo-600">
-                        <Clock className="w-5 h-5" />
-                     </div>
+                  <div className="flex items-start gap-3">
+                     <Clock className="mt-0.5 h-4 w-4 text-slate-400 shrink-0" />
                      <div>
-                        <p className="text-[13px] font-medium text-gray-600">Thời hạn hoàn thành</p>
-                        <p className="text-[14px] font-bold text-gray-900">{getFullDateTime(job.deadlineAt)}</p>
+                        <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Thời hạn hoàn thành</p>
+                        <p className="text-sm font-bold text-slate-900 dark:text-white mt-0.5">{getFullDateTime(job.deadlineAt)}</p>
                      </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-indigo-50 text-indigo-600">
-                        <Briefcase className="w-5 h-5" />
-                     </div>
+                  <div className="flex items-start gap-3">
+                     <Briefcase className="mt-0.5 h-4 w-4 text-slate-400 shrink-0" />
                      <div>
-                        <p className="text-[13px] font-medium text-gray-600">Lĩnh vực</p>
-                        <p className="text-[14px] font-bold text-gray-900">{derived.categoryName}</p>
+                        <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Lĩnh vực</p>
+                        <p className="text-sm font-bold text-slate-900 dark:text-white mt-0.5">{derived.categoryName}</p>
                      </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-indigo-50 text-indigo-600">
-                        <MessageSquare className="w-5 h-5" />
-                     </div>
+                  <div className="flex items-start gap-3">
+                     <MessageSquare className="mt-0.5 h-4 w-4 text-slate-400 shrink-0" />
                      <div>
-                        <p className="text-[13px] font-medium text-gray-600">Lượt ứng tuyển</p>
-                        <p className="text-[14px] font-bold text-gray-900">{proposalCount}</p>
+                        <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Lượt ứng tuyển</p>
+                        <p className="text-sm font-bold text-slate-900 dark:text-white mt-0.5">{proposalCount} lượt đề xuất</p>
                      </div>
                   </div>
                </div>
             </div>
             
             {/* Client Info Card */}
-            <div className="rounded-2xl border border-slate-200 bg-white  p-6 shadow-sm">
-              <h3 className="mb-6 text-xl font-extrabold text-slate-900">Thông tin Client</h3>
+            <div className="p-6 sm:p-8">
+              <h3 className="mb-5 text-base font-bold tracking-tight text-slate-900 dark:text-white">Thông tin Khách hàng</h3>
               <Link to={`/users/${job.clientId}`} className="group flex items-center gap-4">
-                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-slate-100 text-xl font-bold text-gray-800 transition-colors group-hover:bg-indigo-50 group-hover:text-indigo-600">
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-emerald-100/80 text-xl font-extrabold text-emerald-700 transition-colors group-hover:bg-emerald-600 group-hover:text-white dark:bg-emerald-900/40 dark:text-emerald-300">
                   {getInitials(clientName)}
                 </div>
                 <div>
-                  <h4 className="text-[18px] font-bold text-gray-900 group-hover:text-indigo-600 transition-colors">{clientName}</h4>
+                  <h4 className="text-base font-bold text-slate-900 group-hover:text-emerald-600 transition-colors dark:text-white dark:group-hover:text-emerald-400">{clientName}</h4>
                   {job.client?.emailVerified ? (
-                    <span className="mt-1 inline-flex items-center gap-1 text-[12px] font-bold text-emerald-600">
-                      <CheckCircle2 className="h-3.5 w-3.5" /> Đã xác thực
+                    <span className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                      <CheckCircle2 className="h-3.5 w-3.5" /> Email đã xác thực
                     </span>
                   ) : (
-                    <span className="mt-1 inline-flex items-center gap-1 text-[12px] font-bold text-amber-600">
-                      <Clock className="h-3.5 w-3.5" /> Chưa xác thực
+                    <span className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-amber-600 dark:text-amber-400">
+                      <Clock className="h-3.5 w-3.5" /> Chưa xác thực email
                     </span>
                   )}
                 </div>
               </Link>
-              <div className="mt-5 border-t border-slate-100 pt-5">
-                <div className="flex items-center gap-2 text-[13px] font-medium text-gray-700">
+              <div className="mt-5 border-t border-slate-100 pt-4 dark:border-slate-800">
+                <div className="flex items-center gap-2 text-xs font-medium text-slate-500 dark:text-slate-400">
                   <User className="h-4 w-4 text-slate-400" />
                   Thành viên từ {formatRelativeTime(job.createdAt)}
                 </div>
@@ -610,16 +617,16 @@ export default function JobDetailPage() {
 
             {/* Management Actions Card */}
             {(isOwner || existingProposal) && (
-              <div className="rounded-2xl border border-slate-200 bg-white  p-6 shadow-sm">
-                <h3 className="mb-4 text-lg font-bold text-gray-900 border-b border-slate-100 pb-3">Quản lý công việc</h3>
+              <div className="p-6 sm:p-8">
+                <h3 className="mb-4 text-base font-bold tracking-tight text-slate-900 dark:text-white">Quản lý công việc</h3>
                 <div className="space-y-3">
                   {isOwner ? (
                     <>
-                      <div className="rounded-xl border border-indigo-100 bg-indigo-50 p-4 text-[13px] leading-relaxed text-indigo-800">
+                      <div className="rounded-xl border border-emerald-100 bg-emerald-50 p-4 text-[13px] leading-relaxed text-emerald-800">
                         Bạn đã đăng công việc này. Hãy xem xét các ứng viên và chọn Mentor phù hợp nhất.
                       </div>
                       {jobContract?.fundsInEscrow && (
-                        <div className="rounded-xl border border-indigo-200 bg-indigo-50 p-4 text-[13px] leading-relaxed text-emerald-900">
+                        <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-[13px] leading-relaxed text-emerald-900">
                           <p className="font-black">Escrow secured</p>
                           <p className="mt-1">
                             {formatCurrency(jobContract.amountInEscrow || 0)} đang được giữ bởi MentorX cho tới khi bạn xác nhận hoàn thành.
@@ -629,7 +636,7 @@ export default function JobDetailPage() {
                       {jobContract && (
                         <Link
                           to={getJobChatRoute(job.jobId, jobContract.mentorId)}
-                          className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-indigo-200 bg-indigo-50 px-4 text-sm font-black text-indigo-700 shadow-sm hover:bg-indigo-100 transition"
+                          className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 text-sm font-black text-emerald-700 shadow-sm hover:bg-emerald-100 transition"
                         >
                           <MessageSquare className="h-4 w-4" />
                           Mở Chat
@@ -669,7 +676,7 @@ export default function JobDetailPage() {
                           type="button"
                           onClick={() => ownerStatusMutation.mutate(JobStatus.OPEN)}
                           disabled={ownerStatusMutation.isLoading}
-                          className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#4f46e5] px-4 text-sm font-black text-white shadow-sm hover:bg-indigo-700 transition disabled:cursor-not-allowed disabled:bg-slate-300"
+                          className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-bold text-white shadow-sm hover:bg-emerald-700 transition disabled:cursor-not-allowed disabled:bg-slate-300"
                         >
                           <RefreshCcw className="h-4 w-4" />
                           {ownerStatusMutation.isLoading ? 'Đang cập nhật...' : 'Mở lại yêu cầu'}
@@ -678,16 +685,16 @@ export default function JobDetailPage() {
                     </>
                   ) : existingProposal ? (
                     <>
-                      <div className={`mb-4 rounded-xl border p-4 ${existingProposal.status === 'ACCEPTED' ? 'border-indigo-200 bg-indigo-50' : 'border-indigo-100 bg-indigo-50'}`}>
+                      <div className={`mb-4 rounded-xl border p-4 ${existingProposal.status === 'ACCEPTED' ? 'border-emerald-200 bg-emerald-50' : 'border-emerald-100 bg-emerald-50'}`}>
                         <div className="flex items-center justify-between mb-3">
-                          <div className={`flex items-center gap-2 text-sm font-bold ${existingProposal.status === 'ACCEPTED' ? 'text-emerald-700' : 'text-indigo-700'}`}>
+                          <div className={`flex items-center gap-2 text-sm font-bold ${existingProposal.status === 'ACCEPTED' ? 'text-emerald-700' : 'text-emerald-700'}`}>
                             <CheckCircle2 className="w-4 h-4" /> Đã gửi proposal
                           </div>
                           <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${getProposalStatusColor(existingProposal.status)}`}>
                             {getProposalStatusLabel(existingProposal.status)}
                           </span>
                         </div>
-                        <div className="text-xs text-[#4f46e5]/80 mb-4">{formatRelativeTime(existingProposal.createdAt)}</div>
+                        <div className="text-xs text-slate-500 mb-4">{formatRelativeTime(existingProposal.createdAt)}</div>
                         
                         <div className="grid gap-3 min-[420px]:grid-cols-2">
                           <div className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
@@ -723,7 +730,7 @@ export default function JobDetailPage() {
                       <button
                         type="button"
                         onClick={() => setShowProposalDetail(true)}
-                        className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#4f46e5] px-4 text-sm font-bold text-white shadow-sm hover:bg-indigo-700 transition"
+                        className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-bold text-white shadow-sm hover:bg-emerald-700 transition"
                       >
                         <Eye className="h-4 w-4" />
                         Xem chi tiết
@@ -732,7 +739,7 @@ export default function JobDetailPage() {
                       {jobContract && (
                         <Link
                           to={getJobChatRoute(job.jobId, job.clientId)}
-                          className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-indigo-200 bg-indigo-50 px-4 text-sm font-black text-indigo-700 shadow-sm hover:bg-indigo-100 transition mt-3"
+                          className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 text-sm font-black text-emerald-700 shadow-sm hover:bg-emerald-100 transition mt-3"
                         >
                           <MessageSquare className="h-4 w-4" />
                           Mở chat
@@ -763,22 +770,35 @@ export default function JobDetailPage() {
             )}
 
             {/* AI Assistant Callout */}
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm border border-slate-200">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-100 text-[#4f46e5] mb-4 shadow-sm">
-                <Sparkles className="h-5 w-5" />
+            <div className="p-6 sm:p-8 bg-slate-50/50 dark:bg-slate-900/50">
+              <div className="flex items-center gap-2 mb-2">
+                <Sparkles className="h-4 w-4 text-emerald-600" />
+                <h3 className="text-base font-bold tracking-tight text-slate-900 dark:text-white">Phân tích bằng AI</h3>
               </div>
-              <h3 className="text-[16px] font-bold text-gray-900">MentorX AI Assistant</h3>
-              <p className="mt-2 text-[13px] leading-relaxed text-gray-700">
-                Hãy để AI phân tích yêu cầu này và gợi ý cho bạn cách tiếp cận tốt nhất.
+              <p className="mt-1.5 text-xs leading-relaxed text-slate-600 dark:text-slate-400">
+                Hiểu rõ yêu cầu công việc và nhận gợi ý tiếp cận tối ưu.
               </p>
               <button
                 onClick={() => setShowAiExplain(true)}
-                className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-indigo-200 bg-white px-4 py-2.5 text-sm font-bold text-[#4f46e5] shadow-sm transition hover:border-indigo-300 hover:bg-indigo-50"
+                className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-700 shadow-sm transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
               >
-                <Sparkles className="h-4 w-4" /> Phân tích Job
+                Tạo bản phân tích
               </button>
             </div>
-          </aside>
+
+            {/* Trust & Guarantee Card */}
+            <div className="p-6 sm:p-8 bg-slate-50 dark:bg-slate-900/80">
+              <div className="flex items-start gap-3">
+                <ShieldCheck className="h-5 w-5 text-emerald-600 shrink-0 mt-0.5" />
+                <div>
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">Bảo đảm thanh toán</h4>
+                  <p className="mt-1 text-xs leading-relaxed text-slate-500 dark:text-slate-400">
+                    Khoản tiền được MentorX giữ an toàn và chỉ giải ngân khi công việc hoàn thành.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </main>
 
@@ -876,7 +896,7 @@ export default function JobDetailPage() {
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
           <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => !completeContractMutation.isLoading && setShowCompleteContractConfirm(false)} />
           <div className="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-50 text-emerald-600 mb-5 shadow-inner">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 mb-5 shadow-inner">
               <CheckCircle2 className="h-6 w-6" />
             </div>
             <h3 className="text-center text-xl font-bold text-gray-900 mb-2">Hoàn thành công việc</h3>
@@ -1030,7 +1050,7 @@ function BriefItem({
   wide?: boolean
 }) {
   return (
-    <div className={`job-soft-section rounded-2xl border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-5 shadow-sm transition-all hover:border-indigo-300 ${wide ? 'md:col-span-2' : ''}`}>
+    <div className={`job-soft-section rounded-2xl border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-5 shadow-sm transition-all hover:border-emerald-300 ${wide ? 'md:col-span-2' : ''}`}>
       <div className="mb-2 flex items-center gap-2 text-[12px] font-extrabold uppercase tracking-wide text-[#64748B]">
         <Icon className="job-section-icon h-4 w-4 text-[#4f46e5]" />
         {label}
@@ -1076,6 +1096,7 @@ function getJobDisplayData(job: JobResponse, categories: Array<{ id?: number; ca
   return {
     categoryName,
     statusLabel: STATUS_META[job.status]?.label || job.status.replace(/_/g, ' '),
+    statusClass: STATUS_META[job.status]?.className || 'border-slate-200 bg-slate-50 text-slate-700',
     jobTypeLabel: JOB_TYPE_META[job.jobType]?.label || job.jobType.replace(/_/g, ' '),
     budget: formatBudget(job),
     budgetTypeLabel: job.budgetType === BudgetType.HOURLY ? 'Hourly' : 'Fixed price',
@@ -1208,7 +1229,7 @@ function getAttachmentMeta(url: string, index: number) {
       badge: 'Image',
       description: 'Preview and open full size',
       Icon: FileImage,
-      iconClassName: 'bg-indigo-50 text-emerald-600',
+      iconClassName: 'bg-emerald-50 text-emerald-600',
     }
   }
 
@@ -1237,7 +1258,7 @@ function getAttachmentMeta(url: string, index: number) {
     badge: extension ? extension.toUpperCase() : 'Document',
     description: 'Open attachment',
     Icon: FileText,
-      iconClassName: 'bg-[#EEF2FF] text-[#4F46E5]',
+    iconClassName: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400',
   }
 }
 
@@ -1249,23 +1270,23 @@ function RelatedJobCard({ job }: { job: JobResponse }) {
   return (
     <Link 
       to={`/jobs/${job.jobId}`} 
-      className="job-surface group flex flex-col rounded-2xl border border-slate-200 bg-white p-5 transition-all hover:border-indigo-400"
+      className="group flex flex-col rounded-2xl border border-slate-200 bg-white p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-emerald-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-emerald-700"
     >
       <div className="flex items-start gap-4">
-        <div className="job-soft-section flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-slate-50 text-lg font-black text-[#4f46e5] ring-1 ring-indigo-100 transition-colors group-hover:bg-[#4f46e5] group-hover:text-white">
+        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-100/80 text-base font-extrabold text-emerald-700 transition-colors group-hover:bg-emerald-600 group-hover:text-white dark:bg-emerald-900/40 dark:text-emerald-300">
           {initial}
         </div>
         <div className="min-w-0 flex-1">
-          <h3 className="line-clamp-2 text-[15px] font-extrabold text-[#111827] group-hover:text-[#4F46E5] leading-snug">{job.title}</h3>
-          <p className="mt-1.5 truncate text-[13px] font-bold text-[#6B7280]">{clientName}</p>
+          <h3 className="line-clamp-2 text-sm font-bold text-slate-900 leading-snug group-hover:text-emerald-600 dark:text-white dark:group-hover:text-emerald-400">{job.title}</h3>
+          <p className="mt-1 truncate text-xs font-semibold text-slate-500 dark:text-slate-400">{clientName}</p>
         </div>
       </div>
-      <div className="mt-4 flex items-center justify-between border-t border-[#F1F5F9] pt-4">
-        <span className="inline-flex items-center gap-1.5 rounded-lg bg-[#F8FAFC] px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-[#6B7280]">
-          <Briefcase className="h-3 w-3 text-[#94A3B8]" />
+      <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3.5 dark:border-slate-800">
+        <span className="inline-flex items-center gap-1.5 rounded-lg bg-slate-100 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+          <Briefcase className="h-3 w-3 text-slate-400" />
           {job.jobType.replace(/_/g, ' ')}
         </span>
-        <span className="text-[15px] font-black text-[#4F46E5]">{budget}</span>
+        <span className="text-sm font-extrabold text-emerald-700 dark:text-emerald-300">{budget}</span>
       </div>
     </Link>
   )

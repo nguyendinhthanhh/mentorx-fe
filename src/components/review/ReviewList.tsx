@@ -91,8 +91,8 @@ function ReviewCard({ review }: { review: ReviewResponse }) {
       {/* Header */}
       <div className="flex justify-between items-start mb-4">
         <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/30 dark:to-purple-900/30 flex items-center justify-center">
-            <User className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-100 to-emerald-100 dark:from-emerald-900/30 dark:to-emerald-900/30 flex items-center justify-center">
+            <User className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
           </div>
           <div>
             <div className="flex items-center gap-2">
@@ -135,7 +135,7 @@ function ReviewCard({ review }: { review: ReviewResponse }) {
           {user?.userId === review.reviewerId && review.canBeEdited && (
             <button
               onClick={() => setEditing(true)}
-              className="rounded-lg border border-indigo-100 px-3 py-1.5 text-xs font-black text-indigo-600 hover:bg-indigo-50"
+              className="rounded-lg border border-emerald-100 px-3 py-1.5 text-xs font-black text-emerald-600 hover:bg-emerald-50"
             >
               Edit
             </button>
@@ -210,7 +210,7 @@ function ReviewCard({ review }: { review: ReviewResponse }) {
       {/* Detailed Ratings Toggle */}
       <button
         onClick={() => setExpanded(!expanded)}
-        className="flex items-center gap-1.5 text-xs font-bold text-indigo-500 hover:text-indigo-600 transition-colors mt-2"
+        className="flex items-center gap-1.5 text-xs font-bold text-emerald-500 hover:text-emerald-600 transition-colors mt-2"
       >
         <ChevronDown className={`w-3.5 h-3.5 transition-transform ${expanded ? 'rotate-180' : ''}`} />
         {expanded ? 'Hide' : 'Show'} detailed ratings
@@ -228,8 +228,8 @@ function ReviewCard({ review }: { review: ReviewResponse }) {
 
       {/* Mentor Response */}
       {review.responseText && (
-        <div className="mt-4 p-4 bg-indigo-50/50 dark:bg-indigo-900/10 rounded-xl border border-indigo-100 dark:border-indigo-900/30 ml-4">
-          <p className="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-1.5 flex items-center gap-1">
+        <div className="mt-4 p-4 bg-emerald-50/50 dark:bg-emerald-900/10 rounded-xl border border-emerald-100 dark:border-emerald-900/30 ml-4">
+          <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-1.5 flex items-center gap-1">
             <MessageCircle className="w-2.5 h-2.5" /> Response from Mentor
           </p>
           <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">{review.responseText}</p>

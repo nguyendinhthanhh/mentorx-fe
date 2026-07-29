@@ -71,9 +71,9 @@ const contractStatusLabel: Record<string, string> = {
 const contractStatusTone: Record<string, string> = {
   ACTIVE: 'border-emerald-200 bg-emerald-50 text-emerald-700',
   PENDING_PAYMENT: 'border-sky-200 bg-sky-50 text-sky-700',
-  UNDER_REVIEW: 'border-violet-200 bg-violet-50 text-violet-700',
+  UNDER_REVIEW: 'border-emerald-200 bg-emerald-50 text-emerald-700',
   IN_DISPUTE: 'border-orange-200 bg-orange-50 text-orange-700',
-  COMPLETED: 'border-indigo-200 bg-indigo-50 text-indigo-700',
+  COMPLETED: 'border-emerald-200 bg-emerald-50 text-emerald-700',
   CANCELLED: 'border-rose-200 bg-rose-50 text-rose-700',
   TERMINATED: 'border-rose-200 bg-rose-50 text-rose-700',
 }
@@ -97,11 +97,11 @@ const proposalStatusLabel: Record<ProposalStatus, string> = {
 const proposalStatusTone: Record<ProposalStatus, string> = {
   DRAFT: 'border-slate-200 bg-slate-100 text-slate-600',
   SUBMITTED: 'border-sky-200 bg-sky-50 text-sky-700',
-  UNDER_REVIEW: 'border-violet-200 bg-violet-50 text-violet-700',
-  SHORTLISTED: 'border-indigo-200 bg-indigo-50 text-indigo-700',
+  UNDER_REVIEW: 'border-emerald-200 bg-emerald-50 text-emerald-700',
+  SHORTLISTED: 'border-emerald-200 bg-emerald-50 text-emerald-700',
   INTERVIEW_REQUESTED: 'border-cyan-200 bg-cyan-50 text-cyan-700',
   NEGOTIATING: 'border-amber-200 bg-amber-50 text-amber-700',
-  OFFER_ACCEPTED: 'border-violet-200 bg-violet-50 text-violet-700',
+  OFFER_ACCEPTED: 'border-emerald-200 bg-emerald-50 text-emerald-700',
   ACCEPTED: 'border-emerald-200 bg-emerald-50 text-emerald-700',
   REJECTED: 'border-rose-200 bg-rose-50 text-rose-700',
   WITHDRAWN: 'border-slate-200 bg-slate-100 text-slate-600',
@@ -124,10 +124,13 @@ export default function MentorMessagesPage() {
 
   const roomsQuery = useQuery(
     ['mentor-messages-rooms', user?.userId],
-    () => chatApi.getUserRooms(user!.userId, { size: 100 }),
+    () => chatApi.getUserRooms(user!.userId, { page: 0, size: 50 }),
     {
       enabled: !!user?.userId,
-      refetchInterval: 10000,
+      staleTime: 10_000,
+      refetchInterval: 30_000,
+      refetchIntervalInBackground: false,
+      refetchOnWindowFocus: true,
     }
   )
 
@@ -223,10 +226,12 @@ export default function MentorMessagesPage() {
 
   const selectedMessagesQuery = useQuery(
     ['mentor-messages-thread', effectiveRoomId],
-    () => chatApi.getRoomMessages(effectiveRoomId!, { size: 100 }),
+    () => chatApi.getRoomMessages(effectiveRoomId!, { page: 0, size: 50 }),
     {
       enabled: !!effectiveRoomId,
-      refetchInterval: effectiveRoomId ? 5000 : false,
+      refetchInterval: effectiveRoomId ? 10_000 : false,
+      refetchIntervalInBackground: false,
+      refetchOnWindowFocus: true,
     }
   )
 
@@ -488,7 +493,7 @@ export default function MentorMessagesPage() {
   if (visibleRooms.length === 0) {
     return (
       <div className="rounded-[28px] border border-slate-200 bg-white px-6 py-16 text-center shadow-sm">
-        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-500">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-500">
           <MessageCircle className="h-6 w-6" />
         </div>
         <h2 className="mt-5 text-2xl font-black tracking-tight text-slate-950">No messages yet</h2>
@@ -498,7 +503,7 @@ export default function MentorMessagesPage() {
         <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
           <Link
             to="/jobs"
-            className="inline-flex h-11 items-center justify-center rounded-2xl bg-indigo-600 px-5 text-sm font-bold text-white transition hover:bg-indigo-700"
+            className="inline-flex h-11 items-center justify-center rounded-2xl bg-emerald-600 px-5 text-sm font-bold text-white transition hover:bg-emerald-700"
           >
             Find jobs
           </Link>
@@ -541,7 +546,7 @@ export default function MentorMessagesPage() {
                   value={searchTerm}
                   onChange={(event) => setSearchTerm(event.target.value)}
                   placeholder="Search conversations"
-                  className="h-11 w-full rounded-2xl border border-slate-200 bg-slate-50 pl-11 pr-3 text-sm text-slate-700 outline-none transition focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10"
+                  className="h-11 w-full rounded-2xl border border-slate-200 bg-slate-50 pl-11 pr-3 text-sm text-slate-700 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10"
                 />
               </div>
 
@@ -554,7 +559,7 @@ export default function MentorMessagesPage() {
                       type="button"
                       onClick={() => setActiveFilter(filter.key)}
                       className={`inline-flex h-8 items-center gap-2 rounded-full px-3 text-[12px] font-semibold transition ${
-                        active ? 'bg-indigo-600 text-white shadow-sm' : 'border border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                        active ? 'bg-emerald-600 text-white shadow-sm' : 'border border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
                       }`}
                     >
                       {filter.label}
@@ -619,7 +624,7 @@ export default function MentorMessagesPage() {
                         type="button"
                         title="Info"
                         onClick={() => setShowContextPanel(true)}
-                        className="inline-flex h-9 w-9 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-500 transition hover:border-indigo-200 hover:text-indigo-700"
+                        className="inline-flex h-9 w-9 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-500 transition hover:border-emerald-200 hover:text-emerald-700"
                       >
                         <Info className="h-4 w-4" />
                       </button>
@@ -633,7 +638,7 @@ export default function MentorMessagesPage() {
                   ) : selectedMessages.length === 0 ? (
                     <div className="flex min-h-[360px] items-center justify-center">
                       <div className="max-w-sm text-center">
-                        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-indigo-50 text-indigo-500">
+                        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50 text-emerald-500">
                           <Send className="h-6 w-6" />
                         </div>
                         <h3 className="mt-4 text-base font-bold text-slate-950">No messages yet</h3>
@@ -667,7 +672,7 @@ export default function MentorMessagesPage() {
             ) : (
               <div className="flex h-full items-center justify-center px-6 py-16">
                 <div className="max-w-sm text-center">
-                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-indigo-50 text-indigo-500">
+                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50 text-emerald-500">
                     <MessageCircle className="h-6 w-6" />
                   </div>
                   <h2 className="mt-5 text-base font-bold text-slate-950">Select a conversation</h2>
@@ -696,7 +701,7 @@ export default function MentorMessagesPage() {
             <div className="space-y-5 px-6 py-5">
               {contextCard ? (
                 <div className="rounded-[24px] border border-slate-200 bg-slate-50/80 p-5">
-                  <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-indigo-600">{formatContextLabel(effectiveRoom?.referenceType)}</p>
+                  <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-emerald-600">{formatContextLabel(effectiveRoom?.referenceType)}</p>
                   <h3 className="mt-2 text-[15px] font-bold leading-6 text-slate-950">{contextCard.title}</h3>
                   <p className="mt-2 text-[13px] leading-6 text-slate-500">{truncateText(contextCard.description, 180)}</p>
                 </div>
@@ -709,7 +714,7 @@ export default function MentorMessagesPage() {
               <div className="space-y-4">
                 {contextCard?.metrics.map((metric) => (
                   <div key={metric.label} className="flex items-start gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
                       <metric.icon className="h-4 w-4" />
                     </div>
                     <div>
@@ -724,7 +729,7 @@ export default function MentorMessagesPage() {
                 {contextCard?.primaryAction ? (
                   <Link
                     to={contextCard.primaryAction.href}
-                    className="inline-flex h-11 w-full items-center justify-center rounded-2xl bg-indigo-600 px-4 text-sm font-semibold text-white transition hover:bg-indigo-700"
+                    className="inline-flex h-11 w-full items-center justify-center rounded-2xl bg-emerald-600 px-4 text-sm font-semibold text-white transition hover:bg-emerald-700"
                   >
                     {contextCard.primaryAction.label}
                   </Link>
@@ -743,7 +748,7 @@ export default function MentorMessagesPage() {
                 <div className="mb-4 flex items-center justify-between">
                   <p className="text-[12px] font-black uppercase tracking-[0.16em] text-slate-400">Shared Files</p>
                   {contextMeta.actionHref ? (
-                    <Link to={contextMeta.actionHref} className="text-sm font-black text-indigo-600">
+                    <Link to={contextMeta.actionHref} className="text-sm font-black text-emerald-600">
                       See all
                     </Link>
                   ) : null}
@@ -825,7 +830,7 @@ export default function MentorMessagesPage() {
             <div className="space-y-5 px-6 py-5">
               {contextCard ? (
                 <div className="rounded-[24px] border border-slate-200 bg-slate-50/80 p-5">
-                  <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-indigo-600">{formatContextLabel(effectiveRoom?.referenceType)}</p>
+                  <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-emerald-600">{formatContextLabel(effectiveRoom?.referenceType)}</p>
                   <h3 className="mt-2 text-[15px] font-bold leading-6 text-slate-950">{contextCard.title}</h3>
                   <p className="mt-2 text-[13px] leading-6 text-slate-500">{truncateText(contextCard.description, 180)}</p>
                 </div>
@@ -838,7 +843,7 @@ export default function MentorMessagesPage() {
               <div className="space-y-4">
                 {contextCard?.metrics.map((metric) => (
                   <div key={metric.label} className="flex items-start gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
                       <metric.icon className="h-4 w-4" />
                     </div>
                     <div>
@@ -853,7 +858,7 @@ export default function MentorMessagesPage() {
                 {contextCard?.primaryAction ? (
                   <Link
                     to={contextCard.primaryAction.href}
-                    className="inline-flex h-11 w-full items-center justify-center rounded-2xl bg-indigo-600 px-4 text-sm font-semibold text-white transition hover:bg-indigo-700"
+                    className="inline-flex h-11 w-full items-center justify-center rounded-2xl bg-emerald-600 px-4 text-sm font-semibold text-white transition hover:bg-emerald-700"
                   >
                     {contextCard.primaryAction.label}
                   </Link>
@@ -914,7 +919,7 @@ function WorkspaceConversationRow({
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
               <p className={`truncate text-[15px] ${isUnread ? 'font-bold text-slate-950' : 'font-semibold text-slate-900'}`}>{roomName}</p>
-              <p className="mt-0.5 truncate text-[13px] font-medium text-indigo-600">{contextTitle || formatContextLabel(room.referenceType)}</p>
+              <p className="mt-0.5 truncate text-[13px] font-medium text-emerald-600">{contextTitle || formatContextLabel(room.referenceType)}</p>
             </div>
             <div className="shrink-0 text-right">
               <p className="text-xs font-medium text-slate-400">{formatRoomTime(room.lastMessageAt || room.updatedAt)}</p>
@@ -939,7 +944,7 @@ function WorkspaceConversationRow({
               {conversationStateLabel}
             </span>
             {room.unreadCount > 0 ? (
-              <span className="inline-flex h-6 min-w-[24px] items-center justify-center rounded-full bg-indigo-600 px-1.5 text-[11px] font-black text-white">
+              <span className="inline-flex h-6 min-w-[24px] items-center justify-center rounded-full bg-emerald-600 px-1.5 text-[11px] font-black text-white">
                 {room.unreadCount}
               </span>
             ) : null}
@@ -1018,7 +1023,7 @@ function AvatarBadge({
   }
 
   return (
-    <div className={`flex ${sizeClasses} items-center justify-center rounded-full bg-[radial-gradient(circle_at_top,_#dbeafe,_#c7d2fe_55%,_#e2e8f0)] font-black text-indigo-700`}>
+    <div className={`flex ${sizeClasses} items-center justify-center rounded-full bg-[radial-gradient(circle_at_top,_#dbeafe,_#c7d2fe_55%,_#e2e8f0)] font-black text-emerald-700`}>
       {name
         .split(' ')
         .filter(Boolean)
@@ -1050,7 +1055,7 @@ function HeaderActionButton({
     <Link
       to={href}
       title={label}
-      className="inline-flex h-9 w-9 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-500 transition hover:border-indigo-200 hover:text-indigo-700"
+      className="inline-flex h-9 w-9 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-500 transition hover:border-emerald-200 hover:text-emerald-700"
     >
       {icon}
     </Link>
@@ -1147,7 +1152,7 @@ function formatJobStatus(status?: string) {
 function getJobStatusTone(status?: string) {
   if (status === 'OPEN') return 'border-emerald-200 bg-emerald-50 text-emerald-700'
   if (status === 'IN_PROGRESS') return 'border-amber-200 bg-amber-50 text-amber-700'
-  if (status === 'COMPLETED') return 'border-indigo-200 bg-indigo-50 text-indigo-700'
+  if (status === 'COMPLETED') return 'border-emerald-200 bg-emerald-50 text-emerald-700'
   if (status === 'CLOSED' || status === 'CANCELLED') return 'border-slate-200 bg-slate-100 text-slate-600'
   return 'border-slate-200 bg-slate-100 text-slate-600'
 }
@@ -1209,7 +1214,7 @@ function getConversationStateLabel(room: ChatRoomResponse, currentUserId: string
 
 function getConversationStateTone(room: ChatRoomResponse, currentUserId: string) {
   const state = getConversationStateLabel(room, currentUserId)
-  if (state === 'Unread') return 'border-indigo-200 bg-indigo-50 text-indigo-700'
+  if (state === 'Unread') return 'border-emerald-200 bg-emerald-50 text-emerald-700'
   if (state === 'Waiting for client') return 'border-amber-200 bg-amber-50 text-amber-700'
   if (state === 'Waiting for you') return 'border-rose-200 bg-rose-50 text-rose-700'
   return 'border-slate-200 bg-slate-100 text-slate-600'

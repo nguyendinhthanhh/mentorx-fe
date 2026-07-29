@@ -8,7 +8,7 @@ interface Props {
 const roles = [
   { id: 'CLIENT', title: 'I want to learn', desc: 'Find mentors & accelerate your growth', icon: GraduationCap, gradient: 'from-sky-500 to-blue-600', bg: 'bg-sky-50 dark:bg-sky-950/30', ring: 'ring-sky-500' },
   { id: 'MENTOR', title: 'I want to mentor', desc: 'Share expertise & earn income', icon: Rocket, gradient: 'from-emerald-500 to-teal-600', bg: 'bg-emerald-50 dark:bg-emerald-950/30', ring: 'ring-emerald-500' },
-  { id: 'BOTH', title: 'Both!', desc: 'Learn, teach & grow together', icon: Sparkles, gradient: 'from-violet-500 to-purple-600', bg: 'bg-violet-50 dark:bg-violet-950/30', ring: 'ring-violet-500' },
+  { id: 'BOTH', title: 'Both!', desc: 'Learn, teach & grow together', icon: Sparkles, gradient: 'from-emerald-500 to-emerald-600', bg: 'bg-emerald-50 dark:bg-emerald-950/30', ring: 'ring-emerald-500' },
 ]
 
 export default function StepRole({ roleChoice, setRoleChoice }: Props) {
@@ -48,7 +48,7 @@ export default function StepRole({ roleChoice, setRoleChoice }: Props) {
               <h3 className="relative font-black text-lg mb-1 text-gray-900 dark:text-white">{role.title}</h3>
               <p className="relative text-sm text-gray-500 dark:text-gray-400">{role.desc}</p>
               {roleChoice === role.id && (
-                <div className="absolute top-3 right-3 w-7 h-7 bg-gradient-to-br from-primary-500 to-indigo-500 rounded-full flex items-center justify-center shadow-lg onb-confetti">
+                <div className="absolute top-3 right-3 w-7 h-7 bg-gradient-to-br from-primary-500 to-emerald-500 rounded-full flex items-center justify-center shadow-lg onb-confetti">
                   <Check className="w-4 h-4 text-white" />
                 </div>
               )}

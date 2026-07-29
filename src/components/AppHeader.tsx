@@ -317,12 +317,12 @@ export default function AppHeader() {
             </div>
           ) : (
             <>
-              <Link to="/login" className="text-sm font-medium text-slate-600 hover:text-[#4f46e5] dark:text-slate-300 dark:hover:text-indigo-300">
+              <Link to="/login" className="text-sm font-medium text-slate-600 hover:text-emerald-600 dark:text-slate-300 dark:hover:text-emerald-300">
                 {t('nav.login')}
               </Link>
               <Link
                 to="/register"
-                className="rounded-lg bg-[#4f46e5] px-4 py-2 text-sm font-semibold text-white hover:bg-[#4338ca]"
+                className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700 shadow-sm"
               >
                 {t('nav.register')}
               </Link>

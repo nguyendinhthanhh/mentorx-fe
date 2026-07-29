@@ -333,9 +333,9 @@ export default function MentorAchievementsManager({ userId }: Props) {
       )}
 
       {/* Tips */}
-      <div className="bg-purple-50 rounded-2xl p-6 border border-purple-100">
-        <h3 className="font-black text-purple-900 mb-3">💡 Tips về thành tựu</h3>
-        <ul className="space-y-2 text-sm text-purple-800">
+      <div className="bg-emerald-50 rounded-2xl p-6 border border-emerald-100">
+        <h3 className="font-black text-emerald-900 mb-3">💡 Tips về thành tựu</h3>
+        <ul className="space-y-2 text-sm text-emerald-800">
           <li className="flex items-start gap-2">
             <CheckCircle2 className="w-4 h-4 mt-0.5 flex-shrink-0" />
             <span>Thêm ít nhất 3-5 thành tựu để profile nổi bật</span>

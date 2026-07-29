@@ -19,10 +19,10 @@ const formatBudget = (job: any, fallback: string) => {
 }
 
 const CATEGORY_ICONS: Record<string, React.ReactNode> = {
-  'it': <Code className="h-7 w-7 text-indigo-500" />,
+  'it': <Code className="h-7 w-7 text-emerald-500" />,
   'marketing': <Megaphone className="h-7 w-7 text-blue-500" />,
   'business': <Briefcase className="h-7 w-7 text-emerald-500" />,
-  'design': <PenTool className="h-7 w-7 text-purple-500" />,
+  'design': <PenTool className="h-7 w-7 text-emerald-500" />,
   'hr': <Users className="h-7 w-7 text-pink-500" />,
   'finance': <TrendingUp className="h-7 w-7 text-amber-500" />,
   'data': <Database className="h-7 w-7 text-cyan-500" />,
@@ -107,7 +107,7 @@ export default function HomePage() {
             <div className="mt-6 flex flex-wrap items-center gap-2 px-1 text-xs text-gray-600 dark:text-slate-400">
               <span className="font-semibold text-gray-900 dark:text-white">{t('home.hero.quickSearch')}</span>
               {['IT', 'Marketing', 'Design', 'Data', 'Product', 'Interview Prep'].map((item) => (
-                <Link key={item} to={`/jobs?q=${encodeURIComponent(item)}`} className="rounded-full border border-[#e2e6f5] bg-white px-3 py-1.5 transition hover:border-[#4f46e5] hover:text-[#4f46e5] dark:border-slate-800 dark:bg-slate-900 dark:hover:border-indigo-400 dark:hover:text-indigo-300">
+                <Link key={item} to={`/jobs?q=${encodeURIComponent(item)}`} className="rounded-full border border-[#e2e6f5] bg-white px-3 py-1.5 transition hover:border-[#4f46e5] hover:text-[#4f46e5] dark:border-slate-800 dark:bg-slate-900 dark:hover:border-emerald-400 dark:hover:text-emerald-300">
                   {item}
                 </Link>
               ))}
@@ -151,7 +151,7 @@ export default function HomePage() {
             {/* Mentor Card */}
             <div className="absolute -right-2 bottom-12 w-[240px] rounded-2xl border border-white/40 bg-white/95 p-4 shadow-xl backdrop-blur-md animate-[bounce_5s_ease-in-out_infinite_reverse] dark:border-slate-700 dark:bg-slate-900/95">
               <div className="flex justify-end mb-2">
-                 <span className="rounded bg-indigo-100 px-2 py-0.5 text-[9px] font-bold text-indigo-600 uppercase tracking-wide">{t('home.hero.mentorCard.featured')}</span>
+                 <span className="rounded bg-emerald-100 px-2 py-0.5 text-[9px] font-bold text-emerald-600 uppercase tracking-wide">{t('home.hero.mentorCard.featured')}</span>
               </div>
               <div className="flex items-center gap-3">
                  <img src="https://i.pravatar.cc/150?u=12" alt="Avatar" className="h-12 w-12 rounded-full border-2 border-white shadow-sm object-cover" />
@@ -186,9 +186,9 @@ export default function HomePage() {
         ) : (
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-8">
             {categories.slice(0, 8).map((cat) => (
-              <Link to={`/jobs?category=${cat.slug}`} key={cat.categoryId} className="group flex flex-col items-center justify-center rounded-2xl bg-white p-5 transition duration-300 transform hover:-translate-y-1 hover:shadow-lg dark:border dark:border-slate-800 dark:bg-slate-900 dark:hover:border-indigo-500/40">
-                 <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-50 group-hover:bg-indigo-50 transition mb-3 dark:bg-slate-800 dark:group-hover:bg-indigo-500/10">
-                    {CATEGORY_ICONS[cat.slug] || <LayoutGrid className="h-7 w-7 text-indigo-500" />}
+              <Link to={`/jobs?category=${cat.slug}`} key={cat.categoryId} className="group flex flex-col items-center justify-center rounded-2xl bg-white p-5 transition duration-300 transform hover:-translate-y-1 hover:shadow-lg dark:border dark:border-slate-800 dark:bg-slate-900 dark:hover:border-emerald-500/40">
+                 <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-50 group-hover:bg-emerald-50 transition mb-3 dark:bg-slate-800 dark:group-hover:bg-emerald-500/10">
+                    {CATEGORY_ICONS[cat.slug] || <LayoutGrid className="h-7 w-7 text-emerald-500" />}
                  </div>
                  <span className="text-[13px] font-bold text-gray-900 text-center whitespace-pre-line dark:text-white">{cat.name}</span>
               </Link>
@@ -200,11 +200,8 @@ export default function HomePage() {
       {/* FEATURED JOBS */}
       <section className="mx-auto max-w-[1600px] px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <h2 className="group inline-flex w-fit flex-col text-2xl font-bold text-gray-900 transition-transform duration-300 hover:-translate-y-0.5 dark:text-white md:text-3xl">
-            <span className="transition-colors duration-300 group-hover:text-[#4f46e5] dark:group-hover:text-indigo-300">
-              {isAuthenticated ? t('home.recommendedJobs.title') : t('home.featuredJobs.title')}
-            </span>
-            <span className="mt-2 h-[3px] w-12 rounded-full bg-[#c7d2fe] transition-all duration-300 group-hover:w-24 group-hover:bg-[#4f46e5] dark:bg-indigo-500/30 dark:group-hover:bg-indigo-300"></span>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white md:text-3xl">
+            {isAuthenticated ? t('home.recommendedJobs.title') : t('home.featuredJobs.title')}
           </h2>
           <Link to="/jobs" className="inline-flex items-center gap-1 text-sm font-bold text-[#4f46e5] hover:underline">
             {isAuthenticated ? t('home.recommendedJobs.viewAll') : t('home.featuredJobs.viewAll')} <ChevronRight className="h-4 w-4" />
@@ -232,7 +229,7 @@ export default function HomePage() {
                   <Link to="/profile" className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-gray-800 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800">
                     {t('home.recommendedJobs.updateInterests')}
                   </Link>
-                  <Link to="/jobs" className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">
+                  <Link to="/jobs" className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700">
                     {t('home.recommendedJobs.exploreJobs')}
                   </Link>
                 </div>
@@ -248,17 +245,17 @@ export default function HomePage() {
               const avatarUrl = job.clientAvatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(clientName)}&background=random&color=fff&rounded=true&bold=true`
               const jobType = job.jobType ? job.jobType.replace(/_/g, ' ') : 'Hybrid'
               return (
-              <Link key={job.jobId} to={`/jobs/${job.jobId}`} className="group flex flex-col justify-between rounded-2xl border border-transparent bg-white p-5 shadow-sm transition duration-300 hover:border-[#4f46e5] hover:shadow-xl dark:border-slate-800 dark:bg-slate-900 dark:hover:border-indigo-500/60">
+              <Link key={job.jobId} to={`/jobs/${job.jobId}`} className="group flex flex-col justify-between rounded-2xl border border-slate-100 bg-white p-5 shadow-sm transition-[transform,border-color,box-shadow] duration-300 hover:-translate-y-0.5 hover:border-slate-200 hover:shadow-[0_18px_40px_rgba(15,23,42,0.08)] dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700 dark:hover:shadow-[0_20px_42px_rgba(2,6,23,0.3)]">
                 <div>
                   <div className="flex items-start justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 shrink-0 rounded-xl border border-slate-100 flex items-center justify-center bg-white overflow-hidden p-1 shadow-sm dark:border-slate-700 dark:bg-slate-800">
-                            <img src={avatarUrl} alt="logo" loading="lazy" decoding="async" className="h-full w-full object-contain rounded-lg" />
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-slate-100 bg-white p-1 shadow-sm transition-[transform,box-shadow,background-color] duration-300 ease-out group-hover:-translate-y-0.5 group-hover:bg-slate-50/90 group-hover:shadow-[0_10px_22px_rgba(15,23,42,0.08)] motion-reduce:transform-none dark:border-slate-700 dark:bg-slate-800 dark:group-hover:bg-slate-700/90 dark:group-hover:shadow-[0_12px_24px_rgba(2,6,23,0.28)]">
+                            <img src={avatarUrl} alt="logo" loading="lazy" decoding="async" className="h-full w-full rounded-lg object-contain transition-transform duration-300 ease-out group-hover:scale-[1.03] motion-reduce:transform-none" />
                         </div>
                         <span className="text-sm font-bold text-gray-700 line-clamp-1 dark:text-slate-300">{clientName}</span>
                       </div>
                   </div>
-                  <p className="mt-4 text-[17px] font-bold text-gray-900 group-hover:text-[#4f46e5] transition line-clamp-2 dark:text-white dark:group-hover:text-indigo-300">{job.title}</p>
+                  <p className="mt-4 line-clamp-2 text-[17px] font-bold text-gray-900 transition-colors duration-300 group-hover:text-slate-950 dark:text-white dark:group-hover:text-slate-100">{job.title}</p>
                   <div className="mt-2.5 flex gap-4 text-[13px] text-gray-600 font-medium dark:text-slate-400">
                     <span className="flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5" /> {t('common.remote')}</span>
                     <span className="flex items-center gap-1.5"><Briefcase className="h-3.5 w-3.5" /> {jobType}</span>
@@ -266,8 +263,8 @@ export default function HomePage() {
                   <p className="mt-3 text-sm font-bold text-amber-500">{formatBudget(job, t('common.negotiable'))}</p>
                 </div>
                 <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-4 dark:border-slate-800">
-                  <span className="text-xs font-bold text-[#4f46e5]">{t('common.viewDetails')}</span>
-                  <Bookmark className="h-5 w-5 text-gray-400 group-hover:text-[#4f46e5] transition" />
+                  <span className="text-xs font-bold text-slate-700 transition-colors duration-300 group-hover:text-slate-900 dark:text-slate-300 dark:group-hover:text-slate-100">{t('common.viewDetails')}</span>
+                  <Bookmark className="h-5 w-5 text-gray-400 transition-colors duration-300 group-hover:text-slate-600 dark:group-hover:text-slate-300" />
                 </div>
               </Link>
             )})}
@@ -278,11 +275,8 @@ export default function HomePage() {
       {/* FEATURED MENTORS */}
       <section className="mx-auto max-w-[1600px] px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <h2 className="group inline-flex w-fit flex-col text-2xl font-bold text-gray-900 transition-transform duration-300 hover:-translate-y-0.5 dark:text-white md:text-3xl">
-            <span className="transition-colors duration-300 group-hover:text-[#4f46e5] dark:group-hover:text-indigo-300">
-              {isAuthenticated ? t('home.recommendedMentors.title') : t('home.featuredMentors.title')}
-            </span>
-            <span className="mt-2 h-[3px] w-12 rounded-full bg-[#c7d2fe] transition-all duration-300 group-hover:w-24 group-hover:bg-[#4f46e5] dark:bg-indigo-500/30 dark:group-hover:bg-indigo-300"></span>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white md:text-3xl">
+            {isAuthenticated ? t('home.recommendedMentors.title') : t('home.featuredMentors.title')}
           </h2>
           <Link to="/mentors" className="inline-flex items-center gap-1 text-sm font-bold text-[#4f46e5] hover:underline">
             {isAuthenticated ? t('home.recommendedMentors.viewAll') : t('home.featuredMentors.viewAll')} <ChevronRight className="h-4 w-4" />
@@ -310,7 +304,7 @@ export default function HomePage() {
                   <Link to="/profile" className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-gray-800 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800">
                     {t('home.recommendedMentors.updateInterests')}
                   </Link>
-                  <Link to="/mentors" className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">
+                  <Link to="/mentors" className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700">
                     {t('home.recommendedMentors.exploreMentors')}
                   </Link>
                 </div>
@@ -326,18 +320,20 @@ export default function HomePage() {
               const avatarUrl = mentor.avatarUrl || mentor.user?.avatarUrl || `https://i.pravatar.cc/150?u=${mentor.userId || mentor.mentorId}`
               const id = mentor.userId || mentor.mentorId
               return (
-                <Link key={id} to={`/mentors/${id}`} className="group flex flex-col justify-between rounded-2xl border border-transparent bg-white p-5 shadow-sm transition duration-300 hover:border-[#4f46e5] hover:shadow-xl dark:border-slate-800 dark:bg-slate-900 dark:hover:border-indigo-500/60">
+                <Link key={id} to={`/mentors/${id}`} className="group flex flex-col justify-between rounded-2xl border border-slate-100 bg-white p-5 shadow-sm transition-[transform,border-color,box-shadow] duration-300 hover:-translate-y-0.5 hover:border-slate-200 hover:shadow-[0_18px_40px_rgba(15,23,42,0.08)] dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700 dark:hover:shadow-[0_20px_42px_rgba(2,6,23,0.3)]">
                   <div>
                     <div className="flex items-center gap-4">
-                      <img
-                        src={avatarUrl}
-                        alt={mentorName}
-                        loading="lazy"
-                        decoding="async"
-                        className="h-16 w-16 shrink-0 rounded-full object-cover shadow-sm border border-slate-100 dark:border-slate-700"
-                      />
+                      <div className="overflow-hidden rounded-full border border-slate-100 bg-white shadow-sm transition-[transform,box-shadow,background-color] duration-300 ease-out group-hover:-translate-y-0.5 group-hover:bg-slate-50/90 group-hover:shadow-[0_12px_26px_rgba(15,23,42,0.08)] motion-reduce:transform-none dark:border-slate-700 dark:bg-slate-800 dark:group-hover:bg-slate-700/90 dark:group-hover:shadow-[0_14px_28px_rgba(2,6,23,0.28)]">
+                        <img
+                          src={avatarUrl}
+                          alt={mentorName}
+                          loading="lazy"
+                          decoding="async"
+                          className="h-16 w-16 shrink-0 rounded-full object-cover transition-transform duration-300 ease-out group-hover:scale-[1.03] motion-reduce:transform-none"
+                        />
+                      </div>
                       <div>
-                        <p className="text-[15px] font-bold text-gray-900 group-hover:text-[#4f46e5] transition line-clamp-1 dark:text-white dark:group-hover:text-indigo-300">{mentorName}</p>
+                        <p className="line-clamp-1 text-[15px] font-bold text-gray-900 transition-colors duration-300 group-hover:text-slate-950 dark:text-white dark:group-hover:text-slate-100">{mentorName}</p>
                         <p className="mt-1 text-[11px] text-gray-600 line-clamp-2 leading-[1.6] dark:text-slate-400">{mentor.headline || t('common.mentor')}</p>
                         <div className="mt-1.5 flex items-center gap-1 text-[11px] font-bold text-gray-800 dark:text-slate-200">
                           <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
@@ -347,8 +343,8 @@ export default function HomePage() {
                     </div>
                   </div>
                   <div className="mt-5 flex gap-2">
-                    <span className="flex-1 rounded-xl border border-[#e2e6f5] py-2.5 text-center text-[12px] font-bold text-[#4f46e5] transition hover:bg-slate-50 dark:border-slate-700 dark:text-indigo-300 dark:hover:bg-slate-800">{t('common.book')}</span>
-                    <span className="flex-1 rounded-xl bg-[#f4f6ff] py-2.5 text-center text-[12px] font-bold text-[#4f46e5] transition hover:bg-[#ebf0ff] dark:bg-indigo-500/10 dark:text-indigo-300 dark:hover:bg-indigo-500/20">
+                    <span className="flex-1 rounded-xl border border-[#e2e6f5] py-2.5 text-center text-[12px] font-bold text-[#4f46e5] transition hover:bg-slate-50 dark:border-slate-700 dark:text-emerald-300 dark:hover:bg-slate-800">{t('common.book')}</span>
+                    <span className="flex-1 rounded-xl bg-[#f4f6ff] py-2.5 text-center text-[12px] font-bold text-[#4f46e5] transition hover:bg-[#ebf0ff] dark:bg-emerald-500/10 dark:text-emerald-300 dark:hover:bg-emerald-500/20">
                       {t('common.viewProfile')}
                     </span>
                   </div>
@@ -375,7 +371,7 @@ export default function HomePage() {
           </article>
           
           <article className="rounded-3xl bg-white p-8 shadow-sm border border-slate-100 hover:-translate-y-1 transition duration-300 dark:border-slate-800 dark:bg-slate-900">
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-50 mb-6 dark:bg-indigo-500/10">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-50 mb-6 dark:bg-emerald-500/10">
                <Search className="h-8 w-8 text-[#4f46e5]" />
             </div>
             <h3 className="text-lg font-bold text-gray-900 dark:text-white">{t('home.why.job.title')}</h3>
@@ -385,7 +381,7 @@ export default function HomePage() {
           </article>
           
           <article className="rounded-3xl bg-white p-8 shadow-sm border border-slate-100 hover:-translate-y-1 transition duration-300 dark:border-slate-800 dark:bg-slate-900">
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-50 mb-6 dark:bg-indigo-500/10">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-50 mb-6 dark:bg-emerald-500/10">
                <Handshake className="h-8 w-8 text-[#4f46e5]" />
             </div>
             <h3 className="text-lg font-bold text-gray-900 dark:text-white">{t('home.why.mentor.title')}</h3>
@@ -395,7 +391,7 @@ export default function HomePage() {
           </article>
 
           <article className="rounded-3xl bg-white p-8 shadow-sm border border-slate-100 hover:-translate-y-1 transition duration-300 dark:border-slate-800 dark:bg-slate-900">
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-50 mb-6 dark:bg-indigo-500/10">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-50 mb-6 dark:bg-emerald-500/10">
                <Rocket className="h-8 w-8 text-[#4f46e5]" />
             </div>
             <h3 className="text-lg font-bold text-gray-900 dark:text-white">{t('home.why.career.title')}</h3>
@@ -413,10 +409,10 @@ export default function HomePage() {
         <div className="flex flex-col md:flex-row items-stretch justify-between gap-4 relative">
            
            {/* Step 1 */}
-           <div className="flex-1 rounded-2xl bg-white border border-[#e2e6f5] p-6 flex flex-col sm:flex-row gap-5 items-start sm:items-center relative z-10 shadow-sm hover:border-[#4f46e5] hover:shadow-md transition dark:border-slate-800 dark:bg-slate-900 dark:hover:border-indigo-500/60">
-              <div className="w-14 h-14 shrink-0 rounded-full bg-[#f4f6ff] flex items-center justify-center relative dark:bg-indigo-500/10">
-                 <Briefcase className="h-6 w-6 text-[#4f46e5]" />
-                 <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-[#4f46e5] text-white flex items-center justify-center text-[11px] font-bold border-2 border-white shadow-sm dark:border-slate-900">1</div>
+           <div className="group relative z-10 flex flex-1 flex-col items-start gap-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-[transform,border-color,box-shadow] duration-300 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-[0_16px_32px_rgba(15,23,42,0.08)] dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700 dark:hover:shadow-[0_18px_34px_rgba(2,6,23,0.3)] sm:flex-row sm:items-center">
+              <div className="relative flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-slate-100 transition-colors duration-300 group-hover:bg-slate-200 dark:bg-slate-800 dark:group-hover:bg-slate-700">
+                 <Briefcase className="h-6 w-6 text-slate-700 dark:text-slate-200" />
+                 <div className="absolute -top-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full border-2 border-white bg-emerald-600 shadow-md hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 hover:bg-emerald-700 text-[11px] font-bold text-white shadow-sm dark:border-slate-900 dark:bg-slate-100 dark:text-slate-900">1</div>
               </div>
               <div>
                  <h3 className="font-bold text-gray-900 text-base dark:text-white">{t('home.how.step1.title')}</h3>
@@ -430,10 +426,10 @@ export default function HomePage() {
            </div>
 
            {/* Step 2 */}
-           <div className="flex-1 rounded-2xl bg-white border border-[#e2e6f5] p-6 flex flex-col sm:flex-row gap-5 items-start sm:items-center relative z-10 shadow-sm hover:border-[#4f46e5] hover:shadow-md transition dark:border-slate-800 dark:bg-slate-900 dark:hover:border-indigo-500/60">
-              <div className="w-14 h-14 shrink-0 rounded-full bg-[#f4f6ff] flex items-center justify-center relative dark:bg-indigo-500/10">
-                 <Search className="h-6 w-6 text-[#4f46e5]" />
-                 <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-[#4f46e5] text-white flex items-center justify-center text-[11px] font-bold border-2 border-white shadow-sm dark:border-slate-900">2</div>
+           <div className="group relative z-10 flex flex-1 flex-col items-start gap-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-[transform,border-color,box-shadow] duration-300 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-[0_16px_32px_rgba(15,23,42,0.08)] dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700 dark:hover:shadow-[0_18px_34px_rgba(2,6,23,0.3)] sm:flex-row sm:items-center">
+              <div className="relative flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-slate-100 transition-colors duration-300 group-hover:bg-slate-200 dark:bg-slate-800 dark:group-hover:bg-slate-700">
+                 <Search className="h-6 w-6 text-slate-700 dark:text-slate-200" />
+                 <div className="absolute -top-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full border-2 border-white bg-emerald-600 shadow-md hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 hover:bg-emerald-700 text-[11px] font-bold text-white shadow-sm dark:border-slate-900 dark:bg-slate-100 dark:text-slate-900">2</div>
               </div>
               <div>
                  <h3 className="font-bold text-gray-900 text-base dark:text-white">{t('home.how.step2.title')}</h3>
@@ -447,10 +443,10 @@ export default function HomePage() {
            </div>
 
            {/* Step 3 */}
-           <div className="flex-1 rounded-2xl bg-white border border-[#e2e6f5] p-6 flex flex-col sm:flex-row gap-5 items-start sm:items-center relative z-10 shadow-sm hover:border-[#4f46e5] hover:shadow-md transition dark:border-slate-800 dark:bg-slate-900 dark:hover:border-indigo-500/60">
-              <div className="w-14 h-14 shrink-0 rounded-full bg-[#f4f6ff] flex items-center justify-center relative dark:bg-indigo-500/10">
-                 <TrendingUp className="h-6 w-6 text-[#4f46e5]" />
-                 <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-[#4f46e5] text-white flex items-center justify-center text-[11px] font-bold border-2 border-white shadow-sm dark:border-slate-900">3</div>
+           <div className="group relative z-10 flex flex-1 flex-col items-start gap-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-[transform,border-color,box-shadow] duration-300 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-[0_16px_32px_rgba(15,23,42,0.08)] dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700 dark:hover:shadow-[0_18px_34px_rgba(2,6,23,0.3)] sm:flex-row sm:items-center">
+              <div className="relative flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-slate-100 transition-colors duration-300 group-hover:bg-slate-200 dark:bg-slate-800 dark:group-hover:bg-slate-700">
+                 <TrendingUp className="h-6 w-6 text-slate-700 dark:text-slate-200" />
+                 <div className="absolute -top-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full border-2 border-white bg-emerald-600 shadow-md hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 hover:bg-emerald-700 text-[11px] font-bold text-white shadow-sm dark:border-slate-900 dark:bg-slate-100 dark:text-slate-900">3</div>
               </div>
               <div>
                  <h3 className="font-bold text-gray-900 text-base dark:text-white">{t('home.how.step3.title')}</h3>
@@ -464,17 +460,17 @@ export default function HomePage() {
       <section className="mx-auto max-w-[1600px] px-4 pb-16 pt-8 sm:px-6 lg:px-8">
         <div className="rounded-3xl bg-gray-900 p-8 md:p-10 shadow-2xl relative overflow-hidden">
           {/* Decorative shapes */}
-          <div className="absolute top-0 left-0 w-64 h-64 bg-indigo-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 -translate-x-1/2 -translate-y-1/2"></div>
+          <div className="absolute top-0 left-0 w-64 h-64 bg-emerald-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 -translate-x-1/2 -translate-y-1/2"></div>
           <div className="absolute bottom-0 right-0 w-64 h-64 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 translate-x-1/2 translate-y-1/2"></div>
           
           <div className="grid grid-cols-2 gap-y-10 gap-x-6 md:grid-cols-4 relative z-10">
             <div className="flex flex-col md:flex-row items-center md:items-start gap-4 text-center md:text-left">
               <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10 shrink-0">
-                 <Users className="h-7 w-7 text-indigo-300" />
+                 <Users className="h-7 w-7 text-emerald-300" />
               </div>
               <div>
                 <p className="text-3xl font-bold text-white">{stats.users.toLocaleString('en-US')}+</p>
-                <p className="mt-1 text-[13px] font-medium text-indigo-200">{t('home.stats.users')}</p>
+                <p className="mt-1 text-[13px] font-medium text-emerald-200">{t('home.stats.users')}</p>
               </div>
             </div>
             
@@ -484,7 +480,7 @@ export default function HomePage() {
               </div>
               <div>
                 <p className="text-3xl font-bold text-white">{stats.openJobs.toLocaleString('en-US')}+</p>
-                <p className="mt-1 text-[13px] font-medium text-indigo-200">{t('home.stats.activeJobs')}</p>
+                <p className="mt-1 text-[13px] font-medium text-emerald-200">{t('home.stats.activeJobs')}</p>
               </div>
             </div>
 
@@ -494,17 +490,17 @@ export default function HomePage() {
               </div>
               <div>
                 <p className="text-3xl font-bold text-white">{stats.mentors.toLocaleString('en-US')}+</p>
-                <p className="mt-1 text-[13px] font-medium text-indigo-200">{t('home.stats.qualityMentors')}</p>
+                <p className="mt-1 text-[13px] font-medium text-emerald-200">{t('home.stats.qualityMentors')}</p>
               </div>
             </div>
 
             <div className="flex flex-col md:flex-row items-center md:items-start gap-4 text-center md:text-left">
               <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10 shrink-0">
-                 <Handshake className="h-7 w-7 text-purple-300" />
+                 <Handshake className="h-7 w-7 text-emerald-300" />
               </div>
               <div>
                 <p className="text-3xl font-bold text-white">{stats.successfulMatches.toLocaleString('en-US')}+</p>
-                <p className="mt-1 text-[13px] font-medium text-indigo-200">{t('home.stats.successfulMatches')}</p>
+                <p className="mt-1 text-[13px] font-medium text-emerald-200">{t('home.stats.successfulMatches')}</p>
               </div>
             </div>
           </div>

@@ -90,11 +90,13 @@ export default function ContextualChatDrawer({
     ['contextual-chat-messages', resolvedRoom?.id],
     async () => {
       if (!resolvedRoom?.id) return { content: [] as MessageResponse[] }
-      return chatApi.getRoomMessages(resolvedRoom.id, { size: 100 })
+      return chatApi.getRoomMessages(resolvedRoom.id, { page: 0, size: 50 })
     },
     {
       enabled: open && !!resolvedRoom?.id,
-      refetchInterval: open && resolvedRoom?.id ? 5000 : false,
+      refetchInterval: open && resolvedRoom?.id ? 10_000 : false,
+      refetchIntervalInBackground: false,
+      refetchOnWindowFocus: true,
       keepPreviousData: true,
     }
   )
@@ -217,7 +219,7 @@ export default function ContextualChatDrawer({
               ) : otherMember?.avatarUrl ? (
                 <img src={otherMember.avatarUrl} alt={resolvedTitle} className="h-11 w-11 rounded-2xl object-cover" />
               ) : (
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-indigo-100 text-sm font-black text-indigo-600">
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-100 text-sm font-black text-emerald-600">
                   {resolvedTitle
                     .split(' ')
                     .filter(Boolean)
@@ -230,7 +232,7 @@ export default function ContextualChatDrawer({
               <div className="min-w-0">
                 <h2 className="truncate text-lg font-black tracking-tight text-slate-950">{resolvedTitle}</h2>
                 <div className="mt-1 flex flex-wrap items-center gap-2">
-                  <span className="inline-flex h-6 items-center rounded-full bg-indigo-50 px-2.5 text-[11px] font-bold text-indigo-700">
+                  <span className="inline-flex h-6 items-center rounded-full bg-emerald-50 px-2.5 text-[11px] font-bold text-emerald-700">
                     {resolvedSubtitle}
                   </span>
                   {statusLabel ? (
@@ -304,7 +306,7 @@ export default function ContextualChatDrawer({
                         <div
                           className={`rounded-2xl px-4 py-3 shadow-sm ${
                             mine
-                              ? 'border border-indigo-200 bg-[#e9e7ff] text-[#10164a]'
+                              ? 'border border-emerald-200 bg-[#e9e7ff] text-[#10164a]'
                               : 'border border-slate-200 bg-white text-[#10164a]'
                           }`}
                         >
@@ -351,7 +353,7 @@ function DrawerEmptyState({ title }: { title: string }) {
   return (
     <div className="flex h-full min-h-[280px] items-center justify-center">
       <div className="max-w-xs text-center">
-        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-500">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-500">
           <MessageSquare className="h-5 w-5" />
         </div>
         <p className="mt-4 text-sm font-bold text-slate-900">{title}</p>

@@ -73,7 +73,7 @@ export default function BlogDetailPage() {
           </p>
           <Link
             to="/blog"
-            className="mt-8 inline-flex items-center gap-2 rounded-full bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
+            className="mt-8 inline-flex items-center gap-2 rounded-full bg-emerald-600 shadow-md hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 hover:bg-emerald-700 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to handbook
@@ -93,7 +93,7 @@ export default function BlogDetailPage() {
           </Link>
 
           <div className="mt-6 flex flex-wrap items-center gap-3">
-            <span className="inline-flex rounded-full bg-slate-900 px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] text-white">
+            <span className="inline-flex rounded-full bg-emerald-600 shadow-md hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 hover:bg-emerald-700 px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] text-white">
               {post.category}
             </span>
             <span className="text-sm font-medium text-slate-500">{metaLabel}</span>

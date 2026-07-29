@@ -86,9 +86,9 @@ export default function DashboardPage() {
       label: 'Wallet Balance',
       value: formatMxc(stats.walletBalance),
       icon: Wallet,
-      color: 'from-violet-500 to-violet-600',
-      bgLight: 'bg-violet-50 dark:bg-violet-900/20',
-      textColor: 'text-violet-600 dark:text-violet-400',
+      color: 'from-emerald-500 to-emerald-600',
+      bgLight: 'bg-emerald-50 dark:bg-emerald-900/20',
+      textColor: 'text-emerald-600 dark:text-emerald-400',
       link: '/wallet',
       isString: true,
     },
@@ -164,7 +164,7 @@ export default function DashboardPage() {
             {[
               { to: '/jobs/create', label: 'Post a New Job', sub: 'Find the perfect mentor', icon: Briefcase, color: 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' },
               { to: '/become-a-mentor', label: 'Become a Mentor', sub: 'Share your expertise', icon: Users, color: 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400' },
-              { to: '/courses', label: 'Browse Courses', sub: 'Learn something new', icon: BookOpen, color: 'bg-violet-50 dark:bg-violet-900/20 text-violet-600 dark:text-violet-400' },
+              { to: '/courses', label: 'Browse Courses', sub: 'Learn something new', icon: BookOpen, color: 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400' },
               { to: '/wallet', label: 'Manage Wallet', sub: 'Deposit, withdraw, transfer', icon: TrendingUp, color: 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400' },
             ].map((action) => (
               <Link
@@ -197,7 +197,7 @@ export default function DashboardPage() {
             </p>
             <Link
               to="/mentors"
-              className="mt-10 px-8 py-3 bg-gray-50 dark:bg-gray-800 text-gray-400 dark:text-gray-500 font-black text-[10px] uppercase tracking-[0.2em] rounded-2xl hover:bg-indigo-50 dark:hover:bg-indigo-900/20 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all"
+              className="mt-10 px-8 py-3 bg-gray-50 dark:bg-gray-800 text-gray-400 dark:text-gray-500 font-black text-[10px] uppercase tracking-[0.2em] rounded-2xl hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all"
             >
               Start by browsing mentors
             </Link>
@@ -222,7 +222,7 @@ function AnalyticsDashboardSection() {
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {dashboard.sections.map((section) => (
           <div key={section.section} className="rounded-[28px] border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-5 shadow-sm">
-            <h3 className="text-xs font-black uppercase tracking-[0.16em] text-indigo-500 dark:text-indigo-400">
+            <h3 className="text-xs font-black uppercase tracking-[0.16em] text-emerald-500 dark:text-emerald-400">
               {formatSectionLabel(section.section)}
             </h3>
             <div className="mt-3 space-y-2">

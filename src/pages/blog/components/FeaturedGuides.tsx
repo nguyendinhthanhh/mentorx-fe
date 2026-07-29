@@ -54,8 +54,8 @@ export function FeaturedGuides({
                 <img src={post.coverImage} alt={post.title} loading="lazy" decoding="async" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
               </div>
               <div className="flex flex-1 flex-col p-5">
-                <span className="text-[11px] font-bold uppercase tracking-wide text-indigo-600">{post.category}</span>
-                <h4 className="mt-2 text-lg font-bold leading-snug text-slate-900 transition-colors group-hover:text-indigo-600">
+                <span className="text-[11px] font-bold uppercase tracking-wide text-emerald-600">{post.category}</span>
+                <h4 className="mt-2 text-lg font-bold leading-snug text-slate-900 transition-colors group-hover:text-emerald-600">
                   <Link to={`/blog/${post.slug}`}>
                     <span className="absolute inset-0" />
                     {post.title}

@@ -358,7 +358,7 @@ function BlogPagination({
             aria-current={page === pageNumber ? 'page' : undefined}
             className={
               page === pageNumber
-                ? 'rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white shadow-sm'
+                ? 'rounded-full bg-emerald-600 shadow-md hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 hover:bg-emerald-700 px-4 py-2 text-sm font-semibold text-white shadow-sm'
                 : 'rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-100'
             }
           >

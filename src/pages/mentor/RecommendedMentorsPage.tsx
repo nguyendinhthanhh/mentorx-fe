@@ -185,7 +185,7 @@ function MentorCard({
   return (
     <article className="flex h-full flex-col border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
       <div className="flex items-start gap-4">
-        <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-slate-900 text-lg font-bold text-white">
+        <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-emerald-600 shadow-md hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 hover:bg-emerald-700 text-lg font-bold text-white">
           {mentor.avatarUrl ? (
             <img
               src={mentor.avatarUrl}

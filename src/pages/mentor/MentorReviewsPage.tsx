@@ -144,7 +144,7 @@ export default function MentorReviewsPage() {
       {/* Compact Header */}
       <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between mb-8">
         <div>
-          <div className="inline-flex items-center gap-2 rounded-full bg-indigo-50 px-3 py-1 text-[11px] uppercase tracking-widest font-black text-indigo-600 mb-3 border border-indigo-100 shadow-sm">
+          <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-[11px] uppercase tracking-widest font-black text-emerald-600 mb-3 border border-emerald-100 shadow-sm">
             <Sparkles className="w-3.5 h-3.5 text-amber-500" />
             Pipeline Overview
           </div>
@@ -157,8 +157,8 @@ export default function MentorReviewsPage() {
         <div className="flex items-center gap-4">
           <div className="hidden lg:flex items-center gap-4 rounded-2xl border border-slate-200/60 bg-white/50 py-2.5 shadow-sm backdrop-blur-md">
             <div className="flex flex-col px-5 border-r border-slate-200/60">
-               <span className="text-[10px] font-black uppercase tracking-widest text-indigo-600/70">Trung bình</span>
-               <span className="text-xl font-black text-indigo-600">{summary.average.toFixed(1)} / 5</span>
+               <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600/70">Trung bình</span>
+               <span className="text-xl font-black text-emerald-600">{summary.average.toFixed(1)} / 5</span>
             </div>
             <div className="flex flex-col px-5 border-r border-slate-200/60">
                <span className="text-[10px] font-black uppercase tracking-widest text-amber-600/70">Tổng đánh giá</span>
@@ -231,7 +231,7 @@ export default function MentorReviewsPage() {
           {loading ? (
             <LoadingRows rows={4} />
           ) : error ? (
-            <StateCard tone="error" title="Unable to load reviews" message={error} action={<button onClick={loadReviews} className="rounded-2xl bg-indigo-600 px-4 py-2 text-sm font-bold text-white">Retry</button>} />
+            <StateCard tone="error" title="Unable to load reviews" message={error} action={<button onClick={loadReviews} className="rounded-2xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white">Retry</button>} />
           ) : filteredReviews.length === 0 ? (
             <StateCard title="No reviews yet" message="Reviews will appear after clients complete contracts or learners finish courses." />
           ) : (
@@ -240,7 +240,7 @@ export default function MentorReviewsPage() {
                 <article key={review.id} className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                     <div className="flex gap-3">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-indigo-100 text-sm font-bold text-indigo-700">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-sm font-bold text-emerald-700">
                         {getInitials(review.reviewerName)}
                       </div>
                       <div>
@@ -275,9 +275,9 @@ export default function MentorReviewsPage() {
                   {review.reviewTitle ? <h3 className="mt-5 text-base font-bold text-slate-900">{review.reviewTitle}</h3> : null}
                   <p className="mt-3 text-sm font-medium leading-6 text-slate-600">{review.reviewText || 'No written comment provided.'}</p>
                   {review.responseText ? (
-                    <div className="mt-5 rounded-xl bg-indigo-50 p-4">
-                      <p className="text-xs font-semibold uppercase tracking-wider text-indigo-500">Phản hồi của bạn</p>
-                      <p className="mt-2 text-sm font-semibold leading-6 text-indigo-900">{review.responseText}</p>
+                    <div className="mt-5 rounded-xl bg-emerald-50 p-4">
+                      <p className="text-xs font-semibold uppercase tracking-wider text-emerald-500">Phản hồi của bạn</p>
+                      <p className="mt-2 text-sm font-semibold leading-6 text-emerald-900">{review.responseText}</p>
                     </div>
                   ) : replyingToReviewId === review.id ? (
                     <div className="mt-5 rounded-xl bg-slate-50 p-4">
@@ -285,7 +285,7 @@ export default function MentorReviewsPage() {
                         value={replyText}
                         onChange={(e) => setReplyText(e.target.value)}
                         placeholder="Nhập nội dung phản hồi của bạn... (Chỉ được phản hồi 1 lần duy nhất)"
-                        className="h-24 w-full rounded-xl border border-slate-200 bg-white p-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                        className="h-24 w-full rounded-xl border border-slate-200 bg-white p-3 text-sm text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                       />
                       <div className="mt-3 flex justify-end gap-3">
                         <button
@@ -298,7 +298,7 @@ export default function MentorReviewsPage() {
                         <button
                           disabled={isSubmittingReply || !replyText.trim()}
                           onClick={() => submitReply(review.id)}
-                          className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-indigo-700 disabled:opacity-50"
+                          className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-emerald-700 disabled:opacity-50"
                         >
                           {isSubmittingReply ? 'Đang gửi...' : 'Gửi phản hồi'}
                         </button>
@@ -310,7 +310,7 @@ export default function MentorReviewsPage() {
                         setReplyingToReviewId(review.id)
                         setReplyText('')
                       }}
-                      className="mt-5 flex items-center gap-2 text-sm font-bold text-indigo-600 transition-colors hover:text-indigo-700"
+                      className="mt-5 flex items-center gap-2 text-sm font-bold text-emerald-600 transition-colors hover:text-emerald-700"
                     >
                       <MessageSquareReply className="h-4 w-4" />
                       Phản hồi đánh giá này
@@ -354,7 +354,7 @@ export default function MentorReviewsPage() {
                   value={reportReason}
                   onChange={(e) => setReportReason(e.target.value)}
                   placeholder="Mô tả rõ tại sao đánh giá này vi phạm tiêu chuẩn cộng đồng..."
-                  className="h-24 w-full rounded-xl border border-slate-200 bg-white p-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                  className="h-24 w-full rounded-xl border border-slate-200 bg-white p-3 text-sm text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                 />
               </label>
             </div>

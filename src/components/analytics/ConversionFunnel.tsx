@@ -29,7 +29,7 @@ export default function ConversionFunnel() {
             onClick={() => setActiveFunnel(tab.type)}
             className={`whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-bold transition ${
               activeFunnel === tab.type
-                ? 'bg-white text-indigo-700 shadow-sm'
+                ? 'bg-white text-emerald-700 shadow-sm'
                 : 'text-slate-500 hover:text-slate-900'
             }`}
           >

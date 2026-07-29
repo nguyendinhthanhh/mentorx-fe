@@ -47,7 +47,7 @@ export default function SavedMentorsPage() {
           </div>
           <Link
             to="/mentors"
-            className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-indigo-200 bg-indigo-50 px-4 text-sm font-black text-indigo-700 transition hover:bg-indigo-100 dark:border-indigo-900 dark:bg-indigo-950/30 dark:text-indigo-300"
+            className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 text-sm font-black text-emerald-700 transition hover:bg-emerald-100 dark:border-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-300"
           >
             Tìm thêm mentor
             <ArrowRight className="h-4 w-4" />
@@ -95,7 +95,7 @@ function SavedMentorCard({
   const rate = mentor.hourlyRateMxc ? formatCurrency(mentor.hourlyRateMxc) : 'Linh hoạt'
 
   return (
-    <article className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-lg dark:border-gray-800 dark:bg-slate-950">
+    <article className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-emerald-200 hover:shadow-lg dark:border-gray-800 dark:bg-slate-950">
       <div className="flex gap-4">
         <div className="h-20 w-20 shrink-0 overflow-hidden rounded-2xl bg-gray-100 dark:bg-gray-900">
           <img src={image} alt={name} loading="lazy" decoding="async" className="h-full w-full object-cover" />
@@ -136,14 +136,14 @@ function SavedMentorCard({
       <div className="mt-4 flex gap-3">
         <Link
           to={`/mentors/${mentor.userId}`}
-          className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 text-sm font-black text-white transition hover:bg-indigo-700"
+          className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-black text-white transition hover:bg-emerald-700"
         >
           Xem hồ sơ
           <ArrowRight className="h-4 w-4" />
         </Link>
         <Link
           to="/chat"
-          className="flex h-11 w-11 items-center justify-center rounded-xl border border-gray-300 bg-white text-gray-600 transition hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700 dark:border-gray-800 dark:bg-slate-950 dark:text-gray-400"
+          className="flex h-11 w-11 items-center justify-center rounded-xl border border-gray-300 bg-white text-gray-600 transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700 dark:border-gray-800 dark:bg-slate-950 dark:text-gray-400"
           aria-label={`Nhắn tin ${name}`}
           title="Tin nhắn"
         >
@@ -203,7 +203,7 @@ function EmptySavedMentors() {
       </p>
       <Link
         to="/mentors"
-        className="mt-5 inline-flex h-11 items-center justify-center rounded-xl bg-indigo-600 px-5 text-sm font-black text-white transition hover:bg-indigo-700"
+        className="mt-5 inline-flex h-11 items-center justify-center rounded-xl bg-emerald-600 px-5 text-sm font-black text-white transition hover:bg-emerald-700"
       >
         Khám phá mentor
       </Link>

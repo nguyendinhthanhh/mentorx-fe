@@ -160,15 +160,15 @@ export default function CourseDetailPage() {
 
   const getLessonIcon = (lesson: CourseLessonResponse) => {
     if (lesson.videoUrl) {
-      return <Play className="h-4 w-4 text-indigo-600" />
+      return <Play className="h-4 w-4 text-emerald-600" />
     }
     if (lesson.resourceUrl) {
-      return <Download className="h-4 w-4 text-indigo-600" />
+      return <Download className="h-4 w-4 text-emerald-600" />
     }
     if (lesson.articleContent) {
-      return <FileText className="h-4 w-4 text-indigo-600" />
+      return <FileText className="h-4 w-4 text-emerald-600" />
     }
-    return <BookOpen className="h-4 w-4 text-indigo-600" />
+    return <BookOpen className="h-4 w-4 text-emerald-600" />
   }
 
   const isDocumentProduct = course?.productType === CourseProductType.DOCUMENT
@@ -324,7 +324,7 @@ export default function CourseDetailPage() {
 
       {/* Hero Section */}
       <div
-        className={`relative overflow-hidden text-white ${course.thumbnailUrl ? 'bg-slate-950' : 'bg-gradient-to-br from-indigo-600 via-indigo-700 to-purple-800'}`}
+        className={`relative overflow-hidden text-white ${course.thumbnailUrl ? 'bg-slate-950' : 'bg-gradient-to-br from-emerald-600 via-emerald-700 to-emerald-800'}`}
         style={course.thumbnailUrl ? { backgroundImage: `url(${course.thumbnailUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}
       >
         {course.thumbnailUrl && <div className="absolute inset-0 bg-slate-950/75 backdrop-blur-[2px]" />}
@@ -350,7 +350,7 @@ export default function CourseDetailPage() {
               </h1>
 
               {/* Subtitle */}
-              <p className="text-base leading-relaxed text-indigo-100 sm:text-xl">
+              <p className="text-base leading-relaxed text-emerald-100 sm:text-xl">
                 {course.description
                   ? `${course.description.substring(0, 150)}${course.description.length > 150 ? '...' : ''}`
                   : isDocumentProduct ? 'Download a practical mentor-created document resource.' : 'Learn with practical mentor-led content and reusable resources.'}
@@ -365,10 +365,10 @@ export default function CourseDetailPage() {
                     className="w-10 h-10 rounded-full border-2 border-white/20"
                   />
                   <div>
-                    <p className="text-xs text-indigo-200">Created by</p>
+                    <p className="text-xs text-emerald-200">Created by</p>
                     <p className="font-semibold">{getInstructorName(course, instructorProfile)}</p>
                     {getInstructorHeadline(instructorProfile) && (
-                      <p className="text-xs text-indigo-100">{getInstructorHeadline(instructorProfile)}</p>
+                      <p className="text-xs text-emerald-100">{getInstructorHeadline(instructorProfile)}</p>
                     )}
                   </div>
                 </Link>
@@ -377,7 +377,7 @@ export default function CourseDetailPage() {
                   <div className="flex items-center gap-1.5">
                     <Star className="w-5 h-5 fill-amber-400 text-amber-400" />
                     <span className="font-bold">{course.averageRating.toFixed(1)}</span>
-                    <span className="text-indigo-200">({course.totalReviews || 0} reviews)</span>
+                    <span className="text-emerald-200">({course.totalReviews || 0} reviews)</span>
                   </div>
                 )}
 
@@ -489,7 +489,7 @@ export default function CourseDetailPage() {
                   onClick={() => setActiveTab(tab.id as TabType)}
                   className={`flex min-w-[140px] flex-1 items-center justify-center gap-2 px-4 py-4 text-sm font-semibold transition border-b-2 sm:px-6 ${
                     activeTab === tab.id
-                      ? 'border-indigo-600 text-indigo-600 bg-indigo-50/50'
+                      ? 'border-emerald-600 text-emerald-600 bg-emerald-50/50'
                       : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'
                   }`}
                 >
@@ -520,7 +520,7 @@ export default function CourseDetailPage() {
                 {/* Requirements */}
                 <div>
                   <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                    <Target className="w-6 h-6 text-indigo-600" />
+                    <Target className="w-6 h-6 text-emerald-600" />
                     Requirements
                   </h2>
                   <ul className="space-y-2">
@@ -550,7 +550,7 @@ export default function CourseDetailPage() {
                       { icon: TrendingUp, text: `${Math.round(courseStats?.completionRate || 0)}% completion rate` },
                     ].map((item, index) => (
                       <div key={index} className="flex items-center gap-3">
-                        <item.icon className="w-5 h-5 text-indigo-600" />
+                        <item.icon className="w-5 h-5 text-emerald-600" />
                         <span className="text-sm text-gray-700">{item.text}</span>
                       </div>
                     ))}
@@ -601,14 +601,14 @@ export default function CourseDetailPage() {
         <div className="flex items-center justify-between gap-4">
           <div>
             <p className="text-sm text-gray-500">Price</p>
-            <p className="text-2xl font-bold text-indigo-600">
+            <p className="text-2xl font-bold text-emerald-600">
               {displayPrice ? formatCurrency(displayPrice) : 'Free'}
             </p>
           </div>
           <button
             onClick={handleEnroll}
             disabled={enrollMutation.isLoading || (!isPublished && !isEnrolled)}
-            className="flex-1 bg-indigo-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-indigo-700 transition-colors disabled:bg-gray-300"
+            className="flex-1 bg-emerald-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-emerald-700 transition-colors disabled:bg-gray-300"
           >
             {!isPublished && !isEnrolled ? 'Archived' : enrollMutation.isLoading ? 'Enrolling...' : isEnrolled ? (isDocumentProduct ? 'Open Document' : 'Continue Learning') : (isDocumentProduct ? 'Get Document' : 'Enroll Now')}
           </button>
@@ -656,9 +656,9 @@ function formatDurationText(minutes: number) {
 function CourseTaxonomyPanel({ domainName, skills }: { domainName?: string; skills: string[] }) {
   if (!domainName && skills.length === 0) return null
   return (
-    <div className="rounded-xl border border-indigo-100 bg-indigo-50/60 p-5">
+    <div className="rounded-xl border border-emerald-100 bg-emerald-50/60 p-5">
       <h2 className="mb-3 flex items-center gap-2 text-lg font-bold text-gray-900">
-        <Tag className="h-5 w-5 text-indigo-600" />
+        <Tag className="h-5 w-5 text-emerald-600" />
         Domain and skills
       </h2>
       <div className="flex flex-wrap gap-2">
@@ -669,7 +669,7 @@ function CourseTaxonomyPanel({ domainName, skills }: { domainName?: string; skil
           </span>
         )}
         {skills.map((skill) => (
-          <span key={skill} className="rounded-full bg-indigo-600 px-3 py-1.5 text-sm font-bold text-white">
+          <span key={skill} className="rounded-full bg-emerald-600 px-3 py-1.5 text-sm font-bold text-white">
             {skill}
           </span>
         ))}
@@ -705,7 +705,7 @@ function AddCoinsPrompt({ onClose }: { onClose: () => void }) {
       <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="rounded-xl bg-indigo-50 p-3 text-indigo-600">
+            <div className="rounded-xl bg-emerald-50 p-3 text-emerald-600">
               <Wallet className="h-6 w-6" />
             </div>
             <div>
@@ -728,7 +728,7 @@ function AddCoinsPrompt({ onClose }: { onClose: () => void }) {
         <div className="mt-6 flex flex-col gap-3 sm:flex-row">
           <Link
             to="/wallet"
-            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-indigo-700"
+            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700"
           >
             <Wallet className="h-4 w-4" />
             Go to wallet
@@ -762,7 +762,7 @@ function CoursePreviewCard({ course, isEnrolled, isEnrollmentLoading, isEnrollin
   return (
     <div className={`bg-white rounded-2xl border overflow-hidden shadow-lg ${isDocumentProduct ? 'border-amber-200' : 'border-gray-200'}`}>
       {/* Thumbnail */}
-      <div className="relative aspect-video bg-gradient-to-br from-indigo-500 to-purple-600">
+      <div className="relative aspect-video bg-gradient-to-br from-emerald-500 to-emerald-600">
         {course.previewVideoUrl ? (
           <video
             src={course.previewVideoUrl}
@@ -820,7 +820,7 @@ function CoursePreviewCard({ course, isEnrolled, isEnrollmentLoading, isEnrollin
                 <button
                   type="button"
                   onClick={onPreview}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-indigo-200 px-6 py-3 font-semibold text-indigo-700 transition-colors hover:bg-indigo-50"
+                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-200 px-6 py-3 font-semibold text-emerald-700 transition-colors hover:bg-emerald-50"
                 >
                   <PlayCircle className="h-5 w-5" />
                   Preview course
@@ -829,7 +829,7 @@ function CoursePreviewCard({ course, isEnrolled, isEnrollmentLoading, isEnrollin
               <button
                 onClick={onEnroll}
                 disabled={isEnrollmentLoading || isEnrolling || (!isPublished && !isEnrolled)}
-                className="w-full bg-indigo-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-indigo-700 transition-colors disabled:bg-gray-300"
+                className="w-full bg-emerald-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-emerald-700 transition-colors disabled:bg-gray-300"
               >
                 {!isPublished && !isEnrolled ? 'Archived' : isEnrolling ? (isPaid ? 'Processing...' : 'Enrolling...') : actionLabel}
               </button>
@@ -983,7 +983,7 @@ function CurriculumTab({
                               window.location.href = lessonPath(courseId, lesson)
                             }}
                             disabled={previewingLessonId === lesson.id}
-                            className="rounded-lg border border-indigo-200 px-4 py-2 text-sm font-medium text-indigo-600 transition hover:border-indigo-300 hover:bg-indigo-50 disabled:opacity-60"
+                            className="rounded-lg border border-emerald-200 px-4 py-2 text-sm font-medium text-emerald-600 transition hover:border-emerald-300 hover:bg-emerald-50 disabled:opacity-60"
                           >
                             {previewingLessonId === lesson.id ? 'Opening...' : lesson.isFreePreview && !isEnrolled ? 'Preview' : 'Open'}
                           </button>
@@ -1044,7 +1044,7 @@ function InstructorTab({ instructor, mentorProfile, course }: { instructor: any;
       {/* Instructor Profile */}
       <Link
         to={`/mentors/${course.instructorId}`}
-        className="flex flex-col gap-6 rounded-2xl border border-gray-100 p-4 transition hover:border-indigo-200 hover:bg-indigo-50/40 sm:flex-row sm:items-start"
+        className="flex flex-col gap-6 rounded-2xl border border-gray-100 p-4 transition hover:border-emerald-200 hover:bg-emerald-50/40 sm:flex-row sm:items-start"
       >
         <img
           src={instructorAvatar}
@@ -1093,7 +1093,7 @@ function InstructorTab({ instructor, mentorProfile, course }: { instructor: any;
             {mentorSkills?.map((skill) => (
               <span
                 key={skill}
-                className="px-4 py-2 bg-indigo-50 text-indigo-700 rounded-lg text-sm font-medium"
+                className="px-4 py-2 bg-emerald-50 text-emerald-700 rounded-lg text-sm font-medium"
               >
                 {skill}
               </span>

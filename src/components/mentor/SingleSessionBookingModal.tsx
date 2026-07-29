@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
 import toast from 'react-hot-toast'
@@ -31,6 +31,7 @@ export default function SingleSessionBookingModal({
   const queryClient = useQueryClient()
   const [selectedStartTime, setSelectedStartTime] = useState('')
   const [notes, setNotes] = useState('')
+  const bookingAttemptRef = useRef<{ fingerprint: string; key: string } | null>(null)
 
   const { data: slots = [], isLoading: slotsLoading, refetch: refetchSlots } = useQuery(
     ['appointment-bookable-slots', mentorUserId, packageItem?.id],
@@ -42,7 +43,7 @@ export default function SingleSessionBookingModal({
   )
 
   const { data: balance } = useQuery(
-    ['wallet-balance', userId],
+    ['userBalance', userId],
     () => walletApi.getUserBalance(userId!),
     {
       enabled: open && Boolean(userId),
@@ -63,14 +64,25 @@ export default function SingleSessionBookingModal({
   }, [open, selectedStartTime, slots])
 
   const bookMutation = useMutation(
-    () => appointmentApi.bookAppointment({
-      mentorPackageId: packageItem!.id,
-      startTime: selectedStartTime,
-      notes: notes.trim() || undefined,
-    }),
+    () => {
+      const payload = {
+        mentorPackageId: packageItem!.id,
+        startTime: selectedStartTime,
+        notes: notes.trim() || undefined,
+      }
+      const fingerprint = JSON.stringify(payload)
+      if (bookingAttemptRef.current?.fingerprint !== fingerprint) {
+        bookingAttemptRef.current = {
+          fingerprint,
+          key: crypto.randomUUID(),
+        }
+      }
+      return appointmentApi.bookAppointment(payload, bookingAttemptRef.current.key)
+    },
     {
       onSuccess: (appointment) => {
-        queryClient.invalidateQueries(['wallet-balance', userId])
+        bookingAttemptRef.current = null
+        queryClient.invalidateQueries(['userBalance', userId])
         queryClient.invalidateQueries(['userAppointments', userId])
         queryClient.invalidateQueries(['appointment-bookable-slots', mentorUserId, packageItem?.id])
         toast.success('Đã đặt lịch và giữ tiền trong escrow.')
@@ -78,6 +90,9 @@ export default function SingleSessionBookingModal({
       },
       onError: async (error: any) => {
         const status = error?.response?.status
+        if (error?.response && status < 500) {
+          bookingAttemptRef.current = null
+        }
 
         if (!error?.response) {
           toast.error('Không kết nối được tới máy chủ. Kiểm tra backend và thử lại.')
@@ -124,7 +139,7 @@ export default function SingleSessionBookingModal({
         <div className="shrink-0 border-b border-slate-100 px-5 py-4 sm:px-6">
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
-              <p className="text-[11px] font-black uppercase tracking-[0.18em] text-indigo-500">Đặt lịch trực tiếp</p>
+              <p className="text-[11px] font-black uppercase tracking-[0.18em] text-emerald-500">Đặt lịch trực tiếp</p>
               <h2 className="mt-1 text-lg font-black text-slate-950 sm:text-xl">{packageItem.title}</h2>
               <p className="mt-1 text-sm font-medium text-slate-500">
                 {mentorName} • {packageItem.durationHours}h • {formatMxc(packageItem.priceMxc, 'vi')}
@@ -144,7 +159,7 @@ export default function SingleSessionBookingModal({
         <div className="flex-1 overflow-y-auto">
           <div className="grid items-start gap-5 px-5 py-5 sm:px-6 lg:grid-cols-[minmax(0,1fr)_280px]">
             <div className="min-w-0">
-              <div className="rounded-2xl border border-indigo-100 bg-indigo-50/70 p-4">
+              <div className="rounded-2xl border border-emerald-100 bg-emerald-50/70 p-4">
                 <h3 className="text-sm font-black text-slate-950">Luồng thanh toán</h3>
                 <div className="mt-3 space-y-2 text-sm font-medium leading-6 text-slate-600">
                   <p>1. Bấm đặt buổi, hệ thống sẽ giữ {formatMxc(packageItem.priceMxc, 'vi')} từ ví MXC của bạn vào escrow.</p>
@@ -156,7 +171,7 @@ export default function SingleSessionBookingModal({
 
               <div className="mt-5">
                 <div className="mb-3 flex items-center gap-2 text-sm font-black text-slate-950">
-                  <CalendarDays className="h-4 w-4 text-indigo-600" />
+                  <CalendarDays className="h-4 w-4 text-emerald-600" />
                   Chọn khung giờ trống
                 </div>
 
@@ -184,8 +199,8 @@ export default function SingleSessionBookingModal({
                                 onClick={() => setSelectedStartTime(slot.startTime)}
                                 className={`inline-flex h-10 items-center gap-2 rounded-full border px-4 text-sm font-bold transition ${
                                   active
-                                    ? 'border-indigo-600 bg-indigo-600 text-white shadow-lg shadow-indigo-600/20'
-                                    : 'border-slate-200 bg-white text-slate-700 hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700'
+                                    ? 'border-emerald-600 bg-emerald-600 text-white shadow-lg shadow-emerald-600/20'
+                                    : 'border-slate-200 bg-white text-slate-700 hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700'
                                 }`}
                               >
                                 <Clock3 className="h-4 w-4" />
@@ -207,7 +222,7 @@ export default function SingleSessionBookingModal({
                   onChange={(event) => setNotes(event.target.value)}
                   rows={3}
                   placeholder="Mục tiêu buổi gặp, CV hoặc link repo, chủ đề bạn muốn mentor chuẩn bị..."
-                  className="mt-2 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-indigo-300 focus:ring-4 focus:ring-indigo-100"
+                  className="mt-2 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100"
                 />
               </label>
             </div>
@@ -215,7 +230,7 @@ export default function SingleSessionBookingModal({
             <aside className="space-y-4 lg:sticky lg:top-0">
               <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                 <div className="flex items-center gap-2 text-sm font-black text-slate-950">
-                  <Wallet className="h-4 w-4 text-indigo-600" />
+                  <Wallet className="h-4 w-4 text-emerald-600" />
                   Ví MXC của bạn
                 </div>
                 <div className="mt-4 space-y-3">
@@ -243,7 +258,7 @@ export default function SingleSessionBookingModal({
                   type="button"
                   onClick={() => bookMutation.mutate()}
                   disabled={!canSubmit}
-                  className="mt-5 inline-flex h-11 w-full items-center justify-center gap-2 rounded-2xl bg-indigo-600 px-4 text-sm font-black text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="mt-5 inline-flex h-11 w-full items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-4 text-sm font-black text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {bookMutation.isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                   Đặt buổi và giữ tiền

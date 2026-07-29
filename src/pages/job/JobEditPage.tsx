@@ -18,7 +18,7 @@ export default function JobEditPage() {
   if (isLoading) {
     return (
       <div className="flex min-h-[420px] items-center justify-center bg-[#f8fafc]">
-        <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
       </div>
     )
   }
@@ -33,7 +33,7 @@ export default function JobEditPage() {
           </p>
           <Link
             to="/my-jobs"
-            className="mt-6 inline-flex h-11 items-center justify-center rounded-xl bg-indigo-600 px-5 text-sm font-bold text-white hover:bg-indigo-700"
+            className="mt-6 inline-flex h-11 items-center justify-center rounded-xl bg-emerald-600 px-5 text-sm font-bold text-white hover:bg-emerald-700"
           >
             Về yêu cầu của tôi
           </Link>

@@ -91,10 +91,10 @@ export const mentorApi = {
     size?: number
     sortBy?: string
     sortDir?: string
-  }): Promise<PaginatedResponse<MentorProfileResponse>> => {
+  }, signal?: AbortSignal): Promise<PaginatedResponse<MentorProfileResponse>> => {
     const response = await apiClient.get<ApiResponse<PaginatedResponse<MentorProfileResponse>>>(
       '/mentors',
-      { params }
+      { params, signal }
     )
     return response.data.data
   },
@@ -117,9 +117,10 @@ export const mentorApi = {
     return response.data.data
   },
 
-  searchMentorsFullText: async (query: string): Promise<MentorProfileResponse[]> => {
+  searchMentorsFullText: async (query: string, signal?: AbortSignal): Promise<MentorProfileResponse[]> => {
     const response = await apiClient.get<ApiResponse<MentorProfileResponse[]>>(
-      `/mentors/search/text?query=${query}`
+      '/mentors/search/text',
+      { params: { query }, signal }
     )
     return response.data.data
   },

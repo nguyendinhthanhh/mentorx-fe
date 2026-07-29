@@ -32,7 +32,7 @@ export function BlogHero({
                 value={query}
                 onChange={(event) => onQueryChange(event.target.value)}
                 placeholder="Search guides, topics..."
-                className="h-11 w-full rounded-xl border border-slate-300 bg-slate-50 pl-10 pr-4 text-sm font-medium text-slate-900 outline-none transition focus:border-indigo-600 focus:bg-white focus:ring-1 focus:ring-indigo-600"
+                className="h-11 w-full rounded-xl border border-slate-300 bg-slate-50 pl-10 pr-4 text-sm font-medium text-slate-900 outline-none transition focus:border-emerald-600 focus:bg-white focus:ring-1 focus:ring-emerald-600"
               />
             </label>
             <div className="scrollbar-hide mt-2.5 flex items-center gap-2 overflow-x-auto">

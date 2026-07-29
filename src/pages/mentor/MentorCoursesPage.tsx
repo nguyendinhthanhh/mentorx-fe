@@ -115,7 +115,7 @@ export default function MentorCoursesPage() {
       {/* Compact Header */}
       <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between mb-8">
         <div>
-          <div className="inline-flex items-center gap-2 rounded-full bg-indigo-50 px-3 py-1 text-[11px] uppercase tracking-widest font-black text-indigo-600 mb-3 border border-indigo-100 shadow-sm">
+          <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-[11px] uppercase tracking-widest font-black text-emerald-600 mb-3 border border-emerald-100 shadow-sm">
             <Sparkles className="w-3.5 h-3.5 text-amber-500" />
             Pipeline Overview
           </div>
@@ -128,8 +128,8 @@ export default function MentorCoursesPage() {
         <div className="flex items-center gap-4">
           <div className="hidden lg:flex items-center gap-4 rounded-2xl border border-slate-200/60 bg-white/50 py-2.5 shadow-sm backdrop-blur-md">
             <div className="flex flex-col px-5 border-r border-slate-200/60">
-               <span className="text-[10px] font-black uppercase tracking-widest text-indigo-600/70">Đang mở</span>
-               <span className="text-xl font-black text-indigo-600">{courses.filter(c => c.status === CourseStatus.PUBLISHED).length}</span>
+               <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600/70">Đang mở</span>
+               <span className="text-xl font-black text-emerald-600">{courses.filter(c => c.status === CourseStatus.PUBLISHED).length}</span>
             </div>
             <div className="flex flex-col px-5 border-r border-slate-200/60">
                <span className="text-[10px] font-black uppercase tracking-widest text-amber-600/70">Lưu trữ</span>
@@ -143,7 +143,7 @@ export default function MentorCoursesPage() {
             </div>
           </div>
 
-          <Link to="/courses/create" className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-slate-900 px-6 text-sm font-bold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-indigo-600 hover:shadow-indigo-500/30 shrink-0">
+          <Link to="/courses/create" className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-emerald-600 shadow-md hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 hover:bg-emerald-700 px-6 text-sm font-bold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-emerald-600 hover:shadow-emerald-500/30 shrink-0">
             <BookOpen className="h-4 w-4" />
             Tạo khóa học mới
           </Link>
@@ -184,14 +184,14 @@ export default function MentorCoursesPage() {
       {loading ? (
         <LoadingRows rows={5} />
       ) : error ? (
-        <StateCard tone="error" title="Unable to load courses and documents" message={error} action={<button onClick={loadCourses} className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-bold text-white">Retry</button>} />
+        <StateCard tone="error" title="Unable to load courses and documents" message={error} action={<button onClick={loadCourses} className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white">Retry</button>} />
       ) : filteredCourses.length === 0 ? (
         <StateCard
           title={courses.length === 0 ? 'No courses or documents yet' : 'No courses or documents match this filter'}
           message={courses.length === 0 ? 'Create your first course or document.' : 'Adjust search, status, or type filters.'}
           action={
             <div className="flex flex-wrap justify-center gap-2">
-              <Link to="/courses/create" className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-bold text-white">Create course</Link>
+              <Link to="/courses/create" className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white">Create course</Link>
               <Link to="/documents/create" className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-700">Create document</Link>
             </div>
           }
@@ -220,7 +220,7 @@ export default function MentorCoursesPage() {
                   return (
                     <tr
                       key={courseId}
-                      className="transition hover:bg-indigo-50/40"
+                      className="transition hover:bg-emerald-50/40"
                     >
                       <td className="px-4 py-4">
                         <div className="flex min-w-0 items-center gap-3">
@@ -228,7 +228,7 @@ export default function MentorCoursesPage() {
                             {course.thumbnailUrl ? (
                               <img src={course.thumbnailUrl} alt={course.title} className="h-full w-full object-cover" />
                             ) : (
-                              <div className="flex h-full w-full items-center justify-center text-indigo-500">
+                              <div className="flex h-full w-full items-center justify-center text-emerald-500">
                                 <BookOpen className="h-5 w-5" />
                               </div>
                             )}

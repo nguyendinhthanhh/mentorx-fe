@@ -22,7 +22,7 @@ export default function LanguageSwitcher({ compact = false }: { compact?: boolea
           onClick={() => setLanguage(item.code as Language)}
           className={`h-8 rounded-lg px-2.5 text-xs font-black transition ${
             language === item.code
-              ? 'bg-indigo-600 text-white shadow-sm'
+              ? 'bg-emerald-600 text-white shadow-sm'
               : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white'
           }`}
           aria-pressed={language === item.code}

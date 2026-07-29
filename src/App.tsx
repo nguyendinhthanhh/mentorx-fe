@@ -7,6 +7,7 @@ import AdminRoute from './components/auth/AdminRoute'
 import AdminOnlyRoute from './components/auth/AdminOnlyRoute'
 import MentorRoute from './components/auth/MentorRoute'
 import ThemeProvider from './components/ThemeProvider'
+import ScrollToTop from './components/ScrollToTop'
 import { authApi } from './api/authApi'
 import { useAuthStore } from './store/authStore'
 import { Toaster } from 'react-hot-toast'
@@ -158,6 +159,7 @@ function App() {
           </Suspense>
         ) : null}
         <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+          <ScrollToTop />
         <Suspense fallback={<AppLoadingScreen />}>
           <Routes>
           {/* Auth Routes */}

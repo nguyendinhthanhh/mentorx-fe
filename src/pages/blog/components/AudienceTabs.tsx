@@ -21,7 +21,7 @@ export function AudienceTabs({
               onClick={() => onChange(tab)}
               className={`whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium transition-colors ${
                 active
-                  ? 'border-indigo-600 text-indigo-600'
+                  ? 'border-emerald-600 text-emerald-600'
                   : 'border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700'
               }`}
             >

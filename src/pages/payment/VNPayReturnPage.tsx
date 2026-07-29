@@ -86,8 +86,8 @@ export default function VNPayReturnPage() {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-50 p-4">
         <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 text-center shadow-sm">
-          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-indigo-50">
-            <Loader2 className="h-10 w-10 animate-spin text-indigo-600" />
+          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-emerald-50">
+            <Loader2 className="h-10 w-10 animate-spin text-emerald-600" />
           </div>
           <h2 className="text-2xl font-bold text-slate-900">Verifying your payment</h2>
           <p className="mt-2 text-sm text-slate-600">Please wait while Mentor X confirms the VNPay callback.</p>
@@ -122,7 +122,7 @@ export default function VNPayReturnPage() {
             <div className="mt-6 space-y-3">
               <button
                 onClick={() => navigate('/wallet')}
-                className="flex w-full items-center justify-center gap-2 rounded-2xl bg-slate-950 px-4 py-3 text-sm font-semibold text-white transition hover:bg-indigo-600"
+                className="flex w-full items-center justify-center gap-2 rounded-2xl bg-slate-950 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-600"
               >
                 <Wallet className="h-4 w-4" />
                 <span>Go to wallet</span>
@@ -154,7 +154,7 @@ export default function VNPayReturnPage() {
             <div className="mt-6 space-y-3">
               <button
                 onClick={() => navigate('/wallet')}
-                className="w-full rounded-2xl bg-slate-950 px-4 py-3 text-sm font-semibold text-white transition hover:bg-indigo-600"
+                className="w-full rounded-2xl bg-slate-950 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-600"
               >
                 Try again
               </button>

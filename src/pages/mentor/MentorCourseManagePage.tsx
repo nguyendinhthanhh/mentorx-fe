@@ -49,7 +49,7 @@ import {
   X,
 } from 'lucide-react'
 
-const editorInputClass = 'w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm text-slate-900 outline-none transition focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10'
+const editorInputClass = 'w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm text-slate-900 outline-none transition focus:border-emerald-400 focus:ring-4 focus:ring-emerald-500/10'
 
 type DraftLesson = {
   clientId: string
@@ -908,7 +908,7 @@ export default function MentorCourseManagePage() {
 
       <div className="flex flex-col gap-4 border-b border-slate-200 pb-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <p className="text-xs font-black uppercase tracking-widest text-indigo-600">{course?.status || 'PUBLISHED'}</p>
+          <p className="text-xs font-black uppercase tracking-widest text-emerald-600">{course?.status || 'PUBLISHED'}</p>
           <h1 className="text-2xl font-black text-slate-900">{course?.title || 'Course editor'}</h1>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -917,7 +917,7 @@ export default function MentorCourseManagePage() {
           {courseId && (
             <Link
               to={`/courses/${courseId}`}
-              className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2 text-sm font-bold text-white hover:bg-slate-800"
+              className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 shadow-md hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 hover:bg-emerald-700 px-4 py-2 text-sm font-bold text-white hover:bg-slate-800"
             >
               View course page
             </Link>
@@ -960,28 +960,28 @@ export default function MentorCourseManagePage() {
         <button
           type="button"
           onClick={() => setActiveTab('info')}
-          className={`shrink-0 rounded-xl px-4 py-2 text-sm font-black ${activeTab === 'info' ? 'bg-indigo-600 text-white' : 'text-slate-600 hover:bg-slate-50'}`}
+          className={`shrink-0 rounded-xl px-4 py-2 text-sm font-black ${activeTab === 'info' ? 'bg-emerald-600 text-white' : 'text-slate-600 hover:bg-slate-50'}`}
         >
           {isDocumentProduct ? 'Document info' : 'Course info'}
         </button>
         {!isDocumentProduct && <button
           type="button"
           onClick={() => setActiveTab('content')}
-          className={`shrink-0 rounded-xl px-4 py-2 text-sm font-black ${activeTab === 'content' ? 'bg-indigo-600 text-white' : 'text-slate-600 hover:bg-slate-50'}`}
+          className={`shrink-0 rounded-xl px-4 py-2 text-sm font-black ${activeTab === 'content' ? 'bg-emerald-600 text-white' : 'text-slate-600 hover:bg-slate-50'}`}
         >
           Course content
         </button>}
         <button
           type="button"
           onClick={() => setActiveTab('sale')}
-          className={`shrink-0 rounded-xl px-4 py-2 text-sm font-black ${activeTab === 'sale' ? 'bg-indigo-600 text-white' : 'text-slate-600 hover:bg-slate-50'}`}
+          className={`shrink-0 rounded-xl px-4 py-2 text-sm font-black ${activeTab === 'sale' ? 'bg-emerald-600 text-white' : 'text-slate-600 hover:bg-slate-50'}`}
         >
           Sales
         </button>
         <button
           type="button"
           onClick={() => setActiveTab('qa')}
-          className={`shrink-0 rounded-xl px-4 py-2 text-sm font-black ${activeTab === 'qa' ? 'bg-indigo-600 text-white' : 'text-slate-600 hover:bg-slate-50'}`}
+          className={`shrink-0 rounded-xl px-4 py-2 text-sm font-black ${activeTab === 'qa' ? 'bg-emerald-600 text-white' : 'text-slate-600 hover:bg-slate-50'}`}
         >
           Q&A
           {(qaSummary?.unansweredLearners || 0) > 0 && (
@@ -994,7 +994,7 @@ export default function MentorCourseManagePage() {
           <button
             type="button"
             onClick={() => setActiveTab('reviews')}
-            className={`shrink-0 rounded-xl px-4 py-2 text-sm font-black ${activeTab === 'reviews' ? 'bg-indigo-600 text-white' : 'text-slate-600 hover:bg-slate-50'}`}
+            className={`shrink-0 rounded-xl px-4 py-2 text-sm font-black ${activeTab === 'reviews' ? 'bg-emerald-600 text-white' : 'text-slate-600 hover:bg-slate-50'}`}
           >
             Reviews
           </button>
@@ -1085,7 +1085,7 @@ export default function MentorCourseManagePage() {
                                 type="button"
                                 onMouseDown={(event) => event.preventDefault()}
                                 onClick={() => selectCourseCategory(category)}
-                                className="flex w-full flex-col rounded-lg px-3 py-2 text-left hover:bg-indigo-50"
+                                className="flex w-full flex-col rounded-lg px-3 py-2 text-left hover:bg-emerald-50"
                               >
                                 <span className="text-sm font-semibold text-slate-900">{categoryLabel(category)}</span>
                                 <span className="text-xs text-slate-500">{category.slug}</span>
@@ -1149,7 +1149,7 @@ export default function MentorCourseManagePage() {
                                 type="button"
                                 onMouseDown={(event) => event.preventDefault()}
                                 onClick={commitCourseSkillQuery}
-                                className="flex w-full flex-col rounded-lg px-3 py-2 text-left text-indigo-700 hover:bg-indigo-50"
+                                className="flex w-full flex-col rounded-lg px-3 py-2 text-left text-emerald-700 hover:bg-emerald-50"
                               >
                                 <span className="text-sm font-black">Add "{normalizeLabel(skillQuery)}"</span>
                                 <span className="text-xs">Use this skill for the course</span>
@@ -1161,7 +1161,7 @@ export default function MentorCourseManagePage() {
                                 type="button"
                                 onMouseDown={(event) => event.preventDefault()}
                                 onClick={() => addCourseSkill({ id: skill.id, label: skillLabel(skill) })}
-                                className="flex w-full flex-col rounded-lg px-3 py-2 text-left hover:bg-indigo-50"
+                                className="flex w-full flex-col rounded-lg px-3 py-2 text-left hover:bg-emerald-50"
                               >
                                 <span className="text-sm font-semibold text-slate-900">{skill.labelEn}</span>
                                 <span className="text-xs text-slate-500">{skill.slug}</span>
@@ -1174,7 +1174,7 @@ export default function MentorCourseManagePage() {
                             onMouseDown={(event) => event.preventDefault()}
                             onClick={commitCourseSkillQuery}
                             disabled={!normalizeLabel(skillQuery)}
-                            className="flex w-full flex-col rounded-lg px-3 py-2 text-left text-indigo-700 hover:bg-indigo-50 disabled:cursor-not-allowed disabled:text-slate-400"
+                            className="flex w-full flex-col rounded-lg px-3 py-2 text-left text-emerald-700 hover:bg-emerald-50 disabled:cursor-not-allowed disabled:text-slate-400"
                           >
                             <span className="text-sm font-black">{normalizeLabel(skillQuery) ? `Add "${normalizeLabel(skillQuery)}"` : 'No matching active skills.'}</span>
                             {normalizeLabel(skillQuery) && <span className="text-xs">Use this skill for the course</span>}
@@ -1185,9 +1185,9 @@ export default function MentorCourseManagePage() {
                   </div>
                   <div className="mt-3 flex flex-wrap gap-2">
                     {selectedCourseSkills.map((skill: SkillChip) => (
-                      <span key={skill.label.toLowerCase()} className="inline-flex items-center gap-2 rounded-full bg-indigo-50 px-3 py-1 text-sm font-semibold text-indigo-700">
+                      <span key={skill.label.toLowerCase()} className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-sm font-semibold text-emerald-700">
                         {skill.label}
-                        <button type="button" onClick={() => removeCourseSkill(skill.label)} className="text-indigo-400 hover:text-indigo-700" title="Remove skill">
+                        <button type="button" onClick={() => removeCourseSkill(skill.label)} className="text-emerald-400 hover:text-emerald-700" title="Remove skill">
                           <X className="h-3.5 w-3.5" />
                         </button>
                       </span>
@@ -1207,7 +1207,7 @@ export default function MentorCourseManagePage() {
                     type="button"
                     onClick={() => updateCourseDetailsMutation.mutate()}
                     disabled={(!detailsDirty && !(isDocumentProduct && dirty)) || updateCourseDetailsMutation.isLoading}
-                    className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2 text-sm font-bold text-white disabled:bg-slate-300"
+                    className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 shadow-md hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 hover:bg-emerald-700 px-4 py-2 text-sm font-bold text-white disabled:bg-slate-300"
                   >
                     {updateCourseDetailsMutation.isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                     Save {isDocumentProduct ? 'document' : 'course'} details
@@ -1310,7 +1310,7 @@ export default function MentorCourseManagePage() {
                 type="button"
                 onClick={() => updateCourseDetailsMutation.mutate()}
                 disabled={!detailsDirty || updateCourseDetailsMutation.isLoading}
-                className="mt-4 inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2 text-sm font-bold text-white disabled:bg-slate-300"
+                className="mt-4 inline-flex items-center gap-2 rounded-xl bg-emerald-600 shadow-md hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 hover:bg-emerald-700 px-4 py-2 text-sm font-bold text-white disabled:bg-slate-300"
               >
                 {updateCourseDetailsMutation.isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                 Save sale schedule
@@ -1327,7 +1327,7 @@ export default function MentorCourseManagePage() {
           <aside className="min-h-0 overflow-y-auto border-r border-slate-200 bg-slate-50">
           <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-slate-50 p-4">
             <h2 className="text-sm font-black uppercase tracking-widest text-slate-500">{isDocumentProduct ? 'Document' : 'Sections'}</h2>
-            {!isDocumentProduct && <button onClick={addSection} className="rounded-lg p-2 text-slate-500 hover:bg-white hover:text-indigo-600" title="Add section">
+            {!isDocumentProduct && <button onClick={addSection} className="rounded-lg p-2 text-slate-500 hover:bg-white hover:text-emerald-600" title="Add section">
               <Plus className="h-5 w-5" />
             </button>}
           </div>
@@ -1336,7 +1336,7 @@ export default function MentorCourseManagePage() {
               <div key={section.clientId} className="rounded-xl border border-slate-200 bg-white">
                 <div
                   className={`flex items-center gap-1 px-2 py-2 ${
-                    selection?.type === 'section' && selection.sectionClientId === section.clientId ? 'text-indigo-700' : 'text-slate-800'
+                    selection?.type === 'section' && selection.sectionClientId === section.clientId ? 'text-emerald-700' : 'text-slate-800'
                   }`}
                 >
                   <button
@@ -1360,7 +1360,7 @@ export default function MentorCourseManagePage() {
                       key={lesson.clientId}
                       className={`flex items-center gap-1 rounded-lg px-1 py-1 text-sm font-semibold ${
                         selection?.type === 'lesson' && selection.lessonClientId === lesson.clientId
-                          ? 'bg-indigo-50 text-indigo-700'
+                          ? 'bg-emerald-50 text-emerald-700'
                           : 'text-slate-600 hover:bg-slate-50'
                       }`}
                     >
@@ -1382,10 +1382,10 @@ export default function MentorCourseManagePage() {
                     </div>
                   ))}
                   {!isDocumentProduct && <div className="grid grid-cols-2 gap-1 pt-1">
-                    <button onClick={() => addLesson(section.clientId, LessonType.LESSON)} className="rounded-lg border border-slate-200 px-2 py-1.5 text-xs font-bold text-slate-600 hover:border-indigo-200 hover:text-indigo-600">
+                    <button onClick={() => addLesson(section.clientId, LessonType.LESSON)} className="rounded-lg border border-slate-200 px-2 py-1.5 text-xs font-bold text-slate-600 hover:border-emerald-200 hover:text-emerald-600">
                       + Lesson
                     </button>
-                    <button onClick={() => addLesson(section.clientId, LessonType.QUIZ)} className="rounded-lg border border-slate-200 px-2 py-1.5 text-xs font-bold text-slate-600 hover:border-indigo-200 hover:text-indigo-600">
+                    <button onClick={() => addLesson(section.clientId, LessonType.QUIZ)} className="rounded-lg border border-slate-200 px-2 py-1.5 text-xs font-bold text-slate-600 hover:border-emerald-200 hover:text-emerald-600">
                       + Quiz
                     </button>
                   </div>}
@@ -1422,7 +1422,7 @@ export default function MentorCourseManagePage() {
           <button
             onClick={() => saveMutation.mutate()}
             disabled={saveMutation.isLoading}
-            className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-bold text-white disabled:bg-slate-300"
+            className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white disabled:bg-slate-300"
           >
             {saveMutation.isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             Save content
@@ -1435,7 +1435,7 @@ export default function MentorCourseManagePage() {
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div>
               <h2 className="flex items-center gap-2 text-base font-black text-slate-900">
-                <MessageSquare className="h-5 w-5 text-indigo-600" />
+                <MessageSquare className="h-5 w-5 text-emerald-600" />
                 Course Q&A
               </h2>
               <p className="text-sm font-medium text-slate-500">Answer learner questions for this product.</p>
@@ -1447,7 +1447,7 @@ export default function MentorCourseManagePage() {
 
           {qaLoading ? (
             <div className="flex min-h-48 items-center justify-center">
-              <Loader2 className="h-7 w-7 animate-spin text-indigo-600" />
+              <Loader2 className="h-7 w-7 animate-spin text-emerald-600" />
             </div>
           ) : qaThreads.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-slate-200 p-8 text-center">
@@ -1473,10 +1473,10 @@ export default function MentorCourseManagePage() {
                         const fromMentor = message.senderId === course?.instructorId
                         return (
                           <div key={message.id} className={`flex ${fromMentor ? 'justify-end' : 'justify-start'}`}>
-                            <div className={`max-w-[82%] rounded-xl px-3 py-2 ${fromMentor ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-800'}`}>
-                              <p className={`text-[11px] font-black ${fromMentor ? 'text-indigo-100' : 'text-slate-500'}`}>{message.senderName}</p>
+                            <div className={`max-w-[82%] rounded-xl px-3 py-2 ${fromMentor ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-800'}`}>
+                              <p className={`text-[11px] font-black ${fromMentor ? 'text-emerald-100' : 'text-slate-500'}`}>{message.senderName}</p>
                               <p className="mt-1 whitespace-pre-wrap text-sm leading-6">{message.content}</p>
-                              <p className={`mt-2 text-[11px] font-semibold ${fromMentor ? 'text-indigo-100' : 'text-slate-400'}`}>{new Date(message.createdAt).toLocaleString()}</p>
+                              <p className={`mt-2 text-[11px] font-semibold ${fromMentor ? 'text-emerald-100' : 'text-slate-400'}`}>{new Date(message.createdAt).toLocaleString()}</p>
                             </div>
                           </div>
                         )
@@ -1488,14 +1488,14 @@ export default function MentorCourseManagePage() {
                       <textarea
                         value={draft}
                         onChange={(event) => setQaReplyDrafts((current) => ({ ...current, [thread.learnerId]: event.target.value }))}
-                        className="min-h-24 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10"
+                        className="min-h-24 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-emerald-400 focus:ring-4 focus:ring-emerald-500/10"
                         placeholder={`Reply to ${thread.learnerName}`}
                       />
                       <button
                         type="button"
                         disabled={!draft.trim() || sendQaReplyMutation.isLoading}
                         onClick={() => sendQaReplyMutation.mutate({ recipientId: thread.learnerId, content: draft.trim() })}
-                        className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-bold text-white disabled:bg-slate-300"
+                        className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white disabled:bg-slate-300"
                       >
                         {sendQaReplyMutation.isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
                         Send reply
@@ -1530,7 +1530,7 @@ export default function MentorCourseManagePage() {
 
           {reviewsLoading ? (
             <div className="flex min-h-48 items-center justify-center">
-              <Loader2 className="h-7 w-7 animate-spin text-indigo-600" />
+              <Loader2 className="h-7 w-7 animate-spin text-emerald-600" />
             </div>
           ) : courseReviews.length === 0 ? (
             <div className="rounded-xl border border-dashed border-slate-200 p-8 text-center">
@@ -1569,14 +1569,14 @@ export default function MentorCourseManagePage() {
                       <textarea
                         value={draft}
                         onChange={(event) => setReviewResponseDrafts((current) => ({ ...current, [review.id]: event.target.value }))}
-                        className="min-h-24 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10"
+                        className="min-h-24 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-emerald-400 focus:ring-4 focus:ring-emerald-500/10"
                         placeholder="Write a public response to this review"
                       />
                       <button
                         type="button"
                         disabled={!draft.trim() || respondToReviewMutation.isLoading}
                         onClick={() => respondToReviewMutation.mutate({ reviewId: review.id, responseText: draft.trim() })}
-                        className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-bold text-white disabled:bg-slate-300"
+                        className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white disabled:bg-slate-300"
                       >
                         {respondToReviewMutation.isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
                         Save response
@@ -1617,7 +1617,7 @@ function SaleMetricCard({ label, value, helper, icon, tone = 'indigo' }: {
   tone?: 'indigo' | 'emerald' | 'rose' | 'slate'
 }) {
   const toneClass = {
-    indigo: 'bg-indigo-50 text-indigo-600',
+    indigo: 'bg-emerald-50 text-emerald-600',
     emerald: 'bg-emerald-50 text-emerald-600',
     rose: 'bg-rose-50 text-rose-600',
     slate: 'bg-slate-100 text-slate-600',
@@ -1646,12 +1646,12 @@ function PriceStat({ label, value }: { label: string; value: string }) {
 function EmptyEditor({ onAddSection }: { onAddSection: () => void }) {
   return (
     <div className="flex h-full min-h-[560px] flex-col items-center justify-center text-center">
-      <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600">
+      <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
         <Plus className="h-7 w-7" />
       </div>
       <h2 className="text-xl font-black text-slate-900">Start your curriculum</h2>
       <p className="mt-1 max-w-sm text-sm font-medium text-slate-500">Add sections on the left, then add lessons or quizzes inside each section.</p>
-      <button onClick={onAddSection} className="mt-5 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-bold text-white">Add Section</button>
+      <button onClick={onAddSection} className="mt-5 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white">Add Section</button>
     </div>
   )
 }
@@ -1838,7 +1838,7 @@ function UploadField({
     <Field label={label}>
       <div className="rounded-xl border border-slate-200 p-3">
         <div className="mb-3 flex flex-wrap gap-2">
-          <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-bold text-white">
+          <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white">
             {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
             Select
             <input
@@ -1873,7 +1873,7 @@ function UploadField({
         {value && mediaKind === 'resource' && (
           <div className="mt-3 flex flex-col gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex min-w-0 items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
                 <FileText className="h-5 w-5" />
               </div>
               <div className="min-w-0">
@@ -1884,7 +1884,7 @@ function UploadField({
             <a
               href={value}
               download={displayName}
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-bold text-white hover:bg-indigo-700"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white hover:bg-emerald-700"
             >
               <Download className="h-4 w-4" />
               Download
@@ -1918,12 +1918,12 @@ function DocumentResourceManager({ resourceUrl, pendingFileName, onFile, onClear
           event.preventDefault()
           handleFiles(event.dataTransfer.files)
         }}
-        className="rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 p-3 transition hover:border-indigo-300"
+        className="rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 p-3 transition hover:border-emerald-300"
       >
         {resourceUrl ? (
           <div className="flex flex-col gap-3 rounded-lg bg-white p-4 md:flex-row md:items-center md:justify-between">
             <div className="flex min-w-0 items-center gap-3">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
                 <FileText className="h-5 w-5" />
               </div>
               <div className="min-w-0">
@@ -1933,7 +1933,7 @@ function DocumentResourceManager({ resourceUrl, pendingFileName, onFile, onClear
             </div>
             <div className="flex shrink-0 flex-wrap gap-2">
               {!resourceUrl.startsWith('blob:') && (
-                <a href={resourceUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-3 py-2 text-sm font-bold text-white hover:bg-indigo-700">
+                <a href={resourceUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-3 py-2 text-sm font-bold text-white hover:bg-emerald-700">
                   <Download className="h-4 w-4" />
                   Download
                 </a>
@@ -1950,10 +1950,10 @@ function DocumentResourceManager({ resourceUrl, pendingFileName, onFile, onClear
           </div>
         ) : (
           <label htmlFor={inputId} className="flex min-h-40 cursor-pointer flex-col items-center justify-center rounded-lg bg-white px-4 py-6 text-center">
-            <Download className="mb-3 h-8 w-8 text-indigo-500" />
+            <Download className="mb-3 h-8 w-8 text-emerald-500" />
             <span className="text-sm font-semibold text-slate-900">Drop the document here or click to browse</span>
             <span className="mt-1 text-xs text-slate-500">PDF, Word, PowerPoint, or ZIP up to 100 MB</span>
-            <span className="mt-3 inline-flex items-center gap-2 rounded-lg bg-indigo-50 px-3 py-2 text-xs font-bold text-indigo-700">
+            <span className="mt-3 inline-flex items-center gap-2 rounded-lg bg-emerald-50 px-3 py-2 text-xs font-bold text-emerald-700">
               <Upload className="h-3.5 w-3.5" />
               Choose file
             </span>
@@ -2032,7 +2032,7 @@ function RichTextEditor({ label, value, onChange, onImageChange, onImageInsert }
           <ToolbarButton title="Italic" onClick={() => runCommand('italic')}><Italic className="h-4 w-4" /></ToolbarButton>
           <ToolbarButton title="Bulleted list" onClick={() => runCommand('insertUnorderedList')}><List className="h-4 w-4" /></ToolbarButton>
           <ToolbarButton title="Numbered list" onClick={() => runCommand('insertOrderedList')}><ListOrdered className="h-4 w-4" /></ToolbarButton>
-          <label className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg text-slate-600 hover:bg-white hover:text-indigo-600" title="Upload image">
+          <label className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg text-slate-600 hover:bg-white hover:text-emerald-600" title="Upload image">
             <Image className="h-4 w-4" />
             <input
               type="file"
@@ -2070,7 +2070,7 @@ function ToolbarButton({ title, onClick, children }: {
   children: React.ReactNode
 }) {
   return (
-    <button type="button" onMouseDown={(event) => event.preventDefault()} onClick={onClick} className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-slate-600 hover:bg-white hover:text-indigo-600" title={title}>
+    <button type="button" onMouseDown={(event) => event.preventDefault()} onClick={onClick} className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-slate-600 hover:bg-white hover:text-emerald-600" title={title}>
       {children}
     </button>
   )
@@ -2123,10 +2123,10 @@ function QuizEditor({ questions, onChange, onImageInsert }: {
       )}
 
       <div className="flex flex-wrap gap-2 border-t border-slate-200 pt-4">
-        <button type="button" onClick={() => addQuestion(QuizQuestionType.SINGLE_CHOICE)} className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-bold text-slate-600 hover:border-indigo-200 hover:text-indigo-600">+ Multiple Choice</button>
-        <button type="button" onClick={() => addQuestion(QuizQuestionType.MULTIPLE_CHOICE)} className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-bold text-slate-600 hover:border-indigo-200 hover:text-indigo-600">+ Checkboxes</button>
-        <button type="button" onClick={() => addQuestion(QuizQuestionType.TRUE_FALSE)} className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-bold text-slate-600 hover:border-indigo-200 hover:text-indigo-600">+ T/F</button>
-        <button type="button" onClick={() => addQuestion(QuizQuestionType.TEXT_ANSWER)} className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-bold text-slate-600 hover:border-indigo-200 hover:text-indigo-600">+ Text</button>
+        <button type="button" onClick={() => addQuestion(QuizQuestionType.SINGLE_CHOICE)} className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-bold text-slate-600 hover:border-emerald-200 hover:text-emerald-600">+ Multiple Choice</button>
+        <button type="button" onClick={() => addQuestion(QuizQuestionType.MULTIPLE_CHOICE)} className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-bold text-slate-600 hover:border-emerald-200 hover:text-emerald-600">+ Checkboxes</button>
+        <button type="button" onClick={() => addQuestion(QuizQuestionType.TRUE_FALSE)} className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-bold text-slate-600 hover:border-emerald-200 hover:text-emerald-600">+ T/F</button>
+        <button type="button" onClick={() => addQuestion(QuizQuestionType.TEXT_ANSWER)} className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-bold text-slate-600 hover:border-emerald-200 hover:text-emerald-600">+ Text</button>
       </div>
     </div>
   )
@@ -2143,7 +2143,7 @@ function QuizQuestionEditor({ index, question, onChange, onDelete, onImageInsert
     <div className="space-y-4 rounded-xl border border-slate-200 bg-white p-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="text-xs font-black uppercase tracking-widest text-indigo-600">Question {index + 1}</p>
+          <p className="text-xs font-black uppercase tracking-widest text-emerald-600">Question {index + 1}</p>
           <p className="text-sm font-bold text-slate-700">{questionTypeLabel(question.questionType)}</p>
         </div>
         <button type="button" onClick={onDelete} className="inline-flex items-center gap-2 rounded-xl border border-rose-200 px-3 py-2 text-sm font-bold text-rose-600 hover:bg-rose-50">
@@ -2248,7 +2248,7 @@ function QuizOptionsEditor({ question, onChange }: {
         </div>
       ))}
       {question.questionType !== QuizQuestionType.TRUE_FALSE && (
-        <button type="button" onClick={addOption} className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-bold text-slate-600 hover:border-indigo-200 hover:text-indigo-600">
+        <button type="button" onClick={addOption} className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-bold text-slate-600 hover:border-emerald-200 hover:text-emerald-600">
           + Choice
         </button>
       )}

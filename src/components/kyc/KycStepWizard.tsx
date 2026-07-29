@@ -73,7 +73,7 @@ export default function KycStepWizard({
                   done
                     ? 'bg-emerald-600 text-white'
                     : current
-                      ? 'bg-indigo-600 text-white ring-2 ring-indigo-200 dark:ring-indigo-900'
+                      ? 'bg-emerald-600 text-white ring-2 ring-emerald-200 dark:ring-emerald-900'
                       : 'border border-slate-200 bg-white text-slate-400 dark:border-slate-700 dark:bg-slate-900'
                 }`}
               >
@@ -82,7 +82,7 @@ export default function KycStepWizard({
               <div className="min-w-0 flex-1 max-sm:hidden">
                 <p
                   className={`truncate text-xs font-medium ${
-                    current ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-600 dark:text-slate-400'
+                    current ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-600 dark:text-slate-400'
                   }`}
                 >
                   {step.title}
@@ -137,7 +137,7 @@ export default function KycStepWizard({
           type="button"
           onClick={() => setActiveStep((prev) => prev - 1)}
           disabled={activeStep === 1}
-          className="text-xs font-medium text-slate-500 hover:text-indigo-600 disabled:pointer-events-none disabled:opacity-0 dark:hover:text-indigo-400"
+          className="text-xs font-medium text-slate-500 hover:text-emerald-600 disabled:pointer-events-none disabled:opacity-0 dark:hover:text-emerald-400"
         >
           Back
         </button>
@@ -162,7 +162,7 @@ function UploadStep({
         <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-400">{description}</p>
       </div>
 
-      <label className="group flex w-full cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/50 px-6 py-14 transition hover:border-indigo-300 hover:bg-indigo-50/30 dark:border-slate-700 dark:bg-slate-900/30 dark:hover:border-indigo-800">
+      <label className="group flex w-full cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/50 px-6 py-14 transition hover:border-emerald-300 hover:bg-emerald-50/30 dark:border-slate-700 dark:bg-slate-900/30 dark:hover:border-emerald-800">
         <input
           type="file"
           className="sr-only"
@@ -173,7 +173,7 @@ function UploadStep({
             event.target.value = ''
           }}
         />
-        <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-white text-slate-400 shadow-sm ring-1 ring-slate-200 transition group-hover:text-indigo-600 dark:bg-slate-900 dark:ring-slate-700">
+        <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-white text-slate-400 shadow-sm ring-1 ring-slate-200 transition group-hover:text-emerald-600 dark:bg-slate-900 dark:ring-slate-700">
           <UploadCloud className="h-6 w-6" />
         </div>
         <span className="text-sm font-medium text-slate-900 dark:text-slate-100">Choose image</span>

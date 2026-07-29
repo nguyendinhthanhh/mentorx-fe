@@ -172,7 +172,7 @@ export default function ReviewForm({ targetType, targetId, initialReview, onClos
             onChange={(e) => setReviewTitle(e.target.value)}
             placeholder="Summarize your experience..."
             maxLength={200}
-            className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-medium text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 transition-all"
+            className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-medium text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-300 transition-all"
           />
         </div>
 
@@ -187,7 +187,7 @@ export default function ReviewForm({ targetType, targetId, initialReview, onClos
             placeholder="Share your experience with this course..."
             rows={4}
             maxLength={2000}
-            className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-medium text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 transition-all resize-none"
+            className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-medium text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-300 transition-all resize-none"
           />
           <p className="text-right text-xs text-gray-400 mt-1">{reviewText.length}/2000</p>
         </div>
@@ -229,7 +229,7 @@ export default function ReviewForm({ targetType, targetId, initialReview, onClos
             onClick={() => setIsAnonymous(!isAnonymous)}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all border ${
               isAnonymous
-                ? 'bg-indigo-50 dark:bg-indigo-900/20 border-indigo-200 dark:border-indigo-800 text-indigo-600 dark:text-indigo-400'
+                ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800 text-emerald-600 dark:text-emerald-400'
                 : 'border-gray-200 dark:border-gray-700 text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800'
             }`}
           >
@@ -262,7 +262,7 @@ export default function ReviewForm({ targetType, targetId, initialReview, onClos
         <button
           type="submit"
           disabled={mutation.isLoading || overallRating === 0}
-          className="w-full py-4 bg-indigo-600 text-white font-black text-sm rounded-2xl hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all shadow-lg shadow-indigo-200 dark:shadow-none flex items-center justify-center gap-2"
+          className="w-full py-4 bg-emerald-600 text-white font-black text-sm rounded-2xl hover:bg-emerald-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all shadow-lg shadow-emerald-200 dark:shadow-none flex items-center justify-center gap-2"
         >
           {mutation.isLoading ? (
             <><Loader2 className="w-4 h-4 animate-spin" /> Submitting...</>

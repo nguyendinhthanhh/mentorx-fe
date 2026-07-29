@@ -246,7 +246,7 @@ export default function DepositForm({ userId: _userId, onSuccess }: DepositFormP
                 inputMode="decimal"
                 autoComplete="off"
                 {...register('originalAmount')}
-                className="block w-full rounded-2xl border border-slate-200 bg-white py-3 pl-12 pr-4 text-base font-semibold text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+                className="block w-full rounded-2xl border border-slate-200 bg-white py-3 pl-12 pr-4 text-base font-semibold text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
                 placeholder={originalCurrency === 'VND' ? '100000' : '10'}
               />
             </div>
@@ -262,7 +262,7 @@ export default function DepositForm({ userId: _userId, onSuccess }: DepositFormP
             <select
               id="originalCurrency"
               {...register('originalCurrency')}
-              className="block w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base font-semibold text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+              className="block w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base font-semibold text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
             >
               {CURRENCY_OPTIONS.map((currency) => (
                 <option key={currency} value={currency}>
@@ -287,7 +287,7 @@ export default function DepositForm({ userId: _userId, onSuccess }: DepositFormP
                   onClick={() => setValue('originalAmount', amount, { shouldValidate: true })}
                   className={`rounded-xl border px-3 py-2 text-sm font-semibold transition ${
                     originalAmount === amount
-                      ? 'border-indigo-600 bg-indigo-600 text-white shadow-sm'
+                      ? 'border-emerald-600 bg-emerald-600 text-white shadow-sm'
                       : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50'
                   }`}
                 >
@@ -304,7 +304,7 @@ export default function DepositForm({ userId: _userId, onSuccess }: DepositFormP
               <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">Conversion preview</p>
               <h3 className="mt-1 text-lg font-bold text-slate-900">Settlement handled by backend</h3>
             </div>
-            {previewLoading && <Loader2 className="h-5 w-5 animate-spin text-indigo-600" />}
+            {previewLoading && <Loader2 className="h-5 w-5 animate-spin text-emerald-600" />}
           </div>
 
           <div className="mt-4">
@@ -355,7 +355,7 @@ export default function DepositForm({ userId: _userId, onSuccess }: DepositFormP
                     key={gateway.value}
                     className={`cursor-pointer rounded-2xl border p-4 transition ${
                       selectedGateway === gateway.value
-                        ? 'border-indigo-500 bg-indigo-50 shadow-sm'
+                        ? 'border-emerald-500 bg-emerald-50 shadow-sm'
                         : 'border-slate-200 bg-white hover:border-slate-300'
                     }`}
                   >
@@ -376,7 +376,7 @@ export default function DepositForm({ userId: _userId, onSuccess }: DepositFormP
                       key={channel.value || 'AUTO'}
                       className={`cursor-pointer rounded-2xl border p-4 transition ${
                         bankCode === channel.value
-                          ? 'border-slate-900 bg-slate-900 text-white'
+                          ? 'border-slate-900 bg-emerald-600 shadow-md hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 hover:bg-emerald-700 text-white'
                           : 'border-slate-200 bg-white hover:border-slate-300'
                       }`}
                     >
@@ -404,7 +404,7 @@ export default function DepositForm({ userId: _userId, onSuccess }: DepositFormP
         <button
           type="submit"
           disabled={!canSubmit}
-          className="flex w-full items-center justify-center gap-2 rounded-2xl bg-slate-950 px-4 py-3.5 text-sm font-semibold text-white transition hover:bg-indigo-600 disabled:cursor-not-allowed disabled:bg-slate-300"
+          className="flex w-full items-center justify-center gap-2 rounded-2xl bg-slate-950 px-4 py-3.5 text-sm font-semibold text-white transition hover:bg-emerald-600 disabled:cursor-not-allowed disabled:bg-slate-300"
         >
           {loading ? (
             <>
@@ -437,9 +437,9 @@ function PreviewRow({
   highlight?: boolean
 }) {
   return (
-    <div className={`flex items-center justify-between rounded-2xl px-4 py-3 ${highlight ? 'bg-indigo-50' : 'bg-slate-50'}`}>
+    <div className={`flex items-center justify-between rounded-2xl px-4 py-3 ${highlight ? 'bg-emerald-50' : 'bg-slate-50'}`}>
       <span className="text-sm font-medium text-slate-600">{label}</span>
-      <span className={`text-sm font-semibold ${highlight ? 'text-indigo-700' : 'text-slate-900'}`}>{value}</span>
+      <span className={`text-sm font-semibold ${highlight ? 'text-emerald-700' : 'text-slate-900'}`}>{value}</span>
     </div>
   )
 }

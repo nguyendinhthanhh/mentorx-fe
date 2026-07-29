@@ -137,7 +137,7 @@ export default function CourseListPage() {
             </div>
             <Link
               to="/courses/create"
-              className="inline-flex h-11 w-fit items-center justify-center gap-2 rounded-xl bg-indigo-600 px-5 text-sm font-black text-white transition hover:bg-indigo-700"
+              className="inline-flex h-11 w-fit items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 text-sm font-black text-white transition hover:bg-emerald-700"
             >
               <Plus className="h-4 w-4" />
               {t('courses.create')}
@@ -157,7 +157,7 @@ export default function CourseListPage() {
                 onFocus={() => setIsSearchMenuOpen(true)}
                 onBlur={() => window.setTimeout(() => setIsSearchMenuOpen(false), 120)}
                 placeholder={t('courses.searchPlaceholder')}
-                className="h-12 w-full rounded-xl border border-slate-300 bg-white pl-12 pr-4 text-sm font-medium text-slate-950 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+                className="h-12 w-full rounded-xl border border-slate-300 bg-white pl-12 pr-4 text-sm font-medium text-slate-950 outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
               />
               {isSearchMenuOpen && courseSearchSuggestions.length > 0 && (
                 <div className="absolute z-20 mt-2 max-h-72 w-full overflow-auto rounded-xl border border-slate-200 bg-white p-2 shadow-lg">
@@ -170,7 +170,7 @@ export default function CourseListPage() {
                         setSearch(suggestion)
                         setIsSearchMenuOpen(false)
                       }}
-                      className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-semibold text-slate-800 hover:bg-indigo-50"
+                      className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-semibold text-slate-800 hover:bg-emerald-50"
                     >
                       <Search className="h-4 w-4 text-slate-400" />
                       {suggestion}
@@ -193,7 +193,7 @@ export default function CourseListPage() {
                 onClick={() => setTypeFilter(item.key)}
                 className={`rounded-full px-4 py-2 text-xs font-bold transition ${
                   typeFilter === item.key
-                    ? 'bg-indigo-600 text-white'
+                    ? 'bg-emerald-600 text-white'
                     : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                 }`}
               >
@@ -211,7 +211,7 @@ export default function CourseListPage() {
                 onFocus={() => setIsCategoryMenuOpen(true)}
                 onBlur={() => window.setTimeout(() => setIsCategoryMenuOpen(false), 120)}
                 placeholder="All domains"
-                className="w-full rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-700 outline-none transition hover:border-indigo-300 focus:border-indigo-500"
+                className="w-full rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-700 outline-none transition hover:border-emerald-300 focus:border-emerald-500"
                 autoComplete="off"
               />
               {isCategoryMenuOpen && (
@@ -224,7 +224,7 @@ export default function CourseListPage() {
                       setCategorySearch('')
                       setIsCategoryMenuOpen(false)
                     }}
-                    className="flex w-full flex-col rounded-lg px-3 py-2 text-left hover:bg-indigo-50"
+                    className="flex w-full flex-col rounded-lg px-3 py-2 text-left hover:bg-emerald-50"
                   >
                     <span className="text-sm font-semibold text-slate-900">All domains</span>
                   </button>
@@ -234,7 +234,7 @@ export default function CourseListPage() {
                       type="button"
                       onMouseDown={(event) => event.preventDefault()}
                       onClick={() => selectCategory(category)}
-                      className="flex w-full flex-col rounded-lg px-3 py-2 text-left hover:bg-indigo-50"
+                      className="flex w-full flex-col rounded-lg px-3 py-2 text-left hover:bg-emerald-50"
                     >
                       <span className="text-sm font-semibold text-slate-900">{categoryLabel(category)}</span>
                       <span className="text-xs text-slate-500">{category.slug}</span>
@@ -253,7 +253,7 @@ export default function CourseListPage() {
                 onFocus={() => setIsSkillMenuOpen(true)}
                 onBlur={() => window.setTimeout(() => setIsSkillMenuOpen(false), 120)}
                 placeholder="All skills"
-                className="w-full rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-700 outline-none transition hover:border-indigo-300 focus:border-indigo-500"
+                className="w-full rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-700 outline-none transition hover:border-emerald-300 focus:border-emerald-500"
                 autoComplete="off"
               />
               {isSkillMenuOpen && (
@@ -265,7 +265,7 @@ export default function CourseListPage() {
                       setSkillFilter('')
                       setIsSkillMenuOpen(false)
                     }}
-                    className="flex w-full flex-col rounded-lg px-3 py-2 text-left hover:bg-indigo-50"
+                    className="flex w-full flex-col rounded-lg px-3 py-2 text-left hover:bg-emerald-50"
                   >
                     <span className="text-sm font-semibold text-slate-900">All skills</span>
                   </button>
@@ -275,7 +275,7 @@ export default function CourseListPage() {
                       type="button"
                       onMouseDown={(event) => event.preventDefault()}
                       onClick={() => selectSkill(skill)}
-                      className="flex w-full flex-col rounded-lg px-3 py-2 text-left hover:bg-indigo-50"
+                      className="flex w-full flex-col rounded-lg px-3 py-2 text-left hover:bg-emerald-50"
                     >
                       <span className="text-sm font-semibold text-slate-900">{skillLabel(skill)}</span>
                       <span className="text-xs text-slate-500">{skill.slug}</span>
@@ -287,7 +287,7 @@ export default function CourseListPage() {
             <select
               value={languageFilter}
               onChange={(event) => setLanguageFilter(event.target.value as '' | SupportedLanguage)}
-              className="rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-700 outline-none transition hover:border-indigo-300 focus:border-indigo-500"
+              className="rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-700 outline-none transition hover:border-emerald-300 focus:border-emerald-500"
             >
               <option value="">All languages</option>
               <option value={SupportedLanguage.VI}>Vietnamese</option>
@@ -298,7 +298,7 @@ export default function CourseListPage() {
             <select
               value={levelFilter}
               onChange={(event) => setLevelFilter(event.target.value)}
-              className="rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-700 outline-none transition hover:border-indigo-300 focus:border-indigo-500"
+              className="rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-700 outline-none transition hover:border-emerald-300 focus:border-emerald-500"
             >
               <option value="">All levels</option>
               <option value="beginner">Beginner</option>
@@ -340,7 +340,7 @@ export default function CourseListPage() {
               const accentClass =
                 courseType === 'document'
                   ? 'hover:border-amber-200 hover:shadow-amber-500/10'
-                  : 'hover:border-indigo-200 hover:shadow-indigo-500/10'
+                  : 'hover:border-emerald-200 hover:shadow-emerald-500/10'
               const domainName = course.categoryId ? categoryNameById[course.categoryId] : ''
               const courseSkills = course.skills || []
 
@@ -350,7 +350,7 @@ export default function CourseListPage() {
                   to={`/courses/${course.courseId}`}
                   className={`group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg ${accentClass}`}
                 >
-                  <div className={`relative h-48 overflow-hidden ${courseType === 'document' ? 'bg-amber-50' : 'bg-indigo-50'}`}>
+                  <div className={`relative h-48 overflow-hidden ${courseType === 'document' ? 'bg-amber-50' : 'bg-emerald-50'}`}>
                     {course.thumbnailUrl ? (
                       <img
                         src={course.thumbnailUrl}
@@ -364,7 +364,7 @@ export default function CourseListPage() {
                         {courseType === 'document' ? (
                           <FileText className="h-12 w-12 text-amber-300" />
                         ) : (
-                          <BookOpen className="h-12 w-12 text-indigo-300" />
+                          <BookOpen className="h-12 w-12 text-emerald-300" />
                         )}
                       </div>
                     )}
@@ -377,7 +377,7 @@ export default function CourseListPage() {
                   </div>
 
                   <div className="p-5">
-                    <h3 className="line-clamp-1 font-black text-slate-950 transition group-hover:text-indigo-700">
+                    <h3 className="line-clamp-1 font-black text-slate-950 transition group-hover:text-emerald-700">
                       {course.title}
                     </h3>
                     <p className="mt-2 line-clamp-2 text-sm leading-6 text-slate-600">
@@ -416,7 +416,7 @@ export default function CourseListPage() {
                     </div>
 
                     <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-4">
-                      <span className="text-lg font-black text-indigo-700">
+                      <span className="text-lg font-black text-emerald-700">
                         {course.priceMxc ? formatCurrency(course.priceMxc) : t('courses.free')}
                       </span>
                       <span className="flex items-center gap-1 text-xs font-bold text-slate-400">
@@ -440,7 +440,7 @@ export default function CourseListPage() {
             </p>
             <Link
               to="/courses/create"
-              className="mt-5 inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-5 text-sm font-black text-white transition hover:bg-indigo-700"
+              className="mt-5 inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 text-sm font-black text-white transition hover:bg-emerald-700"
             >
               <Plus className="h-4 w-4" />
               {t('courses.create')}
@@ -465,7 +465,7 @@ function CourseMetadata({ domainName, skills }: { domainName?: string; skills: s
       {skills.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
           {skills.slice(0, 3).map((skill) => (
-            <span key={skill} className="rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-bold text-indigo-700">
+            <span key={skill} className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700">
               {skill}
             </span>
           ))}

@@ -77,7 +77,7 @@ export default function MyJobsPage() {
     () =>
       jobApi.getByClient(user!.userId, {
         page: 0,
-        size: 1000,
+        size: 100,
         sort: sortMap.newest,
       }),
     {
@@ -168,7 +168,7 @@ export default function MyJobsPage() {
     <div className="space-y-6">
       <section className="flex flex-col justify-between gap-5 rounded-[24px] border border-slate-200 bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:p-6">
         <div className="flex items-center gap-4">
-          <div className="hidden h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 sm:flex">
+          <div className="hidden h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 sm:flex">
             <Briefcase className="h-6 w-6" />
           </div>
           <div>
@@ -203,7 +203,7 @@ export default function MyJobsPage() {
                 value={searchValue}
                 onChange={(event) => setSearchValue(event.target.value)}
                 placeholder="Tìm kiếm theo tiêu đề, kỹ năng…"
-                className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 pl-11 pr-11 text-sm font-medium text-slate-900 outline-none transition focus:border-indigo-300 focus:bg-white focus:ring-4 focus:ring-indigo-50"
+                className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 pl-11 pr-11 text-sm font-medium text-slate-900 outline-none transition focus:border-emerald-300 focus:bg-white focus:ring-4 focus:ring-emerald-50"
               />
               {searchValue && (
                 <button
@@ -248,7 +248,7 @@ export default function MyJobsPage() {
                 <button
                   type="button"
                   onClick={clearFilters}
-                  className="font-bold text-indigo-600 transition hover:text-indigo-700"
+                  className="font-bold text-emerald-600 transition hover:text-emerald-700"
                 >
                   Xóa bộ lọc
                 </button>
@@ -318,7 +318,7 @@ function RequestCard({
       <div className="flex min-w-0 flex-1 flex-col">
         <div className="flex items-start justify-between gap-4">
           <div className="flex min-w-0 flex-1 items-start gap-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
               <FileText className="h-5 w-5" />
             </div>
             <div className="min-w-0 flex-1">
@@ -351,13 +351,13 @@ function RequestCard({
                 <div className="absolute right-0 top-12 z-20 min-w-[180px] rounded-2xl border border-slate-200 bg-white p-2 shadow-xl">
                   <Link
                     to={`/my-jobs/${job.jobId}`}
-                    className="flex rounded-xl px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50 hover:text-indigo-600"
+                    className="flex rounded-xl px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50 hover:text-emerald-600"
                   >
                     Xem chi tiết
                   </Link>
                   <Link
                     to={isDraft ? `/jobs/${job.jobId}/edit` : `/my-jobs/${job.jobId}`}
-                    className="flex rounded-xl px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50 hover:text-indigo-600"
+                    className="flex rounded-xl px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50 hover:text-emerald-600"
                   >
                     {isDraft ? 'Tiếp tục chỉnh sửa' : 'Quản lý yêu cầu'}
                   </Link>
@@ -366,7 +366,7 @@ function RequestCard({
                       type="button"
                       onClick={onPublish}
                       disabled={isPublishing}
-                      className="flex w-full rounded-xl px-3 py-2 text-left text-sm font-bold text-slate-700 transition hover:bg-slate-50 hover:text-indigo-600 disabled:opacity-50"
+                      className="flex w-full rounded-xl px-3 py-2 text-left text-sm font-bold text-slate-700 transition hover:bg-slate-50 hover:text-emerald-600 disabled:opacity-50"
                     >
                       Đăng yêu cầu
                     </button>
@@ -394,7 +394,7 @@ function RequestCard({
         {skillTags.length > 0 && (
           <div className="mt-4 flex flex-wrap gap-2">
             {skillTags.map((skill) => (
-              <span key={skill} className="rounded-full border border-indigo-100 bg-indigo-50 px-3 py-1 text-xs font-bold text-indigo-700">
+              <span key={skill} className="rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700">
                 {skill}
               </span>
             ))}
@@ -439,7 +439,7 @@ function RequestCard({
               type="button"
               onClick={onPublish}
               disabled={isPublishing}
-              className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-xl border border-indigo-200 bg-indigo-50 px-3 text-sm font-bold text-indigo-700 transition hover:bg-indigo-100 disabled:opacity-50"
+              className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-3 text-sm font-bold text-emerald-700 transition hover:bg-emerald-100 disabled:opacity-50"
             >
               <Send className="h-4 w-4" />
               Đăng
@@ -470,7 +470,7 @@ function ToolbarSelect({
     <select
       value={value}
       onChange={(event) => onChange(event.target.value)}
-      className="h-12 rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm font-medium text-slate-700 outline-none transition focus:border-indigo-300 focus:bg-white focus:ring-4 focus:ring-indigo-50"
+      className="h-12 rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm font-medium text-slate-700 outline-none transition focus:border-emerald-300 focus:bg-white focus:ring-4 focus:ring-emerald-50"
     >
       {options.map((option) => (
         <option key={option.value} value={option.value}>

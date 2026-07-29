@@ -42,12 +42,12 @@ export default function ProfileDashboardPage() {
 
       <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
         <div className="group relative overflow-hidden rounded-[1.5rem] border border-slate-200/60 bg-white p-6 shadow-sm transition-all hover:shadow-md dark:border-slate-800 dark:bg-slate-900">
-          <div className="absolute right-0 top-0 -mr-6 -mt-6 h-24 w-24 rounded-full bg-indigo-50 transition-transform group-hover:scale-150 dark:bg-indigo-900/10" />
+          <div className="absolute right-0 top-0 -mr-6 -mt-6 h-24 w-24 rounded-full bg-emerald-50 transition-transform group-hover:scale-150 dark:bg-emerald-900/10" />
           <div className="relative flex items-center justify-between">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400">
               <Wallet className="h-6 w-6" />
             </div>
-            <Link to="/wallet" className="flex items-center text-xs font-bold text-indigo-600 hover:text-indigo-700">
+            <Link to="/wallet" className="flex items-center text-xs font-bold text-emerald-600 hover:text-emerald-700">
               {'Xem v\u00ed'} <ChevronRight className="ml-0.5 h-3 w-3" />
             </Link>
           </div>
@@ -82,12 +82,12 @@ export default function ProfileDashboardPage() {
         </div>
 
         <div className="group relative overflow-hidden rounded-[1.5rem] border border-slate-200/60 bg-white p-6 shadow-sm transition-all hover:shadow-md dark:border-slate-800 dark:bg-slate-900">
-          <div className="absolute right-0 top-0 -mr-6 -mt-6 h-24 w-24 rounded-full bg-fuchsia-50 transition-transform group-hover:scale-150 dark:bg-fuchsia-900/10" />
+          <div className="absolute right-0 top-0 -mr-6 -mt-6 h-24 w-24 rounded-full bg-emerald-50 transition-transform group-hover:scale-150 dark:bg-emerald-900/10" />
           <div className="relative flex items-center justify-between">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-fuchsia-100 text-fuchsia-600 dark:bg-fuchsia-900/30 dark:text-fuchsia-400">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400">
               <ShoppingBag className="h-6 w-6" />
             </div>
-            <Link to="/profile/courses" className="flex items-center text-xs font-bold text-fuchsia-600 hover:text-fuchsia-700">
+            <Link to="/profile/courses" className="flex items-center text-xs font-bold text-emerald-600 hover:text-emerald-700">
               {'V\u00e0o h\u1ecdc'} <ChevronRight className="ml-0.5 h-3 w-3" />
             </Link>
           </div>
@@ -99,26 +99,26 @@ export default function ProfileDashboardPage() {
       </div>
 
       {!mentorApproved && (
-        <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-[#6C4DFF] to-[#8C6DFD] p-8 text-white shadow-xl shadow-indigo-500/20">
+        <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-[#6C4DFF] to-[#8C6DFD] p-8 text-white shadow-xl shadow-emerald-500/20">
           <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
-          <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-purple-500/20 blur-3xl" />
+          <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-emerald-500/20 blur-3xl" />
 
           <div className="relative flex flex-col items-start gap-6 md:flex-row md:items-center md:justify-between">
             <div className="max-w-xl">
-              <div className="mb-2 flex items-center gap-2 text-indigo-100">
+              <div className="mb-2 flex items-center gap-2 text-emerald-100">
                 <Award className="h-5 w-5" />
                 <span className="text-xs font-black uppercase tracking-widest">{'C\u01a1 h\u1ed9i m\u1edbi'}</span>
               </div>
               <h2 className="text-2xl font-black tracking-tight text-white md:text-3xl">
                 {'Tr\u1edf th\u00e0nh Mentor ngay h\u00f4m nay'}
               </h2>
-              <p className="mt-2 text-sm leading-relaxed text-indigo-100">
+              <p className="mt-2 text-sm leading-relaxed text-emerald-100">
                 {'Chia s\u1ebb ki\u1ebfn th\u1ee9c c\u1ee7a b\u1ea1n, nh\u1eadn y\u00eau c\u1ea7u t\u01b0 v\u1ea5n 1:1, m\u1edf kh\u00f3a h\u1ecdc ri\u00eang v\u00e0 gia t\u0103ng thu nh\u1eadp v\u1edbi Token MXC.'}
               </p>
             </div>
             <Link
               to="/become-a-mentor"
-              className="inline-flex h-12 shrink-0 items-center justify-center rounded-2xl bg-white px-8 text-sm font-bold text-indigo-600 transition-all hover:scale-105 hover:bg-slate-50 hover:shadow-lg"
+              className="inline-flex h-12 shrink-0 items-center justify-center rounded-2xl bg-white px-8 text-sm font-bold text-emerald-600 transition-all hover:scale-105 hover:bg-slate-50 hover:shadow-lg"
             >
               {'\u0110\u0103ng k\u00fd ngay'}
             </Link>

@@ -26,7 +26,7 @@ export function HandbookSidebar({
               key={topic}
               type="button"
               onClick={() => onTopicSelect(topic)}
-              className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-600 transition-colors hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-600"
+              className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-600 transition-colors hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-600"
             >
               {topic}
             </button>
@@ -36,7 +36,7 @@ export function HandbookSidebar({
 
       <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         <div className="mb-4 flex items-center gap-2">
-          <Quote className="h-5 w-5 text-indigo-500" />
+          <Quote className="h-5 w-5 text-emerald-500" />
           <h3 className="text-lg font-bold tracking-tight text-slate-900">Top contributors</h3>
         </div>
         <div className="space-y-4">
@@ -50,7 +50,7 @@ export function HandbookSidebar({
               <div className="min-w-0">
                 <p className="truncate text-sm font-bold text-slate-900">{contributor.name}</p>
                 <p className="truncate text-xs text-slate-500">{contributor.role}</p>
-                <p className="mt-1 text-xs font-semibold text-indigo-600">{contributor.articleCount} guides published</p>
+                <p className="mt-1 text-xs font-semibold text-emerald-600">{contributor.articleCount} guides published</p>
               </div>
             </article>
           ))}
@@ -65,10 +65,10 @@ export function HandbookSidebar({
         <ol className="space-y-4">
           {startHere.map((item, index) => (
             <li key={item.slug} className="flex items-start gap-3">
-              <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-50 text-xs font-bold text-indigo-600">
+              <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-xs font-bold text-emerald-600">
                 {index + 1}
               </span>
-              <Link to={`/blog/${item.slug}`} className="text-sm leading-relaxed text-slate-700 transition hover:text-indigo-600">
+              <Link to={`/blog/${item.slug}`} className="text-sm leading-relaxed text-slate-700 transition hover:text-emerald-600">
                 {item.title}
               </Link>
             </li>

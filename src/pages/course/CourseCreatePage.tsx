@@ -19,7 +19,7 @@ export default function CourseCreatePage({ productType = CourseProductType.COURS
 
       <div className="flex flex-col gap-4 border-b border-slate-200 pb-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <p className="text-xs font-black uppercase tracking-widest text-indigo-600">{isDocument ? 'New document' : 'New course'}</p>
+          <p className="text-xs font-black uppercase tracking-widest text-emerald-600">{isDocument ? 'New document' : 'New course'}</p>
           <h1 className="text-2xl font-black text-slate-900">{isDocument ? 'Document editor' : 'Course editor'}</h1>
           <p className="mt-1 text-sm font-medium text-slate-500">
             {isDocument

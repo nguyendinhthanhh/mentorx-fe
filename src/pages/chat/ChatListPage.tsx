@@ -42,7 +42,10 @@ export default function ChatListPage() {
     () => chatApi.getUserRooms(user!.userId, { size: 50 }),
     {
       enabled: !!user?.userId,
-      refetchInterval: 10000,
+      staleTime: 10_000,
+      refetchInterval: 30_000,
+      refetchIntervalInBackground: false,
+      refetchOnWindowFocus: true,
     }
   )
 
@@ -171,10 +174,12 @@ export default function ChatListPage() {
 
   const { data: messages, isLoading: messagesLoading, refetch: refetchMessages } = useQuery(
     ['messages', selectedRoomId],
-    () => chatApi.getRoomMessages(selectedRoomId!, { size: 100 }),
+    () => chatApi.getRoomMessages(selectedRoomId!, { page: 0, size: 50 }),
     {
       enabled: !!selectedRoomId,
-      refetchInterval: selectedRoomId ? 4000 : false,
+      refetchInterval: selectedRoomId ? 10_000 : false,
+      refetchIntervalInBackground: false,
+      refetchOnWindowFocus: true,
     }
   )
 

@@ -28,11 +28,11 @@ export default function VerifyEmailPage() {
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-6 relative overflow-hidden">
       <div className="absolute top-[-15%] left-[-15%] w-[60%] h-[60%] bg-gradient-to-br from-blue-100/40 to-transparent rounded-full blur-[140px] animate-pulse" />
-      <div className="absolute bottom-[-15%] right-[-15%] w-[60%] h-[60%] bg-gradient-to-tr from-indigo-100/40 to-transparent rounded-full blur-[140px] animate-pulse delay-1000" />
+      <div className="absolute bottom-[-15%] right-[-15%] w-[60%] h-[60%] bg-gradient-to-tr from-emerald-100/40 to-transparent rounded-full blur-[140px] animate-pulse delay-1000" />
 
       <div className="relative z-10 w-full max-w-[520px] rounded-2xl border border-white/50 bg-white/70 p-6 text-center shadow-[0_40px_80px_-20px_rgba(0,0,0,0.08)] backdrop-blur-2xl transition-all hover:shadow-[0_48px_96px_-24px_rgba(0,0,0,0.12)] sm:rounded-[32px] sm:p-10 md:p-16">
         <div className="relative mb-12 inline-block">
-          <div className="w-28 h-28 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-[38px] flex items-center justify-center mx-auto shadow-2xl shadow-blue-500/30 transform hover:rotate-6 transition-transform duration-500">
+          <div className="w-28 h-28 bg-gradient-to-br from-blue-600 to-emerald-700 rounded-[38px] flex items-center justify-center mx-auto shadow-2xl shadow-blue-500/30 transform hover:rotate-6 transition-transform duration-500">
             <Mail className="w-12 h-12 text-white" />
           </div>
           <div className="absolute -bottom-3 -right-3 bg-white rounded-2xl p-2.5 shadow-xl ring-8 ring-[#F8FAFC]">
@@ -45,7 +45,7 @@ export default function VerifyEmailPage() {
             {status === 'verifying' ? 'Verifying...' :
              status === 'success' ? 'Email Verified!' :
              status === 'error' ? 'Verification Failed' :
-             <>Verify your <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">account</span></>}
+             <>Verify your <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-emerald-600">account</span></>}
           </h1>
           {status === 'verifying' && (
             <div className="flex justify-center">
@@ -70,7 +70,7 @@ export default function VerifyEmailPage() {
               <div className="mt-6">
                 <button
                   onClick={() => navigate('/login')}
-                  className="w-full flex items-center justify-center gap-2 px-8 py-5 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-2xl transition-all duration-300 shadow-2xl shadow-slate-900/30 active:scale-[0.98]"
+                  className="w-full flex items-center justify-center gap-2 px-8 py-5 bg-emerald-600 shadow-md hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 hover:bg-emerald-700 hover:bg-slate-800 text-white font-bold rounded-2xl transition-all duration-300 shadow-2xl shadow-slate-900/30 active:scale-[0.98]"
                 >
                   <ArrowRight className="w-5 h-5" />
                   <span>Back to Login</span>
@@ -90,7 +90,7 @@ export default function VerifyEmailPage() {
           {status === 'success' && (
             <button
               onClick={() => navigate('/onboarding')}
-              className="w-full flex items-center justify-center gap-2 px-8 py-5 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-2xl transition-all duration-300 shadow-2xl shadow-slate-900/30 active:scale-[0.98]"
+              className="w-full flex items-center justify-center gap-2 px-8 py-5 bg-emerald-600 shadow-md hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 hover:bg-emerald-700 hover:bg-slate-800 text-white font-bold rounded-2xl transition-all duration-300 shadow-2xl shadow-slate-900/30 active:scale-[0.98]"
             >
               <ArrowRight className="w-5 h-5" />
               <span>Continue to Onboarding</span>

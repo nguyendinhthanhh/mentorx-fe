@@ -52,6 +52,14 @@
     outline-offset: 2px;
   }
 
+  .job-discovery-page :where(button, a, input, select, textarea, [tabindex]):focus-visible {
+    outline-color: rgb(4 120 87);
+  }
+
+  :where(.dark) .job-discovery-page :where(button, a, input, select, textarea, [tabindex]):focus-visible {
+    outline-color: rgb(52 211 153);
+  }
+
   :where([role="dialog"]) {
     max-height: calc(100dvh - 2rem);
     max-width: calc(100vw - 2rem);
@@ -95,9 +103,9 @@
     background-color: rgb(30 41 59 / var(--tw-bg-opacity, 1));
   }
 
-  :where(.dark) :where(.bg-indigo-50),
+  :where(.dark) :where(.bg-emerald-50),
   :where(.dark) :where(.bg-blue-50),
-  :where(.dark) :where(.bg-purple-50) {
+  :where(.dark) :where(.bg-emerald-50) {
     background-color: rgb(49 46 129 / 0.22);
   }
 
@@ -392,11 +400,11 @@ input[type="range"].onb-range::-webkit-slider-thumb:hover {
 
 /* === Premium UI Utilities === */
 .text-gradient {
-  @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600;
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-emerald-500 to-emerald-600;
 }
 
 .text-gradient-cyan {
-  @apply bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-600;
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-blue-500 to-emerald-600;
 }
 
 .glass-panel {

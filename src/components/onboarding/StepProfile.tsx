@@ -61,7 +61,7 @@ export default function StepProfile({ profileData, setProfileData, userName }: P
         {/* Avatar */}
         <div className="flex-shrink-0 mx-auto md:mx-0 onb-fade-in-scale">
           <div className="relative group">
-            <div className="w-28 h-28 bg-gradient-to-br from-primary-500 to-indigo-500 rounded-2xl overflow-hidden ring-4 ring-white dark:ring-gray-800 shadow-xl transition-transform duration-300 group-hover:scale-105 flex items-center justify-center relative">
+            <div className="w-28 h-28 bg-gradient-to-br from-primary-500 to-emerald-500 rounded-2xl overflow-hidden ring-4 ring-white dark:ring-gray-800 shadow-xl transition-transform duration-300 group-hover:scale-105 flex items-center justify-center relative">
               {isUploading ? (
                 <div className="absolute inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-10">
                   <Loader2 className="w-8 h-8 text-white animate-spin" />
@@ -87,7 +87,7 @@ export default function StepProfile({ profileData, setProfileData, userName }: P
             <button 
               onClick={() => fileInputRef.current?.click()}
               disabled={isUploading}
-              className="absolute -bottom-1.5 -right-1.5 w-9 h-9 bg-gradient-to-br from-primary-500 to-indigo-500 text-white rounded-xl flex items-center justify-center shadow-lg hover:scale-110 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
+              className="absolute -bottom-1.5 -right-1.5 w-9 h-9 bg-gradient-to-br from-primary-500 to-emerald-500 text-white rounded-xl flex items-center justify-center shadow-lg hover:scale-110 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Camera className="w-4 h-4" />
             </button>

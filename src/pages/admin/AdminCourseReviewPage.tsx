@@ -56,7 +56,7 @@ export default function AdminCourseReviewPage() {
     return (
       <div className="rounded-2xl border border-slate-200 bg-white p-6">
         <p className="text-sm font-bold text-slate-600">Product not found.</p>
-        <Link to="/admin/courses" className="mt-4 inline-flex text-sm font-black text-indigo-600">Back to courses</Link>
+        <Link to="/admin/courses" className="mt-4 inline-flex text-sm font-black text-emerald-600">Back to courses</Link>
       </div>
     )
   }
@@ -69,7 +69,7 @@ export default function AdminCourseReviewPage() {
       {/* Header Card */}
       <div className="flex flex-wrap items-start justify-between gap-6 rounded-[2.5rem] border border-white/50 dark:border-slate-800 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl p-6 sm:p-8 shadow-xl shadow-slate-200/40 dark:shadow-none transition-all">
         <div>
-          <button onClick={() => navigate('/admin/courses')} className="mb-4 inline-flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-indigo-600 transition-colors">
+          <button onClick={() => navigate('/admin/courses')} className="mb-4 inline-flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-emerald-600 transition-colors">
             <ArrowLeft className="h-4 w-4" />
             Back to courses
           </button>
@@ -82,7 +82,7 @@ export default function AdminCourseReviewPage() {
             </span>
           </div>
           <p className="mt-2 text-sm font-bold text-slate-500 dark:text-slate-400">
-            {isDocument ? 'Document' : 'Course'} by <span className="text-indigo-600 dark:text-indigo-400">{course.instructorName || course.instructor?.fullName || 'Instructor'}</span>
+            {isDocument ? 'Document' : 'Course'} by <span className="text-emerald-600 dark:text-emerald-400">{course.instructorName || course.instructor?.fullName || 'Instructor'}</span>
           </p>
         </div>
         <div className="flex flex-wrap gap-3 w-full sm:w-auto">
@@ -150,11 +150,11 @@ export default function AdminCourseReviewPage() {
                   <p className="text-sm font-extrabold text-slate-900 dark:text-white">{group.section?.title || `Section ${index + 1}`}</p>
                   <div className="mt-4 space-y-2">
                     {group.lessons.map((lesson) => (
-                      <div key={lesson.id} className="group/lesson flex items-center gap-4 rounded-xl bg-white dark:bg-slate-800 px-4 py-3 text-sm font-bold text-slate-700 dark:text-slate-300 border border-slate-100 dark:border-slate-700 shadow-sm transition-all hover:border-indigo-200 dark:hover:border-indigo-800 hover:shadow-md">
-                        <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center text-indigo-500 flex-shrink-0 group-hover/lesson:scale-110 transition-transform">
+                      <div key={lesson.id} className="group/lesson flex items-center gap-4 rounded-xl bg-white dark:bg-slate-800 px-4 py-3 text-sm font-bold text-slate-700 dark:text-slate-300 border border-slate-100 dark:border-slate-700 shadow-sm transition-all hover:border-emerald-200 dark:hover:border-emerald-800 hover:shadow-md">
+                        <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center text-emerald-500 flex-shrink-0 group-hover/lesson:scale-110 transition-transform">
                           {lesson.lessonType === LessonType.DOCUMENT ? <Download className="h-4 w-4" /> : lesson.lessonType === LessonType.QUIZ ? <FileText className="h-4 w-4" /> : <PlayCircle className="h-4 w-4" />}
                         </div>
-                        <span className="truncate group-hover/lesson:text-indigo-600 dark:group-hover/lesson:text-indigo-400 transition-colors">{lesson.title}</span>
+                        <span className="truncate group-hover/lesson:text-emerald-600 dark:group-hover/lesson:text-emerald-400 transition-colors">{lesson.title}</span>
                       </div>
                     ))}
                     {group.lessons.length === 0 && <p className="text-sm font-bold text-slate-400 dark:text-slate-500 py-2">No lessons in this section.</p>}
@@ -195,8 +195,8 @@ function Metric({ label, value }: { label: string; value: string }) {
 function Summary({ icon, label, value }: { icon: ReactNode; label: string; value: string }) {
   return (
     <div className="rounded-2xl bg-white/60 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60 p-5 shadow-sm transition-all hover:shadow-md">
-      <div className="flex items-center gap-2.5 text-indigo-500 dark:text-indigo-400">
-        <div className="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center">
+      <div className="flex items-center gap-2.5 text-emerald-500 dark:text-emerald-400">
+        <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center">
           {icon}
         </div>
         <span className="text-[10px] font-black uppercase tracking-[0.2em]">{label}</span>

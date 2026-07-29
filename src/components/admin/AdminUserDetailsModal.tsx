@@ -133,7 +133,7 @@ export default function AdminUserDetailsModal({ isOpen, onClose, user }: AdminUs
                     {user.avatarUrl ? (
                        <img src={user.avatarUrl} alt={user.fullName} className="w-full h-full object-cover rounded-[0.9rem]" />
                     ) : (
-                       <div className="w-full h-full flex items-center justify-center bg-indigo-50 text-indigo-600 text-3xl font-bold rounded-[0.9rem]">
+                       <div className="w-full h-full flex items-center justify-center bg-emerald-50 text-emerald-600 text-3xl font-bold rounded-[0.9rem]">
                           {user.fullName.charAt(0).toUpperCase()}
                        </div>
                     )}
@@ -156,11 +156,11 @@ export default function AdminUserDetailsModal({ isOpen, onClose, user }: AdminUs
                   onClick={() => setActiveTab(item.id as TabType)}
                   className={`group flex min-h-11 shrink-0 items-center gap-3 rounded-xl px-3 py-2.5 transition-all md:w-full ${
                     activeTab === item.id 
-                      ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400' 
+                      ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' 
                       : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
                   }`}
                 >
-                   <item.icon className={`w-5 h-5 flex-shrink-0 ${activeTab === item.id ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-400'}`} />
+                   <item.icon className={`w-5 h-5 flex-shrink-0 ${activeTab === item.id ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400'}`} />
                    <div className="text-left flex-1 min-w-0">
                       <p className="text-sm font-medium leading-none truncate">{item.label}</p>
                    </div>
@@ -173,7 +173,7 @@ export default function AdminUserDetailsModal({ isOpen, onClose, user }: AdminUs
            <div className="space-y-2 border-t border-gray-100 p-3 dark:border-gray-800 md:p-4">
               <button 
                 onClick={handleMessageUser}
-                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 transition-colors"
+                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700 transition-colors"
               >
                  <MessageSquare className="w-4 h-4" /> Message User
               </button>
@@ -196,7 +196,7 @@ export default function AdminUserDetailsModal({ isOpen, onClose, user }: AdminUs
               <div className="flex shrink-0 items-center gap-1 sm:gap-3">
                  <button 
                   onClick={() => setIsNotifModalOpen(true)}
-                  className="min-h-11 rounded-xl bg-indigo-600 px-3 py-2 text-xs font-medium text-white shadow-sm transition-colors hover:bg-indigo-700 sm:px-4 sm:text-sm"
+                  className="min-h-11 rounded-xl bg-emerald-600 px-3 py-2 text-xs font-medium text-white shadow-sm transition-colors hover:bg-emerald-700 sm:px-4 sm:text-sm"
                  >
                     <span className="hidden sm:inline">Send Notification</span>
                     <span className="sm:hidden">Notify</span>
@@ -234,7 +234,7 @@ export default function AdminUserDetailsModal({ isOpen, onClose, user }: AdminUs
                                <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Contact Details</h3>
                                <div className="space-y-4">
                                   <div className="flex items-center gap-3">
-                                     <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center flex-shrink-0">
+                                     <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center flex-shrink-0">
                                         <Mail className="w-5 h-5" />
                                      </div>
                                      <div className="min-w-0 flex-1">
@@ -266,7 +266,7 @@ export default function AdminUserDetailsModal({ isOpen, onClose, user }: AdminUs
                                      </div>
                                   </div>
                                   <div className="flex items-center gap-3">
-                                     <div className="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 flex items-center justify-center flex-shrink-0">
+                                     <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center flex-shrink-0">
                                         <Award className="w-5 h-5" />
                                      </div>
                                      <div>
@@ -297,7 +297,7 @@ export default function AdminUserDetailsModal({ isOpen, onClose, user }: AdminUs
                             <div className="flex flex-wrap gap-3">
                                <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center" title="Verified Member"><ShieldCheck className="w-5 h-5" /></div>
                                <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center" title="2FA Enabled"><Lock className="w-5 h-5" /></div>
-                               <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center" title="Course Grad"><BookOpen className="w-5 h-5" /></div>
+                               <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center" title="Course Grad"><BookOpen className="w-5 h-5" /></div>
                             </div>
                          </div>
                       </div>
@@ -308,7 +308,7 @@ export default function AdminUserDetailsModal({ isOpen, onClose, user }: AdminUs
               {activeTab === 'financial' && (
                 <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-300">
                    <div className="grid gap-6 sm:grid-cols-2">
-                      <div className="p-6 rounded-3xl bg-indigo-600 text-white shadow-md relative overflow-hidden group">
+                      <div className="p-6 rounded-3xl bg-emerald-600 text-white shadow-md relative overflow-hidden group">
                          <div className="absolute -right-4 -bottom-4 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700" />
                          <p className="text-xs font-medium uppercase tracking-wider opacity-80">Available Credits</p>
                          <h3 className="text-3xl font-bold mt-2">{formatCurrency(user.balance || 1250000)}</h3>
@@ -329,7 +329,7 @@ export default function AdminUserDetailsModal({ isOpen, onClose, user }: AdminUs
                    <section className="space-y-4">
                       <div className="flex items-center justify-between">
                          <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Transaction Ledger</h3>
-                         <button className="text-sm font-medium text-indigo-600 hover:underline">View All</button>
+                         <button className="text-sm font-medium text-emerald-600 hover:underline">View All</button>
                       </div>
                       <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden">
                          {[
@@ -364,13 +364,13 @@ export default function AdminUserDetailsModal({ isOpen, onClose, user }: AdminUs
                        <section className="space-y-4">
                           <div className="flex items-center justify-between">
                              <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Active Jobs</h3>
-                             <span className="px-2.5 py-1 rounded-md bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400 text-xs font-semibold">12 Posted</span>
+                             <span className="px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400 text-xs font-semibold">12 Posted</span>
                           </div>
                           <div className="space-y-3">
                              {[1,2,3].map(i => (
                                <div key={i} className="p-4 rounded-2xl bg-gray-50 dark:bg-gray-800/50 border border-transparent hover:border-gray-200 dark:hover:border-gray-700 transition-colors cursor-pointer group">
                                   <div className="flex justify-between items-start">
-                                     <p className="text-sm font-semibold text-gray-900 dark:text-white group-hover:text-indigo-600 transition-colors">Backend Architect Needed</p>
+                                     <p className="text-sm font-semibold text-gray-900 dark:text-white group-hover:text-emerald-600 transition-colors">Backend Architect Needed</p>
                                      <ExternalLink className="w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-all" />
                                   </div>
                                   <p className="text-xs font-medium text-gray-500 mt-1">Budget: $450 • 2 weeks ago</p>
@@ -381,18 +381,18 @@ export default function AdminUserDetailsModal({ isOpen, onClose, user }: AdminUs
                        <section className="space-y-4">
                           <div className="flex items-center justify-between">
                              <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Learning History</h3>
-                             <span className="px-2.5 py-1 rounded-md bg-purple-50 text-purple-600 dark:bg-purple-500/10 dark:text-purple-400 text-xs font-semibold">5 Enrolled</span>
+                             <span className="px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400 text-xs font-semibold">5 Enrolled</span>
                           </div>
                           <div className="space-y-3">
                              {[1,2].map(i => (
                                <div key={i} className="p-4 rounded-2xl bg-gray-50 dark:bg-gray-800/50 border border-transparent hover:border-gray-200 dark:hover:border-gray-700 transition-colors flex gap-4">
                                   <div className="w-10 h-10 rounded-xl bg-white dark:bg-gray-900 flex items-center justify-center shadow-sm">
-                                     <BookOpen className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                                     <BookOpen className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                                   </div>
                                   <div className="min-w-0 flex-1">
                                      <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">Advanced System Design</p>
                                      <div className="mt-2 h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                                        <div className="h-full bg-purple-600 dark:bg-purple-500 w-[85%]" />
+                                        <div className="h-full bg-emerald-600 dark:bg-emerald-500 w-[85%]" />
                                      </div>
                                      <p className="text-xs font-medium text-gray-500 mt-1.5">85% Completed</p>
                                   </div>
@@ -429,7 +429,7 @@ export default function AdminUserDetailsModal({ isOpen, onClose, user }: AdminUs
 
                     <section className="bg-gray-900 rounded-3xl p-8 text-white space-y-6">
                        <div className="flex items-center gap-3">
-                          <Lock className="w-5 h-5 text-indigo-400" />
+                          <Lock className="w-5 h-5 text-emerald-400" />
                           <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-200">{t('admin.userSecurity.title')}</h3>
                        </div>
                        <div className="grid gap-6 sm:grid-cols-2 lg:gap-8">
@@ -486,7 +486,7 @@ export default function AdminUserDetailsModal({ isOpen, onClose, user }: AdminUs
                   value={notifTitle}
                   onChange={e => setNotifTitle(e.target.value)}
                   placeholder="Notification Title"
-                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-sm outline-none text-gray-900 dark:text-white"
+                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all text-sm outline-none text-gray-900 dark:text-white"
                 />
               </div>
               <div className="space-y-1.5">
@@ -496,7 +496,7 @@ export default function AdminUserDetailsModal({ isOpen, onClose, user }: AdminUs
                   onChange={e => setNotifContent(e.target.value)}
                   placeholder="Enter message..."
                   rows={4}
-                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-sm outline-none text-gray-900 dark:text-white resize-none"
+                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all text-sm outline-none text-gray-900 dark:text-white resize-none"
                 />
               </div>
             </div>
@@ -510,7 +510,7 @@ export default function AdminUserDetailsModal({ isOpen, onClose, user }: AdminUs
               <button 
                 onClick={handleSendNotification}
                 disabled={isSendingNotif || !notifTitle || !notifContent}
-                className="px-4 py-2 rounded-xl text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center min-w-[80px]"
+                className="px-4 py-2 rounded-xl text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center min-w-[80px]"
               >
                 {isSendingNotif ? 'Sending...' : 'Send'}
               </button>

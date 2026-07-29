@@ -600,7 +600,7 @@ export default function AdminMentorApplicationsPage() {
 
   return (
     <div className={`relative min-h-screen grid gap-6 transition-all duration-500 ${selectedProfile ? '2xl:grid-cols-[minmax(0,1fr)_720px]' : 'max-w-[1600px] mx-auto w-full'}`}>
-      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-50/40 via-white to-white dark:from-indigo-950/20 dark:via-slate-950 dark:to-slate-950" />
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-50/40 via-white to-white dark:from-emerald-950/20 dark:via-slate-950 dark:to-slate-950" />
       <section className="relative overflow-hidden rounded-[2.5rem] border border-white/40 bg-white/60 backdrop-blur-2xl shadow-xl shadow-slate-200/40 dark:border-slate-800/60 dark:bg-slate-900/40 dark:shadow-none transition-all">
         <div className="absolute inset-0 bg-gradient-to-b from-white/40 to-transparent pointer-events-none dark:from-white/5" />
         <div className="relative z-10 px-6 py-6 lg:px-8">
@@ -632,26 +632,26 @@ export default function AdminMentorApplicationsPage() {
                   }}
                   className={`group relative flex items-center gap-4 rounded-2xl border px-5 py-4 text-left transition-all duration-300 ${
                     isActive
-                      ? 'border-indigo-200 bg-indigo-50/80 shadow-sm dark:border-indigo-500/30 dark:bg-indigo-500/10'
+                      ? 'border-emerald-200 bg-emerald-50/80 shadow-sm dark:border-emerald-500/30 dark:bg-emerald-500/10'
                       : 'border-slate-200/60 bg-white/50 hover:border-slate-300 hover:bg-white hover:shadow-sm dark:border-slate-800/60 dark:bg-slate-900/30 dark:hover:border-slate-700 dark:hover:bg-slate-900/60'
                   }`}
                 >
                   <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-colors ${
                     isActive
-                      ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/30'
+                      ? 'bg-emerald-600 text-white shadow-md shadow-emerald-500/30'
                       : 'bg-slate-100 text-slate-500 group-hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:group-hover:bg-slate-700'
                   }`}>
                     <TabIcon className="h-5 w-5" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <span className={`block text-sm font-bold ${isActive ? 'text-indigo-900 dark:text-indigo-200' : 'text-slate-700 dark:text-slate-300'}`}>{tab.label}</span>
-                    <span className={`mt-0.5 block text-[11px] leading-snug ${isActive ? 'text-indigo-600/70 dark:text-indigo-300/60' : 'text-slate-400 dark:text-slate-500'}`}>
+                    <span className={`block text-sm font-bold ${isActive ? 'text-emerald-900 dark:text-emerald-200' : 'text-slate-700 dark:text-slate-300'}`}>{tab.label}</span>
+                    <span className={`mt-0.5 block text-[11px] leading-snug ${isActive ? 'text-emerald-600/70 dark:text-emerald-300/60' : 'text-slate-400 dark:text-slate-500'}`}>
                       {tab.description}
                     </span>
                   </div>
                   <span className={`shrink-0 rounded-lg px-2.5 py-1 text-xs font-black tabular-nums transition-colors ${
                     isActive
-                      ? 'bg-indigo-600 text-white'
+                      ? 'bg-emerald-600 text-white'
                       : 'bg-slate-100 text-slate-600 group-hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:group-hover:bg-slate-700'
                   }`}>
                     {total}
@@ -672,7 +672,7 @@ export default function AdminMentorApplicationsPage() {
                   setPage(0)
                 }}
                 placeholder="Search by name, email, skill, domain, or company…"
-                className="h-11 w-full rounded-xl border border-slate-200/60 bg-white pl-11 pr-4 text-sm font-medium text-slate-900 outline-none transition-all hover:border-slate-300 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10 dark:border-slate-800/60 dark:bg-slate-900/60 dark:text-white dark:hover:border-slate-700 dark:focus:border-indigo-500/50"
+                className="h-11 w-full rounded-xl border border-slate-200/60 bg-white pl-11 pr-4 text-sm font-medium text-slate-900 outline-none transition-all hover:border-slate-300 focus:border-emerald-400 focus:ring-4 focus:ring-emerald-500/10 dark:border-slate-800/60 dark:bg-slate-900/60 dark:text-white dark:hover:border-slate-700 dark:focus:border-emerald-500/50"
               />
             </div>
 
@@ -1010,7 +1010,7 @@ function ReviewWorkspacePanel({
       <div className="sticky top-0 z-10 border-b border-white/20 bg-white/60 px-6 py-5 backdrop-blur-xl dark:border-slate-700/50 dark:bg-slate-900/60">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0 flex flex-1 items-start gap-4">
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[1.25rem] bg-gradient-to-br from-indigo-600 to-violet-600 text-lg font-black text-white shadow-lg shadow-indigo-500/20">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[1.25rem] bg-gradient-to-br from-emerald-600 to-emerald-600 text-lg font-black text-white shadow-lg shadow-emerald-500/20">
               {profile.user?.fullName?.charAt(0)?.toUpperCase() || 'M'}
             </div>
             <div className="min-w-0">
@@ -1051,7 +1051,7 @@ function ReviewWorkspacePanel({
               className={`rounded-full px-3 py-2 text-sm font-semibold transition ${
                 reviewTab === tab.key
                   ? 'bg-slate-950 text-white dark:bg-white dark:text-slate-950'
-                  : 'text-slate-500 hover:bg-slate-100 hover:text-slate-950 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-white'
+                  : 'text-slate-500 hover:bg-slate-100 hover:text-slate-950 dark:text-slate-300 dark:hover:bg-emerald-600 shadow-md hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 hover:bg-emerald-700 dark:hover:text-white'
               }`}
             >
               {tab.label}
@@ -1143,7 +1143,7 @@ function ReviewWorkspacePanel({
                   value={internalNote}
                   onChange={(event) => onInternalNoteChange(event.target.value.slice(0, 1000))}
                   placeholder="Draft an internal note for other reviewers..."
-                  className="w-full rounded-[1.25rem] border border-slate-200/60 bg-white/70 backdrop-blur-md px-5 py-4 text-sm font-medium text-slate-900 outline-none transition-all hover:bg-white hover:border-indigo-200 focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10 dark:border-slate-800/60 dark:bg-slate-950/50 dark:text-white dark:hover:bg-slate-900 dark:focus:bg-slate-950 dark:focus:border-indigo-500/50"
+                  className="w-full rounded-[1.25rem] border border-slate-200/60 bg-white/70 backdrop-blur-md px-5 py-4 text-sm font-medium text-slate-900 outline-none transition-all hover:bg-white hover:border-emerald-200 focus:bg-white focus:border-emerald-400 focus:ring-4 focus:ring-emerald-500/10 dark:border-slate-800/60 dark:bg-slate-950/50 dark:text-white dark:hover:bg-emerald-600 shadow-md hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 hover:bg-emerald-700 dark:focus:bg-slate-950 dark:focus:border-emerald-500/50"
                 />
                 <div className="mt-2 flex items-center justify-between text-[11px] font-semibold text-slate-400 dark:text-slate-500">
                   <span>Internal only, not visible to the applicant.</span>
@@ -1155,8 +1155,8 @@ function ReviewWorkspacePanel({
             <PanelSection title="Moderator Notes" description="Existing notes and rejection reasons already attached to this application.">
               <div className="space-y-3">
                 {currentModeratorNote ? (
-                  <div className="rounded-2xl border border-indigo-200/60 bg-indigo-50/50 p-5 dark:border-indigo-500/20 dark:bg-indigo-500/10">
-                    <p className="text-[11px] font-black uppercase tracking-[0.16em] text-indigo-500 dark:text-indigo-400">Moderator Note</p>
+                  <div className="rounded-2xl border border-emerald-200/60 bg-emerald-50/50 p-5 dark:border-emerald-500/20 dark:bg-emerald-500/10">
+                    <p className="text-[11px] font-black uppercase tracking-[0.16em] text-emerald-500 dark:text-emerald-400">Moderator Note</p>
                     <p className="mt-2 text-sm leading-relaxed text-slate-700 dark:text-slate-300">{currentModeratorNote}</p>
                   </div>
                 ) : null}
@@ -1183,7 +1183,7 @@ function ReviewWorkspacePanel({
                 <div className="relative ml-4 mt-2 space-y-6 before:absolute before:inset-y-0 before:-left-4 before:w-[2px] before:bg-slate-200 dark:before:bg-slate-800">
                   {historyEntries.map((entry) => (
                     <div key={`${entry.label}-${entry.timestamp}`} className="relative">
-                      <span className="absolute -left-[1.3125rem] top-1.5 h-2.5 w-2.5 rounded-full bg-indigo-500 ring-4 ring-white dark:bg-indigo-400 dark:ring-slate-900" />
+                      <span className="absolute -left-[1.3125rem] top-1.5 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-4 ring-white dark:bg-emerald-400 dark:ring-slate-900" />
                       <div className="pl-3">
                         <p className="text-sm font-bold text-slate-900 dark:text-white">{entry.label}</p>
                         <div className="mt-1 flex items-center gap-2 text-xs font-medium text-slate-500 dark:text-slate-400">
@@ -1384,12 +1384,12 @@ function QueueCard({
     <div
       className={`group relative rounded-[1.75rem] border p-5 transition-all duration-400 ease-out overflow-hidden backdrop-blur-sm ${
         isSelected
-          ? 'border-indigo-400/80 bg-indigo-50/40 shadow-xl shadow-indigo-100/60 scale-[1.02] dark:border-indigo-400/50 dark:bg-indigo-900/20 dark:shadow-indigo-900/20'
-          : 'border-slate-200/60 bg-white/60 hover:border-indigo-300/80 hover:bg-white/90 hover:shadow-xl hover:shadow-slate-200/40 hover:-translate-y-1.5 dark:border-slate-800/60 dark:bg-slate-950/50 dark:hover:border-indigo-500/40 dark:hover:bg-slate-900/80'
+          ? 'border-emerald-400/80 bg-emerald-50/40 shadow-xl shadow-emerald-100/60 scale-[1.02] dark:border-emerald-400/50 dark:bg-emerald-900/20 dark:shadow-emerald-900/20'
+          : 'border-slate-200/60 bg-white/60 hover:border-emerald-300/80 hover:bg-white/90 hover:shadow-xl hover:shadow-slate-200/40 hover:-translate-y-1.5 dark:border-slate-800/60 dark:bg-slate-950/50 dark:hover:border-emerald-500/40 dark:hover:bg-slate-900/80'
       }`}
     >
       {isSelected && (
-        <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 via-purple-500/5 to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 via-emerald-500/5 to-transparent pointer-events-none" />
       )}
       <button type="button" onClick={onSelect} className="flex w-full min-w-0 flex-col gap-4 text-left">
         <div className="flex items-start justify-between gap-4">
@@ -1762,7 +1762,7 @@ function ModerationModal({
       <div className="w-full max-w-xl rounded-[2rem] border border-white/10 bg-white p-6 shadow-2xl dark:bg-gray-900">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-xs font-black uppercase tracking-[0.16em] text-indigo-600 dark:text-indigo-300">
+            <p className="text-xs font-black uppercase tracking-[0.16em] text-emerald-600 dark:text-emerald-300">
               Moderation action
             </p>
             <h3 className="mt-2 text-xl font-black text-gray-950 dark:text-white">{getActionTitle(action)}</h3>
@@ -1791,7 +1791,7 @@ function ModerationModal({
               value={reason}
               onChange={(event) => onReasonChange(event.target.value)}
               placeholder="Add a concise note for the mentor and the moderation log"
-              className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm font-medium text-gray-900 outline-none transition focus:border-indigo-300 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+              className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm font-medium text-gray-900 outline-none transition focus:border-emerald-300 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
             />
           )}
         </div>
@@ -1935,11 +1935,11 @@ function ProofLinkRow({
       href={value}
       target="_blank"
       rel="noreferrer"
-      className="flex items-start justify-between gap-4 rounded-2xl border border-slate-200/80 bg-slate-50/70 px-4 py-3 transition hover:border-indigo-300 hover:bg-white dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700"
+      className="flex items-start justify-between gap-4 rounded-2xl border border-slate-200/80 bg-slate-50/70 px-4 py-3 transition hover:border-emerald-300 hover:bg-white dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700"
     >
       <div className="min-w-0">
         <p className="text-[11px] font-black uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">{label}</p>
-        <p className="mt-2 break-all font-mono text-xs text-indigo-700 dark:text-indigo-300">{value}</p>
+        <p className="mt-2 break-all font-mono text-xs text-emerald-700 dark:text-emerald-300">{value}</p>
       </div>
       <ArrowRight className="mt-1 h-4 w-4 shrink-0 text-slate-400" />
     </a>
@@ -1955,7 +1955,7 @@ function AttachmentTile({ label, value }: { label: string; value?: string | null
           href={value}
           target="_blank"
           rel="noreferrer"
-          className="mt-3 block break-all font-mono text-xs font-medium text-indigo-700 hover:text-indigo-800 dark:text-indigo-300 dark:hover:text-indigo-200"
+          className="mt-3 block break-all font-mono text-xs font-medium text-emerald-700 hover:text-emerald-800 dark:text-emerald-300 dark:hover:text-emerald-200"
         >
           {value}
         </a>
@@ -1987,7 +1987,7 @@ function ActionButton({
 }) {
   const toneClass =
     tone === 'primary'
-      ? 'bg-indigo-600 text-white hover:bg-indigo-500'
+      ? 'bg-emerald-600 text-white hover:bg-emerald-500'
       : tone === 'secondary'
         ? 'border border-blue-200 bg-blue-50 text-blue-700 hover:border-blue-300 dark:border-blue-400/20 dark:bg-blue-400/10 dark:text-blue-200'
         : tone === 'danger'

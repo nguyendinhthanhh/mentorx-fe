@@ -21,17 +21,16 @@ import {
 import { categoryApi } from '@/api/categoryApi'
 import { contractApi } from '@/api/contractApi'
 import { disputeApi } from '@/api/disputeApi'
-import { jobApi } from '@/api/jobApi'
 import ContextualChatDrawer from '@/components/chat/ContextualChatDrawer'
 import { useAuthStore } from '@/store/authStore'
 import { Skeleton, SkeletonCircle, SkeletonText } from '@/components/ui/Skeleton'
 import {
   CategoryResponse,
+  JobSummaryResponse,
   ContractResponse,
   ContractStatus,
   DisputeResponse,
   DisputeStatus,
-  JobResponse,
 } from '@/types'
 import { formatCurrency, formatDate, formatDateTime, formatRelativeTime } from '@/utils/formatters'
 
@@ -73,21 +72,21 @@ const contractStatusLabel: Record<ContractStatus, string> = {
 
 const contractStatusTone: Record<ContractStatus, string> = {
   DRAFT: 'border-slate-200 bg-slate-100 text-slate-600',
-  PENDING_SIGNATURE: 'border-violet-200 bg-violet-50 text-violet-700',
+  PENDING_SIGNATURE: 'border-emerald-200 bg-emerald-50 text-emerald-700',
   ACTIVE: 'border-emerald-200 bg-emerald-50 text-emerald-700',
   PAUSED: 'border-amber-200 bg-amber-50 text-amber-700',
-  COMPLETED: 'border-indigo-200 bg-indigo-50 text-indigo-700',
+  COMPLETED: 'border-emerald-200 bg-emerald-50 text-emerald-700',
   CANCELLED: 'border-rose-200 bg-rose-50 text-rose-700',
   TERMINATED: 'border-rose-200 bg-rose-50 text-rose-700',
   IN_DISPUTE: 'border-orange-200 bg-orange-50 text-orange-700',
   EXPIRED: 'border-slate-200 bg-slate-100 text-slate-600',
   PENDING_PAYMENT: 'border-sky-200 bg-sky-50 text-sky-700',
-  UNDER_REVIEW: 'border-violet-200 bg-violet-50 text-violet-700',
+  UNDER_REVIEW: 'border-emerald-200 bg-emerald-50 text-emerald-700',
 }
 
 interface MentorContractsDashboardData {
   contracts: ContractResponse[]
-  jobsMap: Record<string, JobResponse>
+  jobsMap: Record<string, JobSummaryResponse>
   categoryMap: Record<number, CategoryResponse>
   disputesByContractId: Record<string, DisputeResponse[]>
 }
@@ -147,21 +146,9 @@ export default function MentorContractsPage() {
         return acc
       }, {})
 
-      const uniqueJobIds = Array.from(new Set(contracts.map((contract) => contract.jobId)))
-      const jobEntries = await Promise.all(
-        uniqueJobIds.map(async (jobId) => {
-          try {
-            const job = await jobApi.getById(jobId)
-            return [jobId, job] as const
-          } catch {
-            return null
-          }
-        })
-      )
-
-      const jobsMap = jobEntries.reduce<Record<string, JobResponse>>((acc, entry) => {
-        if (entry) {
-          acc[entry[0]] = entry[1]
+      const jobsMap = contracts.reduce<Record<string, JobSummaryResponse>>((acc, contract) => {
+        if (contract.jobSummary) {
+          acc[contract.jobId] = contract.jobSummary
         }
         return acc
       }, {})
@@ -388,7 +375,7 @@ export default function MentorContractsPage() {
         {/* Compact Header */}
         <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between mb-8">
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full bg-indigo-50 px-3 py-1 text-[11px] uppercase tracking-widest font-black text-indigo-600 mb-3 border border-indigo-100 shadow-sm">
+            <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-[11px] uppercase tracking-widest font-black text-emerald-600 mb-3 border border-emerald-100 shadow-sm">
               <Sparkles className="w-3.5 h-3.5 text-amber-500" />
               Pipeline Overview
             </div>
@@ -401,8 +388,8 @@ export default function MentorContractsPage() {
           <div className="flex items-center gap-4">
             <div className="hidden lg:flex items-center gap-4 rounded-2xl border border-slate-200/60 bg-white/50 py-2.5 shadow-sm backdrop-blur-md">
               <div className="flex flex-col px-5 border-r border-slate-200/60">
-                 <span className="text-[10px] font-black uppercase tracking-widest text-indigo-600/70">Đang diễn ra</span>
-                 <span className="text-xl font-black text-indigo-600">{summary.activeContracts}</span>
+                 <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600/70">Đang diễn ra</span>
+                 <span className="text-xl font-black text-emerald-600">{summary.activeContracts}</span>
               </div>
               <div className="flex flex-col px-5 border-r border-slate-200/60">
                  <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600/70">Hoàn thành (Tháng này)</span>
@@ -414,7 +401,7 @@ export default function MentorContractsPage() {
               </div>
             </div>
 
-            <Link to="/mentor/proposals" className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-slate-900 px-6 text-sm font-bold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-indigo-600 hover:shadow-indigo-500/30 shrink-0">
+            <Link to="/mentor/proposals" className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-emerald-600 shadow-md hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 hover:bg-emerald-700 px-6 text-sm font-bold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-emerald-600 hover:shadow-emerald-500/30 shrink-0">
               <Briefcase className="h-4 w-4" />
               Xem Proposals
             </Link>
@@ -433,7 +420,7 @@ export default function MentorContractsPage() {
                       type="button"
                       onClick={() => setActiveTab(tab.key)}
                       className={`inline-flex h-10 items-center gap-2 rounded-xl px-3.5 text-xs font-bold transition ${
-                        isActive ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700'
+                        isActive ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700'
                       }`}
                     >
                       {tab.label}
@@ -454,7 +441,7 @@ export default function MentorContractsPage() {
                   value={searchQuery}
                   onChange={(event) => setSearchQuery(event.target.value)}
                   placeholder="Search by job, client, skill, or category"
-                  className="h-11 w-full rounded-2xl border border-slate-200 bg-slate-50 pl-10 pr-3 text-sm text-slate-700 outline-none transition focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10"
+                  className="h-11 w-full rounded-2xl border border-slate-200 bg-slate-50 pl-10 pr-3 text-sm text-slate-700 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10"
                 />
               </div>
 
@@ -489,7 +476,7 @@ export default function MentorContractsPage() {
                   </p>
                   <Link
                     to="/mentor/proposals"
-                    className="mt-5 inline-flex h-10 items-center gap-1.5 rounded-xl bg-indigo-600 px-4 text-sm font-bold text-white transition hover:bg-indigo-700"
+                    className="mt-5 inline-flex h-10 items-center gap-1.5 rounded-xl bg-emerald-600 px-4 text-sm font-bold text-white transition hover:bg-emerald-700"
                   >
                     Open proposals
                   </Link>
@@ -506,7 +493,7 @@ export default function MentorContractsPage() {
                       key={contract.id}
                       className={`rounded-xl border px-5 py-5 shadow-sm transition ${
                         isSelected
-                          ? 'border-indigo-200 bg-indigo-50/40 shadow-indigo-100/60'
+                          ? 'border-emerald-200 bg-emerald-50/40 shadow-emerald-100/60'
                           : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/50'
                       }`}
                     >
@@ -539,7 +526,7 @@ export default function MentorContractsPage() {
                                     setSelectedContractId(contract.id)
                                     setIsMobileDrawerOpen(true)
                                   }}
-                                  className="inline-flex items-center gap-1 text-xs font-bold text-indigo-600 transition hover:text-indigo-700"
+                                  className="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 transition hover:text-emerald-700"
                                 >
                                   Review details
                                   <ChevronRight className="h-3.5 w-3.5" />
@@ -576,7 +563,7 @@ export default function MentorContractsPage() {
                                 <span
                                   key={step.label}
                                   className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 ${
-                                    step.active ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-500'
+                                    step.active ? 'bg-emerald-600 shadow-md hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 hover:bg-emerald-700 text-white' : 'bg-slate-100 text-slate-500'
                                   }`}
                                 >
                                   {step.label}
@@ -589,7 +576,7 @@ export default function MentorContractsPage() {
                         <div className="flex shrink-0 flex-row gap-2 lg:flex-col">
                           <Link
                             to={buildWorkspaceLink(contract)}
-                            className="inline-flex h-10 items-center justify-center gap-1.5 rounded-xl bg-indigo-600 px-4 text-sm font-bold text-white transition hover:bg-indigo-700"
+                            className="inline-flex h-10 items-center justify-center gap-1.5 rounded-xl bg-emerald-600 px-4 text-sm font-bold text-white transition hover:bg-emerald-700"
                           >
                             View workspace
                             <ArrowUpRight className="h-4 w-4" />
@@ -713,7 +700,7 @@ function ContractDetailPanel({
   onClose,
 }: {
   contract: ContractResponse | null
-  job?: JobResponse
+  job?: JobSummaryResponse
   categoryMap: Record<number, CategoryResponse>
   dispute: DisputeResponse | null
   decisionMode: CancellationDecisionMode
@@ -800,7 +787,7 @@ function ContractDetailPanel({
         <PanelSection title="Escrow status">
           <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
             <div className="flex items-start gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-indigo-500 shadow-sm">
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-emerald-500 shadow-sm">
                 <ShieldCheck className="h-5 w-5" />
               </div>
               <div className="min-w-0 flex-1">
@@ -881,7 +868,7 @@ function ContractDetailPanel({
           <div className="grid gap-3 sm:grid-cols-2">
             <Link
               to={workspaceLink}
-              className="inline-flex h-11 items-center justify-center gap-1.5 rounded-2xl bg-indigo-600 px-4 text-sm font-bold text-white transition hover:bg-indigo-700"
+              className="inline-flex h-11 items-center justify-center gap-1.5 rounded-2xl bg-emerald-600 px-4 text-sm font-bold text-white transition hover:bg-emerald-700"
             >
               View workspace
               <ArrowUpRight className="h-4 w-4" />
@@ -937,7 +924,7 @@ function ContractDetailPanel({
                   onClick={() => onDecisionModeChange('REJECT')}
                   className={`inline-flex h-10 items-center justify-center rounded-xl px-4 text-sm font-bold transition ${
                     decisionMode === 'REJECT'
-                      ? 'bg-slate-900 text-white'
+                      ? 'bg-emerald-600 shadow-md hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 hover:bg-emerald-700 text-white'
                       : 'border border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
                   }`}
                 >
@@ -959,7 +946,7 @@ function ContractDetailPanel({
                           ? 'Add a short note for the client before the contract is cancelled...'
                           : 'Explain why the contract should remain active...'
                       }
-                      className="min-h-[120px] w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm leading-6 text-slate-700 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
+                      className="min-h-[120px] w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm leading-6 text-slate-700 outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
                     />
                   </label>
                   <div className="flex gap-2">
@@ -1013,7 +1000,7 @@ function SummaryCard({
   caption: string
 }) {
   const toneMap = {
-    indigo: 'bg-indigo-50 text-indigo-600',
+    indigo: 'bg-emerald-50 text-emerald-600',
     emerald: 'bg-emerald-50 text-emerald-600',
     amber: 'bg-amber-50 text-amber-600',
     slate: 'bg-slate-100 text-slate-600',
@@ -1094,7 +1081,7 @@ function MiniSelect({
     <select
       value={value}
       onChange={(event) => onChange(event.target.value)}
-      className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm font-medium text-slate-600 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
+      className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm font-medium text-slate-600 outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
     >
       {options.map(([optionValue, label]) => (
         <option key={optionValue} value={optionValue}>
@@ -1184,7 +1171,7 @@ function MentorContractsLoadingState() {
   )
 }
 
-function getCategoryLabel(job: JobResponse | undefined, categoryMap: Record<number, CategoryResponse>): string {
+function getCategoryLabel(job: JobSummaryResponse | undefined, categoryMap: Record<number, CategoryResponse>): string {
   if (!job) {
     return 'Unassigned category'
   }
@@ -1197,7 +1184,7 @@ function getCategoryLabel(job: JobResponse | undefined, categoryMap: Record<numb
   return 'General request'
 }
 
-function getBudgetLabel(job?: JobResponse): string {
+function getBudgetLabel(job?: JobSummaryResponse): string {
   if (!job) {
     return 'Not available'
   }
@@ -1228,7 +1215,7 @@ function sortContracts(
   left: ContractResponse,
   right: ContractResponse,
   sortBy: SortKey,
-  jobsMap: Record<string, JobResponse>
+  jobsMap: Record<string, JobSummaryResponse>
 ): number {
   if (sortBy === 'AMOUNT_HIGH') {
     return right.totalAmount - left.totalAmount
@@ -1247,7 +1234,7 @@ function sortContracts(
   return new Date(getLastActivity(right)).getTime() - new Date(getLastActivity(left)).getTime()
 }
 
-function getDueTimestamp(contract: ContractResponse, job?: JobResponse): number {
+function getDueTimestamp(contract: ContractResponse, job?: JobSummaryResponse): number {
   const dueDate = contract.endDate || job?.deadlineAt
   if (!dueDate) {
     return Number.MAX_SAFE_INTEGER
@@ -1255,7 +1242,7 @@ function getDueTimestamp(contract: ContractResponse, job?: JobResponse): number 
   return new Date(dueDate).getTime()
 }
 
-function getDueDateLabel(contract: ContractResponse, job?: JobResponse): string {
+function getDueDateLabel(contract: ContractResponse, job?: JobSummaryResponse): string {
   const dueDate = contract.endDate || job?.deadlineAt
   if (!dueDate) {
     return 'Flexible'
@@ -1294,7 +1281,7 @@ function getProgressLabel(contract: ContractResponse): string {
 
 function getProgressBarTone(contract: ContractResponse): string {
   if (contract.status === ContractStatus.COMPLETED) {
-    return 'bg-indigo-600'
+    return 'bg-emerald-600'
   }
   if (contract.status === ContractStatus.CANCELLED) {
     return 'bg-rose-500'

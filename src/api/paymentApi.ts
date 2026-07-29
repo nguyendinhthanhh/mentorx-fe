@@ -1,6 +1,34 @@
 import apiClient from './client'
 import { ApiResponse } from '@/types'
 
+const pendingPaymentKeys = new Map<string, string>()
+
+const createRequestKey = () =>
+  typeof crypto !== 'undefined' && 'randomUUID' in crypto
+    ? crypto.randomUUID()
+    : `${Date.now()}-${Math.random().toString(36).slice(2)}`
+
+async function createIdempotentPayment<T>(
+  endpoint: string,
+  data: VNPayPaymentRequest | MomoPaymentRequest | PayOSPaymentRequest
+): Promise<T> {
+  const fingerprint = `${endpoint}:${JSON.stringify(data)}`
+  const idempotencyKey = pendingPaymentKeys.get(fingerprint) || createRequestKey()
+  pendingPaymentKeys.set(fingerprint, idempotencyKey)
+  try {
+    const response = await apiClient.post<ApiResponse<T>>(endpoint, data, {
+      headers: { 'Idempotency-Key': idempotencyKey },
+    })
+    pendingPaymentKeys.delete(fingerprint)
+    return response.data.data
+  } catch (error: any) {
+    if (error?.response && error.response.status < 500) {
+      pendingPaymentKeys.delete(fingerprint)
+    }
+    throw error
+  }
+}
+
 export interface VNPayPaymentRequest {
   amount: string
   currency: string
@@ -84,29 +112,26 @@ export interface MomoCallbackResponse {
 export const paymentApi = {
   // Create VNPay payment URL
   createVNPayPayment: async (data: VNPayPaymentRequest): Promise<VNPayPaymentResponse> => {
-    const response = await apiClient.post<ApiResponse<VNPayPaymentResponse>>(
+    return createIdempotentPayment<VNPayPaymentResponse>(
       '/v1/payment/vnpay/create',
       data
     )
-    return response.data.data
   },
 
   // Create MoMo payment URL
   createMomoPayment: async (data: MomoPaymentRequest): Promise<MomoPaymentResponse> => {
-    const response = await apiClient.post<ApiResponse<MomoPaymentResponse>>(
+    return createIdempotentPayment<MomoPaymentResponse>(
       '/v1/payment/momo/create',
       data
     )
-    return response.data.data
   },
 
   // Create PayOS payment URL
   createPayOSPayment: async (data: PayOSPaymentRequest): Promise<PayOSPaymentResponse> => {
-    const response = await apiClient.post<ApiResponse<PayOSPaymentResponse>>(
+    return createIdempotentPayment<PayOSPaymentResponse>(
       '/v1/payment/payos/create',
       data
     )
-    return response.data.data
   },
 
   // Process VNPay callback/return

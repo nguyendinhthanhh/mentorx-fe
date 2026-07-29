@@ -461,7 +461,7 @@ export default function CourseLearnPage() {
   if (courseLoading || lessonsLoading || !authHydrated || (shouldCheckEnrollment && enrollmentLoading)) {
     return (
       <div className="flex min-h-[360px] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
       </div>
     )
   }
@@ -472,7 +472,7 @@ export default function CourseLearnPage() {
         <p className="text-sm font-semibold text-slate-600 dark:text-slate-300">
           Course not found.
         </p>
-        <Link to="/courses" className="mt-4 inline-flex text-sm font-bold text-indigo-600">
+        <Link to="/courses" className="mt-4 inline-flex text-sm font-bold text-emerald-600">
           Back to courses
         </Link>
       </div>
@@ -485,7 +485,7 @@ export default function CourseLearnPage() {
         <p className="text-sm font-semibold text-slate-600 dark:text-slate-300">
           Course lessons could not be loaded. Please try again.
         </p>
-        <Link to={`/courses/${courseId}`} className="mt-4 inline-flex text-sm font-bold text-indigo-600">
+        <Link to={`/courses/${courseId}`} className="mt-4 inline-flex text-sm font-bold text-emerald-600">
           Back to course
         </Link>
       </div>
@@ -512,7 +512,7 @@ export default function CourseLearnPage() {
               <ChevronLeft className="h-5 w-5" />
             </button>
             <Link to="/" className="flex shrink-0 items-center gap-2" aria-label="Mentor X home">
-              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-600 text-sm font-black text-white">MX</span>
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-600 text-sm font-black text-white">MX</span>
               <span className="hidden text-sm font-black text-slate-950 dark:text-white sm:inline">Mentor X</span>
             </Link>
             <div className="hidden min-w-0 border-l border-slate-200 pl-3 dark:border-slate-800 md:block">
@@ -550,7 +550,7 @@ export default function CourseLearnPage() {
       <aside className={`${mobileSyllabusOpen ? 'fixed inset-y-0 left-0 z-[60] block h-dvh w-[min(90vw,360px)] overflow-y-auto rounded-none' : 'hidden'} border border-slate-200 bg-white p-4 shadow-2xl dark:border-slate-800 dark:bg-slate-950 xl:sticky xl:top-20 xl:block xl:h-max xl:w-auto xl:rounded-2xl xl:shadow-none`}>
         <div className="mb-4 flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <Link to={isPreviewMode ? `/courses/${courseId}` : '/profile/courses'} className="text-xs font-black uppercase tracking-widest text-indigo-600">
+            <Link to={isPreviewMode ? `/courses/${courseId}` : '/profile/courses'} className="text-xs font-black uppercase tracking-widest text-emerald-600">
               {isPreviewMode ? 'Preview mode' : 'My learning'}
             </Link>
             <h2 className="mt-1 line-clamp-2 text-lg font-black text-slate-900 dark:text-white">{course.title}</h2>
@@ -579,7 +579,7 @@ export default function CourseLearnPage() {
               </div>
               <div className="h-2 rounded-full bg-slate-200 dark:bg-slate-800">
                 <div
-                  className="h-2 rounded-full bg-indigo-600"
+                  className="h-2 rounded-full bg-emerald-600"
                   style={{ width: `${Math.min(Math.max(enrollment?.progressPercent || 0, 0), 100)}%` }}
                 />
               </div>
@@ -590,7 +590,7 @@ export default function CourseLearnPage() {
         {isPreviewMode && !firstPreviewLesson && (
           <div className="mb-5 rounded-xl border border-dashed border-slate-300 bg-white p-3 text-sm font-semibold text-slate-500 dark:border-slate-700 dark:bg-slate-950">
             This course has no free preview lessons yet.
-            <Link to={`/courses/${courseId}`} className="mt-2 block font-black text-indigo-600">Back to course details</Link>
+            <Link to={`/courses/${courseId}`} className="mt-2 block font-black text-emerald-600">Back to course details</Link>
           </div>
         )}
 
@@ -603,7 +603,7 @@ export default function CourseLearnPage() {
                     onClick={() => selectSection(group.section!.id)}
                     className={`w-full rounded-xl px-3 py-2 text-left transition ${
                       activeSection?.id === group.section.id && !activeLesson
-                        ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-200'
+                        ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-200'
                         : 'bg-slate-50 hover:bg-slate-100 dark:bg-slate-900 dark:hover:bg-slate-800'
                     }`}
                   >
@@ -624,7 +624,7 @@ export default function CourseLearnPage() {
                     onClick={() => selectLesson(lesson.id)}
                     className={`flex w-full items-start gap-2 rounded-xl px-3 py-2 text-left text-sm font-bold transition ${
                       selected
-                        ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-200'
+                        ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-200'
                         : locked
                           ? 'text-slate-400 hover:bg-slate-50 dark:text-slate-500 dark:hover:bg-slate-900'
                           : 'text-slate-700 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900'
@@ -683,7 +683,7 @@ export default function CourseLearnPage() {
           <div className="flex min-h-[320px] flex-col items-center justify-center rounded-xl border border-dashed border-slate-200 p-10 text-center dark:border-slate-800">
             <Lock className="mb-3 h-10 w-10 text-slate-300" />
             <p className="text-sm font-semibold text-slate-500">This course does not have free preview lessons yet.</p>
-            <Link to={`/courses/${courseId}`} className="mt-4 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-black text-white">
+            <Link to={`/courses/${courseId}`} className="mt-4 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-black text-white">
               View course details
             </Link>
           </div>
@@ -774,7 +774,7 @@ export default function CourseLearnPage() {
               <button
                 onClick={() => nextLesson && selectLesson(nextLesson.id)}
                 disabled={!nextLesson}
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-bold text-white disabled:opacity-40"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white disabled:opacity-40"
               >
                 Next {nextLesson?.lessonType === LessonType.DOCUMENT ? 'document' : 'lesson'}
                 <ChevronRight className="h-4 w-4" />
@@ -798,13 +798,13 @@ export default function CourseLearnPage() {
 
       <aside className="h-max rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-950 xl:sticky xl:top-20">
         <h2 className="mb-4 flex items-center gap-2 text-lg font-black text-slate-900 dark:text-white">
-          <MessageSquare className="h-5 w-5 text-indigo-600" />
+          <MessageSquare className="h-5 w-5 text-emerald-600" />
           Course Q&A
         </h2>
         {isPreviewMode ? (
           <div className="rounded-xl bg-slate-50 p-4 text-sm font-semibold text-slate-600 dark:bg-slate-900 dark:text-slate-300">
             Buy this course to ask questions, track progress, submit quizzes, and unlock every lesson.
-            <Link to={`/courses/${courseId}`} className="mt-4 flex w-full items-center justify-center rounded-xl bg-indigo-600 px-4 py-2 text-sm font-black text-white">
+            <Link to={`/courses/${courseId}`} className="mt-4 flex w-full items-center justify-center rounded-xl bg-emerald-600 px-4 py-2 text-sm font-black text-white">
               Buy course
             </Link>
           </div>
@@ -832,11 +832,11 @@ export default function CourseLearnPage() {
                 value={qaText}
                 onChange={(event) => setQaText(event.target.value)}
                 placeholder="Ask a question"
-                className="h-24 w-full rounded-xl border border-slate-200 bg-white p-3 text-sm text-slate-900 outline-none focus:border-indigo-400 dark:border-slate-800 dark:bg-slate-950 dark:text-white"
+                className="h-24 w-full rounded-xl border border-slate-200 bg-white p-3 text-sm text-slate-900 outline-none focus:border-emerald-400 dark:border-slate-800 dark:bg-slate-950 dark:text-white"
               />
               <button
                 disabled={sendQa.isLoading || !qaText.trim()}
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-bold text-white disabled:opacity-60"
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white disabled:opacity-60"
               >
                 {sendQa.isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
                 Send
@@ -861,7 +861,7 @@ function LessonHeader({ lesson, progress, isPreviewMode }: { lesson: CourseLesso
   return (
     <div>
       <div className="mb-2 flex flex-wrap items-center gap-2">
-        <span className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-black uppercase tracking-widest text-indigo-600 dark:bg-indigo-950 dark:text-indigo-300">
+        <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-black uppercase tracking-widest text-emerald-600 dark:bg-emerald-950 dark:text-emerald-300">
           {lesson.lessonType === LessonType.QUIZ ? 'Quiz' : lesson.lessonType === LessonType.DOCUMENT ? 'Document' : 'Lesson'}
         </span>
         {lesson.durationMinutes ? (
@@ -904,7 +904,7 @@ function LockedLessonPanel({ lesson, courseId, onOpenModal }: { lesson: CourseLe
         <button onClick={onOpenModal} className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-black text-slate-700 hover:bg-white dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-950">
           View details
         </button>
-        <Link to={`/courses/${courseId}`} className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-black text-white hover:bg-indigo-700">
+        <Link to={`/courses/${courseId}`} className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-black text-white hover:bg-emerald-700">
           Buy course
         </Link>
       </div>
@@ -918,7 +918,7 @@ function LockedLessonModal({ lesson, courseId, onClose }: { lesson: CourseLesson
       <div className="w-full max-w-md rounded-2xl bg-white p-5 shadow-2xl dark:bg-slate-950">
         <div className="mb-4 flex items-start justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950 dark:text-indigo-300">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-300">
               <Lock className="h-5 w-5" />
             </div>
             <div>
@@ -937,7 +937,7 @@ function LockedLessonModal({ lesson, courseId, onClose }: { lesson: CourseLesson
           <button type="button" onClick={onClose} className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-black text-slate-700 hover:bg-slate-50 dark:border-slate-800 dark:text-slate-200 dark:hover:bg-slate-900">
             Continue preview
           </button>
-          <Link to={`/courses/${courseId}`} className="rounded-xl bg-indigo-600 px-4 py-2 text-center text-sm font-black text-white hover:bg-indigo-700">
+          <Link to={`/courses/${courseId}`} className="rounded-xl bg-emerald-600 px-4 py-2 text-center text-sm font-black text-white hover:bg-emerald-700">
             Buy course
           </Link>
         </div>
@@ -966,7 +966,7 @@ function ResourcePanel({
     <section className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900/70">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex min-w-0 items-center gap-3">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950 dark:text-indigo-300">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-300">
             <FileText className="h-5 w-5" />
           </div>
           <div className="min-w-0">
@@ -979,7 +979,7 @@ function ResourcePanel({
             type="button"
             onClick={canDownload ? onDownload : onPreview}
             disabled={!canDownload && !canPreview}
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-bold text-white hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-300"
           >
             <Download className="h-4 w-4" />
             {canDownload ? 'Download' : canPreview ? 'Preview document' : 'Enroll to download'}
@@ -1007,7 +1007,7 @@ function SectionSummary({
   return (
     <div className="space-y-6">
       <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6 dark:border-slate-800 dark:bg-slate-900">
-        <p className="text-xs font-black uppercase tracking-widest text-indigo-600">Section summary</p>
+        <p className="text-xs font-black uppercase tracking-widest text-emerald-600">Section summary</p>
         <h1 className="mt-2 text-3xl font-black text-slate-900 dark:text-white">{section.title}</h1>
         {section.description && (
           <p className="mt-3 max-w-3xl text-sm font-medium leading-6 text-slate-600 dark:text-slate-300">
@@ -1021,7 +1021,7 @@ function SectionSummary({
         {firstOpen && (
           <button
             onClick={() => onStart(firstOpen)}
-            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-black text-white hover:bg-indigo-700"
+            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-black text-white hover:bg-emerald-700"
           >
             <PlayCircle className="h-4 w-4" />
             {completed > 0 ? 'Continue section' : 'Start section'}
@@ -1036,15 +1036,15 @@ function SectionSummary({
             <button
               key={lesson.id}
               onClick={() => onStart(lesson)}
-              className="flex items-center justify-between gap-4 rounded-xl border border-slate-200 p-4 text-left hover:border-indigo-200 hover:bg-indigo-50/40 dark:border-slate-800 dark:hover:bg-indigo-950/20"
+              className="flex items-center justify-between gap-4 rounded-xl border border-slate-200 p-4 text-left hover:border-emerald-200 hover:bg-emerald-50/40 dark:border-slate-800 dark:hover:bg-emerald-950/20"
             >
               <div className="flex min-w-0 items-center gap-3">
                 {done ? (
                   <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-600" />
                 ) : lesson.lessonType === LessonType.QUIZ ? (
-                  <FileText className="h-5 w-5 shrink-0 text-indigo-600" />
+                  <FileText className="h-5 w-5 shrink-0 text-emerald-600" />
                 ) : (
-                  <PlayCircle className="h-5 w-5 shrink-0 text-indigo-600" />
+                  <PlayCircle className="h-5 w-5 shrink-0 text-emerald-600" />
                 )}
                 <div className="min-w-0">
                   <p className="truncate text-sm font-black text-slate-900 dark:text-white">{lesson.title}</p>
@@ -1089,7 +1089,7 @@ function QuizPanel({
   if (loading) {
     return (
       <div className="flex items-center justify-center rounded-xl border border-slate-200 p-8 dark:border-slate-800">
-        <Loader2 className="h-6 w-6 animate-spin text-indigo-600" />
+        <Loader2 className="h-6 w-6 animate-spin text-emerald-600" />
       </div>
     )
   }
@@ -1139,7 +1139,7 @@ function QuizPanel({
       <button
         onClick={onSubmit}
         disabled={submitting || disabled}
-        className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2 text-sm font-bold text-white hover:bg-indigo-600 disabled:opacity-60 dark:bg-indigo-900 dark:hover:bg-indigo-800"
+        className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 shadow-md hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 hover:bg-emerald-700 px-4 py-2 text-sm font-bold text-white hover:bg-emerald-600 disabled:opacity-60 dark:bg-emerald-900 dark:hover:bg-emerald-800"
       >
         {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
         {disabled ? 'Enroll to submit quiz' : 'Submit quiz'}
@@ -1199,7 +1199,7 @@ function QuestionControl({
         <textarea
           value={typeof value === 'string' ? value : ''}
           onChange={(event) => onChange(event.target.value)}
-          className="h-24 w-full rounded-xl border border-slate-200 bg-white p-3 text-sm outline-none focus:border-indigo-400 dark:border-slate-800 dark:bg-slate-950"
+          className="h-24 w-full rounded-xl border border-slate-200 bg-white p-3 text-sm outline-none focus:border-emerald-400 dark:border-slate-800 dark:bg-slate-950"
           placeholder="Type your answer"
         />
       ) : question.questionType === QuizQuestionType.MULTIPLE_CHOICE ? (

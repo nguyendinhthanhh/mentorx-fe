@@ -1,11 +1,18 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { useQueries, useQuery } from 'react-query'
+import { useQuery } from 'react-query'
 import { courseApi } from '@/api/courseApi'
 import { categoryApi } from '@/api/categoryApi'
 import { reviewApi } from '@/api/reviewApi'
 import { useAuthStore } from '@/store/authStore'
-import { CategoryResponse, CourseProductType, CourseResponse, CourseStatus, ReviewResponse, ReviewTargetType } from '@/types'
+import {
+  CategoryResponse,
+  CourseEnrollmentCourseSummaryResponse,
+  CourseProductType,
+  CourseStatus,
+  ReviewResponse,
+  ReviewTargetType,
+} from '@/types'
 import ReviewForm from '@/components/review/ReviewForm'
 import { AlertTriangle, Award, BookOpen, Clock, Eye, FileText, Loader2, PlayCircle, Star, Tag, X } from 'lucide-react'
 import { categoryLabel } from '@/utils/freeFormTaxonomy'
@@ -43,22 +50,15 @@ export default function MyCoursesPage() {
     () => reviewApi.getByReviewer(user!.userId, { page: 0, size: 100 }),
     { enabled: !!user?.userId }
   )
-  const courseQueries = useQueries(
-    enrollments.map((enrollment) => ({
-      queryKey: ['course', enrollment.courseId],
-      queryFn: () => courseApi.getById(enrollment.courseId),
-      enabled: !!enrollment.courseId,
-    }))
-  )
-
   const courseById = useMemo(() => {
-    const map = new Map<string, CourseResponse>()
-    courseQueries.forEach((query) => {
-      const course = query.data as CourseResponse | undefined
-      if (course) map.set(course.courseId, course)
+    const map = new Map<string, CourseEnrollmentCourseSummaryResponse>()
+    enrollments.forEach((enrollment) => {
+      if (enrollment.courseSummary) {
+        map.set(enrollment.courseId, enrollment.courseSummary)
+      }
     })
     return map
-  }, [courseQueries])
+  }, [enrollments])
   const categoryNameById = useMemo(() => {
     return categories.reduce<Record<number, string>>((acc, category: CategoryResponse) => {
       acc[category.id] = categoryLabel(category)
@@ -94,7 +94,7 @@ export default function MyCoursesPage() {
   if (isLoading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
       </div>
     )
   }
@@ -110,7 +110,7 @@ export default function MyCoursesPage() {
         </div>
         <Link
           to="/courses"
-          className="inline-flex h-10 items-center justify-center rounded-xl bg-indigo-600 px-4 text-sm font-bold text-white transition hover:bg-indigo-700 sm:h-auto sm:py-2"
+          className="inline-flex h-10 items-center justify-center rounded-xl bg-emerald-600 px-4 text-sm font-bold text-white transition hover:bg-emerald-700 sm:h-auto sm:py-2"
         >
           Khám phá khóa học
         </Link>
@@ -131,7 +131,7 @@ export default function MyCoursesPage() {
 
       {enrollments.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-200 bg-white p-12 text-center dark:border-slate-800 dark:bg-slate-950">
-          <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 dark:bg-indigo-900/30">
+          <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30">
             <BookOpen className="h-8 w-8" />
           </div>
           <h3 className="text-lg font-black text-slate-900 dark:text-white">Chưa có tài nguyên nào</h3>
@@ -160,9 +160,9 @@ export default function MyCoursesPage() {
             return (
               <div
                 key={enrollment.id}
-                className="group relative flex min-h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white transition hover:border-indigo-200 hover:shadow-lg hover:shadow-indigo-500/10 dark:border-slate-800 dark:bg-slate-950 dark:hover:border-indigo-900"
+                className="group relative flex min-h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white transition hover:border-emerald-200 hover:shadow-lg hover:shadow-emerald-500/10 dark:border-slate-800 dark:bg-slate-950 dark:hover:border-emerald-900"
               >
-                <div className={`relative aspect-[16/9] ${isDocumentProduct ? 'bg-amber-50' : 'bg-indigo-50'} dark:bg-slate-900`}>
+                <div className={`relative aspect-[16/9] ${isDocumentProduct ? 'bg-amber-50' : 'bg-emerald-50'} dark:bg-slate-900`}>
                   {course?.thumbnailUrl ? (
                     <img src={course.thumbnailUrl} alt={course.title} loading="lazy" decoding="async" className="h-full w-full object-cover" />
                   ) : (
@@ -170,7 +170,7 @@ export default function MyCoursesPage() {
                       {isDocumentProduct ? (
                         <FileText className="h-10 w-10 text-amber-300" />
                       ) : (
-                        <BookOpen className="h-10 w-10 text-indigo-300" />
+                        <BookOpen className="h-10 w-10 text-emerald-300" />
                       )}
                     </div>
                   )}
@@ -184,7 +184,7 @@ export default function MyCoursesPage() {
 
                 <div className="flex flex-1 flex-col p-4">
                   <div className="mb-3 min-w-0">
-                    <h3 className="line-clamp-2 text-base font-black leading-5 text-slate-900 group-hover:text-indigo-600 dark:text-white dark:group-hover:text-indigo-400">
+                    <h3 className="line-clamp-2 text-base font-black leading-5 text-slate-900 group-hover:text-emerald-600 dark:text-white dark:group-hover:text-emerald-400">
                       {course?.title || enrollment.courseTitle}
                     </h3>
                     {course?.instructorName && (
@@ -214,18 +214,18 @@ export default function MyCoursesPage() {
                   <div className="mt-auto space-y-3">
                     <div className="flex items-center justify-between text-xs font-bold">
                       <span className="text-slate-600 dark:text-slate-400">Tiến độ học</span>
-                      <span className="text-indigo-600">{Math.round(progress)}%</span>
+                      <span className="text-emerald-600">{Math.round(progress)}%</span>
                     </div>
                     <div className="h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-900">
                       <div
-                        className="h-full bg-indigo-600 transition-all duration-500"
+                        className="h-full bg-emerald-600 transition-all duration-500"
                         style={{ width: `${progress}%` }}
                       />
                     </div>
                     <div className={`grid gap-2 ${canViewCertificate || canReview ? 'sm:grid-cols-2' : ''}`}>
                       <Link
                         to={`/courses/${enrollment.courseId}/learn`}
-                        className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 py-2 text-xs font-bold text-white transition hover:bg-indigo-600 dark:bg-indigo-900 dark:hover:bg-indigo-800"
+                        className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 shadow-md hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 hover:bg-emerald-700 py-2 text-xs font-bold text-white transition hover:bg-emerald-600 dark:bg-emerald-900 dark:hover:bg-emerald-800"
                       >
                         {isDocumentProduct ? <Eye className="h-4 w-4" /> : <PlayCircle className="h-4 w-4" />}
                         {isDocumentProduct ? 'Xem tài liệu' : progress > 0 ? 'Tiếp tục học' : 'Bắt đầu học'}
@@ -313,7 +313,7 @@ function CourseRow({
     enrolledAt: string
     lastAccessedAt?: string
   }>
-  courseById: Map<string, CourseResponse>
+  courseById: Map<string, CourseEnrollmentCourseSummaryResponse>
   categoryNameById: Record<number, string>
 }) {
   if (enrollments.length === 0) return null
@@ -348,7 +348,7 @@ function CompactCourseCard({
     enrolledAt: string
     lastAccessedAt?: string
   }
-  course?: CourseResponse
+  course?: CourseEnrollmentCourseSummaryResponse
   categoryNameById: Record<number, string>
 }) {
   const isDocumentProduct = course?.productType === CourseProductType.DOCUMENT
@@ -359,9 +359,9 @@ function CompactCourseCard({
   return (
     <Link
       to={`/courses/${enrollment.courseId}/learn`}
-      className="group w-56 shrink-0 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:border-indigo-200 hover:shadow-md dark:border-slate-800 dark:bg-slate-950"
+      className="group w-56 shrink-0 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:border-emerald-200 hover:shadow-md dark:border-slate-800 dark:bg-slate-950"
     >
-      <div className={`relative aspect-[16/9] ${isDocumentProduct ? 'bg-amber-50' : 'bg-indigo-50'} dark:bg-slate-900`}>
+      <div className={`relative aspect-[16/9] ${isDocumentProduct ? 'bg-amber-50' : 'bg-emerald-50'} dark:bg-slate-900`}>
         {course?.thumbnailUrl ? (
           <img src={course.thumbnailUrl} alt={title} loading="lazy" decoding="async" className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
         ) : (
@@ -369,7 +369,7 @@ function CompactCourseCard({
             {isDocumentProduct ? (
               <FileText className="h-9 w-9 text-amber-300" />
             ) : (
-              <BookOpen className="h-9 w-9 text-indigo-300" />
+              <BookOpen className="h-9 w-9 text-emerald-300" />
             )}
           </div>
         )}
@@ -378,7 +378,7 @@ function CompactCourseCard({
         </span>
       </div>
       <div className="p-3">
-        <h3 className="line-clamp-2 min-h-10 text-sm font-black leading-5 text-slate-900 group-hover:text-indigo-700 dark:text-white">
+        <h3 className="line-clamp-2 min-h-10 text-sm font-black leading-5 text-slate-900 group-hover:text-emerald-700 dark:text-white">
           {title}
         </h3>
         <p className="mt-1 text-[11px] font-semibold text-slate-500">
@@ -391,7 +391,7 @@ function CompactCourseCard({
             <span>{Math.round(progress)}%</span>
           </div>
           <div className="h-1.5 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-900">
-            <div className="h-full bg-indigo-600" style={{ width: `${progress}%` }} />
+            <div className="h-full bg-emerald-600" style={{ width: `${progress}%` }} />
           </div>
         </div>
       </div>
@@ -412,7 +412,7 @@ function CourseMetadata({ domainName, skills, compact = false }: { domainName?: 
       {skills.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
           {skills.slice(0, compact ? 2 : 3).map((skill) => (
-            <span key={skill} className="rounded-full bg-indigo-50 px-2.5 py-1 text-[11px] font-bold text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-300">
+            <span key={skill} className="rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-bold text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
               {skill}
             </span>
           ))}

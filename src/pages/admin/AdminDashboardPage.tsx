@@ -82,7 +82,7 @@ export default function AdminDashboardPage() {
       <header className="flex flex-col gap-4 border-b border-slate-200 pb-5 dark:border-slate-800 md:flex-row md:items-end md:justify-between">
         <div>
           <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400">
-            <span className="flex h-6 w-6 items-center justify-center rounded-md bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-950">
+            <span className="flex h-6 w-6 items-center justify-center rounded-md bg-emerald-600 shadow-md hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 hover:bg-emerald-700 text-white dark:bg-slate-100 dark:text-slate-950">
               <ShieldCheck className="h-3.5 w-3.5" />
             </span>
             {financeAdmin ? t('admin.dashboard.role.admin') : t('admin.dashboard.role.moderator')}

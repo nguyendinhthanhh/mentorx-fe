@@ -241,7 +241,7 @@ export default function UserPreferenceForm() {
             <button
               type="button"
               onClick={addLearningGoal}
-              className="inline-flex items-center justify-center rounded-xl bg-slate-900 px-6 py-2.5 text-sm font-semibold text-white hover:bg-slate-800 transition-colors"
+              className="inline-flex items-center justify-center rounded-xl bg-emerald-600 shadow-md hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 hover:bg-emerald-700 px-6 py-2.5 text-sm font-semibold text-white hover:bg-slate-800 transition-colors"
             >
               Add Goal
             </button>

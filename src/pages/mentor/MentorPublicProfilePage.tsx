@@ -265,14 +265,15 @@ export default function MentorPublicProfilePage() {
         />
       </div>
 
-      {/* 1. Hero Cover Banner */}
-      <div
-        className={`relative h-40 sm:h-56 ${!mentor?.coverUrl ? 'bg-gradient-to-r from-slate-900 via-indigo-900 to-indigo-800' : 'bg-slate-900'}`}
-      >
+      {/* 1. Premium Hero Cover Banner */}
+      <div className="relative h-48 sm:h-64 overflow-hidden rounded-b-[40px] shadow-sm">
         {mentor?.coverUrl ? (
           <img src={mentor.coverUrl} alt="Cover" className="h-full w-full object-cover" />
         ) : (
-          <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '32px 32px' }}></div>
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-500 via-purple-600 to-indigo-900">
+            <div className="absolute inset-0 bg-black/10 mix-blend-overlay"></div>
+            <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '32px 32px' }}></div>
+          </div>
         )}
       </div>
 
@@ -283,48 +284,49 @@ export default function MentorPublicProfilePage() {
           
           {/* LEFT COLUMN: Avatar + IntroPanel + Main Content */}
           <div className="space-y-6">
-            <div className="rounded-[28px] border border-slate-200 bg-white shadow-sm">
-              <div className="px-5 pb-6 pt-5 sm:px-6 sm:pb-7">
+            <div className="rounded-[32px] border border-gray-100 bg-white shadow-[0_4px_20px_rgb(0,0,0,0.03)]">
+              <div className="px-6 pb-8 pt-6 sm:px-8 sm:pb-10">
                 {/* Avatar & Basic Info */}
-                <div className="relative z-10 mb-5 flex flex-col items-start gap-5 sm:flex-row sm:items-end">
-                  <div className="relative ml-2 shrink-0 -mt-16 sm:-mt-24">
-                    <div className="h-28 w-28 overflow-hidden rounded-[26px] border-[5px] border-white bg-white shadow-lg sm:h-32 sm:w-32">
+                <div className="relative z-10 mb-6 flex flex-col items-start gap-6 sm:flex-row sm:items-end">
+                  <div className="relative shrink-0 -mt-20 sm:-mt-28">
+                    <div className="h-32 w-32 overflow-hidden rounded-full border-4 border-white bg-white shadow-xl sm:h-40 sm:w-40">
                       {mentor.user?.avatarUrl ? (
                         <img src={mentor.user.avatarUrl} alt={name} className="h-full w-full object-cover" />
                       ) : (
-                        <div className="flex h-full w-full items-center justify-center bg-indigo-600 text-4xl font-black text-white">
+                        <div className="flex h-full w-full items-center justify-center bg-indigo-600 text-5xl font-black text-white">
                           {name.charAt(0)}
                         </div>
                       )}
                     </div>
                     {true && (
-                      <div className="absolute -bottom-1 -right-1 flex h-8 w-8 items-center justify-center rounded-full border-[3px] border-white bg-blue-500 text-white shadow-sm" title="Verified Mentor">
-                        <ShieldCheck className="h-4 w-4" />
+                      <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1 rounded-full border-2 border-white bg-gray-900 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-white shadow-md">
+                        <ShieldCheck className="h-3 w-3 text-indigo-400" />
+                        PRO
                       </div>
                     )}
                   </div>
                   
-                  <div className="flex-1 pb-1">
-                    <h1 className="text-2xl font-black tracking-tight text-gray-900 sm:text-[2rem]">{name}</h1>
-                    <p className="mt-1.5 text-base font-bold text-gray-600 sm:text-lg">{title}</p>
+                  <div className="flex-1 pb-2">
+                    <h1 className="text-3xl font-black tracking-tight text-gray-900 sm:text-4xl">{name}</h1>
+                    <p className="mt-1.5 text-lg font-bold text-gray-500">{title}</p>
                     
-                    <div className="mt-3 flex flex-wrap items-center gap-3 text-xs font-bold text-gray-500 sm:text-[13px]">
+                    <div className="mt-4 flex flex-wrap items-center gap-2 text-[13px] font-bold text-gray-600">
                       {(mentor.averageRating || 0) > 0 && (
-                        <div className="flex items-center gap-1.5 rounded-md bg-amber-50 px-2 py-1 text-amber-600">
-                          <Star className="h-3.5 w-3.5 fill-amber-500 text-amber-500" />
-                          <span>{mentor.averageRating?.toFixed(1)}</span>
-                          <span className="text-amber-600/70">({mentor.totalReviews} reviews)</span>
+                        <div className="flex items-center gap-1.5 rounded-xl border border-gray-100 bg-gray-50 px-3 py-1.5">
+                          <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+                          <span className="text-gray-900">{mentor.averageRating?.toFixed(1)}</span>
+                          <span className="text-gray-400">({mentor.totalReviews})</span>
                         </div>
                       )}
                       {mentor.location && (
-                        <div className="flex items-center gap-1.5 rounded-md bg-slate-100 px-2 py-1">
-                          <Globe className="h-3.5 w-3.5" />
+                        <div className="flex items-center gap-1.5 rounded-xl border border-gray-100 bg-gray-50 px-3 py-1.5">
+                          <Globe className="h-4 w-4 text-gray-400" />
                           <span>{mentor.location}</span>
                         </div>
                       )}
                       {viewCountData?.viewCount != null && (
-                         <div className="flex items-center gap-1.5 rounded-md bg-slate-100 px-2 py-1">
-                           <Eye className="h-3.5 w-3.5" />
+                         <div className="flex items-center gap-1.5 rounded-xl border border-gray-100 bg-gray-50 px-3 py-1.5">
+                           <Eye className="h-4 w-4 text-gray-400" />
                            <span>{viewCountData.viewCount.toLocaleString()} views</span>
                          </div>
                       )}
@@ -349,15 +351,17 @@ export default function MentorPublicProfilePage() {
             </div>
 
             {/* Content Tabs */}
-            <div className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-              <nav className="flex flex-wrap gap-x-4 gap-y-2 border-b border-gray-100 pb-2 sm:flex-nowrap sm:gap-5 sm:overflow-x-auto">
+            <div className="rounded-[32px] border border-gray-100 bg-white p-2 shadow-sm sm:p-3">
+              <nav className="flex flex-wrap gap-2 sm:flex-nowrap sm:overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
                 {tabs.map((tab) => (
                   <button
                     key={tab.key}
                     type="button"
                     onClick={() => setActiveTab(tab.key)}
-                    className={`whitespace-nowrap border-b-2 px-1 pb-3 text-sm font-bold transition-all sm:pb-4 ${
-                      activeTab === tab.key ? 'border-indigo-600 text-indigo-700' : 'border-transparent text-gray-500 hover:text-gray-900 hover:border-gray-300'
+                    className={`shrink-0 rounded-2xl px-6 py-3 text-[14px] font-bold transition-all ${
+                      activeTab === tab.key 
+                        ? 'bg-gray-900 text-white shadow-md' 
+                        : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900'
                     }`}
                   >
                     {tab.label}
@@ -503,16 +507,16 @@ export default function MentorPublicProfilePage() {
 
           {/* RIGHT COLUMN: Sticky Booking Sidebar */}
           <div className="relative hidden lg:block">
-             <aside className="sticky top-24 space-y-4">
-               <div className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-lg shadow-slate-200/40">
-                 <div className="mb-5 border-b border-slate-100 pb-5 text-center">
-                   <h2 className="text-lg font-black text-gray-900">Work with {name.split(' ')[0]}</h2>
-                   <p className="mt-1 text-[13px] font-medium text-gray-500">Top-rated mentor on MentorX</p>
+             <aside className="sticky top-24 space-y-5">
+               <div className="rounded-[32px] border border-gray-100 bg-white p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+                 <div className="mb-6 border-b border-gray-100 pb-6 text-center">
+                   <h2 className="text-xl font-black text-gray-900">Work with {name.split(' ')[0]}</h2>
+                   <p className="mt-1.5 text-[14px] font-bold text-gray-500">Top-rated mentor on MentorX</p>
                  </div>
                  
                  <div className="space-y-3">
                    {isOwnProfile ? (
-                      <button type="button" onClick={() => setIsEditing(true)} className="h-11 w-full rounded-full bg-indigo-600 text-sm font-black text-white shadow-lg shadow-indigo-600/20 transition-colors hover:bg-indigo-700">
+                      <button type="button" onClick={() => setIsEditing(true)} className="h-12 w-full rounded-2xl bg-gray-900 text-[14px] font-black text-white shadow-md transition-colors hover:bg-gray-800">
                        {t('mentor.public.editProfile')}
                      </button>
                    ) : (
@@ -520,7 +524,7 @@ export default function MentorPublicProfilePage() {
                        <button
                          type="button"
                          onClick={requestBooking}
-                         className="flex h-11 w-full items-center justify-center gap-2 rounded-full bg-indigo-600 text-sm font-black text-white shadow-lg shadow-indigo-600/20 transition hover:bg-indigo-700"
+                         className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-gray-900 text-[14px] font-black text-white shadow-md transition-all hover:bg-indigo-600 hover:-translate-y-0.5"
                        >
                          <Calendar className="h-4 w-4" />
                          {t('mentor.public.bookSession')}
@@ -529,7 +533,7 @@ export default function MentorPublicProfilePage() {
                          type="button"
                          onClick={() => openMentorChat(undefined, 'message')}
                          disabled={Boolean(pendingAction)}
-                          className="flex h-11 w-full items-center justify-center gap-2 rounded-full border-2 border-indigo-100 bg-white text-sm font-black text-indigo-700 transition hover:bg-indigo-50 disabled:cursor-not-allowed disabled:text-gray-400"
+                          className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl border-2 border-gray-100 bg-white text-[14px] font-black text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:text-gray-400"
                        >
                          <MessageSquare className="h-4 w-4" />
                          {pendingAction === 'message' ? t('mentor.public.openingChat') : t('mentor.public.messageMentor')}
@@ -538,14 +542,14 @@ export default function MentorPublicProfilePage() {
                    )}
                  </div>
 
-                  <div className="mt-5 space-y-4 rounded-2xl border border-slate-100 bg-slate-50 p-4">
+                  <div className="mt-6 space-y-4 rounded-2xl bg-gray-50 p-4 border border-gray-100">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-semibold text-gray-500">{t('mentor.public.responseRate')}</span>
-                      <span className="text-sm font-black text-gray-900">{mentor.successRate != null ? `${Number(mentor.successRate).toFixed(0)}%` : language === 'vi' ? 'Chưa có' : 'N/A'}</span>
+                      <span className="text-[13px] font-bold text-gray-500">{t('mentor.public.responseRate')}</span>
+                      <span className="text-[14px] font-black text-gray-900">{mentor.successRate != null ? `${Number(mentor.successRate).toFixed(0)}%` : language === 'vi' ? 'Chưa có' : 'N/A'}</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-semibold text-gray-500">{t('mentor.public.responseTime')}</span>
-                      <span className="text-sm font-black text-gray-900">{mentor.responseTimeHours != null ? `< ${mentor.responseTimeHours}h` : language === 'vi' ? 'Chưa có' : 'N/A'}</span>
+                      <span className="text-[13px] font-bold text-gray-500">{t('mentor.public.responseTime')}</span>
+                      <span className="text-[14px] font-black text-gray-900">{mentor.responseTimeHours != null ? `< ${mentor.responseTimeHours}h` : language === 'vi' ? 'Chưa có' : 'N/A'}</span>
                     </div>
                  </div>
 
@@ -554,7 +558,7 @@ export default function MentorPublicProfilePage() {
                      type="button"
                      onClick={toggleSavedMentor}
                      disabled={savedLoading || saveMentorMutation.isLoading}
-                     className="mt-6 flex h-11 w-full items-center justify-center gap-2 rounded-full bg-white border border-slate-200 text-sm font-black text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:text-gray-400"
+                     className="mt-6 flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-white border-2 border-gray-100 text-[14px] font-black text-gray-700 transition hover:bg-gray-50 hover:border-gray-200 disabled:cursor-not-allowed disabled:text-gray-400"
                    >
                      <Heart className={`h-4 w-4 ${isSaved ? 'fill-rose-500 text-rose-500' : ''}`} />
                      {savedLoading || saveMentorMutation.isLoading ? t('mentor.public.updating') : isSaved ? t('mentor.public.savedMentor') : t('mentor.public.saveMentor')}
@@ -563,35 +567,35 @@ export default function MentorPublicProfilePage() {
                </div>
 
                {/* Detail Info Card */}
-                <div className="rounded-[26px] border border-slate-200 bg-white p-5 shadow-sm">
-                 <h3 className="mb-5 text-[11px] font-black uppercase tracking-[0.14em] text-slate-500">
+                <div className="rounded-[32px] border border-gray-100 bg-white p-6 shadow-[0_4px_20px_rgb(0,0,0,0.02)]">
+                 <h3 className="mb-5 text-[10px] font-black uppercase tracking-[0.15em] text-gray-400">
                    {language === 'vi' ? 'Thông tin chi tiết' : 'Details'}
                  </h3>
                  <div className="space-y-5">
                    {mentor.currentTitle && (
                      <ProfileInfoItem
-                       icon={<Briefcase className="h-4 w-4 text-indigo-600" />}
+                       icon={<Briefcase className="h-4 w-4 text-gray-400" />}
                        label={language === 'vi' ? 'Vị trí hiện tại' : 'Current role'}
                        value={mentor.currentCompany ? `${mentor.currentTitle} @ ${mentor.currentCompany}` : mentor.currentTitle}
                      />
                    )}
                    {mentor.location && (
                      <ProfileInfoItem
-                       icon={<Globe className="h-4 w-4 text-indigo-600" />}
+                       icon={<Globe className="h-4 w-4 text-gray-400" />}
                        label={language === 'vi' ? 'Địa điểm / múi giờ' : 'Location / timezone'}
                        value={mentor.location}
                      />
                    )}
                    {mentor.languages?.length ? (
                      <ProfileInfoItem
-                       icon={<Users className="h-4 w-4 text-indigo-600" />}
+                       icon={<Users className="h-4 w-4 text-gray-400" />}
                        label={language === 'vi' ? 'Ngôn ngữ' : 'Languages'}
                        value={mentor.languages.join(', ')}
                      />
                    ) : null}
                    {mentor.portfolioUrl && (
                      <ProfileInfoItem
-                       icon={<ExternalLink className="h-4 w-4 text-indigo-600" />}
+                       icon={<ExternalLink className="h-4 w-4 text-gray-400" />}
                        label={t('mentor.public.portfolio')}
                        value={language === 'vi' ? 'Mở portfolio' : 'Open portfolio'}
                        href={mentor.portfolioUrl}
@@ -789,62 +793,70 @@ function IntroPanel({
     <section className="space-y-6">
       {/* Bio + Quick Facts */}
       <div>
-        <h2 className="flex items-center gap-2 text-lg font-black text-gray-950">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-100 text-indigo-600">
-            <Users className="h-4.5 w-4.5" />
+        <h2 className="flex items-center gap-2 text-lg font-black text-gray-900">
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gray-900 text-white shadow-sm">
+            <Users className="h-4 w-4" />
           </div>
           {introTitle}
         </h2>
-        <p className="mt-3 text-sm leading-6 text-gray-600">{professionalSummary}</p>
+        <p className="mt-4 text-[15px] leading-relaxed text-gray-600">{professionalSummary}</p>
 
         {quickFacts.length > 0 && (
-          <div className="mt-5 grid gap-3 sm:grid-cols-3">
+          <div className="mt-6 grid gap-3 sm:grid-cols-3">
             {quickFacts.map((metric, i) => (
-              <div key={i} className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50/80 px-3.5 py-3">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-indigo-100 text-indigo-600">
+              <div key={i} className="flex items-center gap-3 rounded-[20px] bg-gray-50 px-4 py-3 border border-gray-100">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white shadow-sm border border-gray-100 text-gray-900">
                   {metric.icon}
                 </div>
-                <span className="text-[13px] font-bold text-slate-800">{metric.label}</span>
+                <span className="text-[13px] font-bold text-gray-900">{metric.label}</span>
               </div>
             ))}
           </div>
         )}
       </div>
 
-      {/* Video + Achievements side by side - now with more room */}
-        <div className="grid gap-5 lg:grid-cols-[minmax(0,1.15fr)_minmax(260px,0.95fr)]">
+      {/* Video + Achievements side by side */}
+      <div className="grid gap-5 lg:grid-cols-[minmax(0,1.15fr)_minmax(260px,0.95fr)] mt-8">
         <IntroVideoCard visual={introVisual} videoUrl={mentor.videoIntroUrl} />
 
-        <div className="rounded-[24px] border border-slate-200 bg-gradient-to-b from-white to-slate-50/80 p-[18px] shadow-sm">
-          <h3 className="mb-4 flex items-center gap-2 text-[15px] font-black text-slate-950">
-            <Trophy className="h-5 w-5 text-amber-500" />
+        <div className="rounded-[32px] border border-gray-100 bg-white p-6 shadow-[0_4px_20px_rgb(0,0,0,0.02)]">
+          <h3 className="mb-5 flex items-center gap-2 text-[15px] font-black text-gray-900">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-100 text-amber-600">
+              <Trophy className="h-4 w-4" />
+            </div>
             {achievementTitle}
           </h3>
 
-          <div className="space-y-3.5">
+          <div className="space-y-4">
             {proofLinks.slice(0, 2).map((link) => (
               <a
                 key={`${link.label}-${link.url}`}
                 href={link.url}
                 target="_blank"
                 rel="noreferrer"
-                className="flex items-start gap-2.5 rounded-xl bg-blue-50/60 px-3 py-2.5 text-[13px] font-medium text-blue-700 transition hover:bg-blue-50"
+                className="group flex items-start gap-3 rounded-2xl bg-gray-50 px-4 py-3 text-[13px] font-bold text-gray-700 transition hover:bg-gray-100 border border-gray-100"
               >
-                <ExternalLink className="mt-0.5 h-4 w-4 flex-none" />
-                <span className="line-clamp-2">{link.label}</span>
+                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white shadow-sm text-gray-400 group-hover:text-gray-900 transition-colors">
+                  <ExternalLink className="h-3 w-3" />
+                </div>
+                <span className="line-clamp-2 mt-0.5">{link.label}</span>
               </a>
             ))}
 
             {achievements.length > 0 ? (
               achievements.slice(0, 4).map((achievement) => (
-                <div key={achievement.id} className="flex items-start gap-2.5 text-[13px] font-medium text-slate-600">
-                  <Award className="mt-0.5 h-4 w-4 flex-none text-amber-500" />
-                  <span className="line-clamp-2">{achievement.title}</span>
+                <div key={achievement.id} className="flex items-start gap-3 text-[13px] font-bold text-gray-600">
+                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-amber-50 text-amber-500">
+                    <Award className="h-3 w-3" />
+                  </div>
+                  <span className="line-clamp-2 mt-0.5">{achievement.title}</span>
                 </div>
               ))
             ) : (
-              <div className="flex items-start gap-2.5 text-[13px] font-medium text-slate-400">
-                <Award className="mt-0.5 h-4 w-4 flex-none" />
+              <div className="flex items-center gap-3 text-[13px] font-bold text-gray-400">
+                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gray-50 text-gray-300">
+                  <Award className="h-3 w-3" />
+                </div>
                 <span>{t('mentor.public.noPublicAchievementsYet')}</span>
               </div>
             )}
@@ -946,43 +958,45 @@ function MentoringPackageCard({
   const typeInfo = packageTypeLabel[item.packageType] || packageTypeLabel.SINGLE_SESSION
 
   return (
-    <article className={`group relative flex h-full flex-col rounded-2xl border bg-white transition-all duration-200 hover:shadow-lg ${
-      featured ? 'border-indigo-200 ring-1 ring-indigo-100' : 'border-slate-200 hover:border-slate-300'
+    <article className={`group relative flex h-full flex-col rounded-[32px] border bg-white transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${
+      featured ? 'border-gray-900 shadow-md' : 'border-gray-100 shadow-[0_4px_20px_rgb(0,0,0,0.03)]'
     }`}>
       {/* Header */}
-      <div className="p-5 pb-0">
-        <div className="flex items-center gap-2 mb-3">
-          <span className={`inline-flex rounded-md px-2 py-0.5 text-[11px] font-semibold ${typeInfo.color}`}>
+      <div className="p-6 pb-0">
+        <div className="flex items-center gap-2 mb-4">
+          <span className={`inline-flex rounded-full px-3 py-1 text-[11px] font-black tracking-wide uppercase ${
+            featured ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-600'
+          }`}>
             {language === 'vi' ? typeInfo.vi : typeInfo.en}
           </span>
-          <span className="inline-flex items-center gap-1 text-[12px] font-medium text-slate-500">
-            <Clock3 className="h-3 w-3" />
+          <span className="inline-flex items-center gap-1 text-[12px] font-bold text-gray-500">
+            <Clock3 className="h-3.5 w-3.5" />
             {durationLabel}
           </span>
           {featured && (
-            <span className="ml-auto inline-flex items-center gap-1 rounded-md bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-700">
+            <span className="ml-auto inline-flex items-center gap-1 rounded-full bg-amber-100 px-3 py-1 text-[11px] font-black uppercase tracking-wide text-amber-700">
               <Star className="h-3 w-3 fill-amber-500 text-amber-500" />
               {language === 'vi' ? 'Phổ biến' : 'Popular'}
             </span>
           )}
         </div>
 
-        <h3 className="text-[17px] font-bold text-slate-900 leading-snug line-clamp-2">
+        <h3 className="text-xl font-black text-gray-900 leading-snug line-clamp-2">
           {item.title}
         </h3>
-        <p className="mt-2 text-[13px] leading-relaxed text-slate-500 line-clamp-2">
+        <p className="mt-3 text-[14px] leading-relaxed font-medium text-gray-500 line-clamp-2">
           {item.description}
         </p>
       </div>
 
       {/* Features */}
       {features.length > 0 && (
-        <div className="px-5 pt-4 flex-1">
-          <ul className="space-y-2">
+        <div className="px-6 pt-6 flex-1">
+          <ul className="space-y-3">
             {features.map((feature, index) => (
-              <li key={`${item.id}-${index}`} className="flex items-start gap-2 text-[13px] text-slate-600">
-                <div className="mt-[3px] flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-emerald-100">
-                  <Check className="h-2.5 w-2.5 text-emerald-600" strokeWidth={3} />
+              <li key={`${item.id}-${index}`} className="flex items-start gap-3 text-[14px] font-medium text-gray-600">
+                <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gray-900 text-white">
+                  <Check className="h-3 w-3" strokeWidth={3} />
                 </div>
                 <span className="leading-snug">{feature}</span>
               </li>
@@ -992,13 +1006,13 @@ function MentoringPackageCard({
       )}
 
       {/* Price + CTA */}
-      <div className="p-5 pt-4 mt-auto">
-        <div className="grid gap-3 rounded-xl bg-slate-50 px-4 py-3">
-          <div className="flex min-w-0 items-baseline gap-2 whitespace-nowrap">
-            <p className="text-[11px] font-medium uppercase tracking-wide text-slate-400">
-              {language === 'vi' ? 'Giá' : 'Price'}
+      <div className="p-6 mt-auto">
+        <div className="grid gap-4 rounded-[24px] bg-gray-50 p-5 border border-gray-100">
+          <div className="flex min-w-0 flex-col items-center justify-center gap-1 text-center">
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">
+              {language === 'vi' ? 'Đầu tư' : 'Investment'}
             </p>
-            <p className="text-xl font-bold tracking-tight text-slate-900">
+            <p className="text-2xl font-black tracking-tight text-gray-900">
               {formatMxc(item.priceMxc, language)}
             </p>
           </div>
@@ -1006,13 +1020,15 @@ function MentoringPackageCard({
             type="button"
             onClick={onBook}
             disabled={pending}
-            className="flex h-10 w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-lg bg-indigo-600 px-4 text-[13px] font-semibold text-white shadow-sm shadow-indigo-600/20 transition-all hover:bg-indigo-700 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50"
+            className={`flex h-12 w-full items-center justify-center gap-2 whitespace-nowrap rounded-2xl px-6 text-[14px] font-black transition-all hover:-translate-y-0.5 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 ${
+              featured ? 'bg-gray-900 text-white shadow-md' : 'bg-white text-gray-900 border-2 border-gray-100 hover:border-gray-900'
+            }`}
           >
             {pending ? (
-              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
               <>
-                {isDirectBooking ? <Calendar className="h-3.5 w-3.5" /> : <MessageSquare className="h-3.5 w-3.5" />}
+                {isDirectBooking ? <Calendar className="h-4 w-4" /> : <MessageSquare className="h-4 w-4" />}
                 {isDirectBooking ? t('mentor.public.package.book') : language === 'vi' ? 'Liên hệ mentor' : 'Contact mentor'}
               </>
             )}
@@ -1044,29 +1060,33 @@ function CourseCard({
         : t('mentor.public.course.beginner')
 
   return (
-    <article className="overflow-hidden rounded-[28px] border border-slate-200 bg-white p-4 shadow-[0_20px_45px_-38px_rgba(15,23,42,0.45)] transition-all hover:-translate-y-1 hover:shadow-[0_22px_60px_-35px_rgba(37,99,235,0.3)]">
+    <article className="group flex flex-col overflow-hidden rounded-[32px] border border-gray-100 bg-white p-5 shadow-[0_4px_20px_rgb(0,0,0,0.03)] transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:border-gray-900">
       {image ? (
         <img src={image} alt={course.title} className="aspect-[16/9] w-full rounded-2xl object-cover" />
       ) : (
-        <div className="flex aspect-[16/9] w-full items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
+        <div className="flex aspect-[16/9] w-full items-center justify-center rounded-[24px] bg-gray-50 border border-gray-100 text-gray-400">
           <BookOpen className="h-10 w-10" />
         </div>
       )}
-      <h3 className="mt-4 text-[17px] font-black text-gray-950">{course.title}</h3>
-      <p className="mt-1 flex items-center gap-1.5 text-[13px] font-medium text-gray-500">
-        <Clock className="h-4 w-4" />
-        {t('mentor.public.course.lessons', { count: course.lessonsCount })} • {levelText}
-      </p>
-      <p className="mt-2 line-clamp-2 text-[13px] leading-6 text-gray-500">{course.description}</p>
-      <div className="mt-4 flex items-center justify-between">
-        <span className="text-[17px] font-black text-blue-600">{formatMxc(course.priceMxc, language)}</span>
-        <span className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400">{course.durationHours}h</span>
+      <div className="mt-5 flex-1">
+        <h3 className="text-lg font-black text-gray-900 leading-snug">{course.title}</h3>
+        <p className="mt-2 flex items-center gap-1.5 text-[13px] font-bold text-gray-500">
+          <Clock className="h-3.5 w-3.5" />
+          {t('mentor.public.course.lessons', { count: course.lessonsCount })} • {levelText}
+        </p>
+        <p className="mt-3 line-clamp-2 text-[14px] font-medium leading-relaxed text-gray-500">{course.description}</p>
+      </div>
+      <div className="mt-5 mb-4 grid gap-3 rounded-[20px] bg-gray-50 px-4 py-3 border border-gray-100">
+        <div className="flex items-center justify-between">
+          <span className="text-xl font-black tracking-tight text-gray-900">{formatMxc(course.priceMxc, language)}</span>
+          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">{course.durationHours}h</span>
+        </div>
       </div>
       <button
         type="button"
         onClick={onAsk}
         disabled={pending}
-        className="mt-4 h-10 w-full rounded-full border border-blue-300 text-[13px] font-black text-blue-700 transition-colors hover:bg-blue-50 disabled:cursor-not-allowed disabled:border-gray-200 disabled:text-gray-400"
+        className="mt-auto flex h-12 w-full items-center justify-center rounded-2xl bg-gray-900 text-[14px] font-black text-white shadow-md transition-all hover:-translate-y-0.5 hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
       >
         {pending ? t('mentor.public.openingChat') : t('mentor.public.course.ask')}
       </button>
@@ -1087,14 +1107,16 @@ function SchedulePanel({
 }) {
   const { t } = useI18n()
   return (
-    <section className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-[0_20px_45px_-38px_rgba(15,23,42,0.45)] sm:p-6">
-      <div className="mb-5 flex items-center justify-between gap-3">
+    <section className="rounded-[32px] border border-gray-100 bg-white p-6 shadow-[0_4px_20px_rgb(0,0,0,0.02)] sm:p-8">
+      <div className="mb-6 flex items-center justify-between gap-3">
         <div>
-          <h2 className="flex items-center gap-2 text-xl font-black text-gray-950">
-            <Calendar className="h-5 w-5 text-blue-600" />
+          <h2 className="flex items-center gap-2 text-xl font-black text-gray-900">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gray-900 text-white shadow-sm">
+              <Calendar className="h-4 w-4" />
+            </div>
             {t('mentor.public.schedule.title')}
           </h2>
-          <p className="mt-1 text-sm font-medium text-gray-500">{t('mentor.public.schedule.subtitle')}</p>
+          <p className="mt-2 text-[14px] font-bold text-gray-500">{t('mentor.public.schedule.subtitle')}</p>
         </div>
       </div>
 
@@ -1103,20 +1125,20 @@ function SchedulePanel({
           {schedule.map((day) => (
             <div
               key={day.key}
-              className={`rounded-[20px] border p-3 text-center ${
-                day.today ? 'border-blue-200 bg-blue-50 shadow-md shadow-blue-100' : 'border-slate-200 bg-slate-50/70'
+              className={`rounded-[24px] border p-4 text-center transition-all ${
+                day.today ? 'border-gray-900 bg-gray-900 shadow-md ring-4 ring-gray-100' : 'border-gray-100 bg-gray-50 hover:border-gray-300'
               }`}
             >
-              <p className="text-xs font-bold text-gray-500">{day.dayLabel}</p>
-              <p className="mt-1 text-base font-black text-gray-950">{day.dateLabel}</p>
-              <div className="mt-3 space-y-2">
+              <p className={`text-[11px] font-black uppercase tracking-widest ${day.today ? 'text-gray-400' : 'text-gray-400'}`}>{day.dayLabel}</p>
+              <p className={`mt-1 text-lg font-black ${day.today ? 'text-white' : 'text-gray-900'}`}>{day.dateLabel}</p>
+              <div className="mt-4 space-y-2">
                 {day.slots.length > 0 ? (
                   day.slots.map((slot) => {
                     return (
                       <span
                         key={`${day.key}-${slot.startTime}-${slot.endTime}`}
-                        className={`inline-flex h-7 w-full items-center justify-center rounded-full text-xs font-black ${
-                          day.today ? 'bg-blue-600 text-white' : 'border border-blue-300 bg-white text-blue-700'
+                        className={`inline-flex h-8 w-full items-center justify-center rounded-[12px] text-[12px] font-black transition-colors ${
+                          day.today ? 'bg-white/10 text-white hover:bg-white/20' : 'bg-white border border-gray-200 text-gray-700 hover:border-gray-900'
                         }`}
                       >
                         {slot.startTime.slice(0, 5)}
@@ -1124,8 +1146,10 @@ function SchedulePanel({
                     )
                   })
                 ) : (
-                  <span className="inline-flex h-7 w-full items-center justify-center rounded-full bg-slate-200 text-xs font-bold text-slate-400">
-                    {day.blocked ? (language === 'vi' ? 'Da block' : 'Blocked') : t('mentor.public.schedule.off')}
+                  <span className={`inline-flex h-8 w-full items-center justify-center rounded-[12px] text-[12px] font-black ${
+                    day.today ? 'bg-white/5 text-gray-500' : 'bg-gray-100 text-gray-400'
+                  }`}>
+                    {day.blocked ? (language === 'vi' ? 'Đã khoá' : 'Blocked') : t('mentor.public.schedule.off')}
                   </span>
                 )}
               </div>
@@ -1136,8 +1160,8 @@ function SchedulePanel({
         <EmptyCard message={t('mentor.public.schedule.noAvailability')} />
       )}
 
-      <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-600">
-        <p>
+      <div className="mt-6 rounded-[24px] border border-gray-100 bg-gray-50 p-5">
+        <p className="text-[13px] font-bold leading-relaxed text-gray-600">
           {language === 'vi'
             ? 'Đây là khung giờ lặp lại theo tuần. Slot đặt thật sẽ được backend tạo sau khi bạn chọn gói buổi đơn.'
             : 'These are recurring weekly windows. Exact checkout slots are generated by the backend after you choose a single-session package.'}
@@ -1146,7 +1170,7 @@ function SchedulePanel({
           <button
             type="button"
             onClick={onOpenBooking}
-            className="mt-3 inline-flex h-10 items-center justify-center rounded-full bg-indigo-600 px-4 text-sm font-black text-white transition hover:bg-indigo-700"
+            className="mt-4 inline-flex h-11 items-center justify-center rounded-2xl bg-gray-900 px-6 text-[13px] font-black text-white shadow-md transition hover:-translate-y-0.5 hover:bg-gray-800"
           >
             {language === 'vi' ? 'Xem slot đặt được' : 'View bookable slots'}
           </button>
@@ -1231,17 +1255,17 @@ function IntroVideoCard({ visual, videoUrl }: { visual: IntroVisual; videoUrl?: 
 function ExperienceBadge({ asset }: { asset: MentorProfileAssetResponse }) {
   const imageUrl = getAssetImage(asset)
   return (
-    <div className="inline-flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-[0_8px_20px_-12px_rgba(15,23,42,0.08)] transition hover:-translate-y-0.5 hover:shadow-[0_12px_24px_-12px_rgba(15,23,42,0.15)]">
+    <div className="inline-flex items-center gap-3 rounded-2xl border border-gray-100 bg-white px-4 py-3 shadow-[0_4px_20px_rgb(0,0,0,0.02)] transition hover:-translate-y-0.5 hover:shadow-md hover:border-gray-200">
       {imageUrl ? (
-        <img src={imageUrl} alt={asset.title} className="h-10 w-10 rounded-xl object-cover" />
+        <img src={imageUrl} alt={asset.title} className="h-10 w-10 rounded-xl object-cover shadow-sm" />
       ) : (
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gray-50 border border-gray-100 text-gray-500">
           <Briefcase className="h-5 w-5" />
         </div>
       )}
       <div>
-        <p className="text-sm font-black text-gray-950 line-clamp-1">{asset.title}</p>
-        {asset.issuer && <p className="text-xs font-medium text-gray-500 line-clamp-1">{asset.issuer}</p>}
+        <p className="text-[13px] font-black text-gray-900 line-clamp-1">{asset.title}</p>
+        {asset.issuer && <p className="mt-0.5 text-[12px] font-bold text-gray-400 line-clamp-1">{asset.issuer}</p>}
       </div>
     </div>
   )
@@ -1249,7 +1273,7 @@ function ExperienceBadge({ asset }: { asset: MentorProfileAssetResponse }) {
 
 function CompanyBadge({ company }: { company: string }) {
   return (
-    <div className="inline-flex items-center rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-black text-slate-800 shadow-[0_8px_20px_-12px_rgba(15,23,42,0.08)] transition hover:-translate-y-0.5 hover:shadow-[0_12px_24px_-12px_rgba(15,23,42,0.15)]">
+    <div className="inline-flex items-center rounded-2xl border border-gray-100 bg-white px-4 py-3 text-[13px] font-black text-gray-800 shadow-[0_4px_20px_rgb(0,0,0,0.02)] transition hover:-translate-y-0.5 hover:shadow-md hover:border-gray-200">
       {company}
     </div>
   )
@@ -1262,14 +1286,16 @@ function ResourceCard({ title, description, href }: { title: string; description
       href={href}
       target="_blank"
       rel="noreferrer"
-      className="rounded-[26px] border border-slate-200 bg-white p-5 shadow-[0_18px_40px_-34px_rgba(15,23,42,0.45)] transition hover:-translate-y-0.5 hover:shadow-[0_20px_50px_-32px_rgba(37,99,235,0.25)]"
+      className="group rounded-[32px] border border-gray-100 bg-white p-6 shadow-[0_4px_20px_rgb(0,0,0,0.02)] transition hover:-translate-y-1 hover:shadow-xl hover:border-gray-900"
     >
-      <div className="flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.16em] text-gray-500">
-        <ExternalLink className="h-4 w-4 text-blue-600" />
+      <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">
+        <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gray-50 group-hover:bg-gray-900 transition-colors">
+          <ExternalLink className="h-3 w-3 text-gray-500 group-hover:text-white transition-colors" />
+        </div>
         {t('mentor.public.resource.label')}
       </div>
-      <h3 className="mt-3 text-lg font-black text-gray-950">{title}</h3>
-      <p className="mt-2 text-sm text-gray-500">{description}</p>
+      <h3 className="mt-4 text-[16px] font-black text-gray-900 leading-snug">{title}</h3>
+      <p className="mt-2 text-[13px] font-bold text-gray-500 leading-relaxed">{description}</p>
     </a>
   )
 }

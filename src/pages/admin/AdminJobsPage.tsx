@@ -93,7 +93,7 @@ export default function AdminJobsPage() {
     switch (status) {
       case JobStatus.OPEN: return 'bg-emerald-50 border border-emerald-100 text-emerald-600 dark:bg-emerald-900/20 dark:border-emerald-800/30 dark:text-emerald-400'
       case JobStatus.IN_PROGRESS: return 'bg-blue-50 border border-blue-100 text-blue-600 dark:bg-blue-900/20 dark:border-blue-800/30 dark:text-blue-400'
-      case JobStatus.COMPLETED: return 'bg-indigo-50 border border-indigo-100 text-indigo-600 dark:bg-indigo-900/20 dark:border-indigo-800/30 dark:text-indigo-400'
+      case JobStatus.COMPLETED: return 'bg-emerald-50 border border-emerald-100 text-emerald-600 dark:bg-emerald-900/20 dark:border-emerald-800/30 dark:text-emerald-400'
       case JobStatus.CANCELLED: return 'bg-rose-50 border border-rose-100 text-rose-600 dark:bg-rose-900/20 dark:border-rose-800/30 dark:text-rose-400'
       case JobStatus.CLOSED: return 'bg-slate-50 border border-slate-200 text-slate-600 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-400'
       default: return 'bg-slate-50 border border-slate-200 text-slate-600'
@@ -116,20 +116,20 @@ export default function AdminJobsPage() {
       <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl rounded-[2.5rem] border border-white/50 dark:border-slate-800 p-6 sm:p-8 shadow-xl shadow-slate-200/40 dark:shadow-none">
         <div className="flex flex-col gap-5 md:flex-row">
           <div className="relative flex-1 group">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
             <input 
               type="text" 
               placeholder="Search jobs..." 
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-12 pr-6 py-3.5 rounded-2xl bg-white/50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700 focus:bg-white dark:focus:bg-slate-800 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500/30 transition-all text-sm font-bold text-slate-900 dark:text-white placeholder:text-slate-400 placeholder:font-medium shadow-sm hover:border-slate-300 dark:hover:border-slate-600"
+              className="w-full pl-12 pr-6 py-3.5 rounded-2xl bg-white/50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700 focus:bg-white dark:focus:bg-slate-800 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500/30 transition-all text-sm font-bold text-slate-900 dark:text-white placeholder:text-slate-400 placeholder:font-medium shadow-sm hover:border-slate-300 dark:hover:border-slate-600"
             />
           </div>
           <div className="flex flex-col gap-4 sm:flex-row">
             <select 
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as JobStatus)}
-              className="w-full rounded-2xl border border-slate-200/60 bg-white/50 px-6 py-3.5 text-sm font-bold text-slate-600 outline-none transition-all focus:border-indigo-500/30 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 dark:border-slate-700 dark:bg-slate-800/50 dark:text-slate-300 dark:focus:bg-slate-800 shadow-sm hover:border-slate-300 dark:hover:border-slate-600 sm:w-auto appearance-none cursor-pointer"
+              className="w-full rounded-2xl border border-slate-200/60 bg-white/50 px-6 py-3.5 text-sm font-bold text-slate-600 outline-none transition-all focus:border-emerald-500/30 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 dark:border-slate-700 dark:bg-slate-800/50 dark:text-slate-300 dark:focus:bg-slate-800 shadow-sm hover:border-slate-300 dark:hover:border-slate-600 sm:w-auto appearance-none cursor-pointer"
             >
               <option value="">All Statuses</option>
               {Object.values(JobStatus).map(s => (
@@ -139,7 +139,7 @@ export default function AdminJobsPage() {
             <select 
               value={typeFilter}
               onChange={(e) => setTypeFilter(e.target.value as JobType)}
-              className="w-full rounded-2xl border border-slate-200/60 bg-white/50 px-6 py-3.5 text-sm font-bold text-slate-600 outline-none transition-all focus:border-indigo-500/30 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 dark:border-slate-700 dark:bg-slate-800/50 dark:text-slate-300 dark:focus:bg-slate-800 shadow-sm hover:border-slate-300 dark:hover:border-slate-600 sm:w-auto appearance-none cursor-pointer"
+              className="w-full rounded-2xl border border-slate-200/60 bg-white/50 px-6 py-3.5 text-sm font-bold text-slate-600 outline-none transition-all focus:border-emerald-500/30 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 dark:border-slate-700 dark:bg-slate-800/50 dark:text-slate-300 dark:focus:bg-slate-800 shadow-sm hover:border-slate-300 dark:hover:border-slate-600 sm:w-auto appearance-none cursor-pointer"
             >
               <option value="">All Types</option>
               {Object.values(JobType).map(t => (
@@ -177,12 +177,12 @@ export default function AdminJobsPage() {
                   <tr key={job.jobId} className="group hover:bg-slate-50/80 dark:hover:bg-slate-800/80 transition-colors">
                     <td className="px-8 py-5">
                       <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-800/30 shadow-sm flex-shrink-0 group-hover:scale-105 transition-transform duration-300">
+                        <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-800/30 shadow-sm flex-shrink-0 group-hover:scale-105 transition-transform duration-300">
                           <Briefcase className="w-6 h-6" />
                         </div>
                         <div className="flex flex-col min-w-0">
-                          <span className="text-sm font-bold text-slate-900 dark:text-white truncate max-w-[250px] group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{job.title}</span>
-                          <span className="text-[10px] font-bold text-indigo-500 dark:text-indigo-400 uppercase tracking-wider mt-0.5">By {job.client?.fullName || 'Unknown'}</span>
+                          <span className="text-sm font-bold text-slate-900 dark:text-white truncate max-w-[250px] group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">{job.title}</span>
+                          <span className="text-[10px] font-bold text-emerald-500 dark:text-emerald-400 uppercase tracking-wider mt-0.5">By {job.client?.fullName || 'Unknown'}</span>
                         </div>
                       </div>
                     </td>
@@ -207,7 +207,7 @@ export default function AdminJobsPage() {
                     </td>
                     <td className="px-8 py-5 text-right">
                       <div className="flex items-center justify-end gap-2 opacity-100 transition-all duration-300 lg:translate-x-4 lg:opacity-0 lg:group-hover:translate-x-0 lg:group-hover:opacity-100">
-                        <Link to={`/jobs/${job.jobId}`} className="p-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-indigo-600 hover:border-indigo-200 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5" title="View Details">
+                        <Link to={`/jobs/${job.jobId}`} className="p-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-emerald-600 hover:border-emerald-200 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5" title="View Details">
                           <Eye className="w-4 h-4" />
                         </Link>
                         
@@ -258,14 +258,14 @@ export default function AdminJobsPage() {
             <button 
               disabled={page === 0}
               onClick={() => setPage(p => p - 1)}
-              className="p-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-indigo-600 hover:border-indigo-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-sm hover:shadow-md"
+              className="p-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-emerald-600 hover:border-emerald-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-sm hover:shadow-md"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
             <button 
               disabled={data?.last}
               onClick={() => setPage(p => p + 1)}
-              className="p-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-indigo-600 hover:border-indigo-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-sm hover:shadow-md"
+              className="p-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-emerald-600 hover:border-emerald-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-sm hover:shadow-md"
             >
               <ChevronRight className="w-5 h-5" />
             </button>

@@ -145,16 +145,16 @@ export default function ProposalListEnhanced({ jobId }: Props) {
 
       {/* Filter Info */}
       {statusFilter !== 'ALL' && (
-        <div className="flex items-center justify-between bg-indigo-50 border border-indigo-200 rounded-xl px-4 py-3">
+        <div className="flex items-center justify-between bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3">
           <div className="flex items-center gap-2 text-sm">
-            <Filter className="w-4 h-4 text-indigo-600" />
-            <span className="font-bold text-indigo-900">
+            <Filter className="w-4 h-4 text-emerald-600" />
+            <span className="font-bold text-emerald-900">
               Hiển thị {filteredProposals.length} proposals với status: {statusFilter}
             </span>
           </div>
           <button
             onClick={() => setStatusFilter('ALL')}
-            className="text-xs font-bold text-indigo-600 hover:text-indigo-700"
+            className="text-xs font-bold text-emerald-600 hover:text-emerald-700"
           >
             Xóa bộ lọc
           </button>
@@ -213,8 +213,8 @@ function StatCard({ label, value, icon: Icon, color, active, onClick }: StatCard
       ? 'bg-amber-100 border-amber-300 ring-2 ring-amber-200' 
       : 'bg-white border-amber-200 hover:border-amber-300',
     purple: active 
-      ? 'bg-purple-100 border-purple-300 ring-2 ring-purple-200' 
-      : 'bg-white border-purple-200 hover:border-purple-300',
+      ? 'bg-emerald-100 border-emerald-300 ring-2 ring-emerald-200' 
+      : 'bg-white border-emerald-200 hover:border-emerald-300',
     emerald: active 
       ? 'bg-emerald-100 border-emerald-300 ring-2 ring-emerald-200' 
       : 'bg-white border-emerald-200 hover:border-emerald-300',
@@ -227,7 +227,7 @@ function StatCard({ label, value, icon: Icon, color, active, onClick }: StatCard
     slate: 'text-slate-500',
     blue: 'text-blue-500',
     amber: 'text-amber-500',
-    purple: 'text-purple-500',
+    purple: 'text-emerald-500',
     emerald: 'text-emerald-500',
     rose: 'text-rose-500',
   }

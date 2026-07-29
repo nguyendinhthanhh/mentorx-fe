@@ -32,7 +32,7 @@ export default function ViewTimelineChart({ targetType, targetId }: ViewTimeline
               onClick={() => setGranularity(opt.value)}
               className={`rounded-lg px-3 py-1.5 text-xs font-bold transition ${
                 granularity === opt.value
-                  ? 'bg-white text-indigo-700 shadow-sm'
+                  ? 'bg-white text-emerald-700 shadow-sm'
                   : 'text-slate-500 hover:text-slate-900'
               }`}
             >

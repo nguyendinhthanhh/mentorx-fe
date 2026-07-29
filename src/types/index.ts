@@ -589,9 +589,10 @@ export interface AppointmentSlotResponse {
 }
 
 export interface ContractResponse {
-  id: string;
-  jobId: string;
-  jobTitle: string;
+    id: string;
+    jobId: string;
+    jobTitle: string;
+    jobSummary?: JobSummaryResponse;
   proposalId?: string;
   clientId: string;
   clientName: string;
@@ -637,8 +638,25 @@ export interface ContractResponse {
   ndaRequired?: boolean;
   ndaSigned?: boolean;
   createdAt: string;
-  updatedAt: string;
-}
+    updatedAt: string;
+  }
+
+  export interface JobSummaryResponse {
+    jobId: string;
+    title: string;
+    description: string;
+    clientId: string;
+    clientName: string;
+    clientAvatarUrl?: string;
+    categoryId?: number;
+    customCategoryName?: string;
+    requiredSkills?: string[];
+    budgetType: BudgetType;
+    budgetMinMxc?: number;
+    budgetMaxMxc?: number;
+    hourlyRateMxc?: number;
+    deadlineAt?: string;
+  }
 
 export interface DisputeResponse {
   id: string;
@@ -805,6 +823,7 @@ export interface CourseEnrollmentResponse {
   id: string;
   courseId: string;
   courseTitle: string;
+  courseSummary?: CourseEnrollmentCourseSummaryResponse;
   studentId: string;
   studentName: string;
   amountPaidMxc: number;
@@ -816,6 +835,18 @@ export interface CourseEnrollmentResponse {
   enrolledAt: string;
   lastAccessedAt?: string;
   completedAt?: string;
+}
+
+export interface CourseEnrollmentCourseSummaryResponse {
+  courseId: string;
+  title: string;
+  thumbnailUrl?: string;
+  status: CourseStatus;
+  productType: CourseProductType;
+  categoryId?: number;
+  skills: string[];
+  instructorName?: string;
+  isCertificate: boolean;
 }
 
 export interface CourseSectionResponse {
@@ -1077,6 +1108,7 @@ export interface ProposalResponse {
   id: string;
   jobId: string;
   jobTitle: string;
+  jobSummary?: JobSummaryResponse;
   mentorId: string;
   mentorName: string;
   status: ProposalStatus;
