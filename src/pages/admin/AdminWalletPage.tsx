@@ -220,7 +220,7 @@ export default function AdminWalletPage() {
         <button
           type="button"
           onClick={refresh}
-          className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+          className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
         >
           <RefreshCw
             className={`h-4 w-4 ${summaryQuery.isFetching ? "animate-spin" : ""}`}
@@ -243,7 +243,7 @@ export default function AdminWalletPage() {
 
       <nav
         aria-label={t("admin.wallet.sections")}
-        className="flex gap-1 overflow-x-auto border-b border-slate-200 dark:border-slate-800"
+        className="scrollbar-hide flex gap-1 overflow-x-auto border-b border-slate-200 dark:border-slate-800"
       >
         {(
           [
@@ -257,9 +257,9 @@ export default function AdminWalletPage() {
             key={id}
             type="button"
             onClick={() => setActiveTab(id)}
-            className={`inline-flex min-h-11 items-center gap-2 border-b-2 px-4 text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 ${
+            className={`inline-flex min-h-11 items-center gap-2 border-b-2 px-4 text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-inset focus:ring-emerald-500 ${
               activeTab === id
-                ? "border-indigo-600 text-indigo-700 dark:text-indigo-300"
+                ? "border-emerald-600 text-emerald-700 dark:text-emerald-300"
                 : "border-transparent text-slate-500 hover:text-slate-900 dark:hover:text-slate-100"
             }`}
           >
@@ -307,7 +307,7 @@ export default function AdminWalletPage() {
                   value={search}
                   onChange={(event) => setSearch(event.target.value)}
                   placeholder={t("admin.wallet.search")}
-                  className="h-10 w-full rounded-lg border border-slate-300 bg-white pl-9 pr-3 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-700 dark:bg-slate-950 sm:w-64"
+                  className="h-10 w-full rounded-lg border border-slate-300 bg-white pl-9 pr-3 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 dark:border-slate-700 dark:bg-slate-950 sm:w-64"
                 />
               </label>
             </div>
@@ -522,7 +522,7 @@ function LedgerTable({
                   key={transaction.id}
                   className={
                     selectedId === transaction.id
-                      ? "bg-indigo-50/70 dark:bg-indigo-950/20"
+                      ? "bg-emerald-50/70 dark:bg-emerald-950/20"
                       : "hover:bg-slate-50 dark:hover:bg-slate-800/40"
                   }
                 >
@@ -556,7 +556,7 @@ function LedgerTable({
                     <button
                       type="button"
                       onClick={() => onSelect(transaction)}
-                      className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-slate-300 px-3 text-xs font-semibold text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+                      className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-slate-300 px-3 text-xs font-semibold text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
                     >
                       <Eye className="h-4 w-4" />
                       {t("common.viewDetails")}
@@ -700,7 +700,7 @@ function WithdrawalTable({
               key={item.id}
               className={
                 selectedId === item.id
-                  ? "bg-indigo-50/70 dark:bg-indigo-950/20"
+                  ? "bg-emerald-50/70 dark:bg-emerald-950/20"
                   : "hover:bg-slate-50 dark:hover:bg-slate-800/40"
               }
             >
@@ -733,7 +733,7 @@ function WithdrawalTable({
                 <button
                   type="button"
                   onClick={() => onSelect(item)}
-                  className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-slate-300 px-3 text-xs font-semibold hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:hover:bg-slate-800"
+                  className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-slate-300 px-3 text-xs font-semibold hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:border-slate-700 dark:hover:bg-slate-800"
                 >
                   <Eye className="h-4 w-4" />
                   {t("common.viewDetails")}
@@ -921,7 +921,7 @@ function WithdrawalDetails(props: {
                       }
                       maxLength={255}
                       placeholder={t("admin.wallet.gatewayReferencePlaceholder")}
-                      className="mt-2 h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-700 dark:bg-slate-950"
+                      className="mt-2 h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 dark:border-slate-700 dark:bg-slate-950"
                     />
                   </label>
                   <ActionButton
@@ -1141,7 +1141,7 @@ function ActionButton({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className={`inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border px-3 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:cursor-not-allowed disabled:opacity-50 ${tones[tone]}`}
+      className={`inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border px-3 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:cursor-not-allowed disabled:opacity-50 ${tones[tone]}`}
     >
       {children}
     </button>

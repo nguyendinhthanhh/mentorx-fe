@@ -46,7 +46,7 @@ export default function AdminComplaintDetailPage() {
           <button
             type="button"
             onClick={() => refetch()}
-            className="rounded-2xl bg-slate-900 px-6 py-3 text-[10px] font-black uppercase tracking-widest text-white transition-all hover:bg-indigo-600 dark:bg-white dark:text-slate-900 dark:hover:bg-indigo-500 shadow-xl hover:shadow-indigo-500/30 hover:-translate-y-0.5"
+            className="rounded-2xl bg-emerald-600 shadow-md hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 hover:bg-emerald-700 px-6 py-3 text-[10px] font-black uppercase tracking-widest text-white transition-all hover:bg-emerald-600 dark:bg-white dark:text-slate-900 dark:hover:bg-emerald-500 shadow-xl hover:shadow-emerald-500/30 hover:-translate-y-0.5"
           >
             {t('admin.complaints.error.retry')}
           </button>
@@ -62,20 +62,20 @@ export default function AdminComplaintDetailPage() {
       <div className="flex items-center gap-3">
         <Link
           to="/admin/complaints"
-          className="inline-flex items-center gap-2 rounded-xl bg-white/70 dark:bg-slate-900/70 border border-white/50 dark:border-slate-800 shadow-sm px-4 py-2 text-xs font-bold text-slate-500 hover:text-indigo-600 hover:border-indigo-200 dark:hover:border-indigo-800/50 dark:hover:text-indigo-400 hover:shadow-md transition-all hover:-translate-x-1"
+          className="inline-flex items-center gap-2 rounded-xl bg-white/70 dark:bg-slate-900/70 border border-white/50 dark:border-slate-800 shadow-sm px-4 py-2 text-xs font-bold text-slate-500 hover:text-emerald-600 hover:border-emerald-200 dark:hover:border-emerald-800/50 dark:hover:text-emerald-400 hover:shadow-md transition-all hover:-translate-x-1"
         >
           <ArrowLeft className="w-4 h-4" />
           {t('admin.complaints.detail.back')}
         </Link>
       </div>
 
-      <div className="rounded-[2.5rem] border border-white/50 bg-white/70 p-8 shadow-xl shadow-slate-200/40 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/70 dark:shadow-none transition-all">
+      <div className="rounded-2xl border border-white/50 bg-white/70 p-4 shadow-xl shadow-slate-200/40 backdrop-blur-xl transition-all dark:border-slate-800 dark:bg-slate-900/70 dark:shadow-none sm:rounded-[2.5rem] sm:p-8">
         <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between border-b border-slate-100/50 dark:border-slate-800/50 pb-8">
           <div>
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
               {t('admin.complaints.detail.idLabel', { id: data.id })}
             </p>
-            <h1 className="mt-2 text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+            <h1 className="mt-2 break-words text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white sm:text-3xl">
               {data.title}
             </h1>
             <p className="mt-1 text-xs font-bold text-slate-500">
@@ -101,7 +101,7 @@ export default function AdminComplaintDetailPage() {
           <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
             {t('admin.complaints.detail.description')}
           </p>
-          <div className="mt-3 rounded-2xl bg-slate-50/50 dark:bg-slate-800/30 p-6 border border-slate-100/50 dark:border-slate-800/50">
+          <div className="mt-3 rounded-2xl border border-slate-100/50 bg-slate-50/50 p-4 dark:border-slate-800/50 dark:bg-slate-800/30 sm:p-6">
             <p className="whitespace-pre-line text-sm font-medium leading-loose text-slate-700 dark:text-slate-300">
               {data.description}
             </p>
@@ -133,13 +133,13 @@ export default function AdminComplaintDetailPage() {
               {data.evidence.map((evidence) => (
                 <li
                   key={evidence.id}
-                  className="flex items-center gap-4 rounded-2xl border border-slate-200/60 bg-white/50 p-4 text-xs font-bold text-slate-700 dark:border-slate-700/60 dark:bg-slate-800/50 dark:text-slate-300 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md hover:border-indigo-200 dark:hover:border-indigo-800/50 cursor-pointer group"
+                  className="flex items-center gap-4 rounded-2xl border border-slate-200/60 bg-white/50 p-4 text-xs font-bold text-slate-700 dark:border-slate-700/60 dark:bg-slate-800/50 dark:text-slate-300 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md hover:border-emerald-200 dark:hover:border-emerald-800/50 cursor-pointer group"
                 >
-                  <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center group-hover:bg-indigo-50 dark:group-hover:bg-indigo-900/20 transition-colors">
-                    <Inbox className="w-5 h-5 text-slate-400 group-hover:text-indigo-500" />
+                  <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center group-hover:bg-emerald-50 dark:group-hover:bg-emerald-900/20 transition-colors">
+                    <Inbox className="w-5 h-5 text-slate-400 group-hover:text-emerald-500" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="truncate text-sm font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{evidence.title}</p>
+                    <p className="truncate text-sm font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">{evidence.title}</p>
                     <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 mt-0.5 block">
                       {evidence.evidenceType}
                     </span>

@@ -31,7 +31,7 @@ export function Breadcrumbs({ items, className = '' }: BreadcrumbsProps) {
             ) : (
               <Link
                 to={item.to || '#'}
-                className="flex items-center gap-1.5 text-gray-500 hover:text-indigo-600 transition-colors"
+                className="flex items-center gap-1.5 text-gray-500 hover:text-emerald-600 transition-colors"
               >
                 {item.icon && index === 0 ? (
                   item.icon

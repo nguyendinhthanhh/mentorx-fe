@@ -62,7 +62,7 @@ export default function UserPublicProfilePage() {
         <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_280px] lg:gap-16">
           <section className="min-w-0">
             <div className="flex flex-col gap-5 border-b border-slate-200 pb-8 sm:flex-row sm:items-end sm:gap-6 dark:border-slate-800">
-              <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-indigo-600 text-2xl font-semibold text-white shadow-sm">
+              <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-emerald-600 text-2xl font-semibold text-white shadow-sm">
                 {userProfile.avatarUrl ? (
                   <img src={userProfile.avatarUrl} alt={name} className="h-full w-full object-cover" />
                 ) : initials}

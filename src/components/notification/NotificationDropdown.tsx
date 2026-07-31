@@ -72,7 +72,7 @@ export default function NotificationDropdown({ userId, allHref = '/profile/notif
       <button
         type="button"
         onClick={() => setIsOpen((value) => !value)}
-        className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-slate-50 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white"
+        className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-slate-50 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white"
         aria-label="Notifications"
         aria-expanded={isOpen}
       >
@@ -99,7 +99,7 @@ export default function NotificationDropdown({ userId, allHref = '/profile/notif
                 type="button"
                 onClick={handleMarkAllRead}
                 disabled={!unreadCount}
-                className="rounded-lg px-2.5 py-1.5 text-xs font-bold text-indigo-600 transition hover:bg-indigo-50 disabled:cursor-not-allowed disabled:text-slate-300 disabled:hover:bg-transparent dark:text-indigo-300 dark:hover:bg-indigo-950/30 dark:disabled:text-slate-700"
+                className="rounded-lg px-2.5 py-1.5 text-xs font-bold text-emerald-600 transition hover:bg-emerald-50 disabled:cursor-not-allowed disabled:text-slate-300 disabled:hover:bg-transparent dark:text-emerald-300 dark:hover:bg-emerald-950/30 dark:disabled:text-slate-700"
               >
                 Mark all read
               </button>
@@ -115,8 +115,8 @@ export default function NotificationDropdown({ userId, allHref = '/profile/notif
                   <button
                     type="button"
                     key={notification.id}
-                    className={`flex w-full gap-3 border-b border-slate-100 px-4 py-3 text-left transition-colors last:border-0 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 dark:border-slate-800 dark:hover:bg-slate-900 ${
-                      !notification.isRead ? 'bg-indigo-50/50 dark:bg-indigo-950/20' : ''
+                    className={`flex w-full gap-3 border-b border-slate-100 px-4 py-3 text-left transition-colors last:border-0 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-emerald-500 dark:border-slate-800 dark:hover:bg-slate-900 ${
+                      !notification.isRead ? 'bg-emerald-50/50 dark:bg-emerald-950/20' : ''
                     }`}
                     onClick={() => handleOpenNotification(notification.id, notification.actionUrl)}
                   >
@@ -140,7 +140,7 @@ export default function NotificationDropdown({ userId, allHref = '/profile/notif
                         {formatRelativeTime(notification.createdAt)}
                       </p>
                     </div>
-                    {!notification.isRead ? <span className="mt-2 h-2 w-2 rounded-full bg-indigo-600" /> : null}
+                    {!notification.isRead ? <span className="mt-2 h-2 w-2 rounded-full bg-emerald-600" /> : null}
                   </button>
                 ))
               ) : (
@@ -157,7 +157,7 @@ export default function NotificationDropdown({ userId, allHref = '/profile/notif
             <Link
               to={allHref}
               onClick={() => setIsOpen(false)}
-              className="flex items-center justify-center gap-2 border-t border-slate-100 bg-slate-50 py-3 text-xs font-black text-slate-600 transition-colors hover:bg-slate-100 hover:text-indigo-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
+              className="flex items-center justify-center gap-2 border-t border-slate-100 bg-slate-50 py-3 text-xs font-black text-slate-600 transition-colors hover:bg-slate-100 hover:text-emerald-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
             >
               View all notifications
               <ArrowRight className="h-3.5 w-3.5" />
@@ -177,7 +177,7 @@ function NotificationLoadError({ onRetry }: { onRetry: () => void }) {
       <button
         type="button"
         onClick={onRetry}
-        className="mt-3 rounded-lg border border-slate-300 px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-900"
+        className="mt-3 rounded-lg border border-slate-300 px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-900"
       >
         Retry
       </button>
@@ -211,7 +211,7 @@ function getIcon(type: NotificationType) {
       return <Briefcase className="h-4 w-4 text-blue-500" />
     case NotificationType.NEW_MESSAGE:
     case NotificationType.MESSAGE_RECEIVED:
-      return <MessageSquare className="h-4 w-4 text-indigo-500" />
+      return <MessageSquare className="h-4 w-4 text-emerald-500" />
     default:
       return <Info className="h-4 w-4 text-slate-500" />
   }

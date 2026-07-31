@@ -19,8 +19,8 @@ export default function JobCreatePage() {
   return (
     <div className="relative min-h-screen bg-[#f7f8fc] text-slate-950 pb-20 overflow-hidden">
       {/* Background Meshes */}
-      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-300/30 mix-blend-multiply rounded-[40%_60%_70%_30%/40%_50%_60%_50%] filter blur-3xl opacity-60 animate-[spin_15s_linear_infinite] pointer-events-none"></div>
-      <div className="absolute top-[20%] right-[-5%] w-[400px] h-[400px] bg-purple-300/30 mix-blend-multiply rounded-[60%_40%_30%_70%/60%_30%_70%_40%] filter blur-3xl opacity-60 animate-[spin_12s_linear_infinite_reverse] pointer-events-none"></div>
+      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-emerald-300/30 mix-blend-multiply rounded-[40%_60%_70%_30%/40%_50%_60%_50%] filter blur-3xl opacity-60 animate-[spin_15s_linear_infinite] pointer-events-none"></div>
+      <div className="absolute top-[20%] right-[-5%] w-[400px] h-[400px] bg-emerald-300/30 mix-blend-multiply rounded-[60%_40%_30%_70%/60%_30%_70%_40%] filter blur-3xl opacity-60 animate-[spin_12s_linear_infinite_reverse] pointer-events-none"></div>
 
       <main className="relative mx-auto max-w-[1400px] px-4 pt-10 sm:px-6 lg:px-8 z-10">
         <div className="mb-10 text-center md:text-left flex flex-col md:flex-row md:items-end justify-between gap-6">
@@ -39,7 +39,7 @@ export default function JobCreatePage() {
                   <span className="text-[12px] font-bold text-[#4f46e5] tracking-wider uppercase">Tạo Yêu Cầu Mới</span>
                </div>
             </div>
-            <h1 className="text-4xl font-extrabold text-[#1b2252] sm:text-5xl tracking-tight leading-tight mt-2">
+            <h1 className="mt-2 text-3xl font-extrabold leading-tight tracking-tight text-[#1b2252] sm:text-4xl lg:text-5xl">
               Khởi tạo <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#4f46e5] to-[#7c3aed]">Cơ Hội Mới</span>
             </h1>
             <p className="mt-3 text-[15px] text-slate-500 max-w-2xl mx-auto md:mx-0">

@@ -44,7 +44,7 @@ export default function UserReviewsPage() {
       <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-slate-950">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full bg-indigo-50 px-3 py-1 text-xs font-black uppercase tracking-wide text-indigo-700 dark:bg-indigo-950/30 dark:text-indigo-300">
+            <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-black uppercase tracking-wide text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-300">
               <Star className="h-3.5 w-3.5 fill-current" />
               Đánh giá
             </div>
@@ -55,7 +55,7 @@ export default function UserReviewsPage() {
           </div>
           <Link
             to="/mentors"
-            className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-indigo-200 bg-indigo-50 px-4 text-sm font-black text-indigo-700 transition hover:bg-indigo-100 dark:border-indigo-900 dark:bg-indigo-950/30 dark:text-indigo-300"
+            className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 text-sm font-black text-emerald-700 transition hover:bg-emerald-100 dark:border-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-300"
           >
             Tìm mentor
             <ArrowRight className="h-4 w-4" />
@@ -67,7 +67,7 @@ export default function UserReviewsPage() {
             onClick={() => setActiveTab('HISTORY')}
             className={`flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-bold transition-colors ${
               activeTab === 'HISTORY'
-                ? 'border-indigo-600 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400'
+                ? 'border-emerald-600 text-emerald-600 dark:border-emerald-400 dark:text-emerald-400'
                 : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
             }`}
           >
@@ -78,7 +78,7 @@ export default function UserReviewsPage() {
             onClick={() => setActiveTab('PENDING')}
             className={`flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-bold transition-colors ${
               activeTab === 'PENDING'
-                ? 'border-indigo-600 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400'
+                ? 'border-emerald-600 text-emerald-600 dark:border-emerald-400 dark:text-emerald-400'
                 : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
             }`}
           >
@@ -113,7 +113,7 @@ export default function UserReviewsPage() {
               {pendingMentors.map((mentor) => (
                 <div key={mentor.id} className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-slate-950">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-100 text-lg font-black text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-100 text-lg font-black text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300">
                       {mentor.name.charAt(0).toUpperCase()}
                     </div>
                     <div>
@@ -123,7 +123,7 @@ export default function UserReviewsPage() {
                   </div>
                   <button
                     onClick={() => setReviewingMentor(mentor)}
-                    className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-50 px-4 py-2.5 text-sm font-bold text-indigo-700 transition-colors hover:bg-indigo-100 dark:bg-indigo-950/30 dark:text-indigo-300 dark:hover:bg-indigo-900/50"
+                    className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-50 px-4 py-2.5 text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-100 dark:bg-emerald-950/30 dark:text-emerald-300 dark:hover:bg-emerald-900/50"
                   >
                     <Edit3 className="h-4 w-4" />
                     Viết đánh giá
@@ -177,7 +177,7 @@ function ReviewCard({ review }: { review: ReviewResponse }) {
   }
   
   return (
-    <article className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-lg dark:border-gray-800 dark:bg-slate-950">
+    <article className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-emerald-200 hover:shadow-lg dark:border-gray-800 dark:bg-slate-950">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <div className="flex flex-wrap items-center gap-2">
@@ -235,14 +235,14 @@ function ReviewCard({ review }: { review: ReviewResponse }) {
       )}
 
       {review.responseText && (
-        <div className="mt-5 rounded-xl border border-indigo-100 bg-indigo-50 p-4 dark:border-indigo-900/50 dark:bg-indigo-950/20">
+        <div className="mt-5 rounded-xl border border-emerald-100 bg-emerald-50 p-4 dark:border-emerald-900/50 dark:bg-emerald-950/20">
           <div className="flex items-center gap-2">
-            <MessageSquareReply className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
-            <p className="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
+            <MessageSquareReply className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+            <p className="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
               Phản hồi
             </p>
           </div>
-          <p className="mt-2 text-sm font-medium leading-6 text-indigo-900 dark:text-indigo-200">
+          <p className="mt-2 text-sm font-medium leading-6 text-emerald-900 dark:text-emerald-200">
             {review.responseText}
           </p>
         </div>
@@ -278,7 +278,7 @@ function EmptyReviews() {
       </p>
       <Link
         to="/mentors"
-        className="mt-5 inline-flex h-11 items-center justify-center rounded-xl bg-indigo-600 px-5 text-sm font-black text-white transition hover:bg-indigo-700"
+        className="mt-5 inline-flex h-11 items-center justify-center rounded-xl bg-emerald-600 px-5 text-sm font-black text-white transition hover:bg-emerald-700"
       >
         Tìm Mentor ngay
       </Link>

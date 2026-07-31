@@ -100,7 +100,7 @@ export default function ConversationPane({
     return (
       <section className={`hidden ${heightClassName} flex-1 items-center justify-center bg-white lg:flex`}>
         <div className="max-w-sm text-center">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-indigo-50 text-indigo-500">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50 text-emerald-500">
             <Sparkles className="h-6 w-6" />
           </div>
           <h2 className="mt-5 text-xl font-semibold text-[#10164a]">Select a conversation</h2>
@@ -122,7 +122,7 @@ export default function ConversationPane({
             <button
               type="button"
               onClick={showBackButton ? onBackToList : undefined}
-              className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[#10164a] transition-colors hover:bg-indigo-50"
+              className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[#10164a] transition-colors hover:bg-emerald-50"
               title={showBackButton ? 'Back to inbox' : 'Back'}
             >
               {showBackButton ? <ArrowLeft className="h-4 w-4 lg:hidden" /> : <ChevronLeft className="h-5 w-5" />}
@@ -136,7 +136,7 @@ export default function ConversationPane({
                   className="h-[52px] w-[52px] rounded-full object-cover"
                 />
               ) : (
-                <div className="flex h-[52px] w-[52px] items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-violet-500 text-sm font-semibold text-white">
+                <div className="flex h-[52px] w-[52px] items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-emerald-500 text-sm font-semibold text-white">
                   {roomName
                     .split(' ')
                     .filter(Boolean)
@@ -153,7 +153,7 @@ export default function ConversationPane({
               <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
                 {profileHref ? (
-                  <Link to={profileHref} className="truncate text-[18px] font-bold text-[#10164a] hover:text-indigo-700 hover:underline hover:underline-offset-4">
+                  <Link to={profileHref} className="truncate text-[18px] font-bold text-[#10164a] hover:text-emerald-700 hover:underline hover:underline-offset-4">
                     {roomName}
                   </Link>
                 ) : (
@@ -176,7 +176,7 @@ export default function ConversationPane({
             <button
               type="button"
               onClick={onShowDetails}
-              className={`inline-flex h-10 items-center gap-2 rounded-xl border border-slate-200 px-4 text-sm font-medium text-[#52608b] transition-colors hover:border-indigo-200 hover:text-indigo-700 ${detailsButtonClassName}`}
+              className={`inline-flex h-10 items-center gap-2 rounded-xl border border-slate-200 px-4 text-sm font-medium text-[#52608b] transition-colors hover:border-emerald-200 hover:text-emerald-700 ${detailsButtonClassName}`}
             >
               {detailsButtonLabel}
             </button>
@@ -185,8 +185,8 @@ export default function ConversationPane({
 
         {banner && (
           <div className="px-4 pb-4 sm:px-6">
-            <div className="flex flex-col gap-4 rounded-xl border border-indigo-100 bg-[#f4f3ff] px-4 py-4 sm:flex-row sm:items-center">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white text-indigo-600">
+            <div className="flex flex-col gap-4 rounded-xl border border-emerald-100 bg-[#f4f3ff] px-4 py-4 sm:flex-row sm:items-center">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white text-emerald-600">
                 <Target className="h-6 w-6" />
               </div>
               <div className="min-w-0 flex-1">
@@ -203,7 +203,7 @@ export default function ConversationPane({
               {(contextActionHref && contextActionLabel) || goalLink ? (
                 <Link
                   to={contextActionHref || goalLink!}
-                  className="inline-flex h-10 w-full shrink-0 items-center justify-center rounded-xl border border-indigo-200 bg-white px-4 text-[13px] font-semibold text-indigo-700 transition-colors hover:bg-indigo-50 sm:w-auto"
+                  className="inline-flex h-10 w-full shrink-0 items-center justify-center rounded-xl border border-emerald-200 bg-white px-4 text-[13px] font-semibold text-emerald-700 transition-colors hover:bg-emerald-50 sm:w-auto"
                 >
                   {contextActionLabel || 'View goal'}
                 </Link>
@@ -233,7 +233,7 @@ export default function ConversationPane({
         ) : selectedMessages.length === 0 ? (
             <div className="flex h-full min-h-[340px] items-center justify-center">
               <div className="max-w-sm text-center">
-                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-indigo-50 text-indigo-500">
+                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50 text-emerald-500">
                   <Sparkles className="h-6 w-6" />
                 </div>
               <h3 className="mt-4 text-lg font-semibold text-[#10164a]">{noMessagesTitle}</h3>
@@ -323,7 +323,7 @@ function ComposerIconButton({
       type="button"
       title={title}
       onClick={onClick}
-      className="inline-flex h-9 w-9 items-center justify-center rounded-full text-[#10164a] transition-colors hover:bg-indigo-50 hover:text-indigo-700"
+      className="inline-flex h-9 w-9 items-center justify-center rounded-full text-[#10164a] transition-colors hover:bg-emerald-50 hover:text-emerald-700"
     >
       {children}
     </button>

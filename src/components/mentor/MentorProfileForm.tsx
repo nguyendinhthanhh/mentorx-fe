@@ -704,10 +704,10 @@ export default function MentorProfileForm({
                         key={skill}
                         type="button"
                         onClick={() => removeSkill(skill)}
-                        className="group flex items-center gap-1.5 rounded-lg bg-indigo-100 px-3 py-1.5 text-xs font-bold text-indigo-700 transition hover:bg-indigo-200"
+                        className="group flex items-center gap-1.5 rounded-lg bg-emerald-100 px-3 py-1.5 text-xs font-bold text-emerald-700 transition hover:bg-emerald-200"
                       >
                         {skill}
-                        <span className="text-indigo-400 group-hover:text-indigo-600">&times;</span>
+                        <span className="text-emerald-400 group-hover:text-emerald-600">&times;</span>
                       </button>
                     ))}
                   </div>
@@ -728,7 +728,7 @@ export default function MentorProfileForm({
                     <button
                       type="button"
                       onClick={() => addSkill(skillInput)}
-                      className="shrink-0 rounded-xl bg-slate-900 px-5 text-sm font-bold text-white transition hover:bg-indigo-600"
+                      className="shrink-0 rounded-xl bg-emerald-600 shadow-md hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 hover:bg-emerald-700 px-5 text-sm font-bold text-white transition hover:bg-emerald-600"
                     >
                       Thêm
                     </button>
@@ -741,7 +741,7 @@ export default function MentorProfileForm({
                         key={skill}
                         type="button"
                         onClick={() => addSkill(skill)}
-                        className="rounded-md border border-slate-200/80 px-2.5 py-1 text-[10px] font-bold text-slate-500 transition hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-600"
+                        className="rounded-md border border-slate-200/80 px-2.5 py-1 text-[10px] font-bold text-slate-500 transition hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-600"
                       >
                         {skill}
                       </button>
@@ -1127,7 +1127,7 @@ function UploadFieldCard({
       {busy ? (
         <div className="flex flex-col items-center">
           <Loader2 className="h-6 w-6 animate-spin text-sky-700" />
-          <p className="mt-3 text-[13px] font-bold text-indigo-700">Đang tải tệp lên...</p>
+          <p className="mt-3 text-[13px] font-bold text-emerald-700">Đang tải tệp lên...</p>
         </div>
       ) : value ? (
         <div className="flex flex-col items-center">

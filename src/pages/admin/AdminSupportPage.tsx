@@ -45,8 +45,13 @@ export default function AdminSupportPage() {
 
   const messagesQuery = useQuery(
     ['admin-support-messages', selectedRoomId],
-    () => chatApi.getRoomMessages(selectedRoomId!, { size: 100 }),
-    { enabled: !!selectedRoomId, refetchInterval: selectedRoomId ? 5000 : false }
+    () => chatApi.getRoomMessages(selectedRoomId!, { page: 0, size: 50 }),
+    {
+      enabled: !!selectedRoomId,
+      refetchInterval: selectedRoomId ? 10_000 : false,
+      refetchIntervalInBackground: false,
+      refetchOnWindowFocus: true,
+    }
   )
   const selectedMessages = messagesQuery.data?.content ?? []
   const sharedFiles = buildSharedFiles(selectedMessages)
@@ -283,7 +288,7 @@ function SupportDetailsPanel({
             </div>
             <div className="min-w-0">
               {member?.userId ? (
-                <Link to={`/users/${member.userId}`} className="block truncate text-base font-semibold text-slate-950 hover:text-indigo-700 hover:underline hover:underline-offset-4 dark:text-white dark:hover:text-indigo-300">
+                <Link to={`/users/${member.userId}`} className="block truncate text-base font-semibold text-slate-950 hover:text-emerald-700 hover:underline hover:underline-offset-4 dark:text-white dark:hover:text-emerald-300">
                   {name}
                 </Link>
               ) : <p className="truncate text-base font-semibold text-slate-950 dark:text-white">{name}</p>}

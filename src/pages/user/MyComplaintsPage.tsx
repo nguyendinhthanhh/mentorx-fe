@@ -74,7 +74,7 @@ export default function MyComplaintsPage() {
         </div>
         <Link
           to="/profile/complaints/new"
-          className="inline-flex items-center gap-2 self-start rounded-2xl bg-indigo-600 px-4 py-2 text-xs font-black uppercase tracking-widest text-white shadow-lg shadow-indigo-200 transition hover:bg-indigo-700 dark:shadow-indigo-900/20"
+          className="inline-flex items-center gap-2 self-start rounded-2xl bg-emerald-600 px-4 py-2 text-xs font-black uppercase tracking-widest text-white shadow-lg shadow-emerald-200 transition hover:bg-emerald-700 dark:shadow-emerald-900/20"
         >
           <Plus className="w-4 h-4" />
           {t('mentee.complaints.new')}
@@ -97,7 +97,7 @@ export default function MyComplaintsPage() {
               value={search}
               onChange={(event) => setSearch(event.target.value)}
               placeholder={t('mentee.complaints.searchPlaceholder')}
-              className="w-full rounded-2xl border border-transparent bg-slate-50 py-2.5 pl-11 pr-4 text-sm font-medium text-slate-700 placeholder:text-slate-400 focus:border-indigo-500/30 focus:bg-white focus:outline-none focus:ring-4 focus:ring-indigo-500/10 dark:bg-slate-800 dark:text-slate-200 dark:placeholder:text-slate-500 dark:focus:bg-slate-900"
+              className="w-full rounded-2xl border border-transparent bg-slate-50 py-2.5 pl-11 pr-4 text-sm font-medium text-slate-700 placeholder:text-slate-400 focus:border-emerald-500/30 focus:bg-white focus:outline-none focus:ring-4 focus:ring-emerald-500/10 dark:bg-slate-800 dark:text-slate-200 dark:placeholder:text-slate-500 dark:focus:bg-slate-900"
             />
           </div>
           <select
@@ -106,7 +106,7 @@ export default function MyComplaintsPage() {
               setPage(0)
               setStatusFilter(event.target.value as StatusFilter)
             }}
-            className="rounded-2xl border border-transparent bg-slate-50 px-4 py-2.5 text-sm font-bold text-slate-600 focus:border-indigo-500/30 focus:bg-white focus:outline-none focus:ring-4 focus:ring-indigo-500/10 dark:bg-slate-800 dark:text-slate-300 dark:focus:bg-slate-900"
+            className="rounded-2xl border border-transparent bg-slate-50 px-4 py-2.5 text-sm font-bold text-slate-600 focus:border-emerald-500/30 focus:bg-white focus:outline-none focus:ring-4 focus:ring-emerald-500/10 dark:bg-slate-800 dark:text-slate-300 dark:focus:bg-slate-900"
           >
             <option value="">{t('mentee.complaints.filter.all')}</option>
             <option value={ComplaintStatus.OPEN}>
@@ -135,7 +135,7 @@ export default function MyComplaintsPage() {
             <button
               type="button"
               onClick={() => refetch()}
-              className="rounded-2xl bg-slate-900 px-5 py-2 text-xs font-black uppercase tracking-widest text-white transition hover:bg-indigo-600 dark:bg-white dark:text-slate-900 dark:hover:bg-indigo-400"
+              className="rounded-2xl bg-emerald-600 shadow-md hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 hover:bg-emerald-700 px-5 py-2 text-xs font-black uppercase tracking-widest text-white transition hover:bg-emerald-600 dark:bg-white dark:text-slate-900 dark:hover:bg-emerald-400"
             >
               {t('mentee.complaints.error.retry')}
             </button>
@@ -155,7 +155,7 @@ export default function MyComplaintsPage() {
             </p>
             <Link
               to="/profile/complaints/new"
-              className="mt-2 inline-flex items-center gap-2 rounded-2xl bg-indigo-600 px-4 py-2 text-xs font-black uppercase tracking-widest text-white"
+              className="mt-2 inline-flex items-center gap-2 rounded-2xl bg-emerald-600 px-4 py-2 text-xs font-black uppercase tracking-widest text-white"
             >
               <Plus className="w-4 h-4" />
               {t('mentee.complaints.new')}
@@ -182,7 +182,7 @@ export default function MyComplaintsPage() {
               type="button"
               onClick={() => setPage((current) => Math.max(current - 1, 0))}
               disabled={page === 0 || isFetching}
-              className="inline-flex items-center gap-1 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-500 transition hover:text-indigo-600 disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400"
+              className="inline-flex items-center gap-1 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-500 transition hover:text-emerald-600 disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400"
             >
               {t('mentee.complaints.pagination.prev')}
             </button>
@@ -190,7 +190,7 @@ export default function MyComplaintsPage() {
               type="button"
               onClick={() => setPage((current) => current + 1)}
               disabled={(data?.last ?? true) || isFetching}
-              className="inline-flex items-center gap-1 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-500 transition hover:text-indigo-600 disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400"
+              className="inline-flex items-center gap-1 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-500 transition hover:text-emerald-600 disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400"
             >
               {t('mentee.complaints.pagination.next')}
             </button>

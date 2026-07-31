@@ -18,6 +18,26 @@ const URL_FIELD_KEYS = new Set([
   'videoIntroUrl',
 ])
 const URL_ARRAY_KEYS = new Set(['attachments', 'evidenceUrls'])
+let refreshPromise: Promise<string> | null = null
+let redirectingToLogin = false
+
+function refreshAccessToken(): Promise<string> {
+  if (!refreshPromise) {
+    refreshPromise = axios
+      .post(`${API_BASE_URL}/auth/refresh`, undefined, { withCredentials: true })
+      .then((response) => {
+        const { accessToken } = response.data.data || response.data
+        if (!accessToken) throw new Error('Refresh response did not include an access token')
+        useAuthStore.getState().setTokens(accessToken)
+        return accessToken
+      })
+      .finally(() => {
+        refreshPromise = null
+      })
+  }
+
+  return refreshPromise
+}
 
 // Do not try to refresh session on auth endpoints (wrong password → 401 is expected)
 function isAuthEndpoint(config: InternalAxiosRequestConfig): boolean {
@@ -114,26 +134,23 @@ apiClient.interceptors.response.use(
           console.debug('401: attempting token refresh...')
         }
 
-        {
-          const response = await axios.post(`${API_BASE_URL}/auth/refresh`, undefined, { withCredentials: true })
-
-          const { accessToken: newAccessToken } = response.data.data || response.data
-          if (import.meta.env.DEV) {
-            console.debug('Token refreshed')
-          }
-
-          useAuthStore.getState().setTokens(newAccessToken)
-
-          if (originalRequest.headers) {
-            originalRequest.headers.Authorization = `Bearer ${newAccessToken}`
-          }
-
-          return apiClient(originalRequest)
+        const newAccessToken = await refreshAccessToken()
+        if (import.meta.env.DEV) {
+          console.debug('Token refreshed')
         }
+
+        if (originalRequest.headers) {
+          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`
+        }
+
+        return apiClient(originalRequest)
       } catch (refreshError) {
         console.error('Token refresh failed:', refreshError)
         useAuthStore.getState().logout()
-        window.location.href = '/login'
+        if (!redirectingToLogin) {
+          redirectingToLogin = true
+          window.location.replace('/login')
+        }
         return Promise.reject(refreshError)
       }
     }

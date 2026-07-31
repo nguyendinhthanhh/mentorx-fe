@@ -27,7 +27,7 @@ export function CourseMediaDropZone({ label, kind, file, mediaUrl, onFile, onCle
           event.preventDefault()
           handleFiles(event.dataTransfer.files)
         }}
-        className="rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 p-3 transition hover:border-indigo-300"
+        className="rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 p-3 transition hover:border-emerald-300"
       >
         {mediaUrl ? (
           <div className="space-y-3">
@@ -45,10 +45,10 @@ export function CourseMediaDropZone({ label, kind, file, mediaUrl, onFile, onCle
           </div>
         ) : (
           <label htmlFor={inputId} className="flex min-h-40 cursor-pointer flex-col items-center justify-center rounded-lg bg-white px-4 py-6 text-center">
-            {kind === 'image' ? <Image className="mb-3 h-8 w-8 text-indigo-500" /> : <Video className="mb-3 h-8 w-8 text-indigo-500" />}
+            {kind === 'image' ? <Image className="mb-3 h-8 w-8 text-emerald-500" /> : <Video className="mb-3 h-8 w-8 text-emerald-500" />}
             <span className="text-sm font-semibold text-slate-900">Drop a file here or click to browse</span>
             <span className="mt-1 text-xs text-slate-500">{kind === 'image' ? 'Image up to 5 MB' : 'Video up to 200 MB'}</span>
-            <span className="mt-3 inline-flex items-center gap-2 rounded-lg bg-indigo-50 px-3 py-2 text-xs font-bold text-indigo-700">
+            <span className="mt-3 inline-flex items-center gap-2 rounded-lg bg-emerald-50 px-3 py-2 text-xs font-bold text-emerald-700">
               <Upload className="h-3.5 w-3.5" />
               Choose file
             </span>

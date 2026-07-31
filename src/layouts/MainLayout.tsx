@@ -1,7 +1,6 @@
 import { Outlet, Link } from 'react-router-dom'
 import { useI18n } from '@/i18n/I18nProvider'
 import AppHeader from '@/components/AppHeader'
-import { AiAssistantWidget } from '@/components/ui/AiAssistantWidget'
 
 function SiteFooter() {
   const { t } = useI18n()
@@ -40,13 +39,13 @@ function SiteFooter() {
 
           <div>
             <p className="text-sm font-semibold">{t('footer.newsletter')}</p>
-            <div className="mt-3 flex gap-2">
+            <div className="mt-3 flex flex-col gap-2 min-[420px]:flex-row md:flex-col xl:flex-row">
               <input
                 type="email"
                 placeholder={t('footer.emailPlaceholder')}
-                className="w-full rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-sm text-white placeholder:text-blue-200 outline-none"
+                className="min-h-11 w-full rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-sm text-white placeholder:text-blue-200 outline-none"
               />
-              <button type="button" className="rounded-lg bg-[#4f46e5] px-4 py-2 text-sm font-semibold text-white">
+              <button type="button" className="min-h-11 rounded-lg bg-[#4f46e5] px-4 py-2 text-sm font-semibold text-white">
                 {t('footer.subscribe')}
               </button>
             </div>
@@ -59,8 +58,6 @@ function SiteFooter() {
 }
 
 export default function MainLayout() {
-  const { t } = useI18n()
-
   return (
     <div className="flex min-h-screen flex-col bg-[#f8fafc] text-slate-900 dark:bg-slate-950 dark:text-slate-100">
       <AppHeader />
@@ -68,7 +65,6 @@ export default function MainLayout() {
         <Outlet />
       </main>
       <SiteFooter />
-      <AiAssistantWidget />
     </div>
   )
 }

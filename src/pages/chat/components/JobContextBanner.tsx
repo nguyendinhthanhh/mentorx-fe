@@ -74,24 +74,24 @@ export default function JobContextBanner({ jobId, userId }: JobContextBannerProp
   // Job is open - show proposal status
   if (job.status === JobStatus.OPEN) {
     return (
-      <div className="border-b border-indigo-200 bg-gradient-to-r from-indigo-50 to-purple-50 px-4 py-3 shadow-sm">
+      <div className="border-b border-emerald-200 bg-gradient-to-r from-emerald-50 to-emerald-50 px-4 py-3 shadow-sm">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-100">
-              <Clock className="h-5 w-5 text-indigo-600" />
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100">
+              <Clock className="h-5 w-5 text-emerald-600" />
             </div>
             <div>
-              <p className="text-sm font-bold text-indigo-900">
+              <p className="text-sm font-bold text-emerald-900">
                 {isOwner ? 'Yêu cầu đang chờ chọn mentor' : 'Đã gửi đề xuất'}
               </p>
-              <p className="text-xs text-indigo-700">
+              <p className="text-xs text-emerald-700">
                 {isOwner ? 'Xem và chấp nhận mentor phù hợp' : 'Đang chờ client phản hồi'}
               </p>
             </div>
           </div>
           <Link
             to={isOwner ? `/my-jobs/${jobId}` : `/jobs/${jobId}`}
-            className="flex shrink-0 items-center gap-2 rounded-xl border border-indigo-200 bg-white px-4 py-2 text-sm font-bold text-indigo-700 transition hover:bg-indigo-50"
+            className="flex shrink-0 items-center gap-2 rounded-xl border border-emerald-200 bg-white px-4 py-2 text-sm font-bold text-emerald-700 transition hover:bg-emerald-50"
           >
             Xem chi tiết
             <ArrowRight className="h-4 w-4" />

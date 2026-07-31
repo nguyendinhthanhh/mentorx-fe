@@ -110,7 +110,7 @@ export default function ContextRail({
               <button
                 type="button"
                 onClick={onClose}
-                className="inline-flex h-8 w-8 items-center justify-center rounded-full text-[#52608b] hover:bg-indigo-50 hover:text-indigo-700"
+                className="inline-flex h-8 w-8 items-center justify-center rounded-full text-[#52608b] hover:bg-emerald-50 hover:text-emerald-700"
                 title="Close details"
               >
                 <X className="h-4 w-4" />
@@ -125,7 +125,7 @@ export default function ContextRail({
               {avatarUrl ? (
                 <img src={avatarUrl} alt={displayName} className="h-full w-full rounded-full object-cover" />
               ) : (
-                <div className="flex h-full w-full items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-violet-500 text-2xl font-bold text-white">
+                <div className="flex h-full w-full items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-emerald-500 text-2xl font-bold text-white">
                   {getInitials(displayName)}
                 </div>
               )}
@@ -137,7 +137,7 @@ export default function ContextRail({
             <div className="mt-3 flex items-center justify-center gap-2">
               <h3 className="truncate text-[17px] font-bold text-[#10164a]">{displayName}</h3>
               {mentorProfile?.isFeatured && (
-                <span className="rounded-md bg-indigo-50 px-2 py-1 text-[11px] font-bold text-indigo-600">Top Mentor</span>
+                <span className="rounded-md bg-emerald-50 px-2 py-1 text-[11px] font-bold text-emerald-600">Top Mentor</span>
               )}
             </div>
             <p className="mt-1 text-[13px] text-[#52608b]">
@@ -167,14 +167,14 @@ export default function ContextRail({
                 <div className="mt-4 space-y-2">
                   <Link
                     to={`/mentors/${mentorProfile.userId}`}
-                    className="inline-flex h-10 w-full items-center justify-center rounded-lg bg-indigo-600 px-4 text-[13px] font-bold text-white shadow-sm shadow-indigo-200 transition-colors hover:bg-indigo-700"
+                    className="inline-flex h-10 w-full items-center justify-center rounded-lg bg-emerald-600 px-4 text-[13px] font-bold text-white shadow-sm shadow-emerald-200 transition-colors hover:bg-emerald-700"
                   >
                     <CalendarDays className="mr-2 h-4 w-4" />
                     Book session
                   </Link>
                   <Link
                     to={`/mentors/${mentorProfile.userId}`}
-                    className="inline-flex h-10 w-full items-center justify-center rounded-lg border border-[#dce2f2] bg-white px-4 text-[13px] font-semibold text-indigo-700 transition-colors hover:bg-indigo-50"
+                    className="inline-flex h-10 w-full items-center justify-center rounded-lg border border-[#dce2f2] bg-white px-4 text-[13px] font-semibold text-emerald-700 transition-colors hover:bg-emerald-50"
                   >
                     View profile
                   </Link>
@@ -208,7 +208,7 @@ export default function ContextRail({
             <div className="flex items-center justify-between gap-3">
               <h3 className="text-[14px] font-bold text-[#10164a]">Profile snapshot</h3>
               {mentorProfile && (
-                <Link to={`/mentors/${mentorProfile.userId}`} className="text-[12px] font-semibold text-indigo-600">
+                <Link to={`/mentors/${mentorProfile.userId}`} className="text-[12px] font-semibold text-emerald-600">
                   Open profile
                 </Link>
               )}
@@ -318,11 +318,11 @@ export default function ContextRail({
         )}
 
         {(linkedContract || isLinkedContractLoading) && (
-          <section className="rounded-lg border border-indigo-200 bg-white p-4 shadow-sm">
+          <section className="rounded-lg border border-emerald-200 bg-white p-4 shadow-sm">
             <div className="flex items-center justify-between gap-3 mb-3">
               <h3 className="text-[14px] font-bold text-[#10164a] flex items-center gap-1.5">
-                <span className="w-5 h-5 rounded-md bg-indigo-100 flex items-center justify-center">
-                  <Lock className="w-3 h-3 text-indigo-600" />
+                <span className="w-5 h-5 rounded-md bg-emerald-100 flex items-center justify-center">
+                  <Lock className="w-3 h-3 text-emerald-600" />
                 </span>
                 Work status
               </h3>
@@ -335,19 +335,19 @@ export default function ContextRail({
               </div>
             ) : linkedContract ? (
               <div className="space-y-3">
-                <div className="rounded-xl bg-indigo-50 px-3 py-3 border border-indigo-100">
+                <div className="rounded-xl bg-emerald-50 px-3 py-3 border border-emerald-100">
                   <div className="flex items-center justify-between gap-3">
                     <div>
-                      <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-indigo-500">Progress</p>
+                      <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-emerald-500">Progress</p>
                       <p className="mt-1 text-[18px] font-black text-slate-900">{Math.max(0, Math.min(100, linkedContract.progressPercentage || 0))}%</p>
                     </div>
-                    <span className="rounded-full bg-white px-2.5 py-1 text-[10px] font-bold text-indigo-700 border border-indigo-100">
+                    <span className="rounded-full bg-white px-2.5 py-1 text-[10px] font-bold text-emerald-700 border border-emerald-100">
                       {formatContractStatus(linkedContract.status)}
                     </span>
                   </div>
-                  <div className="mt-3 h-2 overflow-hidden rounded-full bg-indigo-100">
+                  <div className="mt-3 h-2 overflow-hidden rounded-full bg-emerald-100">
                     <div
-                      className="h-full rounded-full bg-indigo-600"
+                      className="h-full rounded-full bg-emerald-600"
                       style={{ width: `${Math.max(0, Math.min(100, linkedContract.progressPercentage || 0))}%` }}
                     />
                   </div>
@@ -386,7 +386,7 @@ export default function ContextRail({
             <div className="flex items-center justify-between gap-3">
               <h3 className="text-[14px] font-bold text-[#10164a]">Next availability</h3>
               {mentorProfile && (
-                <Link to={`/mentors/${mentorProfile.userId}`} className="text-[12px] font-semibold text-indigo-600">
+                <Link to={`/mentors/${mentorProfile.userId}`} className="text-[12px] font-semibold text-emerald-600">
                   Reschedule
                 </Link>
               )}
@@ -402,7 +402,7 @@ export default function ContextRail({
               <div className="mt-3 space-y-2">
                 {availabilitySummary.slice(0, compact ? 2 : 3).map((entry) => (
                   <div key={entry} className="flex items-start gap-3 rounded-lg bg-[#f7f8fe] px-3 py-3">
-                    <CalendarDays className="mt-0.5 h-4 w-4 text-indigo-600" />
+                    <CalendarDays className="mt-0.5 h-4 w-4 text-emerald-600" />
                     <div>
                       <p className="text-[13px] font-bold text-[#10164a]">Mentoring slot</p>
                       <p className="mt-1 text-[12px] text-[#52608b]">{entry}</p>
@@ -418,7 +418,7 @@ export default function ContextRail({
         <section className="rounded-lg border border-[#dce2f2] bg-white p-4">
           <div className="flex items-center justify-between gap-3 mb-3">
             <h3 className="text-[14px] font-bold text-[#10164a]">Ảnh & Video</h3>
-            {sharedImages.length > 0 && <span className="text-[12px] font-semibold text-indigo-600 hover:text-indigo-700 cursor-pointer">Xem tất cả</span>}
+            {sharedImages.length > 0 && <span className="text-[12px] font-semibold text-emerald-600 hover:text-emerald-700 cursor-pointer">Xem tất cả</span>}
           </div>
 
           {sharedImages.length > 0 ? (
@@ -438,7 +438,7 @@ export default function ContextRail({
         <section className="rounded-lg border border-[#dce2f2] bg-white p-4">
           <div className="flex items-center justify-between gap-3 mb-3">
             <h3 className="text-[14px] font-bold text-[#10164a]">Tài liệu</h3>
-            {sharedFiles.length > 0 && <span className="text-[12px] font-semibold text-indigo-600 hover:text-indigo-700 cursor-pointer">Xem tất cả</span>}
+            {sharedFiles.length > 0 && <span className="text-[12px] font-semibold text-emerald-600 hover:text-emerald-700 cursor-pointer">Xem tất cả</span>}
           </div>
 
           {sharedFiles.length > 0 ? (
@@ -464,14 +464,14 @@ export default function ContextRail({
         <section className="rounded-lg border border-[#dce2f2] bg-white p-4">
           <div className="flex items-center justify-between gap-3 mb-3">
             <h3 className="text-[14px] font-bold text-[#10164a]">Link chia sẻ</h3>
-            {sharedLinks.length > 0 && <span className="text-[12px] font-semibold text-indigo-600 hover:text-indigo-700 cursor-pointer">Xem tất cả</span>}
+            {sharedLinks.length > 0 && <span className="text-[12px] font-semibold text-emerald-600 hover:text-emerald-700 cursor-pointer">Xem tất cả</span>}
           </div>
           
           {sharedLinks.length > 0 ? (
             <div className="space-y-3">
               {sharedLinks.slice(0, compact ? 3 : 4).map((link) => (
                 <a key={link.id} href={link.url} target="_blank" rel="noreferrer" className="flex items-center gap-3 hover:bg-slate-50 p-1.5 -mx-1.5 rounded-lg transition-colors">
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
                     <LinkIcon className="h-4 w-4" />
                   </span>
                   <span className="min-w-0 flex-1">
@@ -491,7 +491,7 @@ export default function ContextRail({
         <section className="rounded-lg border border-[#dce2f2] bg-white p-4">
           <div className="flex items-center justify-between gap-3">
             <h3 className="text-[14px] font-bold text-[#10164a]">Recommended resources</h3>
-            {mentorCourses.length > 0 && <span className="text-[12px] font-semibold text-indigo-600">View all</span>}
+            {mentorCourses.length > 0 && <span className="text-[12px] font-semibold text-emerald-600">View all</span>}
           </div>
 
           {isCoursesLoading ? (
@@ -503,7 +503,7 @@ export default function ContextRail({
                   {course.thumbnailUrl ? (
                     <img src={course.thumbnailUrl} alt={course.title} className="h-[72px] w-[72px] rounded-lg object-cover" />
                   ) : (
-                    <div className="flex h-[72px] w-[72px] shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-600 to-violet-600 text-white">
+                    <div className="flex h-[72px] w-[72px] shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-600 to-emerald-600 text-white">
                       <BookOpen className="h-6 w-6" />
                     </div>
                   )}
@@ -604,7 +604,7 @@ function JobDetailsModal({
               <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Kỹ năng yêu cầu</p>
               <div className="flex flex-wrap gap-2">
                 {job.requiredSkills.map((skill: string, idx: number) => (
-                  <span key={idx} className="px-2.5 py-1 bg-indigo-50 text-indigo-600 rounded-md text-xs font-semibold">
+                  <span key={idx} className="px-2.5 py-1 bg-emerald-50 text-emerald-600 rounded-md text-xs font-semibold">
                     {skill}
                   </span>
                 ))}
@@ -623,7 +623,7 @@ function JobDetailsModal({
           </button>
           <Link
             to={`/jobs/${job.jobId}`}
-            className="px-5 py-2 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition-colors shadow-sm"
+            className="px-5 py-2 text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl transition-colors shadow-sm"
           >
             Xem trang chi tiết đầy đủ
           </Link>

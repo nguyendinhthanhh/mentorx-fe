@@ -239,7 +239,7 @@ export default function UserTransactionsPage() {
       case TxnStatus.CANCELLED:
         return 'bg-rose-50 text-rose-700'
       case TxnStatus.FLAGGED:
-        return 'bg-violet-50 text-violet-700'
+        return 'bg-emerald-50 text-emerald-700'
       case TxnStatus.REVERSED:
         return 'bg-slate-100 text-slate-700'
       default:

@@ -65,7 +65,7 @@ export default function BlogDetailPage() {
   if (error || !post) {
     return (
       <div className="min-h-screen bg-slate-50 px-4 py-20 text-slate-900 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-3xl rounded-[28px] border border-slate-200 bg-white p-8 shadow-sm">
+        <div className="mx-auto max-w-3xl rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:rounded-[28px] sm:p-8">
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">Blog</p>
           <h1 className="mt-4 text-3xl font-black tracking-tight text-slate-900">Guide not found</h1>
           <p className="mt-3 text-slate-600">
@@ -73,7 +73,7 @@ export default function BlogDetailPage() {
           </p>
           <Link
             to="/blog"
-            className="mt-8 inline-flex items-center gap-2 rounded-full bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
+            className="mt-8 inline-flex items-center gap-2 rounded-full bg-emerald-600 shadow-md hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 hover:bg-emerald-700 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to handbook
@@ -93,7 +93,7 @@ export default function BlogDetailPage() {
           </Link>
 
           <div className="mt-6 flex flex-wrap items-center gap-3">
-            <span className="inline-flex rounded-full bg-slate-900 px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] text-white">
+            <span className="inline-flex rounded-full bg-emerald-600 shadow-md hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 hover:bg-emerald-700 px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] text-white">
               {post.category}
             </span>
             <span className="text-sm font-medium text-slate-500">{metaLabel}</span>
@@ -103,7 +103,7 @@ export default function BlogDetailPage() {
             <span className="text-sm font-medium text-slate-500">{post.date}</span>
           </div>
 
-          <h1 className="mt-5 max-w-4xl text-4xl font-black tracking-tight text-slate-900 sm:text-5xl">
+          <h1 className="mt-5 max-w-4xl text-3xl font-black tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
             {post.title}
           </h1>
           <p className="mt-5 max-w-3xl text-lg leading-8 text-slate-600">

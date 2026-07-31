@@ -22,7 +22,7 @@ import {
   MessageSquare,
   UserCheck
 } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useThemeStore } from '@/store/themeStore'
 import { isAdmin, isModerator } from '@/utils/roleRedirect'
 import NotificationDropdown from '@/components/notification/NotificationDropdown'
@@ -56,6 +56,19 @@ export default function AdminLayout() {
     return !['/admin/wallet', '/admin/users', '/admin/settings'].includes(link.to)
   })
 
+  useEffect(() => {
+    setIsMobileSidebarOpen(false)
+  }, [location.pathname])
+
+  useEffect(() => {
+    if (!isMobileSidebarOpen) return
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = previousOverflow
+    }
+  }, [isMobileSidebarOpen])
+
   const handleLogout = () => {
     logout()
     navigate('/login')
@@ -77,7 +90,7 @@ export default function AdminLayout() {
             <aside className="relative flex h-full w-[min(84vw,320px)] flex-col bg-white shadow-2xl dark:bg-[#09090b]">
               <div className="flex h-[80px] shrink-0 items-center justify-between px-5">
                 <Link to="/" className="flex items-center gap-3" onClick={() => setIsMobileSidebarOpen(false)}>
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-md dark:bg-indigo-500/20 dark:text-indigo-400">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-md dark:bg-emerald-500/20 dark:text-emerald-400">
                     <ShieldAlert className="h-5 w-5 text-white" />
                   </div>
                   <div className="min-w-0 flex flex-col">
@@ -88,7 +101,8 @@ export default function AdminLayout() {
                 <button
                   type="button"
                   onClick={() => setIsMobileSidebarOpen(false)}
-                  className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400"
+                  className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400"
+                  aria-label="Close admin navigation"
                 >
                   <X className="h-5 w-5" />
                 </button>
@@ -104,7 +118,7 @@ export default function AdminLayout() {
                     onClick={() => setIsMobileSidebarOpen(false)}
                     className={`group flex items-center gap-3.5 px-3.5 py-3 rounded-2xl font-semibold transition-all duration-300 ${
                       active
-                        ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200/50 dark:bg-indigo-500/20 dark:text-indigo-400 dark:shadow-none translate-x-1'
+                        ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-200/50 dark:bg-emerald-500/20 dark:text-emerald-400 dark:shadow-none translate-x-1'
                         : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800'
                     }`}
                   >
@@ -154,7 +168,7 @@ export default function AdminLayout() {
           {/* Sidebar Header */}
           <div className="h-[80px] shrink-0 flex items-center px-5 border-b border-slate-100 dark:border-slate-800/60">
             <Link to="/" className="flex items-center gap-3 overflow-hidden w-full">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-md dark:bg-indigo-500/20 dark:text-indigo-400 flex-shrink-0">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-md dark:bg-emerald-500/20 dark:text-emerald-400 flex-shrink-0">
                 <ShieldAlert className="w-5 h-5 text-white" />
               </div>
               {!isSidebarCollapsed && (
@@ -178,7 +192,7 @@ export default function AdminLayout() {
                 title={isSidebarCollapsed ? link.label : undefined}
                 className={`group flex items-center gap-3.5 px-3.5 py-3 rounded-2xl font-semibold transition-all duration-300 ${
                   active
-                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200/50 dark:bg-indigo-500/20 dark:text-indigo-400 dark:shadow-none translate-x-1'
+                    ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-200/50 dark:bg-emerald-500/20 dark:text-emerald-400 dark:shadow-none translate-x-1'
                     : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800'
                 } ${isSidebarCollapsed ? 'justify-center' : ''}`}
               >
@@ -230,20 +244,21 @@ export default function AdminLayout() {
         {/* Main Content */}
         <div className="flex-1 flex flex-col min-w-0">
           {/* Top Header */}
-          <header className="sticky top-0 z-40 flex h-20 items-center justify-between border-b border-gray-100 bg-white/90 px-4 backdrop-blur-md dark:border-gray-800 dark:bg-gray-900/90 sm:px-6 lg:px-8">
+          <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-gray-100 bg-white/90 px-3 backdrop-blur-md dark:border-gray-800 dark:bg-gray-900/90 min-[360px]:px-4 sm:h-20 sm:px-6 lg:px-8">
             <div className="flex items-center gap-3 sm:gap-6">
               <button
                 type="button"
                 onClick={() => setIsMobileSidebarOpen(true)}
                 className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-500 transition hover:text-gray-900 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:text-white xl:hidden"
                 aria-label="Open admin navigation"
+                aria-expanded={isMobileSidebarOpen}
               >
                 <Menu className="w-5 h-5" />
               </button>
               <h2 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight hidden sm:block">
                 {adminLinks.find(l => isActive(l.to))?.label || 'Dashboard'}
               </h2>
-              <div className="hidden md:flex items-center gap-2 px-3 py-2 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500/50 transition-all">
+              <div className="hidden md:flex items-center gap-2 px-3 py-2 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus-within:ring-2 focus-within:ring-emerald-500/20 focus-within:border-emerald-500/50 transition-all">
                 <Search className="w-4 h-4 text-gray-400 dark:text-gray-500" />
                 <input type="text" placeholder="Search..." className="bg-transparent border-none text-sm focus:ring-0 w-32 lg:w-48 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400" />
               </div>
@@ -276,7 +291,7 @@ export default function AdminLayout() {
           </header>
 
           {/* Page Content */}
-          <main className={isSupportWorkspace ? 'min-h-0 flex-1' : 'mx-auto w-full max-w-[1600px] p-4 sm:p-6 lg:p-8'}>
+          <main className={isSupportWorkspace ? 'min-h-0 flex-1' : 'mx-auto w-full max-w-[1600px] p-3 min-[360px]:p-4 sm:p-6 lg:p-8'}>
             <Outlet />
           </main>
         </div>

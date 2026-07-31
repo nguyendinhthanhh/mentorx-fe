@@ -27,7 +27,7 @@ import { categoryApi } from '@/api/categoryApi'
 import { contractApi } from '@/api/contractApi'
 import { disputeApi } from '@/api/disputeApi'
 import { jobApi } from '@/api/jobApi'
-import { negotiationApi, NegotiationResponse } from '@/api/negotiationApi'
+import { negotiationApi } from '@/api/negotiationApi'
 import { proposalApi } from '@/api/proposalApi'
 import ProposalList from '@/components/job/ProposalList'
 import ContextualChatDrawer from '@/components/chat/ContextualChatDrawer'
@@ -77,20 +77,7 @@ export default function UserRequestDetailPageNew() {
 
   const { data: latestNegotiations = {} } = useQuery(
     ['user-request-negotiations', (proposalsPage?.content || []).map((p) => p.id).join(',')],
-    async () => {
-      const proposals = proposalsPage?.content || []
-      const entries = await Promise.all(
-        proposals.map(async (proposal) => {
-          try {
-            const negotiation = await negotiationApi.getLatest(proposal.id)
-            return [proposal.id, negotiation] as const
-          } catch {
-            return [proposal.id, null] as const
-          }
-        })
-      )
-      return Object.fromEntries(entries) as Record<string, NegotiationResponse | null>
-    },
+    () => negotiationApi.getLatestBatch((proposalsPage?.content || []).map((proposal) => proposal.id)),
     {
       enabled: (proposalsPage?.content || []).length > 0,
       staleTime: 15_000,
@@ -181,7 +168,7 @@ export default function UserRequestDetailPageNew() {
       <div className="mx-auto max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8">
         {/* Breadcrumb */}
         <div className="mb-6">
-          <Link to="/users/requests" className="inline-flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-indigo-600 transition-colors">
+          <Link to="/users/requests" className="inline-flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-emerald-600 transition-colors">
             <ArrowLeft className="h-4 w-4" />
             Quay lại danh sách
           </Link>
@@ -194,12 +181,12 @@ export default function UserRequestDetailPageNew() {
             {/* Header Card */}
             <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
               {/* Status Bar */}
-              <div className="border-b border-slate-100 bg-gradient-to-r from-indigo-50 to-slate-50 px-4 py-4 sm:px-6">
+              <div className="border-b border-slate-100 bg-gradient-to-r from-emerald-50 to-slate-50 px-4 py-4 sm:px-6">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-bold ${statusBadge.color}`}>
                     {statusBadge.label}
                   </span>
-                  <span className="inline-flex items-center gap-1.5 rounded-full border border-indigo-200 bg-indigo-50 px-3 py-1 text-xs font-bold text-indigo-700">
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700">
                     {job.jobType === JobType.FREELANCE_PROJECT ? 'Dự án freelance' : job.jobType === JobType.LONG_TERM_MENTORING ? 'Mentoring dài hạn' : 'Quick fix'}
                   </span>
                   {categoryName && (
@@ -239,8 +226,8 @@ export default function UserRequestDetailPageNew() {
                   </div>
 
                   {/* Proposals */}
-                  <div className="rounded-xl bg-gradient-to-br from-indigo-50 to-white border border-indigo-100 p-4">
-                    <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-indigo-600 mb-2">
+                  <div className="rounded-xl bg-gradient-to-br from-emerald-50 to-white border border-emerald-100 p-4">
+                    <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-600 mb-2">
                       <Users className="h-4 w-4" />
                       Ứng tuyển
                     </div>
@@ -265,7 +252,7 @@ export default function UserRequestDetailPageNew() {
                 onClick={() => setActiveTab('overview')}
                 className={`min-w-0 flex-1 rounded-xl px-4 py-2.5 text-sm font-bold transition sm:flex-none ${
                   activeTab === 'overview'
-                    ? 'bg-indigo-600 text-white shadow-lg'
+                    ? 'bg-emerald-600 text-white shadow-lg'
                     : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
                 }`}
               >
@@ -275,7 +262,7 @@ export default function UserRequestDetailPageNew() {
                 onClick={() => setActiveTab('proposals')}
                 className={`min-w-0 flex-1 rounded-xl px-4 py-2.5 text-sm font-bold transition sm:flex-none ${
                   activeTab === 'proposals'
-                    ? 'bg-indigo-600 text-white shadow-lg'
+                    ? 'bg-emerald-600 text-white shadow-lg'
                     : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
                 }`}
               >
@@ -288,7 +275,7 @@ export default function UserRequestDetailPageNew() {
                 onClick={() => setActiveTab('payment')}
                 className={`min-w-0 flex-1 rounded-xl px-4 py-2.5 text-sm font-bold transition sm:flex-none ${
                   activeTab === 'payment'
-                    ? 'bg-indigo-600 text-white shadow-lg'
+                    ? 'bg-emerald-600 text-white shadow-lg'
                     : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
                 }`}
               >
@@ -301,8 +288,8 @@ export default function UserRequestDetailPageNew() {
               <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
                 <div className="border-b border-slate-100 px-4 py-5 sm:px-6">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-100">
-                      <FileText className="h-5 w-5 text-indigo-600" />
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100">
+                      <FileText className="h-5 w-5 text-emerald-600" />
                     </div>
                     <div>
                       <h2 className="text-lg font-bold text-slate-950">Thông tin yêu cầu</h2>
@@ -326,7 +313,7 @@ export default function UserRequestDetailPageNew() {
                       <h3 className="text-sm font-bold text-slate-700 mb-3">Kỹ năng yêu cầu</h3>
                       <div className="flex flex-wrap gap-2">
                         {job.requiredSkills.map((skill) => (
-                          <span key={skill} className="rounded-full bg-indigo-50 border border-indigo-100 px-3 py-1.5 text-sm font-bold text-indigo-700">
+                          <span key={skill} className="rounded-full bg-emerald-50 border border-emerald-100 px-3 py-1.5 text-sm font-bold text-emerald-700">
                             {skill}
                           </span>
                         ))}
@@ -374,8 +361,8 @@ export default function UserRequestDetailPageNew() {
                 <div className="border-b border-slate-100 px-4 py-5 sm:px-6">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-100">
-                        <Users className="h-5 w-5 text-indigo-600" />
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100">
+                        <Users className="h-5 w-5 text-emerald-600" />
                       </div>
                       <div>
                         <h2 className="text-lg font-bold text-slate-950">Mentor ứng tuyển</h2>
@@ -439,9 +426,9 @@ export default function UserRequestDetailPageNew() {
             {/* Mentor Card (if accepted) */}
             {acceptedProposal && (
               <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-                <div className="border-b border-slate-100 bg-gradient-to-br from-indigo-50 to-white px-4 py-5 sm:px-6">
+                <div className="border-b border-slate-100 bg-gradient-to-br from-emerald-50 to-white px-4 py-5 sm:px-6">
                   <div className="flex items-start gap-4">
-                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 text-lg font-bold text-white shadow-lg">
+                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 text-lg font-bold text-white shadow-lg">
                       {acceptedProposal.mentorName?.charAt(0) || 'M'}
                     </div>
                     <div className="min-w-0 flex-1">
@@ -466,7 +453,7 @@ export default function UserRequestDetailPageNew() {
                       contextId: contract ? contract.id : acceptedProposal.id,
                       title: acceptedProposal.mentorName,
                     })}
-                    className="w-full py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-bold hover:bg-indigo-700 transition"
+                    className="w-full py-2.5 rounded-xl bg-emerald-600 text-white text-sm font-bold hover:bg-emerald-700 transition"
                   >
                     <MessageSquare className="inline h-4 w-4 mr-2" />
                     Mở chat
@@ -480,19 +467,19 @@ export default function UserRequestDetailPageNew() {
               <h3 className="text-sm font-semibold uppercase tracking-widerr text-slate-400 mb-4">Hướng dẫn</h3>
               <div className="space-y-3 text-sm">
                 <div className="flex gap-3">
-                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-xs font-bold text-indigo-600">1</div>
+                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-600">1</div>
                   <p className="text-slate-700">Xem xét đề xuất từ mentor.</p>
                 </div>
                 <div className="flex gap-3">
-                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-xs font-bold text-indigo-600">2</div>
+                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-600">2</div>
                   <p className="text-slate-700">Chat để làm rõ phạm vi, deadline và kỳ vọng.</p>
                 </div>
                 <div className="flex gap-3">
-                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-xs font-bold text-indigo-600">3</div>
+                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-600">3</div>
                   <p className="text-slate-700">Chấp nhận mentor phù hợp nhất.</p>
                 </div>
                 <div className="flex gap-3">
-                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-xs font-bold text-indigo-600">4</div>
+                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-600">4</div>
                   <p className="text-slate-700">Theo dõi escrow và xác nhận hoàn thành khi công việc xong.</p>
                 </div>
               </div>

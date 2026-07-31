@@ -99,7 +99,7 @@ export function AiExplainModal({ open, onOpenChange, taskType, taskId, taskTitle
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
               <Bot className="h-5 w-5" />
             </div>
             <div>
@@ -124,7 +124,7 @@ export function AiExplainModal({ open, onOpenChange, taskType, taskId, taskTitle
           {/* Initial loading state */}
           {isInitialLoading && (
             <div className="flex flex-col items-center justify-center py-12">
-              <Loader2 className="mb-4 h-8 w-8 animate-spin text-indigo-600" />
+              <Loader2 className="mb-4 h-8 w-8 animate-spin text-emerald-600" />
               <p className="text-sm font-medium text-slate-500">Đang phân tích công việc...</p>
               <p className="mt-1 text-xs text-slate-400">AI đang đọc yêu cầu và chuẩn bị giải thích</p>
             </div>
@@ -142,15 +142,15 @@ export function AiExplainModal({ open, onOpenChange, taskType, taskId, taskTitle
             <div key={i} className="mb-5 last:mb-0">
               {item.q && (
                 <div className="mb-3 flex justify-end">
-                  <div className="max-w-[80%] rounded-2xl rounded-br-sm bg-indigo-600 px-4 py-2.5 text-sm leading-relaxed text-white">
+                  <div className="max-w-[80%] rounded-2xl rounded-br-sm bg-emerald-600 px-4 py-2.5 text-sm leading-relaxed text-white">
                     <p className="whitespace-pre-wrap break-words">{item.q}</p>
                   </div>
                 </div>
               )}
-              <div className="rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50 to-white p-5">
+              <div className="rounded-2xl border border-emerald-100 bg-gradient-to-br from-emerald-50 to-white p-5">
                 <div className="mb-3 flex items-center gap-2">
-                  <Sparkles className="h-4 w-4 text-indigo-500" />
-                  <span className="text-xs font-semibold uppercase tracking-widerr text-indigo-600">
+                  <Sparkles className="h-4 w-4 text-emerald-500" />
+                  <span className="text-xs font-semibold uppercase tracking-widerr text-emerald-600">
                     {i === 0 ? 'Giải thích từ AI' : 'AI trả lời'}
                   </span>
                 </div>
@@ -162,7 +162,7 @@ export function AiExplainModal({ open, onOpenChange, taskType, taskId, taskTitle
           {/* Follow-up loading */}
           {followUpMutation.isLoading && (
             <div className="flex items-center gap-2 py-4">
-              <Loader2 className="h-4 w-4 animate-spin text-indigo-600" />
+              <Loader2 className="h-4 w-4 animate-spin text-emerald-600" />
               <span className="text-sm text-slate-500">AI đang trả lời...</span>
             </div>
           )}
@@ -188,7 +188,7 @@ export function AiExplainModal({ open, onOpenChange, taskType, taskId, taskTitle
                 onChange={(e) => setQuestion(e.target.value)}
                 placeholder="Hỏi thêm về công việc này..."
                 rows={1}
-                className="flex-1 resize-none rounded-xl border border-slate-200 px-4 py-2.5 text-sm leading-relaxed outline-none transition focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10"
+                className="flex-1 resize-none rounded-xl border border-slate-200 px-4 py-2.5 text-sm leading-relaxed outline-none transition focus:border-emerald-400 focus:ring-4 focus:ring-emerald-500/10"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault()
@@ -200,7 +200,7 @@ export function AiExplainModal({ open, onOpenChange, taskType, taskId, taskTitle
                 type="button"
                 onClick={handleSend}
                 disabled={!question.trim() || followUpMutation.isLoading}
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-sm transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-sm transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {followUpMutation.isLoading ? (
                   <Loader2 className="h-4 w-4 animate-spin" />

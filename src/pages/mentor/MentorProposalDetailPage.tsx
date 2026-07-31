@@ -369,11 +369,11 @@ export default function MentorProposalDetailPage() {
             <ArrowLeft className="h-5 w-5" />
           </button>
 
-          <div className="relative min-w-0 flex-1 overflow-x-auto pb-2 sm:pb-0">
+          <div className="scrollbar-hide relative min-w-0 flex-1 overflow-x-auto pb-2 sm:pb-0">
             <div className="relative flex min-w-[360px] justify-between pr-4 sm:min-w-0">
             <div className="absolute left-0 top-4 h-[2px] w-full bg-slate-100 dark:bg-slate-800" />
             <div
-              className="absolute left-0 top-4 h-[2px] bg-indigo-600 transition-all duration-500"
+              className="absolute left-0 top-4 h-[2px] bg-emerald-600 transition-all duration-500"
               style={{ width: `${(journeyStageIndex / (journeyLabels.length - 1)) * 100}%` }}
             />
             {journeyLabels.map((label, index) => {
@@ -422,8 +422,8 @@ export default function MentorProposalDetailPage() {
             </section>
             
             {canRespond && showRespondForm ? (
-              <section id="mentor-proposal-response" className="mt-6 rounded-xl border border-indigo-200 bg-indigo-50/50 p-5 shadow-sm dark:border-indigo-500/30 dark:bg-indigo-500/5">
-                <div className="flex flex-col gap-2 border-b border-indigo-100 pb-3 lg:flex-row lg:items-center lg:justify-between dark:border-indigo-500/20">
+              <section id="mentor-proposal-response" className="mt-6 rounded-xl border border-emerald-200 bg-emerald-50/50 p-5 shadow-sm dark:border-emerald-500/30 dark:bg-emerald-500/5">
+                <div className="flex flex-col gap-2 border-b border-emerald-100 pb-3 lg:flex-row lg:items-center lg:justify-between dark:border-emerald-500/20">
                   <div>
                     <div className="flex items-center gap-2">
                       <h2 className="text-base font-bold tracking-tight text-slate-900 dark:text-white">Shape the next offer</h2>
@@ -442,7 +442,7 @@ export default function MentorProposalDetailPage() {
                       min="1"
                       value={counterAmount}
                       onChange={(event) => setCounterAmount(event.target.value)}
-                      className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-800 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
+                      className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-800 outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
                     />
                   </label>
                   <label className="space-y-1.5">
@@ -452,7 +452,7 @@ export default function MentorProposalDetailPage() {
                       step={1}
                       value={counterDeadline}
                       onChange={(event) => setCounterDeadline(event.target.value)}
-                      className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-800 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
+                      className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-800 outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
                     />
                     <p className="text-[11px] font-medium text-slate-500">
                       Choose the latest time this offer should be completed by.
@@ -471,7 +471,7 @@ export default function MentorProposalDetailPage() {
                     value={message}
                     onChange={(event) => setMessage(event.target.value)}
                     placeholder="Describe what you will do, what is included, and what you need from the client."
-                    className="min-h-[80px] w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm leading-5 text-slate-700 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
+                    className="min-h-[80px] w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm leading-5 text-slate-700 outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
                   />
                   <p className="text-[11px] font-medium text-slate-500">{message.trim().length}/1000 characters, minimum 20</p>
                 </label>
@@ -481,7 +481,7 @@ export default function MentorProposalDetailPage() {
                       key={reply}
                       type="button"
                       onClick={() => setMessage(reply)}
-                      className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-bold text-slate-500 transition hover:border-indigo-200 hover:text-indigo-700"
+                      className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-bold text-slate-500 transition hover:border-emerald-200 hover:text-emerald-700"
                     >
                       {reply}
                     </button>
@@ -492,7 +492,7 @@ export default function MentorProposalDetailPage() {
                     type="button"
                     disabled={submitting}
                     onClick={handleSendCounter}
-                    className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-xl bg-indigo-600 text-sm font-bold text-white shadow-sm transition hover:bg-indigo-700 disabled:opacity-60"
+                    className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-xl bg-emerald-600 text-sm font-bold text-white shadow-sm transition hover:bg-emerald-700 disabled:opacity-60"
                   >
                     <PencilLine className="h-4 w-4" />
                     {submitting ? 'Sending...' : counterMode === 'REQUEST_CHANGES' ? 'Request changes' : 'Send counter offer'}
@@ -546,7 +546,7 @@ export default function MentorProposalDetailPage() {
                       <>
                         <span className="h-1 w-1 rounded-full bg-slate-300 dark:bg-slate-600" />
                         <span className="inline-flex items-center gap-1 font-medium text-slate-700 dark:text-slate-300">
-                          <Eye className="h-4 w-4 text-indigo-500" />
+                          <Eye className="h-4 w-4 text-emerald-500" />
                           {proposal.viewCount} views
                         </span>
                       </>
@@ -567,7 +567,7 @@ export default function MentorProposalDetailPage() {
                   <button
                     type="button"
                     onClick={() => setShowAiExplain(true)}
-                    className="inline-flex h-9 w-full items-center justify-center gap-2 rounded-lg border border-indigo-200 bg-indigo-50 px-4 text-sm font-medium text-indigo-700 transition hover:border-indigo-300 hover:bg-indigo-100"
+                    className="inline-flex h-9 w-full items-center justify-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-4 text-sm font-medium text-emerald-700 transition hover:border-emerald-300 hover:bg-emerald-100"
                   >
                     <Sparkles className="h-4 w-4" />
                     Hỏi AI giải thích
@@ -599,7 +599,7 @@ export default function MentorProposalDetailPage() {
                       Offer terms agreed. Waiting for client to accept mentor and lock escrow.
                     </p>
                   ) : currentStatus === ProposalStatus.ACCEPTED ? (
-                    <p className="mt-4 rounded-xl bg-indigo-50 px-4 py-3 text-xs font-medium leading-5 text-indigo-700">
+                    <p className="mt-4 rounded-xl bg-emerald-50 px-4 py-3 text-xs font-medium leading-5 text-emerald-700">
                       Contract active. Escrow locked.
                     </p>
                   ) : null}
@@ -612,7 +612,7 @@ export default function MentorProposalDetailPage() {
                           type="button"
                           disabled={submitting}
                           onClick={() => setShowAcceptModal(true)}
-                          className="inline-flex h-10 w-full items-center justify-center rounded-lg bg-indigo-600 text-sm font-medium text-white transition hover:bg-indigo-700 disabled:opacity-60"
+                          className="inline-flex h-10 w-full items-center justify-center rounded-lg bg-emerald-600 text-sm font-medium text-white transition hover:bg-emerald-700 disabled:opacity-60"
                         >
                           Accept offer terms
                         </button>
@@ -620,7 +620,7 @@ export default function MentorProposalDetailPage() {
                           type="button"
                           disabled={submitting}
                           onClick={() => handleOpenCounter('COUNTER')}
-                          className="inline-flex h-10 w-full items-center justify-center rounded-lg border border-slate-200 bg-white text-sm font-medium text-slate-700 transition hover:border-indigo-200 hover:text-indigo-700 disabled:opacity-60 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+                          className="inline-flex h-10 w-full items-center justify-center rounded-lg border border-slate-200 bg-white text-sm font-medium text-slate-700 transition hover:border-emerald-200 hover:text-emerald-700 disabled:opacity-60 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
                         >
                           Prepare counter offer
                         </button>
@@ -643,7 +643,7 @@ export default function MentorProposalDetailPage() {
                     <button
                       type="button"
                       onClick={() => setIsChatDrawerOpen(true)}
-                      className="inline-flex h-10 w-full items-center justify-center rounded-lg border border-indigo-200 bg-indigo-50 text-sm font-medium text-indigo-700 transition hover:bg-indigo-100"
+                      className="inline-flex h-10 w-full items-center justify-center rounded-lg border border-emerald-200 bg-emerald-50 text-sm font-medium text-emerald-700 transition hover:bg-emerald-100"
                     >
                       Open project chat
                     </button>
@@ -659,7 +659,7 @@ export default function MentorProposalDetailPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4 backdrop-blur-sm">
           <div className="w-full max-w-[420px] rounded-[28px] bg-white p-6 shadow-2xl">
             <div className="flex flex-col items-center text-center">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-indigo-50 text-indigo-600 mb-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-50 text-emerald-600 mb-4">
                 <Check className="h-6 w-6" />
               </div>
               <h3 className="text-xl font-black tracking-tight text-slate-950">Accept offer terms</h3>
@@ -680,7 +680,7 @@ export default function MentorProposalDetailPage() {
                 type="button"
                 disabled={submitting}
                 onClick={handleAccept}
-                className="inline-flex flex-1 items-center justify-center gap-2 rounded-2xl bg-indigo-600 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-indigo-700 disabled:opacity-60"
+                className="inline-flex flex-1 items-center justify-center gap-2 rounded-2xl bg-emerald-600 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-emerald-700 disabled:opacity-60"
               >
                 {submitting ? 'Accepting...' : 'Accept offer terms'}
               </button>
@@ -791,7 +791,7 @@ export default function MentorProposalDetailPage() {
                     ? 'Add a short note for the client before the contract is cancelled...'
                     : 'Explain why you want to continue the contract...'
                 }
-                className="min-h-[140px] w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm leading-6 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
+                className="min-h-[140px] w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm leading-6 outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
               />
             </label>
 
@@ -865,13 +865,13 @@ function ConversationCard({ item, isLast, onCounter, onAccept }: { item: Convers
     item.tone === 'amber'
       ? 'border-amber-200 bg-amber-50/50 dark:border-amber-500/20 dark:bg-amber-500/5'
       : item.tone === 'violet'
-        ? 'border-violet-200 bg-violet-50/50 dark:border-violet-500/20 dark:bg-violet-500/5'
+        ? 'border-emerald-200 bg-emerald-50/50 dark:border-emerald-500/20 dark:bg-emerald-500/5'
         : item.tone === 'indigo'
-          ? 'border-indigo-200 bg-indigo-50/50 dark:border-indigo-500/20 dark:bg-indigo-500/5'
+          ? 'border-emerald-200 bg-emerald-50/50 dark:border-emerald-500/20 dark:bg-emerald-500/5'
           : 'border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800'
 
   const accentText =
-    item.tone === 'amber' ? 'text-amber-600' : item.tone === 'violet' ? 'text-violet-600' : 'text-indigo-600'
+    item.tone === 'amber' ? 'text-amber-600' : item.tone === 'violet' ? 'text-emerald-600' : 'text-emerald-600'
 
   return (
     <div className={`flex gap-3 ${isMentor ? 'flex-row-reverse' : 'flex-row'}`}>
@@ -900,7 +900,7 @@ function ConversationCard({ item, isLast, onCounter, onAccept }: { item: Convers
 
           {isLast && isClientOffer && onCounter ? (
             <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-slate-200/60 pt-4 dark:border-slate-700">
-              <button type="button" onClick={onAccept} className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-indigo-600 px-3 text-xs font-semibold text-white transition hover:bg-indigo-700">
+              <button type="button" onClick={onAccept} className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-emerald-600 px-3 text-xs font-semibold text-white transition hover:bg-emerald-700">
                 <Check className="h-3.5 w-3.5" />
                 Accept offer terms
               </button>
@@ -927,7 +927,7 @@ function CompactMetaPill({ label, value }: { label: string; value: string }) {
 
 function StatusBadge({ label, tone }: { label: string; tone: 'indigo' | 'amber' | 'emerald' | 'rose' | 'slate' }) {
   const toneClass = {
-    indigo: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-400',
+    indigo: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400',
     amber: 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400',
     emerald: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400',
     rose: 'bg-rose-100 text-rose-700 dark:bg-rose-500/20 dark:text-rose-400',
@@ -958,7 +958,7 @@ function JourneyStep({
       <div className="bg-white px-2 dark:bg-slate-900">
         <div
           className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold transition-colors ${
-            isDone || isActive ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500'
+            isDone || isActive ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500'
           }`}
         >
           {isDone ? <Check className="h-4 w-4 stroke-[3]" /> : index + 1}
@@ -966,7 +966,7 @@ function JourneyStep({
       </div>
       <p
         className={`mt-2 text-center text-[11px] font-semibold ${
-          isActive ? 'text-indigo-600 dark:text-indigo-400' : isDone ? 'text-slate-900 dark:text-white' : 'text-slate-400 dark:text-slate-500'
+          isActive ? 'text-emerald-600 dark:text-emerald-400' : isDone ? 'text-slate-900 dark:text-white' : 'text-slate-400 dark:text-slate-500'
         }`}
       >
         {label}
@@ -999,7 +999,7 @@ function RailMetric({ icon, label, value }: { icon: React.ReactNode; label: stri
 function OfferFact({ icon, value, label }: { icon: React.ReactNode; value: string; label: string }) {
   return (
     <div className="flex items-center gap-2">
-      <div className="text-indigo-500">{icon}</div>
+      <div className="text-emerald-500">{icon}</div>
       <div>
         <p className="text-sm font-black tracking-tight text-slate-950">{value}</p>
         <p className="text-[10px] font-medium text-slate-400">{label}</p>
@@ -1021,7 +1021,7 @@ function Avatar({
   return avatarUrl ? (
     <img src={avatarUrl} alt={initials} className={`${classes} object-cover`} />
   ) : (
-    <div className={`flex items-center justify-center bg-indigo-100 font-black text-indigo-600 ${classes}`}>{initials}</div>
+    <div className={`flex items-center justify-center bg-emerald-100 font-black text-emerald-600 ${classes}`}>{initials}</div>
   )
 }
 
@@ -1157,7 +1157,7 @@ function ChatBubbleSkeleton({ align }: { align: 'left' | 'right' }) {
   return (
     <div className={`flex gap-3 ${align === 'right' ? 'flex-row-reverse' : 'flex-row'}`}>
       <SkeletonCircle size="h-9 w-9" />
-      <div className={`w-2/3 space-y-2 rounded-2xl p-4 ${align === 'right' ? 'bg-indigo-50/50' : 'bg-slate-50'}`}>
+      <div className={`w-2/3 space-y-2 rounded-2xl p-4 ${align === 'right' ? 'bg-emerald-50/50' : 'bg-slate-50'}`}>
         <Skeleton className="h-4 w-1/4" />
         <Skeleton className="h-3 w-full" />
         <Skeleton className="h-3 w-2/3" />

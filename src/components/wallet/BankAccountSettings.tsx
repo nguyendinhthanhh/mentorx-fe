@@ -120,7 +120,7 @@ export default function BankAccountSettings({ userId }: BankAccountSettingsProps
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div className="max-w-2xl">
             <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600">
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
                 <Landmark className="h-5 w-5" />
               </div>
               <div>
@@ -141,7 +141,7 @@ export default function BankAccountSettings({ userId }: BankAccountSettingsProps
 
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700">
-          <BadgeCheck className="h-4 w-4 text-indigo-600" />
+          <BadgeCheck className="h-4 w-4 text-emerald-600" />
           Status: {formatVerificationStatus(payoutStatus)}
         </div>
 
@@ -188,7 +188,7 @@ export default function BankAccountSettings({ userId }: BankAccountSettingsProps
               <Field label="Payout country">
                 <select
                   {...register('payoutCountry', { required: 'Payout country is required' })}
-                  className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+                  className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
                 >
                   <option value="VN">Vietnam</option>
                   <option value="US">United States</option>
@@ -201,7 +201,7 @@ export default function BankAccountSettings({ userId }: BankAccountSettingsProps
               <Field label="Payout method">
                 <select
                   {...register('payoutMethod')}
-                  className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+                  className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
                 >
                   <option value={PayoutMethod.LOCAL_BANK}>Local bank</option>
                   <option value={PayoutMethod.INTERNATIONAL_BANK}>International bank</option>
@@ -217,7 +217,7 @@ export default function BankAccountSettings({ userId }: BankAccountSettingsProps
                 <input
                   {...register('accountHolderName', { required: 'Account holder name is required' })}
                   placeholder="Full legal name"
-                  className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+                  className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
                 />
               </Field>
 
@@ -226,7 +226,7 @@ export default function BankAccountSettings({ userId }: BankAccountSettingsProps
                   <input
                     {...register('bankName', { required: 'Bank name is required' })}
                     placeholder={payoutMethod === PayoutMethod.LOCAL_BANK ? 'e.g. Vietcombank' : 'e.g. DBS Bank'}
-                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
                   />
                 </Field>
               )}
@@ -237,14 +237,14 @@ export default function BankAccountSettings({ userId }: BankAccountSettingsProps
                     <input
                       {...register('accountNumber', { required: 'Bank account number is required' })}
                       placeholder="Account number"
-                      className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+                      className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
                     />
                   </Field>
                   <Field label="Branch name (optional)">
                     <input
                       {...register('branchName')}
                       placeholder="Branch"
-                      className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+                      className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
                     />
                   </Field>
                 </>
@@ -256,21 +256,21 @@ export default function BankAccountSettings({ userId }: BankAccountSettingsProps
                     <input
                       {...register('accountNumber', { required: 'Account number or IBAN is required' })}
                       placeholder="Account number or IBAN"
-                      className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+                      className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
                     />
                   </Field>
                   <Field label="SWIFT code" error={errors.swiftCode?.message}>
                     <input
                       {...register('swiftCode', { required: 'SWIFT code is required' })}
                       placeholder="SWIFT / BIC"
-                      className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+                      className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
                     />
                   </Field>
                   <Field label="IBAN (optional)">
                     <input
                       {...register('iban')}
                       placeholder="IBAN"
-                      className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+                      className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
                     />
                   </Field>
                 </>
@@ -281,7 +281,7 @@ export default function BankAccountSettings({ userId }: BankAccountSettingsProps
                   <input
                     {...register('paypalEmail', { required: 'PayPal email is required' })}
                     placeholder="mentor@example.com"
-                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
                   />
                 </Field>
               )}
@@ -291,7 +291,7 @@ export default function BankAccountSettings({ userId }: BankAccountSettingsProps
                   <input
                     {...register('wiseEmail', { required: 'Wise email is required' })}
                     placeholder="mentor@example.com"
-                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
                   />
                 </Field>
               )}
@@ -301,7 +301,7 @@ export default function BankAccountSettings({ userId }: BankAccountSettingsProps
                   <input
                     {...register('stripeConnectAccountId', { required: 'Stripe Connect account ID is required' })}
                     placeholder="acct_..."
-                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
                   />
                 </Field>
               )}
@@ -315,7 +315,7 @@ export default function BankAccountSettings({ userId }: BankAccountSettingsProps
             <button
               disabled={createMutation.isLoading}
               type="submit"
-              className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-indigo-600 px-4 py-3.5 text-sm font-bold text-white transition-colors hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-4 py-3.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {createMutation.isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
               Save payout details
@@ -330,7 +330,7 @@ export default function BankAccountSettings({ userId }: BankAccountSettingsProps
             <div
               key={account.id}
               className={`rounded-[1.5rem] border p-5 shadow-sm ${
-                account.isDefault ? 'border-indigo-200 bg-indigo-50/40' : 'border-slate-200 bg-white'
+                account.isDefault ? 'border-emerald-200 bg-emerald-50/40' : 'border-slate-200 bg-white'
               }`}
             >
               <div className="flex items-start justify-between gap-4">
@@ -345,7 +345,7 @@ export default function BankAccountSettings({ userId }: BankAccountSettingsProps
                 </div>
                 <div className="flex items-center gap-2">
                   {account.isDefault && (
-                    <span className="rounded-full bg-indigo-600 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-white">
+                    <span className="rounded-full bg-emerald-600 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-white">
                       Default
                     </span>
                   )}

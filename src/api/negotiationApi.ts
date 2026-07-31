@@ -113,4 +113,13 @@ export const negotiationApi = {
       throw error
     }
   },
+
+  getLatestBatch: async (proposalIds: string[]): Promise<Record<string, NegotiationResponse>> => {
+    if (proposalIds.length === 0) return {}
+    const response = await apiClient.post<ApiResponse<Record<string, NegotiationResponse>>>(
+      '/negotiations/latest/batch',
+      { proposalIds }
+    )
+    return response.data.data
+  },
 }

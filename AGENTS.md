@@ -21,31 +21,29 @@ Main frontend areas:
 This repository is not a generic SaaS dashboard, not a template gallery, and not a decorative mockup shell. It is the frontend for a real marketplace and workspace product.
 
 ## 2. Mandatory Reading Before Any Change
-Before changing code, AI must read:
-1. `/docs/rules/README.md`
-2. `/docs/rules/00-product-foundation.md`
-3. `/docs/rules/01-account-role-model.md`
-4. `/docs/rules/02-business-flow.md`
-5. The feature-specific rule file related to the task
-6. `/docs/rules/12-ai-working-rules.md`
+Before changing code:
 
-For frontend-specific tasks, also read:
-- `/docs/rules/03-frontend-code-structure.md`
-- `/docs/rules/04-ui-ux-style-guide.md`
-- `/docs/rules/05-i18n-copy.md`
-- `/docs/rules/06-api-integration.md`
-- `/docs/rules/07-negotiation-mvp.md`
-- `/docs/rules/08-mentorhub-boundary.md`
-- `/docs/rules/09-no-fake-data.md`
-- `/docs/rules/10-routing-layout-rules.md`
+1. Read this `AGENTS.md`.
+2. Read `../mentorx-be/docs/project-audit/AI_CONTEXT.md` when working in the
+   shared Mentor X workspace.
+3. Select the task domain from its reading matrix.
+4. Read only the listed frontend rules and named audit sections.
+5. Inspect the active route, page, components, API adapter, types, and backend
+   contract involved.
 
-If the task touches build or verification, also read:
-- `/docs/rules/11-testing-build.md`
+Always read `/docs/rules/12-ai-working-rules.md`. Read
+`/docs/rules/README.md` only when rule filename mapping is needed. If the
+backend audit is unavailable in a standalone frontend checkout, select the
+feature-specific rules directly from that README.
 
-If the task touches cleanup or large UI drift, also read:
-- `/docs/rules/13-cleanup-roadmap.md`
+Context must expand when the task changes business state, authorization, money,
+shared DTOs, routing boundaries, or production data truth. Do not bulk-read all
+rules and audit files for a narrow task.
 
-No coding should begin before this reading step is complete.
+For performance or responsive work, read `docs/PERFORMANCE_AUDIT.md` and
+`docs/RESPONSIVE_AUDIT.md` before repeating a broad audit.
+
+No coding should begin before the selected reading step is complete.
 
 ## 3. Frontend Architecture Rules
 - Keep React + TypeScript structure consistent.
@@ -251,94 +249,13 @@ Minimum reporting after changes:
 - Do not turn MentorHub into a marketplace duplicate by accident.
 - Do not use vague action labels when a business-specific label exists.
 
-## 13. Standard Prompt Template for Future UI Tasks
-Use this template for future frontend UI tasks:
+## 13. Task Handoff Checklist
 
-```md
-You are working in the Mentor X frontend repository: `mentorx-fe`.
+Every frontend handoff must state:
 
-Before making changes:
-1. Read `AGENTS.md`.
-2. Read:
-   - `/docs/rules/README.md`
-   - `/docs/rules/00-product-foundation.md`
-   - `/docs/rules/01-account-role-model.md`
-   - `/docs/rules/02-business-flow.md`
-   - `/docs/rules/12-ai-working-rules.md`
-3. Also read the UI-specific rules for this task:
-   - `/docs/rules/04-ui-ux-style-guide.md`
-   - `/docs/rules/05-i18n-copy.md`
-   - `/docs/rules/07-negotiation-mvp.md`
-   - `/docs/rules/08-mentorhub-boundary.md`
-   - `/docs/rules/09-no-fake-data.md`
-   - `/docs/rules/10-routing-layout-rules.md`
-   - [ADD ANY OTHER RELEVANT RULE FILES]
-
-Then:
-1. Inspect the current page, components, routes, and API usage.
-2. Summarize the current implementation.
-3. Explain what currently looks wrong, vague, generic, or AI-generated.
-4. Summarize the rules that apply.
-5. Propose the smallest safe UI change.
-6. Modify only related files.
-7. Run:
-   `npm run build`
-8. Report:
-   - changed files
-   - UI and business impact
-   - remaining risks or TODOs
-
-Important constraints:
-- Do not redesign unrelated pages.
-- Do not add fake data.
-- Do not add fake charts or AI cards.
-- Do not break i18n.
-- Do not create duplicate routes.
-- Do not change business flow silently.
-```
-
-## 14. Standard Prompt Template for Future Code Tasks
-Use this template for future frontend code tasks that are not primarily visual redesign work:
-
-```md
-You are working in the Mentor X frontend repository: `mentorx-fe`.
-
-Before making changes:
-1. Read `AGENTS.md`.
-2. Read:
-   - `/docs/rules/README.md`
-   - `/docs/rules/00-product-foundation.md`
-   - `/docs/rules/01-account-role-model.md`
-   - `/docs/rules/02-business-flow.md`
-   - `/docs/rules/12-ai-working-rules.md`
-3. Also read the code-specific rules for this task:
-   - `/docs/rules/03-frontend-code-structure.md`
-   - `/docs/rules/05-i18n-copy.md`
-   - `/docs/rules/06-api-integration.md`
-   - `/docs/rules/07-negotiation-mvp.md`
-   - `/docs/rules/09-no-fake-data.md`
-   - `/docs/rules/10-routing-layout-rules.md`
-   - [ADD ANY OTHER RELEVANT RULE FILES]
-
-Then:
-1. Inspect related source files.
-2. Summarize the current implementation.
-3. Summarize the rules that apply.
-4. Propose the smallest safe change.
-5. Modify only related files.
-6. Run:
-   `npm run build`
-7. If relevant, also run:
-   `npm run lint`
-8. Report:
-   - changed files
-   - UI and business impact
-   - remaining risks or TODOs
-
-Important constraints:
-- Do not refactor unrelated modules.
-- Do not add fake data.
-- Do not bypass the API layer with random network calls.
-- Do not hardcode mixed-language UI text.
-- Do not create generic AI-looking UI while solving code issues.
-```
+- Selected task domain and rules read from `AI_CONTEXT.md`.
+- Current UI/API behavior and intended behavior.
+- Changed files and the smallest safe change made.
+- UI, i18n, API-contract, business-state, and security impact.
+- Build, lint, test, and manual verification results where applicable.
+- Remaining risks, skipped checks, or follow-up finding IDs.

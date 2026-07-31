@@ -21,7 +21,7 @@ export default function ConversionFunnel() {
         Rates will populate once event emitters are instrumented (M12.1).
       </p>
 
-      <div className="mt-4 flex gap-1 overflow-x-auto rounded-xl bg-slate-100 p-1">
+      <div className="scrollbar-hide mt-4 flex gap-1 overflow-x-auto rounded-xl bg-slate-100 p-1">
         {FUNNEL_TABS.map((tab) => (
           <button
             key={tab.type}
@@ -29,7 +29,7 @@ export default function ConversionFunnel() {
             onClick={() => setActiveFunnel(tab.type)}
             className={`whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-bold transition ${
               activeFunnel === tab.type
-                ? 'bg-white text-indigo-700 shadow-sm'
+                ? 'bg-white text-emerald-700 shadow-sm'
                 : 'text-slate-500 hover:text-slate-900'
             }`}
           >

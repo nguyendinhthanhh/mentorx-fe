@@ -193,7 +193,7 @@ export default function ProposalCreateForm({
             <button
               onClick={() => setIsEditing(true)}
               disabled={!canEditProposal}
-              className="flex-1 flex items-center justify-center gap-2 bg-indigo-600 text-white py-2.5 rounded-lg font-bold hover:bg-indigo-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-all text-sm"
+              className="flex-1 flex items-center justify-center gap-2 bg-emerald-600 text-white py-2.5 rounded-lg font-bold hover:bg-emerald-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-all text-sm"
             >
               <Edit2 className="w-4 h-4" />
               {existingProposal.status === 'WITHDRAWN' ? 'Apply láº¡i' : 'Chá»‰nh sá»­a'}
@@ -336,7 +336,7 @@ export default function ProposalCreateForm({
       <button
         type="submit"
         disabled={loading}
-        className="w-full flex items-center justify-center gap-2 rounded-xl bg-indigo-600 py-3.5 text-sm font-bold text-white transition-all hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+        className="w-full flex items-center justify-center gap-2 rounded-xl bg-emerald-600 py-3.5 text-sm font-bold text-white transition-all hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-300"
       >
         {loading ? (
           <>

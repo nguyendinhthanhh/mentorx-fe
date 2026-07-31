@@ -121,7 +121,7 @@ export default function AdminComplaintsPage() {
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="flex flex-col justify-between gap-3 md:flex-row md:items-center">
         <div>
-          <h1 className="text-4xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-400">
+          <h1 className="bg-gradient-to-r from-slate-900 to-slate-600 bg-clip-text text-2xl font-extrabold tracking-tight text-transparent dark:from-white dark:to-slate-400 sm:text-3xl lg:text-4xl">
             {t('admin.complaints.title')}
           </h1>
           <p className="mt-2 text-sm font-bold text-slate-400 dark:text-slate-500">
@@ -136,13 +136,13 @@ export default function AdminComplaintsPage() {
       <div className="rounded-[2.5rem] border border-white/50 bg-white/70 shadow-xl shadow-slate-200/40 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/70 dark:shadow-none overflow-hidden transition-all">
         <div className="flex flex-col gap-4 border-b border-slate-100/50 bg-slate-50/50 p-6 dark:border-slate-800/50 dark:bg-slate-800/30 sm:flex-row sm:items-center">
           <div className="relative flex-1 group">
-            <Search className="pointer-events-none absolute left-5 top-1/2 w-5 h-5 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+            <Search className="pointer-events-none absolute left-5 top-1/2 w-5 h-5 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
             <input
               type="text"
               value={search}
               onChange={(event) => setSearch(event.target.value)}
               placeholder={t('admin.complaints.searchPlaceholder')}
-              className="w-full rounded-2xl border border-slate-200/60 bg-white/50 py-3.5 pl-14 pr-4 text-sm font-bold text-slate-900 placeholder:text-slate-400 focus:border-indigo-500/30 focus:bg-white focus:outline-none focus:ring-4 focus:ring-indigo-500/10 dark:border-slate-700/60 dark:bg-slate-800/50 dark:text-white dark:placeholder:text-slate-500 dark:focus:bg-slate-800 shadow-sm hover:border-slate-300 dark:hover:border-slate-600 transition-all"
+              className="w-full rounded-2xl border border-slate-200/60 bg-white/50 py-3.5 pl-14 pr-4 text-sm font-bold text-slate-900 placeholder:text-slate-400 focus:border-emerald-500/30 focus:bg-white focus:outline-none focus:ring-4 focus:ring-emerald-500/10 dark:border-slate-700/60 dark:bg-slate-800/50 dark:text-white dark:placeholder:text-slate-500 dark:focus:bg-slate-800 shadow-sm hover:border-slate-300 dark:hover:border-slate-600 transition-all"
             />
           </div>
           <select
@@ -151,7 +151,7 @@ export default function AdminComplaintsPage() {
               setPage(0)
               setStatusFilter(event.target.value as StatusFilter)
             }}
-            className="rounded-2xl border border-slate-200/60 bg-white/50 px-6 py-3.5 text-sm font-bold text-slate-600 focus:border-indigo-500/30 focus:bg-white focus:outline-none focus:ring-4 focus:ring-indigo-500/10 dark:border-slate-700/60 dark:bg-slate-800/50 dark:text-slate-300 dark:focus:bg-slate-800 shadow-sm hover:border-slate-300 dark:hover:border-slate-600 transition-all cursor-pointer outline-none appearance-none min-w-[200px]"
+            className="w-full cursor-pointer appearance-none rounded-2xl border border-slate-200/60 bg-white/50 px-6 py-3.5 text-sm font-bold text-slate-600 shadow-sm outline-none transition-all hover:border-slate-300 focus:border-emerald-500/30 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 dark:border-slate-700/60 dark:bg-slate-800/50 dark:text-slate-300 dark:hover:border-slate-600 dark:focus:bg-slate-800 sm:w-auto sm:min-w-[200px]"
             style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: 'right 1rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.5em 1.5em' }}
           >
             <option value="">{t('admin.complaints.filter.all')}</option>
@@ -247,7 +247,7 @@ export default function AdminComplaintsPage() {
               type="button"
               onClick={() => setPage((current) => Math.max(current - 1, 0))}
               disabled={page === 0 || isFetching}
-              className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200/60 bg-white/50 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-slate-500 transition-all hover:bg-white hover:text-indigo-600 hover:shadow-sm hover:-translate-y-0.5 hover:border-indigo-200 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0 disabled:hover:shadow-none dark:border-slate-700/60 dark:bg-slate-800/50 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-indigo-400 dark:hover:border-indigo-800/50"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200/60 bg-white/50 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-slate-500 transition-all hover:bg-white hover:text-emerald-600 hover:shadow-sm hover:-translate-y-0.5 hover:border-emerald-200 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0 disabled:hover:shadow-none dark:border-slate-700/60 dark:bg-slate-800/50 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-emerald-400 dark:hover:border-emerald-800/50"
             >
               <ChevronLeft className="w-4 h-4" />
               {t('admin.complaints.pagination.prev')}
@@ -256,7 +256,7 @@ export default function AdminComplaintsPage() {
               type="button"
               onClick={() => setPage((current) => current + 1)}
               disabled={(data?.last ?? true) || isFetching}
-              className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200/60 bg-white/50 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-slate-500 transition-all hover:bg-white hover:text-indigo-600 hover:shadow-sm hover:-translate-y-0.5 hover:border-indigo-200 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0 disabled:hover:shadow-none dark:border-slate-700/60 dark:bg-slate-800/50 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-indigo-400 dark:hover:border-indigo-800/50"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200/60 bg-white/50 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-slate-500 transition-all hover:bg-white hover:text-emerald-600 hover:shadow-sm hover:-translate-y-0.5 hover:border-emerald-200 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0 disabled:hover:shadow-none dark:border-slate-700/60 dark:bg-slate-800/50 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-emerald-400 dark:hover:border-emerald-800/50"
             >
               {t('admin.complaints.pagination.next')}
               <ChevronRight className="w-4 h-4" />
@@ -282,7 +282,7 @@ function ComplaintRow({ complaint }: { complaint: ComplaintResponse }) {
             <Flag className="w-5 h-5" />
           </div>
           <div className="min-w-0">
-            <p className="truncate text-sm font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+            <p className="truncate text-sm font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
               {complaint.title}
             </p>
             <p className="mt-1 line-clamp-2 max-w-md text-xs font-medium text-slate-500 dark:text-slate-400 leading-relaxed">
@@ -325,7 +325,7 @@ function ComplaintRow({ complaint }: { complaint: ComplaintResponse }) {
       <td className="px-8 py-5 align-top text-right">
         <Link
           to={`/admin/complaints/${complaint.id}`}
-          className="inline-flex items-center gap-1 rounded-xl border border-slate-200/60 bg-white/50 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-slate-500 transition-all hover:bg-white hover:border-indigo-200 hover:text-indigo-600 hover:shadow-sm hover:-translate-y-0.5 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 dark:border-slate-700/60 dark:bg-slate-800/50 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:border-indigo-800/50 dark:hover:text-indigo-400"
+          className="inline-flex items-center gap-1 rounded-xl border border-slate-200/60 bg-white/50 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-slate-500 transition-all hover:bg-white hover:border-emerald-200 hover:text-emerald-600 hover:shadow-sm hover:-translate-y-0.5 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 dark:border-slate-700/60 dark:bg-slate-800/50 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:border-emerald-800/50 dark:hover:text-emerald-400"
         >
           {t('admin.complaints.detail.view')}
         </Link>

@@ -24,7 +24,7 @@ import { mentorApi } from '@/api/mentorApi'
 import { negotiationApi } from '@/api/negotiationApi'
 import { proposalApi } from '@/api/proposalApi'
 import { useAuthStore } from '@/store/authStore'
-import { CategoryResponse, JobResponse, ProposalResponse } from '@/types'
+import { CategoryResponse, JobResponse, JobSummaryResponse, ProposalResponse } from '@/types'
 import { formatCurrency, formatRelativeTime, formatDeadline } from '@/utils/formatters'
 import { PageShell } from './shared/MentorHubUI'
 
@@ -65,7 +65,7 @@ export default function MentorProposalsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [proposals, setProposals] = useState<ProposalResponse[]>([])
-  const [jobMap, setJobMap] = useState<Record<string, JobResponse>>({})
+  const [jobMap, setJobMap] = useState<Record<string, JobSummaryResponse>>({})
   const [categories, setCategories] = useState<CategoryResponse[]>([])
   const [negotiations, setNegotiations] = useState<Record<string, NegotiationInfo>>({})
   const [recommendedJobs, setRecommendedJobs] = useState<JobResponse[]>([])
@@ -100,34 +100,15 @@ export default function MentorProposalsPage() {
       setCategories(categoryList)
       setRecommendedJobs(jobsPage.content || [])
 
-      const latestNegotiationMap: Record<string, NegotiationInfo> = {}
-      for (const proposal of proposalPage.content.filter((item) => item.status === 'NEGOTIATING' || item.status === 'OFFER_ACCEPTED')) {
-        try {
-          const latest = await negotiationApi.getLatest(proposal.id)
-          if (latest) {
-            latestNegotiationMap[proposal.id] = latest
-          }
-        } catch {
-          continue
-        }
-      }
+      const negotiationProposalIds = proposalPage.content
+        .filter((item) => item.status === 'NEGOTIATING' || item.status === 'OFFER_ACCEPTED')
+        .map((proposal) => proposal.id)
+      const latestNegotiationMap = await negotiationApi.getLatestBatch(negotiationProposalIds)
       setNegotiations(latestNegotiationMap)
 
-      const uniqueJobIds = Array.from(new Set(proposalPage.content.map((proposal) => proposal.jobId)))
-      const jobEntries = await Promise.all(
-        uniqueJobIds.map(async (jobId) => {
-          try {
-            const job = await jobApi.getById(jobId)
-            return [jobId, job] as const
-          } catch {
-            return null
-          }
-        })
-      )
-
       setJobMap(
-        jobEntries.reduce<Record<string, JobResponse>>((acc, entry) => {
-          if (entry) acc[entry[0]] = entry[1]
+        proposalPage.content.reduce<Record<string, JobSummaryResponse>>((acc, proposal) => {
+          if (proposal.jobSummary) acc[proposal.jobId] = proposal.jobSummary
           return acc
         }, {})
       )
@@ -250,7 +231,7 @@ export default function MentorProposalsPage() {
       {/* Compact Header */}
       <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between mb-8">
         <div>
-          <div className="inline-flex items-center gap-2 rounded-full bg-indigo-50 px-3 py-1 text-[11px] uppercase tracking-widest font-black text-indigo-600 mb-3 border border-indigo-100 shadow-sm">
+          <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-[11px] uppercase tracking-widest font-black text-emerald-600 mb-3 border border-emerald-100 shadow-sm">
             <Sparkles className="w-3.5 h-3.5 text-amber-500" />
             Pipeline Overview
           </div>
@@ -276,7 +257,7 @@ export default function MentorProposalsPage() {
             </div>
           </div>
 
-          <Link to="/jobs" className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-slate-900 px-6 text-sm font-bold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-indigo-600 hover:shadow-indigo-500/30 shrink-0">
+          <Link to="/jobs" className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-emerald-600 shadow-md hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 hover:bg-emerald-700 px-6 text-sm font-bold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-emerald-600 hover:shadow-emerald-500/30 shrink-0">
             <Search className="h-4 w-4" />
             Tìm Jobs
           </Link>
@@ -287,7 +268,7 @@ export default function MentorProposalsPage() {
       <div className="rounded-[2.5rem] border border-slate-200/60 bg-white/50 p-6 sm:p-8 shadow-xl shadow-slate-200/40 backdrop-blur-2xl">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between mb-8">
           {/* Tabs */}
-          <div className="flex flex-wrap items-center gap-2 p-1.5 bg-slate-100/80 rounded-2xl w-full lg:w-auto overflow-x-auto hide-scrollbar">
+          <div className="scrollbar-hide flex w-full flex-wrap items-center gap-2 overflow-x-auto rounded-2xl bg-slate-100/80 p-1.5 lg:w-auto">
             {tabs.map((tab) => {
               const count = tabCounts[tab.key]
               const isActive = activeTab === tab.key
@@ -298,13 +279,13 @@ export default function MentorProposalsPage() {
                   onClick={() => setActiveTab(tab.key)}
                   className={`whitespace-nowrap inline-flex h-10 items-center gap-2 rounded-xl px-4 text-sm font-bold transition-all ${
                     isActive
-                      ? 'bg-white text-indigo-700 shadow-sm ring-1 ring-slate-200/50'
+                      ? 'bg-white text-emerald-700 shadow-sm ring-1 ring-slate-200/50'
                       : 'text-slate-500 hover:text-slate-900 hover:bg-slate-200/50'
                   }`}
                 >
                   {tab.label}
                   {count > 0 && (
-                    <span className={`rounded-lg px-2 py-0.5 text-[10px] font-black uppercase tracking-widest ${isActive ? 'bg-indigo-50 text-indigo-600' : 'bg-slate-200/80 text-slate-500'}`}>
+                    <span className={`rounded-lg px-2 py-0.5 text-[10px] font-black uppercase tracking-widest ${isActive ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-200/80 text-slate-500'}`}>
                       {count}
                     </span>
                   )}
@@ -320,7 +301,7 @@ export default function MentorProposalsPage() {
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
               placeholder="Tìm kiếm proposals..."
-              className="h-11 w-full rounded-2xl border border-slate-200 bg-white/80 pl-11 pr-4 text-sm font-medium text-slate-900 outline-none transition-all focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 placeholder:text-slate-400"
+              className="h-11 w-full rounded-2xl border border-slate-200 bg-white/80 pl-11 pr-4 text-sm font-medium text-slate-900 outline-none transition-all focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 placeholder:text-slate-400"
             />
           </div>
         </div>
@@ -384,27 +365,27 @@ export default function MentorProposalsPage() {
               const statusMeta = getStatusMeta(proposal.status, negotiation)
               const rowTone = getRowTone(proposal.status, negotiation?.senderType)
               const currentOffer = getCurrentOffer(proposal, negotiation)
-              const clientName = job?.clientName || job?.client?.fullName || 'Client'
-              const clientAvatar = job?.client?.avatarUrl
+              const clientName = job?.clientName || 'Client'
+              const clientAvatar = job?.clientAvatarUrl
               const lastActivityAt = negotiation?.createdAt || proposal.updatedAt || proposal.createdAt
               const lastActivityLabel = proposal.submittedAt && proposal.submittedAt !== lastActivityAt ? `Cập nhật ${formatRelativeTime(lastActivityAt)}` : `Gửi ${formatRelativeTime(proposal.submittedAt || proposal.createdAt)}`
 
               return (
                 <article
                   key={proposal.id}
-                  className="group relative flex flex-col gap-5 rounded-[1.75rem] border border-slate-200/80 bg-white/70 p-6 shadow-sm backdrop-blur-md transition-all hover:-translate-y-1 hover:border-indigo-100 hover:shadow-xl hover:shadow-slate-200/50"
+                  className="group relative flex flex-col gap-5 rounded-[1.75rem] border border-slate-200/80 bg-white/70 p-6 shadow-sm backdrop-blur-md transition-all hover:-translate-y-1 hover:border-emerald-100 hover:shadow-xl hover:shadow-slate-200/50"
                 >
                   <div className="flex flex-col justify-between gap-6 md:flex-row md:items-start">
                     <div className="flex items-start gap-4">
-                      <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-[1.25rem] bg-gradient-to-br from-indigo-50 to-slate-100 ring-1 ring-slate-200/60 shadow-inner group-hover:ring-indigo-100 transition-all">
+                      <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-[1.25rem] bg-gradient-to-br from-emerald-50 to-slate-100 ring-1 ring-slate-200/60 shadow-inner group-hover:ring-emerald-100 transition-all">
                         {clientAvatar ? (
                           <img src={clientAvatar} alt={clientName} className="h-full w-full object-cover" />
                         ) : (
-                          <span className="text-lg font-black text-indigo-400">{clientName.charAt(0)}</span>
+                          <span className="text-lg font-black text-emerald-400">{clientName.charAt(0)}</span>
                         )}
                       </div>
                       <div className="min-w-0 pt-0.5">
-                        <Link to={`/mentor/proposals/${proposal.id}`} className="hover:text-indigo-600 transition-colors">
+                        <Link to={`/mentor/proposals/${proposal.id}`} className="hover:text-emerald-600 transition-colors">
                            <h2 className="truncate text-lg font-extrabold tracking-tight text-slate-900">
                              {proposal.jobTitle}
                            </h2>
@@ -448,7 +429,7 @@ export default function MentorProposalsPage() {
                               subtitle: 'Proposal discussion',
                             })
                           }
-                          className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 text-sm font-bold text-slate-700 shadow-sm transition-all hover:bg-slate-50 hover:text-indigo-600 sm:flex-none"
+                          className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 text-sm font-bold text-slate-700 shadow-sm transition-all hover:bg-slate-50 hover:text-emerald-600 sm:flex-none"
                         >
                           <MessageCircleMore className="w-4 h-4" />
                           Nhắn tin
@@ -456,7 +437,7 @@ export default function MentorProposalsPage() {
                       )}
                       <Link
                         to={`/mentor/proposals/${proposal.id}`}
-                        className="inline-flex h-10 flex-1 items-center justify-center rounded-xl bg-slate-900 px-5 text-sm font-bold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-indigo-600 hover:shadow-indigo-500/30 sm:flex-none"
+                        className="inline-flex h-10 flex-1 items-center justify-center rounded-xl bg-emerald-600 shadow-md hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 hover:bg-emerald-700 px-5 text-sm font-bold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-emerald-600 hover:shadow-emerald-500/30 sm:flex-none"
                       >
                         Chi tiết
                       </Link>
@@ -497,7 +478,7 @@ function MiniSelect({
     <select
       value={value}
       onChange={(event) => onChange(event.target.value)}
-      className="h-10 cursor-pointer appearance-none rounded-xl border border-slate-200/80 bg-white/80 px-4 pr-10 text-sm font-bold text-slate-700 shadow-sm outline-none transition-all hover:border-slate-300 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 backdrop-blur-md"
+      className="h-10 cursor-pointer appearance-none rounded-xl border border-slate-200/80 bg-white/80 px-4 pr-10 text-sm font-bold text-slate-700 shadow-sm outline-none transition-all hover:border-slate-300 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 backdrop-blur-md"
       style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: 'right 0.75rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.25em 1.25em' }}
     >
       {options.map(([optionValue, label]) => (
@@ -525,7 +506,7 @@ function DashboardMetricCard({
   helper: string
 }) {
   const toneClass = {
-    indigo: 'bg-indigo-50/80 text-indigo-600 border-indigo-100/50 shadow-indigo-100/50',
+    indigo: 'bg-emerald-50/80 text-emerald-600 border-emerald-100/50 shadow-emerald-100/50',
     emerald: 'bg-emerald-50/80 text-emerald-600 border-emerald-100/50 shadow-emerald-100/50',
     amber: 'bg-amber-50/80 text-amber-600 border-amber-100/50 shadow-amber-100/50',
     sky: 'bg-sky-50/80 text-sky-600 border-sky-100/50 shadow-sky-100/50',
@@ -540,7 +521,7 @@ function DashboardMetricCard({
         </div>
         <div className="mt-3 flex flex-col gap-1">
           <div className="text-3xl font-extrabold tracking-tight text-slate-900">{value}</div>
-          <span className="text-[11px] font-bold text-indigo-600">{eyebrow}</span>
+          <span className="text-[11px] font-bold text-emerald-600">{eyebrow}</span>
         </div>
       </div>
       <p className="mt-4 text-xs font-semibold text-slate-400">{helper}</p>
@@ -561,12 +542,12 @@ function EmptyPremiumState({
 }) {
   return (
     <div className="flex flex-col items-center justify-center rounded-[1.75rem] border border-slate-100/50 bg-gradient-to-b from-slate-50/50 to-white/30 px-6 py-10 text-center backdrop-blur-md">
-      <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-[1.25rem] bg-indigo-50 text-indigo-500 shadow-inner">
+      <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-[1.25rem] bg-emerald-50 text-emerald-500 shadow-inner">
         <Sparkles className="h-7 w-7" />
       </div>
       <h3 className="text-lg font-extrabold text-slate-900">{title}</h3>
       <p className="mt-2 max-w-sm text-sm font-semibold leading-relaxed text-slate-500">{message}</p>
-      <Link to={actionHref} className="mt-6 rounded-2xl bg-slate-900 px-6 py-3 text-sm font-bold text-white transition-all hover:-translate-y-0.5 hover:bg-indigo-600 hover:shadow-lg hover:shadow-indigo-500/30">
+      <Link to={actionHref} className="mt-6 rounded-2xl bg-emerald-600 shadow-md hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 hover:bg-emerald-700 px-6 py-3 text-sm font-bold text-white transition-all hover:-translate-y-0.5 hover:bg-emerald-600 hover:shadow-lg hover:shadow-emerald-500/30">
         {actionLabel}
       </Link>
     </div>
@@ -648,8 +629,8 @@ function getRowTone(status: string, latestSender?: 'CLIENT' | 'MENTOR') {
         }
       }
       return {
-        badge: 'bg-indigo-50 text-indigo-700 ring-1 ring-indigo-200/80',
-        message: 'text-indigo-600',
+        badge: 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/80',
+        message: 'text-emerald-600',
       }
     case 'OFFER_ACCEPTED':
       return {
@@ -677,7 +658,7 @@ function getRowTone(status: string, latestSender?: 'CLIENT' | 'MENTOR') {
   }
 }
 
-function getClientBudget(job?: JobResponse) {
+function getClientBudget(job?: JobSummaryResponse) {
   if (!job) return 'TBD'
   if (job.budgetMinMxc && job.budgetMaxMxc) {
     if (job.budgetMinMxc === job.budgetMaxMxc) return formatCurrency(job.budgetMinMxc)

@@ -91,7 +91,7 @@ export default function AdminDisputesPage() {
       <header className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="flex items-center gap-3 text-2xl font-bold text-slate-950 dark:text-white">
-            <Scale className="h-6 w-6 text-indigo-600" />
+            <Scale className="h-6 w-6 text-emerald-600" />
             {t('admin.disputes.title')}
           </h1>
           <p className="mt-1 max-w-3xl text-sm text-slate-600 dark:text-slate-400">{t('admin.disputes.subtitle')}</p>
@@ -123,7 +123,7 @@ export default function AdminDisputesPage() {
                 </thead>
                 <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
                   {queue.data!.content.map((item) => (
-                    <tr key={item.id} onClick={() => setSelected(item)} className={`cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 ${selected?.id === item.id ? 'bg-indigo-50 dark:bg-indigo-950/20' : ''}`}>
+                    <tr key={item.id} onClick={() => setSelected(item)} className={`cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 ${selected?.id === item.id ? 'bg-emerald-50 dark:bg-emerald-950/20' : ''}`}>
                       <td className="px-4 py-3"><p className="font-semibold">{item.title}</p><p className="mt-1 text-xs text-slate-500">{formatDateTime(item.createdAt)}</p></td>
                       <td className="px-4 py-3">{item.initiatorName} ↔ {item.respondentName}</td>
                       <td className="px-4 py-3 font-semibold">{item.disputedAmountMxc ? formatCurrency(item.disputedAmountMxc) : '—'}</td>
@@ -156,7 +156,7 @@ export default function AdminDisputesPage() {
                 <button type="button" disabled={supportMutation.isLoading} onClick={() => supportMutation.mutate(selected.respondentId)} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-slate-300 px-3 text-xs font-semibold dark:border-slate-700"><MessageSquare className="h-4 w-4" />{t('admin.disputes.messageRespondent')}</button>
               </div>
               {selected.respondentResponse && <div className="rounded-xl bg-slate-50 p-3 text-sm dark:bg-slate-800"><p className="mb-1 font-semibold">{t('admin.disputes.response')}</p>{selected.respondentResponse}</div>}
-              {(selected.evidenceUrls?.length ?? 0) > 0 && <div><p className="mb-2 text-sm font-semibold">{t('admin.disputes.evidence')}</p><ul className="space-y-1">{selected.evidenceUrls!.map((url) => <li key={url}><a href={url} target="_blank" rel="noreferrer" className="break-all text-sm text-indigo-600 underline">{url}</a></li>)}</ul></div>}
+              {(selected.evidenceUrls?.length ?? 0) > 0 && <div><p className="mb-2 text-sm font-semibold">{t('admin.disputes.evidence')}</p><ul className="space-y-1">{selected.evidenceUrls!.map((url) => <li key={url}><a href={url} target="_blank" rel="noreferrer" className="break-all text-sm text-emerald-600 underline">{url}</a></li>)}</ul></div>}
               {selected.status === 'RESOLVED' ? (
                 <div className="rounded-xl bg-emerald-50 p-4 text-sm text-emerald-900 dark:bg-emerald-950/20 dark:text-emerald-200"><p className="font-semibold">{t('admin.disputes.resolved')}</p><p className="mt-1">{selected.resolutionDetails}</p>{selected.refundAmountMxc != null && <p className="mt-2 font-semibold">{t('admin.disputes.refund')}: {formatCurrency(selected.refundAmountMxc)}</p>}</div>
               ) : !isAdmin(user) ? (
@@ -166,7 +166,7 @@ export default function AdminDisputesPage() {
                   <label className="block text-sm font-semibold">{t('admin.disputes.outcome')}<select value={outcome} onChange={(event) => setOutcome(event.target.value as DisputeOutcome)} className="mt-2 h-11 w-full rounded-lg border border-slate-300 bg-white px-3 dark:border-slate-700 dark:bg-slate-950">{OUTCOMES.map((value) => <option key={value} value={value}>{t(`admin.disputes.outcome.${value}`)}</option>)}</select></label>
                   {needsRefundAmount(outcome) && <label className="block text-sm font-semibold">{t('admin.disputes.refund')}<input type="number" min="0.01" step="0.01" value={refundAmount} onChange={(event) => setRefundAmount(event.target.value)} className="mt-2 h-11 w-full rounded-lg border border-slate-300 bg-white px-3 dark:border-slate-700 dark:bg-slate-950" /></label>}
                   <label className="block text-sm font-semibold">{t('admin.disputes.resolutionDetails')}<textarea value={resolutionDetails} onChange={(event) => setResolutionDetails(event.target.value)} maxLength={2000} className="mt-2 min-h-28 w-full rounded-lg border border-slate-300 bg-white p-3 dark:border-slate-700 dark:bg-slate-950" /></label>
-                  <button type="button" disabled={!canSubmit || resolveMutation.isLoading} onClick={() => resolveMutation.mutate()} className="min-h-11 w-full rounded-lg bg-indigo-600 px-4 text-sm font-semibold text-white disabled:opacity-50">{t('admin.disputes.resolve')}</button>
+                  <button type="button" disabled={!canSubmit || resolveMutation.isLoading} onClick={() => resolveMutation.mutate()} className="min-h-11 w-full rounded-lg bg-emerald-600 px-4 text-sm font-semibold text-white disabled:opacity-50">{t('admin.disputes.resolve')}</button>
                 </div>
               )}
             </div>

@@ -376,7 +376,7 @@ export default function MentorDashboardPage() {
         title="Không thể tải dashboard mentor"
         message={error}
         action={
-          <button onClick={loadDashboard} className="rounded-2xl bg-indigo-600 px-4 py-2 text-sm font-black text-white">
+          <button onClick={loadDashboard} className="rounded-2xl bg-emerald-600 px-4 py-2 text-sm font-black text-white">
             Thử lại
           </button>
         }
@@ -388,21 +388,21 @@ export default function MentorDashboardPage() {
     <div className="mx-auto max-w-[1400px] space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-12">
       
       {/* Today's Focus & Welcome (Hero Section) */}
-      <section className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-indigo-900 via-indigo-800 to-violet-900 px-6 py-10 sm:px-12 sm:py-16 shadow-2xl shadow-indigo-900/20">
+      <section className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-emerald-900 via-emerald-800 to-emerald-900 px-6 py-10 sm:px-12 sm:py-16 shadow-2xl shadow-emerald-900/20">
         <div className="absolute inset-0 bg-[url('/grid-pattern.svg')] bg-center opacity-10"></div>
         {/* Glow effects */}
-        <div className="absolute -top-24 -right-24 h-96 w-96 rounded-full bg-indigo-500/30 blur-3xl" />
+        <div className="absolute -top-24 -right-24 h-96 w-96 rounded-full bg-emerald-500/30 blur-3xl" />
         
         <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-8">
            <div className="max-w-2xl">
-              <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-[11px] uppercase tracking-widest font-black text-indigo-100 backdrop-blur-md mb-4 border border-white/10 shadow-sm">
+              <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-[11px] uppercase tracking-widest font-black text-emerald-100 backdrop-blur-md mb-4 border border-white/10 shadow-sm">
                  <Sparkles className="w-3.5 h-3.5 text-amber-300" />
                  Sẵn sàng cho ngày mới
               </div>
               <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-5xl">
                  Chào mừng trở lại, {greetingName.split(' ')[0]}!
               </h1>
-              <p className="mt-4 text-sm sm:text-base text-indigo-100/90 leading-relaxed font-semibold">
+              <p className="mt-4 text-sm sm:text-base text-emerald-100/90 leading-relaxed font-semibold">
                  {agendaItems.length > 0 
                    ? `Bạn có ${agendaItems.length} công việc ưu tiên cần xử lý. Hoàn thành sớm để duy trì tỷ lệ phản hồi 100%.`
                    : `Tất cả mọi thứ đã được giải quyết. Đây là thời điểm tuyệt vời để cập nhật khóa học hoặc tối ưu hồ sơ của bạn.`}
@@ -410,11 +410,11 @@ export default function MentorDashboardPage() {
            </div>
            
            <div className="flex shrink-0 gap-3">
-              <Link to="/courses/create" className="group flex items-center gap-2 rounded-2xl bg-white/10 px-5 py-3 text-sm font-bold text-white backdrop-blur-md transition-all hover:bg-white/20 border border-white/10 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-indigo-500/20">
+              <Link to="/courses/create" className="group flex items-center gap-2 rounded-2xl bg-white/10 px-5 py-3 text-sm font-bold text-white backdrop-blur-md transition-all hover:bg-white/20 border border-white/10 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-emerald-500/20">
                  <Plus className="w-4 h-4 transition-transform group-hover:scale-110" />
                  Tạo khóa học
               </Link>
-              <Link to="/mentor/messages" className="group flex items-center gap-2 rounded-2xl bg-white px-5 py-3 text-sm font-bold text-indigo-900 transition-all hover:bg-indigo-50 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-white/20">
+              <Link to="/mentor/messages" className="group flex items-center gap-2 rounded-2xl bg-white px-5 py-3 text-sm font-bold text-emerald-900 transition-all hover:bg-emerald-50 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-white/20">
                  <MessageCircleMore className="w-4 h-4 transition-transform group-hover:scale-110" />
                  Mở Inbox
               </Link>
@@ -470,13 +470,13 @@ export default function MentorDashboardPage() {
                        <Link
                          key={item.id}
                          to={item.route}
-                         className="group flex flex-col gap-4 rounded-[1.5rem] border border-slate-100 bg-white p-5 transition-all hover:border-indigo-200/60 hover:shadow-xl hover:shadow-indigo-100/40 hover:-translate-y-0.5 sm:flex-row sm:items-center sm:justify-between"
+                         className="group flex flex-col gap-4 rounded-[1.5rem] border border-slate-100 bg-white p-5 transition-all hover:border-emerald-200/60 hover:shadow-xl hover:shadow-emerald-100/40 hover:-translate-y-0.5 sm:flex-row sm:items-center sm:justify-between"
                        >
                          <div className="flex items-center gap-4 min-w-0">
                            <AvatarToken name={item.person} size="md" />
                            <div className="min-w-0">
                              <div className="flex items-center gap-2 mb-1">
-                               <p className="text-sm font-bold text-slate-900 group-hover:text-indigo-600 transition-colors truncate">{item.person}</p>
+                               <p className="text-sm font-bold text-slate-900 group-hover:text-emerald-600 transition-colors truncate">{item.person}</p>
                                <span className="shrink-0 text-[10px] font-black uppercase tracking-widest text-slate-400">• {item.meta}</span>
                              </div>
                              <p className="truncate text-base font-extrabold text-slate-950">{item.title}</p>
@@ -485,7 +485,7 @@ export default function MentorDashboardPage() {
                          </div>
                          <div className="flex items-center gap-3 shrink-0">
                            <StatusPill label={item.statusLabel} tone={item.tone} />
-                           <span className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-600 transition-colors group-hover:bg-indigo-50 group-hover:border-indigo-100 group-hover:text-indigo-700 hidden sm:inline-block">
+                           <span className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-600 transition-colors group-hover:bg-emerald-50 group-hover:border-emerald-100 group-hover:text-emerald-700 hidden sm:inline-block">
                              {item.actionLabel}
                            </span>
                          </div>
@@ -496,7 +496,7 @@ export default function MentorDashboardPage() {
             )}
 
             {/* Revenue Analytics */}
-            <DashboardPanel title="Phân tích Doanh thu" icon={<Wallet className="h-5 w-5" />} action={<Link to="/mentor/earnings" className="text-[10px] font-black text-indigo-600 hover:text-indigo-700 uppercase tracking-widest hover:underline underline-offset-4">Chi tiết</Link>}>
+            <DashboardPanel title="Phân tích Doanh thu" icon={<Wallet className="h-5 w-5" />} action={<Link to="/mentor/earnings" className="text-[10px] font-black text-emerald-600 hover:text-emerald-700 uppercase tracking-widest hover:underline underline-offset-4">Chi tiết</Link>}>
                {earningsSummary ? (
                  <div className="space-y-6">
                    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -534,10 +534,10 @@ export default function MentorDashboardPage() {
                      <Link
                        key={row.id}
                        to={row.route}
-                       className="group grid gap-3 py-4 px-2 transition-all hover:bg-indigo-50/30 rounded-2xl md:grid-cols-[minmax(0,1.7fr)_1fr_1fr_0.8fr] md:items-center md:gap-4 sm:px-4"
+                       className="group grid gap-3 py-4 px-2 transition-all hover:bg-emerald-50/30 rounded-2xl md:grid-cols-[minmax(0,1.7fr)_1fr_1fr_0.8fr] md:items-center md:gap-4 sm:px-4"
                      >
                        <div className="min-w-0">
-                         <p className="truncate text-sm font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">{row.title}</p>
+                         <p className="truncate text-sm font-bold text-slate-900 group-hover:text-emerald-600 transition-colors">{row.title}</p>
                          <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-slate-400">{row.time}</p>
                        </div>
                        <div className="text-sm font-bold text-slate-600 truncate">{row.counterpart}</div>
@@ -566,10 +566,10 @@ export default function MentorDashboardPage() {
                   <div>
                      <div className="flex justify-between items-end mb-3">
                         <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Mức độ hoàn thiện</span>
-                        <span className="text-xl font-extrabold text-indigo-600">{summary.profileStrength}%</span>
+                        <span className="text-xl font-extrabold text-emerald-600">{summary.profileStrength}%</span>
                      </div>
                      <div className="h-3 w-full bg-slate-100/80 rounded-full overflow-hidden shadow-inner">
-                        <div className="h-full bg-gradient-to-r from-indigo-500 to-violet-500 transition-all duration-1000" style={{ width: `${summary.profileStrength}%` }} />
+                        <div className="h-full bg-gradient-to-r from-emerald-500 to-emerald-500 transition-all duration-1000" style={{ width: `${summary.profileStrength}%` }} />
                      </div>
                      {summary.profileStrength < 100 && (
                         <p className="text-xs text-slate-500 mt-3 font-semibold leading-relaxed">Bạn nên cập nhật thêm Headline và Bio để thu hút thêm traffic.</p>
@@ -618,7 +618,7 @@ function DashboardPanel({
     <section className="flex flex-col overflow-hidden rounded-[2rem] border border-white/60 bg-white/70 shadow-xl shadow-slate-200/40 backdrop-blur-2xl transition-all">
       <div className="flex items-center justify-between border-b border-slate-100/60 p-5 sm:p-6">
         <div className="flex items-center gap-3">
-          {icon ? <div className="flex h-10 w-10 items-center justify-center rounded-[1rem] bg-indigo-50 text-indigo-600 shadow-sm">{icon}</div> : null}
+          {icon ? <div className="flex h-10 w-10 items-center justify-center rounded-[1rem] bg-emerald-50 text-emerald-600 shadow-sm">{icon}</div> : null}
           <h2 className="text-lg sm:text-xl font-extrabold tracking-tight text-slate-900">{title}</h2>
         </div>
         {action}
@@ -644,7 +644,7 @@ function DashboardMetricCard({
   helper: string
 }) {
   const toneClass = {
-    indigo: 'bg-indigo-50/80 text-indigo-600 border-indigo-100/50 shadow-indigo-100/50',
+    indigo: 'bg-emerald-50/80 text-emerald-600 border-emerald-100/50 shadow-emerald-100/50',
     emerald: 'bg-emerald-50/80 text-emerald-600 border-emerald-100/50 shadow-emerald-100/50',
     amber: 'bg-amber-50/80 text-amber-600 border-amber-100/50 shadow-amber-100/50',
     sky: 'bg-sky-50/80 text-sky-600 border-sky-100/50 shadow-sky-100/50',
@@ -659,7 +659,7 @@ function DashboardMetricCard({
         </div>
         <div className="mt-3 flex flex-col gap-1">
           <div className="text-3xl font-extrabold tracking-tight text-slate-900">{value}</div>
-          <span className="text-[11px] font-bold text-indigo-600">{eyebrow}</span>
+          <span className="text-[11px] font-bold text-emerald-600">{eyebrow}</span>
         </div>
       </div>
       <p className="mt-4 text-xs font-semibold text-slate-400">{helper}</p>
@@ -680,7 +680,7 @@ function SignalRow({ title, value, helper, route, tone }: SupportSignal) {
   const toneClass = {
     emerald: 'bg-emerald-50 text-emerald-700',
     amber: 'bg-amber-50 text-amber-700',
-    indigo: 'bg-indigo-50 text-indigo-700',
+    indigo: 'bg-emerald-50 text-emerald-700',
     rose: 'bg-rose-50 text-rose-700',
   }[tone]
 
@@ -753,12 +753,12 @@ function QuickActionCard({
   return (
     <Link
       to={to}
-      className="group flex flex-col items-center justify-center rounded-[1.5rem] border border-slate-100 bg-white p-5 text-center transition-all hover:-translate-y-1 hover:border-indigo-100 hover:bg-indigo-50/30 hover:shadow-xl hover:shadow-indigo-100/50"
+      className="group flex flex-col items-center justify-center rounded-[1.5rem] border border-slate-100 bg-white p-5 text-center transition-all hover:-translate-y-1 hover:border-emerald-100 hover:bg-emerald-50/30 hover:shadow-xl hover:shadow-emerald-100/50"
     >
-      <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-[1rem] bg-slate-50 text-slate-400 shadow-sm transition-colors group-hover:bg-indigo-100 group-hover:text-indigo-600">
+      <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-[1rem] bg-slate-50 text-slate-400 shadow-sm transition-colors group-hover:bg-emerald-100 group-hover:text-emerald-600">
         {icon}
       </div>
-      <p className="text-sm font-bold text-slate-700 group-hover:text-indigo-700">{title}</p>
+      <p className="text-sm font-bold text-slate-700 group-hover:text-emerald-700">{title}</p>
     </Link>
   )
 }
@@ -776,12 +776,12 @@ function EmptyPremiumState({
 }) {
   return (
     <div className="flex flex-col items-center justify-center rounded-[1.75rem] border border-slate-100/50 bg-gradient-to-b from-slate-50/50 to-white/30 px-6 py-10 text-center backdrop-blur-md">
-      <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-[1.25rem] bg-indigo-50 text-indigo-500 shadow-inner">
+      <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-[1.25rem] bg-emerald-50 text-emerald-500 shadow-inner">
         <Sparkles className="h-7 w-7" />
       </div>
       <h3 className="text-lg font-extrabold text-slate-900">{title}</h3>
       <p className="mt-2 max-w-sm text-sm font-semibold leading-relaxed text-slate-500">{message}</p>
-      <Link to={actionHref} className="mt-6 rounded-2xl bg-slate-900 px-6 py-3 text-sm font-bold text-white transition-all hover:-translate-y-0.5 hover:bg-indigo-600 hover:shadow-lg hover:shadow-indigo-500/30">
+      <Link to={actionHref} className="mt-6 rounded-2xl bg-emerald-600 shadow-md hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 hover:bg-emerald-700 px-6 py-3 text-sm font-bold text-white transition-all hover:-translate-y-0.5 hover:bg-emerald-600 hover:shadow-lg hover:shadow-emerald-500/30">
         {actionLabel}
       </Link>
     </div>
@@ -791,7 +791,7 @@ function EmptyPremiumState({
 function AvatarToken({ name, size = 'md' }: { name: string; size?: 'sm' | 'md' }) {
   const dimension = size === 'sm' ? 'h-10 w-10 text-sm' : 'h-14 w-14 text-lg'
   return (
-    <div className={`flex ${dimension} items-center justify-center rounded-[1.25rem] bg-[radial-gradient(circle_at_top,_#dbeafe,_#c7d2fe_58%,_#e2e8f0)] font-extrabold text-indigo-700 shadow-inner`}>
+    <div className={`flex ${dimension} items-center justify-center rounded-[1.25rem] bg-[radial-gradient(circle_at_top,_#dbeafe,_#c7d2fe_58%,_#e2e8f0)] font-extrabold text-emerald-700 shadow-inner`}>
       {getInitials(name)}
     </div>
   )

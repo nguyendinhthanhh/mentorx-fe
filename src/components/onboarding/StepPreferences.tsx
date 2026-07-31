@@ -12,7 +12,7 @@ interface Props {
 }
 
 const notifOptions = [
-  { id: 'emailEnabled' as const, label: 'Email Notifications', desc: 'Get updates via email for important activities', icon: Mail, gradient: 'from-blue-500 to-indigo-500' },
+  { id: 'emailEnabled' as const, label: 'Email Notifications', desc: 'Get updates via email for important activities', icon: Mail, gradient: 'from-blue-500 to-emerald-500' },
   { id: 'pushEnabled' as const, label: 'Push Notifications', desc: 'Real-time alerts on your device', icon: Smartphone, gradient: 'from-emerald-500 to-teal-500' },
   { id: 'inAppEnabled' as const, label: 'In-App Notifications', desc: 'See notifications inside MentorX', icon: Bell, gradient: 'from-amber-500 to-orange-500' },
 ]

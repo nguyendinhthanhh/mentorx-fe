@@ -41,7 +41,7 @@ export default function WalletPage() {
     { key: 'deposit' as const, label: 'Deposit', icon: ArrowDownCircle, color: 'text-green-600' },
     { key: 'withdraw' as const, label: 'Withdraw', icon: ArrowUpCircle, color: 'text-red-600' },
     { key: 'transfer' as const, label: 'Transfer', icon: Send, color: 'text-blue-600' },
-    { key: 'bank-accounts' as const, label: 'Payout', icon: Landmark, color: 'text-purple-600' },
+    { key: 'bank-accounts' as const, label: 'Payout', icon: Landmark, color: 'text-emerald-600' },
   ]
 
   const txnColors: Record<string, { bg: string; text: string; sign: string }> = {
@@ -49,7 +49,7 @@ export default function WalletPage() {
     JOB_REFUND: { bg: 'bg-green-50', text: 'text-green-600', sign: '+' },
     APPOINTMENT_REFUND: { bg: 'bg-green-50', text: 'text-green-600', sign: '+' },
     WITHDRAWAL_REFUND: { bg: 'bg-green-50', text: 'text-green-600', sign: '+' },
-    BONUS_CREDIT: { bg: 'bg-purple-50', text: 'text-purple-600', sign: '+' },
+    BONUS_CREDIT: { bg: 'bg-emerald-50', text: 'text-emerald-600', sign: '+' },
     WITHDRAWAL: { bg: 'bg-red-50', text: 'text-red-600', sign: '-' },
     JOB_PAYMENT: { bg: 'bg-orange-50', text: 'text-orange-600', sign: '-' },
     COURSE_PURCHASE: { bg: 'bg-blue-50', text: 'text-blue-600', sign: '-' },

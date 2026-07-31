@@ -101,11 +101,11 @@ export default function InboxSidebar({
       <div className="flex items-center justify-between gap-2 border-b border-slate-100 px-4 py-3 sm:px-5">
         <Link to="/" className="group flex items-center gap-2">
           <div className="relative flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg bg-slate-950 shadow transition-transform group-hover:scale-105 group-active:scale-95">
-            <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 opacity-90 transition-opacity group-hover:opacity-100" />
+            <div className="absolute inset-0 bg-gradient-to-br from-emerald-600 via-emerald-600 to-pink-500 opacity-90 transition-opacity group-hover:opacity-100" />
             <Sparkles className="relative h-4 w-4 text-white mix-blend-overlay" />
           </div>
           <span className="text-[15px] font-black tracking-tight text-slate-900">
-            Mentor<span className="text-indigo-600">X</span>
+            Mentor<span className="text-emerald-600">X</span>
           </span>
         </Link>
 
@@ -113,7 +113,7 @@ export default function InboxSidebar({
           {/* Wallet Balance */}
           <Link
             to="/wallet"
-            className="hidden items-center gap-1.5 rounded-lg bg-amber-50 px-2 py-1.5 text-[11px] font-bold text-amber-700 transition-colors hover:bg-amber-100 sm:flex"
+            className="hidden min-h-11 items-center gap-1.5 rounded-lg bg-amber-50 px-2 py-1.5 text-[11px] font-bold text-amber-700 transition-colors hover:bg-amber-100 sm:flex"
           >
             <Wallet className="h-3 w-3" />
             {formatMxc(balance?.available || 0, language)}
@@ -130,12 +130,12 @@ export default function InboxSidebar({
               <button
                 type="button"
                 onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg ring-2 ring-transparent transition-all hover:ring-indigo-200"
+                className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-lg ring-2 ring-transparent transition-all hover:ring-emerald-200"
               >
                 {user.avatarUrl ? (
                   <img src={user.avatarUrl} alt={user.fullName} className="h-full w-full object-cover rounded-lg" />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center rounded-lg bg-indigo-600 text-[11px] font-bold text-white">
+                  <div className="flex h-full w-full items-center justify-center rounded-lg bg-emerald-600 text-[11px] font-bold text-white">
                     {user.fullName.charAt(0)}
                   </div>
                 )}
@@ -152,7 +152,7 @@ export default function InboxSidebar({
                     <Link
                       to="/profile"
                       onClick={() => setUserDropdownOpen(false)}
-                      className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50 hover:text-indigo-600"
+                      className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50 hover:text-emerald-600"
                     >
                       <User className="h-4 w-4" />
                       Hồ sơ
@@ -160,7 +160,7 @@ export default function InboxSidebar({
                     <Link
                       to="/wallet"
                       onClick={() => setUserDropdownOpen(false)}
-                      className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50 hover:text-indigo-600"
+                      className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50 hover:text-emerald-600"
                     >
                       <Wallet className="h-4 w-4" />
                       Ví MXC
@@ -191,14 +191,14 @@ export default function InboxSidebar({
           <h1 className="text-[28px] font-bold tracking-tight text-[#10164a]">Messages</h1>
           <button
             type="button"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-transparent text-[#10164a] transition-colors hover:border-indigo-100 hover:bg-indigo-50"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-transparent text-[#10164a] transition-colors hover:border-emerald-100 hover:bg-emerald-50"
             title="New message"
           >
             <Edit3 className="h-5 w-5" />
           </button>
         </div>
 
-        <label className="mt-5 flex h-11 items-center gap-3 rounded-xl border border-[#dce2f2] bg-white px-4 text-slate-400 transition-colors focus-within:border-indigo-300 focus-within:text-indigo-500">
+        <label className="mt-5 flex h-11 items-center gap-3 rounded-xl border border-[#dce2f2] bg-white px-4 text-slate-400 transition-colors focus-within:border-emerald-300 focus-within:text-emerald-500">
           <Search className="h-[18px] w-[18px]" />
           <input
             value={searchTerm}
@@ -224,9 +224,9 @@ export default function InboxSidebar({
                       <span
                         className={`inline-flex min-w-[20px] items-center justify-center rounded-full px-1.5 text-[10px] font-bold ${
                           counts[filter] > 0
-                            ? 'bg-indigo-600 text-white'
+                            ? 'bg-emerald-600 text-white'
                             : active
-                              ? 'bg-indigo-100 text-indigo-700'
+                              ? 'bg-emerald-100 text-emerald-700'
                               : 'bg-slate-200 text-slate-500'
                         }`}
                       >
@@ -309,7 +309,7 @@ function RoomListItem({
       onClick={() => onSelectRoom(room.id)}
       className={`flex w-full items-center gap-3 rounded-xl border px-3 py-3 text-left transition-all ${
         active
-          ? 'border-indigo-200 bg-indigo-50 shadow-sm shadow-indigo-100/70'
+          ? 'border-emerald-200 bg-emerald-50 shadow-sm shadow-emerald-100/70'
           : 'border-transparent bg-white hover:border-slate-200 hover:bg-slate-50'
       }`}
     >
@@ -321,7 +321,7 @@ function RoomListItem({
             className="h-[52px] w-[52px] rounded-full object-cover"
           />
         ) : (
-          <div className="flex h-[52px] w-[52px] items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-violet-500 text-sm font-semibold text-white">
+          <div className="flex h-[52px] w-[52px] items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-emerald-500 text-sm font-semibold text-white">
             {avatarLabel}
           </div>
         )}
@@ -338,7 +338,7 @@ function RoomListItem({
         <div className="mt-1 flex items-center gap-2">
           <p className="min-w-0 flex-1 truncate text-[13px] text-[#66729d]">{getRoomPreview(room)}</p>
           {room.unreadCount > 0 && (
-            <span className="inline-flex h-6 min-w-[24px] items-center justify-center rounded-full bg-indigo-600 px-1.5 text-[11px] font-semibold text-white">
+            <span className="inline-flex h-6 min-w-[24px] items-center justify-center rounded-full bg-emerald-600 px-1.5 text-[11px] font-semibold text-white">
               {room.unreadCount}
             </span>
           )}

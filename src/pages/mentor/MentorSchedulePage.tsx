@@ -74,13 +74,11 @@ export default function MentorSchedulePage() {
     try {
       await appointmentApi.updateMeetingUrl(id, url)
       toast.success('Đã cập nhật link meeting')
-      queryClient.invalidateQueries(['wallet-balance'])
       queryClient.invalidateQueries(['userBalance'])
       queryClient.invalidateQueries(['wallets'])
       queryClient.invalidateQueries(['transactions'])
       queryClient.invalidateQueries(['userTransactions'])
       queryClient.invalidateQueries(['appointment-bookable-slots'])
-      queryClient.invalidateQueries(['wallet-balance'])
       queryClient.invalidateQueries(['userBalance'])
       queryClient.invalidateQueries(['wallets'])
       queryClient.invalidateQueries(['transactions'])
@@ -176,7 +174,7 @@ export default function MentorSchedulePage() {
       </div>
 
       <Toolbar>
-        <div className="flex w-full overflow-x-auto rounded-2xl bg-slate-100 p-1 lg:w-auto">
+        <div className="scrollbar-hide flex w-full overflow-x-auto rounded-2xl bg-slate-100 p-1 lg:w-auto">
           {[
             ['calendar', 'Calendar'],
             ['upcoming', 'Upcoming'],
@@ -187,7 +185,7 @@ export default function MentorSchedulePage() {
               key={key}
               type="button"
               onClick={() => setActiveTab(key as typeof activeTab)}
-              className={`h-10 whitespace-nowrap rounded-xl px-4 text-sm font-bold transition ${activeTab === key ? 'bg-white text-indigo-700 shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}
+              className={`h-10 whitespace-nowrap rounded-xl px-4 text-sm font-bold transition ${activeTab === key ? 'bg-white text-emerald-700 shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}
             >
               {label}
             </button>
@@ -201,7 +199,7 @@ export default function MentorSchedulePage() {
       {loading ? (
         <LoadingRows rows={4} />
       ) : error ? (
-        <StateCard tone="error" title="Unable to load schedule" message={error} action={<button onClick={loadSchedule} className="rounded-2xl bg-indigo-600 px-4 py-2 text-sm font-bold text-white">Retry</button>} />
+        <StateCard tone="error" title="Unable to load schedule" message={error} action={<button onClick={loadSchedule} className="rounded-2xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white">Retry</button>} />
       ) : activeTab === 'availability' ? (
         <div className="grid gap-5 xl:grid-cols-[1fr_380px]">
           <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -223,10 +221,10 @@ export default function MentorSchedulePage() {
                   ) : (
                     <div className="flex flex-1 flex-wrap gap-2">
                       {day.slots.map((slot, index) => (
-                        <span key={slot.id || `${day.value}-${index}`} className="group inline-flex items-center gap-2 rounded-lg bg-indigo-50 px-3 py-1.5 text-xs font-bold text-indigo-700 ring-1 ring-inset ring-indigo-700/10">
+                        <span key={slot.id || `${day.value}-${index}`} className="group inline-flex items-center gap-2 rounded-lg bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-700 ring-1 ring-inset ring-emerald-700/10">
                           {slot.startTime} - {slot.endTime}
                           {slot.id ? (
-                            <button disabled={saving} onClick={() => deleteSlot(slot)} className="text-indigo-400 opacity-0 transition-opacity hover:text-rose-600 group-hover:opacity-100" aria-label="Remove slot">
+                            <button disabled={saving} onClick={() => deleteSlot(slot)} className="text-emerald-400 opacity-0 transition-opacity hover:text-rose-600 group-hover:opacity-100" aria-label="Remove slot">
                               <Trash2 className="h-3.5 w-3.5" />
                             </button>
                           ) : null}
@@ -261,7 +259,7 @@ export default function MentorSchedulePage() {
                   <TextInput type="time" value={draft.endTime} onChange={(event) => setDraft({ ...draft, endTime: event.target.value })} className="mt-2 w-full" />
                 </label>
               </div>
-              <button disabled={saving} className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-2xl bg-indigo-600 px-4 text-sm font-bold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60">
+              <button disabled={saving} className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-4 text-sm font-bold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60">
                 {saving ? <Save className="h-4 w-4 animate-pulse" /> : <Plus className="h-4 w-4" />}
                 Save slot
               </button>
@@ -279,7 +277,7 @@ export default function MentorSchedulePage() {
                     <p className="text-xs font-semibold text-slate-400">No slots</p>
                   ) : (
                     day.slots.map((slot, index) => (
-                      <div key={slot.id || index} className="rounded-xl bg-white px-3 py-2 text-xs font-bold text-indigo-700 shadow-sm">
+                      <div key={slot.id || index} className="rounded-xl bg-white px-3 py-2 text-xs font-bold text-emerald-700 shadow-sm">
                         {slot.startTime} - {slot.endTime}
                       </div>
                     ))
@@ -300,7 +298,7 @@ export default function MentorSchedulePage() {
                   <div>
                     <h3 className="font-bold text-slate-900">User: {apt.userName}</h3>
                     {apt.packageTitle && (
-                      <p className="mt-1 text-sm font-semibold text-indigo-600">
+                      <p className="mt-1 text-sm font-semibold text-emerald-600">
                         {apt.packageTitle}
                         {apt.priceMxc != null ? ` • ${formatMxc(apt.priceMxc, 'vi')}` : ''}
                       </p>
@@ -309,12 +307,12 @@ export default function MentorSchedulePage() {
                       {new Date(apt.startTime).toLocaleString('vi-VN')} — {new Date(apt.endTime).toLocaleTimeString('vi-VN')}
                     </p>
                     {apt.notes && <p className="text-sm text-slate-600 mt-2 bg-white p-2 rounded-lg border border-slate-200">Ghi chú: {apt.notes}</p>}
-                    {apt.meetingUrl && <p className="text-sm font-semibold text-indigo-600 mt-2 hover:underline"><a href={apt.meetingUrl} target="_blank" rel="noreferrer">Meeting Link</a></p>}
+                    {apt.meetingUrl && <p className="text-sm font-semibold text-emerald-600 mt-2 hover:underline"><a href={apt.meetingUrl} target="_blank" rel="noreferrer">Meeting Link</a></p>}
                   </div>
                   <div className="flex gap-2">
                     {apt.status === 'SCHEDULED' && (
                       <>
-                        <button onClick={() => handleUpdateMeetingUrl(apt.id)} className="px-3 py-1.5 bg-indigo-100 text-indigo-700 font-bold text-xs rounded-lg hover:bg-indigo-200 transition">Sửa Link</button>
+                        <button onClick={() => handleUpdateMeetingUrl(apt.id)} className="px-3 py-1.5 bg-emerald-100 text-emerald-700 font-bold text-xs rounded-lg hover:bg-emerald-200 transition">Sửa Link</button>
                         <button onClick={() => handleComplete(apt.id)} className="px-3 py-1.5 bg-emerald-100 text-emerald-700 font-bold text-xs rounded-lg hover:bg-emerald-200 transition">Hoàn Thành</button>
                         <button onClick={() => handleCancel(apt.id)} className="px-3 py-1.5 bg-rose-100 text-rose-700 font-bold text-xs rounded-lg hover:bg-rose-200 transition">Hủy</button>
                       </>

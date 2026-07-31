@@ -2,8 +2,10 @@ import apiClient from './client'
 import { ApiResponse, AppointmentCancelRequest, AppointmentCreateRequest, AppointmentResponse, AppointmentSlotResponse } from '@/types'
 
 export const appointmentApi = {
-  bookAppointment: async (data: AppointmentCreateRequest) => {
-    const response = await apiClient.post<ApiResponse<AppointmentResponse>>('/appointments', data)
+  bookAppointment: async (data: AppointmentCreateRequest, idempotencyKey: string) => {
+    const response = await apiClient.post<ApiResponse<AppointmentResponse>>('/appointments', data, {
+      headers: { 'Idempotency-Key': idempotencyKey },
+    })
     return response.data.data
   },
 

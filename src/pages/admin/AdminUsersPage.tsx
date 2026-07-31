@@ -174,7 +174,7 @@ export default function AdminUsersPage() {
     <div className="space-y-8 pb-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
         <div className="space-y-1">
-          <h1 className="text-4xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-400">
+          <h1 className="bg-gradient-to-r from-slate-900 to-slate-600 bg-clip-text text-2xl font-extrabold tracking-tight text-transparent dark:from-white dark:to-slate-400 sm:text-3xl lg:text-4xl">
             User Management
           </h1>
           <p className="text-slate-500 dark:text-slate-400 text-sm md:text-base">
@@ -183,7 +183,7 @@ export default function AdminUsersPage() {
         </div>
         <button 
           onClick={handleCreate}
-          className="group flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-medium text-white shadow-sm transition-all hover:bg-indigo-700 hover:-translate-y-0.5 active:scale-95 sm:px-8"
+          className="group flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-2.5 text-sm font-medium text-white shadow-sm transition-all hover:bg-emerald-700 hover:-translate-y-0.5 active:scale-95 sm:px-8"
         >
           <Plus className="w-5 h-5 transition-transform group-hover:rotate-90" />
           Create New User
@@ -194,20 +194,20 @@ export default function AdminUsersPage() {
       <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-sm">
         <div className="flex flex-col gap-5 md:flex-row">
           <div className="relative flex-1 group">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
             <input 
               type="text" 
               placeholder="Search by name or email..." 
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-11 pr-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500/50 transition-all text-sm font-medium text-slate-900 dark:text-white placeholder:text-slate-400"
+              className="w-full pl-11 pr-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500/50 transition-all text-sm font-medium text-slate-900 dark:text-white placeholder:text-slate-400"
             />
           </div>
           <div className="flex flex-col gap-4 sm:flex-row">
             <select 
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as UserStatus)}
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-600 outline-none transition-all focus:border-indigo-500/50 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-700 dark:bg-slate-800/50 dark:text-slate-300 dark:focus:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-600 sm:w-auto appearance-none cursor-pointer"
+              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-600 outline-none transition-all focus:border-emerald-500/50 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 dark:border-slate-700 dark:bg-slate-800/50 dark:text-slate-300 dark:focus:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-600 sm:w-auto appearance-none cursor-pointer"
             >
               <option value="">Account Status</option>
               {Object.values(UserStatus).map(s => (
@@ -217,7 +217,7 @@ export default function AdminUsersPage() {
             <select 
               value={mentorStatusFilter}
               onChange={(e) => setMentorStatusFilter(e.target.value as MentorStatus)}
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-600 outline-none transition-all focus:border-indigo-500/50 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-700 dark:bg-slate-800/50 dark:text-slate-300 dark:focus:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-600 sm:w-auto appearance-none cursor-pointer"
+              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-600 outline-none transition-all focus:border-emerald-500/50 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 dark:border-slate-700 dark:bg-slate-800/50 dark:text-slate-300 dark:focus:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-600 sm:w-auto appearance-none cursor-pointer"
             >
               <option value="">Mentor Role</option>
               {Object.values(MentorStatus).map(s => (
@@ -254,7 +254,7 @@ export default function AdminUsersPage() {
                   <tr key={user.userId} className="group hover:bg-slate-50/80 dark:hover:bg-slate-800/80 transition-colors">
                     <td className="px-8 py-5">
                       <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-extrabold text-lg border border-indigo-100 dark:border-indigo-800/30 shadow-sm overflow-hidden flex-shrink-0 group-hover:scale-105 transition-transform duration-300">
+                        <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400 font-extrabold text-lg border border-emerald-100 dark:border-emerald-800/30 shadow-sm overflow-hidden flex-shrink-0 group-hover:scale-105 transition-transform duration-300">
                           {user.avatarUrl ? (
                             <img src={user.avatarUrl} alt={user.fullName} className="w-full h-full object-cover" />
                           ) : (
@@ -262,7 +262,7 @@ export default function AdminUsersPage() {
                           )}
                         </div>
                         <div className="flex flex-col min-w-0">
-                          <span className="text-sm font-bold text-slate-900 dark:text-white truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{user.fullName}</span>
+                          <span className="text-sm font-bold text-slate-900 dark:text-white truncate group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">{user.fullName}</span>
                           <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 flex items-center gap-1.5 mt-0.5 truncate">
                             <Mail className="w-3 h-3" />
                             {user.email}
@@ -278,7 +278,7 @@ export default function AdminUsersPage() {
                     <td className="px-8 py-5">
                       {user.mentorStatus ? (
                         <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm ${
-                          user.mentorStatus === MentorStatus.APPROVED ? 'bg-indigo-50 border border-indigo-100 text-indigo-600 dark:bg-indigo-900/20 dark:border-indigo-800/30 dark:text-indigo-400' :
+                          user.mentorStatus === MentorStatus.APPROVED ? 'bg-emerald-50 border border-emerald-100 text-emerald-600 dark:bg-emerald-900/20 dark:border-emerald-800/30 dark:text-emerald-400' :
                           user.mentorStatus === MentorStatus.PENDING ? 'bg-amber-50 border border-amber-100 text-amber-600 dark:bg-amber-900/20 dark:border-amber-800/30 dark:text-amber-400' :
                           'bg-rose-50 border border-rose-100 text-rose-600 dark:bg-rose-900/20 dark:border-rose-800/30 dark:text-rose-400'
                         }`}>
@@ -297,7 +297,7 @@ export default function AdminUsersPage() {
                       <div className="flex items-center justify-end gap-2 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 lg:translate-x-4 lg:group-hover:translate-x-0 transition-all duration-300">
                         <button 
                           onClick={() => handleViewDetails(user)}
-                          className="p-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-indigo-600 hover:border-indigo-200 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5"
+                          className="p-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-emerald-600 hover:border-emerald-200 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5"
                           title="View Details"
                         >
                           <Eye className="w-4 h-4" />
@@ -335,7 +335,7 @@ export default function AdminUsersPage() {
                         {user.mentorStatus === MentorStatus.SUSPENDED && (
                           <button 
                             onClick={() => restoreMentorMutation.mutate(user.userId)}
-                            className="p-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-indigo-500 hover:border-indigo-200 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5"
+                            className="p-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-emerald-500 hover:border-emerald-200 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5"
                             title="Restore Mentor Mode"
                           >
                             <UserCheck className="w-4 h-4" />
@@ -387,20 +387,20 @@ export default function AdminUsersPage() {
         {/* Pagination */}
         <div className="flex flex-col gap-4 border-t border-slate-100/50 bg-slate-50/30 px-6 py-5 dark:border-slate-800/50 dark:bg-slate-800/30 sm:flex-row sm:items-center sm:justify-between sm:px-8">
           <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
-            Page {data?.number! + 1} of {data?.totalPages}
+            Page {(data?.number ?? 0) + 1} of {data?.totalPages ?? 0}
           </p>
           <div className="flex gap-2">
             <button 
               disabled={page === 0}
               onClick={() => setPage(p => p - 1)}
-              className="p-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-indigo-600 hover:border-indigo-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-sm hover:shadow-md"
+              className="p-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-emerald-600 hover:border-emerald-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-sm hover:shadow-md"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
             <button 
               disabled={data?.last}
               onClick={() => setPage(p => p + 1)}
-              className="p-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-indigo-600 hover:border-indigo-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-sm hover:shadow-md"
+              className="p-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-emerald-600 hover:border-emerald-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-sm hover:shadow-md"
             >
               <ChevronRight className="w-5 h-5" />
             </button>

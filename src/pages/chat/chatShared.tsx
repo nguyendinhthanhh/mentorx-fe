@@ -67,7 +67,7 @@ export function MessageText({ content, mine }: { content?: string; mine: boolean
             target="_blank"
             rel="noreferrer"
             className={`inline-flex max-w-full break-all font-semibold underline underline-offset-4 ${
-              mine ? 'text-white/95' : 'text-indigo-600'
+              mine ? 'text-white/95' : 'text-emerald-600'
             }`}
           >
             {shortenUrl(part.value)}

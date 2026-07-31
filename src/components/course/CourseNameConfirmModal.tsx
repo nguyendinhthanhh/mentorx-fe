@@ -77,7 +77,7 @@ export default function CourseNameConfirmModal({
           }}
           placeholder="Enter the course name exactly"
           autoFocus
-          className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm font-medium text-slate-900 outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10"
+          className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm font-medium text-slate-900 outline-none focus:border-emerald-400 focus:ring-4 focus:ring-emerald-500/10"
         />
         {error && <p className="mt-2 text-xs font-bold text-rose-600">{error}</p>}
 

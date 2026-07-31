@@ -466,9 +466,9 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 rounded-[24px] border border-white/60 bg-white/70 backdrop-blur-xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] sm:p-10 relative overflow-hidden">
+    <form onSubmit={handleSubmit(onSubmit)} className="relative space-y-6 overflow-hidden rounded-[24px] border border-white/60 bg-white/70 p-4 shadow-[0_8px_30px_rgb(0,0,0,0.04)] backdrop-blur-xl sm:space-y-8 sm:p-8 lg:p-10">
       {/* Decorative gradient corner inside form */}
-      <div className="absolute -top-24 -right-24 w-48 h-48 bg-gradient-to-br from-[#4f46e5]/10 to-purple-500/10 rounded-full blur-2xl pointer-events-none"></div>
+      <div className="absolute -top-24 -right-24 w-48 h-48 bg-gradient-to-br from-[#4f46e5]/10 to-emerald-500/10 rounded-full blur-2xl pointer-events-none"></div>
       <div>
         <label className="mb-2 block text-sm font-bold text-[#1b2252]">Job title</label>
         <input
@@ -737,14 +737,14 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
         {attachments.length > 0 && (
           <div className="mt-4 space-y-3">
             {attachments.map((attachment) => (
-              <div key={attachment.fileUrl} className="flex items-center justify-between gap-3 rounded-xl border border-indigo-100 bg-indigo-50/50 p-4">
+              <div key={attachment.fileUrl} className="flex items-center justify-between gap-3 rounded-xl border border-emerald-100 bg-emerald-50/50 p-4">
                 <div className="flex min-w-0 items-center gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-indigo-100/50 bg-white/80 text-indigo-500 shadow-sm">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-emerald-100/50 bg-white/80 text-emerald-500 shadow-sm">
                     <FileIcon className="h-5 w-5" />
                   </div>
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-bold text-indigo-950">{attachment.fileName}</p>
-                    <p className="mt-1 text-xs font-medium text-indigo-600/80">
+                    <p className="truncate text-sm font-bold text-emerald-950">{attachment.fileName}</p>
+                    <p className="mt-1 text-xs font-medium text-emerald-600/80">
                       {attachment.fileType} {attachment.size ? `- ${Math.max(1, Math.round(attachment.size / 1024))} KB` : ''}
                     </p>
                   </div>
@@ -752,7 +752,7 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
                 <button
                   type="button"
                   onClick={() => handleRemoveAttachment(attachment.fileUrl)}
-                  className="flex h-8 w-8 items-center justify-center rounded-lg text-indigo-400 transition hover:bg-white/80 hover:text-rose-500"
+                  className="flex h-8 w-8 items-center justify-center rounded-lg text-emerald-400 transition hover:bg-white/80 hover:text-rose-500"
                 >
                   <X className="h-4 w-4" />
                 </button>

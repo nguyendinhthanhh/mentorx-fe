@@ -1,17 +1,11 @@
 import { useState, useRef, useCallback } from "react";
-import { sendChatMessage } from "@/services/geminiService";
-import RAG_SYSTEM_PROMPT from "@/services/ragContent";
+import { aiApi, type AiChatMessage } from "@/api/aiApi";
 
 export interface ChatMessage {
   id: string;
   role: "user" | "assistant";
   content: string;
   timestamp: number;
-}
-
-interface ChatHistoryEntry {
-  role: "user" | "assistant";
-  content: string;
 }
 
 export function useGeminiChat() {
@@ -30,13 +24,13 @@ export function useGeminiChat() {
   const isLoadingRef = useRef(false);
 
   const buildHistory = useCallback(
-    (msgs: ChatMessage[], userMsg: string): ChatHistoryEntry[] => {
-      const history: ChatHistoryEntry[] = [];
+    (msgs: ChatMessage[]): AiChatMessage[] => {
+      const history: AiChatMessage[] = [];
       for (const msg of msgs) {
-        if (msg.id === "welcome" || msg.content.startsWith("❌")) continue;
+        if (msg.id === "welcome" || msg.id.endsWith("-err")) continue;
         if (msg.role !== "user" && msg.role !== "assistant") continue;
         history.push({
-          role: msg.role,
+          role: msg.role === "user" ? "USER" : "ASSISTANT",
           content: msg.content,
         });
       }
@@ -68,31 +62,28 @@ export function useGeminiChat() {
       abortRef.current = abortController;
 
       try {
-        const history = buildHistory([...messages, userMessage], text);
-
-        const response = await sendChatMessage(
-          RAG_SYSTEM_PROMPT,
-          history,
-          text,
+        const history = buildHistory(messages);
+        const response = await aiApi.chat(
+          { message: text, history },
           abortController.signal
         );
 
         const assistantMessage: ChatMessage = {
           id: `msg-${Date.now()}-resp`,
           role: "assistant",
-          content: response,
+          content: response.message,
           timestamp: Date.now(),
         };
 
         setMessages((prev) => [...prev, assistantMessage]);
       } catch (err: unknown) {
-        if (err instanceof Error && err.name === "AbortError") {
+        if (
+          err instanceof Error &&
+          (err.name === "AbortError" || "code" in err && err.code === "ERR_CANCELED")
+        ) {
           return;
         }
-        const errorMsg =
-          err instanceof Error
-            ? err.message
-            : "Đã xảy ra lỗi, vui lòng thử lại sau.";
+        const errorMsg = "Không thể gửi câu hỏi lúc này. Vui lòng thử lại sau.";
         setError(errorMsg);
         setMessages((prev) => [
           ...prev,

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
 import { jobApi } from '@/api/jobApi'
 import { systemApi } from '@/api/systemApi'
@@ -75,12 +76,12 @@ export default function JobModal({ job, isOpen, onClose }: JobModalProps) {
 
   if (!isOpen) return null
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-      <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] w-full max-w-2xl max-h-[90vh] overflow-hidden shadow-2xl border border-gray-100 dark:border-gray-800 flex flex-col">
+  return createPortal((
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-2 backdrop-blur-sm sm:p-4">
+      <div className="flex max-h-[calc(100dvh-1rem)] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-2xl dark:border-gray-800 dark:bg-gray-900 sm:max-h-[90dvh] sm:rounded-[2.5rem]">
         {/* Header */}
-        <div className="px-8 py-6 border-b border-gray-50 dark:border-gray-800 flex items-center justify-between bg-gray-50/30 dark:bg-gray-800/30">
-          <div>
+        <div className="flex items-center justify-between gap-3 border-b border-gray-50 bg-gray-50/30 px-4 py-4 dark:border-gray-800 dark:bg-gray-800/30 sm:px-8 sm:py-6">
+          <div className="min-w-0">
             <h2 className="text-xl font-black text-gray-900 dark:text-white tracking-tight">
               Edit Job Content
             </h2>
@@ -88,13 +89,13 @@ export default function JobModal({ job, isOpen, onClose }: JobModalProps) {
               Job ID: {job?.jobId}
             </p>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-colors">
+          <button type="button" onClick={onClose} aria-label="Close" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl transition-colors hover:bg-gray-100 dark:hover:bg-gray-800">
             <X className="w-6 h-6 text-gray-400" />
           </button>
         </div>
 
         {/* Form */}
-        <div className="flex-1 overflow-y-auto p-8">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-8">
           <form id="job-form" onSubmit={handleSubmit((data: any) => mutation.mutate(data))} className="space-y-6">
             {serverError && (
               <div className="p-4 bg-rose-50 dark:bg-rose-900/20 border border-rose-100 dark:border-rose-800 rounded-2xl flex items-center gap-3 text-rose-600 dark:text-rose-400 text-sm font-bold">
@@ -174,9 +175,9 @@ export default function JobModal({ job, isOpen, onClose }: JobModalProps) {
             </div>
 
             {/* Budget Details */}
-            <div className="bg-gray-50 dark:bg-gray-800/50 p-6 rounded-[2rem] border border-gray-100 dark:border-gray-800 space-y-6">
+            <div className="space-y-6 rounded-2xl border border-gray-100 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-800/50 sm:rounded-[2rem] sm:p-6">
               {budgetType === BudgetType.FIXED ? (
-                <div className="grid grid-cols-2 gap-6">
+                <div className="grid gap-4 sm:grid-cols-2 sm:gap-6">
                   <div>
                     <label className="block text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] mb-2 ml-1">Min Budget (MXC)</label>
                     <input 
@@ -195,7 +196,7 @@ export default function JobModal({ job, isOpen, onClose }: JobModalProps) {
                   </div>
                 </div>
               ) : (
-                <div className="grid grid-cols-2 gap-6">
+                <div className="grid gap-4 sm:grid-cols-2 sm:gap-6">
                   <div>
                     <label className="block text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] mb-2 ml-1">Hourly Rate (MXC)</label>
                     <input 
@@ -217,7 +218,7 @@ export default function JobModal({ job, isOpen, onClose }: JobModalProps) {
             </div>
 
             {isEdit && (
-              <div className="grid grid-cols-2 gap-6">
+              <div className="grid gap-4 sm:grid-cols-2 sm:gap-6">
                 <div>
                   <label className="block text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] mb-2 ml-1">Status</label>
                   <select 
@@ -245,7 +246,7 @@ export default function JobModal({ job, isOpen, onClose }: JobModalProps) {
         </div>
 
         {/* Footer */}
-        <div className="px-8 py-6 border-t border-gray-50 dark:border-gray-800 bg-gray-50/30 dark:bg-gray-800/30 flex justify-end gap-4">
+        <div className="flex flex-col-reverse gap-3 border-t border-gray-50 bg-gray-50/30 px-4 py-4 dark:border-gray-800 dark:bg-gray-800/30 min-[420px]:flex-row min-[420px]:justify-end sm:px-8 sm:py-6">
           <button 
             onClick={onClose}
             className="px-8 py-3.5 rounded-2xl text-sm font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest hover:text-gray-900 dark:hover:text-white transition-all"
@@ -264,5 +265,5 @@ export default function JobModal({ job, isOpen, onClose }: JobModalProps) {
         </div>
       </div>
     </div>
-  )
+  ), document.body)
 }

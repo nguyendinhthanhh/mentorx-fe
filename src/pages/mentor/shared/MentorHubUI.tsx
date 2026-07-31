@@ -42,7 +42,7 @@ export function MetricCard({
   tone?: 'indigo' | 'emerald' | 'amber' | 'rose' | 'slate'
 }) {
   const toneClasses = {
-    indigo: 'text-indigo-600',
+    indigo: 'text-emerald-600',
     emerald: 'text-emerald-600',
     amber: 'text-amber-600',
     rose: 'text-rose-600',
@@ -101,7 +101,7 @@ export function LoadingRows({ rows = 4 }: { rows?: number }) {
 
 export function StatusPill({ label, tone = 'slate' }: { label: string; tone?: 'indigo' | 'emerald' | 'amber' | 'rose' | 'slate' }) {
   const toneClasses = {
-    indigo: 'bg-indigo-50 text-indigo-700 ring-indigo-100',
+    indigo: 'bg-emerald-50 text-emerald-700 ring-emerald-100',
     emerald: 'bg-emerald-50 text-emerald-700 ring-emerald-100',
     amber: 'bg-amber-50 text-amber-700 ring-amber-100',
     rose: 'bg-rose-50 text-rose-700 ring-rose-100',
@@ -127,7 +127,7 @@ export function TextInput(props: InputHTMLAttributes<HTMLInputElement>) {
   return (
     <input
       {...props}
-      className={`h-10 rounded-lg border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 shadow-sm ${props.className || ''}`}
+      className={`h-10 rounded-lg border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 shadow-sm ${props.className || ''}`}
     />
   )
 }
@@ -136,7 +136,7 @@ export function SelectInput(props: SelectHTMLAttributes<HTMLSelectElement>) {
   return (
     <select
       {...props}
-      className={`h-10 rounded-lg border border-slate-200 bg-white px-4 text-sm font-medium text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 shadow-sm ${props.className || ''}`}
+      className={`h-10 rounded-lg border border-slate-200 bg-white px-4 text-sm font-medium text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 shadow-sm ${props.className || ''}`}
     />
   )
 }

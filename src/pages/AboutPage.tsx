@@ -87,7 +87,7 @@ const pricingTiers = [
     price: '9',
     unit: '%',
     pillText: '500 – dưới 1.000 MX',
-    pillColor: 'bg-indigo-50 text-indigo-700',
+    pillColor: 'bg-emerald-50 text-emerald-700',
     features: ['Tối ưu chi phí nhất', 'Bảo vệ bởi Escrow', 'Phí nền tảng 9%'],
     highlight: true,
   },
@@ -97,7 +97,7 @@ const pricingTiers = [
     price: '8',
     unit: '%',
     pillText: '1.000 – dưới 2.000 MX',
-    pillColor: 'bg-purple-50 text-purple-700',
+    pillColor: 'bg-emerald-50 text-emerald-700',
     features: ['Tiết kiệm chi phí', 'Bảo vệ bởi Escrow', 'Phí nền tảng 8%'],
     highlight: false,
   },
@@ -176,7 +176,7 @@ function SectionHeader({
       className={alignClass}
     >
       {badge && (
-        <span className="mb-4 inline-flex items-center gap-1.5 rounded-full bg-indigo-50 px-3 py-1 text-xs font-bold uppercase tracking-wide text-indigo-700">
+        <span className="mb-4 inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold uppercase tracking-wide text-emerald-700">
           {badge}
         </span>
       )}
@@ -188,7 +188,7 @@ function SectionHeader({
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-white text-slate-900 selection:bg-indigo-100 selection:text-indigo-900">
+    <div className="min-h-screen bg-white text-slate-900 selection:bg-emerald-100 selection:text-emerald-900">
       
       {/* Visual Hero Section */}
       <section className="border-b border-slate-200 bg-white overflow-hidden">
@@ -198,7 +198,7 @@ export default function AboutPage() {
             animate="visible" 
             variants={slideInLeft}
           >
-            <div className="inline-flex items-center gap-2 rounded-full bg-indigo-50 px-3 py-1 text-xs font-bold uppercase tracking-wide text-indigo-700">
+            <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold uppercase tracking-wide text-emerald-700">
               Về Mentor X
             </div>
             <h1 className="mt-6 text-4xl font-black leading-[1.15] tracking-tight text-slate-900 sm:text-5xl lg:text-[56px]">
@@ -212,7 +212,7 @@ export default function AboutPage() {
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Link
                 to={mentorRoute}
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-6 font-bold text-white transition-all hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-500/30 hover:-translate-y-1"
+                className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 font-bold text-white transition-all hover:bg-emerald-700 hover:shadow-lg hover:shadow-emerald-500/30 hover:-translate-y-1"
               >
                 Tìm mentor
                 <ArrowRight className="h-4 w-4" />
@@ -291,12 +291,12 @@ export default function AboutPage() {
               <motion.article 
                 key={item.title} 
                 variants={fadeInUp}
-                className="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-xl hover:shadow-indigo-500/10 hover:border-indigo-200"
+                className="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-xl hover:shadow-emerald-500/10 hover:border-emerald-200"
               >
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 transition-colors group-hover:bg-indigo-600 group-hover:text-white">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 transition-colors group-hover:bg-emerald-600 group-hover:text-white">
                   <item.icon className="h-6 w-6 transition-transform group-hover:scale-110" />
                 </div>
-                <h3 className="mt-5 text-lg font-bold text-slate-900 transition-colors group-hover:text-indigo-600">{item.title}</h3>
+                <h3 className="mt-5 text-lg font-bold text-slate-900 transition-colors group-hover:text-emerald-600">{item.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-slate-600">{item.description}</p>
               </motion.article>
             ))}
@@ -317,7 +317,7 @@ export default function AboutPage() {
             {/* Step 1 & 2 */}
             <div className="grid gap-8 lg:grid-cols-2 lg:items-center">
               <motion.div 
-                className="order-2 lg:order-1 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition-all duration-500 hover:shadow-2xl hover:shadow-indigo-500/10 hover:-translate-y-2"
+                className="order-2 lg:order-1 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition-all duration-500 hover:shadow-2xl hover:shadow-emerald-500/10 hover:-translate-y-2"
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true, margin: "-100px" }}
@@ -338,10 +338,10 @@ export default function AboutPage() {
               >
                 <motion.div className="group" variants={fadeInUp}>
                   <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-100 text-sm font-bold text-indigo-700 transition-transform group-hover:scale-110 group-hover:bg-indigo-600 group-hover:text-white">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 text-sm font-bold text-emerald-700 transition-transform group-hover:scale-110 group-hover:bg-emerald-600 group-hover:text-white">
                       1
                     </div>
-                    <h3 className="text-xl font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">Tìm mentor phù hợp</h3>
+                    <h3 className="text-xl font-bold text-slate-900 group-hover:text-emerald-600 transition-colors">Tìm mentor phù hợp</h3>
                   </div>
                   <p className="mt-3 ml-13 text-base leading-relaxed text-slate-600">
                     Tìm kiếm theo kỹ năng, lĩnh vực và mục tiêu phát triển. Công cụ tìm kiếm mạnh mẽ giúp bạn nhanh chóng thu hẹp danh sách các chuyên gia phù hợp nhất với nhu cầu hiện tại.
@@ -349,10 +349,10 @@ export default function AboutPage() {
                 </motion.div>
                 <motion.div className="group" variants={fadeInUp}>
                   <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-100 text-sm font-bold text-indigo-700 transition-transform group-hover:scale-110 group-hover:bg-indigo-600 group-hover:text-white">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 text-sm font-bold text-emerald-700 transition-transform group-hover:scale-110 group-hover:bg-emerald-600 group-hover:text-white">
                       2
                     </div>
-                    <h3 className="text-xl font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">Xem hồ sơ chuyên gia</h3>
+                    <h3 className="text-xl font-bold text-slate-900 group-hover:text-emerald-600 transition-colors">Xem hồ sơ chuyên gia</h3>
                   </div>
                   <p className="mt-3 ml-13 text-base leading-relaxed text-slate-600">
                     Đọc kỹ chuyên môn, kinh nghiệm thực chiến, phong cách hỗ trợ, đánh giá từ người học trước và mức giá để đưa ra quyết định chính xác.
@@ -372,10 +372,10 @@ export default function AboutPage() {
               >
                 <motion.div className="group" variants={fadeInUp}>
                   <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-100 text-sm font-bold text-indigo-700 transition-transform group-hover:scale-110 group-hover:bg-indigo-600 group-hover:text-white">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 text-sm font-bold text-emerald-700 transition-transform group-hover:scale-110 group-hover:bg-emerald-600 group-hover:text-white">
                       3
                     </div>
-                    <h3 className="text-xl font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">Đặt lịch linh hoạt</h3>
+                    <h3 className="text-xl font-bold text-slate-900 group-hover:text-emerald-600 transition-colors">Đặt lịch linh hoạt</h3>
                   </div>
                   <p className="mt-3 ml-13 text-base leading-relaxed text-slate-600">
                     Chọn thời gian mentoring phù hợp thông qua lịch trực quan. Việc đồng bộ lịch diễn ra tự động để hai bên dễ dàng sắp xếp thời gian chung.
@@ -383,10 +383,10 @@ export default function AboutPage() {
                 </motion.div>
                 <motion.div className="group" variants={fadeInUp}>
                   <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-100 text-sm font-bold text-indigo-700 transition-transform group-hover:scale-110 group-hover:bg-indigo-600 group-hover:text-white">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 text-sm font-bold text-emerald-700 transition-transform group-hover:scale-110 group-hover:bg-emerald-600 group-hover:text-white">
                       4
                     </div>
-                    <h3 className="text-xl font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">Tham gia mentoring</h3>
+                    <h3 className="text-xl font-bold text-slate-900 group-hover:text-emerald-600 transition-colors">Tham gia mentoring</h3>
                   </div>
                   <p className="mt-3 ml-13 text-base leading-relaxed text-slate-600">
                     Tham gia buổi gọi video chất lượng cao hoặc trò chuyện trực tiếp để nhận hướng dẫn rõ ràng, và quan trọng nhất là chuyển lời khuyên thành hành động thực tế.
@@ -394,7 +394,7 @@ export default function AboutPage() {
                 </motion.div>
               </motion.div>
               <motion.div 
-                className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition-all duration-500 hover:shadow-2xl hover:shadow-indigo-500/10 hover:-translate-y-2"
+                className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition-all duration-500 hover:shadow-2xl hover:shadow-emerald-500/10 hover:-translate-y-2"
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true, margin: "-100px" }}
@@ -436,13 +436,13 @@ export default function AboutPage() {
                   variants={fadeInUp}
                   className={`relative flex flex-col rounded-[2rem] border p-8 shadow-sm transition-all hover:shadow-md ${
                     tier.highlight 
-                      ? 'border-indigo-500 shadow-indigo-500/20 shadow-xl md:-translate-y-4 z-10 bg-white ring-1 ring-indigo-500' 
+                      ? 'border-emerald-500 shadow-emerald-500/20 shadow-xl md:-translate-y-4 z-10 bg-white ring-1 ring-emerald-500' 
                       : 'border-slate-200 bg-white'
                   }`}
                 >
                   {tier.highlight && (
                     <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                      <span className="rounded-full bg-indigo-600 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-white shadow-sm">
+                      <span className="rounded-full bg-emerald-600 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-white shadow-sm">
                         Phổ biến nhất
                       </span>
                     </div>
@@ -467,7 +467,7 @@ export default function AboutPage() {
                   <ul className="mb-8 flex-1 space-y-4">
                     {tier.features.map(feature => (
                       <li key={feature} className="flex items-center gap-3">
-                        <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-indigo-200 bg-indigo-50 text-indigo-600">
+                        <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-emerald-200 bg-emerald-50 text-emerald-600">
                           <CheckCircle2 className="h-3 w-3" />
                         </div>
                         <span className="text-sm font-medium text-slate-600">{feature}</span>
@@ -479,7 +479,7 @@ export default function AboutPage() {
                     to={mentorRoute}
                     className={`w-full text-center rounded-xl py-3.5 text-sm font-bold transition-all ${
                       tier.highlight 
-                        ? 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-md shadow-indigo-500/20 hover:-translate-y-0.5' 
+                        ? 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-md shadow-emerald-500/20 hover:-translate-y-0.5' 
                         : 'border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:border-slate-300'
                     }`}
                   >
@@ -501,10 +501,10 @@ export default function AboutPage() {
                 </div>
               </div>
               <div className="hidden md:block w-px h-16 bg-slate-200" />
-              <div className="flex-1 w-full rounded-xl bg-indigo-50 p-4 border border-indigo-100">
-                <h4 className="text-sm font-bold text-indigo-900 mb-2">💡 Ví dụ tính phí</h4>
-                <p className="text-sm text-indigo-800">
-                  Với buổi mentoring trị giá <span className="font-bold">800 MX</span>, phí nền tảng là <span className="font-bold text-indigo-600">72 MX</span> (9%). Mentor thực nhận <span className="font-bold text-emerald-600">728 MX</span>.
+              <div className="flex-1 w-full rounded-xl bg-emerald-50 p-4 border border-emerald-100">
+                <h4 className="text-sm font-bold text-emerald-900 mb-2">💡 Ví dụ tính phí</h4>
+                <p className="text-sm text-emerald-800">
+                  Với buổi mentoring trị giá <span className="font-bold">800 MX</span>, phí nền tảng là <span className="font-bold text-emerald-600">72 MX</span> (9%). Mentor thực nhận <span className="font-bold text-emerald-600">728 MX</span>.
                 </p>
               </div>
             </motion.div>
@@ -529,10 +529,10 @@ export default function AboutPage() {
           >
             <motion.article 
               variants={fadeInUp}
-              className="flex flex-col rounded-2xl border border-slate-200 bg-white p-8 shadow-sm transition-all duration-300 hover:shadow-xl hover:shadow-indigo-500/10 hover:-translate-y-2 hover:border-indigo-200"
+              className="flex flex-col rounded-2xl border border-slate-200 bg-white p-8 shadow-sm transition-all duration-300 hover:shadow-xl hover:shadow-emerald-500/10 hover:-translate-y-2 hover:border-emerald-200"
             >
               <div className="flex items-center gap-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
                   <Users className="h-6 w-6" />
                 </div>
                 <h3 className="text-2xl font-bold text-slate-900">Dành cho người học</h3>
@@ -547,7 +547,7 @@ export default function AboutPage() {
               </div>
               <Link
                 to={mentorRoute}
-                className="mt-8 inline-flex h-12 w-full items-center justify-center rounded-xl bg-indigo-600 font-bold text-white transition hover:bg-indigo-700"
+                className="mt-8 inline-flex h-12 w-full items-center justify-center rounded-xl bg-emerald-600 font-bold text-white transition hover:bg-emerald-700"
               >
                 Tìm mentor phù hợp
               </Link>
@@ -555,10 +555,10 @@ export default function AboutPage() {
 
             <motion.article 
               variants={fadeInUp}
-              className="flex flex-col rounded-2xl border border-slate-200 bg-white p-8 shadow-sm transition-all duration-300 hover:shadow-xl hover:shadow-indigo-500/10 hover:-translate-y-2 hover:border-indigo-200"
+              className="flex flex-col rounded-2xl border border-slate-200 bg-white p-8 shadow-sm transition-all duration-300 hover:shadow-xl hover:shadow-emerald-500/10 hover:-translate-y-2 hover:border-emerald-200"
             >
               <div className="flex items-center gap-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
                   <GraduationCap className="h-6 w-6" />
                 </div>
                 <h3 className="text-2xl font-bold text-slate-900">Dành cho mentor</h3>
@@ -601,7 +601,7 @@ export default function AboutPage() {
             <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
               <Link
                 to={mentorRoute}
-                className="inline-flex h-12 items-center justify-center rounded-xl bg-white px-8 font-bold text-slate-900 transition hover:bg-indigo-50 hover:text-indigo-600 hover:scale-105"
+                className="inline-flex h-12 items-center justify-center rounded-xl bg-white px-8 font-bold text-slate-900 transition hover:bg-emerald-50 hover:text-emerald-600 hover:scale-105"
               >
                 Khám phá mentor
               </Link>

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import { 
   X, Mail, Phone, Calendar, Wallet, Briefcase, BookOpen, 
   Clock, ShieldCheck, ShieldAlert, ExternalLink, Activity, 
@@ -114,22 +115,25 @@ export default function AdminUserDetailsModal({ isOpen, onClose, user }: AdminUs
     { id: 'security', label: 'Security', icon: Shield, desc: 'Access & safety audit' },
   ]
 
-  return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-8 bg-gray-900/50 backdrop-blur-sm">
+  return createPortal((
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-gray-900/50 p-0 backdrop-blur-sm sm:p-4 lg:p-8">
       <div 
-        className="w-full max-w-5xl h-[85vh] bg-white dark:bg-gray-900 rounded-3xl shadow-2xl overflow-hidden flex animate-in fade-in zoom-in-95 duration-300 border border-gray-200 dark:border-gray-800"
+        role="dialog"
+        aria-modal="true"
+        aria-label="User details"
+        className="flex h-dvh max-h-none w-full max-w-none flex-col overflow-hidden border border-gray-200 bg-white shadow-2xl animate-in fade-in zoom-in-95 duration-300 dark:border-gray-800 dark:bg-gray-900 sm:h-[calc(100dvh-2rem)] sm:max-w-5xl sm:rounded-3xl lg:h-[85dvh] md:flex-row"
         onClick={e => e.stopPropagation()}
       >
         {/* LEFT SIDEBAR */}
-        <div className="w-72 bg-gray-50/50 dark:bg-gray-900 border-r border-gray-100 dark:border-gray-800 flex flex-col">
+        <div className="flex w-full shrink-0 flex-col border-b border-gray-100 bg-gray-50/50 dark:border-gray-800 dark:bg-gray-900 md:w-72 md:border-b-0 md:border-r">
            {/* Profile Summary */}
-           <div className="p-8 text-center space-y-4 border-b border-gray-100 dark:border-gray-800">
+           <div className="flex items-center gap-3 border-b border-gray-100 p-3 text-left dark:border-gray-800 sm:p-4 md:block md:space-y-4 md:p-8 md:text-center">
               <div className="relative inline-block group">
-                 <div className="w-24 h-24 rounded-2xl bg-white dark:bg-gray-800 p-1 shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden mx-auto">
+                 <div className="mx-auto h-14 w-14 overflow-hidden rounded-2xl border border-gray-200 bg-white p-1 shadow-sm dark:border-gray-700 dark:bg-gray-800 md:h-24 md:w-24">
                     {user.avatarUrl ? (
                        <img src={user.avatarUrl} alt={user.fullName} className="w-full h-full object-cover rounded-[0.9rem]" />
                     ) : (
-                       <div className="w-full h-full flex items-center justify-center bg-indigo-50 text-indigo-600 text-3xl font-bold rounded-[0.9rem]">
+                       <div className="w-full h-full flex items-center justify-center bg-emerald-50 text-emerald-600 text-3xl font-bold rounded-[0.9rem]">
                           {user.fullName.charAt(0).toUpperCase()}
                        </div>
                     )}
@@ -145,18 +149,18 @@ export default function AdminUserDetailsModal({ isOpen, onClose, user }: AdminUs
            </div>
 
            {/* Navigation Menu */}
-           <div className="flex-1 px-4 py-4 space-y-1">
+           <div className="scrollbar-hide flex gap-2 overflow-x-auto px-3 py-2 md:flex-1 md:flex-col md:space-y-1 md:overflow-y-auto md:px-4 md:py-4">
               {menuItems.map(item => (
                 <button
                   key={item.id}
                   onClick={() => setActiveTab(item.id as TabType)}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group ${
+                  className={`group flex min-h-11 shrink-0 items-center gap-3 rounded-xl px-3 py-2.5 transition-all md:w-full ${
                     activeTab === item.id 
-                      ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400' 
+                      ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' 
                       : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
                   }`}
                 >
-                   <item.icon className={`w-5 h-5 flex-shrink-0 ${activeTab === item.id ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-400'}`} />
+                   <item.icon className={`w-5 h-5 flex-shrink-0 ${activeTab === item.id ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400'}`} />
                    <div className="text-left flex-1 min-w-0">
                       <p className="text-sm font-medium leading-none truncate">{item.label}</p>
                    </div>
@@ -166,10 +170,10 @@ export default function AdminUserDetailsModal({ isOpen, onClose, user }: AdminUs
            </div>
 
            {/* Sidebar Footer Actions */}
-           <div className="p-4 border-t border-gray-100 dark:border-gray-800 space-y-2">
+           <div className="space-y-2 border-t border-gray-100 p-3 dark:border-gray-800 md:p-4">
               <button 
                 onClick={handleMessageUser}
-                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 transition-colors"
+                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700 transition-colors"
               >
                  <MessageSquare className="w-4 h-4" /> Message User
               </button>
@@ -177,32 +181,33 @@ export default function AdminUserDetailsModal({ isOpen, onClose, user }: AdminUs
         </div>
 
         {/* RIGHT CONTENT AREA */}
-        <div className="flex-1 flex flex-col bg-white dark:bg-gray-900">
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col bg-white dark:bg-gray-900">
            {/* Top Info Bar */}
-           <div className="h-20 px-8 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between flex-shrink-0">
-              <div className="flex items-center gap-4">
+           <div className="flex min-h-16 flex-shrink-0 items-center justify-between gap-2 border-b border-gray-100 px-3 py-2 dark:border-gray-800 sm:px-5 lg:h-20 lg:px-8">
+              <div className="flex min-w-0 items-center gap-2 sm:gap-4">
                  <span className={`px-3 py-1 rounded-full border text-xs font-medium ${getStatusColor(user.status)}`}>
                    Status: {user.status}
                  </span>
-                 <div className="h-4 w-px bg-gray-200 dark:bg-gray-700" />
-                 <span className="text-xs font-medium text-gray-500 flex items-center gap-1.5">
+                 <div className="hidden h-4 w-px bg-gray-200 dark:bg-gray-700 sm:block" />
+                 <span className="hidden items-center gap-1.5 truncate text-xs font-medium text-gray-500 sm:flex">
                     <History className="w-4 h-4" /> Member since {formatDateTime(user.createdAt)}
                  </span>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex shrink-0 items-center gap-1 sm:gap-3">
                  <button 
                   onClick={() => setIsNotifModalOpen(true)}
-                  className="px-4 py-2 rounded-xl bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 transition-colors shadow-sm"
+                  className="min-h-11 rounded-xl bg-emerald-600 px-3 py-2 text-xs font-medium text-white shadow-sm transition-colors hover:bg-emerald-700 sm:px-4 sm:text-sm"
                  >
-                    Send Notification
+                    <span className="hidden sm:inline">Send Notification</span>
+                    <span className="sm:hidden">Notify</span>
                  </button>
-                 <button className="p-2 rounded-xl border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-500 transition-colors">
+                 <button className="hidden min-h-11 min-w-11 items-center justify-center rounded-xl border border-gray-200 text-gray-500 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800 sm:flex">
                     <ExternalLink className="w-4 h-4" />
                  </button>
-                 <div className="w-px h-6 bg-gray-200 dark:bg-gray-700 ml-1"></div>
+                 <div className="ml-1 hidden h-6 w-px bg-gray-200 dark:bg-gray-700 sm:block"></div>
                  <button 
                   onClick={onClose} 
-                  className="p-2 rounded-xl hover:bg-rose-50 dark:hover:bg-rose-900/20 hover:text-rose-600 text-gray-500 transition-colors"
+                  className="flex min-h-11 min-w-11 items-center justify-center rounded-xl text-gray-500 transition-colors hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-900/20"
                   title="Close Dashboard"
                  >
                     <X className="w-5 h-5" />
@@ -211,7 +216,7 @@ export default function AdminUserDetailsModal({ isOpen, onClose, user }: AdminUs
            </div>
 
            {/* Tab Content (Scrollable) */}
-           <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
+           <div className="custom-scrollbar flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
               
               {activeTab === 'overview' && (
                 <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-300">
@@ -224,12 +229,12 @@ export default function AdminUserDetailsModal({ isOpen, onClose, user }: AdminUs
                             </div>
                          </section>
 
-                         <section className="grid grid-cols-2 gap-8">
+                         <section className="grid gap-6 sm:grid-cols-2 lg:gap-8">
                             <div className="space-y-4">
                                <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Contact Details</h3>
                                <div className="space-y-4">
                                   <div className="flex items-center gap-3">
-                                     <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center flex-shrink-0">
+                                     <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center flex-shrink-0">
                                         <Mail className="w-5 h-5" />
                                      </div>
                                      <div className="min-w-0 flex-1">
@@ -261,7 +266,7 @@ export default function AdminUserDetailsModal({ isOpen, onClose, user }: AdminUs
                                      </div>
                                   </div>
                                   <div className="flex items-center gap-3">
-                                     <div className="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 flex items-center justify-center flex-shrink-0">
+                                     <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center flex-shrink-0">
                                         <Award className="w-5 h-5" />
                                      </div>
                                      <div>
@@ -292,7 +297,7 @@ export default function AdminUserDetailsModal({ isOpen, onClose, user }: AdminUs
                             <div className="flex flex-wrap gap-3">
                                <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center" title="Verified Member"><ShieldCheck className="w-5 h-5" /></div>
                                <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center" title="2FA Enabled"><Lock className="w-5 h-5" /></div>
-                               <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center" title="Course Grad"><BookOpen className="w-5 h-5" /></div>
+                               <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center" title="Course Grad"><BookOpen className="w-5 h-5" /></div>
                             </div>
                          </div>
                       </div>
@@ -302,8 +307,8 @@ export default function AdminUserDetailsModal({ isOpen, onClose, user }: AdminUs
 
               {activeTab === 'financial' && (
                 <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-300">
-                   <div className="grid grid-cols-2 gap-6">
-                      <div className="p-6 rounded-3xl bg-indigo-600 text-white shadow-md relative overflow-hidden group">
+                   <div className="grid gap-6 sm:grid-cols-2">
+                      <div className="p-6 rounded-3xl bg-emerald-600 text-white shadow-md relative overflow-hidden group">
                          <div className="absolute -right-4 -bottom-4 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700" />
                          <p className="text-xs font-medium uppercase tracking-wider opacity-80">Available Credits</p>
                          <h3 className="text-3xl font-bold mt-2">{formatCurrency(user.balance || 1250000)}</h3>
@@ -324,11 +329,11 @@ export default function AdminUserDetailsModal({ isOpen, onClose, user }: AdminUs
                    <section className="space-y-4">
                       <div className="flex items-center justify-between">
                          <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Transaction Ledger</h3>
-                         <button className="text-sm font-medium text-indigo-600 hover:underline">View All</button>
+                         <button className="text-sm font-medium text-emerald-600 hover:underline">View All</button>
                       </div>
                       <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden">
                          {[
-                           { id: 'TX-1', type: 'DEPOSIT', amount: '+500,000', method: 'VNPAY', status: 'MATCHED', time: '2h ago' },
+                           { id: 'TX-1', type: 'DEPOSIT', amount: '+500,000', method: 'PAYOS', status: 'MATCHED', time: '2h ago' },
                            { id: 'TX-2', type: 'PAYOUT', amount: '-120,000', method: 'BANK', status: 'COMPLETED', time: '1d ago' },
                            { id: 'TX-3', type: 'PURCHASE', amount: '-350,000', method: 'WALLET', status: 'COMPLETED', time: '3d ago' },
                          ].map((tx, i) => (
@@ -355,17 +360,17 @@ export default function AdminUserDetailsModal({ isOpen, onClose, user }: AdminUs
 
               {activeTab === 'activity' && (
                  <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-300">
-                    <div className="grid grid-cols-2 gap-8">
+                    <div className="grid gap-6 sm:grid-cols-2 lg:gap-8">
                        <section className="space-y-4">
                           <div className="flex items-center justify-between">
                              <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Active Jobs</h3>
-                             <span className="px-2.5 py-1 rounded-md bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400 text-xs font-semibold">12 Posted</span>
+                             <span className="px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400 text-xs font-semibold">12 Posted</span>
                           </div>
                           <div className="space-y-3">
                              {[1,2,3].map(i => (
                                <div key={i} className="p-4 rounded-2xl bg-gray-50 dark:bg-gray-800/50 border border-transparent hover:border-gray-200 dark:hover:border-gray-700 transition-colors cursor-pointer group">
                                   <div className="flex justify-between items-start">
-                                     <p className="text-sm font-semibold text-gray-900 dark:text-white group-hover:text-indigo-600 transition-colors">Backend Architect Needed</p>
+                                     <p className="text-sm font-semibold text-gray-900 dark:text-white group-hover:text-emerald-600 transition-colors">Backend Architect Needed</p>
                                      <ExternalLink className="w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-all" />
                                   </div>
                                   <p className="text-xs font-medium text-gray-500 mt-1">Budget: $450 • 2 weeks ago</p>
@@ -376,18 +381,18 @@ export default function AdminUserDetailsModal({ isOpen, onClose, user }: AdminUs
                        <section className="space-y-4">
                           <div className="flex items-center justify-between">
                              <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Learning History</h3>
-                             <span className="px-2.5 py-1 rounded-md bg-purple-50 text-purple-600 dark:bg-purple-500/10 dark:text-purple-400 text-xs font-semibold">5 Enrolled</span>
+                             <span className="px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400 text-xs font-semibold">5 Enrolled</span>
                           </div>
                           <div className="space-y-3">
                              {[1,2].map(i => (
                                <div key={i} className="p-4 rounded-2xl bg-gray-50 dark:bg-gray-800/50 border border-transparent hover:border-gray-200 dark:hover:border-gray-700 transition-colors flex gap-4">
                                   <div className="w-10 h-10 rounded-xl bg-white dark:bg-gray-900 flex items-center justify-center shadow-sm">
-                                     <BookOpen className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                                     <BookOpen className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                                   </div>
                                   <div className="min-w-0 flex-1">
                                      <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">Advanced System Design</p>
                                      <div className="mt-2 h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                                        <div className="h-full bg-purple-600 dark:bg-purple-500 w-[85%]" />
+                                        <div className="h-full bg-emerald-600 dark:bg-emerald-500 w-[85%]" />
                                      </div>
                                      <p className="text-xs font-medium text-gray-500 mt-1.5">85% Completed</p>
                                   </div>
@@ -401,7 +406,7 @@ export default function AdminUserDetailsModal({ isOpen, onClose, user }: AdminUs
 
               {activeTab === 'security' && (
                  <div className="max-w-3xl mx-auto space-y-8 animate-in fade-in slide-in-from-right-4 duration-300">
-                    <div className="grid grid-cols-2 gap-6">
+                    <div className="grid gap-6 sm:grid-cols-2">
                        <div className="p-6 rounded-3xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm flex items-center gap-4">
                           <div className={`p-3 rounded-xl ${user.isEmailVerified ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400' : 'bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400'}`}>
                              <Mail className="w-5 h-5" />
@@ -424,10 +429,10 @@ export default function AdminUserDetailsModal({ isOpen, onClose, user }: AdminUs
 
                     <section className="bg-gray-900 rounded-3xl p-8 text-white space-y-6">
                        <div className="flex items-center gap-3">
-                          <Lock className="w-5 h-5 text-indigo-400" />
+                          <Lock className="w-5 h-5 text-emerald-400" />
                           <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-200">{t('admin.userSecurity.title')}</h3>
                        </div>
-                       <div className="grid grid-cols-2 gap-8">
+                       <div className="grid gap-6 sm:grid-cols-2 lg:gap-8">
                           <div className="space-y-1">
                              <p className="text-xs font-medium text-gray-400 uppercase tracking-wider">{t('admin.userSecurity.lastActivity')}</p>
                              <p className="text-sm font-medium text-gray-100">{user.lastSeenAt ? formatDateTime(user.lastSeenAt) : t('admin.userSecurity.noActivity')}</p>
@@ -481,7 +486,7 @@ export default function AdminUserDetailsModal({ isOpen, onClose, user }: AdminUs
                   value={notifTitle}
                   onChange={e => setNotifTitle(e.target.value)}
                   placeholder="Notification Title"
-                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-sm outline-none text-gray-900 dark:text-white"
+                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all text-sm outline-none text-gray-900 dark:text-white"
                 />
               </div>
               <div className="space-y-1.5">
@@ -491,7 +496,7 @@ export default function AdminUserDetailsModal({ isOpen, onClose, user }: AdminUs
                   onChange={e => setNotifContent(e.target.value)}
                   placeholder="Enter message..."
                   rows={4}
-                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-sm outline-none text-gray-900 dark:text-white resize-none"
+                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all text-sm outline-none text-gray-900 dark:text-white resize-none"
                 />
               </div>
             </div>
@@ -505,7 +510,7 @@ export default function AdminUserDetailsModal({ isOpen, onClose, user }: AdminUs
               <button 
                 onClick={handleSendNotification}
                 disabled={isSendingNotif || !notifTitle || !notifContent}
-                className="px-4 py-2 rounded-xl text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center min-w-[80px]"
+                className="px-4 py-2 rounded-xl text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center min-w-[80px]"
               >
                 {isSendingNotif ? 'Sending...' : 'Send'}
               </button>
@@ -514,5 +519,5 @@ export default function AdminUserDetailsModal({ isOpen, onClose, user }: AdminUs
         </div>
       )}
     </div>
-  )
+  ), document.body)
 }

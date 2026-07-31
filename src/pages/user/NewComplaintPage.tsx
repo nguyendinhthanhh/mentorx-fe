@@ -10,6 +10,7 @@ import type { TranslationKey } from '@/i18n/translations'
 import { useAuthStore } from '@/store/authStore'
 import { useComplaintStore } from '@/store/complaintStore'
 import type { MentorProfileResponse } from '@/types'
+import { useDebounce } from '@/hooks/useDebounce'
 
 const CATEGORIES = ['Technical', 'Billing', 'Product', 'Other'] as const
 type Category = (typeof CATEGORIES)[number]
@@ -42,18 +43,25 @@ export default function NewComplaintPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const debouncedSearchQuery = useDebounce(searchQuery.trim(), 350)
+  const canLoadMentors = debouncedSearchQuery.length === 0 || debouncedSearchQuery.length >= 2
 
-  const { data: mentorList = [], isLoading: mentorsLoading } = useQuery(
-    ['approved-mentors-search', searchQuery],
-    async (): Promise<MentorProfileResponse[]> => {
-      if (searchQuery.length >= 2) {
-        return mentorApi.searchMentorsFullText(searchQuery)
+  const { data: mentorResults = [], isLoading: mentorsLoading } = useQuery(
+    ['approved-mentors-search', debouncedSearchQuery],
+    async ({ signal }): Promise<MentorProfileResponse[]> => {
+      if (debouncedSearchQuery.length >= 2) {
+        return mentorApi.searchMentorsFullText(debouncedSearchQuery, signal)
       }
-      const paginated = await mentorApi.getAllApprovedMentors({ page: 0, size: 100 })
+      const paginated = await mentorApi.getAllApprovedMentors({ page: 0, size: 20 }, signal)
       return paginated.content
     },
-    { staleTime: 60000 }
+    {
+      enabled: isDropdownOpen && canLoadMentors,
+      staleTime: 60_000,
+      keepPreviousData: false,
+    }
   )
+  const mentorList = canLoadMentors ? mentorResults : []
 
   const addMyComplaint = useComplaintStore((s) => s.addMyComplaint)
 
@@ -98,7 +106,7 @@ export default function NewComplaintPage() {
     <div className="space-y-6">
       <Link
         to="/profile/complaints"
-        className="inline-flex items-center gap-1 text-xs font-bold text-slate-500 hover:text-indigo-600"
+        className="inline-flex items-center gap-1 text-xs font-bold text-slate-500 hover:text-emerald-600"
       >
         <ArrowLeft className="w-4 h-4" />
         {t('mentee.complaints.detail.back')}
@@ -106,7 +114,7 @@ export default function NewComplaintPage() {
 
       <div className="rounded-3xl border border-slate-200/70 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
         <div className="flex items-start gap-4">
-          <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl border border-indigo-100 bg-indigo-50 text-indigo-600 dark:border-indigo-900/30 dark:bg-indigo-950/30 dark:text-indigo-400">
+          <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl border border-emerald-100 bg-emerald-50 text-emerald-600 dark:border-emerald-900/30 dark:bg-emerald-950/30 dark:text-emerald-400">
             <Flag className="w-5 h-5" />
           </div>
           <div>
@@ -127,7 +135,7 @@ export default function NewComplaintPage() {
               onChange={(event) => setTitle(event.target.value)}
               maxLength={120}
               placeholder={t('mentee.complaints.fields.titlePlaceholder')}
-              className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-800 placeholder:text-slate-400 focus:border-indigo-500/40 focus:bg-white focus:outline-none focus:ring-4 focus:ring-indigo-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:focus:bg-slate-900"
+              className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-800 placeholder:text-slate-400 focus:border-emerald-500/40 focus:bg-white focus:outline-none focus:ring-4 focus:ring-emerald-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:focus:bg-slate-900"
             />
           </Field>
 
@@ -136,7 +144,7 @@ export default function NewComplaintPage() {
               <button
                 type="button"
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="w-full flex items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-800 focus:border-indigo-500/40 focus:bg-white focus:outline-none focus:ring-4 focus:ring-indigo-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:focus:bg-slate-900"
+                className="w-full flex items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-800 focus:border-emerald-500/40 focus:bg-white focus:outline-none focus:ring-4 focus:ring-emerald-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:focus:bg-slate-900"
               >
                 {selectedMentor
                   ? selectedMentor.user?.displayName || selectedMentor.user?.fullName || 'Unknown'
@@ -182,9 +190,9 @@ export default function NewComplaintPage() {
                             setIsDropdownOpen(false)
                             setSearchQuery('')
                           }}
-                          className={`w-full px-4 py-2.5 text-left text-sm font-medium transition hover:bg-indigo-50 dark:hover:bg-indigo-950/30 ${
+                          className={`w-full px-4 py-2.5 text-left text-sm font-medium transition hover:bg-emerald-50 dark:hover:bg-emerald-950/30 ${
                             selectedMentor?.userId === mentor.userId
-                              ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/30 dark:text-indigo-300'
+                              ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-300'
                               : 'text-slate-700 dark:text-slate-200'
                           }`}
                         >
@@ -210,7 +218,7 @@ export default function NewComplaintPage() {
               <select
                 value={category}
                 onChange={(event) => setCategory(event.target.value as Category)}
-                className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-bold text-slate-700 focus:border-indigo-500/40 focus:bg-white focus:outline-none focus:ring-4 focus:ring-indigo-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:focus:bg-slate-900"
+                className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-bold text-slate-700 focus:border-emerald-500/40 focus:bg-white focus:outline-none focus:ring-4 focus:ring-emerald-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:focus:bg-slate-900"
               >
                 {CATEGORIES.map((value) => (
                   <option key={value} value={value}>
@@ -224,7 +232,7 @@ export default function NewComplaintPage() {
               <select
                 value={priorityLevel}
                 onChange={(event) => setPriorityLevel(Number(event.target.value))}
-                className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-bold text-slate-700 focus:border-indigo-500/40 focus:bg-white focus:outline-none focus:ring-4 focus:ring-indigo-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:focus:bg-slate-900"
+                className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-bold text-slate-700 focus:border-emerald-500/40 focus:bg-white focus:outline-none focus:ring-4 focus:ring-emerald-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:focus:bg-slate-900"
               >
                 {PRIORITY_LEVELS.map((level) => (
                   <option key={level.value} value={level.value}>
@@ -242,7 +250,7 @@ export default function NewComplaintPage() {
               rows={6}
               maxLength={2000}
               placeholder={t('mentee.complaints.fields.descriptionPlaceholder')}
-              className="w-full resize-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-800 placeholder:text-slate-400 focus:border-indigo-500/40 focus:bg-white focus:outline-none focus:ring-4 focus:ring-indigo-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:focus:bg-slate-900"
+              className="w-full resize-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-800 placeholder:text-slate-400 focus:border-emerald-500/40 focus:bg-white focus:outline-none focus:ring-4 focus:ring-emerald-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:focus:bg-slate-900"
             />
           </Field>
 
@@ -262,7 +270,7 @@ export default function NewComplaintPage() {
             <button
               type="submit"
               disabled={mutation.isLoading}
-              className="inline-flex items-center gap-2 rounded-2xl bg-indigo-600 px-5 py-2.5 text-xs font-black uppercase tracking-widest text-white shadow-lg shadow-indigo-200 transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50 dark:shadow-indigo-900/20"
+              className="inline-flex items-center gap-2 rounded-2xl bg-emerald-600 px-5 py-2.5 text-xs font-black uppercase tracking-widest text-white shadow-lg shadow-emerald-200 transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50 dark:shadow-emerald-900/20"
             >
               <Send className="w-4 h-4" />
               {mutation.isLoading

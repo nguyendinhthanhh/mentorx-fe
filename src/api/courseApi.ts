@@ -113,6 +113,7 @@ export const courseApi = {
   getPublished: async (params: {
     page?: number
     size?: number
+    instructorId?: string
     categoryId?: number
     skill?: string
     productType?: CourseProductType
@@ -282,6 +283,13 @@ export const courseApi = {
   getLessonsByCourse: async (courseId: string): Promise<CourseLessonResponse[]> => {
     const response = await apiClient.get<CourseLessonResponse[]>(
       `/v1/course-lessons/course/${courseId}`
+    )
+    return response.data
+  },
+
+  getFreePreviewLessonsByCourse: async (courseId: string): Promise<CourseLessonResponse[]> => {
+    const response = await apiClient.get<CourseLessonResponse[]>(
+      `/v1/course-lessons/course/${courseId}/free-preview`
     )
     return response.data
   },

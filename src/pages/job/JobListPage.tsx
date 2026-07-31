@@ -1,43 +1,41 @@
-import { useState } from 'react'
+import { FormEvent, useState } from 'react'
 import { useQuery } from 'react-query'
 import { Link, useSearchParams } from 'react-router-dom'
 import {
+  ArrowRight,
   Briefcase,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
   Clock3,
-  FileText,
-  Plus,
-  Search,
-  Timer,
-  X,
-  ChevronDown,
-  CheckCircle2,
-  MapPin,
   Filter,
-  Heart,
-  Sparkles,
   LayoutGrid,
-  List
+  List,
+  Plus,
+  RotateCcw,
+  Search,
+  SlidersHorizontal,
+  Sparkles,
+  Users,
+  X,
 } from 'lucide-react'
+
+import { categoryApi } from '@/api/categoryApi'
 import { jobApi } from '@/api/jobApi'
 import { skillApi } from '@/api/skillApi'
-import { categoryApi } from '@/api/categoryApi'
-import { formatCurrency, formatRelativeTime } from '@/utils/formatters'
-import { JobResponse, JobType, JobSort, BudgetType, JobStatus } from '@/types'
 import { useI18n } from '@/i18n/I18nProvider'
 import { TranslationKey } from '@/i18n/translations'
-import { useDebounce } from '@/hooks/useDebounce'
+import { BudgetType, JobResponse, JobSort, JobStatus, JobType } from '@/types'
+import { formatCurrency, formatRelativeTime } from '@/utils/formatters'
 
 const PAGE_SIZE = 10
-const DEBOUNCE_MS = 300
 
 const JOB_TYPE_OPTIONS = [
   { value: 'ALL', labelKey: 'jobs.all' },
   { value: JobType.FREELANCE_PROJECT, labelKey: 'jobs.freelance' },
   { value: JobType.LONG_TERM_MENTORING, labelKey: 'jobs.mentoring' },
   { value: JobType.QUICK_FIX, labelKey: 'jobs.quickFix' },
-]
+] as const
 
 const SORT_OPTIONS: { value: JobSort; labelKey: TranslationKey }[] = [
   { value: JobSort.NEWEST, labelKey: 'jobs.sort.newest' },
@@ -48,29 +46,33 @@ const SORT_OPTIONS: { value: JobSort; labelKey: TranslationKey }[] = [
 ]
 
 const EXPERIENCE_OPTIONS = [
-  { value: 'ALL', label: 'Tất cả mức độ' },
-  { value: 'Fresher', label: 'Fresher / Sinh viên' },
-  { value: 'Junior', label: 'Junior (Dưới 2 năm)' },
-  { value: 'Mid-Level', label: 'Mid-Level (2-5 năm)' },
-  { value: 'Senior', label: 'Senior (Từ 5 năm)' },
-  { value: 'Expert', label: 'Chuyên gia (Expert)' },
-]
+  { value: 'ALL', labelKey: 'jobs.filter.experienceAll' },
+  { value: 'Fresher', labelKey: 'jobs.filter.experienceFresher' },
+  { value: 'Junior', labelKey: 'jobs.filter.experienceJunior' },
+  { value: 'Mid-Level', labelKey: 'jobs.filter.experienceMid' },
+  { value: 'Senior', labelKey: 'jobs.filter.experienceSenior' },
+  { value: 'Expert', labelKey: 'jobs.filter.experienceExpert' },
+] as const
 
 const BUDGET_TYPE_OPTIONS = [
   { value: 'ALL', labelKey: 'jobs.filter.budgetTypeAll' },
   { value: BudgetType.FIXED, labelKey: 'jobs.filter.budgetTypeFixed' },
   { value: BudgetType.HOURLY, labelKey: 'jobs.filter.budgetTypeHourly' },
-]
+] as const
 
 const STATUS_OPTIONS = [
   { value: JobStatus.OPEN, labelKey: 'jobs.filter.statusOpen' },
   { value: JobStatus.CLOSED, labelKey: 'jobs.filter.statusClosed' },
-]
+] as const
+
+type ViewMode = 'grid' | 'list'
 
 export default function JobListPage() {
-  const { t } = useI18n()
-  const [searchParams] = useSearchParams()
-  const [keyword, setKeyword] = useState(searchParams.get('q') || '')
+  const { language, t } = useI18n()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const initialKeyword = searchParams.get('q') || ''
+  const [keywordInput, setKeywordInput] = useState(initialKeyword)
+  const [keyword, setKeyword] = useState(initialKeyword)
   const [jobType, setJobType] = useState<string>('ALL')
   const [skillFilter, setSkillFilter] = useState('')
   const [sort, setSort] = useState<JobSort>(JobSort.NEWEST)
@@ -78,15 +80,19 @@ export default function JobListPage() {
   const [budgetMax, setBudgetMax] = useState('')
   const [budgetType, setBudgetType] = useState<string>('ALL')
   const [statusFilter, setStatusFilter] = useState<JobStatus>(JobStatus.OPEN)
-  const [categoryId, setCategoryId] = useState<string>('')
-  const [experienceFilter, setExperienceFilter] = useState<string>('ALL')
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
+  const [categoryId, setCategoryId] = useState('')
+  const [experienceFilter, setExperienceFilter] = useState('ALL')
+  const [viewMode, setViewMode] = useState<ViewMode>('list')
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
   const [page, setPage] = useState(0)
 
-  const debouncedKeyword = useDebounce(keyword, DEBOUNCE_MS)
   const apiJobType = jobType === 'ALL' ? undefined : (jobType as JobType)
   const apiBudgetType = budgetType === 'ALL' ? undefined : (budgetType as BudgetType)
-  const apiCategoryId = categoryId ? Number(categoryId) : undefined
+  const parsedCategoryId = Number(categoryId)
+  const apiCategoryId =
+    categoryId && Number.isInteger(parsedCategoryId) && parsedCategoryId > 0
+      ? parsedCategoryId
+      : undefined
   const apiExperienceLevel = experienceFilter === 'ALL' ? undefined : experienceFilter
 
   const { data: skills = [] } = useQuery('job-filter-skills', skillApi.getAllActive, {
@@ -97,8 +103,27 @@ export default function JobListPage() {
     staleTime: 5 * 60 * 1000,
   })
 
-  const { data, isLoading } = useQuery(
-    ['jobs', page, apiJobType, skillFilter, apiExperienceLevel, debouncedKeyword, sort, budgetMin, budgetMax, apiBudgetType, statusFilter, apiCategoryId],
+  const {
+    data,
+    isError,
+    isFetching,
+    isLoading,
+    refetch,
+  } = useQuery(
+    [
+      'jobs',
+      page,
+      apiJobType,
+      skillFilter,
+      apiExperienceLevel,
+      keyword,
+      sort,
+      budgetMin,
+      budgetMax,
+      apiBudgetType,
+      statusFilter,
+      apiCategoryId,
+    ],
     () =>
       jobApi.getOpenJobs({
         page,
@@ -106,10 +131,10 @@ export default function JobListPage() {
         jobType: apiJobType,
         skill: skillFilter.trim() || undefined,
         experienceLevel: apiExperienceLevel,
-        keyword: debouncedKeyword.trim() || undefined,
+        keyword: keyword.trim() || undefined,
         sort,
-        budgetMin: budgetMin ? Number(budgetMin) : undefined,
-        budgetMax: budgetMax ? Number(budgetMax) : undefined,
+        budgetMin: parseNonNegativeNumber(budgetMin),
+        budgetMax: parseNonNegativeNumber(budgetMax),
         budgetType: apiBudgetType,
         status: statusFilter,
         categoryId: apiCategoryId,
@@ -120,29 +145,52 @@ export default function JobListPage() {
   const jobs = data?.content || []
   const totalPages = data?.totalPages || 1
   const totalJobs = data?.totalElements || 0
-  const hasActiveFilters =
-    keyword.trim().length > 0 ||
-    jobType !== 'ALL' ||
-    !!skillFilter ||
-    experienceFilter !== 'ALL' ||
-    sort !== JobSort.NEWEST ||
-    !!budgetMin ||
-    !!budgetMax ||
-    budgetType !== 'ALL' ||
-    statusFilter !== JobStatus.OPEN ||
-    !!categoryId
+  const activeFilterCount = [
+    keyword.trim().length > 0,
+    jobType !== 'ALL',
+    !!skillFilter,
+    experienceFilter !== 'ALL',
+    sort !== JobSort.NEWEST,
+    !!budgetMin,
+    !!budgetMax,
+    budgetType !== 'ALL',
+    statusFilter !== JobStatus.OPEN,
+    !!categoryId,
+  ].filter(Boolean).length
+  const hasActiveFilters = activeFilterCount > 0
 
   const setFilter = (setter: (value: string) => void) => (value: string) => {
     setter(value)
     setPage(0)
   }
 
-  const setSortFilter = (value: JobSort) => {
-    setSort(JobSort[value] || value)
+  const updateKeywordInUrl = (value: string) => {
+    const nextParams = new URLSearchParams(searchParams)
+    if (value) {
+      nextParams.set('q', value)
+    } else {
+      nextParams.delete('q')
+    }
+    setSearchParams(nextParams, { replace: true })
+  }
+
+  const handleSearch = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    const nextKeyword = keywordInput.trim()
+    setKeyword(nextKeyword)
+    updateKeywordInUrl(nextKeyword)
+    setPage(0)
+  }
+
+  const clearKeyword = () => {
+    setKeywordInput('')
+    setKeyword('')
+    updateKeywordInUrl('')
     setPage(0)
   }
 
   const clearAllFilters = () => {
+    setKeywordInput('')
     setKeyword('')
     setJobType('ALL')
     setSkillFilter('')
@@ -153,419 +201,595 @@ export default function JobListPage() {
     setBudgetType('ALL')
     setStatusFilter(JobStatus.OPEN)
     setCategoryId('')
+    updateKeywordInUrl('')
     setPage(0)
   }
 
   return (
-    <div className="min-h-screen bg-[#f7f8fc] pb-12 font-sans text-slate-900 selection:bg-indigo-100 selection:text-indigo-900">
-      {/* Hero Search Section - Vibrant Animated Mesh Background */}
-      <div className="relative overflow-hidden bg-[#f8faff] pt-12 pb-14 px-4 sm:px-6 lg:px-8 border-b border-[#e2e6f5]">
-        {/* Animated Mesh Blobs */}
-        <div className="absolute top-[-20%] left-[10%] w-[500px] h-[500px] bg-indigo-300/40 mix-blend-multiply rounded-[40%_60%_70%_30%/40%_50%_60%_50%] filter blur-3xl opacity-70 animate-[spin_10s_linear_infinite] pointer-events-none"></div>
-        <div className="absolute top-[-10%] right-[10%] w-[450px] h-[450px] bg-purple-300/40 mix-blend-multiply rounded-[60%_40%_30%_70%/60%_30%_70%_40%] filter blur-3xl opacity-70 animate-[spin_12s_linear_infinite_reverse] pointer-events-none"></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-sky-300/30 mix-blend-multiply rounded-full filter blur-3xl opacity-60 animate-[pulse_4s_ease-in-out_infinite] pointer-events-none"></div>
-        
-        <div className="relative z-10 mx-auto flex max-w-[1440px] flex-col items-center justify-center text-center">
-          <div className="flex flex-col items-center justify-center gap-4 mb-8">
-            <div className="flex flex-col items-center">
-              <div className="flex items-center justify-center gap-2 mb-4">
-                 <div className="px-3 py-1 rounded-full bg-white/70 border border-white flex items-center gap-1.5 w-fit shadow-sm backdrop-blur-md">
-                    <Sparkles className="w-4 h-4 text-[#4f46e5]" />
-                    <span className="text-[12px] font-bold text-[#4f46e5] tracking-wider uppercase">MentorX Discovery</span>
-                 </div>
-              </div>
-              <h1 className="text-4xl font-extrabold text-[#1b2252] sm:text-5xl tracking-tight leading-tight max-w-4xl">
-                Khám phá cơ hội, <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#4f46e5] to-[#7c3aed]">Kết nối chuyên gia</span>
-              </h1>
-            </div>
+    <div className="job-discovery-page min-h-screen bg-[#f7f8fc] pb-12 text-slate-900 selection:bg-emerald-100 selection:text-emerald-950 dark:bg-slate-950 dark:text-slate-100">
+      <section className="border-b border-[#e2e6f5] bg-white dark:border-slate-800 dark:bg-slate-950">
+        <div className="mx-auto max-w-[1600px] px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
+          <div className="mx-auto flex max-w-3xl flex-col items-center text-center">
+            <h1 className="text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl dark:text-white">
+              {t('jobs.discovery.title')}
+            </h1>
+            <p className="mt-3 text-sm font-medium text-slate-600 sm:text-base dark:text-slate-300">
+              {t('jobs.discovery.subtitle')}
+            </p>
           </div>
-          
-          {/* Synchronized Search Bar */}
-          <div className="max-w-5xl w-full flex flex-col sm:flex-row bg-white/70 backdrop-blur-xl rounded-2xl p-2.5 border border-white/50 shadow-lg">
-             <div className="sm:w-[280px] relative flex items-center border-b sm:border-b-0 sm:border-r border-[#e2e6f5]/50 shrink-0">
-                <Briefcase className="absolute left-5 h-6 w-6 text-slate-400" />
-                <select 
-                   value={categoryId} 
-                   onChange={e => setFilter(setCategoryId)(e.target.value)}
-                   className="w-full h-14 pl-14 pr-10 appearance-none bg-transparent outline-none text-[16px] font-medium text-[#1b2252] cursor-pointer"
+
+          <form
+            className="mx-auto mt-8 grid max-w-4xl w-full shrink-0 gap-2 rounded-2xl border border-[#e2e6f5] bg-white p-2 shadow-sm sm:grid-cols-[minmax(210px,auto)_minmax(0,1fr)_auto] dark:border-slate-700 dark:bg-slate-900 dark:shadow-none"
+            onSubmit={handleSearch}
+          >
+            <label className="relative min-w-0 border-b border-slate-200 sm:border-b-0 sm:border-r dark:border-slate-700">
+              <span className="sr-only">{t('jobs.filter.category')}</span>
+              <Briefcase className="pointer-events-none absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
+              <select
+                value={categoryId}
+                onChange={(event) => setFilter(setCategoryId)(event.target.value)}
+                className="h-12 w-full appearance-none bg-transparent pl-10 pr-8 text-sm font-semibold text-slate-800 outline-none dark:text-slate-100"
+              >
+                <option value="">{t('jobs.filter.categoryAll')}</option>
+                {categories.map((category) => (
+                  <option key={category.categoryId ?? category.id} value={category.categoryId ?? category.id}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            </label>
+
+            <label className="relative min-w-0">
+              <span className="sr-only">{t('jobs.searchPlaceholder')}</span>
+              <Search className="pointer-events-none absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
+              <input
+                value={keywordInput}
+                onChange={(event) => setKeywordInput(event.target.value)}
+                placeholder={t('jobs.searchPlaceholder')}
+                className="h-12 w-full bg-transparent pl-11 pr-11 text-sm font-medium text-slate-900 outline-none placeholder:text-slate-400 dark:text-slate-100 dark:placeholder:text-slate-500"
+              />
+              {keywordInput ? (
+                <button
+                  type="button"
+                  onClick={clearKeyword}
+                  className="absolute right-1.5 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-lg text-slate-400 transition-colors duration-150 hover:bg-slate-100 hover:text-slate-700 active:scale-[0.97] dark:hover:bg-slate-800 dark:hover:text-slate-200"
+                  aria-label={t('jobs.search.clear')}
                 >
-                   <option value="" className="text-[#1b2252]">Tất cả lĩnh vực</option>
-                   {categories.map((c) => (
-                     <option key={c.categoryId ?? c.id} value={c.categoryId ?? c.id} className="text-[#1b2252]">
-                       {c.name}
-                     </option>
-                   ))}
-                </select>
-                <ChevronDown className="absolute right-5 h-5 w-5 text-slate-400 pointer-events-none" />
-             </div>
-             
-             <div className="flex-1 relative flex items-center">
-                <Search className="absolute left-5 h-6 w-6 text-slate-400" />
-                <input 
-                   value={keyword}
-                   onChange={e => {setKeyword(e.target.value); setPage(0)}}
-                   placeholder="Nhập tên công việc, kỹ năng..."
-                   className="w-full h-14 pl-14 pr-10 bg-transparent outline-none text-[16px] font-medium text-[#1b2252] placeholder:text-slate-400"
-                />
-                {keyword && (
-                  <button onClick={() => {setKeyword(''); setPage(0)}} className="absolute right-4 text-slate-400 hover:text-slate-600 transition-colors">
-                    <X className="h-5 w-5" />
-                  </button>
-                )}
-             </div>
-             
-             <button className="h-14 px-10 bg-[#4f46e5] text-white text-[16px] font-semibold hover:bg-[#4338ca] transition-all duration-300 rounded-xl mt-2 sm:mt-0 shrink-0 flex items-center justify-center gap-2 shadow-md">
-                Tìm kiếm
-             </button>
-          </div>
+                  <X className="h-4 w-4" />
+                </button>
+              ) : null}
+            </label>
+
+            <button
+              type="submit"
+              className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 text-sm font-bold text-white shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:bg-emerald-700 hover:shadow-lg active:scale-[0.98] dark:bg-emerald-500 dark:text-white dark:hover:bg-emerald-400"
+            >
+              <Search className="h-4 w-4" />
+              {t('jobs.search.action')}
+            </button>
+          </form>
         </div>
-      </div>
+      </section>
 
-      {/* Main Layout */}
-      <main className="mx-auto mt-10 max-w-[1440px] px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col lg:flex-row-reverse gap-10">
-           
-           {/* Left Column (Desktop view, visually right) - Main List */}
-           <div className="flex-1 min-w-0">
-             <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
-               <h2 className="text-[16px] font-medium text-slate-600">
-                 Đã tìm thấy <span className="text-[#1b2252] font-extrabold">{totalJobs}</span> kết quả
-               </h2>
-               <div className="flex items-center gap-2">
-                 {/* View Mode Toggle */}
-                 <div className="hidden sm:flex items-center bg-white border border-[#e2e6f5] rounded-xl p-1 mr-2 shadow-sm">
-                   <button 
-                     onClick={() => setViewMode('grid')}
-                     className={`p-2 rounded-lg transition-colors ${viewMode === 'grid' ? 'bg-[#f7f8fc] text-[#4f46e5]' : 'text-slate-400 hover:text-slate-600'}`}
-                     title="Dạng lưới"
-                   >
-                     <LayoutGrid className="w-5 h-5" />
-                   </button>
-                   <button 
-                     onClick={() => setViewMode('list')}
-                     className={`p-2 rounded-lg transition-colors ${viewMode === 'list' ? 'bg-[#f7f8fc] text-[#4f46e5]' : 'text-slate-400 hover:text-slate-600'}`}
-                     title="Dạng danh sách"
-                   >
-                     <List className="w-5 h-5" />
-                   </button>
-                 </div>
+      <main className="mx-auto max-w-[1600px] px-3 py-6 min-[360px]:px-4 sm:px-6 sm:py-8 lg:px-8">
+        <div className="grid items-start gap-6 lg:grid-cols-[248px_minmax(0,1fr)] xl:gap-8">
+          <aside className="min-w-0">
+            <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-2 lg:hidden">
+              <button
+                type="button"
+                onClick={() => setMobileFiltersOpen((open) => !open)}
+                className="flex min-h-12 min-w-0 items-center justify-between rounded-xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-800 shadow-sm transition-colors duration-150 hover:border-slate-300 active:scale-[0.99] dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100"
+                aria-expanded={mobileFiltersOpen}
+                aria-controls="job-filter-panel"
+              >
+                <span className="flex min-w-0 items-center gap-2">
+                  <SlidersHorizontal className="h-4 w-4 shrink-0 text-emerald-700 dark:text-emerald-300" />
+                  <span className="truncate">
+                    {mobileFiltersOpen ? t('jobs.filter.lessFilters') : t('jobs.filter.moreFilters')}
+                  </span>
+                </span>
+                {activeFilterCount > 0 ? (
+                  <span className="ml-2 flex h-6 min-w-6 shrink-0 items-center justify-center rounded-md bg-emerald-700 px-1.5 text-xs text-white dark:bg-emerald-400 dark:text-slate-950">
+                    {activeFilterCount}
+                  </span>
+                ) : (
+                  <ChevronDown
+                    className={`ml-2 h-4 w-4 shrink-0 text-slate-400 transition-transform duration-200 ${
+                      mobileFiltersOpen ? 'rotate-180' : ''
+                    }`}
+                  />
+                )}
+              </button>
+              <Link
+                to="/jobs/create"
+                className="inline-flex min-h-12 items-center justify-center gap-1.5 rounded-xl bg-emerald-600 px-3 text-sm font-bold text-white shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:bg-emerald-700 hover:shadow-lg active:scale-[0.98] dark:bg-emerald-500 dark:text-white dark:hover:bg-emerald-400"
+              >
+                <Plus className="h-4 w-4" />
+                {t('jobs.post')}
+              </Link>
+            </div>
 
-                 <span className="text-[15px] text-slate-500 font-medium">Sắp xếp:</span>
-                 <div className="relative border border-[#e2e6f5] rounded-xl px-3 bg-white">
-                   <select 
-                     value={sort} 
-                     onChange={e => setSortFilter(e.target.value as JobSort)} 
-                     className="h-11 text-[15px] font-semibold text-[#1b2252] outline-none bg-transparent cursor-pointer pr-7 appearance-none hover:text-[#4f46e5] transition-colors"
-                   >
-                      {SORT_OPTIONS.map((opt) => (
-                        <option key={opt.value} value={opt.value}>
-                          {t(opt.labelKey)}
-                        </option>
-                      ))}
-                   </select>
-                   <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
-                 </div>
-               </div>
-             </div>
-
-             {/* Job List */}
-             {isLoading ? (
-                <JobListSkeleton viewMode={viewMode} />
-             ) : jobs.length > 0 ? (
-                <div className={viewMode === 'grid' ? "grid grid-cols-1 2xl:grid-cols-2 gap-6" : "flex flex-col gap-6"}>
-                  {jobs.map((job) => (
-                    <JobCard key={job.jobId} job={job} showRelevance={!!debouncedKeyword.trim()} viewMode={viewMode} />
-                  ))}
+            <div
+              id="job-filter-panel"
+              className={`${mobileFiltersOpen ? 'mt-3 block' : 'hidden'} lg:sticky lg:top-24 lg:block`}
+            >
+              <div className="overflow-hidden rounded-2xl border border-[#e2e6f5] bg-white dark:border-slate-800 dark:bg-slate-900">
+                <div className="flex items-center justify-between border-b border-slate-200 px-6 py-5 dark:border-slate-800">
+                  <h2 className="flex items-center gap-2 text-sm font-bold text-slate-950 dark:text-slate-50">
+                    <Filter className="h-4 w-4 text-emerald-700 dark:text-emerald-300" />
+                    {t('jobs.filters.title')}
+                  </h2>
+                  {hasActiveFilters ? (
+                    <button
+                      type="button"
+                      onClick={clearAllFilters}
+                      className="inline-flex min-h-9 items-center gap-1.5 rounded-lg px-2 text-xs font-semibold text-slate-500 transition-colors duration-150 hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-slate-800 dark:hover:text-slate-100"
+                    >
+                      <RotateCcw className="h-3.5 w-3.5" />
+                      {t('jobs.filter.clearAll')}
+                    </button>
+                  ) : null}
                 </div>
-             ) : (
-                <EmptyState hasSearch={hasActiveFilters} onClear={clearAllFilters} />
-             )}
-             
-             <div className="mt-12">
-               <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
-             </div>
-           </div>
 
-           {/* Right Column (Desktop view, visually left) - Sidebar */}
-           <div className="w-full lg:w-[320px] shrink-0 space-y-8">
-              
-              <div className="bg-white rounded-3xl p-7 shadow-sm border border-[#e2e6f5] relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50 rounded-bl-[120px] pointer-events-none"></div>
-                <h3 className="font-extrabold text-[18px] text-[#1b2252] mb-3 relative z-10 flex items-center gap-2">
-                   Cần chuyên gia?
-                </h3>
-                <p className="text-[14px] text-slate-500 mb-6 relative z-10 leading-relaxed font-medium">Đăng yêu cầu ngay để kết nối với mentor và nhận báo giá trong vòng 24h.</p>
-                <Link to="/jobs/create" className="flex items-center justify-center gap-2 w-full h-12 bg-[#f7f8fc] text-[#4f46e5] border border-[#e2e6f5] font-bold rounded-xl hover:bg-indigo-50 hover:border-indigo-200 transition-colors text-[15px] shadow-sm relative z-10">
-                  <Plus className="h-5 w-5" /> Đăng yêu cầu mới
+                <div className="divide-y divide-slate-200 px-6 dark:divide-slate-800">
+                  <FilterGroup title={t('jobs.filter.jobType')}>
+                    {JOB_TYPE_OPTIONS.map((option) => (
+                      <RadioOption
+                        key={option.value}
+                        name="jobType"
+                        value={option.value}
+                        checked={jobType === option.value}
+                        onChange={setFilter(setJobType)}
+                        label={t(option.labelKey)}
+                      />
+                    ))}
+                  </FilterGroup>
+
+                  <FilterGroup title={t('jobs.filter.experience')}>
+                    {EXPERIENCE_OPTIONS.map((option) => (
+                      <RadioOption
+                        key={option.value}
+                        name="experienceFilter"
+                        value={option.value}
+                        checked={experienceFilter === option.value}
+                        onChange={setFilter(setExperienceFilter)}
+                        label={t(option.labelKey)}
+                      />
+                    ))}
+                  </FilterGroup>
+
+                  <FilterGroup title={t('jobs.filter.skills')}>
+                    {skills.length > 0 && (
+                      <div className="mb-2.5 flex flex-wrap gap-1.5">
+                        {skills.slice(0, 6).map((skill) => {
+                          const isSelected = skillFilter === skill.labelEn
+                          const displayName = language === 'vi' && skill.labelVi ? skill.labelVi : skill.labelEn
+                          return (
+                            <button
+                              key={skill.id}
+                              type="button"
+                              onClick={() => setFilter(setSkillFilter)(isSelected ? '' : skill.labelEn)}
+                              className={`rounded-lg px-2.5 py-1 text-xs font-semibold transition-all duration-150 ${
+                                isSelected
+                                  ? 'bg-emerald-600 text-white shadow-sm'
+                                  : 'bg-slate-100 text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-emerald-950/40 dark:hover:text-emerald-400'
+                              }`}
+                            >
+                              {displayName}
+                            </button>
+                          )
+                        })}
+                      </div>
+                    )}
+                    <label className="relative block">
+                      <span className="sr-only">{t('jobs.filter.skills')}</span>
+                      <select
+                        value={skillFilter}
+                        onChange={(event) => setFilter(setSkillFilter)(event.target.value)}
+                        className="h-10 w-full appearance-none rounded-xl border border-slate-200 bg-white pl-3 pr-9 text-xs font-medium text-slate-700 outline-none transition-colors focus:border-emerald-600 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200"
+                      >
+                        <option value="">{t('jobs.filter.skillsAll')}</option>
+                        {skills.slice(0, 80).map((skill) => (
+                          <option key={skill.id} value={skill.labelEn}>
+                            {language === 'vi' && skill.labelVi ? skill.labelVi : skill.labelEn}
+                          </option>
+                        ))}
+                      </select>
+                      <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                    </label>
+                  </FilterGroup>
+
+                  <FilterGroup title={t('jobs.filter.budget')}>
+                    {BUDGET_TYPE_OPTIONS.map((option) => (
+                      <RadioOption
+                        key={option.value}
+                        name="budgetType"
+                        value={option.value}
+                        checked={budgetType === option.value}
+                        onChange={setFilter(setBudgetType)}
+                        label={t(option.labelKey)}
+                      />
+                    ))}
+                    {budgetType === BudgetType.FIXED || budgetType === BudgetType.HOURLY ? (
+                      <div className="grid grid-cols-2 gap-2 pt-2">
+                        <label>
+                          <span className="mb-1.5 block text-xs font-medium text-slate-500">
+                            {t('jobs.filter.budgetMin')}
+                          </span>
+                          <input
+                            type="number"
+                            min="0"
+                            value={budgetMin}
+                            onChange={(event) => setFilter(setBudgetMin)(event.target.value)}
+                            className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-800 outline-none focus:border-emerald-600 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+                          />
+                        </label>
+                        <label>
+                          <span className="mb-1.5 block text-xs font-medium text-slate-500">
+                            {t('jobs.filter.budgetMax')}
+                          </span>
+                          <input
+                            type="number"
+                            min="0"
+                            value={budgetMax}
+                            onChange={(event) => setFilter(setBudgetMax)(event.target.value)}
+                            className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-800 outline-none focus:border-emerald-600 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+                          />
+                        </label>
+                      </div>
+                    ) : null}
+                  </FilterGroup>
+
+                  <FilterGroup title={t('jobs.filter.status')}>
+                    {STATUS_OPTIONS.map((option) => (
+                      <RadioOption
+                        key={option.value}
+                        name="statusFilter"
+                        value={option.value}
+                        checked={statusFilter === option.value}
+                        onChange={(value) => {
+                          setStatusFilter(value as JobStatus)
+                          setPage(0)
+                        }}
+                        label={t(option.labelKey)}
+                      />
+                    ))}
+                  </FilterGroup>
+                </div>
+              </div>
+
+            </div>
+          </aside>
+
+          <section className="min-w-0" aria-busy={isFetching}>
+            <div className="mb-4 flex flex-col gap-3 border-b border-slate-200 pb-4 sm:flex-row sm:items-center sm:justify-between dark:border-slate-800">
+              <div>
+                <h2 className="text-base font-bold text-slate-950 dark:text-slate-50">
+                  {t('jobs.results.count', { count: totalJobs })}
+                </h2>
+                <p className="mt-1 min-h-5 text-xs text-slate-500 dark:text-slate-400">
+                  {isFetching && !isLoading ? t('jobs.results.updating') : t('jobs.results.hint')}
+                </p>
+              </div>
+
+              <div className="flex min-w-0 items-center gap-2">
+                <div
+                  className="hidden items-center rounded-xl border border-slate-200 bg-white p-1 sm:flex dark:border-slate-800 dark:bg-slate-900"
+                  aria-label={t('jobs.view.label')}
+                >
+                  <ViewModeButton
+                    active={viewMode === 'list'}
+                    label={t('jobs.view.list')}
+                    onClick={() => setViewMode('list')}
+                  >
+                    <List className="h-4 w-4" />
+                  </ViewModeButton>
+                  <ViewModeButton
+                    active={viewMode === 'grid'}
+                    label={t('jobs.view.grid')}
+                    onClick={() => setViewMode('grid')}
+                  >
+                    <LayoutGrid className="h-4 w-4" />
+                  </ViewModeButton>
+                </div>
+
+                <label className="relative min-w-0 flex-1 sm:flex-none">
+                  <span className="sr-only">{t('jobs.sort.label')}</span>
+                  <select
+                    value={sort}
+                    onChange={(event) => {
+                      setSort(event.target.value as JobSort)
+                      setPage(0)
+                    }}
+                    className="h-11 w-full appearance-none rounded-xl border border-slate-200 bg-white pl-3 pr-9 text-sm font-semibold text-slate-700 outline-none transition-colors focus:border-emerald-600 sm:w-[190px] dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200"
+                  >
+                    {SORT_OPTIONS.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {t(option.labelKey)}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                </label>
+
+                <Link
+                  to="/jobs/create"
+                  className="hidden h-11 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-bold text-white shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:bg-emerald-700 hover:shadow-lg active:scale-[0.98] lg:inline-flex dark:bg-emerald-500 dark:text-white dark:hover:bg-emerald-400"
+                >
+                  <Plus className="h-4 w-4" />
+                  {t('jobs.post')}
                 </Link>
               </div>
+            </div>
 
-              {/* Advanced Filters */}
-              <div className="bg-white rounded-3xl border border-[#e2e6f5] shadow-sm overflow-hidden">
-                 <div className="flex items-center justify-between px-7 py-5 border-b border-[#e2e6f5] bg-slate-50/50">
-                    <h3 className="font-bold text-[#1b2252] text-[16px] flex items-center gap-2">
-                       <Filter className="w-5 h-5 text-slate-400"/> Bộ lọc tìm kiếm
-                    </h3>
-                    {hasActiveFilters && (
-                      <button onClick={clearAllFilters} className="text-[13px] text-slate-500 hover:text-red-500 font-semibold transition-colors bg-white px-3 py-1.5 rounded-md border border-[#e2e6f5]">Xóa lọc</button>
-                    )}
-                 </div>
-                 
-                 <div className="p-7 space-y-8">
-                   {/* Job Type Filter */}
-                   <div>
-                      <h4 className="text-[13px] font-bold text-[#1b2252] mb-4">Hình thức</h4>
-                      <div className="flex flex-col gap-4">
-                        {JOB_TYPE_OPTIONS.map((opt) => (
-                          <label key={opt.value} className="flex items-center gap-3 cursor-pointer group">
-                            <div className="relative flex items-center justify-center">
-                              <input 
-                                type="radio" 
-                                name="jobType" 
-                                value={opt.value} 
-                                checked={jobType === opt.value}
-                                onChange={(e) => setFilter(setJobType)(e.target.value)}
-                                className="appearance-none w-5 h-5 rounded border border-slate-300 bg-slate-50 checked:bg-[#4f46e5] checked:border-[#4f46e5] transition-all cursor-pointer relative"
-                              />
-                              {jobType === opt.value && <CheckCircle2 className="absolute w-4 h-4 text-white pointer-events-none" />}
-                            </div>
-                            <span className="text-[15px] font-medium text-slate-600 group-hover:text-[#4f46e5] transition-colors">{t(opt.labelKey as TranslationKey)}</span>
-                          </label>
-                        ))}
-                      </div>
-                   </div>
-
-                   {/* Experience Filter */}
-                   <div>
-                      <h4 className="text-[13px] font-bold text-[#1b2252] mb-4">Kinh nghiệm</h4>
-                      <div className="flex flex-col gap-4">
-                        {EXPERIENCE_OPTIONS.map((opt) => (
-                          <label key={opt.value} className="flex items-center gap-3 cursor-pointer group">
-                            <div className="relative flex items-center justify-center">
-                              <input 
-                                type="radio" 
-                                name="experienceFilter" 
-                                value={opt.value} 
-                                checked={experienceFilter === opt.value}
-                                onChange={(e) => setFilter(setExperienceFilter)(e.target.value)}
-                                className="appearance-none w-5 h-5 rounded border border-slate-300 bg-slate-50 checked:bg-[#4f46e5] checked:border-[#4f46e5] transition-all cursor-pointer relative"
-                              />
-                              {experienceFilter === opt.value && <CheckCircle2 className="absolute w-4 h-4 text-white pointer-events-none" />}
-                            </div>
-                            <span className="text-[15px] font-medium text-slate-600 group-hover:text-[#4f46e5] transition-colors">{opt.label}</span>
-                          </label>
-                        ))}
-                      </div>
-                   </div>
-
-                   {/* Skills Filter */}
-                   <div>
-                      <h4 className="text-[13px] font-bold text-[#1b2252] mb-4">Kỹ năng</h4>
-                      <div className="relative">
-                        <select
-                          value={skillFilter}
-                          onChange={(e) => setFilter(setSkillFilter)(e.target.value)}
-                          className="w-full appearance-none rounded-xl border border-[#e2e6f5] bg-white py-3.5 pl-4 pr-10 text-[15px] font-medium text-[#1b2252] outline-none focus:border-[#4f46e5] focus:ring-1 focus:ring-[#4f46e5] transition-all cursor-pointer"
-                        >
-                          <option value="">Tất cả kỹ năng</option>
-                          {skills.slice(0, 80).map((skill) => (
-                            <option key={skill.id} value={skill.labelEn}>{skill.labelEn}</option>
-                          ))}
-                        </select>
-                        <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
-                      </div>
-                   </div>
-
-                   {/* Budget Type Filter */}
-                   <div>
-                      <h4 className="text-[13px] font-bold text-[#1b2252] mb-4">Ngân sách</h4>
-                      <div className="flex flex-col gap-4">
-                        {BUDGET_TYPE_OPTIONS.map((opt) => (
-                          <label key={opt.value} className="flex items-center gap-3 cursor-pointer group">
-                            <div className="relative flex items-center justify-center">
-                              <input 
-                                type="radio" 
-                                name="budgetType" 
-                                value={opt.value} 
-                                checked={budgetType === opt.value}
-                                onChange={(e) => setFilter(setBudgetType)(e.target.value)}
-                                className="appearance-none w-5 h-5 rounded border border-slate-300 bg-slate-50 checked:bg-[#4f46e5] checked:border-[#4f46e5] transition-all cursor-pointer relative"
-                              />
-                              {budgetType === opt.value && <CheckCircle2 className="absolute w-4 h-4 text-white pointer-events-none" />}
-                            </div>
-                            <span className="text-[15px] font-medium text-slate-600 group-hover:text-[#4f46e5] transition-colors">{t(opt.labelKey as TranslationKey)}</span>
-                          </label>
-                        ))}
-                      </div>
-                   </div>
-
-                   {/* Budget Range */}
-                   {(budgetType === BudgetType.FIXED || budgetType === BudgetType.HOURLY) && (
-                   <div className="pt-2">
-                      <div className="flex items-center gap-3">
-                         <input 
-                           type="number" min="0" value={budgetMin} onChange={(e) => setFilter(setBudgetMin)(e.target.value)} placeholder="Từ"
-                           className="w-full bg-white border border-[#e2e6f5] rounded-xl py-2.5 px-4 text-[14px] font-medium text-[#1b2252] outline-none placeholder:text-slate-400 focus:border-[#4f46e5]"
-                         />
-                         <span className="text-slate-300 font-light">-</span>
-                         <input 
-                           type="number" min="0" value={budgetMax} onChange={(e) => setFilter(setBudgetMax)(e.target.value)} placeholder="Đến"
-                           className="w-full bg-white border border-[#e2e6f5] rounded-xl py-2.5 px-4 text-[14px] font-medium text-[#1b2252] outline-none placeholder:text-slate-400 focus:border-[#4f46e5]"
-                         />
-                      </div>
-                   </div>
-                   )}
-
-                   {/* Status */}
-                   <div>
-                      <h4 className="text-[13px] font-bold text-[#1b2252] mb-4">Trạng thái</h4>
-                      <div className="flex flex-col gap-4">
-                        {STATUS_OPTIONS.map((opt) => (
-                          <label key={opt.value} className="flex items-center gap-3 cursor-pointer group">
-                            <div className="relative flex items-center justify-center">
-                              <input 
-                                type="radio" 
-                                name="statusFilter" 
-                                value={opt.value} 
-                                checked={statusFilter === opt.value}
-                                onChange={(e) => { setStatusFilter(e.target.value as JobStatus); setPage(0); }}
-                                className="appearance-none w-5 h-5 rounded border border-slate-300 bg-slate-50 checked:bg-[#4f46e5] checked:border-[#4f46e5] transition-all cursor-pointer relative"
-                              />
-                              {statusFilter === opt.value && <CheckCircle2 className="absolute w-4 h-4 text-white pointer-events-none" />}
-                            </div>
-                            <span className="text-[15px] font-medium text-slate-600 group-hover:text-[#4f46e5] transition-colors">{t(opt.labelKey as TranslationKey)}</span>
-                          </label>
-                        ))}
-                      </div>
-                   </div>
-
-                 </div>
+            {isLoading ? (
+              <JobListSkeleton viewMode={viewMode} />
+            ) : isError ? (
+              <ErrorState onRetry={() => void refetch()} />
+            ) : jobs.length > 0 ? (
+              <div
+                className={
+                  viewMode === 'grid'
+                    ? 'grid grid-cols-1 gap-4 xl:grid-cols-2'
+                    : 'flex flex-col gap-3'
+                }
+              >
+                {jobs.map((job) => (
+                  <JobCard
+                    key={job.jobId}
+                    job={job}
+                    showRelevance={Boolean(keyword.trim())}
+                    viewMode={viewMode}
+                  />
+                ))}
               </div>
-           </div>
+            ) : (
+              <EmptyState hasSearch={hasActiveFilters} onClear={clearAllFilters} />
+            )}
+
+            {totalPages > 1 ? (
+              <div className="mt-8">
+                <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
+              </div>
+            ) : null}
+          </section>
         </div>
       </main>
     </div>
   )
 }
 
-
-function getTimeRemaining(deadlineAt: string | undefined | null) {
-  if (!deadlineAt) return 'Không giới hạn';
-  const deadline = new Date(deadlineAt);
-  const now = new Date();
-  const diff = deadline.getTime() - now.getTime();
-  
-  if (diff <= 0) return 'Đã hết hạn';
-  
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  
-  if (days > 0) return `Còn ${days} ngày`;
-  if (hours > 0) return `Còn ${hours} giờ`;
-  return `Sắp hết hạn`;
+function FilterGroup({ children, title }: { children: React.ReactNode; title: string }) {
+  return (
+    <div className="py-6">
+      <h3 className="mb-4 text-xs font-bold uppercase tracking-[0.08em] text-slate-500 dark:text-slate-400">
+        {title}
+      </h3>
+      <div className="space-y-3">{children}</div>
+    </div>
+  )
 }
 
-function JobCard({ job, showRelevance, viewMode }: { job: JobResponse; showRelevance: boolean; viewMode?: 'grid' | 'list' }) {
-  const { t } = useI18n()
-  const clientName = getClientName(job)
-  const budget = formatBudget(job, t)
-  const timeRemaining = getTimeRemaining(job.deadlineAt)
-  const relevancePercent = job.relevanceScore != null ? Math.min(Math.round(job.relevanceScore * 100), 100) : null
-  const initial = clientName.charAt(0).toUpperCase()
-
-  // In grid mode, we might want a slightly different internal layout if it gets too narrow, but flex-col handles it nicely.
+function RadioOption({
+  checked,
+  label,
+  name,
+  onChange,
+  value,
+}: {
+  checked: boolean
+  label: string
+  name: string
+  onChange: (value: string) => void
+  value: string
+}) {
   return (
-    <article className={`group flex gap-6 bg-white border border-[#e2e6f5] rounded-3xl p-6 sm:p-7 transition-all duration-300 hover:-translate-y-1 hover:border-[#4f46e5] hover:shadow-xl items-start relative overflow-hidden ${viewMode === 'grid' ? 'flex-col sm:flex-row' : 'flex-col sm:flex-row'}`}>
-      {/* Logo */}
-      <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-slate-50 border border-[#e2e6f5] text-2xl font-bold text-slate-400">
-        {initial}
-      </div>
+    <label className="group flex min-h-9 cursor-pointer items-center gap-3 text-sm text-slate-600 dark:text-slate-300">
+      <input
+        type="radio"
+        name={name}
+        value={value}
+        checked={checked}
+        onChange={(event) => onChange(event.target.value)}
+        className="peer sr-only"
+      />
+      <span
+        className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition-colors duration-150 peer-focus-visible:ring-2 peer-focus-visible:ring-emerald-600 peer-focus-visible:ring-offset-2 dark:peer-focus-visible:ring-emerald-300 dark:peer-focus-visible:ring-offset-slate-900 ${
+          checked
+            ? 'border-emerald-700 bg-emerald-700 text-white dark:border-emerald-400 dark:bg-emerald-400 dark:text-slate-950'
+            : 'border-slate-300 bg-white group-hover:border-slate-400 dark:border-slate-600 dark:bg-slate-950'
+        }`}
+      >
+        {checked ? <span className="h-2 w-2 rounded-full bg-white dark:bg-slate-950" /> : null}
+      </span>
+      <span className={checked ? 'font-semibold text-slate-950 dark:text-slate-50' : ''}>{label}</span>
+    </label>
+  )
+}
 
-      <div className="flex-1 min-w-0 flex flex-col w-full relative z-10 h-full">
-         <div className="flex flex-col sm:flex-row sm:justify-between gap-4 w-full">
+function ViewModeButton({
+  active,
+  children,
+  label,
+  onClick,
+}: {
+  active: boolean
+  children: React.ReactNode
+  label: string
+  onClick: () => void
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      title={label}
+      aria-label={label}
+      aria-pressed={active}
+      className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors duration-150 ${
+        active
+          ? 'bg-emerald-600 text-white shadow-sm dark:bg-emerald-500 dark:text-white'
+          : 'text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200'
+      }`}
+    >
+      {children}
+    </button>
+  )
+}
+
+function JobCard({
+  job,
+  showRelevance,
+  viewMode,
+}: {
+  job: JobResponse
+  showRelevance: boolean
+  viewMode: ViewMode
+}) {
+  const { language, t } = useI18n()
+  const clientName = getClientName(job, t)
+  const budget = formatBudget(job, t)
+  const deadline = getDeadlineState(job.deadlineAt, language)
+  const relevancePercent =
+    job.relevanceScore != null ? Math.min(Math.round(job.relevanceScore * 100), 100) : null
+  const publishedDate = job.publishedAt || job.createdAt
+  const initial = clientName.trim().charAt(0).toUpperCase() || 'M'
+
+  return (
+    <article className="group h-full overflow-hidden rounded-2xl border border-[#e2e6f5] bg-white transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-[0_14px_34px_rgba(51,65,85,0.09)] dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700 dark:hover:shadow-none">
+      <Link
+        to={`/jobs/${job.jobId}`}
+        className={`flex h-full min-w-0 flex-col p-5 sm:p-6 ${
+          viewMode === 'list' ? 'lg:grid lg:grid-cols-[minmax(0,1fr)_220px] lg:gap-8' : ''
+        }`}
+      >
+        <div className="min-w-0">
+          <div className="flex min-w-0 items-start gap-3">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-sm font-extrabold text-slate-600 dark:bg-slate-800 dark:text-slate-200">
+              {initial}
+            </div>
             <div className="min-w-0 flex-1">
-               <Link to={`/jobs/${job.jobId}`} className="line-clamp-2 text-[19px] font-extrabold text-[#1b2252] group-hover:text-[#4f46e5] transition-colors pr-6">
-                  {job.title}
-               </Link>
-               <div className="mt-2.5 flex items-center gap-3 text-[14px] text-slate-500 font-medium">
-                  <span className="truncate flex items-center gap-1.5">
-                     <Briefcase className="w-4 h-4 text-slate-400"/> {clientName}
-                  </span>
-                  <span className="text-slate-300">•</span>
-                  <span className="truncate flex items-center gap-1.5 text-emerald-600 font-bold">
-                     <CheckCircle2 className="w-4 h-4"/> Verified
-                  </span>
-               </div>
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                <span className="truncate text-sm font-semibold text-slate-700 dark:text-slate-200">
+                  {clientName}
+                </span>
+                <span className="text-xs text-slate-400">
+                  {formatRelativeTime(publishedDate, language)}
+                </span>
+              </div>
+              <h3 className="mt-1.5 line-clamp-2 text-[17px] font-bold leading-6 tracking-[-0.015em] text-slate-950 transition-colors duration-150 group-hover:text-emerald-800 sm:text-lg dark:text-slate-50 dark:group-hover:text-emerald-300">
+                {job.title}
+              </h3>
             </div>
-            
-            <div className="shrink-0 flex items-start justify-end mt-4 sm:mt-0">
-               <span className="text-[17px] font-extrabold text-[#4f46e5]">{budget}</span>
-            </div>
-         </div>
+          </div>
 
-         {/* Ensure the footer is pushed to the bottom in grid mode if heights differ */}
-         <div className="mt-auto pt-6 flex flex-wrap items-center justify-between gap-5 border-t border-slate-100">
-            <div className="flex flex-wrap items-center gap-2.5">
-               {job.requiredSkills && job.requiredSkills.length > 0 ? (
-                 <>
-                   {job.requiredSkills.slice(0, 3).map((skill) => (
-                     <span key={skill} className="rounded-lg bg-slate-50 border border-[#e2e6f5] px-3 py-1.5 text-[13px] font-semibold text-[#1b2252]">{skill}</span>
-                   ))}
-                   {job.requiredSkills.length > 3 && (
-                     <span className="rounded-lg bg-slate-50 border border-[#e2e6f5] px-3 py-1.5 text-[13px] font-semibold text-slate-500">+{job.requiredSkills.length - 3}</span>
-                   )}
-                 </>
-               ) : (
-                 <span className="text-[13px] text-slate-400 italic">Không yêu cầu kỹ năng</span>
-               )}
-            </div>
-            
-            <div className="flex items-center gap-5 text-[14px] text-slate-500 font-medium">
-               <div className="flex items-center gap-1.5">
-                 <Timer className="h-4 w-4 text-slate-400" />
-                 Hoàn thành trước: 
-                 <span className={`px-2 py-0.5 rounded text-[12px] font-bold border ${
-                    timeRemaining === 'Đã hết hạn'
-                      ? 'text-rose-600 bg-rose-50 border-rose-200'
-                      : 'text-[#00b14f] bg-green-50 border-green-100'
-                 }`}>
-                    {timeRemaining}
-                 </span>
-               </div>
-            </div>
-         </div>
-      </div>
-      
-      {job.isFeatured && (
-        <div className="absolute top-0 right-0 bg-red-500 text-white text-[11px] font-bold px-4 py-1.5 rounded-bl-2xl uppercase shadow-sm z-20">
-          HOT
+          <p className="mt-4 line-clamp-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
+            {job.description}
+          </p>
+
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            <span className="rounded-md bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700 dark:bg-slate-800 dark:text-slate-200">
+              {getJobTypeLabel(job.jobType, t)}
+            </span>
+            {job.requiredSkills?.slice(0, 3).map((skill) => (
+              <span
+                key={skill}
+                className="rounded-md border border-slate-200 px-2.5 py-1 text-xs font-medium text-slate-600 dark:border-slate-700 dark:text-slate-300"
+              >
+                {skill}
+              </span>
+            ))}
+            {job.requiredSkills && job.requiredSkills.length > 3 ? (
+              <span className="text-xs font-semibold text-slate-400">+{job.requiredSkills.length - 3}</span>
+            ) : null}
+            {!job.requiredSkills?.length ? (
+              <span className="text-xs text-slate-400">{t('jobs.card.noSkills')}</span>
+            ) : null}
+          </div>
         </div>
-      )}
+
+        <div
+          className={`mt-5 flex min-w-0 items-end justify-between gap-4 border-t border-slate-100 pt-4 dark:border-slate-800 ${
+            viewMode === 'list'
+              ? 'lg:mt-0 lg:flex-col lg:items-end lg:justify-between lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0'
+              : ''
+          }`}
+        >
+          <div className={viewMode === 'list' ? 'lg:text-right' : ''}>
+            <div className="flex flex-wrap items-center gap-2 lg:justify-end">
+              {job.isFeatured ? (
+                <span className="inline-flex items-center gap-1 rounded-md bg-amber-50 px-2 py-1 text-[11px] font-bold text-amber-800 dark:bg-amber-950/40 dark:text-amber-300">
+                  <Sparkles className="h-3 w-3" />
+                  {t('jobs.featured')}
+                </span>
+              ) : null}
+              {showRelevance && relevancePercent != null ? (
+                <span className="rounded-md bg-emerald-50 px-2 py-1 text-[11px] font-bold text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
+                  {t('jobs.relevance', { score: relevancePercent })}
+                </span>
+              ) : null}
+            </div>
+            <p className="mt-2 text-base font-extrabold text-amber-700 dark:text-amber-300">{budget}</p>
+          </div>
+
+          <div className="text-right">
+            <p
+              className={`flex items-center justify-end gap-1.5 text-xs font-semibold ${
+                deadline.isOverdue
+                  ? 'text-rose-700 dark:text-rose-300'
+                  : 'text-slate-500 dark:text-slate-400'
+              }`}
+            >
+              <Clock3 className="h-3.5 w-3.5" />
+              {deadline.label}
+            </p>
+            <p className="mt-2 flex items-center justify-end gap-1.5 text-xs text-slate-400">
+              <Users className="h-3.5 w-3.5" />
+              {t('jobs.proposalCount', { count: job.proposalCount || 0 })}
+            </p>
+            <span className="mt-3 inline-flex items-center gap-1 text-xs font-bold text-slate-700 transition-colors duration-150 group-hover:text-emerald-800 dark:text-slate-200 dark:group-hover:text-emerald-300">
+              {t('jobs.card.viewDetails')}
+              <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
+            </span>
+          </div>
+        </div>
+      </Link>
     </article>
   )
 }
 
-function JobListSkeleton({ viewMode = 'list' }: { viewMode?: 'grid' | 'list' }) {
+function JobListSkeleton({ viewMode }: { viewMode: ViewMode }) {
   return (
-    <div className={viewMode === 'grid' ? "grid grid-cols-1 2xl:grid-cols-2 gap-6" : "flex flex-col gap-6"}>
+    <div className={viewMode === 'grid' ? 'grid grid-cols-1 gap-4 xl:grid-cols-2' : 'space-y-3'}>
       {Array.from({ length: 6 }).map((_, index) => (
-        <div key={index} className={`flex gap-6 bg-white border border-[#e2e6f5] rounded-3xl p-7 ${viewMode === 'grid' ? 'flex-col sm:flex-row' : 'flex-col sm:flex-row'}`}>
-          <div className="h-16 w-16 shrink-0 animate-pulse rounded-2xl bg-slate-100" />
-          <div className="flex-1 space-y-6 w-full flex flex-col justify-between">
-            <div className="flex flex-col sm:flex-row justify-between gap-4 w-full">
-               <div className="space-y-4 flex-1">
-                  <div className="h-6 w-3/4 animate-pulse rounded-lg bg-slate-200" />
-                  <div className="h-5 w-1/3 animate-pulse rounded-lg bg-slate-100" />
-               </div>
-               <div className="h-7 w-28 animate-pulse rounded-lg bg-slate-100" />
+        <div
+          key={index}
+          className={`rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 dark:border-slate-800 dark:bg-slate-900 ${
+            viewMode === 'list' ? 'lg:grid lg:grid-cols-[minmax(0,1fr)_220px] lg:gap-8' : ''
+          }`}
+        >
+          <div>
+            <div className="flex gap-3">
+              <div className="h-11 w-11 shrink-0 animate-pulse rounded-xl bg-slate-200 dark:bg-slate-800" />
+              <div className="flex-1 space-y-2.5">
+                <div className="h-3 w-1/4 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+                <div className="h-5 w-3/4 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+              </div>
             </div>
-            <div className="flex flex-col sm:flex-row justify-between gap-4 pt-5 border-t border-slate-50">
-               <div className="flex gap-3">
-                  <div className="h-8 w-20 animate-pulse rounded-lg bg-slate-100" />
-                  <div className="h-8 w-24 animate-pulse rounded-lg bg-slate-100" />
-               </div>
-               <div className="h-5 w-28 animate-pulse rounded-lg bg-slate-100" />
+            <div className="mt-5 h-4 w-full animate-pulse rounded bg-slate-100 dark:bg-slate-800" />
+            <div className="mt-2 h-4 w-2/3 animate-pulse rounded bg-slate-100 dark:bg-slate-800" />
+            <div className="mt-5 flex gap-2">
+              <div className="h-6 w-20 animate-pulse rounded-md bg-slate-100 dark:bg-slate-800" />
+              <div className="h-6 w-24 animate-pulse rounded-md bg-slate-100 dark:bg-slate-800" />
             </div>
+          </div>
+          <div
+            className={`mt-5 border-t border-slate-100 pt-4 dark:border-slate-800 ${
+              viewMode === 'list' ? 'lg:mt-0 lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0' : ''
+            }`}
+          >
+            <div className="ml-auto h-5 w-28 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+            <div className="ml-auto mt-4 h-3 w-20 animate-pulse rounded bg-slate-100 dark:bg-slate-800" />
           </div>
         </div>
       ))}
@@ -573,61 +797,89 @@ function JobListSkeleton({ viewMode = 'list' }: { viewMode?: 'grid' | 'list' }) 
   )
 }
 
+function ErrorState({ onRetry }: { onRetry: () => void }) {
+  const { t } = useI18n()
+  return (
+    <div className="rounded-2xl border border-rose-200 bg-rose-50 px-6 py-12 text-center dark:border-rose-900 dark:bg-rose-950/30">
+      <h3 className="text-base font-bold text-rose-950 dark:text-rose-100">{t('jobs.error.title')}</h3>
+      <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-rose-800 dark:text-rose-200">
+        {t('jobs.error.body')}
+      </p>
+      <button
+        type="button"
+        onClick={onRetry}
+        className="mt-5 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-rose-800 px-5 text-sm font-bold text-white transition-colors duration-150 hover:bg-rose-900 active:scale-[0.98] dark:bg-rose-300 dark:text-rose-950 dark:hover:bg-rose-200"
+      >
+        <RotateCcw className="h-4 w-4" />
+        {t('jobs.error.retry')}
+      </button>
+    </div>
+  )
+}
+
 function EmptyState({ hasSearch, onClear }: { hasSearch: boolean; onClear: () => void }) {
   const { t } = useI18n()
   return (
-    <div className="rounded-3xl border-2 border-dashed border-slate-300 bg-white px-8 py-20 text-center">
-      <div className="mx-auto h-20 w-20 bg-slate-50 rounded-full flex items-center justify-center mb-5 border border-[#e2e6f5]">
-         <Search className="h-8 w-8 text-slate-300" />
+    <div className="rounded-2xl border border-slate-200 bg-white px-6 py-14 text-center dark:border-slate-800 dark:bg-slate-900">
+      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800">
+        <Search className="h-5 w-5 text-slate-400" />
       </div>
-      <h3 className="text-[18px] font-bold text-[#1b2252]">{t('jobs.noJobsFound')}</h3>
-      <p className="mx-auto mt-3 max-w-sm text-[15px] text-slate-500">
+      <h3 className="mt-4 text-base font-bold text-slate-950 dark:text-slate-50">
+        {t('jobs.noJobsFound')}
+      </h3>
+      <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-slate-500 dark:text-slate-400">
         {hasSearch ? t('jobs.emptyWithFilters') : t('jobs.emptyNoJobs')}
       </p>
-      {hasSearch && (
+      {hasSearch ? (
         <button
           type="button"
           onClick={onClear}
-          className="mt-8 inline-flex h-12 items-center justify-center rounded-xl bg-[#f7f8fc] px-8 text-[15px] font-semibold text-[#4f46e5] border border-[#e2e6f5] hover:bg-white hover:border-[#4f46e5] transition-colors shadow-sm"
+          className="mt-5 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-5 text-sm font-bold text-slate-800 transition-colors duration-150 hover:bg-slate-50 active:scale-[0.98] dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
         >
+          <RotateCcw className="h-4 w-4" />
           {t('jobs.clearFilters')}
         </button>
-      )}
+      ) : null}
     </div>
   )
 }
 
 function Pagination({
+  onPageChange,
   page,
   totalPages,
-  onPageChange,
 }: {
+  onPageChange: (page: number) => void
   page: number
   totalPages: number
-  onPageChange: (page: number) => void
 }) {
+  const { t } = useI18n()
   return (
-    <div className="flex items-center justify-center gap-3">
-      <button
-        type="button"
-        onClick={() => onPageChange(Math.max(0, page - 1))}
-        disabled={page === 0}
-        className="flex h-12 w-12 items-center justify-center rounded-xl border border-[#e2e6f5] bg-white text-slate-500 hover:bg-[#f7f8fc] hover:text-[#1b2252] disabled:opacity-40 transition-colors shadow-sm"
-      >
-        <ChevronLeft className="h-5 w-5" />
-      </button>
-      <span className="flex h-12 min-w-[3rem] items-center justify-center rounded-xl bg-[#4f46e5] px-4 text-[16px] font-bold text-white shadow-md">
-        {page + 1}
-      </span>
-      <button
-        type="button"
-        onClick={() => onPageChange(Math.min(totalPages - 1, page + 1))}
-        disabled={page >= totalPages - 1}
-        className="flex h-12 w-12 items-center justify-center rounded-xl border border-[#e2e6f5] bg-white text-slate-500 hover:bg-[#f7f8fc] hover:text-[#1b2252] disabled:opacity-40 transition-colors shadow-sm"
-      >
-        <ChevronRight className="h-5 w-5" />
-      </button>
-    </div>
+    <nav className="flex items-center justify-between border-t border-slate-200 pt-5 dark:border-slate-800">
+      <p className="text-sm text-slate-500 dark:text-slate-400">
+        {t('jobs.pagination.label', { current: page + 1, total: totalPages })}
+      </p>
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => onPageChange(Math.max(0, page - 1))}
+          disabled={page === 0}
+          className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition-colors duration-150 hover:bg-slate-100 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
+          aria-label={t('jobs.pagination.previous')}
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </button>
+        <button
+          type="button"
+          onClick={() => onPageChange(Math.min(totalPages - 1, page + 1))}
+          disabled={page >= totalPages - 1}
+          className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition-colors duration-150 hover:bg-slate-100 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
+          aria-label={t('jobs.pagination.next')}
+        >
+          <ChevronRight className="h-4 w-4" />
+        </button>
+      </div>
+    </nav>
   )
 }
 
@@ -642,16 +894,53 @@ function formatBudget(job: JobResponse, t: ReturnType<typeof useI18n>['t']) {
   return t('jobs.budgetTbd')
 }
 
-function formatDeadline(deadline: string) {
-  const date = new Date(deadline)
-  if (Number.isNaN(date.getTime())) return 'No deadline'
-  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+function getClientName(job: JobResponse, t: ReturnType<typeof useI18n>['t']) {
+  return job.clientName || job.client?.displayName || job.client?.fullName || t('jobs.card.clientFallback')
 }
 
-function getClientName(job: JobResponse) {
-  return job.clientName || job.client?.displayName || job.client?.fullName || 'Company'
+function getJobTypeLabel(jobType: JobType, t: ReturnType<typeof useI18n>['t']) {
+  if (jobType === JobType.FREELANCE_PROJECT) return t('jobs.freelance')
+  if (jobType === JobType.LONG_TERM_MENTORING) return t('jobs.mentoring')
+  return t('jobs.quickFix')
 }
 
-function getProposalCount(job: JobResponse) {
-  return job.proposalCount || 0
+function getDeadlineState(deadlineAt: string | undefined, language: 'en' | 'vi') {
+  if (!deadlineAt) {
+    return {
+      isOverdue: false,
+      label: language === 'vi' ? 'Không có hạn chót' : 'No deadline',
+    }
+  }
+
+  const deadline = new Date(deadlineAt)
+  if (Number.isNaN(deadline.getTime())) {
+    return {
+      isOverdue: false,
+      label: language === 'vi' ? 'Hạn chót chưa xác định' : 'Deadline unavailable',
+    }
+  }
+
+  const isOverdue = deadline.getTime() < Date.now()
+  const formattedDate = new Intl.DateTimeFormat(language === 'vi' ? 'vi-VN' : 'en-US', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  }).format(deadline)
+
+  return {
+    isOverdue,
+    label: isOverdue
+      ? language === 'vi'
+        ? `Đã hết hạn ${formattedDate}`
+        : `Expired ${formattedDate}`
+      : language === 'vi'
+        ? `Hạn ${formattedDate}`
+        : `Due ${formattedDate}`,
+  }
+}
+
+function parseNonNegativeNumber(value: string) {
+  if (!value.trim()) return undefined
+  const parsed = Number(value)
+  return Number.isFinite(parsed) && parsed >= 0 ? parsed : undefined
 }

@@ -1,112 +1,99 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import { useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { CourseProductType } from '@/types'
-import MainLayout from './layouts/MainLayout'
-import AuthLayout from './layouts/AuthLayout'
-import AdminLayout from './layouts/AdminLayout'
-import MentorLayout from './layouts/MentorLayout'
-import ProfileLayout from './layouts/ProfileLayout'
-import ChatLayout from './layouts/ChatLayout'
-
-// Auth Pages
-import LoginPage from './pages/auth/LoginPage'
-import RegisterPage from './pages/auth/RegisterPage'
-import ForgotPasswordPage from './pages/auth/ForgotPasswordPage'
-import OnboardingPage from './pages/auth/OnboardingPage'
-import ResetPasswordPage from './pages/auth/ResetPasswordPage'
-import VerifyEmailPage from './pages/auth/VerifyEmailPage'
-import GithubCallback from './pages/auth/GithubCallback'
-
-// Dashboard Pages
-import ProfileDashboardPage from './pages/user/ProfileDashboardPage'
-import SettingsPage from './pages/user/SettingsPage'
-import PreferencesPage from './pages/user/PreferencesPage'
-import BankAccountPage from './pages/user/BankAccountPage'
-import SavedMentorsPage from './pages/user/SavedMentorsPage'
-import UserAppointmentsPage from './pages/user/UserAppointmentsPage'
-import UserTransactionsPage from './pages/user/UserTransactionsPage'
-import MentorProfilePage from './pages/mentor/MentorProfilePage'
-import MentorListPage from './pages/mentor/MentorListPage'
-import MentorPublicProfilePage from './pages/mentor/MentorPublicProfilePage'
-import RecommendedMentorsPage from './pages/mentor/RecommendedMentorsPage'
-import UserPublicProfilePage from './pages/user/UserPublicProfilePage'
-import NotificationListPage from './pages/user/NotificationListPage'
-import MyComplaintsPage from './pages/user/MyComplaintsPage'
-import NewComplaintPage from './pages/user/NewComplaintPage'
-import UserReviewsPage from './pages/user/UserReviewsPage'
-
-// Job Pages
-import JobListPage from './pages/job/JobListPage'
-import JobDetailPage from './pages/job/JobDetailPage'
-import JobCreatePage from './pages/job/JobCreatePage'
-import JobEditPage from './pages/job/JobEditPage'
-import MyJobsPage from './pages/job/MyJobsPage'
-import UserRequestDetailPage from './pages/job/UserRequestDetailPage'
-
-// Course Pages
-import CourseListPage from './pages/course/CourseListPage'
-import CourseDetailPage from './pages/course/CourseDetailPage'
-import CourseCreatePage from './pages/course/CourseCreatePage'
-import CourseLearnPage from './pages/course/CourseLearnPage'
-
-// Wallet Pages
-import WalletPage from './pages/wallet/WalletPage'
-
-// Payment Pages
-import VNPayReturnPage from './pages/payment/VNPayReturnPage'
-import MomoReturnPage from './pages/payment/MomoReturnPage'
-import PayOSReturnPage from './pages/payment/PayOSReturnPage'
-
-// Chat Page
-import ChatListPage from './pages/chat/ChatListPage'
-import ChatDemoPage from './pages/chat/ChatDemoPage'
-
-// Admin Pages
-import AdminDashboardPage from './pages/admin/AdminDashboardPage'
-import AdminUsersPage from './pages/admin/AdminUsersPage'
-import AdminJobsPage from './pages/admin/AdminJobsPage'
-import AdminCoursesPage from './pages/admin/AdminCoursesPage'
-import AdminCourseReviewPage from './pages/admin/AdminCourseReviewPage'
-import AdminReportsPage from './pages/admin/AdminReportsPage'
-import AdminWalletPage from './pages/admin/AdminWalletPage'
-import AdminMentorApplicationsPage from './pages/admin/AdminMentorApplicationsPage'
-import AdminSupportPage from './pages/admin/AdminSupportPage'
-import AdminComplaintsPage from './pages/admin/AdminComplaintsPage'
-import AdminComplaintDetailPage from './pages/admin/AdminComplaintDetailPage'
-import AdminDisputesPage from './pages/admin/AdminDisputesPage'
-import AdminSettingsPage from './pages/admin/AdminSettingsPage'
-
-// Mentor Pages
-import MentorDashboardPage from './pages/mentor/MentorDashboardPage'
-import MentorCoursesPage from './pages/mentor/MentorCoursesPage'
-import MentorCourseManagePage from './pages/mentor/MentorCourseManagePage'
-import MentorContractsPage from './pages/mentor/MentorContractsPage'
-import MentorProposalsPage from './pages/mentor/MentorProposalsPage'
-import MentorProposalDetailPage from './pages/mentor/MentorProposalDetailPage'
-import MentorProfileSetupPage from './pages/mentor/MentorProfileSetupPage'
-import MentorMessagesPage from './pages/mentor/MentorMessagesPage'
-import MentorSchedulePage from './pages/mentor/MentorSchedulePage'
-import MentorEarningsPage from './pages/mentor/MentorEarningsPage'
-import MentorReviewsPage from './pages/mentor/MentorReviewsPage'
-import MyCoursesPage from './pages/user/MyCoursesPage'
-
-
-// Protected Route Components
 import ProtectedRoute from './components/auth/ProtectedRoute'
 import AdminRoute from './components/auth/AdminRoute'
 import AdminOnlyRoute from './components/auth/AdminOnlyRoute'
 import MentorRoute from './components/auth/MentorRoute'
 import ThemeProvider from './components/ThemeProvider'
+import ScrollToTop from './components/ScrollToTop'
 import { authApi } from './api/authApi'
 import { useAuthStore } from './store/authStore'
-
-import HomePage from './pages/HomePage'
-import AboutPage from './pages/AboutPage'
-import GuidePage from './pages/GuidePage'
-import BlogDetailPage from './pages/BlogDetailPage'
 import { Toaster } from 'react-hot-toast'
-import { AiAssistantWidget } from './components/ui/AiAssistantWidget'
+
+const MainLayout = lazy(() => import('./layouts/MainLayout'))
+const AuthLayout = lazy(() => import('./layouts/AuthLayout'))
+const AdminLayout = lazy(() => import('./layouts/AdminLayout'))
+const MentorLayout = lazy(() => import('./layouts/MentorLayout'))
+const ProfileLayout = lazy(() => import('./layouts/ProfileLayout'))
+const ChatLayout = lazy(() => import('./layouts/ChatLayout'))
+
+const LoginPage = lazy(() => import('./pages/auth/LoginPage'))
+const RegisterPage = lazy(() => import('./pages/auth/RegisterPage'))
+const ForgotPasswordPage = lazy(() => import('./pages/auth/ForgotPasswordPage'))
+const OnboardingPage = lazy(() => import('./pages/auth/OnboardingPage'))
+const ResetPasswordPage = lazy(() => import('./pages/auth/ResetPasswordPage'))
+const VerifyEmailPage = lazy(() => import('./pages/auth/VerifyEmailPage'))
+const GithubCallback = lazy(() => import('./pages/auth/GithubCallback'))
+
+const ProfileDashboardPage = lazy(() => import('./pages/user/ProfileDashboardPage'))
+const SettingsPage = lazy(() => import('./pages/user/SettingsPage'))
+const PreferencesPage = lazy(() => import('./pages/user/PreferencesPage'))
+const BankAccountPage = lazy(() => import('./pages/user/BankAccountPage'))
+const SavedMentorsPage = lazy(() => import('./pages/user/SavedMentorsPage'))
+const UserAppointmentsPage = lazy(() => import('./pages/user/UserAppointmentsPage'))
+const UserTransactionsPage = lazy(() => import('./pages/user/UserTransactionsPage'))
+const UserPublicProfilePage = lazy(() => import('./pages/user/UserPublicProfilePage'))
+const NotificationListPage = lazy(() => import('./pages/user/NotificationListPage'))
+const MyComplaintsPage = lazy(() => import('./pages/user/MyComplaintsPage'))
+const NewComplaintPage = lazy(() => import('./pages/user/NewComplaintPage'))
+const UserReviewsPage = lazy(() => import('./pages/user/UserReviewsPage'))
+const MyCoursesPage = lazy(() => import('./pages/user/MyCoursesPage'))
+
+const MentorProfilePage = lazy(() => import('./pages/mentor/MentorProfilePage'))
+const MentorListPage = lazy(() => import('./pages/mentor/MentorListPage'))
+const MentorPublicProfilePage = lazy(() => import('./pages/mentor/MentorPublicProfilePage'))
+const RecommendedMentorsPage = lazy(() => import('./pages/mentor/RecommendedMentorsPage'))
+const MentorDashboardPage = lazy(() => import('./pages/mentor/MentorDashboardPage'))
+const MentorCoursesPage = lazy(() => import('./pages/mentor/MentorCoursesPage'))
+const MentorCourseManagePage = lazy(() => import('./pages/mentor/MentorCourseManagePage'))
+const MentorContractsPage = lazy(() => import('./pages/mentor/MentorContractsPage'))
+const MentorProposalsPage = lazy(() => import('./pages/mentor/MentorProposalsPage'))
+const MentorProposalDetailPage = lazy(() => import('./pages/mentor/MentorProposalDetailPage'))
+const MentorMessagesPage = lazy(() => import('./pages/mentor/MentorMessagesPage'))
+const MentorSchedulePage = lazy(() => import('./pages/mentor/MentorSchedulePage'))
+const MentorEarningsPage = lazy(() => import('./pages/mentor/MentorEarningsPage'))
+const MentorReviewsPage = lazy(() => import('./pages/mentor/MentorReviewsPage'))
+
+const JobListPage = lazy(() => import('./pages/job/JobListPage'))
+const JobDetailPage = lazy(() => import('./pages/job/JobDetailPage'))
+const JobCreatePage = lazy(() => import('./pages/job/JobCreatePage'))
+const JobEditPage = lazy(() => import('./pages/job/JobEditPage'))
+const MyJobsPage = lazy(() => import('./pages/job/MyJobsPage'))
+const UserRequestDetailPage = lazy(() => import('./pages/job/UserRequestDetailPage'))
+
+const CourseListPage = lazy(() => import('./pages/course/CourseListPage'))
+const CourseDetailPage = lazy(() => import('./pages/course/CourseDetailPage'))
+const CourseCreatePage = lazy(() => import('./pages/course/CourseCreatePage'))
+const CourseLearnPage = lazy(() => import('./pages/course/CourseLearnPage'))
+
+const WalletPage = lazy(() => import('./pages/wallet/WalletPage'))
+const PayOSReturnPage = lazy(() => import('./pages/payment/PayOSReturnPage'))
+const ChatListPage = lazy(() => import('./pages/chat/ChatListPage'))
+const ChatDemoPage = lazy(() => import('./pages/chat/ChatDemoPage'))
+
+const AdminDashboardPage = lazy(() => import('./pages/admin/AdminDashboardPage'))
+const AdminUsersPage = lazy(() => import('./pages/admin/AdminUsersPage'))
+const AdminJobsPage = lazy(() => import('./pages/admin/AdminJobsPage'))
+const AdminCoursesPage = lazy(() => import('./pages/admin/AdminCoursesPage'))
+const AdminCourseReviewPage = lazy(() => import('./pages/admin/AdminCourseReviewPage'))
+const AdminReportsPage = lazy(() => import('./pages/admin/AdminReportsPage'))
+const AdminWalletPage = lazy(() => import('./pages/admin/AdminWalletPage'))
+const AdminMentorApplicationsPage = lazy(() => import('./pages/admin/AdminMentorApplicationsPage'))
+const AdminSupportPage = lazy(() => import('./pages/admin/AdminSupportPage'))
+const AdminComplaintsPage = lazy(() => import('./pages/admin/AdminComplaintsPage'))
+const AdminComplaintDetailPage = lazy(() => import('./pages/admin/AdminComplaintDetailPage'))
+const AdminDisputesPage = lazy(() => import('./pages/admin/AdminDisputesPage'))
+const AdminSettingsPage = lazy(() => import('./pages/admin/AdminSettingsPage'))
+
+const HomePage = lazy(() => import('./pages/HomePage'))
+const AboutPage = lazy(() => import('./pages/AboutPage'))
+const GuidePage = lazy(() => import('./pages/GuidePage'))
+const BlogDetailPage = lazy(() => import('./pages/BlogDetailPage'))
+const AiAssistantWidget = lazy(() =>
+  import('./components/ui/AiAssistantWidget').then((module) => ({ default: module.AiAssistantWidget }))
+)
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -117,10 +104,29 @@ const queryClient = new QueryClient({
   },
 })
 
+function AppLoadingScreen() {
+  return (
+    <div
+      className="flex min-h-screen items-center justify-center bg-[#f7f5ef] px-6"
+      role="status"
+      aria-live="polite"
+    >
+      <div className="w-full max-w-sm animate-pulse space-y-4 motion-reduce:animate-none">
+        <div className="h-3 w-24 rounded-full bg-emerald-800/20" />
+        <div className="h-9 w-3/4 rounded-xl bg-slate-900/10" />
+        <div className="h-3 w-full rounded-full bg-slate-900/10" />
+        <div className="h-3 w-5/6 rounded-full bg-slate-900/10" />
+      </div>
+      <span className="sr-only">Loading MentorX</span>
+    </div>
+  )
+}
+
 function App() {
   const [authReady, setAuthReady] = useState(false)
   const setTokens = useAuthStore((state) => state.setTokens)
   const setUser = useAuthStore((state) => state.setUser)
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
 
   useEffect(() => {
     let active = true
@@ -139,15 +145,21 @@ function App() {
     return () => { active = false }
   }, [setTokens, setUser])
 
-  if (!authReady) return null
+  if (!authReady) return <AppLoadingScreen />
 
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <Toaster position="top-right" reverseOrder={false} />
-        <AiAssistantWidget />
+        {isAuthenticated ? (
+          <Suspense fallback={null}>
+            <AiAssistantWidget />
+          </Suspense>
+        ) : null}
         <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-        <Routes>
+          <ScrollToTop />
+        <Suspense fallback={<AppLoadingScreen />}>
+          <Routes>
           {/* Auth Routes */}
           <Route element={<AuthLayout />}>
             <Route path="/login" element={<LoginPage />} />
@@ -194,8 +206,8 @@ function App() {
             <Route path="/wallet" element={<WalletPage />} />
 
             {/* Payment Routes */}
-            <Route path="/payment/vnpay-return" element={<VNPayReturnPage />} />
-            <Route path="/payment/momo-return" element={<MomoReturnPage />} />
+            <Route path="/payment/vnpay-return" element={<Navigate to="/wallet" replace />} />
+            <Route path="/payment/momo-return" element={<Navigate to="/wallet" replace />} />
             <Route path="/payment/payos-return" element={<PayOSReturnPage />} />
 
           </Route>
@@ -227,7 +239,7 @@ function App() {
             <Route path="/profile/preferences" element={<PreferencesPage />} />
             <Route path="/profile/bank-accounts" element={<BankAccountPage />} />
             <Route path="/profile/settings" element={<SettingsPage />} />
-            <Route path="/profile/payments" element={<div>Payment Methods (Coming Soon)</div>} />
+            <Route path="/profile/payments" element={<Navigate to="/wallet" replace />} />
             <Route path="/my-jobs" element={<MyJobsPage />} />
             <Route path="/my-jobs/:jobId" element={<UserRequestDetailPage />} />
             <Route path="/users/requests" element={<MyJobsPage />} />
@@ -287,8 +299,9 @@ function App() {
 
           {/* 404 */}
           <Route path="*" element={<div className="flex items-center justify-center h-screen"><h1 className="text-2xl">404 - Page Not Found</h1></div>} />
-        </Routes>
-      </Router>
+          </Routes>
+        </Suspense>
+        </Router>
       </ThemeProvider>
     </QueryClientProvider>
   )

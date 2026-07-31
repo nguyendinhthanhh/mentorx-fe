@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import { X, AlertCircle, Loader2 } from 'lucide-react'
 
 interface ArchiveReasonModalProps {
@@ -34,20 +35,20 @@ export default function ArchiveReasonModal({
 
   if (!isOpen) return null
 
-  return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-      <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] w-full max-w-md shadow-2xl border border-gray-100 dark:border-gray-800 overflow-hidden">
-        <div className="px-8 py-6 border-b border-gray-50 dark:border-gray-800 flex items-center justify-between bg-gray-50/30 dark:bg-gray-800/30">
-          <div>
+  return createPortal((
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-2 backdrop-blur-sm sm:p-4">
+      <div className="max-h-[calc(100dvh-1rem)] w-full max-w-md overflow-y-auto rounded-2xl border border-gray-100 bg-white shadow-2xl dark:border-gray-800 dark:bg-gray-900 sm:rounded-[2.5rem]">
+        <div className="flex items-center justify-between gap-3 border-b border-gray-50 bg-gray-50/30 px-4 py-4 dark:border-gray-800 dark:bg-gray-800/30 sm:px-8 sm:py-6">
+          <div className="min-w-0">
             <h2 className="text-xl font-black text-gray-900 dark:text-white tracking-tight">{title}</h2>
             <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mt-1">Reason required for moderation</p>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-colors">
+          <button type="button" onClick={onClose} aria-label="Close" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl transition-colors hover:bg-gray-100 dark:hover:bg-gray-800">
             <X className="w-6 h-6 text-gray-400" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-8 space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6 p-4 sm:p-8">
           <div className="space-y-4">
             <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800 rounded-2xl flex items-start gap-3 text-amber-700 dark:text-amber-400 text-xs font-bold leading-relaxed">
               <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
@@ -70,7 +71,7 @@ export default function ArchiveReasonModal({
             </div>
           </div>
 
-          <div className="flex gap-4">
+          <div className="flex flex-col-reverse gap-3 min-[420px]:flex-row min-[420px]:gap-4">
             <button 
               type="button"
               onClick={onClose}
@@ -90,5 +91,5 @@ export default function ArchiveReasonModal({
         </form>
       </div>
     </div>
-  )
+  ), document.body)
 }

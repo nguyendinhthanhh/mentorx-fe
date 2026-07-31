@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -133,14 +134,14 @@ export default function AdminUserModal({ isOpen, onClose, user }: AdminUserModal
   const inputClass = "w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-800 border border-transparent focus:bg-white dark:focus:bg-gray-900 focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500/30 transition-all text-sm font-medium text-gray-900 dark:text-white"
   const labelClass = "block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5"
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-gray-900/40 dark:bg-black/60 backdrop-blur-sm">
+  return createPortal((
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/40 p-2 backdrop-blur-sm dark:bg-black/60 sm:p-6">
       <div 
-        className="w-full max-w-2xl bg-white dark:bg-gray-900 rounded-[2.5rem] shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+        className="max-h-[calc(100dvh-1rem)] w-full max-w-2xl overflow-hidden rounded-2xl bg-white shadow-2xl animate-in fade-in zoom-in-95 duration-200 dark:bg-gray-900 sm:max-h-[calc(100dvh-3rem)] sm:rounded-[2.5rem]"
         onClick={e => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between p-6 sm:p-8 border-b border-gray-100 dark:border-gray-800">
-          <h2 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">
+        <div className="flex items-center justify-between border-b border-gray-100 p-4 dark:border-gray-800 sm:p-8">
+          <h2 className="text-xl font-black tracking-tight text-gray-900 dark:text-white sm:text-2xl">
             {user ? 'Edit User' : 'Create New User'}
           </h2>
           <button 
@@ -151,7 +152,7 @@ export default function AdminUserModal({ isOpen, onClose, user }: AdminUserModal
           </button>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="p-6 sm:p-8 space-y-6 max-h-[70vh] overflow-y-auto">
+        <form onSubmit={handleSubmit(onSubmit)} className="max-h-[calc(100dvh-5.75rem)] space-y-5 overflow-y-auto p-4 sm:max-h-[70vh] sm:space-y-6 sm:p-8">
           {error && (
             <div className="p-4 rounded-2xl bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm font-bold border border-red-100 dark:border-red-900/30">
               {error}
@@ -239,7 +240,7 @@ export default function AdminUserModal({ isOpen, onClose, user }: AdminUserModal
             )}
           </div>
 
-          <div className="flex items-center justify-end gap-3 pt-6 border-t border-gray-100 dark:border-gray-800">
+          <div className="flex flex-col-reverse gap-3 border-t border-gray-100 pt-5 dark:border-gray-800 min-[440px]:flex-row min-[440px]:items-center min-[440px]:justify-end">
             <button
               type="button"
               onClick={onClose}
@@ -259,5 +260,5 @@ export default function AdminUserModal({ isOpen, onClose, user }: AdminUserModal
         </form>
       </div>
     </div>
-  )
+  ), document.body)
 }

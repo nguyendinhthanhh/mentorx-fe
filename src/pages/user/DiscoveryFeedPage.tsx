@@ -108,7 +108,7 @@ export default function DiscoveryFeedPage() {
       {!isLoading && (
         <>
           {/* Welcome Section */}
-          <div className="bg-gradient-to-br from-primary-500 to-indigo-600 rounded-2xl p-8 text-white">
+          <div className="bg-gradient-to-br from-primary-500 to-emerald-600 rounded-2xl p-8 text-white">
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-3xl font-black mb-2">
@@ -297,7 +297,7 @@ export default function DiscoveryFeedPage() {
                     className="h-48 w-full object-cover"
                   />
                 ) : (
-                  <div className="h-48 bg-gradient-to-br from-primary-100 to-indigo-100 dark:from-primary-900/20 dark:to-indigo-900/20 flex items-center justify-center">
+                  <div className="h-48 bg-gradient-to-br from-primary-100 to-emerald-100 dark:from-primary-900/20 dark:to-emerald-900/20 flex items-center justify-center">
                     <BookOpen className="w-16 h-16 text-primary-400" />
                   </div>
                 )}
@@ -419,8 +419,8 @@ export default function DiscoveryFeedPage() {
                     className="h-40 w-full object-cover"
                   />
                 ) : (
-                  <div className="h-40 bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/20 dark:to-purple-900/20 flex items-center justify-center">
-                    <BookOpen className="w-12 h-12 text-indigo-400" />
+                  <div className="h-40 bg-gradient-to-br from-emerald-100 to-emerald-100 dark:from-emerald-900/20 dark:to-emerald-900/20 flex items-center justify-center">
+                    <BookOpen className="w-12 h-12 text-emerald-400" />
                   </div>
                 )}
 

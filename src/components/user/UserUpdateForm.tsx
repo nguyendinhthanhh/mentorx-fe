@@ -127,7 +127,7 @@ export default function UserUpdateForm({ userId, initialData }: Props) {
       {/* Avatar Section */}
       <div className="flex flex-col items-center gap-4 pb-6 border-b border-gray-100">
         <div className="relative group">
-          <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-primary-500 to-indigo-500 flex items-center justify-center flex-shrink-0 overflow-hidden ring-4 ring-white shadow-xl">
+          <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-primary-500 to-emerald-500 flex items-center justify-center flex-shrink-0 overflow-hidden ring-4 ring-white shadow-xl">
             {uploading ? (
               <div className="absolute inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-10">
                 <Loader2 className="w-8 h-8 text-white animate-spin" />
@@ -255,7 +255,7 @@ export default function UserUpdateForm({ userId, initialData }: Props) {
       <button
         type="submit"
         disabled={loading || uploading}
-        className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-primary-600 to-indigo-600 text-white py-3.5 rounded-xl font-bold hover:shadow-lg hover:shadow-primary-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm uppercase tracking-widest"
+        className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-primary-600 to-emerald-600 text-white py-3.5 rounded-xl font-bold hover:shadow-lg hover:shadow-primary-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm uppercase tracking-widest"
       >
         {loading ? (
           <>

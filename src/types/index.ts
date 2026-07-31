@@ -140,7 +140,7 @@ export enum WithdrawalStatus {
 }
 
 export enum PaymentGateway {
-  VNPAY = "VNPAY",
+  PAYOS = "PAYOS",
   STRIPE = "STRIPE",
   MANUAL = "MANUAL",
 }
@@ -589,9 +589,10 @@ export interface AppointmentSlotResponse {
 }
 
 export interface ContractResponse {
-  id: string;
-  jobId: string;
-  jobTitle: string;
+    id: string;
+    jobId: string;
+    jobTitle: string;
+    jobSummary?: JobSummaryResponse;
   proposalId?: string;
   clientId: string;
   clientName: string;
@@ -637,8 +638,25 @@ export interface ContractResponse {
   ndaRequired?: boolean;
   ndaSigned?: boolean;
   createdAt: string;
-  updatedAt: string;
-}
+    updatedAt: string;
+  }
+
+  export interface JobSummaryResponse {
+    jobId: string;
+    title: string;
+    description: string;
+    clientId: string;
+    clientName: string;
+    clientAvatarUrl?: string;
+    categoryId?: number;
+    customCategoryName?: string;
+    requiredSkills?: string[];
+    budgetType: BudgetType;
+    budgetMinMxc?: number;
+    budgetMaxMxc?: number;
+    hourlyRateMxc?: number;
+    deadlineAt?: string;
+  }
 
 export interface DisputeResponse {
   id: string;
@@ -805,6 +823,7 @@ export interface CourseEnrollmentResponse {
   id: string;
   courseId: string;
   courseTitle: string;
+  courseSummary?: CourseEnrollmentCourseSummaryResponse;
   studentId: string;
   studentName: string;
   amountPaidMxc: number;
@@ -816,6 +835,18 @@ export interface CourseEnrollmentResponse {
   enrolledAt: string;
   lastAccessedAt?: string;
   completedAt?: string;
+}
+
+export interface CourseEnrollmentCourseSummaryResponse {
+  courseId: string;
+  title: string;
+  thumbnailUrl?: string;
+  status: CourseStatus;
+  productType: CourseProductType;
+  categoryId?: number;
+  skills: string[];
+  instructorName?: string;
+  isCertificate: boolean;
 }
 
 export interface CourseSectionResponse {
@@ -1077,6 +1108,7 @@ export interface ProposalResponse {
   id: string;
   jobId: string;
   jobTitle: string;
+  jobSummary?: JobSummaryResponse;
   mentorId: string;
   mentorName: string;
   status: ProposalStatus;
@@ -1256,6 +1288,16 @@ export interface ReviewResponse {
   createdAt: string;
   updatedAt: string;
   currentUserVote?: boolean | null;
+}
+
+export interface ReviewSummaryResponse {
+  averageRating: number;
+  totalReviews: number;
+  fiveStarReviews: number;
+  fourStarReviews: number;
+  threeStarReviews: number;
+  twoStarReviews: number;
+  oneStarReviews: number;
 }
 
 // Moderation Types
@@ -1640,6 +1682,26 @@ export interface MentorProfileAssetRequest {
   displayOrder?: number;
 }
 
+export type MentorRecommendationReason =
+  | 'SKILL_MATCH'
+  | 'DOMAIN_MATCH'
+  | 'LANGUAGE_MATCH'
+  | 'AVAILABLE_SCHEDULE'
+  | 'STRONG_RATING'
+  | 'PROVEN_TRACK_RECORD'
+  | 'FEATURED_PROFILE'
+  | 'PROFILE_QUALITY';
+
+export type MentorRecommendationConfidence = 'LOW' | 'MEDIUM' | 'HIGH';
+
+export interface MentorMatchScoreBreakdown {
+  domain: number;
+  skills: number;
+  language: number;
+  availability: number;
+  quality: number;
+}
+
 export interface MentorRecommendationResponse {
   mentorId: string;
   userId: string;
@@ -1652,11 +1714,21 @@ export interface MentorRecommendationResponse {
   availability?: string;
   averageRating?: number;
   totalReviews: number;
+  totalJobsDone: number;
+  successRate?: number;
+  responseTimeHours?: number;
   totalEarnings?: number;
   isFeatured: boolean;
+  isAvailable: boolean;
   skills: string[];
+  matchingSkills: string[];
   categories: string[];
   matchScore: number;
+  scoreBreakdown: MentorMatchScoreBreakdown;
+  reasonCodes: MentorRecommendationReason[];
+  confidence: MentorRecommendationConfidence;
+  algorithmVersion: string;
+  personalized: boolean;
 }
 
 export interface CourseRecommendationResponse {

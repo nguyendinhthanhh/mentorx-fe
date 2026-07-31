@@ -67,11 +67,11 @@ export default function ChatDemoPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-purple-50 py-12 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-emerald-50 py-12 px-4">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-primary-500 to-purple-600 mb-6 shadow-lg">
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-primary-500 to-emerald-600 mb-6 shadow-lg">
             <MessageSquare className="w-10 h-10 text-white" />
           </div>
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
@@ -121,8 +121,8 @@ export default function ChatDemoPage() {
 
           {/* Chat with Admin */}
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow">
-            <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center mb-4">
-              <MessageSquare className="w-6 h-6 text-purple-600" />
+            <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center mb-4">
+              <MessageSquare className="w-6 h-6 text-emerald-600" />
             </div>
             <h3 className="text-xl font-bold text-gray-900 mb-2">Chat với Admin</h3>
             <p className="text-sm text-gray-600 mb-4">
@@ -131,7 +131,7 @@ export default function ChatDemoPage() {
             <button
               onClick={() => createDemoChat('admin')}
               disabled={loading}
-              className="w-full px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {loading ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -170,7 +170,7 @@ export default function ChatDemoPage() {
         <div className="text-center">
           <button
             onClick={() => navigate('/chat')}
-            className="inline-flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-primary-600 to-purple-600 text-white rounded-xl hover:from-primary-700 hover:to-purple-700 shadow-lg shadow-primary-200 font-semibold"
+            className="inline-flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-primary-600 to-emerald-600 text-white rounded-xl hover:from-primary-700 hover:to-emerald-700 shadow-lg shadow-primary-200 font-semibold"
           >
             <MessageSquare className="w-5 h-5" />
             Đi đến Trang Chat
