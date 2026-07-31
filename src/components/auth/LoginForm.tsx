@@ -12,9 +12,11 @@ import GoogleLoginButton from './GoogleLoginButton'
 import GithubLoginButton from './GithubLoginButton'
 import EmailVerificationPending from './EmailVerificationPending'
 
-import { canAccessAdminWorkspace } from '@/utils/roleRedirect'
 import { getSocialAuthRedirectPath } from '@/utils/socialAuth'
 
+interface LoginFormProps {
+  onVerificationPendingChange?: (pending: boolean) => void
+}
 
 const loginSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -22,7 +24,7 @@ const loginSchema = z.object({
   totpCode: z.string().regex(/^\d{6}$/, 'Enter the 6-digit authenticator code').optional().or(z.literal('')),
 })
 
-export default function LoginForm() {
+export default function LoginForm({ onVerificationPendingChange }: LoginFormProps) {
   const navigate = useNavigate()
   const { setUser, setTokens } = useAuthStore()
   const [error, setError] = useState<string>('')
@@ -54,6 +56,7 @@ export default function LoginForm() {
       if (message.includes('verify your email')) {
         setVerificationEmail(data.email)
         setShowVerification(true)
+        onVerificationPendingChange?.(true)
       } else if (message.toLowerCase().includes('two-factor')) {
         setShowTotpCode(true)
         setError('Enter your 6-digit authenticator code to continue.')
