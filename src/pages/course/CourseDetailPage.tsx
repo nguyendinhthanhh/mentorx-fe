@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { useParams, Link, useNavigate } from 'react-router-dom'
+import { useParams, Link, useNavigate, useLocation } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { useRecordView } from '@/hooks/useAnalytics'
 import { courseApi } from '@/api/courseApi'
@@ -38,10 +38,18 @@ import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 
 type TabType = 'overview' | 'curriculum' | 'instructor' | 'reviews'
 
+type CourseDetailLocationState = {
+  fromMentorProfile?: {
+    mentorUserId: string
+    mentorName: string
+  }
+}
+
 export default function CourseDetailPage() {
   const { courseId } = useParams<{ courseId: string }>()
   useRecordView('course', courseId)
   const navigate = useNavigate()
+  const location = useLocation()
   const queryClient = useQueryClient()
   const { user } = useAuthStore()
   const [activeTab, setActiveTab] = useState<TabType>('overview')
@@ -50,18 +58,14 @@ export default function CourseDetailPage() {
   const [downloadingLessonId, setDownloadingLessonId] = useState<string | null>(null)
   const [enrollError, setEnrollError] = useState<string | null>(null)
   const [showAddCoinsPrompt, setShowAddCoinsPrompt] = useState(false)
+  const locationState = location.state as CourseDetailLocationState | null
+  const mentorOrigin = locationState?.fromMentorProfile
 
   const { data: course, isLoading } = useQuery(
     ['course', courseId],
     () => courseApi.getById(courseId!),
     { enabled: !!courseId }
   )
-  const { data: courseStats } = useQuery(
-    ['course-stats', courseId],
-    () => courseApi.getCourseStats(courseId!),
-    { enabled: !!courseId }
-  )
-
   const { data: instructorProfile = null } = useQuery(
     ['course-instructor-profile', course?.instructorId],
     () => mentorApi.getMentorProfile(course!.instructorId).catch(() => null),
@@ -81,8 +85,8 @@ export default function CourseDetailPage() {
   )
 
   const { data: lessons = [], isLoading: isLessonsLoading } = useQuery(
-    ['course-lessons', courseId],
-    () => courseApi.getLessonsByCourse(courseId!),
+    ['course-preview-lessons', courseId],
+    () => courseApi.getFreePreviewLessonsByCourse(courseId!),
     { enabled: !!courseId }
   )
 
@@ -312,6 +316,16 @@ export default function CourseDetailPage() {
       {/* Breadcrumb */}
       <div className="bg-white border-b border-gray-100">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex flex-col gap-3">
+            {mentorOrigin ? (
+              <Link
+                to={`/mentors/${mentorOrigin.mentorUserId}`}
+                className="inline-flex w-fit items-center gap-2 text-sm font-semibold text-slate-600 transition-colors hover:text-emerald-700"
+              >
+                <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+                {mentorOrigin.mentorName}
+              </Link>
+            ) : null}
           <Breadcrumbs
             items={[
               { label: 'Trang chủ', to: '/' },
@@ -319,6 +333,7 @@ export default function CourseDetailPage() {
               { label: course.title },
             ]}
           />
+          </div>
         </div>
       </div>
 
@@ -538,8 +553,8 @@ export default function CourseDetailPage() {
                   <h3 className="font-semibold text-gray-900 mb-4">This {isDocumentProduct ? 'document' : 'course'} includes:</h3>
                   <div className="grid gap-4 sm:grid-cols-2">
                     {[
-                      { icon: isDocumentProduct ? FileText : PlayCircle, text: isDocumentProduct ? 'Downloadable document' : `${publishedLessons.length} published lessons` },
-                      { icon: PlayCircle, text: isDocumentProduct ? 'Mentor-created resource' : `${videoCount} video lessons` },
+                      { icon: isDocumentProduct ? FileText : PlayCircle, text: isDocumentProduct ? 'Downloadable document' : `${course.totalLessons || 0} published lessons` },
+                      { icon: PlayCircle, text: isDocumentProduct ? 'Mentor-created resource' : `${videoCount} free preview lessons` },
                       { icon: FileText, text: isDocumentProduct ? `${documentCount || 1} document file` : `${documentCount} resource or article lessons` },
                       { icon: Clock, text: totalDuration > 0 ? `${formatDuration(totalDuration)} content` : 'Self-paced content' },
                       { icon: Globe, text: `${formatLanguage(course.language)} language` },
@@ -547,7 +562,7 @@ export default function CourseDetailPage() {
                       ...(course.skills?.length ? [{ icon: Tag, text: `${course.skills.slice(0, 3).join(', ')} skills` }] : []),
                       { icon: Award, text: isDocumentProduct ? 'No certificate' : course.isCertificate ? 'Certificate of completion' : 'No certificate' },
                       { icon: TrendingUp, text: course.level ? `${course.level} level` : 'Open level' },
-                      { icon: TrendingUp, text: `${Math.round(courseStats?.completionRate || 0)}% completion rate` },
+                      { icon: TrendingUp, text: `${course.totalEnrollments || 0} enrolled learners` },
                     ].map((item, index) => (
                       <div key={index} className="flex items-center gap-3">
                         <item.icon className="w-5 h-5 text-emerald-600" />

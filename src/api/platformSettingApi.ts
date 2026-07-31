@@ -17,6 +17,26 @@ export interface PlatformSettingRequest {
   updatedBy?: string
 }
 
+export interface MentorBadgeSettingsResponse {
+  showApprovedBadge: boolean
+  showFeaturedBadge: boolean
+  showTopRatedBadge: boolean
+  showFastResponseBadge: boolean
+  showExperienceBadge: boolean
+  showDirectBookingBadge: boolean
+  showPublicProofBadge: boolean
+  showMultilingualBadge: boolean
+  topRatedMinRating: number
+  topRatedMinReviews: number
+  fastResponseMaxHours: number
+  experienceMinYears: number
+  multilingualMinLanguages: number
+  profileMaxBadges: number
+  listMaxBadges: number
+}
+
+export type MentorBadgeSettingsRequest = MentorBadgeSettingsResponse
+
 export const platformSettingApi = {
   getAll: async (): Promise<PlatformSettingResponse[]> => {
     const response = await apiClient.get<ApiResponse<PlatformSettingResponse[]>>('/system/platform-settings/list')
@@ -39,6 +59,23 @@ export const platformSettingApi = {
   update: async (key: string, request: PlatformSettingRequest): Promise<PlatformSettingResponse> => {
     const response = await apiClient.put<ApiResponse<PlatformSettingResponse>>(
       `/system/platform-settings/${encodeURIComponent(key)}`,
+      request
+    )
+    return response.data.data
+  },
+
+  getPublicMentorBadgeSettings: async (): Promise<MentorBadgeSettingsResponse> => {
+    const response = await apiClient.get<ApiResponse<MentorBadgeSettingsResponse>>(
+      '/system/platform-settings/public/mentor-badges'
+    )
+    return response.data.data
+  },
+
+  updateMentorBadgeSettings: async (
+    request: MentorBadgeSettingsRequest
+  ): Promise<MentorBadgeSettingsResponse> => {
+    const response = await apiClient.put<ApiResponse<MentorBadgeSettingsResponse>>(
+      '/system/platform-settings/mentor-badges',
       request
     )
     return response.data.data

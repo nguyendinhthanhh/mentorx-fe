@@ -113,6 +113,7 @@ export const courseApi = {
   getPublished: async (params: {
     page?: number
     size?: number
+    instructorId?: string
     categoryId?: number
     skill?: string
     productType?: CourseProductType

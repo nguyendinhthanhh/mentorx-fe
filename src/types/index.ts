@@ -140,7 +140,7 @@ export enum WithdrawalStatus {
 }
 
 export enum PaymentGateway {
-  VNPAY = "VNPAY",
+  PAYOS = "PAYOS",
   STRIPE = "STRIPE",
   MANUAL = "MANUAL",
 }
@@ -1288,6 +1288,16 @@ export interface ReviewResponse {
   createdAt: string;
   updatedAt: string;
   currentUserVote?: boolean | null;
+}
+
+export interface ReviewSummaryResponse {
+  averageRating: number;
+  totalReviews: number;
+  fiveStarReviews: number;
+  fourStarReviews: number;
+  threeStarReviews: number;
+  twoStarReviews: number;
+  oneStarReviews: number;
 }
 
 // Moderation Types

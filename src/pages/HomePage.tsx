@@ -157,7 +157,7 @@ export default function HomePage() {
                  <img src="https://i.pravatar.cc/150?u=12" alt="Avatar" className="h-12 w-12 rounded-full border-2 border-white shadow-sm object-cover" />
                  <div>
                     <div className="text-sm font-bold text-gray-900 dark:text-white">Nguyễn Hoàng Anh</div>
-                    <div className="text-[9px] text-gray-600 mt-0.5 dark:text-slate-400">{t('home.hero.mentorCard.role')}<br/>MoMo</div>
+                    <div className="text-[9px] text-gray-600 mt-0.5 dark:text-slate-400">{t('home.hero.mentorCard.role')}<br/>Product Mentor</div>
                  </div>
               </div>
               <div className="mt-2.5 flex items-center gap-1 text-[11px] font-bold text-gray-800 dark:text-slate-200">

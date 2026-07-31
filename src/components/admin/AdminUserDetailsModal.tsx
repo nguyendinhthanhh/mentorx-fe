@@ -333,7 +333,7 @@ export default function AdminUserDetailsModal({ isOpen, onClose, user }: AdminUs
                       </div>
                       <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden">
                          {[
-                           { id: 'TX-1', type: 'DEPOSIT', amount: '+500,000', method: 'VNPAY', status: 'MATCHED', time: '2h ago' },
+                           { id: 'TX-1', type: 'DEPOSIT', amount: '+500,000', method: 'PAYOS', status: 'MATCHED', time: '2h ago' },
                            { id: 'TX-2', type: 'PAYOUT', amount: '-120,000', method: 'BANK', status: 'COMPLETED', time: '1d ago' },
                            { id: 'TX-3', type: 'PURCHASE', amount: '-350,000', method: 'WALLET', status: 'COMPLETED', time: '3d ago' },
                          ].map((tx, i) => (

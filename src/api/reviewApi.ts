@@ -1,5 +1,5 @@
 import apiClient from './client'
-import { ApiResponse, PaginatedResponse, ReviewResponse } from '@/types'
+import { ApiResponse, PaginatedResponse, ReviewResponse, ReviewSummaryResponse } from '@/types'
 
 export const reviewApi = {
   create: async (data: any): Promise<ReviewResponse> => {
@@ -22,8 +22,19 @@ export const reviewApi = {
     return response.data.data
   },
 
-  getByTarget: async (targetType: string, targetId: string, params?: { page?: number; size?: number }): Promise<PaginatedResponse<ReviewResponse>> => {
+  getByTarget: async (
+    targetType: string,
+    targetId: string,
+    params?: { page?: number; size?: number; rating?: number }
+  ): Promise<PaginatedResponse<ReviewResponse>> => {
     const response = await apiClient.get<ApiResponse<PaginatedResponse<ReviewResponse>>>(`/reviews/target/${targetType}/${targetId}`, { params })
+    return response.data.data
+  },
+
+  getSummaryByTarget: async (targetType: string, targetId: string): Promise<ReviewSummaryResponse> => {
+    const response = await apiClient.get<ApiResponse<ReviewSummaryResponse>>(
+      `/reviews/target/${targetType}/${targetId}/summary`
+    )
     return response.data.data
   },
 

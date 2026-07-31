@@ -1,10 +1,12 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { toast } from 'react-hot-toast'
 import { AlertCircle, Plus, RefreshCw, Save, Search, Settings, Trash2 } from 'lucide-react'
 
 import {
+  MentorBadgeSettingsRequest,
+  MentorBadgeSettingsResponse,
   platformSettingApi,
   PlatformSettingResponse,
   PlatformSettingRequest,
@@ -12,6 +14,7 @@ import {
 import { useAuthStore } from '@/store/authStore'
 
 const panelClass = 'rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900'
+const hiddenSettingPrefixes = ['mentor_badges.']
 
 const emptyDraft: PlatformSettingRequest = {
   key: '',
@@ -25,22 +28,41 @@ export default function AdminSettingsPage() {
   const [query, setQuery] = useState('')
   const [selectedKey, setSelectedKey] = useState<string | null>(null)
   const [draft, setDraft] = useState<PlatformSettingRequest>(emptyDraft)
+  const [badgeDraft, setBadgeDraft] = useState<MentorBadgeSettingsRequest | null>(null)
 
   const settingsQuery = useQuery(['platform-settings'], platformSettingApi.getAll, {
     retry: false,
   })
+  const mentorBadgeSettingsQuery = useQuery(
+    ['mentor-badge-settings'],
+    platformSettingApi.getPublicMentorBadgeSettings,
+    { retry: false }
+  )
 
   const settings = settingsQuery.data || []
-  const selectedSetting = settings.find((setting) => setting.key === selectedKey) || null
+  const visibleSettings = useMemo(
+    () =>
+      settings.filter(
+        (setting) => !hiddenSettingPrefixes.some((prefix) => setting.key.startsWith(prefix))
+      ),
+    [settings]
+  )
+  const selectedSetting = visibleSettings.find((setting) => setting.key === selectedKey) || null
   const filteredSettings = useMemo(() => {
     const search = query.trim().toLowerCase()
-    if (!search) return settings
-    return settings.filter((setting) =>
+    if (!search) return visibleSettings
+    return visibleSettings.filter((setting) =>
       [setting.key, setting.value, setting.description, setting.updatedByName]
         .filter(Boolean)
         .some((value) => String(value).toLowerCase().includes(search))
     )
-  }, [query, settings])
+  }, [query, visibleSettings])
+
+  useEffect(() => {
+    if (mentorBadgeSettingsQuery.data) {
+      setBadgeDraft(mentorBadgeSettingsQuery.data)
+    }
+  }, [mentorBadgeSettingsQuery.data])
 
   const createMutation = useMutation(platformSettingApi.create, {
     onSuccess: (setting) => {
@@ -51,6 +73,18 @@ export default function AdminSettingsPage() {
     },
     onError: (error: any) => {
       toast.error(error?.response?.data?.message || 'Could not create setting')
+    },
+  })
+
+  const updateBadgeSettingsMutation = useMutation(platformSettingApi.updateMentorBadgeSettings, {
+    onSuccess: (settings) => {
+      toast.success('Mentor badge rules updated')
+      setBadgeDraft(settings)
+      void queryClient.invalidateQueries(['mentor-badge-settings'])
+      void queryClient.invalidateQueries(['platform-settings'])
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.message || 'Could not update mentor badge rules')
     },
   })
 
@@ -113,6 +147,11 @@ export default function AdminSettingsPage() {
   }
 
   const busy = createMutation.isLoading || updateMutation.isLoading || deleteMutation.isLoading
+  const badgeBusy = mentorBadgeSettingsQuery.isLoading || updateBadgeSettingsMutation.isLoading
+  const badgeDraftChanged =
+    badgeDraft != null &&
+    mentorBadgeSettingsQuery.data != null &&
+    JSON.stringify(badgeDraft) !== JSON.stringify(mentorBadgeSettingsQuery.data)
 
   return (
     <div className="space-y-6 pb-16">
@@ -143,12 +182,183 @@ export default function AdminSettingsPage() {
         </div>
       </header>
 
+      <section className={`${panelClass} overflow-hidden`}>
+        <div className="flex flex-col gap-3 border-b border-slate-200 p-4 sm:flex-row sm:items-center sm:justify-between dark:border-slate-800">
+          <div>
+            <h2 className="font-semibold text-slate-950 dark:text-slate-50">Mentor badge rules</h2>
+            <p className="mt-0.5 max-w-3xl text-sm text-slate-600 dark:text-slate-400">
+              Configure which mentor badges appear on public cards and profile headers, plus the thresholds that unlock them.
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => mentorBadgeSettingsQuery.refetch()}
+              className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+            >
+              <RefreshCw className={`h-4 w-4 ${mentorBadgeSettingsQuery.isFetching ? 'animate-spin' : ''}`} />
+              Refresh rules
+            </button>
+            <button
+              type="button"
+              onClick={() => badgeDraft && updateBadgeSettingsMutation.mutate(badgeDraft)}
+              disabled={!badgeDraft || !badgeDraftChanged || badgeBusy}
+              className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-emerald-700 px-4 text-sm font-semibold text-white transition hover:bg-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <Save className="h-4 w-4" />
+              Save badge rules
+            </button>
+          </div>
+        </div>
+
+        {mentorBadgeSettingsQuery.isError ? (
+          <ErrorState onRetry={() => mentorBadgeSettingsQuery.refetch()} />
+        ) : !badgeDraft ? (
+          <LoadingRows />
+        ) : (
+          <div className="grid gap-6 p-4 xl:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)]">
+            <div className="space-y-5">
+              <div>
+                <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Visible badges</h3>
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                  Turn individual badge types on or off without redeploying the mentor marketplace.
+                </p>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <ToggleCard
+                  title="Approved"
+                  description="Show the approval trust marker on public mentor surfaces."
+                  checked={badgeDraft.showApprovedBadge}
+                  onChange={(checked) => setBadgeDraft((value) => value ? { ...value, showApprovedBadge: checked } : value)}
+                />
+                <ToggleCard
+                  title="Featured"
+                  description="Show the featured badge when a mentor has featured status."
+                  checked={badgeDraft.showFeaturedBadge}
+                  onChange={(checked) => setBadgeDraft((value) => value ? { ...value, showFeaturedBadge: checked } : value)}
+                />
+                <ToggleCard
+                  title="Top rated"
+                  description="Award the rating-based badge when score and review thresholds are met."
+                  checked={badgeDraft.showTopRatedBadge}
+                  onChange={(checked) => setBadgeDraft((value) => value ? { ...value, showTopRatedBadge: checked } : value)}
+                />
+                <ToggleCard
+                  title="Fast response"
+                  description="Show a badge for mentors who respond within the configured hour limit."
+                  checked={badgeDraft.showFastResponseBadge}
+                  onChange={(checked) => setBadgeDraft((value) => value ? { ...value, showFastResponseBadge: checked } : value)}
+                />
+                <ToggleCard
+                  title="Experience"
+                  description="Show the years-of-experience badge when the minimum threshold is met."
+                  checked={badgeDraft.showExperienceBadge}
+                  onChange={(checked) => setBadgeDraft((value) => value ? { ...value, showExperienceBadge: checked } : value)}
+                />
+                <ToggleCard
+                  title="Direct booking"
+                  description="Show when the mentor has an active single-session booking package."
+                  checked={badgeDraft.showDirectBookingBadge}
+                  onChange={(checked) => setBadgeDraft((value) => value ? { ...value, showDirectBookingBadge: checked } : value)}
+                />
+                <ToggleCard
+                  title="Public proof"
+                  description="Show when the mentor exposes portfolio, certificate, or public proof links."
+                  checked={badgeDraft.showPublicProofBadge}
+                  onChange={(checked) => setBadgeDraft((value) => value ? { ...value, showPublicProofBadge: checked } : value)}
+                />
+                <ToggleCard
+                  title="Multilingual"
+                  description="Show when the mentor supports enough public languages."
+                  checked={badgeDraft.showMultilingualBadge}
+                  onChange={(checked) => setBadgeDraft((value) => value ? { ...value, showMultilingualBadge: checked } : value)}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-5">
+              <div>
+                <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Thresholds and limits</h3>
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                  These values control when a badge appears and how many badges are shown in each layout.
+                </p>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <NumberField
+                  label="Top-rated min rating"
+                  hint="0.0 to 5.0"
+                  step="0.1"
+                  value={badgeDraft.topRatedMinRating}
+                  onChange={(value) =>
+                    setBadgeDraft((current) => current ? { ...current, topRatedMinRating: value } : current)
+                  }
+                />
+                <NumberField
+                  label="Top-rated min reviews"
+                  hint="Minimum count of published reviews"
+                  value={badgeDraft.topRatedMinReviews}
+                  onChange={(value) =>
+                    setBadgeDraft((current) => current ? { ...current, topRatedMinReviews: value } : current)
+                  }
+                />
+                <NumberField
+                  label="Fast response max hours"
+                  hint="Mentor must respond within this many hours"
+                  value={badgeDraft.fastResponseMaxHours}
+                  onChange={(value) =>
+                    setBadgeDraft((current) => current ? { ...current, fastResponseMaxHours: value } : current)
+                  }
+                />
+                <NumberField
+                  label="Experience min years"
+                  hint="Minimum years before the experience badge appears"
+                  value={badgeDraft.experienceMinYears}
+                  onChange={(value) =>
+                    setBadgeDraft((current) => current ? { ...current, experienceMinYears: value } : current)
+                  }
+                />
+                <NumberField
+                  label="Multilingual min languages"
+                  hint="Minimum number of public languages"
+                  value={badgeDraft.multilingualMinLanguages}
+                  onChange={(value) =>
+                    setBadgeDraft((current) => current ? { ...current, multilingualMinLanguages: value } : current)
+                  }
+                />
+                <NumberField
+                  label="Profile max badges"
+                  hint="Maximum chips shown on the public profile hero"
+                  value={badgeDraft.profileMaxBadges}
+                  onChange={(value) =>
+                    setBadgeDraft((current) => current ? { ...current, profileMaxBadges: value } : current)
+                  }
+                />
+                <NumberField
+                  label="List max badges"
+                  hint="Maximum chips shown on mentor list cards"
+                  value={badgeDraft.listMaxBadges}
+                  onChange={(value) =>
+                    setBadgeDraft((current) => current ? { ...current, listMaxBadges: value } : current)
+                  }
+                />
+              </div>
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300">
+                <p className="font-semibold text-slate-900 dark:text-slate-100">Current rollout behavior</p>
+                <p className="mt-1">
+                  Public mentor pages now read these rules live from the backend. A save here updates both mentor cards and mentor profile headers.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+      </section>
+
       <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_420px]">
         <section className={panelClass}>
           <div className="flex flex-col gap-3 border-b border-slate-200 p-4 sm:flex-row sm:items-center sm:justify-between dark:border-slate-800">
             <div>
               <h2 className="font-semibold text-slate-950 dark:text-slate-50">Settings registry</h2>
-              <p className="mt-0.5 text-xs text-slate-500">{settings.length} settings</p>
+              <p className="mt-0.5 text-xs text-slate-500">{visibleSettings.length} settings</p>
             </div>
             <label className="relative block">
               <span className="sr-only">Search settings</span>
@@ -284,6 +494,61 @@ export default function AdminSettingsPage() {
   )
 }
 
+function ToggleCard({
+  title,
+  description,
+  checked,
+  onChange,
+}: {
+  title: string
+  description: string
+  checked: boolean
+  onChange: (checked: boolean) => void
+}) {
+  return (
+    <label className="flex items-start justify-between gap-4 rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950">
+      <div className="min-w-0">
+        <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">{title}</div>
+        <p className="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-400">{description}</p>
+      </div>
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={(event) => onChange(event.target.checked)}
+        className="mt-1 h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+      />
+    </label>
+  )
+}
+
+function NumberField({
+  label,
+  hint,
+  value,
+  onChange,
+  step,
+}: {
+  label: string
+  hint: string
+  value: number
+  onChange: (value: number) => void
+  step?: string
+}) {
+  return (
+    <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200">
+      {label}
+      <input
+        type="number"
+        value={value}
+        step={step}
+        onChange={(event) => onChange(toNumberValue(event.target.value, value))}
+        className="mt-2 h-11 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm font-medium focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 dark:border-slate-700 dark:bg-slate-950"
+      />
+      <p className="mt-1 text-xs font-normal text-slate-500 dark:text-slate-400">{hint}</p>
+    </label>
+  )
+}
+
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
     <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200">
@@ -336,4 +601,9 @@ function maskSensitiveValue(key: string, value: string) {
     return value ? '********' : ''
   }
   return value
+}
+
+function toNumberValue(rawValue: string, fallback: number) {
+  const parsed = Number(rawValue)
+  return Number.isFinite(parsed) ? parsed : fallback
 }

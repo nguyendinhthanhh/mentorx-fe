@@ -69,8 +69,6 @@ const CourseCreatePage = lazy(() => import('./pages/course/CourseCreatePage'))
 const CourseLearnPage = lazy(() => import('./pages/course/CourseLearnPage'))
 
 const WalletPage = lazy(() => import('./pages/wallet/WalletPage'))
-const VNPayReturnPage = lazy(() => import('./pages/payment/VNPayReturnPage'))
-const MomoReturnPage = lazy(() => import('./pages/payment/MomoReturnPage'))
 const PayOSReturnPage = lazy(() => import('./pages/payment/PayOSReturnPage'))
 const ChatListPage = lazy(() => import('./pages/chat/ChatListPage'))
 const ChatDemoPage = lazy(() => import('./pages/chat/ChatDemoPage'))
@@ -208,8 +206,8 @@ function App() {
             <Route path="/wallet" element={<WalletPage />} />
 
             {/* Payment Routes */}
-            <Route path="/payment/vnpay-return" element={<VNPayReturnPage />} />
-            <Route path="/payment/momo-return" element={<MomoReturnPage />} />
+            <Route path="/payment/vnpay-return" element={<Navigate to="/wallet" replace />} />
+            <Route path="/payment/momo-return" element={<Navigate to="/wallet" replace />} />
             <Route path="/payment/payos-return" element={<PayOSReturnPage />} />
 
           </Route>
@@ -241,7 +239,7 @@ function App() {
             <Route path="/profile/preferences" element={<PreferencesPage />} />
             <Route path="/profile/bank-accounts" element={<BankAccountPage />} />
             <Route path="/profile/settings" element={<SettingsPage />} />
-            <Route path="/profile/payments" element={<div>Payment Methods (Coming Soon)</div>} />
+            <Route path="/profile/payments" element={<Navigate to="/wallet" replace />} />
             <Route path="/my-jobs" element={<MyJobsPage />} />
             <Route path="/my-jobs/:jobId" element={<UserRequestDetailPage />} />
             <Route path="/users/requests" element={<MyJobsPage />} />

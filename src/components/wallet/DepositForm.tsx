@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { AlertCircle, CreditCard, Info, Loader2, RefreshCw, Wallet } from 'lucide-react'
+import { AlertCircle, CreditCard, Info, Loader2, Wallet } from 'lucide-react'
 import { paymentApi } from '@/api/paymentApi'
 import { walletApi } from '@/api/walletApi'
 import {
@@ -13,19 +13,6 @@ import {
 import type { WalletConversionPreviewResponse } from '@/types'
 
 const CURRENCY_OPTIONS = ['VND', 'USD', 'EUR', 'SGD', 'JPY'] as const
-const GATEWAY_OPTIONS = [
-  { value: 'VNPAY', label: 'VNPay', description: 'Internet banking, QR, local card' },
-  { value: 'MOMO', label: 'MoMo', description: 'MoMo wallet redirect payment' },
-  { value: 'PAYOS', label: 'PayOS', description: 'Hosted payment page with QR' },
-] as const
-
-const VNPAY_CHANNELS = [
-  { value: '', label: 'Auto select', description: 'Let VNPay show all available methods' },
-  { value: 'VNPAYQR', label: 'VNPay QR', description: 'Pay by QR flow in VNPay' },
-  { value: 'VNBANK', label: 'Local bank', description: 'Redirect to domestic banking flow' },
-  { value: 'INTCARD', label: 'International card', description: 'Use card flow inside VNPay' },
-] as const
-
 const quickAmounts = ['50000', '100000', '200000', '500000', '1000000', '2000000']
 
 const isPositiveDecimalString = (value: string) => /^\d+(\.\d{1,6})?$/.test(value.trim()) && Number(value) > 0
@@ -39,8 +26,6 @@ const depositSchema = z.object({
   originalCurrency: z.enum(CURRENCY_OPTIONS, {
     errorMap: () => ({ message: 'Choose a currency' }),
   }),
-  gateway: z.enum(['VNPAY', 'MOMO', 'PAYOS']).optional(),
-  bankCode: z.string().optional(),
 }).superRefine((value, ctx) => {
   if (value.originalCurrency === 'VND' && Number(value.originalAmount) < 10000) {
     ctx.addIssue({
@@ -70,34 +55,20 @@ export default function DepositForm({ userId: _userId, onSuccess }: DepositFormP
     handleSubmit,
     watch,
     setValue,
-    resetField,
     formState: { errors },
   } = useForm<DepositFormData>({
     resolver: zodResolver(depositSchema),
     defaultValues: {
       originalAmount: '100000',
       originalCurrency: 'VND',
-      gateway: 'VNPAY',
-      bankCode: '',
     },
   })
 
   const originalAmount = watch('originalAmount')
   const originalCurrency = watch('originalCurrency')
-  const selectedGateway = watch('gateway')
-  const bankCode = watch('bankCode')
 
   const isForeignCurrency = originalCurrency !== 'VND'
   const hasValidAmount = isPositiveDecimalString(originalAmount || '')
-
-  useEffect(() => {
-    if (originalCurrency !== 'VND') {
-      resetField('gateway', { defaultValue: undefined })
-      resetField('bankCode', { defaultValue: '' })
-    } else if (!selectedGateway) {
-      setValue('gateway', 'VNPAY')
-    }
-  }, [originalCurrency, resetField, selectedGateway, setValue])
 
   useEffect(() => {
     if (!hasValidAmount || !originalCurrency) {
@@ -127,23 +98,14 @@ export default function DepositForm({ userId: _userId, onSuccess }: DepositFormP
     return () => window.clearTimeout(timer)
   }, [hasValidAmount, originalAmount, originalCurrency])
 
-  const canSubmit = useMemo(() => {
-    if (loading || previewLoading || !hasValidAmount) return false
-    if (!originalCurrency) return false
-    if (isForeignCurrency) return false
-    if (!selectedGateway) return false
-    if (previewError) return false
-    return Boolean(preview)
-  }, [
-    hasValidAmount,
-    isForeignCurrency,
-    loading,
-    originalCurrency,
-    preview,
-    previewError,
-    previewLoading,
-    selectedGateway,
-  ])
+  const canSubmit =
+    !loading &&
+    !previewLoading &&
+    hasValidAmount &&
+    Boolean(originalCurrency) &&
+    !isForeignCurrency &&
+    !previewError &&
+    Boolean(preview)
 
   const onSubmit = async (data: DepositFormData) => {
     try {
@@ -151,55 +113,19 @@ export default function DepositForm({ userId: _userId, onSuccess }: DepositFormP
       setError('')
 
       const orderInfo = `MentorX wallet top-up - ${formatFiatCurrency(data.originalAmount, data.originalCurrency)}`
-
-      if (data.gateway === 'MOMO') {
-        const response = await paymentApi.createMomoPayment({
-          amount: data.originalAmount.trim(),
-          currency: data.originalCurrency,
-          orderInfo,
-        })
-
-        if (response.resultCode === '0' && response.payUrl) {
-          onSuccess?.()
-          window.location.href = response.payUrl
-          return
-        }
-
-        setError(response.message || 'Failed to create MoMo payment URL')
-        return
-      }
-
-      if (data.gateway === 'PAYOS') {
-        const response = await paymentApi.createPayOSPayment({
-          amount: data.originalAmount.trim(),
-          currency: data.originalCurrency,
-          orderInfo,
-        })
-
-        if (response.code === '00' && response.checkoutUrl) {
-          onSuccess?.()
-          window.location.href = response.checkoutUrl
-          return
-        }
-
-        setError(response.message || 'Failed to create PayOS payment URL')
-        return
-      }
-
-      const response = await paymentApi.createVNPayPayment({
+      const response = await paymentApi.createPayOSPayment({
         amount: data.originalAmount.trim(),
         currency: data.originalCurrency,
         orderInfo,
-        bankCode: data.bankCode || undefined,
       })
 
-      if (response.code === '00' && response.paymentUrl) {
+      if (response.code === '00' && response.checkoutUrl) {
         onSuccess?.()
-        window.location.href = response.paymentUrl
+        window.location.href = response.checkoutUrl
         return
       }
 
-      setError(response.message || 'Failed to create payment URL')
+      setError(response.message || 'Failed to create PayOS payment URL')
     } catch (err: any) {
       const backendMessage = err?.response?.data?.message
       setError(backendMessage || 'Payment failed. Please try again.')
@@ -338,60 +264,21 @@ export default function DepositForm({ userId: _userId, onSuccess }: DepositFormP
             <div className="flex items-start gap-2">
               <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
               <div>
-                <p className="font-semibold">Current online gateways still support VND only</p>
+                <p className="font-semibold">Current PayOS top-up flow supports VND only</p>
                 <p className="mt-1 text-amber-700">
-                  This frontend now sends only the original amount and currency, but the current backend payment gateways are VNPay and MoMo, both VND-only. Foreign-currency deposits still need an international gateway before this flow can complete end-to-end.
+                  Mentor X now keeps only the real PayOS checkout on web. Foreign-currency deposits still need a separate supported gateway before this flow can complete end-to-end.
                 </p>
               </div>
             </div>
           </div>
         ) : (
           <div className="space-y-4">
-            <div>
-              <label className="mb-2 block text-sm font-semibold text-slate-700">Payment gateway</label>
-              <div className="grid gap-3 sm:grid-cols-2">
-                {GATEWAY_OPTIONS.map((gateway) => (
-                  <label
-                    key={gateway.value}
-                    className={`cursor-pointer rounded-2xl border p-4 transition ${
-                      selectedGateway === gateway.value
-                        ? 'border-emerald-500 bg-emerald-50 shadow-sm'
-                        : 'border-slate-200 bg-white hover:border-slate-300'
-                    }`}
-                  >
-                    <input type="radio" value={gateway.value} {...register('gateway')} className="hidden" />
-                    <p className="text-sm font-semibold text-slate-900">{gateway.label}</p>
-                    <p className="mt-1 text-xs text-slate-500">{gateway.description}</p>
-                  </label>
-                ))}
-              </div>
+            <div className="rounded-2xl border border-cyan-200 bg-cyan-50 px-4 py-4">
+              <p className="text-sm font-semibold text-slate-900">Payment method</p>
+              <p className="mt-1 text-sm text-slate-600">
+                PayOS is the only supported web checkout. You will be redirected to the PayOS hosted payment page after confirmation.
+              </p>
             </div>
-
-            {selectedGateway === 'VNPAY' && (
-              <div>
-                <label className="mb-2 block text-sm font-semibold text-slate-700">VNPay channel</label>
-                <div className="grid gap-3 sm:grid-cols-2">
-                  {VNPAY_CHANNELS.map((channel) => (
-                    <label
-                      key={channel.value || 'AUTO'}
-                      className={`cursor-pointer rounded-2xl border p-4 transition ${
-                        bankCode === channel.value
-                          ? 'border-slate-900 bg-emerald-600 shadow-md hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 hover:bg-emerald-700 text-white'
-                          : 'border-slate-200 bg-white hover:border-slate-300'
-                      }`}
-                    >
-                      <input type="radio" value={channel.value} {...register('bankCode')} className="hidden" />
-                      <p className={`text-sm font-semibold ${bankCode === channel.value ? 'text-white' : 'text-slate-900'}`}>
-                        {channel.label}
-                      </p>
-                      <p className={`mt-1 text-xs ${bankCode === channel.value ? 'text-slate-200' : 'text-slate-500'}`}>
-                        {channel.description}
-                      </p>
-                    </label>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
         )}
 
