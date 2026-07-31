@@ -57,6 +57,7 @@ const en = {
   "auth.verifyEmail.verifyingDescription": "We are verifying this email link. This usually takes a few seconds.",
   "auth.verifyEmail.successTitle": "Email verified",
   "auth.verifyEmail.successDescription": "Your account email is now active. Continue onboarding to finish setting up MentorX.",
+  "auth.verifyEmail.successLoginDescription": "Your account email is now active. Sign in again to continue setting up MentorX.",
   "auth.verifyEmail.failedTitle": "Verification failed",
   "auth.verifyEmail.failedDescription": "This link is invalid or has expired. Sign in again to request a fresh verification email.",
   "auth.verifyEmail.failedGuidance": "Use the latest email from MentorX. Older verification links stop working after a new one is requested or after they expire.",
@@ -64,6 +65,7 @@ const en = {
   "auth.verifyEmail.pendingDescription": "Open the latest verification email from MentorX and use the secure link inside it.",
   "auth.verifyEmail.accountEmail": "Account email",
   "auth.verifyEmail.backToLogin": "Back to login",
+  "auth.verifyEmail.signInToContinue": "Sign in to continue",
   "auth.verifyEmail.continueOnboarding": "Continue to onboarding",
 
   "nav.jobs": "Jobs",

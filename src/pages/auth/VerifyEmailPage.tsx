@@ -13,7 +13,7 @@ export default function VerifyEmailPage() {
   const [searchParams] = useSearchParams()
   const token = searchParams.get('token')
   const { t } = useI18n()
-  const { user, refreshUser } = useAuthStore()
+  const { isAuthenticated, user, refreshUser } = useAuthStore()
   const [status, setStatus] = React.useState<VerificationStatus>('idle')
 
   React.useEffect(() => {
@@ -30,7 +30,9 @@ export default function VerifyEmailPage() {
       setStatus('verifying')
       try {
         await authApi.verifyEmail(token)
-        await refreshUser()
+        if (isAuthenticated) {
+          await refreshUser()
+        }
         if (active) setStatus('success')
       } catch {
         if (active) setStatus('error')
@@ -42,7 +44,7 @@ export default function VerifyEmailPage() {
     return () => {
       active = false
     }
-  }, [refreshUser, token])
+  }, [isAuthenticated, refreshUser, token])
 
   const isVerifying = status === 'verifying'
   const isSuccess = status === 'success'
@@ -65,13 +67,19 @@ export default function VerifyEmailPage() {
   const description = isVerifying
     ? t('auth.verifyEmail.verifyingDescription')
     : isSuccess
-      ? t('auth.verifyEmail.successDescription')
+      ? isAuthenticated
+        ? t('auth.verifyEmail.successDescription')
+        : t('auth.verifyEmail.successLoginDescription')
       : isError
         ? t('auth.verifyEmail.failedDescription')
         : t('auth.verifyEmail.pendingDescription')
 
-  const actionLabel = isSuccess ? t('auth.verifyEmail.continueOnboarding') : t('auth.verifyEmail.backToLogin')
-  const actionTarget = isSuccess ? '/onboarding' : '/login'
+  const actionLabel = isSuccess
+    ? isAuthenticated
+      ? t('auth.verifyEmail.continueOnboarding')
+      : t('auth.verifyEmail.signInToContinue')
+    : t('auth.verifyEmail.backToLogin')
+  const actionTarget = isSuccess && isAuthenticated ? '/onboarding' : '/login'
 
   return (
     <section className="relative z-10">
