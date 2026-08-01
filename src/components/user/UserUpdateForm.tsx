@@ -8,6 +8,7 @@ import { useAuthStore } from '@/store/authStore'
 import { SupportedLanguage, UserUpdateRequest } from '@/types'
 import { useState, useRef } from 'react'
 import { Loader2, CheckCircle, Camera, Trash2 } from 'lucide-react'
+import { toast } from 'react-hot-toast'
 type ProfileFormData = {
   fullName: string
   displayName?: string
@@ -111,46 +112,49 @@ export default function UserUpdateForm({ userId, initialData }: Props) {
         setUser({ ...user, ...updated })
       }
       setSuccess(true)
+      toast.success('Đã lưu thông tin hồ sơ!', { duration: 3000 })
       setTimeout(() => setSuccess(false), 3000)
     } catch (err: any) {
-      setError(err.response?.data?.message || t('profile.messages.updateFailed'))
+      const message = err.response?.data?.message || 'Failed to update profile'
+      setError(message)
+      toast.error(message)
     } finally {
       setLoading(false)
     }
   }
 
-  const inputClass = 'w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-sm bg-white'
-  const labelClass = 'block text-sm font-medium text-gray-700 mb-1.5 uppercase tracking-wider'
+  const inputClass =
+    'w-full rounded-[14px] border-0 bg-slate-50/50 py-3 px-4 text-slate-900 shadow-[inset_0_1px_2px_rgba(0,0,0,0.02)] ring-1 ring-inset ring-slate-200/60 transition-all placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-inset focus:ring-[#059669] hover:bg-slate-50 hover:ring-slate-300 sm:text-sm sm:leading-6 dark:bg-slate-900/50 dark:text-white dark:ring-slate-800 dark:focus:bg-slate-900'
+  const labelClass = 'mb-1.5 block text-[13px] font-bold text-slate-700 uppercase tracking-wide dark:text-slate-300'
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {/* Avatar Section */}
-      <div className="flex flex-col items-center gap-4 pb-6 border-b border-gray-100">
-        <div className="relative group">
-          <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-primary-500 to-emerald-500 flex items-center justify-center flex-shrink-0 overflow-hidden ring-4 ring-white shadow-xl">
-            {uploading ? (
-              <div className="absolute inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-10">
-                <Loader2 className="w-8 h-8 text-white animate-spin" />
-              </div>
-            ) : null}
-            
-            {avatarUrl ? (
-              <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
-            ) : (
-              <span className="text-white text-3xl font-bold">
-                {(watch('fullName') || 'U').charAt(0).toUpperCase()}
-              </span>
-            )}
+      <div className="flex flex-col items-center gap-4 pb-8 border-b border-slate-100/60 dark:border-slate-800/60">
+        <div className="relative group cursor-pointer" onClick={() => !uploading && fileInputRef.current?.click()}>
+          <div className="relative flex h-28 w-28 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-[#059669] to-[#10B981] p-[3px] shadow-xl transition-transform duration-300 group-hover:scale-105">
+            <div className="h-full w-full overflow-hidden rounded-full border-[3px] border-white bg-white dark:border-slate-900 dark:bg-slate-900">
+              {uploading ? (
+                <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+                  <Loader2 className="h-8 w-8 animate-spin text-white" />
+                </div>
+              ) : (
+                <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40 opacity-0 backdrop-blur-sm transition-opacity duration-300 group-hover:opacity-100">
+                  <Camera className="h-8 w-8 text-white" />
+                </div>
+              )}
+              
+              {avatarUrl ? (
+                <img src={avatarUrl} alt="Avatar" className="h-full w-full object-cover" />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center bg-slate-100 dark:bg-slate-800">
+                  <span className="text-4xl font-bold text-slate-300 dark:text-slate-600">
+                    {(watch('fullName') || 'U').charAt(0).toUpperCase()}
+                  </span>
+                </div>
+              )}
+            </div>
           </div>
-          
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={uploading}
-            className="absolute -bottom-2 -right-2 w-10 h-10 bg-white border border-gray-100 text-primary-600 rounded-xl flex items-center justify-center shadow-lg hover:scale-110 transition-transform hover:bg-primary-50"
-          >
-            <Camera className="w-5 h-5" />
-          </button>
           
           <input
             type="file"
@@ -231,23 +235,23 @@ export default function UserUpdateForm({ userId, initialData }: Props) {
                 {...register('profileIsPublic')}
                 className="peer sr-only"
               />
-              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 dark:peer-focus:ring-primary-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary-600"></div>
+              <div className="h-6 w-11 rounded-full bg-slate-200 transition-all after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-slate-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-[#059669] peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[#059669]/20 dark:border-slate-600 dark:bg-slate-700"></div>
             </div>
-            <span className="text-sm font-bold text-gray-700 group-hover:text-primary-600 transition-colors">{t('profile.fields.profileIsPublic')}</span>
+            <span className="text-[14px] font-bold text-slate-700 transition-colors group-hover:text-[#059669] dark:text-slate-300">{t('profile.fields.profileIsPublic')}</span>
           </label>
         </div>
       </div>
 
       {error && (
-        <div className="flex items-center gap-2 bg-red-50 border border-red-100 text-red-600 px-4 py-3 rounded-xl text-sm font-medium">
-          <Loader2 className="w-4 h-4 flex-shrink-0 animate-spin" />
+        <div className="flex items-center gap-3 rounded-2xl border border-red-200/60 bg-red-50/80 px-4 py-3 text-sm font-medium text-red-700 shadow-sm backdrop-blur-sm dark:border-red-900/30 dark:bg-red-900/20 dark:text-red-400">
+          <Loader2 className="h-4 w-4 shrink-0 animate-spin" />
           {error}
         </div>
       )}
 
       {success && (
-        <div className="flex items-center gap-2 bg-green-50 border border-green-100 text-green-600 px-4 py-3 rounded-xl text-sm font-medium">
-          <CheckCircle className="w-4 h-4" />
+        <div className="flex items-center gap-3 rounded-2xl border border-[#059669]/20 bg-[#059669]/10 px-4 py-3 text-sm font-medium text-[#059669] shadow-sm backdrop-blur-sm dark:border-[#059669]/30 dark:bg-[#059669]/20 dark:text-[#10B981]">
+          <CheckCircle className="h-4 w-4" />
           {t('profile.messages.updated')}
         </div>
       )}
@@ -255,11 +259,11 @@ export default function UserUpdateForm({ userId, initialData }: Props) {
       <button
         type="submit"
         disabled={loading || uploading}
-        className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-primary-600 to-emerald-600 text-white py-3.5 rounded-xl font-bold hover:shadow-lg hover:shadow-primary-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm uppercase tracking-widest"
+        className="flex w-full items-center justify-center gap-2 rounded-[14px] bg-gradient-to-r from-[#059669] to-[#10B981] py-3.5 text-[14px] font-bold text-white shadow-[0_8px_20px_rgba(5,150,105,0.25)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_25px_rgba(5,150,105,0.35)] disabled:cursor-not-allowed disabled:opacity-50"
       >
         {loading ? (
           <>
-            <Loader2 className="w-4 h-4 animate-spin" />
+            <Loader2 className="h-4 w-4 animate-spin" />
             {t('profile.actions.saving')}
           </>
         ) : (

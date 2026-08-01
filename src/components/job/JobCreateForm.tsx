@@ -21,6 +21,9 @@ import { fileApi } from '@/api/fileApi'
 import { jobApi } from '@/api/jobApi'
 import { BudgetType, CategoryResponse, FileResponse, JobResponse, JobStatus, JobType } from '@/types'
 import { formatTimeRemaining } from '@/utils/formatters'
+import TermsModal from '@/components/common/TermsModal'
+import MockPaymentModal from '@/components/payment/MockPaymentModal'
+import FilePreviewModal from '@/components/common/FilePreviewModal'
 
 const OTHER_CATEGORY_VALUE = -1
 const EXPERIENCE_CUSTOM = 'CUSTOM'
@@ -144,14 +147,6 @@ const jobSchema = z
       })
     }
 
-    if (!data.requiredSkillsInput || data.requiredSkillsInput.split(/[,;\n]/).map((item) => item.trim()).filter(Boolean).length === 0) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Please add at least one required skill or topic.',
-        path: ['requiredSkillsInput'],
-      })
-    }
-
     if (data.categoryId === OTHER_CATEGORY_VALUE && !data.customCategoryName) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -238,6 +233,11 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
   const [showAdvanced, setShowAdvanced] = useState(false)
   const [agreeTerms, setAgreeTerms] = useState(false)
   const [submitStatus, setSubmitStatus] = useState<'OPEN' | 'DRAFT'>('OPEN')
+  const [showTermsModal, setShowTermsModal] = useState(false)
+  const [showPaymentModal, setShowPaymentModal] = useState(false)
+  const [paymentData, setPaymentData] = useState<JobFormData | null>(null)
+  const [createdJobId, setCreatedJobId] = useState<string | null>(null)
+  const [previewFile, setPreviewFile] = useState<{ url: string; name: string; type: string } | null>(null)
 
   const {
     register,
@@ -442,17 +442,12 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
     }
   }
 
-  const onSubmit = async (data: JobFormData) => {
-    if (!agreeTerms && submitStatus !== 'DRAFT') {
-      setError('Please agree to the terms before posting.')
-      return
-    }
-
+  const executeSubmit = async (data: JobFormData, status: JobStatus) => {
     try {
       setLoading(true)
       setError('')
 
-      const payload = buildJobPayload(data, submitStatus as JobStatus)
+      const payload = buildJobPayload(data, status)
       const job = isEditing && initialJob
         ? await jobApi.update(initialJob.jobId, payload)
         : await jobApi.create({ clientId, ...payload })
@@ -463,6 +458,42 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
     } finally {
       setLoading(false)
     }
+  }
+
+  const onSubmit = async (data: JobFormData) => {
+    if (!agreeTerms && submitStatus !== 'DRAFT') {
+      setError('Please agree to the terms before posting.')
+      return
+    }
+
+    if (submitStatus === 'OPEN') {
+      try {
+        setLoading(true)
+        setError('')
+        // Save as DRAFT first to validate data against backend
+        const payload = buildJobPayload(data, JobStatus.DRAFT)
+        let jobId = initialJob?.jobId
+        
+        if (isEditing && jobId) {
+          await jobApi.update(jobId, payload)
+        } else {
+          const job = await jobApi.create({ clientId, ...payload })
+          jobId = job.jobId
+          setCreatedJobId(jobId)
+        }
+        
+        // If successful, show payment modal
+        setPaymentData(data)
+        setShowPaymentModal(true)
+      } catch (err: any) {
+        setError(err.response?.data?.message || 'Could not validate job details.')
+      } finally {
+        setLoading(false)
+      }
+      return
+    }
+
+    await executeSubmit(data, submitStatus as JobStatus)
   }
 
   return (
@@ -540,11 +571,13 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
       </div>
 
       <div>
-        <label className="mb-2 block text-sm font-bold text-[#1b2252]">Required skills or topics</label>
+        <div className="mb-2 flex items-baseline justify-between">
+          <label className="block text-sm font-bold text-[#1b2252]">Skills or topics <span className="text-slate-400 font-normal">(optional)</span></label>
+        </div>
         <input
           {...register('requiredSkillsInput')}
           className="w-full rounded-xl border border-slate-200 bg-white/80 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300 transition"
-          placeholder="React Native, Expo, performance optimization..."
+          placeholder="e.g. React Native, UI Design, AWS (comma separated)"
         />
         {errors.requiredSkillsInput && <p className="mt-1.5 text-xs font-medium text-rose-500">{errors.requiredSkillsInput.message}</p>}
       </div>
@@ -669,7 +702,7 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
             <input
               type="number"
               {...register('budgetAmount')}
-              className="w-full rounded-xl border border-slate-200 bg-white/80 pl-4 pr-24 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300 transition"
+              className="w-full rounded-xl border border-slate-200 bg-white/80 pl-4 pr-16 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300 transition [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               placeholder="Total budget"
             />
             <div className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-bold text-[#1b2252]/80">
@@ -683,7 +716,7 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
               <input
                 type="number"
                 {...register('hourlyRate')}
-                className="w-full rounded-xl border border-slate-200 bg-white/80 pl-4 pr-24 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300 transition"
+                className="w-full rounded-xl border border-slate-200 bg-white/80 pl-4 pr-20 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300 transition [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 placeholder="Hourly rate"
               />
               <div className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-bold text-[#1b2252]/80">
@@ -696,7 +729,7 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
               <input
                 type="number"
                 {...register('estimatedHours')}
-                className="w-full rounded-xl border border-slate-200 bg-white/80 pl-4 pr-16 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300 transition"
+                className="w-full rounded-xl border border-slate-200 bg-white/80 pl-4 pr-16 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300 transition [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 placeholder="Estimated hours"
               />
               <div className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-bold text-[#1b2252]/80">
@@ -724,7 +757,7 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
           {uploading ? (
             <Loader2 className="h-8 w-8 animate-spin text-[#4f46e5]" />
           ) : (
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f1f5f9] text-[#94a3b8] transition-all group-hover:scale-110 group-hover:text-[#4f46e5]">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f1f5f9] text-[#94a3b8] transition-all group-hover:scale-110 group-hover:text-[#4f46e5] group-hover:bg-indigo-50">
               <Upload className="h-6 w-6" />
             </div>
           )}
@@ -737,26 +770,35 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
         {attachments.length > 0 && (
           <div className="mt-4 space-y-3">
             {attachments.map((attachment) => (
-              <div key={attachment.fileUrl} className="flex items-center justify-between gap-3 rounded-xl border border-emerald-100 bg-emerald-50/50 p-4">
+              <button
+                key={attachment.fileUrl}
+                type="button"
+                onClick={() => setPreviewFile({ url: attachment.fileUrl, name: attachment.fileName, type: attachment.fileType })}
+                className="group/file flex w-full items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition hover:border-[#4f46e5]/40 hover:bg-[#4f46e5]/5 hover:shadow text-left"
+              >
                 <div className="flex min-w-0 items-center gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-emerald-100/50 bg-white/80 text-emerald-500 shadow-sm">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-slate-100 bg-slate-50 text-slate-500 shadow-sm transition group-hover/file:bg-white group-hover/file:border-[#4f46e5]/20 group-hover/file:text-[#4f46e5]">
                     <FileIcon className="h-5 w-5" />
                   </div>
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-bold text-emerald-950">{attachment.fileName}</p>
-                    <p className="mt-1 text-xs font-medium text-emerald-600/80">
+                    <p className="truncate text-sm font-bold text-slate-800 transition group-hover/file:text-[#4f46e5]">{attachment.fileName}</p>
+                    <p className="mt-1 text-xs font-medium text-slate-500">
                       {attachment.fileType} {attachment.size ? `- ${Math.max(1, Math.round(attachment.size / 1024))} KB` : ''}
                     </p>
                   </div>
                 </div>
                 <button
                   type="button"
-                  onClick={() => handleRemoveAttachment(attachment.fileUrl)}
-                  className="flex h-8 w-8 items-center justify-center rounded-lg text-emerald-400 transition hover:bg-white/80 hover:text-rose-500"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    handleRemoveAttachment(attachment.fileUrl)
+                  }}
+                  className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-rose-50 hover:text-rose-500"
                 >
                   <X className="h-4 w-4" />
                 </button>
-              </div>
+              </button>
             ))}
           </div>
         )}
@@ -775,7 +817,10 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
           </svg>
         </div>
         <span className="text-[13px] leading-relaxed text-slate-600">
-          I agree with the Terms of Service and Privacy Policy.
+          I agree with the{' '}
+          <button type="button" onClick={() => setShowTermsModal(true)} className="font-bold text-[#4f46e5] hover:underline">
+            Terms of Service and Privacy Policy
+          </button>.
         </span>
       </label>
 
@@ -803,10 +848,44 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
           onClick={() => setSubmitStatus('OPEN')}
           className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[#3b82f6] px-8 py-3.5 text-[15px] font-bold text-white shadow-sm transition-all hover:bg-blue-600 hover:shadow focus:outline-none focus:ring-4 focus:ring-blue-500/20 disabled:cursor-not-allowed disabled:opacity-70 sm:flex-none"
         >
-          {loading && submitStatus === 'OPEN' ? <Loader2 className="h-5 w-5 animate-spin" /> : isEditing ? 'Update and publish' : 'Post job'}
+          {loading && submitStatus === 'OPEN' ? <Loader2 className="h-5 w-5 animate-spin" /> : isEditing ? 'Update and publish' : 'Pay & Post job'}
           {(!loading || submitStatus !== 'OPEN') && <Send className="h-[18px] w-[18px] -mr-1" />}
         </button>
       </div>
+
+      <TermsModal isOpen={showTermsModal} onClose={() => setShowTermsModal(false)} />
+      
+      <MockPaymentModal 
+        isOpen={showPaymentModal} 
+        onClose={() => setShowPaymentModal(false)}
+        amountMxc={budgetType === 'FIXED' ? (paymentData?.budgetAmount || 0) : ((paymentData?.hourlyRate || 0) * (paymentData?.estimatedHours || 0))}
+        onSuccess={async () => {
+          setShowPaymentModal(false)
+          const targetJobId = isEditing ? initialJob?.jobId : createdJobId
+          if (targetJobId && paymentData) {
+            try {
+              setLoading(true)
+              const payload = buildJobPayload(paymentData, JobStatus.OPEN)
+              await jobApi.update(targetJobId, payload)
+              navigate(`/jobs/${targetJobId}`)
+            } catch (err: any) {
+              setError(err.response?.data?.message || 'Payment secured, but failed to publish job. You can publish it from your Drafts.')
+            } finally {
+              setLoading(false)
+            }
+          }
+        }}
+      />
+      
+      {previewFile && (
+        <FilePreviewModal
+          isOpen={!!previewFile}
+          onClose={() => setPreviewFile(null)}
+          fileUrl={previewFile.url}
+          fileName={previewFile.name}
+          fileType={previewFile.type}
+        />
+      )}
     </form>
   )
 }

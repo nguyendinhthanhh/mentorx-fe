@@ -172,8 +172,6 @@ function App() {
 
           </Route>
 
-          <Route path="/verify-email" element={<VerifyEmailPage />} />
-
           {/* Protected Onboarding Route */}
           <Route path="/onboarding" element={<ProtectedRoute><OnboardingPage /></ProtectedRoute>} />
 

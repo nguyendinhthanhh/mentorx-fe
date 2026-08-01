@@ -664,22 +664,26 @@ function JobCard({
         }`}
       >
         <div className="min-w-0">
-          <div className="flex min-w-0 items-start gap-3">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-sm font-extrabold text-slate-600 dark:bg-slate-800 dark:text-slate-200">
-              {initial}
+          <div className="flex min-w-0 items-start gap-4">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-slate-100 text-lg font-extrabold text-slate-500 dark:bg-slate-800 dark:text-slate-400">
+              {job.clientAvatarUrl || job.client?.avatarUrl ? (
+                <img src={job.clientAvatarUrl || job.client?.avatarUrl} alt={clientName} className="h-full w-full object-cover" />
+              ) : (
+                initial
+              )}
             </div>
             <div className="min-w-0 flex-1">
-              <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                <span className="truncate text-sm font-semibold text-slate-700 dark:text-slate-200">
+              <h3 className="line-clamp-2 text-[17px] font-bold leading-6 tracking-[-0.015em] text-slate-950 transition-colors duration-150 group-hover:text-emerald-800 sm:text-lg dark:text-slate-50 dark:group-hover:text-emerald-300">
+                {job.title}
+              </h3>
+              <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1">
+                <span className="truncate text-sm font-medium text-slate-500 dark:text-slate-400">
                   {clientName}
                 </span>
                 <span className="text-xs text-slate-400">
-                  {formatRelativeTime(publishedDate, language)}
+                  • {formatRelativeTime(publishedDate, language)}
                 </span>
               </div>
-              <h3 className="mt-1.5 line-clamp-2 text-[17px] font-bold leading-6 tracking-[-0.015em] text-slate-950 transition-colors duration-150 group-hover:text-emerald-800 sm:text-lg dark:text-slate-50 dark:group-hover:text-emerald-300">
-                {job.title}
-              </h3>
             </div>
           </div>
 
@@ -769,8 +773,8 @@ function JobListSkeleton({ viewMode }: { viewMode: ViewMode }) {
           }`}
         >
           <div>
-            <div className="flex gap-3">
-              <div className="h-11 w-11 shrink-0 animate-pulse rounded-xl bg-slate-200 dark:bg-slate-800" />
+            <div className="flex gap-4">
+              <div className="h-14 w-14 shrink-0 animate-pulse rounded-xl bg-slate-200 dark:bg-slate-800" />
               <div className="flex-1 space-y-2.5">
                 <div className="h-3 w-1/4 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
                 <div className="h-5 w-3/4 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />

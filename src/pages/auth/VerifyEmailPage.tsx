@@ -1,103 +1,144 @@
 import React from 'react'
-import { Mail, CheckCircle2, ShieldCheck, Loader2, ArrowRight } from 'lucide-react'
+import { AlertTriangle, ArrowRight, CheckCircle2, Loader2, MailCheck, ShieldCheck } from 'lucide-react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
+
+import { authApi } from '@/api/authApi'
+import { useI18n } from '@/i18n/I18nProvider'
 import { useAuthStore } from '@/store/authStore'
+
+type VerificationStatus = 'idle' | 'verifying' | 'success' | 'error'
 
 export default function VerifyEmailPage() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
-  const { user, refreshUser } = useAuthStore()
-  const [status, setStatus] = React.useState<'idle' | 'verifying' | 'success' | 'error'>('idle')
+  const token = searchParams.get('token')
+  const { t } = useI18n()
+  const { isAuthenticated, user, refreshUser } = useAuthStore()
+  const [status, setStatus] = React.useState<VerificationStatus>('idle')
 
   React.useEffect(() => {
-    const token = searchParams.get('token')
-    if (token) {
-      setStatus('verifying')
-      import('@/api/authApi').then(async ({ authApi }) => {
-        try {
-          await authApi.verifyEmail(token)
-          await refreshUser()
-          setStatus('success')
-        } catch {
-          setStatus('error')
-        }
-      })
+    let active = true
+
+    if (!token) {
+      setStatus('idle')
+      return () => {
+        active = false
+      }
     }
-  }, [])
+
+    const verifyEmail = async () => {
+      setStatus('verifying')
+      try {
+        await authApi.verifyEmail(token)
+        if (isAuthenticated) {
+          await refreshUser()
+        }
+        if (active) setStatus('success')
+      } catch {
+        if (active) setStatus('error')
+      }
+    }
+
+    void verifyEmail()
+
+    return () => {
+      active = false
+    }
+  }, [isAuthenticated, refreshUser, token])
+
+  const isVerifying = status === 'verifying'
+  const isSuccess = status === 'success'
+  const isError = status === 'error'
+
+  const iconShellClass = isError
+    ? 'border-rose-200 bg-rose-50 text-rose-700'
+    : isSuccess
+      ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+      : 'border-primary-200 bg-primary-50 text-primary-700'
+
+  const title = isVerifying
+    ? t('auth.verifyEmail.verifyingTitle')
+    : isSuccess
+      ? t('auth.verifyEmail.successTitle')
+      : isError
+        ? t('auth.verifyEmail.failedTitle')
+        : t('auth.verifyEmail.pendingTitle')
+
+  const description = isVerifying
+    ? t('auth.verifyEmail.verifyingDescription')
+    : isSuccess
+      ? isAuthenticated
+        ? t('auth.verifyEmail.successDescription')
+        : t('auth.verifyEmail.successLoginDescription')
+      : isError
+        ? t('auth.verifyEmail.failedDescription')
+        : t('auth.verifyEmail.pendingDescription')
+
+  const actionLabel = isSuccess
+    ? isAuthenticated
+      ? t('auth.verifyEmail.continueOnboarding')
+      : t('auth.verifyEmail.signInToContinue')
+    : t('auth.verifyEmail.backToLogin')
+  const actionTarget = isSuccess && isAuthenticated ? '/onboarding' : '/login'
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-6 relative overflow-hidden">
-      <div className="absolute top-[-15%] left-[-15%] w-[60%] h-[60%] bg-gradient-to-br from-blue-100/40 to-transparent rounded-full blur-[140px] animate-pulse" />
-      <div className="absolute bottom-[-15%] right-[-15%] w-[60%] h-[60%] bg-gradient-to-tr from-emerald-100/40 to-transparent rounded-full blur-[140px] animate-pulse delay-1000" />
-
-      <div className="relative z-10 w-full max-w-[520px] rounded-2xl border border-white/50 bg-white/70 p-6 text-center shadow-[0_40px_80px_-20px_rgba(0,0,0,0.08)] backdrop-blur-2xl transition-all hover:shadow-[0_48px_96px_-24px_rgba(0,0,0,0.12)] sm:rounded-[32px] sm:p-10 md:p-16">
-        <div className="relative mb-12 inline-block">
-          <div className="w-28 h-28 bg-gradient-to-br from-blue-600 to-emerald-700 rounded-[38px] flex items-center justify-center mx-auto shadow-2xl shadow-blue-500/30 transform hover:rotate-6 transition-transform duration-500">
-            <Mail className="w-12 h-12 text-white" />
-          </div>
-          <div className="absolute -bottom-3 -right-3 bg-white rounded-2xl p-2.5 shadow-xl ring-8 ring-[#F8FAFC]">
-            <ShieldCheck className="w-7 h-7 text-blue-600" />
+    <section className="relative z-10">
+      <div className="overflow-hidden rounded-3xl border border-slate-200 bg-slate-50/80 shadow-sm shadow-slate-900/5">
+        <div className="border-b border-slate-200 bg-white px-5 py-4 sm:px-6">
+          <div className="flex items-center gap-3 text-left">
+            <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border ${iconShellClass}`}>
+              {isVerifying ? (
+                <Loader2 className="h-5 w-5 animate-spin motion-reduce:animate-none" />
+              ) : isSuccess ? (
+                <CheckCircle2 className="h-5 w-5" />
+              ) : isError ? (
+                <AlertTriangle className="h-5 w-5" />
+              ) : (
+                <MailCheck className="h-5 w-5" />
+              )}
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary-700">
+                {t('auth.verifyEmail.eyebrow')}
+              </p>
+              <h2 className="mt-1 text-2xl font-extrabold tracking-tight text-slate-950">{title}</h2>
+            </div>
           </div>
         </div>
 
-        <div className="space-y-5 mb-12">
-          <h1 className="text-3xl font-black leading-[1.1] tracking-tight text-slate-900 sm:text-4xl md:text-5xl">
-            {status === 'verifying' ? 'Verifying...' :
-             status === 'success' ? 'Email Verified!' :
-             status === 'error' ? 'Verification Failed' :
-             <>Verify your <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-emerald-600">account</span></>}
-          </h1>
-          {status === 'verifying' && (
-            <div className="flex justify-center">
-              <Loader2 className="w-10 h-10 animate-spin text-blue-600" />
+        <div className="space-y-5 px-5 py-6 text-left sm:px-6 sm:py-7">
+          <p className="text-sm leading-6 text-slate-600">{description}</p>
+
+          {user?.email && !isError && (
+            <div className="rounded-2xl border border-primary-100 bg-white px-4 py-3">
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+                {t('auth.verifyEmail.accountEmail')}
+              </p>
+              <p className="mt-1 break-words text-sm font-bold text-slate-950">{user.email}</p>
             </div>
           )}
-          {status === 'success' && (
-            <>
-              <div className="flex justify-center">
-                <CheckCircle2 className="w-16 h-16 text-green-500" />
-              </div>
-              <p className="text-slate-500 text-lg leading-relaxed max-w-[360px] mx-auto">
-                Your email has been verified successfully.
-              </p>
-            </>
-          )}
-          {status === 'error' && (
-            <>
-              <p className="text-slate-500 text-lg leading-relaxed max-w-[360px] mx-auto">
-                This link is invalid or has expired. Please log in to request a new verification email.
-              </p>
-              <div className="mt-6">
-                <button
-                  onClick={() => navigate('/login')}
-                  className="w-full flex items-center justify-center gap-2 px-8 py-5 bg-emerald-600 shadow-md hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 hover:bg-emerald-700 hover:bg-slate-800 text-white font-bold rounded-2xl transition-all duration-300 shadow-2xl shadow-slate-900/30 active:scale-[0.98]"
-                >
-                  <ArrowRight className="w-5 h-5" />
-                  <span>Back to Login</span>
-                </button>
-              </div>
-            </>
-          )}
-          {status === 'idle' && (
-            <p className="text-slate-500 text-lg leading-relaxed max-w-[360px] mx-auto">
-              We've sent a secure verification link to <br />
-              <span className="font-bold text-slate-900 decoration-blue-200 decoration-4 underline-offset-4 underline">{user?.email}</span>
-            </p>
-          )}
-        </div>
 
-        <div className="space-y-5">
-          {status === 'success' && (
+          {isError && (
+            <div className="rounded-2xl border border-rose-100 bg-rose-50/70 px-4 py-3 text-sm leading-6 text-rose-900">
+              <div className="flex gap-3">
+                <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-rose-700" />
+                <p>{t('auth.verifyEmail.failedGuidance')}</p>
+              </div>
+            </div>
+          )}
+
+          {!isVerifying && (
             <button
-              onClick={() => navigate('/onboarding')}
-              className="w-full flex items-center justify-center gap-2 px-8 py-5 bg-emerald-600 shadow-md hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 hover:bg-emerald-700 hover:bg-slate-800 text-white font-bold rounded-2xl transition-all duration-300 shadow-2xl shadow-slate-900/30 active:scale-[0.98]"
+              type="button"
+              onClick={() => navigate(actionTarget)}
+              className="flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl bg-primary-700 px-4 py-3 text-sm font-semibold text-white shadow-sm shadow-primary-900/15 transition duration-200 hover:bg-primary-800 focus:outline-none focus:ring-2 focus:ring-primary-600 focus:ring-offset-2 active:scale-[0.99]"
             >
-              <ArrowRight className="w-5 h-5" />
-              <span>Continue to Onboarding</span>
+              <span>{actionLabel}</span>
+              <ArrowRight className="h-4 w-4" />
             </button>
           )}
         </div>
       </div>
-    </div>
+    </section>
   )
 }

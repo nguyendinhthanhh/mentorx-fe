@@ -33,18 +33,12 @@ export default function JobCreatePage() {
               ]}
               className="mb-4"
             />
-            <div className="flex items-center gap-2 mb-2 md:justify-start justify-center">
+            <div className="flex items-center gap-2 md:justify-start justify-center">
                <div className="px-3 py-1 rounded-full bg-white/70 border border-white flex items-center gap-1.5 w-fit shadow-sm backdrop-blur-md">
                   <Sparkles className="w-4 h-4 text-[#4f46e5]" />
-                  <span className="text-[12px] font-bold text-[#4f46e5] tracking-wider uppercase">Tạo Yêu Cầu Mới</span>
+                  <span className="text-[12px] font-bold text-[#4f46e5] tracking-wider uppercase">Khởi tạo Cơ Hội Mới</span>
                </div>
             </div>
-            <h1 className="mt-2 text-3xl font-extrabold leading-tight tracking-tight text-[#1b2252] sm:text-4xl lg:text-5xl">
-              Khởi tạo <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#4f46e5] to-[#7c3aed]">Cơ Hội Mới</span>
-            </h1>
-            <p className="mt-3 text-[15px] text-slate-500 max-w-2xl mx-auto md:mx-0">
-              Mô tả chi tiết bài toán của bạn để hệ thống kết nối với những Mentor xuất sắc nhất. Một yêu cầu rõ ràng sẽ thu hút nhân tài chất lượng.
-            </p>
           </div>
         </div>
 

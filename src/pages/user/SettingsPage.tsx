@@ -29,46 +29,34 @@ export default function SettingsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <div className="w-12 h-12 rounded-xl bg-primary-50 dark:bg-primary-900/30 flex items-center justify-center shadow-inner">
-          <SettingsIcon className="w-6 h-6 text-primary-600 dark:text-primary-400" />
-        </div>
-        <div>
-          <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Cài đặt</h1>
-          <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-1">Quản lý thông tin và cài đặt bảo mật cá nhân của bạn.</p>
-        </div>
-      </div>
 
-      <div className="rounded-2xl border border-blue-200/60 bg-blue-50/50 px-5 py-4 text-sm font-medium text-blue-900 dark:border-blue-900/40 dark:bg-blue-950/20 dark:text-blue-100 shadow-sm">
-        {t('profile.accountLanguageInfo')}
-      </div>
 
-      {/* Tab Navigation - always horizontal for simplicity */}
-      <nav className="flex flex-wrap gap-2 bg-white dark:bg-slate-900 p-3 rounded-[20px] border border-slate-200/60 dark:border-slate-800 shadow-sm">
+      {/* Tab Navigation */}
+      <nav className="flex flex-wrap gap-2 rounded-[20px] border border-slate-200/60 bg-white/70 p-2 shadow-sm backdrop-blur-md dark:border-slate-800 dark:bg-slate-900/70">
         {tabs.map((tab) => {
           const active = activeTab === tab.id
           return (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`group flex items-center gap-2.5 px-4 py-3 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${
+              className={`group flex items-center gap-2.5 rounded-xl px-4 py-2.5 text-sm font-bold transition-all duration-200 ease-out whitespace-nowrap ${
                 active
-                  ? 'bg-primary-600 text-white shadow-md shadow-primary-500/20'
-                  : 'text-slate-600 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-800/50'
+                  ? 'bg-[#059669] text-white shadow-[0_4px_12px_rgba(5,150,105,0.25)]'
+                  : 'text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800'
               }`}
             >
-              <tab.icon className={`w-4.5 h-4.5 transition-colors ${active ? 'text-white' : 'text-slate-400 group-hover:text-primary-600'}`} />
+              <tab.icon className={`h-4.5 w-4.5 transition-colors ${active ? 'text-white' : 'text-slate-400 group-hover:text-[#059669]'}`} />
               {tab.label}
             </button>
           )
         })}
       </nav>
 
-      {/* Content Area - Mentor Profile gets full width, others get a contained panel */}
+      {/* Content Area */}
       {isMentorTab ? (
         <MentorProfileSetupPage />
       ) : (
-        <div className="bg-white dark:bg-slate-900 rounded-[24px] border border-slate-200/60 dark:border-slate-800 shadow-sm p-6 lg:p-8">
+        <div className="rounded-[28px] border border-slate-200/60 bg-white p-6 shadow-[0_18px_40px_rgba(15,23,42,0.05)] dark:border-slate-800 dark:bg-slate-900 lg:p-10">
           {activeTab === 'profile' ? (
             <UserUpdateForm
               userId={user.userId}
