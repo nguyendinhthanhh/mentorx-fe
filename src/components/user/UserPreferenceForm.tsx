@@ -3,10 +3,138 @@ import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { categoryApi } from '@/api/categoryApi'
 import { skillApi } from '@/api/skillApi'
 import { matchingApi } from '@/api/matchingApi'
-import { Loader2, Save, Sparkles, X, Search, Check } from 'lucide-react'
+import {
+  Loader2,
+  Save,
+  X,
+  Search,
+  Check,
+  Layers,
+  Wrench,
+  Globe,
+  Target,
+  ChevronDown,
+  AlertCircle,
+  Plus,
+} from 'lucide-react'
+import { toast } from 'react-hot-toast'
 
-const LANGUAGE_OPTIONS = ['Vietnamese', 'English', 'Japanese', 'Chinese', 'Korean']
+const LANGUAGE_OPTIONS: { id: string; label: string; flag: string }[] = [
+  { id: 'Vietnamese', label: 'Tiếng Việt', flag: '🇻🇳' },
+  { id: 'English', label: 'English', flag: '🇺🇸' },
+  { id: 'Japanese', label: 'Tiếng Nhật', flag: '🇯🇵' },
+  { id: 'Chinese', label: 'Tiếng Trung', flag: '🇨🇳' },
+  { id: 'Korean', label: 'Tiếng Hàn', flag: '🇰🇷' },
+]
 
+const GOAL_SUGGESTIONS = [
+  'Cải thiện kỹ năng phỏng vấn',
+  'Nâng cao khả năng lãnh đạo',
+  'Chuyển ngành nghề',
+  'Xây dựng portfolio',
+  'Học công nghệ mới',
+]
+
+/* ────────────── Section wrapper ────────────── */
+function SectionCard({
+  icon: Icon,
+  title,
+  description,
+  count,
+  defaultOpen = true,
+  children,
+}: {
+  icon: React.ElementType
+  title: string
+  description: string
+  count: number
+  defaultOpen?: boolean
+  children: React.ReactNode
+}) {
+  const [open, setOpen] = useState(defaultOpen)
+
+  return (
+    <div className="overflow-hidden rounded-[22px] border border-slate-200/60 bg-white shadow-[0_8px_30px_rgba(15,23,42,0.04)] dark:border-slate-800 dark:bg-slate-900">
+      {/* Header — clickable to collapse */}
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="flex w-full items-center gap-4 px-6 py-5 text-left transition-colors hover:bg-slate-50/50 dark:hover:bg-slate-800/50"
+      >
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#059669] to-[#10B981] text-white shadow-[0_4px_12px_rgba(5,150,105,0.2)]">
+          <Icon className="h-5 w-5" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2.5">
+            <h3 className="text-[16px] font-bold text-slate-900 dark:text-white">{title}</h3>
+            <span
+              className={`inline-flex items-center rounded-full bg-[#059669]/10 px-2.5 py-0.5 text-xs font-bold text-[#059669] transition-opacity duration-150 ${
+                count > 0 ? 'opacity-100' : 'opacity-0'
+              }`}
+            >
+              {count || 0} đã chọn
+            </span>
+          </div>
+          <p className="mt-0.5 text-[13px] font-medium text-slate-500 dark:text-slate-400">
+            {description}
+          </p>
+        </div>
+        <ChevronDown
+          className={`h-5 w-5 shrink-0 text-slate-400 transition-transform duration-200 ${
+            open ? 'rotate-180' : ''
+          }`}
+        />
+      </button>
+
+      {/* Collapsible content */}
+      {open && (
+        <div className="border-t border-slate-100 px-6 pb-6 pt-5 dark:border-slate-800">
+          {children}
+        </div>
+      )}
+    </div>
+  )
+}
+
+/* ────────────── Toggle Chip ────────────── */
+function ToggleChip({
+  label,
+  active,
+  onClick,
+  prefix,
+  size = 'md',
+}: {
+  label: string
+  active: boolean
+  onClick: () => void
+  prefix?: React.ReactNode
+  size?: 'sm' | 'md'
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`inline-flex items-center gap-2 rounded-full border font-semibold transition-colors duration-150 ${
+        size === 'sm' ? 'px-3 py-1.5 text-[13px]' : 'px-4 py-2 text-[14px]'
+      } ${
+        active
+          ? 'border-[#059669] bg-[#059669]/10 text-[#059669] dark:border-[#10B981] dark:bg-[#10B981]/15 dark:text-[#10B981]'
+          : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:border-slate-600'
+      }`}
+      style={{ contain: 'layout' }}
+    >
+      {prefix}
+      <span className="truncate">{label}</span>
+      <Check
+        className={`h-3.5 w-3.5 shrink-0 transition-opacity duration-150 ${
+          active ? 'opacity-100' : 'opacity-0 w-0 overflow-hidden'
+        }`}
+      />
+    </button>
+  )
+}
+
+/* ════════════════ Main Form ════════════════ */
 export default function UserPreferenceForm() {
   const queryClient = useQueryClient()
   const [error, setError] = useState('')
@@ -16,6 +144,8 @@ export default function UserPreferenceForm() {
   const [skillIds, setSkillIds] = useState<number[]>([])
   const [learningGoals, setLearningGoals] = useState<string[]>([])
   const [preferredLanguages, setPreferredLanguages] = useState<string[]>([])
+  const [showAllDomains, setShowAllDomains] = useState(false)
+  const [saved, setSaved] = useState(false)
 
   const categoriesQuery = useQuery('preferences-categories', categoryApi.getAllActive)
   const skillsQuery = useQuery('preferences-skills', skillApi.getAllActive)
@@ -28,7 +158,7 @@ export default function UserPreferenceForm() {
       setPreferredLanguages(data.preferredLanguages || [])
     },
     onError: () => {
-      setError('Could not load your interests right now.')
+      setError('Không thể tải sở thích của bạn lúc này.')
     },
   })
 
@@ -39,23 +169,29 @@ export default function UserPreferenceForm() {
       setLearningGoals(data.learningGoals || [])
       setPreferredLanguages(data.preferredLanguages || [])
       setError('')
+      setSaved(true)
+      toast.success('Đã lưu sở thích thành công!', { duration: 3000 })
+      setTimeout(() => setSaved(false), 3000)
       queryClient.invalidateQueries(['home-data', true])
       queryClient.invalidateQueries('my-matching-preferences')
     },
     onError: (err: any) => {
-      const message = err?.response?.data?.message || err?.message || 'Could not save preferences.'
+      const message = err?.response?.data?.message || err?.message || 'Không thể lưu sở thích.'
       setError(message)
+      toast.error(message)
     },
   })
 
-  const isLoading = categoriesQuery.isLoading || skillsQuery.isLoading || preferencesQuery.isLoading
+  const isLoading =
+    categoriesQuery.isLoading || skillsQuery.isLoading || preferencesQuery.isLoading
 
   const filteredSkills = useMemo(() => {
     if (!skillsQuery.data) return []
     if (!skillSearch.trim()) return skillsQuery.data
     const term = skillSearch.toLowerCase()
     return skillsQuery.data.filter(
-      (skill) => skill.labelEn.toLowerCase().includes(term) || skill.labelVi.toLowerCase().includes(term)
+      (skill) =>
+        skill.labelEn.toLowerCase().includes(term) || skill.labelVi.toLowerCase().includes(term)
     )
   }, [skillsQuery.data, skillSearch])
 
@@ -97,133 +233,154 @@ export default function UserPreferenceForm() {
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center py-24 space-y-4">
-        <Loader2 className="h-8 w-8 animate-spin text-primary-600" />
-        <p className="text-sm font-medium text-slate-500">Loading your preferences...</p>
+        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#059669] to-[#10B981] shadow-[0_8px_20px_rgba(5,150,105,0.25)]">
+          <Loader2 className="h-7 w-7 animate-spin text-white" />
+        </div>
+        <p className="text-sm font-medium text-slate-500">Đang tải sở thích của bạn...</p>
       </div>
     )
   }
 
   return (
-    <div className="mx-auto max-w-3xl space-y-8">
-      {/* Header Section */}
-      <div className="border-b border-slate-200 pb-6">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-50">
-            <Sparkles className="h-5 w-5 text-primary-600" />
-          </div>
-          <h2 className="text-2xl font-bold text-slate-900">Matching Preferences</h2>
-        </div>
-        <p className="text-sm text-slate-500">
-          We use these preferences to prioritize mentors, jobs, and courses in your recommended feed.
-        </p>
-      </div>
-
-      <div className="space-y-10">
-        
-        {/* Domains Section */}
-        <div className="space-y-4">
-          <div>
-            <label className="text-base font-semibold text-slate-900">
-              Interested Domains
-            </label>
-            <p className="text-sm text-slate-500 mt-1">Select the broad areas you want to explore or improve in.</p>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {(categoriesQuery.data || []).map((category) => {
-              const active = domainIds.includes(category.id)
-              return (
-                <label
-                  key={category.id}
-                  className={`relative flex cursor-pointer items-start gap-4 rounded-xl border p-4 transition-all ${
-                    active
-                      ? 'border-primary-500 bg-primary-50/50 shadow-sm'
-                      : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50'
-                  }`}
+    <div className="mx-auto max-w-3xl space-y-5">
+      {/* ── Domains ── */}
+      <SectionCard
+        icon={Layers}
+        title="Lĩnh vực quan tâm"
+        description="Chọn các lĩnh vực bạn muốn khám phá hoặc cải thiện."
+        count={domainIds.length}
+      >
+        {(() => {
+          const allCategories = categoriesQuery.data || []
+          const VISIBLE_LIMIT = 8
+          const hasMore = allCategories.length > VISIBLE_LIMIT
+          const visible = showAllDomains ? allCategories : allCategories.slice(0, VISIBLE_LIMIT)
+          return (
+            <>
+              <div className="flex flex-wrap gap-2.5">
+                {visible.map((category) => (
+                  <ToggleChip
+                    key={category.id}
+                    label={category.name}
+                    active={domainIds.includes(category.id)}
+                    onClick={() => toggleDomain(category.id)}
+                  />
+                ))}
+              </div>
+              {hasMore && (
+                <button
+                  type="button"
+                  onClick={() => setShowAllDomains((v) => !v)}
+                  className="mt-2 text-[13px] font-semibold text-[#059669] hover:underline"
                 >
-                  <div className="flex items-center h-5">
-                    <input
-                      type="checkbox"
-                      className="h-4 w-4 rounded border-slate-300 text-primary-600 focus:ring-primary-600"
-                      checked={active}
-                      onChange={() => toggleDomain(category.id)}
-                    />
-                  </div>
-                  <div className="flex flex-col">
-                    <span className={`text-sm font-semibold ${active ? 'text-primary-900' : 'text-slate-700'}`}>
-                      {category.name}
-                    </span>
-                  </div>
-                </label>
-              )
-            })}
-          </div>
-        </div>
+                  {showAllDomains
+                    ? 'Thu gọn'
+                    : `Xem thêm ${allCategories.length - VISIBLE_LIMIT} lĩnh vực`}
+                </button>
+              )}
+            </>
+          )
+        })()}
+      </SectionCard>
 
-        {/* Skills Section */}
+      {/* ── Skills ── */}
+      <SectionCard
+        icon={Wrench}
+        title="Kỹ năng ưu tiên"
+        description="Chọn công cụ, framework hoặc phương pháp cụ thể bạn quan tâm."
+        count={skillIds.length}
+      >
         <div className="space-y-4">
-          <div>
-            <label className="text-base font-semibold text-slate-900">
-              Preferred Skills
-            </label>
-            <p className="text-sm text-slate-500 mt-1">Pinpoint specific tools, frameworks, or methodologies.</p>
-          </div>
-          
+          {/* Search */}
           <div className="relative">
-            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
               <Search className="h-4 w-4 text-slate-400" />
             </div>
             <input
               type="text"
               value={skillSearch}
               onChange={(e) => setSkillSearch(e.target.value)}
-              placeholder="Search for skills..."
-              className="block w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+              placeholder="Tìm kỹ năng..."
+              className="block w-full rounded-[14px] border-0 bg-slate-50/80 py-2.5 pl-10 pr-4 text-sm text-slate-900 ring-1 ring-inset ring-slate-200/60 transition-all placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-[#059669] hover:bg-slate-50 dark:bg-slate-800/50 dark:text-white dark:ring-slate-700"
             />
           </div>
 
-          <div className="max-h-64 overflow-y-auto rounded-xl border border-slate-200 bg-slate-50/50 p-2 custom-scrollbar">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-              {filteredSkills.length > 0 ? (
-                filteredSkills.map((skill) => {
-                  const active = skillIds.includes(skill.id)
-                  return (
-                    <label
-                      key={skill.id}
-                      className={`flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 transition-all ${
-                        active
-                          ? 'bg-primary-100/50 text-primary-900'
-                          : 'bg-white text-slate-700 hover:bg-slate-100'
-                      } border border-slate-200`}
+          {/* Selected skills summary */}
+          {skillIds.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {skillsQuery.data
+                ?.filter((s) => skillIds.includes(s.id))
+                .map((skill) => (
+                  <span
+                    key={skill.id}
+                    className="inline-flex items-center gap-1.5 rounded-full bg-[#059669] px-3 py-1 text-[12px] font-bold text-white shadow-sm"
+                  >
+                    {skill.labelEn}
+                    <button
+                      type="button"
+                      onClick={() => toggleSkill(skill.id)}
+                      className="rounded-full p-0.5 transition-colors hover:bg-white/20"
                     >
-                      <input
-                        type="checkbox"
-                        className="h-4 w-4 rounded border-slate-300 text-primary-600 focus:ring-primary-600"
-                        checked={active}
-                        onChange={() => toggleSkill(skill.id)}
-                      />
-                      <span className="text-sm font-medium line-clamp-1 flex-1">
-                        {skill.labelEn}
-                      </span>
-                    </label>
-                  )
-                })
+                      <X className="h-3 w-3" />
+                    </button>
+                  </span>
+                ))}
+            </div>
+          )}
+
+          {/* Skill grid */}
+          <div className="max-h-72 overflow-y-auto rounded-[16px] border border-slate-100 bg-slate-50/30 p-3 dark:border-slate-800 dark:bg-slate-800/20">
+            <div className="flex flex-wrap gap-2">
+              {filteredSkills.length > 0 ? (
+                filteredSkills.map((skill) => (
+                  <ToggleChip
+                    key={skill.id}
+                    label={skill.labelEn}
+                    active={skillIds.includes(skill.id)}
+                    onClick={() => toggleSkill(skill.id)}
+                    size="sm"
+                  />
+                ))
               ) : (
-                <div className="col-span-full py-8 text-center text-sm text-slate-500">
-                  No skills found matching "{skillSearch}"
+                <div className="w-full py-8 text-center text-sm text-slate-500">
+                  Không tìm thấy kỹ năng "{skillSearch}"
                 </div>
               )}
             </div>
           </div>
         </div>
+      </SectionCard>
 
-        {/* Goals Section */}
+      {/* ── Languages ── */}
+      <SectionCard
+        icon={Globe}
+        title="Ngôn ngữ ưu tiên"
+        description="Bạn muốn trao đổi bằng ngôn ngữ nào?"
+        count={preferredLanguages.length}
+      >
+        <div className="flex flex-wrap gap-2.5">
+          {LANGUAGE_OPTIONS.map((lang) => (
+            <ToggleChip
+              key={lang.id}
+              label={lang.label}
+              active={preferredLanguages.includes(lang.id)}
+              onClick={() => toggleLanguage(lang.id)}
+              prefix={<span className="text-base leading-none">{lang.flag}</span>}
+            />
+          ))}
+        </div>
+      </SectionCard>
+
+      {/* ── Goals ── */}
+      <SectionCard
+        icon={Target}
+        title="Mục tiêu học tập"
+        description="Bạn đang cố gắng đạt được điều gì?"
+        count={learningGoals.length}
+      >
         <div className="space-y-4">
-          <div>
-            <label className="text-base font-semibold text-slate-900">Learning Goals</label>
-            <p className="text-sm text-slate-500 mt-1">What exactly are you trying to achieve?</p>
-          </div>
-          
-          <div className="flex flex-col sm:flex-row gap-3">
+          {/* Input row */}
+          <div className="flex gap-2">
             <div className="relative flex-1">
               <input
                 value={goalInput}
@@ -234,87 +391,101 @@ export default function UserPreferenceForm() {
                     addLearningGoal()
                   }
                 }}
-                className="block w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm placeholder:text-slate-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
-                placeholder="e.g. Improve interview readiness"
+                className="block w-full rounded-[14px] border-0 bg-slate-50/80 px-4 py-2.5 text-sm text-slate-900 ring-1 ring-inset ring-slate-200/60 transition-all placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-[#059669] hover:bg-slate-50 dark:bg-slate-800/50 dark:text-white dark:ring-slate-700"
+                placeholder="Nhập mục tiêu của bạn..."
               />
             </div>
             <button
               type="button"
               onClick={addLearningGoal}
-              className="inline-flex items-center justify-center rounded-xl bg-emerald-600 shadow-md hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 hover:bg-emerald-700 px-6 py-2.5 text-sm font-semibold text-white hover:bg-slate-800 transition-colors"
+              className="flex items-center gap-1.5 rounded-[14px] bg-[#059669] px-4 py-2.5 text-sm font-bold text-white shadow-[0_4px_12px_rgba(5,150,105,0.2)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_6px_16px_rgba(5,150,105,0.3)] active:translate-y-0"
             >
-              Add Goal
+              <Plus className="h-4 w-4" />
+              <span className="hidden sm:inline">Thêm</span>
             </button>
           </div>
-          
+
+          {/* Suggestion chips */}
+          {learningGoals.length === 0 && (
+            <div className="space-y-2">
+              <p className="text-[12px] font-semibold uppercase tracking-wide text-slate-400">
+                Gợi ý
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {GOAL_SUGGESTIONS.map((suggestion) => (
+                  <button
+                    key={suggestion}
+                    type="button"
+                    onClick={() => {
+                      if (!learningGoals.includes(suggestion)) {
+                        setLearningGoals((prev) => [...prev, suggestion])
+                      }
+                    }}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-dashed border-slate-300 bg-white px-3 py-1.5 text-[13px] font-medium text-slate-500 transition-all hover:border-[#059669] hover:text-[#059669] dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400"
+                  >
+                    <Plus className="h-3 w-3" />
+                    {suggestion}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Added goals */}
           {learningGoals.length > 0 && (
-            <div className="flex flex-col gap-2 rounded-xl border border-slate-200 bg-slate-50 p-4">
+            <div className="flex flex-wrap gap-2">
               {learningGoals.map((goal, index) => (
-                <div key={index} className="flex items-center justify-between rounded-lg bg-white border border-slate-200 p-3 shadow-sm">
-                  <span className="text-sm font-medium text-slate-700">{goal}</span>
+                <span
+                  key={index}
+                  className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3.5 py-1.5 text-[13px] font-semibold text-slate-700 shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
+                >
+                  {goal}
                   <button
                     type="button"
-                    className="rounded-lg p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-500 transition-colors"
-                    onClick={() => setLearningGoals((prev) => prev.filter((item) => item !== goal))}
+                    className="rounded-full p-0.5 text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-500 dark:hover:bg-rose-900/20"
+                    onClick={() =>
+                      setLearningGoals((prev) => prev.filter((item) => item !== goal))
+                    }
                   >
-                    <X className="h-4 w-4" />
+                    <X className="h-3 w-3" />
                   </button>
-                </div>
+                </span>
               ))}
             </div>
           )}
         </div>
+      </SectionCard>
 
-        {/* Languages Section */}
-        <div className="space-y-4">
-          <div>
-            <label className="text-base font-semibold text-slate-900">Preferred Languages</label>
-            <p className="text-sm text-slate-500 mt-1">Which languages are you most comfortable communicating in?</p>
-          </div>
-          
-          <div className="flex flex-wrap gap-4">
-            {LANGUAGE_OPTIONS.map((language) => {
-              const active = preferredLanguages.includes(language)
-              return (
-                <label
-                  key={language}
-                  className="flex cursor-pointer items-center gap-2"
-                >
-                  <input
-                    type="checkbox"
-                    className="h-4 w-4 rounded border-slate-300 text-primary-600 focus:ring-primary-600"
-                    checked={active}
-                    onChange={() => toggleLanguage(language)}
-                  />
-                  <span className="text-sm font-medium text-slate-700">{language}</span>
-                </label>
-              )
-            })}
-          </div>
-        </div>
-      </div>
-
+      {/* ── Error ── */}
       {error && (
-        <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm font-medium text-rose-700 flex items-start gap-3">
-          <X className="h-5 w-5 text-rose-600 shrink-0" />
+        <div className="flex items-center gap-3 rounded-2xl border border-red-200/60 bg-red-50/80 px-5 py-3.5 text-sm font-medium text-red-700 shadow-sm backdrop-blur-sm dark:border-red-900/30 dark:bg-red-900/20 dark:text-red-400">
+          <AlertCircle className="h-4 w-4 shrink-0" />
           <p>{error}</p>
         </div>
       )}
 
-      {/* Action Footer */}
-      <div className="flex items-center justify-end border-t border-slate-200 pt-6">
+      {/* ── Success ── */}
+      {saved && (
+        <div className="flex items-center gap-3 rounded-2xl border border-[#059669]/20 bg-[#059669]/10 px-5 py-3.5 text-sm font-medium text-[#059669] shadow-sm dark:border-[#059669]/30 dark:bg-[#059669]/20 dark:text-[#10B981]">
+          <Check className="h-4 w-4 shrink-0" />
+          <p>Đã lưu sở thích thành công!</p>
+        </div>
+      )}
+
+      {/* ── Save Footer ── */}
+      <div className="sticky bottom-4 z-10 flex justify-end">
         <button
           type="button"
           disabled={updateMutation.isLoading}
           onClick={savePreferences}
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary-600 px-8 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:ring-offset-2 disabled:opacity-60 transition-colors w-full sm:w-auto"
+          className="flex items-center gap-2.5 rounded-2xl bg-gradient-to-r from-[#059669] to-[#10B981] px-8 py-3.5 text-[14px] font-bold text-white shadow-[0_8px_25px_rgba(5,150,105,0.3)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_30px_rgba(5,150,105,0.4)] disabled:cursor-not-allowed disabled:opacity-50"
         >
           {updateMutation.isLoading ? (
             <Loader2 className="h-5 w-5 animate-spin" />
           ) : (
             <Save className="h-5 w-5" />
           )}
-          Save preferences
+          Lưu sở thích
         </button>
       </div>
     </div>

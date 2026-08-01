@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { UserMode, UserResponse } from '@/types'
 import { canSwitchToMentorMode, getAvailableModes } from '@/utils/roleRedirect'
+import { toast } from 'react-hot-toast'
 
 const ONBOARDING_SKIP_SESSION_KEY = 'mentorx-onboarding-skipped-session'
 
@@ -123,6 +124,7 @@ export const useAuthStore = create<AuthState>()(
             credentials: 'include',
           }).catch(() => undefined)
           writeSkippedOnboardingSession(false)
+          toast.success('Đăng xuất thành công!')
           return {
             user: null,
             accessToken: null,

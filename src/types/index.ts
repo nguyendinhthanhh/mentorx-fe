@@ -509,6 +509,7 @@ export interface JobResponse {
   clientId: string;
   client?: UserResponse;
   clientName?: string;
+  clientAvatarUrl?: string;
   categoryId?: number;
   customCategoryName?: string;
   jobType: JobType;

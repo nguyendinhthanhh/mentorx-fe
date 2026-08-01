@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { authApi } from '@/api/authApi'
 import { useAuthStore } from '@/store/authStore'
 import { Eye, EyeOff, Loader2, CheckCircle, ShieldCheck, AlertCircle } from 'lucide-react'
+import { toast } from 'react-hot-toast'
 
 export default function PasswordChangeForm() {
   const { user } = useAuthStore()
@@ -33,16 +34,20 @@ export default function PasswordChangeForm() {
       setCurrentPassword('')
       setNewPassword('')
       setConfirmPassword('')
+      toast.success('Đã đổi mật khẩu thành công!', { duration: 3000 })
       setTimeout(() => setSuccess(false), 3000)
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to change password.')
+      const message = err.response?.data?.message || 'Failed to change password.'
+      setError(message)
+      toast.error(message)
     } finally {
       setLoading(false)
     }
   }
 
-  const inputClass = 'w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-sm bg-white'
-  const labelClass = 'block text-sm font-semibold text-gray-700 mb-1.5 tracking-wide'
+  const inputClass =
+    'w-full rounded-[14px] border-0 bg-slate-50/50 py-3 px-4 text-slate-900 shadow-[inset_0_1px_2px_rgba(0,0,0,0.02)] ring-1 ring-inset ring-slate-200/60 transition-all placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-inset focus:ring-[#059669] hover:bg-slate-50 hover:ring-slate-300 sm:text-sm sm:leading-6 dark:bg-slate-900/50 dark:text-white dark:ring-slate-800 dark:focus:bg-slate-900'
+  const labelClass = 'mb-1.5 block text-[13px] font-bold text-slate-700 uppercase tracking-wide dark:text-slate-300'
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
@@ -113,15 +118,15 @@ export default function PasswordChangeForm() {
       </div>
 
       {error && (
-        <div className="flex items-start gap-3 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3.5 text-sm text-rose-700">
-          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+        <div className="flex items-center gap-3 rounded-2xl border border-red-200/60 bg-red-50/80 px-4 py-3 text-sm font-medium text-red-700 shadow-sm backdrop-blur-sm dark:border-red-900/30 dark:bg-red-900/20 dark:text-red-400">
+          <AlertCircle className="h-4 w-4 shrink-0" />
           <span className="leading-6">{error}</span>
         </div>
       )}
 
       {success && (
-        <div className="flex items-center gap-2 bg-green-50 border border-green-100 text-green-600 px-4 py-3 rounded-xl text-sm font-medium">
-          <CheckCircle className="w-4 h-4 shrink-0" />
+        <div className="flex items-center gap-3 rounded-2xl border border-[#059669]/20 bg-[#059669]/10 px-4 py-3 text-sm font-medium text-[#059669] shadow-sm backdrop-blur-sm dark:border-[#059669]/30 dark:bg-[#059669]/20 dark:text-[#10B981]">
+          <CheckCircle className="h-4 w-4 shrink-0" />
           <span>Password changed successfully! You have been signed out of all devices.</span>
         </div>
       )}
@@ -130,11 +135,11 @@ export default function PasswordChangeForm() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full flex items-center justify-center gap-2 bg-primary-600 text-white py-3 rounded-xl font-bold hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
+          className="flex w-full items-center justify-center gap-2 rounded-[14px] bg-gradient-to-r from-[#059669] to-[#10B981] py-3.5 text-[14px] font-bold text-white shadow-[0_8px_20px_rgba(5,150,105,0.25)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_25px_rgba(5,150,105,0.35)] disabled:cursor-not-allowed disabled:opacity-50"
         >
           {loading ? (
             <>
-              <Loader2 className="w-4 h-4 animate-spin" />
+              <Loader2 className="h-4 w-4 animate-spin" />
               Saving...
             </>
           ) : (

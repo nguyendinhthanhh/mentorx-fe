@@ -7,6 +7,7 @@ import { useAuthStore } from '@/store/authStore'
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { Eye, EyeOff, Loader2, ArrowRight } from 'lucide-react'
+import { toast } from 'react-hot-toast'
 
 import GoogleLoginButton from './GoogleLoginButton'
 import GithubLoginButton from './GithubLoginButton'
@@ -49,6 +50,7 @@ export default function LoginForm({ onVerificationPendingChange }: LoginFormProp
       const response = await authApi.login(data)
       setTokens(response.accessToken)
       setUser(response.user)
+      toast.success('Đăng nhập thành công!')
       
       navigate(getSocialAuthRedirectPath(response))
     } catch (err: any) {
@@ -71,6 +73,7 @@ export default function LoginForm({ onVerificationPendingChange }: LoginFormProp
   const handleSocialLoginSuccess = (response: AuthResponse) => {
     setTokens(response.accessToken)
     setUser(response.user)
+    toast.success('Đăng nhập thành công!')
 
     navigate(getSocialAuthRedirectPath(response))
   }

@@ -4,7 +4,7 @@ import { z } from 'zod'
 import { toast } from 'react-hot-toast'
 import { proposalApi } from '@/api/proposalApi'
 import { useState, useEffect } from 'react'
-import { Loader2, CheckCircle, Edit2, Trash2, AlertCircle } from 'lucide-react'
+import { Loader2, CheckCircle, Edit2, Trash2, AlertCircle, FileText, Bookmark, Save } from 'lucide-react'
 import { BudgetType, JobType, ProposalResponse } from '@/types'
 
 const proposalSchema = z.object({
@@ -21,6 +21,8 @@ interface Props {
   mentorId: string
   jobType: JobType
   budgetType?: BudgetType
+  clientBudget?: number
+  clientDeadline?: string
   onSuccess?: () => void
   onCancel?: () => void
   forceEditMode?: boolean
@@ -31,6 +33,8 @@ export default function ProposalCreateForm({
   mentorId,
   jobType,
   budgetType,
+  clientBudget,
+  clientDeadline,
   onSuccess,
   onCancel,
   forceEditMode = false,
@@ -46,11 +50,63 @@ export default function ProposalCreateForm({
   const {
     register,
     handleSubmit,
+    watch,
+    setValue,
     formState: { errors },
     reset,
   } = useForm<ProposalFormData>({
     resolver: zodResolver(proposalSchema),
   })
+  
+
+  const handleUseSuggestedTemplate = () => {
+    const template = `Chào bạn, \n\nMình thấy yêu cầu của bạn rất phù hợp với chuyên môn của mình.\n\n1. Kinh nghiệm liên quan:\n- [Liệt kê 1-2 dự án tương tự bạn từng làm]\n\n2. Phương án mình định triển khai:\n- [Nêu ngắn gọn 1-2 bước bạn sẽ làm để giải quyết vấn đề này]\n\nRất mong được trao đổi chi tiết hơn với bạn!`;
+    setValue('coverLetter', template, { shouldValidate: true });
+    toast.success('Đã áp dụng dàn ý gợi ý');
+  };
+
+  const handleSaveMyTemplate = () => {
+    const currentText = watch('coverLetter');
+    if (!currentText || currentText.length < 10) {
+      toast.error('Vui lòng viết nội dung dài hơn trước khi lưu mẫu');
+      return;
+    }
+    localStorage.setItem('mentorx_my_proposal_template', currentText);
+    toast.success('Đã lưu thành mẫu của bạn');
+  };
+
+  const handleUseMyTemplate = () => {
+    const saved = localStorage.getItem('mentorx_my_proposal_template');
+    if (saved) {
+      setValue('coverLetter', saved, { shouldValidate: true });
+      toast.success('Đã áp dụng mẫu của bạn');
+    } else {
+      toast.error('Bạn chưa có mẫu nào được lưu');
+    }
+  };
+
+  const currentAmount = watch('proposedAmount') || 0
+  
+  const calculateFee = (amount: number) => {
+    if (!amount || amount <= 0) return { fee: 0, label: 'Phí dịch vụ nền tảng (0%)' }
+    if (amount < 100) return { fee: 5, label: 'Phí cố định (5 MXC)' }
+    if (amount < 300) return { fee: amount * 0.09, label: 'Phí nền tảng (9%)' }
+    if (amount < 800) return { fee: amount * 0.08, label: 'Phí nền tảng (8%)' }
+    if (amount < 1500) return { fee: amount * 0.07, label: 'Phí nền tảng (7%)' }
+    if (amount < 3000) return { fee: amount * 0.06, label: 'Phí nền tảng (6%)' }
+    
+    let fee = amount * 0.05
+    let label = 'Phí nền tảng (5%)'
+    if (fee > 300) {
+      fee = 300
+      label = 'Phí nền tảng (Tối đa 300 MXC)'
+    }
+    return { fee, label }
+  }
+
+  const feeInfo = calculateFee(currentAmount)
+  const platformFee = feeInfo.fee
+  const netAmount = currentAmount - platformFee
 
   useEffect(() => {
     const checkExistingProposal = async () => {
@@ -64,6 +120,18 @@ export default function ProposalCreateForm({
             proposedAmount: proposal.proposedAmount,
             estimatedDurationDays: proposal.estimatedDurationDays || undefined,
             relevantExperience: proposal.relevantExperience || undefined,
+          })
+        } else {
+          let calcDays = undefined;
+          if (clientDeadline) {
+             const d = new Date(clientDeadline);
+             const today = new Date();
+             const diff = Math.ceil((d.getTime() - today.getTime()) / (1000 * 3600 * 24));
+             if (diff > 0) calcDays = diff;
+          }
+          reset({
+            proposedAmount: clientBudget || undefined,
+            estimatedDurationDays: calcDays
           })
         }
       } catch (err) {
@@ -259,51 +327,60 @@ export default function ProposalCreateForm({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      <div>
-        <label className={labelClass}>
-          ThÆ° giá»›i thiá»‡u / Cover Message <span className="text-rose-500">*</span>
-        </label>
-        <textarea
-          {...register('coverLetter')}
-          rows={6}
-          className={inputClass}
-          placeholder="Giá»›i thiá»‡u báº£n thÃ¢n, kinh nghiá»‡m liÃªn quan vÃ  cÃ¡ch báº¡n sáº½ giáº£i quyáº¿t váº¥n Ä‘á» nÃ y..."
-        />
-        {errors.coverLetter && <p className="text-xs text-rose-500 mt-1.5 flex items-center gap-1">
-          <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd"/></svg>
-          {errors.coverLetter.message}
-        </p>}
-        <p className="text-xs text-slate-500 mt-1.5">Tá»‘i thiá»ƒu 10 kÃ½ tá»±</p>
-      </div>
-
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label className={labelClass}>
-            {budgetType === BudgetType.HOURLY ? 'GiÃ¡ theo giá» (MXC)' : 'Tá»•ng chi phÃ­ Ä‘á» xuáº¥t (MXC)'} <span className="text-rose-500">*</span>
+            {budgetType === BudgetType.HOURLY ? 'Giá theo giờ (MXC)' : 'Tổng chi phí đề xuất (MXC)'} <span className="text-rose-500">*</span>
           </label>
-          <input
-            type="number"
-            step="0.01"
-            {...register('proposedAmount')}
-            className={inputClass}
-            placeholder="0.00"
-          />
+          {clientBudget && (
+            <p className="text-[13px] text-slate-500 mb-2 mt-[-4px]">Ngân sách khách hàng đưa ra: <span className="font-bold text-emerald-600">{clientBudget.toLocaleString()} MXC</span></p>
+          )}
+          <div className="relative">
+            <input
+              type="number"
+              step="0.01"
+              {...register('proposedAmount')}
+              className={`${inputClass} pr-14`}
+              placeholder="0.00"
+            />
+            <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none text-slate-400 font-medium text-sm">
+              MXC
+            </div>
+          </div>
           {errors.proposedAmount && <p className="text-xs text-rose-500 mt-1.5 flex items-center gap-1">
             <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd"/></svg>
             {errors.proposedAmount.message}
           </p>}
+          <div className="mt-3 rounded-xl bg-slate-50/50 p-3 text-[13px] border border-slate-200/60">
+             <div className="flex justify-between text-slate-500 mb-2">
+                <span>{feeInfo.label}</span>
+                <span className="font-medium">- {platformFee.toLocaleString()} MXC</span>
+             </div>
+             <div className="flex justify-between font-bold text-slate-900 pt-2 border-t border-slate-200/60">
+                <span>Bạn sẽ thực nhận</span>
+                <span className="text-emerald-600">{netAmount.toLocaleString()} MXC</span>
+             </div>
+          </div>
         </div>
 
         <div>
           <label className={labelClass}>
-            Thá»i gian hoÃ n thÃ nh (NgÃ y)
+            Thời gian hoàn thành (Ngày)
           </label>
-          <input
-            type="number"
-            {...register('estimatedDurationDays')}
-            className={inputClass}
-            placeholder="VÃ­ dá»¥: 7"
-          />
+          {clientDeadline && (
+            <p className="text-[13px] text-slate-500 mb-2 mt-[-4px]">Khách cần xong trước: <span className="font-bold text-blue-600">{new Date(clientDeadline).toLocaleDateString('vi-VN')}</span></p>
+          )}
+          <div className="relative">
+            <input
+              type="number"
+              {...register('estimatedDurationDays')}
+              className={`${inputClass} pr-14`}
+              placeholder="Ví dụ: 7"
+            />
+            <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none text-slate-400 font-medium text-sm">
+              Ngày
+            </div>
+          </div>
           {errors.estimatedDurationDays && <p className="text-xs text-rose-500 mt-1.5 flex items-center gap-1">
             <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd"/></svg>
             {errors.estimatedDurationDays.message}
@@ -312,22 +389,55 @@ export default function ProposalCreateForm({
       </div>
 
       <div>
-        <label className={labelClass}>Kinh nghiá»‡m liÃªn quan (TÃ¹y chá»n)</label>
+        <div className="flex items-center justify-between mb-2">
+          <label className="text-sm font-bold text-slate-700">
+            Thư giới thiệu / Cover Message <span className="text-rose-500">*</span>
+          </label>
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={handleUseSuggestedTemplate}
+              className="text-xs text-emerald-600 hover:text-emerald-700 font-bold flex items-center gap-1 transition"
+            >
+              <FileText className="w-3.5 h-3.5" /> Dàn ý gợi ý
+            </button>
+            <button
+              type="button"
+              onClick={handleUseMyTemplate}
+              className="text-xs text-blue-600 hover:text-blue-700 font-bold flex items-center gap-1 transition"
+            >
+              <Bookmark className="w-3.5 h-3.5" /> Mẫu của tôi
+            </button>
+          </div>
+        </div>
         <textarea
-          {...register('relevantExperience')}
-          rows={4}
+          {...register('coverLetter')}
+          rows={8}
           className={inputClass}
-          placeholder="MÃ´ táº£ cÃ¡c dá»± Ã¡n tÆ°Æ¡ng tá»± báº¡n Ä‘Ã£ hoÃ n thÃ nh, ká»¹ nÄƒng vÃ  chá»©ng chá»‰ liÃªn quan..."
+          placeholder="Giới thiệu bản thân, kinh nghiệm liên quan và cách bạn sẽ giải quyết vấn đề này..."
         />
+        {errors.coverLetter && <p className="text-xs text-rose-500 mt-1.5 flex items-center gap-1">
+          <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd"/></svg>
+          {errors.coverLetter.message}
+        </p>}
+        <div className="flex items-center justify-between mt-2">
+          <p className="text-xs text-slate-500">Tối thiểu 10 ký tự</p>
+          <button
+            type="button"
+            onClick={handleSaveMyTemplate}
+            className="text-xs text-slate-500 hover:text-slate-800 font-medium flex items-center gap-1 transition"
+          >
+            <Save className="w-3 h-3" /> Lưu làm mẫu của tôi
+          </button>
+        </div>
       </div>
-
       {error && (
         <div className="flex items-start gap-3 bg-rose-50 border border-rose-100 text-rose-600 px-4 py-3 rounded-xl text-sm">
           <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <div>
-            <p className="font-bold">Lá»—i khi gá»­i proposal</p>
+            <p className="font-bold">Lỗi khi gửi proposal</p>
             <p className="mt-0.5">{error}</p>
           </div>
         </div>
@@ -341,12 +451,12 @@ export default function ProposalCreateForm({
         {loading ? (
           <>
             <Loader2 className="w-5 h-5 animate-spin" />
-            {isEditing ? 'Äang cáº­p nháº­t...' : 'Äang gá»­i...'}
+            {isEditing ? 'Đang cập nhật...' : 'Đang gửi...'}
           </>
         ) : (
           <>
             <CheckCircle className="w-5 h-5" />
-            {isEditing ? 'Cáº­p nháº­t Proposal' : 'Gá»­i Proposal'}
+            {isEditing ? 'Cập nhật Proposal' : 'Gửi Proposal'}
           </>
         )}
       </button>
@@ -369,7 +479,7 @@ export default function ProposalCreateForm({
           }}
           className="w-full flex items-center justify-center gap-2 bg-slate-200 text-slate-700 py-3 rounded-xl font-bold hover:bg-slate-300 transition-all text-sm"
         >
-          Há»§y chá»‰nh sá»­a
+          Hủy chỉnh sửa
         </button>
       )}
     </form>
