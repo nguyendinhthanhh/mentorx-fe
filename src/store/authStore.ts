@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { authApi } from '@/api/authApi'
 import { UserMode, UserResponse } from '@/types'
 import { canSwitchToMentorMode, getAvailableModes } from '@/utils/roleRedirect'
 import { toast } from 'react-hot-toast'
@@ -136,7 +137,6 @@ export const useAuthStore = create<AuthState>()(
 
       refreshUser: async () => {
         try {
-          const { authApi } = await import('@/api/authApi')
           const user = await authApi.getCurrentUser()
           set((state) => {
             const skippedOnboardingThisSession = user.isOnboarded ? false : state.skippedOnboardingThisSession

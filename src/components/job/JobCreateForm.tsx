@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useNavigate } from 'react-router-dom'
+import { useQuery } from 'react-query'
 import {
   AlertCircle,
   CalendarDays,
@@ -19,15 +20,17 @@ import {
 import { categoryApi } from '@/api/categoryApi'
 import { fileApi } from '@/api/fileApi'
 import { jobApi } from '@/api/jobApi'
+import { walletApi } from '@/api/walletApi'
 import { BudgetType, CategoryResponse, FileResponse, JobResponse, JobStatus, JobType } from '@/types'
 import { formatTimeRemaining } from '@/utils/formatters'
 import TermsModal from '@/components/common/TermsModal'
-import MockPaymentModal from '@/components/payment/MockPaymentModal'
+import JobFundingModal from '@/components/payment/JobFundingModal'
 import FilePreviewModal from '@/components/common/FilePreviewModal'
 
 const OTHER_CATEGORY_VALUE = -1
 const EXPERIENCE_CUSTOM = 'CUSTOM'
 const COMMUNICATION_CUSTOM = 'CUSTOM'
+const SKIP_JOB_FUNDING_FOR_DEMO = import.meta.env.VITE_SKIP_JOB_FUNDING === 'true'
 
 const experienceOptions = [
   { value: '', label: 'Open to suggestion' },
@@ -186,6 +189,12 @@ const jobSchema = z
         message: 'Please provide an end date and time.',
         path: ['deadlineDate'],
       })
+    } else if (new Date(data.deadlineDate).getTime() <= Date.now()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'The deadline must be in the future.',
+        path: ['deadlineDate'],
+      })
     }
 
     if (data.experiencePreset === EXPERIENCE_CUSTOM && !data.customExperienceLevel) {
@@ -337,6 +346,15 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
     return `${attachments.length} file(s) ready to send`
   }, [attachments])
 
+  const { data: walletBalance, refetch: refetchWalletBalance } = useQuery(
+    ['userBalance', clientId],
+    () => walletApi.getUserBalance(clientId),
+    {
+      enabled: Boolean(clientId),
+      staleTime: 15_000,
+    }
+  )
+
   const buildExperienceLevel = (data: JobFormData) => {
     if (data.experiencePreset === EXPERIENCE_CUSTOM) return data.customExperienceLevel
     return data.experiencePreset || undefined
@@ -467,6 +485,17 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
     }
 
     if (submitStatus === 'OPEN') {
+      if (SKIP_JOB_FUNDING_FOR_DEMO) {
+        await executeSubmit(data, JobStatus.OPEN)
+        return
+      }
+
+      if (isEditing) {
+        setPaymentData(data)
+        setShowPaymentModal(true)
+        return
+      }
+
       try {
         setLoading(true)
         setError('')
@@ -744,7 +773,9 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
       <div className="flex items-start gap-3 rounded-xl border border-[#e5eeff] bg-[#f4f8ff] px-4 py-3 text-[13px] leading-relaxed text-blue-900">
         <Info className="mt-[3px] h-4 w-4 shrink-0 text-[#4f46e5]" />
         <p>
-          Payment stays protected in escrow until the work is completed and accepted.
+          {SKIP_JOB_FUNDING_FOR_DEMO
+            ? 'Demo mode: post now without topping up. Payment is still handled when you select a mentor.'
+            : 'The job budget is held before publishing. Escrow starts later when you select a mentor.'}
         </p>
       </div>
 
@@ -848,18 +879,30 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
           onClick={() => setSubmitStatus('OPEN')}
           className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[#3b82f6] px-8 py-3.5 text-[15px] font-bold text-white shadow-sm transition-all hover:bg-blue-600 hover:shadow focus:outline-none focus:ring-4 focus:ring-blue-500/20 disabled:cursor-not-allowed disabled:opacity-70 sm:flex-none"
         >
-          {loading && submitStatus === 'OPEN' ? <Loader2 className="h-5 w-5 animate-spin" /> : isEditing ? 'Update and publish' : 'Pay & Post job'}
+          {loading && submitStatus === 'OPEN'
+            ? <Loader2 className="h-5 w-5 animate-spin" />
+            : isEditing
+              ? 'Update and publish'
+              : SKIP_JOB_FUNDING_FOR_DEMO
+                ? 'Post job'
+                : 'Pay & Post job'}
           {(!loading || submitStatus !== 'OPEN') && <Send className="h-[18px] w-[18px] -mr-1" />}
         </button>
       </div>
 
       <TermsModal isOpen={showTermsModal} onClose={() => setShowTermsModal(false)} />
       
-      <MockPaymentModal 
+      <JobFundingModal
         isOpen={showPaymentModal} 
         onClose={() => setShowPaymentModal(false)}
-        amountMxc={budgetType === 'FIXED' ? (paymentData?.budgetAmount || 0) : ((paymentData?.hourlyRate || 0) * (paymentData?.estimatedHours || 0))}
-        onSuccess={async () => {
+        targetFundingMxc={calculateTargetFundingMxc(paymentData)}
+        currentReservedMxc={isEditing ? initialJob?.reservedBudgetMxc ?? 0 : 0}
+        availableBalanceMxc={walletBalance?.available ?? 0}
+        getLatestAvailableBalance={async () => {
+          const refreshed = await refetchWalletBalance()
+          return refreshed.data?.available ?? walletBalance?.available ?? 0
+        }}
+        onConfirm={async () => {
           setShowPaymentModal(false)
           const targetJobId = isEditing ? initialJob?.jobId : createdJobId
           if (targetJobId && paymentData) {
@@ -896,4 +939,16 @@ function isKnownExperienceValue(value?: string) {
 
 function isKnownCommunicationValue(value?: string) {
   return communicationOptions.some((option) => option.value && option.value === value)
+}
+
+function calculateTargetFundingMxc(data: JobFormData | null) {
+  if (!data) {
+    return 0
+  }
+
+  if (data.budgetType === BudgetType.HOURLY) {
+    return (data.hourlyRate || 0) * (data.estimatedHours || 0)
+  }
+
+  return data.budgetAmount || 0
 }

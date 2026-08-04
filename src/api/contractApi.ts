@@ -22,6 +22,19 @@ export const contractApi = {
     return response.data.data
   },
 
+  submitCompletion: async (contractId: string): Promise<ContractResponse> => {
+    const response = await apiClient.post<ApiResponse<ContractResponse>>(`/contracts/${contractId}/submit-completion`)
+    return response.data.data
+  },
+
+  requestCompletionRevision: async (contractId: string, note: string): Promise<ContractResponse> => {
+    const response = await apiClient.post<ApiResponse<ContractResponse>>(
+      `/contracts/${contractId}/completion-revision`,
+      { note }
+    )
+    return response.data.data
+  },
+
   requestCancellation: async (
     contractId: string,
     requesterId: string,

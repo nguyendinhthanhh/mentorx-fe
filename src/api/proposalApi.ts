@@ -41,8 +41,8 @@ export const proposalApi = {
     return response.data.data
   },
 
-  withdraw: async (proposalId: string): Promise<void> => {
-    await apiClient.post(`/proposals/${proposalId}/withdraw`)
+  withdraw: async (proposalId: string, reason: string): Promise<void> => {
+    await apiClient.post(`/proposals/${proposalId}/withdraw`, { reason })
   },
 
   accept: async (proposalId: string): Promise<ProposalResponse> => {

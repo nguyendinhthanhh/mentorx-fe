@@ -319,6 +319,19 @@ export default function MentorContractsPage() {
     }
   )
 
+  const submitCompletionMutation = useMutation(
+    (contractId: string) => contractApi.submitCompletion(contractId),
+    {
+      onSuccess: async () => {
+        toast.success('Đã gửi xác nhận hoàn thành. Escrow chỉ được giải ngân sau khi khách hàng duyệt.')
+        await queryClient.invalidateQueries(['mentor-contracts-dashboard', user?.userId])
+      },
+      onError: (error: any) => {
+        toast.error(error?.response?.data?.message || 'Không thể gửi xác nhận hoàn thành lúc này.')
+      },
+    }
+  )
+
   const isSubmittingDecision = approveCancellationMutation.isLoading || rejectCancellationMutation.isLoading
 
   const handleSubmitDecision = async () => {
@@ -612,6 +625,8 @@ export default function MentorContractsPage() {
               onDecisionNoteChange={setDecisionNote}
               onSubmitDecision={handleSubmitDecision}
               isSubmittingDecision={isSubmittingDecision}
+              onSubmitCompletion={(contractId) => submitCompletionMutation.mutate(contractId)}
+              isSubmittingCompletion={submitCompletionMutation.isLoading}
               onOpenChat={(contract) =>
                 setChatDrawer({
                   recipientId: contract.clientId,
@@ -643,6 +658,8 @@ export default function MentorContractsPage() {
               onDecisionNoteChange={setDecisionNote}
               onSubmitDecision={handleSubmitDecision}
               isSubmittingDecision={isSubmittingDecision}
+              onSubmitCompletion={(contractId) => submitCompletionMutation.mutate(contractId)}
+              isSubmittingCompletion={submitCompletionMutation.isLoading}
               onOpenChat={(contract) =>
                 setChatDrawer({
                   recipientId: contract.clientId,
@@ -696,6 +713,8 @@ function ContractDetailPanel({
   onDecisionNoteChange,
   onSubmitDecision,
   isSubmittingDecision,
+  onSubmitCompletion,
+  isSubmittingCompletion,
   onOpenChat,
   onClose,
 }: {
@@ -709,6 +728,8 @@ function ContractDetailPanel({
   onDecisionNoteChange: (value: string) => void
   onSubmitDecision: () => void
   isSubmittingDecision: boolean
+  onSubmitCompletion: (contractId: string) => void
+  isSubmittingCompletion: boolean
   onOpenChat: (contract: ContractResponse) => void
   onClose?: () => void
 }) {
@@ -881,6 +902,30 @@ function ContractDetailPanel({
               Message client
             </button>
           </div>
+
+          {contract.status === ContractStatus.ACTIVE && !showCancellationActions && !dispute ? (
+            <div className="space-y-3 rounded-2xl border border-sky-200 bg-sky-50 px-4 py-4 text-sm leading-6 text-sky-900">
+              <p>Hoàn thành công việc rồi? Bấm gửi bàn giao để khách hàng kiểm tra. Hành động này chưa giải ngân tiền.</p>
+              {contract.overdue ? <p className="font-bold text-amber-800">Contract đã quá deadline. Bạn vẫn có thể gửi bàn giao, nhưng hệ thống sẽ ghi nhận là trễ hạn.</p> : null}
+              <button
+                type="button"
+                onClick={() => onSubmitCompletion(contract.id)}
+                disabled={isSubmittingCompletion}
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-sky-600 px-4 text-sm font-bold text-white transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+              >
+                <CheckCircle2 className="h-4 w-4" />
+                {isSubmittingCompletion ? 'Đang gửi...' : 'Đã hoàn thành, gửi khách hàng duyệt'}
+              </button>
+            </div>
+          ) : null}
+
+          {contract.status === ContractStatus.UNDER_REVIEW && !dispute ? (
+            <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-4 text-sm leading-6 text-amber-900">
+              <p className="font-bold">Đã gửi bàn giao, đang chờ khách hàng duyệt và giải ngân.</p>
+              {contract.mentorSubmittedLate ? <p className="mt-1 font-semibold">Bàn giao được gửi sau deadline đã cam kết.</p> : null}
+              {contract.clientReviewNote ? <p className="mt-2 text-amber-800">Phản hồi gần nhất: {contract.clientReviewNote}</p> : null}
+            </div>
+          ) : null}
 
           {contract.status === ContractStatus.ACTIVE && !showCancellationActions && !dispute ? (
             <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-500">

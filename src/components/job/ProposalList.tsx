@@ -1,16 +1,18 @@
 import { useState, useEffect } from 'react'
 import { useQuery, useQueryClient } from 'react-query'
 import { toast } from 'react-hot-toast'
+import { jobApi } from '@/api/jobApi'
 import { proposalApi } from '@/api/proposalApi'
 import { QRCodeCanvas } from 'qrcode.react'
 import { paymentApi, type PayOSPaymentResponse } from '@/api/paymentApi'
 import { negotiationApi, type NegotiationResponse } from '@/api/negotiationApi'
 import { chatApi } from '@/api/chatApi'
 import { walletApi } from '@/api/walletApi'
+import { useI18n } from '@/i18n/I18nProvider'
 import { useAuthStore } from '@/store/authStore'
 import { useSearchParams, Link, useNavigate } from 'react-router-dom'
 import { formatCurrency, formatFiatCurrency, formatRelativeTime, formatDeadline, formatDeadlineWithSeconds, formatTimeRemaining } from '@/utils/formatters'
-import { ProposalResponse } from '@/types'
+import { BudgetType, JobResponse, ProposalResponse } from '@/types'
 import { ensureDirectJobChat, getJobChatRoute } from '@/utils/jobWorkspace'
 import {
   Clock3,
@@ -51,6 +53,57 @@ type AcceptCandidate = ProposalResponse & {
 const MXC_TO_VND_RATE = 1000
 const MIN_PAYOS_VND_AMOUNT = 10000
 
+type ProposalTerms = {
+  amount?: number | null
+  deadlineAt?: string | null
+  estimatedDurationDays?: number | null
+}
+
+const resolveProposalTerms = (proposal: ProposalResponse, negotiation?: NegotiationResponse | null): ProposalTerms => ({
+  amount: negotiation?.proposedAmount ?? proposal.proposedAmount,
+  deadlineAt: negotiation?.deadlineAt ?? proposal.deadlineAt,
+  estimatedDurationDays: negotiation?.estimatedDurationDays ?? proposal.estimatedDurationDays,
+})
+
+const formatTermDeadline = (terms: ProposalTerms, fallback = 'N/A', dayLabel = 'days') => {
+  if (terms.deadlineAt) return formatDeadline(terms.deadlineAt)
+  if (terms.estimatedDurationDays) return `${terms.estimatedDurationDays} ${dayLabel}`
+  return fallback
+}
+
+const formatJobBudget = (job?: JobResponse | null) => {
+  if (!job) return null
+  if (job.budgetType === BudgetType.HOURLY && job.hourlyRateMxc != null) {
+    return `${formatCurrency(job.hourlyRateMxc)}/hr`
+  }
+
+  const min = job.budgetMinMxc
+  const max = job.budgetMaxMxc
+  if (min != null && max != null && min !== max) return `${formatCurrency(min)} - ${formatCurrency(max)}`
+  if (max != null) return formatCurrency(max)
+  if (min != null) return formatCurrency(min)
+  return null
+}
+
+const getBudgetDelta = (amount?: number | null, job?: JobResponse | null) => {
+  if (!job || amount == null || job.budgetType !== BudgetType.FIXED) return null
+  const min = job.budgetMinMxc
+  const max = job.budgetMaxMxc
+  if (max != null && amount > max) return { type: 'higher' as const, amount: amount - max }
+  if (min != null && amount < min) return { type: 'lower' as const, amount: min - amount }
+  return { type: 'match' as const, amount: 0 }
+}
+
+const getDeadlineDeltaType = (deadlineAt?: string | null, jobDeadlineAt?: string | null) => {
+  if (!deadlineAt || !jobDeadlineAt) return null
+  const proposalTime = new Date(deadlineAt).getTime()
+  const jobTime = new Date(jobDeadlineAt).getTime()
+  if (!Number.isFinite(proposalTime) || !Number.isFinite(jobTime)) return null
+  const diffMs = proposalTime - jobTime
+  if (Math.abs(diffMs) < 60_000) return 'match'
+  return diffMs > 0 ? 'later' : 'earlier'
+}
+
 export default function ProposalList({ jobId }: Props) {
   const { user } = useAuthStore()
   const queryClient = useQueryClient()
@@ -85,6 +138,10 @@ export default function ProposalList({ jobId }: Props) {
     }
   )
 
+  const { data: job } = useQuery(['job', jobId], () => jobApi.getById(jobId), {
+    staleTime: 15_000,
+  })
+
   const proposals = data?.content || []
   const acceptedProposal = proposals.find((proposal) => proposal.status === 'ACCEPTED')
   const hasAcceptedProposal = Boolean(acceptedProposal)
@@ -99,10 +156,16 @@ export default function ProposalList({ jobId }: Props) {
   )
 
   const availableBalance = userBalance?.available ?? 0
-  const escrowMissingAmount =
-    acceptCandidate && acceptCandidate.acceptedAmount && availableBalance < acceptCandidate.acceptedAmount
-      ? acceptCandidate.acceptedAmount - availableBalance
+  const reservedBudgetAmount = job?.reservedBudgetMxc ?? 0
+  const acceptAdditionalAmount =
+    acceptCandidate && acceptCandidate.acceptedAmount
+      ? Math.max(acceptCandidate.acceptedAmount - reservedBudgetAmount, 0)
       : 0
+  const acceptRefundAmount =
+    acceptCandidate && acceptCandidate.acceptedAmount
+      ? Math.max(reservedBudgetAmount - acceptCandidate.acceptedAmount, 0)
+      : 0
+  const escrowMissingAmount = Math.max(acceptAdditionalAmount - availableBalance, 0)
   const escrowMissingVnd = Math.max(0, Math.ceil(escrowMissingAmount * MXC_TO_VND_RATE))
   const escrowPayosAmountVnd = Math.max(escrowMissingVnd, MIN_PAYOS_VND_AMOUNT)
   const escrowRequiresMinimumTopUp = escrowMissingAmount > 0 && escrowPayosAmountVnd > escrowMissingVnd
@@ -233,7 +296,7 @@ export default function ProposalList({ jobId }: Props) {
       const response = await paymentApi.createPayOSPayment({
         amount: escrowPayosAmountVnd.toString(),
         currency: 'VND',
-        orderInfo: `Escrow top-up for ${acceptCandidate.mentorName} - missing ${formatCurrency(escrowMissingAmount)} MXC`,
+        orderInfo: `Proposal top-up for ${acceptCandidate.mentorName} - missing ${formatCurrency(escrowMissingAmount)} MXC`,
       })
 
       if (response.code === '00' && (response.qrCode || response.checkoutUrl)) {
@@ -253,8 +316,7 @@ export default function ProposalList({ jobId }: Props) {
   const confirmAccept = async () => {
     if (!acceptCandidate) return
 
-    const acceptedAmount = acceptCandidate.acceptedAmount ?? 0
-    if (acceptedAmount > 0 && availableBalance < acceptedAmount) {
+    if (acceptAdditionalAmount > 0 && availableBalance < acceptAdditionalAmount) {
       if (!topUpPayment) {
         await createTopUpQr()
         return
@@ -262,8 +324,8 @@ export default function ProposalList({ jobId }: Props) {
 
       const refreshed = await refetchBalance()
       const latestAvailable = refreshed.data?.available ?? 0
-      if (latestAvailable < acceptedAmount) {
-        toast.error(`Ban con thieu ${formatCurrency(acceptedAmount - latestAvailable)} MXC de chap nhan proposal nay.`)
+      if (latestAvailable < acceptAdditionalAmount) {
+        toast.error(`Ban con thieu ${formatCurrency(acceptAdditionalAmount - latestAvailable)} MXC de chap nhan proposal nay.`)
         return
       }
     }
@@ -409,6 +471,7 @@ export default function ProposalList({ jobId }: Props) {
             <CompactProposalCard
               key={proposal.id}
               proposal={proposal}
+              job={job}
               onClick={() => setSelectedProposalId(proposal.id)}
             />
           ))}
@@ -425,6 +488,7 @@ export default function ProposalList({ jobId }: Props) {
       {selectedProposalId && (
         <ProposalDetailDrawer
           proposal={proposals.find(p => p.id === selectedProposalId)!}
+          job={job}
           onClose={() => setSelectedProposalId(null)}
           actionLoading={actionLoading}
           hasAcceptedProposal={hasAcceptedProposal}
@@ -470,7 +534,28 @@ export default function ProposalList({ jobId }: Props) {
               </div>
             </div>
 
-            {acceptCandidate.acceptedAmount && acceptCandidate.acceptedAmount > 0 && availableBalance < acceptCandidate.acceptedAmount && (
+            {acceptAdditionalAmount > 0 && (
+              <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                <div className="grid gap-3 text-sm sm:grid-cols-2">
+                  <div className="rounded-2xl bg-white p-4">
+                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400">Additional amount</p>
+                    <p className="mt-1 font-bold text-slate-950">{formatCurrency(acceptAdditionalAmount)}</p>
+                  </div>
+                  <div className="rounded-2xl bg-white p-4">
+                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400">Already held</p>
+                    <p className="mt-1 font-bold text-slate-950">{formatCurrency(reservedBudgetAmount)}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {acceptRefundAmount > 0 && (
+              <div className="mt-4 rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm leading-6 text-sky-900">
+                This proposal is below the budget already held. <span className="font-bold">{formatCurrency(acceptRefundAmount)}</span> will return to your wallet after acceptance.
+              </div>
+            )}
+
+            {escrowMissingAmount > 0 && (
               <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4">
                 <div className="flex items-start gap-3">
                   <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-amber-700 shadow-sm">
@@ -622,11 +707,14 @@ function FilterChip({ label, count, color, active, onClick }: FilterChipProps) {
 
 function CompactProposalCard({
   proposal,
+  job,
   onClick
 }: {
   proposal: ProposalResponse
+  job?: JobResponse
   onClick: () => void
 }) {
+  const { t } = useI18n()
   const isAccepted = proposal.status === 'ACCEPTED' || proposal.status === 'OFFER_ACCEPTED'
   const isRejected = proposal.status === 'REJECTED'
   const isNegotiating = proposal.status === 'NEGOTIATING'
@@ -637,7 +725,14 @@ function CompactProposalCard({
     { enabled: isNegotiating || isAccepted, retry: false }
   )
 
-  const currentAmount = latestNegotiation?.proposedAmount ?? proposal.proposedAmount
+  const currentTerms = resolveProposalTerms(proposal, latestNegotiation)
+  const budgetDelta = getBudgetDelta(currentTerms.amount, job)
+  const deadlineDeltaType = getDeadlineDeltaType(currentTerms.deadlineAt, job?.deadlineAt)
+  const hasTermChange =
+    budgetDelta?.type === 'higher' ||
+    budgetDelta?.type === 'lower' ||
+    deadlineDeltaType === 'earlier' ||
+    deadlineDeltaType === 'later'
 
   return (
     <div
@@ -663,18 +758,31 @@ function CompactProposalCard({
           <div className="mt-1.5 flex flex-wrap items-center gap-3 text-xs font-bold text-slate-500">
             <span className="flex items-center gap-1"><Clock3 className="w-3.5 h-3.5"/> {formatRelativeTime(proposal.submittedAt || proposal.createdAt)}</span>
             <span className="hidden sm:inline-block w-1 h-1 rounded-full bg-slate-300"></span>
-            <span className="flex items-center gap-1"><DollarSign className="w-3.5 h-3.5 text-slate-400"/> {currentAmount ? formatCurrency(currentAmount) : 'N/A'}</span>
+            <span className="flex items-center gap-1"><DollarSign className="w-3.5 h-3.5 text-slate-400"/> {currentTerms.amount ? formatCurrency(currentTerms.amount) : 'N/A'}</span>
             <span className="hidden sm:inline-block w-1 h-1 rounded-full bg-slate-300"></span>
             <span className="flex items-center gap-1">
-              <Timer className="w-3.5 h-3.5 text-slate-400"/> 
-              {(latestNegotiation?.estimatedDurationDays || proposal.estimatedDurationDays) 
-                ? `${latestNegotiation?.estimatedDurationDays || proposal.estimatedDurationDays} ngày`
-                : (latestNegotiation?.deadlineAt || proposal.deadlineAt)
-                  ? formatDeadline(latestNegotiation?.deadlineAt || proposal.deadlineAt)
-                  : 'N/A'
-              }
+              <Timer className="w-3.5 h-3.5 text-slate-400"/>
+              {formatTermDeadline(currentTerms, 'N/A', t('jobs.proposalForm.fields.days'))}
             </span>
           </div>
+          {hasTermChange && (
+            <div className="mt-3 flex flex-wrap gap-2 text-[11px] font-bold">
+              {(budgetDelta?.type === 'higher' || budgetDelta?.type === 'lower') && (
+                <span className="rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-amber-800">
+                  {budgetDelta.type === 'higher'
+                    ? t('jobs.proposalList.terms.priceHigher', { amount: formatCurrency(budgetDelta.amount) })
+                    : t('jobs.proposalList.terms.priceLower', { amount: formatCurrency(budgetDelta.amount) })}
+                </span>
+              )}
+              {(deadlineDeltaType === 'earlier' || deadlineDeltaType === 'later') && (
+                <span className="rounded-full border border-sky-200 bg-sky-50 px-2.5 py-1 text-sky-800">
+                  {deadlineDeltaType === 'earlier'
+                    ? t('jobs.proposalList.terms.deadlineEarlier')
+                    : t('jobs.proposalList.terms.deadlineLater')}
+                </span>
+              )}
+            </div>
+          )}
         </div>
         <div className="hidden h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-50 text-slate-400 transition-colors group-hover:bg-emerald-50 group-hover:text-emerald-600 sm:flex">
           <ChevronRight className="w-5 h-5" />
@@ -686,6 +794,7 @@ function CompactProposalCard({
 
 function ProposalDetailDrawer({
   proposal,
+  job,
   onClose,
   actionLoading,
   hasAcceptedProposal,
@@ -696,6 +805,7 @@ function ProposalDetailDrawer({
   onNegotiated
 }: {
   proposal: ProposalResponse
+  job?: JobResponse
   onClose: () => void
   actionLoading: string | null
   hasAcceptedProposal: boolean
@@ -705,6 +815,7 @@ function ProposalDetailDrawer({
   onReject: (proposalId: string) => void
   onNegotiated: () => void | Promise<unknown>
 }) {
+  const { t } = useI18n()
   const isOfferAccepted = proposal.status === 'OFFER_ACCEPTED'
   const isPending = proposal.status === 'SUBMITTED' || proposal.status === 'DRAFT' || proposal.status === 'UNDER_REVIEW' || isOfferAccepted
   const isAccepted = proposal.status === 'ACCEPTED'
@@ -723,6 +834,12 @@ function ProposalDetailDrawer({
     () => negotiationApi.getByProposal(proposal.id),
     { enabled: shouldFetchNegotiation, retry: false }
   )
+
+  const originalTerms = resolveProposalTerms(proposal)
+  const currentTerms = resolveProposalTerms(proposal, latestNegotiation)
+  const jobBudgetLabel = formatJobBudget(job)
+  const budgetDelta = getBudgetDelta(currentTerms.amount, job)
+  const deadlineDeltaType = getDeadlineDeltaType(currentTerms.deadlineAt, job?.deadlineAt)
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end bg-slate-950/45 backdrop-blur-sm">
@@ -753,6 +870,66 @@ function ProposalDetailDrawer({
         
         {/* Thread Timeline */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+          <div className="mb-5 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+            <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm font-bold text-slate-950">{t('jobs.proposalList.terms.title')}</p>
+                <p className="mt-0.5 text-xs font-medium text-slate-500">{t('jobs.proposalList.terms.subtitle')}</p>
+              </div>
+              {(budgetDelta?.type === 'higher' || deadlineDeltaType === 'later') && (
+                <span className="inline-flex w-fit rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-[11px] font-bold text-amber-800">
+                  {t('jobs.proposalList.terms.needsReview')}
+                </span>
+              )}
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="rounded-xl border border-slate-100 bg-slate-50 px-3 py-3">
+                <p className="mb-1 text-[10px] font-bold uppercase tracking-wide text-slate-500">
+                  {t('jobs.proposalList.terms.price')}
+                </p>
+                <p className="text-base font-black text-slate-950">
+                  {currentTerms.amount ? formatCurrency(currentTerms.amount) : 'N/A'}
+                </p>
+                {jobBudgetLabel && (
+                  <p className="mt-1 text-xs font-medium text-slate-500">
+                    {t('jobs.proposalList.terms.jobBudget')}: {jobBudgetLabel}
+                  </p>
+                )}
+                {(budgetDelta?.type === 'higher' || budgetDelta?.type === 'lower') && (
+                  <p className={`mt-2 text-xs font-bold ${budgetDelta.type === 'higher' ? 'text-amber-700' : 'text-emerald-700'}`}>
+                    {budgetDelta.type === 'higher'
+                      ? t('jobs.proposalList.terms.priceHigher', { amount: formatCurrency(budgetDelta.amount) })
+                      : t('jobs.proposalList.terms.priceLower', { amount: formatCurrency(budgetDelta.amount) })}
+                  </p>
+                )}
+              </div>
+
+              <div className="rounded-xl border border-slate-100 bg-slate-50 px-3 py-3">
+                <p className="mb-1 text-[10px] font-bold uppercase tracking-wide text-slate-500">
+                  {t('jobs.proposalList.terms.deadline')}
+                </p>
+                <p className="text-base font-black text-slate-950">
+                  {formatTermDeadline(currentTerms, 'N/A', t('jobs.proposalForm.fields.days'))}
+                </p>
+                {job?.deadlineAt && (
+                  <p className="mt-1 text-xs font-medium text-slate-500">
+                    {t('jobs.proposalList.terms.jobDeadline')}: {formatDeadline(job.deadlineAt)}
+                  </p>
+                )}
+                {(deadlineDeltaType === 'earlier' || deadlineDeltaType === 'later' || deadlineDeltaType === 'match') && (
+                  <p className={`mt-2 text-xs font-bold ${deadlineDeltaType === 'later' ? 'text-amber-700' : 'text-emerald-700'}`}>
+                    {deadlineDeltaType === 'earlier'
+                      ? t('jobs.proposalList.terms.deadlineEarlier')
+                      : deadlineDeltaType === 'later'
+                        ? t('jobs.proposalList.terms.deadlineLater')
+                        : t('jobs.proposalList.terms.deadlineMatch')}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+
           {/* First Message (Original Proposal) */}
           <div className="flex gap-3 sm:gap-4">
              <div className="flex-shrink-0 flex flex-col items-center">
@@ -781,11 +958,11 @@ function ProposalDetailDrawer({
                  <div className="flex flex-wrap gap-2 text-xs font-bold">
                    <div className="bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100 flex items-center gap-1.5">
                      <DollarSign className="w-3.5 h-3.5 text-slate-400" />
-                     {proposal.proposedAmount ? formatCurrency(proposal.proposedAmount) : (proposal.proposedHourlyRate ? `${formatCurrency(proposal.proposedHourlyRate)}/hr` : 'N/A')}
+                     {originalTerms.amount ? formatCurrency(originalTerms.amount) : (proposal.proposedHourlyRate ? `${formatCurrency(proposal.proposedHourlyRate)}/hr` : 'N/A')}
                    </div>
                    <div className="bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100 flex items-center gap-1.5">
                      <Timer className="w-3.5 h-3.5 text-slate-400" />
-                     {proposal.estimatedDurationDays ? `${proposal.estimatedDurationDays} ngày` : 'N/A'}
+                     {formatTermDeadline(originalTerms, 'N/A', t('jobs.proposalForm.fields.days'))}
                    </div>
                  </div>
                </div>
@@ -819,9 +996,9 @@ function ProposalDetailDrawer({
                        {(neg.deadlineAt || neg.estimatedDurationDays) && (
                          <div className="bg-white px-2.5 py-1 rounded-md border border-slate-100 text-slate-700">
                            Thời gian mới: <span className="font-bold text-amber-700">
-                             {neg.deadlineAt 
-                              ? `${formatDeadlineWithSeconds(neg.deadlineAt)} (${formatTimeRemaining(neg.deadlineAt)})`
-                               : `${neg.estimatedDurationDays} ngày`}
+                             {neg.deadlineAt
+                               ? `${formatDeadlineWithSeconds(neg.deadlineAt)} (${formatTimeRemaining(neg.deadlineAt)})`
+                               : formatTermDeadline(neg, 'N/A', t('jobs.proposalForm.fields.days'))}
                            </span>
                          </div>
                        )}
@@ -866,11 +1043,7 @@ function ProposalDetailDrawer({
                            {formatCurrency(latestNegotiation?.proposedAmount || proposal.proposedAmount || 0)}
                          </span>
                          <span className="bg-white px-3 py-1 rounded-lg text-emerald-900 border border-emerald-100">
-                           {(latestNegotiation?.estimatedDurationDays || proposal.estimatedDurationDays)
-                             ? `${latestNegotiation?.estimatedDurationDays || proposal.estimatedDurationDays} ngày`
-                             : latestNegotiation?.deadlineAt 
-                               ? new Date(latestNegotiation.deadlineAt).toLocaleDateString('vi-VN') 
-                               : 'N/A'}
+                           {formatTermDeadline(currentTerms, 'N/A', t('jobs.proposalForm.fields.days'))}
                          </span>
                        </div>
                      </div>
@@ -989,15 +1162,11 @@ function ProposalActions({
     latestNegotiation?.status === 'PENDING' &&
     latestNegotiation?.senderId === user?.userId
   const negotiateAmountValue = Number(negotiateAmount)
-  const negotiateHasValidAmount = Number.isFinite(negotiateAmountValue) && negotiateAmountValue > 0
-  const negotiateMissingAmount =
-    negotiateHasValidAmount && negotiateAmountValue > availableBalance
-      ? negotiateAmountValue - availableBalance
-      : 0
-  const negotiateMissingVnd = Math.max(0, Math.ceil(negotiateMissingAmount * MXC_TO_VND_RATE))
-  const negotiatePayosAmountVnd = Math.max(negotiateMissingVnd, MIN_PAYOS_VND_AMOUNT)
-  const negotiateRequiresTopUp = negotiateMissingAmount > 0
-  const negotiateRequiresMinimumTopUp = negotiateRequiresTopUp && negotiatePayosAmountVnd > negotiateMissingVnd
+  const negotiateMissingAmount = 0
+  const negotiateMissingVnd = 0
+  const negotiatePayosAmountVnd = MIN_PAYOS_VND_AMOUNT
+  const negotiateRequiresTopUp = false
+  const negotiateRequiresMinimumTopUp = false
 
   const openNegotiateForm = (options?: { preserveClientMessage?: boolean }) => {
     const preserveClientMessage = options?.preserveClientMessage ?? false

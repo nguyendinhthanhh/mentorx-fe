@@ -206,6 +206,7 @@ function getIcon(type: NotificationType) {
       return <XCircle className="h-4 w-4 text-rose-500" />
     case NotificationType.WARNING:
       return <AlertTriangle className="h-4 w-4 text-amber-500" />
+    case NotificationType.JOB_APPLICATION_RECEIVED:
     case NotificationType.JOB_POSTED:
     case NotificationType.PROPOSAL_SUBMITTED:
       return <Briefcase className="h-4 w-4 text-blue-500" />

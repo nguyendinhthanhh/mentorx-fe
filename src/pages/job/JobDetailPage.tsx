@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { useRecordView } from '@/hooks/useAnalytics'
@@ -49,6 +49,7 @@ import { jobApi } from '@/api/jobApi'
 import { proposalApi } from '@/api/proposalApi'
 import { negotiationApi } from '@/api/negotiationApi'
 import { useAuthStore } from '@/store/authStore'
+import { useI18n } from '@/i18n/I18nProvider'
 import { BudgetType, JobResponse, JobStatus, JobType } from '@/types'
 import { isMentorApproved } from '@/utils/roleRedirect'
 import { formatCurrency, formatDate, formatDateTime, formatRelativeTime } from '@/utils/formatters'
@@ -83,8 +84,11 @@ const STATUS_META: Record<string, { label: string; className: string }> = {
   [JobStatus.EXPIRED]: { label: 'Expired', className: 'border-[#E8E1D8] bg-[#F7F3EC] text-[#64748B]' },
 }
 
+const MAX_PROPOSAL_SUBMISSIONS_PER_JOB = 5
+
 export default function JobDetailPage() {
   const { user, isAuthenticated } = useAuthStore()
+  const { t } = useI18n()
   const queryClient = useQueryClient()
   const { jobId } = useParams<{ jobId: string }>()
   useRecordView('job', jobId)
@@ -95,6 +99,8 @@ export default function JobDetailPage() {
   const [showAiExplain, setShowAiExplain] = useState(false)
   const [showCompleteContractConfirm, setShowCompleteContractConfirm] = useState(false)
   const [withdrawing, setWithdrawing] = useState(false)
+  const [withdrawReason, setWithdrawReason] = useState('')
+  const [clockNow, setClockNow] = useState(() => Date.now())
   const [saved, setSaved] = useState(() => Boolean(jobId && localStorage.getItem(`saved-job-${jobId}`)))
   const [copied, setCopied] = useState(false)
 
@@ -136,6 +142,12 @@ export default function JobDetailPage() {
     () => jobApi.getOpenJobs({ categoryId: job?.categoryId, size: 5 }),
     { enabled: !!job?.categoryId }
   )
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setClockNow(Date.now()), 30_000)
+    return () => window.clearInterval(timer)
+  }, [])
+
   const relatedJobs = (relatedJobsPage?.content || []).filter(j => j.jobId !== jobId).slice(0, 4)
 
   const derived = useMemo(() => {
@@ -207,22 +219,34 @@ export default function JobDetailPage() {
     contractPage?.content.find((contract) => contract.proposalId) ||
     contractPage?.content[0] ||
     null
-  const canApply = job.status === JobStatus.OPEN && !isOwner && isApprovedMentor
+  const isDeadlinePassed = Boolean(job.deadlineAt && new Date(job.deadlineAt).getTime() <= clockNow)
+  const canApply = job.status === JobStatus.OPEN && !isDeadlinePassed && !isOwner && isApprovedMentor
   const shouldPromptMentorAccess = isAuthenticated && !isOwner && !isApprovedMentor
+  const hasWithdrawnProposal = existingProposal?.status === 'WITHDRAWN'
+  const hasSubmissionAttemptsLeft = (existingProposal?.submissionCount ?? 0) < MAX_PROPOSAL_SUBMISSIONS_PER_JOB
+  const visibleProposal = existingProposal && (!hasWithdrawnProposal || !hasSubmissionAttemptsLeft) ? existingProposal : null
   const clientName = getClientName(job)
   const proposalCount = getProposalCount(job)
   const canCloseJob = isOwner && job.status === JobStatus.OPEN
-  const canReopenJob = isOwner && (job.status === JobStatus.CLOSED || job.status === JobStatus.CANCELLED)
+  const canReopenJob = isOwner &&
+    (job.status === JobStatus.CLOSED || job.status === JobStatus.CANCELLED) &&
+    !isDeadlinePassed
+  const needsDeadlineExtension = isOwner && (
+    job.status === JobStatus.EXPIRED ||
+    (job.status === JobStatus.CLOSED && isDeadlinePassed)
+  )
   const canCompleteContract = Boolean(
     isOwner &&
     jobContract &&
-    jobContract.status !== 'COMPLETED' &&
+    jobContract.status === 'UNDER_REVIEW' &&
     job.status === JobStatus.IN_PROGRESS
   )
-  const canEditSubmittedProposal = Boolean(
+  const canEditExistingProposal = Boolean(
     existingProposal &&
+    hasSubmissionAttemptsLeft &&
     (existingProposal.status === 'DRAFT' || existingProposal.status === 'WITHDRAWN')
   )
+  const canOpenProposalFlow = canApply && (!existingProposal || (hasWithdrawnProposal && hasSubmissionAttemptsLeft))
 
   const toggleSaved = () => {
     if (!jobId) return
@@ -243,11 +267,17 @@ export default function JobDetailPage() {
 
   const handleWithdraw = async () => {
     if (!existingProposal) return
+    const normalizedReason = withdrawReason.trim()
+    if (normalizedReason.length < 10) {
+      alert(t('jobs.proposalForm.withdraw.reasonMin'))
+      return
+    }
     
     try {
       setWithdrawing(true)
-      await proposalApi.withdraw(existingProposal.id)
+      await proposalApi.withdraw(existingProposal.id, normalizedReason)
       setShowWithdrawConfirm(false)
+      setWithdrawReason('')
       toast.success('Đã thu hồi proposal.')
       await Promise.all([
         queryClient.invalidateQueries(['proposal', jobId, user?.userId]),
@@ -314,7 +344,7 @@ export default function JobDetailPage() {
               </h1>
               
               <div className="flex shrink-0 items-center gap-2 self-start">
-                {!isOwner && canApply && !existingProposal && (
+                {!isOwner && canOpenProposalFlow && (
                   <button
                     onClick={toggleSaved}
                     className={`flex h-9 w-9 sm:w-auto sm:px-4 shrink-0 items-center justify-center gap-2 rounded-xl border text-sm font-bold transition-all ${
@@ -368,11 +398,14 @@ export default function JobDetailPage() {
             </div>
 
             {/* Actions Bar */}
-            {(!isOwner && canApply && !existingProposal) || shouldPromptMentorAccess ? (
+            {(!isOwner && canOpenProposalFlow) || shouldPromptMentorAccess ? (
               <div className="mt-6 flex flex-wrap items-center gap-3 border-t border-slate-100 pt-5 dark:border-slate-800">
-                {!isOwner && canApply && !existingProposal ? (
+                {!isOwner && canOpenProposalFlow ? (
                   <button
-                    onClick={() => setShowApplyModal(true)}
+                    onClick={() => {
+                      setForceEditMode(hasWithdrawnProposal)
+                      setShowApplyModal(true)
+                    }}
                     className="flex h-10 w-full sm:w-auto min-w-[200px] items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 text-sm font-bold text-white shadow-sm transition-all hover:bg-emerald-700 active:bg-emerald-800"
                   >
                     Ứng tuyển dự án này
@@ -540,12 +573,17 @@ export default function JobDetailPage() {
           <div className="flex flex-col h-max overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900 divide-y divide-slate-100 dark:divide-slate-800 m-0 p-0 lg:sticky lg:top-24">
             
             {/* Management Actions Card */}
-            {(isOwner || existingProposal) && (
+            {(isOwner || visibleProposal) && (
               <div className="p-6 sm:p-8">
                 <h3 className="mb-4 text-base font-bold tracking-tight text-slate-900 dark:text-white">Quản lý công việc</h3>
                 <div className="space-y-3">
                   {isOwner ? (
                     <>
+                      {needsDeadlineExtension && (
+                        <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-[13px] leading-relaxed text-amber-800">
+                          Yêu cầu đã hết hạn. Bạn không cần đăng lại; hãy gia hạn hạn chót trong phần chỉnh sửa để mở lại và tiếp tục nhận ứng tuyển.
+                        </div>
+                      )}
                       <div className="rounded-xl border border-emerald-100 bg-emerald-50 p-4 text-[13px] leading-relaxed text-emerald-800">
                         Bạn đã đăng công việc này. Hãy xem xét các ứng viên và chọn Mentor phù hợp nhất.
                       </div>
@@ -566,6 +604,18 @@ export default function JobDetailPage() {
                           Mở Chat
                         </Link>
                       )}
+                      {jobContract?.status === 'UNDER_REVIEW' && (
+                        <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-[13px] leading-relaxed text-amber-900">
+                          Mentor đã đánh dấu công việc hoàn thành. Hãy kiểm tra sản phẩm trước khi giải ngân; nếu chưa đạt, hãy yêu cầu chỉnh sửa. Escrow vẫn được khóa trong thời gian chờ bạn xử lý.
+                          {jobContract.mentorSubmittedLate && <p className="mt-2 font-bold">Bàn giao này được gửi sau deadline đã cam kết.</p>}
+                          <Link
+                            to={`/my-jobs/${job.jobId}`}
+                            className="mt-3 inline-flex font-black text-amber-800 underline underline-offset-2 hover:text-amber-950"
+                          >
+                            Mở màn hình duyệt, yêu cầu chỉnh sửa hoặc dispute
+                          </Link>
+                        </div>
+                      )}
                       {canCompleteContract && jobContract && (
                         <button
                           type="button"
@@ -582,7 +632,7 @@ export default function JobDetailPage() {
                         className="flex h-11 w-full items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 text-sm font-black text-gray-800 shadow-sm hover:bg-slate-50 transition"
                       >
                         <Edit className="h-4 w-4" />
-                        Chỉnh sửa yêu cầu
+                        {needsDeadlineExtension ? 'Gia hạn & mở lại' : 'Chỉnh sửa yêu cầu'}
                       </Link>
                       {canCloseJob && (
                         <button
@@ -607,32 +657,32 @@ export default function JobDetailPage() {
                         </button>
                       )}
                     </>
-                  ) : existingProposal ? (
+                  ) : visibleProposal ? (
                     <>
-                      <div className={`mb-4 rounded-xl border p-4 ${existingProposal.status === 'ACCEPTED' ? 'border-emerald-200 bg-emerald-50' : 'border-emerald-100 bg-emerald-50'}`}>
+                      <div className={`mb-4 rounded-xl border p-4 ${visibleProposal.status === 'ACCEPTED' ? 'border-emerald-200 bg-emerald-50' : 'border-emerald-100 bg-emerald-50'}`}>
                         <div className="flex items-center justify-between mb-3">
-                          <div className={`flex items-center gap-2 text-sm font-bold ${existingProposal.status === 'ACCEPTED' ? 'text-emerald-700' : 'text-emerald-700'}`}>
+                          <div className={`flex items-center gap-2 text-sm font-bold ${visibleProposal.status === 'ACCEPTED' ? 'text-emerald-700' : 'text-emerald-700'}`}>
                             <CheckCircle2 className="w-4 h-4" /> Đã gửi proposal
                           </div>
-                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${getProposalStatusColor(existingProposal.status)}`}>
-                            {getProposalStatusLabel(existingProposal.status)}
+                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${getProposalStatusColor(visibleProposal.status)}`}>
+                            {getProposalStatusLabel(visibleProposal.status)}
                           </span>
                         </div>
-                        <div className="text-xs text-slate-500 mb-4">{formatRelativeTime(existingProposal.createdAt)}</div>
+                        <div className="text-xs text-slate-500 mb-4">{formatRelativeTime(visibleProposal.createdAt)}</div>
                         
                         <div className="grid gap-3 min-[420px]:grid-cols-2">
                           <div className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
                             <p className="text-gray-600 font-bold text-[11px] uppercase tracking-wider mb-1">Giá đề xuất</p>
-                            <p className="text-gray-900 font-black">{formatCurrency(existingProposal.proposedAmount || 0)}</p>
+                            <p className="text-gray-900 font-black">{formatCurrency(visibleProposal.proposedAmount || 0)}</p>
                           </div>
                           <div className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
                             <p className="text-gray-600 font-bold text-[11px] uppercase tracking-wider mb-1">Thời gian</p>
-                            <p className="text-gray-900 font-black">{existingProposal.estimatedDurationDays} ngày</p>
+                            <p className="text-gray-900 font-black">{visibleProposal.estimatedDurationDays} ngày</p>
                           </div>
                         </div>
                       </div>
 
-                      {existingProposal.status === 'ACCEPTED' && (
+                      {visibleProposal.status === 'ACCEPTED' && (
                         <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 mb-4 text-xs font-medium text-amber-800 flex items-start gap-2">
                           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-amber-600" />
                           <span>Không thể chỉnh sửa proposal đã được chấp nhận</span>
@@ -670,16 +720,16 @@ export default function JobDetailPage() {
                         </Link>
                       )}
 
-                      {canEditSubmittedProposal && (
+                      {canEditExistingProposal && (
                         <Link
-                          to={`/jobs/${job.jobId}/proposals/${existingProposal.id}/edit`}
+                          to={`/jobs/${job.jobId}/proposals/${visibleProposal.id}/edit`}
                           className="flex h-11 w-full items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 text-sm font-bold text-gray-800 shadow-sm hover:bg-slate-50 transition mt-3"
                         >
                           <Edit className="h-4 w-4" />
                           Chỉnh sửa
                         </Link>
                       )}
-                      {canEditSubmittedProposal && (
+                      {canEditExistingProposal && (
                         <button
                           onClick={() => setShowWithdrawConfirm(true)}
                           className="flex h-11 w-full items-center justify-center gap-2 rounded-xl text-rose-600 text-[14px] font-bold hover:bg-rose-50 transition mt-2"
@@ -788,10 +838,19 @@ export default function JobDetailPage() {
       {/* Modals & Dialogs */}
       {showApplyModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
-          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setShowApplyModal(false)} />
+          <div
+            className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+            onClick={() => {
+              setShowApplyModal(false)
+              setForceEditMode(false)
+            }}
+          />
           <div className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl sm:p-10">
             <button
-              onClick={() => setShowApplyModal(false)}
+              onClick={() => {
+                setShowApplyModal(false)
+                setForceEditMode(false)
+              }}
               className="absolute right-6 top-6 flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-gray-600 transition hover:bg-slate-200 hover:text-slate-900 z-10"
             >
               <X className="h-4 w-4" />
@@ -803,12 +862,16 @@ export default function JobDetailPage() {
               budgetType={job.budgetType}
               clientBudget={job.budgetType === 'HOURLY' ? job.hourlyRateMxc : job.budgetMaxMxc}
               clientDeadline={job.deadlineAt}
-              forceEditMode={false}
+              forceEditMode={forceEditMode}
               onSuccess={() => {
                 setShowApplyModal(false)
+                setForceEditMode(false)
                 queryClient.invalidateQueries(['proposal', jobId, user?.userId])
               }}
-              onCancel={() => setShowApplyModal(false)}
+              onCancel={() => {
+                setShowApplyModal(false)
+                setForceEditMode(false)
+              }}
             />
           </div>
         </div>
@@ -850,7 +913,14 @@ export default function JobDetailPage() {
 
       {showWithdrawConfirm && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
-          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => !withdrawing && setShowWithdrawConfirm(false)} />
+          <div
+            className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+            onClick={() => {
+              if (withdrawing) return
+              setShowWithdrawConfirm(false)
+              setWithdrawReason('')
+            }}
+          />
           <div className="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-rose-50 text-rose-600 mb-5 shadow-inner">
               <AlertCircle className="h-6 w-6" />
@@ -859,9 +929,22 @@ export default function JobDetailPage() {
             <p className="text-center text-sm text-gray-600 mb-6 leading-relaxed">
               Bạn có chắc chắn muốn thu hồi proposal này không? Hành động này không thể hoàn tác và client sẽ không thể thấy proposal của bạn nữa.
             </p>
+            <label className="mb-2 block text-sm font-bold text-slate-700">
+              {t('jobs.proposalForm.withdraw.reasonLabel')}
+            </label>
+            <textarea
+              value={withdrawReason}
+              onChange={(event) => setWithdrawReason(event.target.value)}
+              rows={3}
+              className="mb-4 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none transition focus:border-rose-400 focus:ring-4 focus:ring-rose-100"
+              placeholder={t('jobs.proposalForm.withdraw.reasonPlaceholder')}
+            />
             <div className="flex gap-3">
               <button
-                onClick={() => setShowWithdrawConfirm(false)}
+                onClick={() => {
+                  setShowWithdrawConfirm(false)
+                  setWithdrawReason('')
+                }}
                 disabled={withdrawing}
                 className="flex-1 rounded-xl bg-slate-100 px-4 py-3.5 text-[15px] font-bold text-gray-800 hover:bg-slate-200 transition"
               >
@@ -869,7 +952,7 @@ export default function JobDetailPage() {
               </button>
               <button
                 onClick={handleWithdraw}
-                disabled={withdrawing}
+                disabled={withdrawing || withdrawReason.trim().length < 10}
                 className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-rose-600 px-4 py-3.5 text-[15px] font-bold text-white hover:bg-rose-700 transition"
               >
                 {withdrawing ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Thu hồi'}
