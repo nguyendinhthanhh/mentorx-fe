@@ -529,6 +529,8 @@ export interface JobResponse {
   budgetMaxMxc?: number;
   hourlyRateMxc?: number;
   estimatedHours?: number;
+  reservedBudgetMxc?: number;
+  requiredBudgetMxc?: number;
   startDate?: string;
   deadlineAt?: string;
   status: JobStatus;
@@ -617,6 +619,11 @@ export interface ContractResponse {
   mentorSignedAt?: string;
   activatedAt?: string;
   completedAt?: string;
+  mentorSubmittedAt?: string;
+  mentorSubmittedLate?: boolean;
+  clientReviewedAt?: string;
+  clientReviewNote?: string;
+  overdue?: boolean;
   cancelledAt?: string;
   cancellationRequestStatus?: 'PENDING' | 'REJECTED' | 'APPROVED';
   cancellationRequestedByUserId?: string;
@@ -1128,6 +1135,9 @@ export interface ProposalResponse {
   questions?: string;
   terms?: string;
   submittedAt: string;
+  submissionCount?: number;
+  withdrawnAt?: string;
+  withdrawalReason?: string;
   isFeatured: boolean;
   viewCount: number;
   rejectionReason?: string;

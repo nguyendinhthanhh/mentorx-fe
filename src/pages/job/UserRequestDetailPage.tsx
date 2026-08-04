@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { useEffect, useMemo, useState } from 'react'
+import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { toast } from 'react-hot-toast'
 import {
@@ -51,9 +51,19 @@ export default function UserRequestDetailPageNew() {
   const { user } = useAuthStore()
   const queryClient = useQueryClient()
   const { jobId = '' } = useParams<{ jobId: string }>()
+  const [searchParams] = useSearchParams()
   const [activeTab, setActiveTab] = useState<DetailTab>('overview')
   const [chatDrawer, setChatDrawer] = useState<ChatDrawerState>(null)
   const [showCompleteConfirm, setShowCompleteConfirm] = useState(false)
+  const [showRevisionForm, setShowRevisionForm] = useState(false)
+  const [revisionNote, setRevisionNote] = useState('')
+  const highlightedProposalId = searchParams.get('proposalId')
+
+  useEffect(() => {
+    if (highlightedProposalId) {
+      setActiveTab('proposals')
+    }
+  }, [highlightedProposalId])
 
   const { data: job, isLoading: jobLoading } = useQuery(['user-request', jobId], () => jobApi.getById(jobId), {
     enabled: Boolean(jobId),
@@ -86,7 +96,7 @@ export default function UserRequestDetailPageNew() {
 
   const proposals = proposalsPage?.content || []
   const contracts = contractsPage?.content || []
-  const contract = contracts.find((item) => item.status === 'ACTIVE') || contracts.find((item) => item.status === 'IN_DISPUTE')
+  const contract = contracts.find((item) => ['ACTIVE', 'UNDER_REVIEW', 'IN_DISPUTE', 'COMPLETED'].includes(item.status)) || contracts[0]
   const isOwner = job?.clientId === user?.userId
 
   const categoryName = useMemo(() => {
@@ -116,6 +126,46 @@ export default function UserRequestDetailPageNew() {
       toast.error(error.response?.data?.message || 'Không thể hoàn tất hợp đồng lúc này.')
     },
   })
+
+  const revisionMutation = useMutation(
+    ({ contractId, note }: { contractId: string; note: string }) => contractApi.requestCompletionRevision(contractId, note),
+    {
+      onSuccess: async () => {
+        toast.success('Đã gửi yêu cầu chỉnh sửa cho mentor. Escrow vẫn được giữ an toàn.')
+        setShowRevisionForm(false)
+        setRevisionNote('')
+        await queryClient.invalidateQueries(['user-request', jobId])
+        await queryClient.invalidateQueries(['user-request-contracts', jobId])
+      },
+      onError: (error: any) => {
+        toast.error(error.response?.data?.message || 'Không thể gửi yêu cầu chỉnh sửa lúc này.')
+      },
+    }
+  )
+
+  const disputeMutation = useMutation(
+    (description: string) => disputeApi.create({
+      initiatorId: user!.userId,
+      respondentId: contract!.mentorId,
+      contractId: contract!.id,
+      jobId,
+      title: 'Completion review dispute',
+      description,
+      disputeCategory: 'QUALITY',
+      disputedAmountMxc: contract!.amountInEscrow,
+      refundRequestedMxc: contract!.amountInEscrow,
+    }),
+    {
+      onSuccess: async () => {
+        toast.success('Đã mở dispute. Escrow được khóa để admin xử lý.')
+        await queryClient.invalidateQueries(['user-request', jobId])
+        await queryClient.invalidateQueries(['user-request-contracts', jobId])
+      },
+      onError: (error: any) => {
+        toast.error(error.response?.data?.message || 'Không thể mở dispute lúc này.')
+      },
+    }
+  )
 
   const getStatusBadge = (status?: JobStatus) => {
     const statusMap: Record<JobStatus, { label: string; color: string }> = {
@@ -161,7 +211,8 @@ export default function UserRequestDetailPageNew() {
   }
 
   const statusBadge = getStatusBadge(job.status)
-  const canCompleteContract = Boolean(contract && contract.status === 'ACTIVE' && job.status === JobStatus.IN_PROGRESS)
+  const canCompleteContract = Boolean(contract && contract.status === 'UNDER_REVIEW' && job.status === JobStatus.IN_PROGRESS)
+  const canOpenContractDispute = Boolean(contract && ['ACTIVE', 'UNDER_REVIEW'].includes(contract.status))
 
   return (
     <div className="min-h-[100dvh] bg-[#f6f7fb]">
@@ -400,6 +451,21 @@ export default function UserRequestDetailPageNew() {
                           <ShieldAlert className="h-8 w-8 text-emerald-600" />
                         </div>
                       </div>
+                      {contract.status === 'ACTIVE' && contract.overdue && (
+                        <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm leading-6 text-rose-900">
+                          <p className="font-bold">Contract đã quá deadline nhưng mentor chưa gửi bàn giao.</p>
+                          <p className="mt-1">Escrow chưa được giải ngân. Bạn có thể trao đổi thêm hoặc mở dispute để admin xử lý.</p>
+                        </div>
+                      )}
+                      {contract.status === 'UNDER_REVIEW' && (
+                        <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-900">
+                          <p className="font-bold">Mentor đã đánh dấu hoàn thành. Bạn đang là người duyệt cuối.</p>
+                          <p className="mt-1">Chỉ bấm giải ngân sau khi đã kiểm tra đủ sản phẩm. Nếu chưa đạt, yêu cầu chỉnh sửa; tiền vẫn nằm trong escrow.</p>
+                          {contract.mentorSubmittedLate && (
+                            <p className="mt-2 font-semibold text-amber-800">Lưu ý: mentor đã gửi bàn giao sau deadline đã cam kết.</p>
+                          )}
+                        </div>
+                      )}
                       {canCompleteContract && (
                         <button
                           onClick={() => setShowCompleteConfirm(true)}
@@ -407,6 +473,58 @@ export default function UserRequestDetailPageNew() {
                         >
                           <CheckCircle2 className="inline h-5 w-5 mr-2" />
                           Xác nhận hoàn thành & giải ngân
+                        </button>
+                      )}
+                      {canCompleteContract && !showRevisionForm && (
+                        <button
+                          type="button"
+                          onClick={() => setShowRevisionForm(true)}
+                          className="w-full rounded-xl border border-amber-200 bg-white py-3 font-bold text-amber-700 transition hover:bg-amber-50"
+                        >
+                          Yêu cầu mentor chỉnh sửa
+                        </button>
+                      )}
+                      {canCompleteContract && showRevisionForm && (
+                        <div className="space-y-3 rounded-xl border border-amber-200 bg-amber-50 p-4">
+                          <label className="block text-sm font-bold text-slate-900" htmlFor="completion-revision-note">Nội dung cần chỉnh sửa</label>
+                          <textarea
+                            id="completion-revision-note"
+                            value={revisionNote}
+                            onChange={(event) => setRevisionNote(event.target.value)}
+                            rows={4}
+                            maxLength={1000}
+                            className="w-full rounded-xl border border-amber-200 bg-white p-3 text-sm outline-none focus:border-amber-500"
+                            placeholder="Nêu rõ phần còn thiếu hoặc chưa đạt..."
+                          />
+                          <div className="flex gap-2">
+                            <button type="button" onClick={() => setShowRevisionForm(false)} className="flex-1 rounded-xl border border-slate-200 bg-white py-2.5 text-sm font-bold text-slate-700">Hủy</button>
+                            <button
+                              type="button"
+                              onClick={() => revisionMutation.mutate({ contractId: contract.id, note: revisionNote.trim() })}
+                              disabled={revisionMutation.isLoading || revisionNote.trim().length < 5}
+                              className="flex-1 rounded-xl bg-amber-600 py-2.5 text-sm font-bold text-white disabled:cursor-not-allowed disabled:bg-slate-300"
+                            >
+                              {revisionMutation.isLoading ? 'Đang gửi...' : 'Gửi yêu cầu'}
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                      {canOpenContractDispute && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const description = window.prompt('Mô tả vấn đề cần admin xử lý:')?.trim()
+                            if (description && description.length >= 10) {
+                              disputeMutation.mutate(description)
+                            } else if (description !== undefined) {
+                              toast.error('Mô tả dispute cần ít nhất 10 ký tự.')
+                            }
+                          }}
+                          disabled={disputeMutation.isLoading}
+                          className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-rose-200 bg-white py-3 font-bold text-rose-700 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          <AlertTriangle className="h-4 w-4" />
+                          {disputeMutation.isLoading ? 'Đang mở dispute...' : 'Mở dispute với admin'}
                         </button>
                       )}
                     </div>
