@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -7,6 +7,7 @@ import {
   ArrowRight,
   Briefcase,
   CheckCircle2,
+  ChevronDown,
   Clock3,
   FileText,
   Globe,
@@ -15,6 +16,7 @@ import {
   GraduationCap,
   ShieldCheck,
   Sparkles,
+  Tag,
   UploadCloud,
   User,
   Video,
@@ -45,16 +47,103 @@ const DOMAIN_OPTIONS = [
   { value: 'Other', label: 'Khác' },
 ] as const
 
-const LOCATION_OPTIONS = [
-  { value: 'Ho Chi Minh City, GMT+7', label: 'Hồ Chí Minh (GMT+7)' },
-  { value: 'Ha Noi, GMT+7', label: 'Hà Nội (GMT+7)' },
-  { value: 'Da Nang, GMT+7', label: 'Đà Nẵng (GMT+7)' },
-  { value: 'Bangkok, GMT+7', label: 'Băng Cốc (GMT+7)' },
-  { value: 'Singapore, GMT+8', label: 'Singapore (GMT+8)' },
-  { value: 'Tokyo, GMT+9', label: 'Tokyo (GMT+9)' },
-  { value: 'Remote / Flexible', label: 'Làm việc từ xa / Linh hoạt' },
-  { value: 'Other', label: 'Khác' },
-] as const
+// A small fallback list used only if the browser doesn't support Intl.supportedValuesOf
+// (e.g. very old Safari). Modern browsers use the full IANA tz database instead (see below).
+const FALLBACK_TIMEZONE_IDS = [
+  'Asia/Ho_Chi_Minh',
+  'Asia/Bangkok',
+  'Asia/Singapore',
+  'Asia/Tokyo',
+  'Asia/Seoul',
+  'Asia/Kolkata',
+  'Asia/Dubai',
+  'Europe/London',
+  'Europe/Paris',
+  'America/New_York',
+  'America/Los_Angeles',
+  'Australia/Sydney',
+  'UTC',
+]
+
+function getTimezoneOffsetLabel(timeZone: string): string {
+  try {
+    const parts = new Intl.DateTimeFormat('en-US', {
+      timeZone,
+      timeZoneName: 'shortOffset',
+    }).formatToParts(new Date())
+    return parts.find((part) => part.type === 'timeZoneName')?.value || ''
+  } catch {
+    return ''
+  }
+}
+
+function getTimezoneOffsetMinutes(timeZone: string): number {
+  try {
+    const parts = new Intl.DateTimeFormat('en-US', {
+      timeZone,
+      timeZoneName: 'longOffset',
+    }).formatToParts(new Date())
+    const raw = parts.find((part) => part.type === 'timeZoneName')?.value || 'GMT+00:00'
+    const match = raw.match(/GMT([+-])(\d{2}):(\d{2})/)
+    if (!match) return 0
+    const sign = match[1] === '-' ? -1 : 1
+    return sign * (parseInt(match[2], 10) * 60 + parseInt(match[3], 10))
+  } catch {
+    return 0
+  }
+}
+
+// IANA canonicalizes a few zones to older/less recognizable names (e.g. Ho Chi Minh City's
+// zone resolves to "Asia/Saigon"). Override just those so the label reads naturally.
+const TIMEZONE_DISPLAY_OVERRIDES: Record<string, string> = {
+  'Asia/Saigon': 'Hồ Chí Minh',
+}
+
+function formatTimezoneCityLabel(timeZone: string): string {
+  if (timeZone === 'UTC') return 'UTC'
+  if (TIMEZONE_DISPLAY_OVERRIDES[timeZone]) return TIMEZONE_DISPLAY_OVERRIDES[timeZone]
+  const segments = timeZone.split('/')
+  const city = segments[segments.length - 1]?.replace(/_/g, ' ') || timeZone
+  const region = segments.length > 1 ? segments[0].replace(/_/g, ' ') : ''
+  return region ? `${city}, ${region}` : city
+}
+
+// Pulls every real IANA timezone the browser knows about (~400 zones) so the list is never
+// hardcoded/stale and always matches the current UTC offset (DST-aware). "Etc/GMT*" zones are
+// excluded because their sign is inverted from common usage (e.g. "Etc/GMT+7" is actually UTC-7)
+// and would be confusing next to city-based zones.
+function getAllTimezoneIds(): string[] {
+  try {
+    if (typeof Intl.supportedValuesOf === 'function') {
+      const zones = Intl.supportedValuesOf('timeZone').filter((zone) => !zone.startsWith('Etc/'))
+      if (zones.length > 0) return [...zones, 'UTC']
+    }
+  } catch {
+    // fall through to the static fallback list below
+  }
+  return FALLBACK_TIMEZONE_IDS
+}
+
+function buildLocationOptions() {
+  const seen = new Set<string>()
+  const options = getAllTimezoneIds()
+    .map((timeZone) => {
+      const offset = getTimezoneOffsetLabel(timeZone)
+      if (!offset) return null
+      const city = formatTimezoneCityLabel(timeZone)
+      const value = `${city}, ${offset}`
+      if (seen.has(value)) return null
+      seen.add(value)
+      return { value, label: `${city} (${offset})`, offsetMinutes: getTimezoneOffsetMinutes(timeZone) }
+    })
+    .filter((option): option is { value: string; label: string; offsetMinutes: number } => option !== null)
+    .sort((a, b) => a.offsetMinutes - b.offsetMinutes || a.label.localeCompare(b.label))
+    .map(({ value, label }) => ({ value, label }))
+
+  return options
+}
+
+const LOCATION_OPTIONS = buildLocationOptions()
 
 const LANGUAGE_OPTIONS = [
   { value: 'English', label: 'Tiếng Anh' },
@@ -146,11 +235,8 @@ function parseUrl(value?: string) {
   }
 }
 
-function countWords(value?: string) {
-  return (value || '')
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean).length
+function countCharacters(value?: string) {
+  return (value || '').trim().length
 }
 
 function getResolvedOptionValue(option?: string, custom?: string) {
@@ -182,8 +268,7 @@ const schema = z
     yearsOfExperience: z.coerce.number().positive('Vui lòng chọn số năm kinh nghiệm.'),
     hourlyRateMxc: z.coerce.number().positive('Mức phí theo giờ phải lớn hơn 0.').optional(),
     availability: z.string().min(1, 'Vui lòng chọn khung giờ trống.'),
-    locationOption: z.string().min(1, 'Vui lòng chọn múi giờ.'),
-    locationCustom: z.string().optional(),
+    location: z.string().trim().min(2, 'Vui lòng nhập múi giờ / khu vực của bạn.'),
     languagesOption: z.string().min(1, 'Vui lòng chọn ít nhất một ngôn ngữ.'),
     languagesCustom: z.string().optional(),
     proofLinks: z.array(
@@ -205,14 +290,6 @@ const schema = z
         code: z.ZodIssueCode.custom,
         message: 'Vui lòng nhập lĩnh vực chuyên môn của bạn.',
         path: ['primaryDomainCustom'],
-      })
-    }
-
-    if (value.locationOption === 'Other' && (!value.locationCustom || value.locationCustom.trim().length < 2)) {
-      context.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Vui lòng nhập múi giờ của bạn.',
-        path: ['locationCustom'],
       })
     }
 
@@ -248,11 +325,11 @@ const schema = z
       })
     }
 
-    const bioWordCount = countWords(value.professionalBio)
-    if (bioWordCount < 150 || bioWordCount > 500) {
+    const bioLength = countCharacters(value.professionalBio)
+    if (bioLength < 50 || bioLength > 500) {
       context.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'Giới thiệu bản thân nên từ 150 đến 500 từ.',
+        message: 'Giới thiệu bản thân cần từ 50 đến 500 ký tự.',
         path: ['professionalBio'],
       })
     }
@@ -332,10 +409,8 @@ export default function MentorProfileForm({
   const [skillInput, setSkillInput] = useState('')
 
   const initialDomain = initialData?.primaryDomain || ''
-  const initialLocation = initialData?.location || ''
   const initialLanguagesText = initialData?.languages?.join(', ') || ''
   const resolvedDomain = DOMAIN_OPTIONS.some(o => o.value === initialDomain) ? initialDomain : (initialDomain ? 'Other' : '')
-  const resolvedLocation = LOCATION_OPTIONS.some(o => o.value === initialLocation) ? initialLocation : (initialLocation ? 'Other' : '')
   const resolvedLanguages = LANGUAGE_OPTIONS.some(o => o.value === initialLanguagesText)
     ? initialLanguagesText
     : (initialLanguagesText ? 'Other' : '')
@@ -361,8 +436,7 @@ export default function MentorProfileForm({
       yearsOfExperience: initialData?.yearsOfExperience || undefined,
       hourlyRateMxc: initialData?.hourlyRateMxc || undefined,
       availability: initialData?.availability || 'Flexible',
-      locationOption: resolvedLocation,
-      locationCustom: resolvedLocation === 'Other' ? initialLocation : '',
+      location: initialData?.location || '',
       languagesOption: resolvedLanguages,
       languagesCustom: resolvedLanguages === 'Other' ? initialLanguagesText : '',
       proofLinks: getMentorProofLinks(initialData).map((item) => ({ label: item.label, url: item.url })),
@@ -381,7 +455,7 @@ export default function MentorProfileForm({
   })
 
   const values = watch()
-  const bioWordCount = countWords(values.professionalBio)
+  const bioLength = countCharacters(values.professionalBio)
   const maxUploadBytes = 10 * 1024 * 1024
   const allowedMimeTypes = new Set([
     'application/pdf',
@@ -512,7 +586,6 @@ export default function MentorProfileForm({
       setLoading(true)
       setError('')
 
-      const resolvedLocationValue = getResolvedOptionValue(data.locationOption, data.locationCustom)
       const resolvedLanguagesValue = getResolvedOptionValue(data.languagesOption, data.languagesCustom)
       const proofLinks = normalizeProofLinks(data.proofLinks)
       const legacyProofFields = deriveLegacyProofFields(proofLinks)
@@ -528,7 +601,7 @@ export default function MentorProfileForm({
         yearsOfExperience: Number(data.yearsOfExperience),
         hourlyRateMxc: data.hourlyRateMxc ? Number(data.hourlyRateMxc) : undefined,
         availability: data.availability || undefined,
-        location: resolvedLocationValue || undefined,
+        location: data.location.trim() || undefined,
         languages: resolvedLanguagesValue
           ? resolvedLanguagesValue.split(',').map((item) => item.trim()).filter(Boolean)
           : undefined,
@@ -706,6 +779,7 @@ export default function MentorProfileForm({
                         onClick={() => removeSkill(skill)}
                         className="group flex items-center gap-1.5 rounded-lg bg-emerald-100 px-3 py-1.5 text-xs font-bold text-emerald-700 transition hover:bg-emerald-200"
                       >
+                        <Tag className="h-3 w-3 text-emerald-500 group-hover:text-emerald-600" />
                         {skill}
                         <span className="text-emerald-400 group-hover:text-emerald-600">&times;</span>
                       </button>
@@ -741,8 +815,9 @@ export default function MentorProfileForm({
                         key={skill}
                         type="button"
                         onClick={() => addSkill(skill)}
-                        className="rounded-md border border-slate-200/80 px-2.5 py-1 text-[10px] font-bold text-slate-500 transition hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-600"
+                        className="inline-flex items-center gap-1 rounded-md border border-slate-200/80 px-2.5 py-1 text-[10px] font-bold text-slate-500 transition hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-600"
                       >
+                        <Tag className="h-3 w-3" />
                         {skill}
                       </button>
                     ))}
@@ -766,12 +841,13 @@ export default function MentorProfileForm({
               <Field
                 label="Tiểu sử chuyên môn"
                 description="Kể về kinh nghiệm, ngành nghề đã làm và những ai bạn thích giúp đỡ."
-                hint={`${bioWordCount} từ · đề xuất 150-500 từ`}
+                hint={`${bioLength}/500 ký tự · tối thiểu 50 ký tự`}
                 error={errors.professionalBio?.message}
               >
                 <textarea
                   {...register('professionalBio')}
                   rows={6}
+                  maxLength={500}
                   className={textareaClass}
                   placeholder="Chia sẻ về con đường sự nghiệp của bạn..."
                 />
@@ -839,13 +915,18 @@ export default function MentorProfileForm({
               </div>
             </Field>
 
-            <Field label="Múi giờ (Khu vực)" error={errors.locationOption?.message}>
-              <select {...register('locationOption')} className={inputClass}>
-                <option value="">Chọn múi giờ</option>
-                {LOCATION_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
-                ))}
-              </select>
+            <Field
+              label="Múi giờ (Khu vực)"
+              description="Gõ để tìm theo tên thành phố hoặc chọn từ gợi ý."
+              error={errors.location?.message}
+            >
+              <Combobox
+                value={values.location}
+                onChange={(next) => setValue('location', next, { shouldDirty: true, shouldValidate: true })}
+                options={LOCATION_OPTIONS}
+                placeholder="VD: Hồ Chí Minh, GMT+7"
+                disabled={isLocked}
+              />
             </Field>
 
             <Field label="Ngôn ngữ" error={errors.languagesOption?.message}>
@@ -856,12 +937,6 @@ export default function MentorProfileForm({
                 ))}
               </select>
             </Field>
-            
-            {values.locationOption === 'Other' && (
-              <Field label="Múi giờ khác" error={errors.locationCustom?.message}>
-                <input {...register('locationCustom')} className={inputClass} placeholder="Nhập múi giờ tự do..." />
-              </Field>
-            )}
 
             {values.languagesOption === 'Other' && (
               <Field label="Ngôn ngữ khác" error={errors.languagesCustom?.message}>
@@ -1030,6 +1105,131 @@ export default function MentorProfileForm({
 
       </fieldset>
     </form>
+  )
+}
+
+function Combobox({
+  value,
+  onChange,
+  options,
+  placeholder,
+  disabled,
+}: {
+  value: string
+  onChange: (value: string) => void
+  options: { value: string; label: string }[]
+  placeholder?: string
+  disabled?: boolean
+}) {
+  const [query, setQuery] = useState(value)
+  const [open, setOpen] = useState(false)
+  const [highlightedIndex, setHighlightedIndex] = useState(0)
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    setQuery(value)
+  }, [value])
+
+  useEffect(() => {
+    if (!open) return
+    function handleClickOutside(event: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setOpen(false)
+        setQuery(value)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [open, value])
+
+  const normalizedQuery = query.trim().toLowerCase()
+  const filteredOptions = normalizedQuery
+    ? options.filter((option) => option.label.toLowerCase().includes(normalizedQuery))
+    : options
+
+  const selectOption = (option: { value: string; label: string }) => {
+    onChange(option.value)
+    setQuery(option.value)
+    setOpen(false)
+  }
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!open) {
+      if (event.key === 'ArrowDown' || event.key === 'Enter') {
+        event.preventDefault()
+        setOpen(true)
+      }
+      return
+    }
+
+    if (event.key === 'ArrowDown') {
+      event.preventDefault()
+      setHighlightedIndex((index) => Math.min(index + 1, filteredOptions.length - 1))
+    } else if (event.key === 'ArrowUp') {
+      event.preventDefault()
+      setHighlightedIndex((index) => Math.max(index - 1, 0))
+    } else if (event.key === 'Enter') {
+      event.preventDefault()
+      const option = filteredOptions[highlightedIndex]
+      if (option) selectOption(option)
+    } else if (event.key === 'Escape') {
+      setOpen(false)
+      setQuery(value)
+    }
+  }
+
+  return (
+    <div ref={containerRef} className="relative">
+      <div className="relative">
+        <input
+          value={query}
+          disabled={disabled}
+          autoComplete="off"
+          onChange={(event) => {
+            const nextValue = event.target.value
+            setQuery(nextValue)
+            onChange(nextValue)
+            setOpen(true)
+            setHighlightedIndex(0)
+          }}
+          onFocus={() => setOpen(true)}
+          onKeyDown={handleKeyDown}
+          className={`${inputClass} pr-12`}
+          placeholder={placeholder}
+        />
+        <button
+          type="button"
+          tabIndex={-1}
+          disabled={disabled}
+          onClick={() => setOpen((prev) => !prev)}
+          className="absolute inset-y-0 right-0 flex w-11 items-center justify-center text-slate-400 transition-colors hover:text-slate-600 disabled:cursor-not-allowed"
+        >
+          <ChevronDown className={`h-4 w-4 transition-transform ${open ? 'rotate-180' : ''}`} />
+        </button>
+      </div>
+
+      {open && !disabled && (
+        <div className="absolute z-20 mt-2 max-h-64 w-full overflow-y-auto rounded-xl border border-slate-200 bg-white p-1.5 shadow-lg">
+          {filteredOptions.length === 0 ? (
+            <div className="px-3 py-2 text-xs font-semibold text-slate-400">Không tìm thấy kết quả phù hợp.</div>
+          ) : (
+            filteredOptions.slice(0, 200).map((option, index) => (
+              <button
+                key={option.value}
+                type="button"
+                onMouseDown={(event) => event.preventDefault()}
+                onClick={() => selectOption(option)}
+                className={`block w-full rounded-lg px-3 py-2 text-left text-sm font-semibold transition ${
+                  index === highlightedIndex ? 'bg-sky-50 text-sky-700' : 'text-slate-700 hover:bg-slate-50'
+                }`}
+              >
+                {option.label}
+              </button>
+            ))
+          )}
+        </div>
+      )}
+    </div>
   )
 }
 
