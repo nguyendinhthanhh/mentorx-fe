@@ -34,7 +34,7 @@ export default function FilePreviewModal({ isOpen, onClose, fileUrl, fileName, f
                   className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-200 hover:text-slate-900"
                 >
                   <ExternalLink className="h-4 w-4" />
-                  <span className="hidden sm:inline">Open in new tab</span>
+                  <span className="hidden sm:inline">Mở trong tab mới</span>
                 </a>
                 <Dialog.Close asChild>
                   <button className="rounded-lg p-2 text-slate-400 transition hover:bg-rose-100 hover:text-rose-600 focus:outline-none focus:ring-2 focus:ring-rose-500/20">
@@ -65,9 +65,9 @@ export default function FilePreviewModal({ isOpen, onClose, fileUrl, fileName, f
                   <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-2xl bg-indigo-100 text-indigo-500 shadow-inner">
                     <Download className="h-10 w-10" />
                   </div>
-                  <h3 className="text-xl font-bold text-slate-900">Preview not available</h3>
+                  <h3 className="text-xl font-bold text-slate-900">Không có bản xem trước</h3>
                   <p className="mt-2 text-sm text-slate-500 max-w-sm">
-                    This file type cannot be previewed in the browser. You can open it in a new tab to download it.
+                    Không thể xem trước định dạng file này trong trình duyệt. Bạn có thể mở trong tab mới để tải về.
                   </p>
                   <a
                     href={fileUrl}
@@ -76,7 +76,7 @@ export default function FilePreviewModal({ isOpen, onClose, fileUrl, fileName, f
                     className="mt-6 flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-6 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-indigo-700"
                   >
                     <Download className="h-4 w-4" />
-                    Download File
+                    Tải file về
                   </a>
                 </div>
               )}

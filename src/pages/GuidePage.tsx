@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
+import { PenLine } from 'lucide-react'
 import {
   type BlogTab,
   type BlogTrack,
@@ -243,8 +245,12 @@ export default function GuidePage() {
       />
 
       <main className="mx-auto mt-8 max-w-[1440px] px-4 sm:px-6 lg:px-8">
-        <div className="mb-8">
+        <div className="mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <AudienceTabs tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
+          <Link to="/blogs/create" className="shrink-0 inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 transition">
+            <PenLine className="h-4 w-4" />
+            Viết Blog
+          </Link>
         </div>
 
         {loading ? (

@@ -4,6 +4,7 @@ import { useQuery } from 'react-query'
 import JobCreateForm from '@/components/job/JobCreateForm'
 import { jobApi } from '@/api/jobApi'
 import { useAuthStore } from '@/store/authStore'
+import { JobStatus } from '@/types'
 
 export default function JobEditPage() {
   const { user } = useAuthStore()
@@ -23,13 +24,15 @@ export default function JobEditPage() {
     )
   }
 
-  if (!job || job.clientId !== user.userId) {
+  const canEdit = job && (job.status === JobStatus.DRAFT || job.status === JobStatus.OPEN || job.status === JobStatus.PENDING_APPROVAL)
+
+  if (!job || job.clientId !== user.userId || !canEdit) {
     return (
       <div className="min-h-screen bg-[#f8fafc] px-4 py-12 text-slate-950">
         <div className="mx-auto max-w-xl rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
           <h1 className="text-2xl font-bold">Không thể chỉnh sửa yêu cầu này</h1>
           <p className="mt-2 text-sm leading-6 text-slate-600">
-            Yêu cầu không tồn tại hoặc không thuộc tài khoản hiện tại.
+            Yêu cầu không tồn tại, không thuộc tài khoản hiện tại, hoặc đã có Mentor được chọn (đang thực hiện).
           </p>
           <Link
             to="/my-jobs"

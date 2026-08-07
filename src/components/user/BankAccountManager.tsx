@@ -47,7 +47,7 @@ export default function BankAccountManager() {
       const data = await bankAccountApi.getByUserId(user.userId)
       setAccounts(data || [])
     } catch (err) {
-      toast.error('Unable to load bank accounts.')
+      toast.error('Không thể tải danh sách tài khoản ngân hàng.')
     } finally {
       setLoading(false)
     }
@@ -224,11 +224,34 @@ export default function BankAccountManager() {
             </label>
             <label className="block">
               <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Tên chủ tài khoản</span>
-              <input required type="text" placeholder="VIET HOA KHONG DAU" value={form.accountHolderName} onChange={(e) => setForm({ ...form, accountHolderName: e.target.value })} className="mt-2 block w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500" />
+              <input 
+                required 
+                type="text" 
+                placeholder="VIET HOA KHONG DAU" 
+                value={form.accountHolderName} 
+                onChange={(e) => {
+                  let val = e.target.value;
+                  val = val.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, "a").replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, "e").replace(/ì|í|ị|ỉ|ĩ/g, "i").replace(/ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g, "o").replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g, "u").replace(/ỳ|ý|ỵ|ỷ|ỹ/g, "y").replace(/đ/g, "d");
+                  val = val.replace(/À|Á|Ạ|Ả|Ã|Â|Ầ|Ấ|Ậ|Ẩ|Ẫ|Ă|Ằ|Ắ|Ặ|Ẳ|Ẵ/g, "A").replace(/È|É|Ẹ|Ẻ|Ẽ|Ê|Ề|Ế|Ệ|Ể|Ễ/g, "E").replace(/Ì|Í|Ị|Ỉ|Ĩ/g, "I").replace(/Ò|Ó|Ọ|Ỏ|Õ|Ô|Ồ|Ố|Ộ|Ổ|Ỗ|Ơ|Ờ|Ớ|Ợ|Ở|Ỡ/g, "O").replace(/Ù|Ú|Ụ|Ủ|Ũ|Ư|Ừ|Ứ|Ự|Ử|Ữ/g, "U").replace(/Ỳ|Ý|Ỵ|Ỷ|Ỹ/g, "Y").replace(/Đ/g, "D");
+                  val = val.toUpperCase().replace(/[^A-Z\s]/g, "");
+                  setForm({ ...form, accountHolderName: val });
+                }} 
+                className="mt-2 block w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500" 
+              />
             </label>
             <label className="block">
               <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Số tài khoản</span>
-              <input required type="text" placeholder="Nhập số tài khoản" value={form.accountNumber} onChange={(e) => setForm({ ...form, accountNumber: e.target.value })} className="mt-2 block w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500" />
+              <input 
+                required 
+                type="text" 
+                placeholder="Nhập số tài khoản" 
+                value={form.accountNumber} 
+                onChange={(e) => {
+                  const val = e.target.value.replace(/[^0-9]/g, "");
+                  setForm({ ...form, accountNumber: val });
+                }} 
+                className="mt-2 block w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500" 
+              />
             </label>
             <label className="block">
               <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Quốc gia</span>

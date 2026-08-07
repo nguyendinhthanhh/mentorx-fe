@@ -50,11 +50,14 @@ const MentorCoursesPage = lazy(() => import('./pages/mentor/MentorCoursesPage'))
 const MentorCourseManagePage = lazy(() => import('./pages/mentor/MentorCourseManagePage'))
 const MentorContractsPage = lazy(() => import('./pages/mentor/MentorContractsPage'))
 const MentorProposalsPage = lazy(() => import('./pages/mentor/MentorProposalsPage'))
+const MentorProjectsPage = lazy(() => import('./pages/mentor/MentorProjectsPage'))
 const MentorProposalDetailPage = lazy(() => import('./pages/mentor/MentorProposalDetailPage'))
 const MentorMessagesPage = lazy(() => import('./pages/mentor/MentorMessagesPage'))
 const MentorSchedulePage = lazy(() => import('./pages/mentor/MentorSchedulePage'))
 const MentorEarningsPage = lazy(() => import('./pages/mentor/MentorEarningsPage'))
 const MentorReviewsPage = lazy(() => import('./pages/mentor/MentorReviewsPage'))
+
+const BlogCreatePage = lazy(() => import('./pages/blog/BlogCreatePage'))
 
 const JobListPage = lazy(() => import('./pages/job/JobListPage'))
 const JobDetailPage = lazy(() => import('./pages/job/JobDetailPage'))
@@ -207,6 +210,9 @@ function App() {
             <Route path="/payment/vnpay-return" element={<Navigate to="/wallet" replace />} />
             <Route path="/payment/momo-return" element={<Navigate to="/wallet" replace />} />
             <Route path="/payment/payos-return" element={<PayOSReturnPage />} />
+            
+            {/* Blog Routes */}
+            <Route path="/blogs/create" element={<BlogCreatePage />} />
 
           </Route>
 
@@ -224,12 +230,10 @@ function App() {
           <Route element={<ProtectedRoute><ProfileLayout /></ProtectedRoute>}>
             <Route path="/profile" element={<ProfileDashboardPage />} />
             <Route path="/profile/dashboard" element={<Navigate to="/profile" replace />} />
-            <Route path="/profile/notifications" element={<NotificationListPage />} />
             <Route path="/profile/jobs" element={<Navigate to="/users/requests" replace />} />
             <Route path="/profile/proposals" element={<div>Proposals (Coming Soon)</div>} />
             <Route path="/profile/courses" element={<MyCoursesPage />} />
             <Route path="/profile/appointments" element={<UserAppointmentsPage />} />
-            <Route path="/profile/transactions" element={<UserTransactionsPage />} />
             <Route path="/profile/saved" element={<SavedMentorsPage />} />
             <Route path="/profile/complaints" element={<MyComplaintsPage />} />
             <Route path="/profile/complaints/new" element={<NewComplaintPage />} />
@@ -281,9 +285,11 @@ function App() {
             <Route path="/mentor/profile-courses" element={<Navigate to="/profile/settings" replace />} />
             <Route path="/mentor/availability" element={<Navigate to="/profile/settings" replace />} />
             <Route path="/mentor/documents" element={<Navigate to="/profile/settings" replace />} />
-            <Route path="/mentor/proposals" element={<MentorProposalsPage />} />
+            <Route path="/mentor/projects" element={<MentorProjectsPage />} />
+            <Route path="/mentor/blogs/create" element={<Navigate to="/blogs/create" replace />} />
+            <Route path="/mentor/proposals" element={<Navigate to="/mentor/projects?tab=proposals" replace />} />
             <Route path="/mentor/proposals/:proposalId" element={<MentorProposalDetailPage />} />
-            <Route path="/mentor/contracts" element={<MentorContractsPage />} />
+            <Route path="/mentor/contracts" element={<Navigate to="/mentor/projects?tab=contracts" replace />} />
             <Route path="/mentor/messages" element={<MentorMessagesPage />} />
             <Route path="/mentor/courses" element={<MentorCoursesPage />} />
             <Route path="/mentor/courses/:courseId/manage" element={<MentorCourseManagePage />} />

@@ -35,7 +35,7 @@ export default function AdminWithdrawalsPage() {
     (requestId: string) => walletApi.approveWithdrawal(requestId),
     {
       onSuccess: () => {
-        toast.success('Withdrawal request approved and processed')
+        toast.success('Yêu cầu rút tiền đã được phê duyệt và xử lý')
         queryClient.invalidateQueries('admin-withdrawals')
       },
       onError: (error: any) => {
@@ -49,7 +49,7 @@ export default function AdminWithdrawalsPage() {
       walletApi.rejectWithdrawal(requestId, reason),
     {
       onSuccess: () => {
-        toast.success('Withdrawal request rejected')
+        toast.success('Yêu cầu rút tiền đã bị từ chối')
         queryClient.invalidateQueries('admin-withdrawals')
         setIsRejectModalOpen(false)
       },

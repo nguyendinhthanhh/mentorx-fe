@@ -344,94 +344,124 @@ export default function ProposalCreateForm({
 
     return (
       <div className="space-y-6">
-        <div className="rounded-xl border border-blue-200 bg-blue-50 p-5">
-          <div className="mb-4 flex items-start gap-3">
-            <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-blue-600" />
-            <div>
-              <h3 className="mb-1 font-bold text-blue-900">{t('jobs.proposalForm.existing.title')}</h3>
-              <p className="text-sm text-blue-700">
-                {t('jobs.proposalForm.existing.status')}: <span className="font-semibold">{statusLabel}</span>
-              </p>
-              <p className="mt-1 text-xs text-blue-600">
-                {t('jobs.proposalForm.existing.submittedAt')}:{' '}
-                {new Date(existingProposal.submittedAt || existingProposal.createdAt).toLocaleString(locale)}
-              </p>
-              <p className="mt-1 text-xs font-semibold text-blue-700">
-                {t('jobs.proposalForm.existing.submissionUsage', {
-                  count: submissionCount,
-                  max: MAX_PROPOSAL_SUBMISSIONS_PER_JOB,
-                })}
-              </p>
-            </div>
-          </div>
-
-          {submissionCount >= 3 && hasSubmissionAttemptsLeft && (
-            <div className="mb-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800">
-              {t('jobs.proposalForm.existing.resubmissionWarning', { remaining: remainingSubmissions })}
-            </div>
-          )}
-
-          <div className="mb-4 space-y-3">
-            <div>
-              <p className="mb-1 text-xs font-bold text-slate-600">{t('jobs.proposalForm.existing.coverLetter')}</p>
-              <p className="rounded-lg border border-blue-100 bg-white p-3 text-sm text-slate-800">{existingProposal.coverLetter}</p>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <p className="mb-1 text-xs font-bold text-slate-600">{t('jobs.proposalForm.existing.proposedAmount')}</p>
-                <p className="text-sm font-bold text-slate-900">
-                  {existingProposal.proposedAmount != null
-                    ? `${existingProposal.proposedAmount.toLocaleString(locale)} MXC`
-                    : t('jobs.budgetTbd')}
+        <div className="overflow-hidden rounded-[24px] border border-slate-200/80 bg-white shadow-xl shadow-slate-200/40 ring-1 ring-slate-900/5 dark:border-slate-800 dark:bg-slate-900 dark:shadow-none">
+          {/* Header Area */}
+          <div className="relative border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white p-6 sm:px-8 sm:py-7 dark:border-slate-800/60 dark:from-slate-900/80 dark:to-slate-900/40">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+              <div className="flex items-start gap-4">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 ring-1 ring-indigo-100 dark:bg-indigo-500/10 dark:text-indigo-400 dark:ring-indigo-500/20">
+                  <FileText className="h-6 w-6" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-black tracking-tight text-slate-900 dark:text-white">
+                    {t('jobs.proposalForm.existing.title')}
+                  </h3>
+                  <div className="mt-1.5 flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+                    <span className="font-medium text-slate-600 dark:text-slate-300">
+                      {t('jobs.proposalForm.existing.status')}: 
+                    </span>
+                    <span className="inline-flex items-center rounded-md bg-emerald-50 px-2 py-0.5 text-xs font-bold text-emerald-700 ring-1 ring-emerald-600/20 dark:bg-emerald-500/10 dark:text-emerald-400">
+                      {statusLabel}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div className="flex flex-col items-start gap-1 sm:items-end">
+                <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
+                  {t('jobs.proposalForm.existing.submittedAt')}:
+                </p>
+                <p className="text-sm font-bold text-slate-900 dark:text-white">
+                  {new Date(existingProposal.submittedAt || existingProposal.createdAt).toLocaleString(locale)}
+                </p>
+                <p className="mt-1 inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                  {t('jobs.proposalForm.existing.submissionUsage', {
+                    count: submissionCount,
+                    max: MAX_PROPOSAL_SUBMISSIONS_PER_JOB,
+                  })}
                 </p>
               </div>
-              {existingProposal.estimatedDurationDays && (
-                <div>
-                  <p className="mb-1 text-xs font-bold text-slate-600">
-                    {existingProposal.deadlineAt
-                      ? t('jobs.proposalForm.existing.deadline')
-                      : t('jobs.proposalForm.existing.durationFallback')}
-                  </p>
-                  <p className="text-sm font-bold text-slate-900">
-                    {existingProposal.deadlineAt
-                      ? new Date(existingProposal.deadlineAt).toLocaleString(locale)
-                      : `${existingProposal.estimatedDurationDays} ${t('jobs.proposalForm.fields.days')}`}
-                  </p>
-                </div>
-              )}
-              {existingProposal.deadlineAt && !existingProposal.estimatedDurationDays && (
-                <div>
-                  <p className="mb-1 text-xs font-bold text-slate-600">{t('jobs.proposalForm.existing.deadline')}</p>
-                  <p className="text-sm font-bold text-slate-900">{new Date(existingProposal.deadlineAt).toLocaleString(locale)}</p>
-                </div>
-              )}
             </div>
           </div>
 
-          {!canEditProposal && (
-            <div className="mb-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800">
-              {lockedCopy}
-            </div>
-          )}
-
-          <div className="flex flex-col gap-3 sm:flex-row">
-            {canEditProposal && (
-              <button
-                onClick={() => setIsEditing(true)}
-                className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-emerald-600 py-2.5 text-sm font-bold text-white transition-all hover:bg-emerald-700"
-              >
-                <Edit2 className="h-4 w-4" />
-                {existingProposal.status === 'WITHDRAWN' ? t('jobs.proposalForm.action.reapply') : t('jobs.proposalForm.action.edit')}
-              </button>
+          <div className="p-6 sm:p-8">
+            {submissionCount >= 3 && hasSubmissionAttemptsLeft && (
+              <div className="mb-6 flex items-start gap-3 rounded-2xl border border-amber-200/80 bg-amber-50/50 p-4 text-sm font-medium text-amber-900 dark:border-amber-900/30 dark:bg-amber-900/10 dark:text-amber-400">
+                <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600 dark:text-amber-500" />
+                <p>{t('jobs.proposalForm.existing.resubmissionWarning', { remaining: remainingSubmissions })}</p>
+              </div>
             )}
-            {canWithdraw && (
-              <button
-                onClick={() => setShowWithdrawConfirm(true)}
-                className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-rose-600 py-2.5 text-sm font-bold text-white transition-all hover:bg-rose-700"
-              >
-                <Trash2 className="h-4 w-4" />
-                {t('jobs.proposalForm.action.withdraw')}
-              </button>
+
+            <div className="space-y-6">
+              {/* Cover Letter */}
+              <div>
+                <h4 className="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                  <FileText className="h-4 w-4" />
+                  {t('jobs.proposalForm.existing.coverLetter')}
+                </h4>
+                <div className="whitespace-pre-wrap rounded-2xl border border-slate-100 bg-slate-50/50 p-5 text-sm leading-relaxed text-slate-700 shadow-inner dark:border-slate-800 dark:bg-slate-900/50 dark:text-slate-300">
+                  {existingProposal.coverLetter}
+                </div>
+              </div>
+
+              {/* Stats Grid */}
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="flex flex-col justify-center rounded-2xl border border-slate-100 bg-white p-5 shadow-sm ring-1 ring-slate-900/5 transition hover:border-emerald-200 dark:border-slate-800 dark:bg-slate-900 dark:ring-white/5 dark:hover:border-emerald-900/50">
+                  <p className="mb-1 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                    {t('jobs.proposalForm.existing.proposedAmount')}
+                  </p>
+                  <p className="text-2xl font-black tracking-tight text-emerald-600 dark:text-emerald-400">
+                    {existingProposal.proposedAmount != null
+                      ? `${existingProposal.proposedAmount.toLocaleString(locale)} MXC`
+                      : t('jobs.budgetTbd')}
+                  </p>
+                </div>
+
+                {(existingProposal.estimatedDurationDays || existingProposal.deadlineAt) && (
+                  <div className="flex flex-col justify-center rounded-2xl border border-slate-100 bg-white p-5 shadow-sm ring-1 ring-slate-900/5 transition hover:border-indigo-200 dark:border-slate-800 dark:bg-slate-900 dark:ring-white/5 dark:hover:border-indigo-900/50">
+                    <p className="mb-1 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                      {existingProposal.deadlineAt
+                        ? t('jobs.proposalForm.existing.deadline')
+                        : t('jobs.proposalForm.existing.durationFallback')}
+                    </p>
+                    <p className="text-xl font-bold tracking-tight text-indigo-600 dark:text-indigo-400">
+                      {existingProposal.deadlineAt
+                        ? new Date(existingProposal.deadlineAt).toLocaleString(locale)
+                        : `${existingProposal.estimatedDurationDays} ${t('jobs.proposalForm.fields.days')}`}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {!canEditProposal && (
+              <div className="mt-8 flex items-start gap-3 rounded-2xl border border-amber-200/80 bg-amber-50/50 p-4 text-sm font-medium text-amber-900 dark:border-amber-900/30 dark:bg-amber-900/10 dark:text-amber-400">
+                <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600 dark:text-amber-500" />
+                <p>{lockedCopy}</p>
+              </div>
+            )}
+
+            {/* Actions */}
+            {(canEditProposal || canWithdraw) && (
+              <div className="mt-8 flex flex-col gap-3 border-t border-slate-100 pt-6 sm:flex-row dark:border-slate-800">
+                {canEditProposal && (
+                  <button
+                    onClick={() => setIsEditing(true)}
+                    className="flex h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 text-sm font-bold text-white shadow-sm transition hover:bg-emerald-700 hover:shadow"
+                  >
+                    <Edit2 className="h-4 w-4" />
+                    {existingProposal.status === 'WITHDRAWN' ? t('jobs.proposalForm.action.reapply') : t('jobs.proposalForm.action.edit')}
+                  </button>
+                )}
+                {canWithdraw && (
+                  <button
+                    onClick={() => setShowWithdrawConfirm(true)}
+                    className="flex h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-rose-200 bg-white px-6 text-sm font-bold text-rose-700 shadow-sm transition hover:bg-rose-50 dark:border-rose-900/50 dark:bg-transparent dark:text-rose-400 dark:hover:bg-rose-900/20"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    {t('jobs.proposalForm.action.withdraw')}
+                  </button>
+                )}
+              </div>
             )}
           </div>
         </div>

@@ -128,18 +128,43 @@ export default function MentorProposalDetailPage() {
   const canOpenChat = currentStatus === ProposalStatus.ACCEPTED
   const rejectReasonWordCount = countWords(rejectReason)
   const currentFlowNotice =
-    currentStatus === ProposalStatus.OFFER_ACCEPTED
+    contract?.status === 'COMPLETED'
+      ? 'Hợp đồng đã hoàn thành, thanh toán đã được xử lý.'
+      : currentStatus === ProposalStatus.OFFER_ACCEPTED
       ? t('mentorProposalDetail.sidebar.offerAcceptedNotice')
       : currentStatus === ProposalStatus.ACCEPTED
         ? t('mentorProposalDetail.sidebar.contractActiveNotice')
         : canRespond
           ? t('mentorProposalDetail.sidebar.clientOfferNotice')
           : ''
+  const latestTermsSource = isClientOffer ? t('mentorProposalDetail.hero.latestFromClient') : t('mentorProposalDetail.hero.latestFromMentor')
+  const decisionTitle = contract?.status === 'COMPLETED'
+    ? 'Hợp đồng đã hoàn tất'
+    : canRespond
+    ? t('mentorProposalDetail.decision.reviewClientOffer')
+    : currentStatus === ProposalStatus.OFFER_ACCEPTED
+      ? t('mentorProposalDetail.decision.waitClientSelection')
+      : currentStatus === ProposalStatus.ACCEPTED
+        ? t('mentorProposalDetail.decision.contractActive')
+        : isFinalized
+          ? t('mentorProposalDetail.decision.closed')
+          : t('mentorProposalDetail.decision.waitClientReply')
+  const decisionBody = contract?.status === 'COMPLETED'
+    ? 'Bạn và khách hàng đã hoàn thành công việc và thanh toán xong.'
+    : canRespond
+    ? t('mentorProposalDetail.decision.reviewClientOfferBody')
+    : currentStatus === ProposalStatus.OFFER_ACCEPTED
+      ? t('mentorProposalDetail.decision.waitClientSelectionBody')
+      : currentStatus === ProposalStatus.ACCEPTED
+        ? t('mentorProposalDetail.decision.contractActiveBody')
+        : isFinalized
+          ? t('mentorProposalDetail.decision.closedBody')
+          : t('mentorProposalDetail.decision.waitClientReplyBody')
   const journeyLabels = [
     t('mentorProposalDetail.journey.proposalSent'),
     t('mentorProposalDetail.journey.termsNegotiation'),
     t('mentorProposalDetail.journey.clientSelection'),
-    t('mentorProposalDetail.journey.activeContract'),
+    contract?.status === 'COMPLETED' ? 'Hợp đồng hoàn tất' : t('mentorProposalDetail.journey.activeContract'),
   ]
 
   const threadItems = useMemo(() => {
@@ -369,54 +394,114 @@ export default function MentorProposalDetailPage() {
           </div>
         )}
 
-        <section className="flex flex-col gap-4 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm sm:flex-row sm:items-center sm:gap-6 dark:border-slate-800 dark:bg-slate-900">
-          <button
-            type="button"
-            onClick={() => navigate('/mentor/proposals')}
-            aria-label="Back to proposals"
-            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 transition hover:bg-slate-50 hover:text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-white"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </button>
+        <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <div className="flex flex-col gap-3 border-b border-slate-100 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5 dark:border-slate-800">
+            <div className="flex min-w-0 items-center gap-3">
+              <button
+                type="button"
+                onClick={() => navigate('/mentor/projects?tab=proposals')}
+                aria-label="Back to proposals"
+                className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 transition hover:bg-slate-50 hover:text-slate-900 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-white"
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </button>
+              <div className="min-w-0">
+                <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-400">{t('mentorProposalDetail.hero.dealBrief')}</p>
+                <div className="mt-1 flex min-w-0 flex-wrap items-center gap-2">
+                  <StatusBadge label={agreementStatus} tone={getStatusTone(currentStatus, isClientOffer)} />
+                  <span className="text-xs font-semibold text-slate-500">{t('mentorProposalDetail.hero.proposalId')} #{proposal.id.slice(0, 8)}</span>
+                </div>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Link
+                to={`/jobs/${job.jobId}`}
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+              >
+                <ArrowUpRight className="h-4 w-4" />
+                {t('mentorProposalDetail.hero.viewOriginalJob')}
+              </Link>
+              <button
+                type="button"
+                onClick={() => setShowAiExplain(true)}
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-3 text-sm font-semibold text-emerald-700 transition hover:border-emerald-300 hover:bg-emerald-100 focus:outline-none focus:ring-4 focus:ring-emerald-500/10"
+              >
+                <Sparkles className="h-4 w-4" />
+                {t('mentorProposalDetail.hero.askAi')}
+              </button>
+            </div>
+          </div>
 
-          <div className="scrollbar-hide relative min-w-0 flex-1 overflow-x-auto pb-2 sm:pb-0">
-            <div className="relative flex min-w-[360px] justify-between pr-4 sm:min-w-0">
-            <div className="absolute left-0 top-4 h-[2px] w-full bg-slate-100 dark:bg-slate-800" />
-            <div
-              className="absolute left-0 top-4 h-[2px] bg-emerald-600 transition-all duration-500"
-              style={{ width: `${(journeyStageIndex / (journeyLabels.length - 1)) * 100}%` }}
-            />
-            {journeyLabels.map((label, index) => {
-              const state = index < journeyStageIndex ? 'done' : index === journeyStageIndex ? 'active' : 'idle'
-              return <JourneyStep key={label} index={index} label={label} state={state} />
-            })}
+          <div className="grid gap-0 lg:grid-cols-[minmax(0,1fr)_390px]">
+            <div className="min-w-0 px-4 py-5 sm:px-6">
+              <div className="flex flex-wrap gap-2">
+                <span className="inline-flex items-center rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600 dark:bg-slate-800 dark:text-slate-400">{categoryName}</span>
+              </div>
+              <h1 className="mt-3 max-w-[68ch] text-2xl font-bold leading-tight tracking-tight text-slate-950 sm:text-3xl dark:text-white">{job.title}</h1>
+              <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-slate-500 dark:text-slate-400">
+                <span className="inline-flex items-center gap-2">
+                  <Avatar avatarUrl={clientAvatar} initials={clientInitials} size="sm" />
+                  <span className="font-semibold text-slate-700 dark:text-slate-300">{t('mentorProposalDetail.hero.postedBy')}: {clientName}</span>
+                </span>
+                <span>{t('mentorProposalDetail.hero.started', { date: formatDate(proposal.createdAt) })}</span>
+                {proposal.viewCount !== undefined ? (
+                  <span className="inline-flex items-center gap-1 font-semibold text-slate-700 dark:text-slate-300">
+                    <Eye className="h-4 w-4 text-emerald-600" />
+                    {t('mentorProposalDetail.hero.views', { count: proposal.viewCount })}
+                  </span>
+                ) : null}
+              </div>
+            </div>
+
+            <div className="border-t border-slate-100 bg-slate-50 px-4 py-5 sm:px-6 lg:border-l lg:border-t-0 dark:border-slate-800 dark:bg-slate-800/40">
+              <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">{latestTermsSource}</p>
+              <div className="mt-3 grid gap-3">
+                <DealTerm icon={<Wallet className="h-4 w-4" />} label={t('mentorProposalDetail.offer.price')} value={currentBudgetLabel} />
+                <DealTerm icon={<Clock3 className="h-4 w-4" />} label={t('mentorProposalDetail.offer.deadline')} value={currentDeadlineLabel} />
+                <DealTerm icon={<CircleDashed className="h-4 w-4" />} label={t('mentorProposalDetail.offer.timeUntilDeadline')} value={currentTimeRemainingLabel} />
+              </div>
+            </div>
+          </div>
+
+          <div className="border-t border-slate-100 bg-white px-4 py-4 sm:px-6 dark:border-slate-800 dark:bg-slate-900">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400">{t('mentorProposalDetail.hero.currentStep')}</p>
+              <p className="text-xs font-semibold text-slate-500">{decisionTitle}</p>
+            </div>
+            <div className="scrollbar-hide overflow-x-auto pb-1">
+              <div className="relative flex min-w-[520px] justify-between">
+                <div className="absolute left-0 top-4 h-[2px] w-full bg-slate-100 dark:bg-slate-800" />
+                <div
+                  className="absolute left-0 top-4 h-[2px] bg-emerald-600 transition-all duration-500"
+                  style={{ width: `${Math.min(100, (journeyStageIndex / (journeyLabels.length - 1)) * 100)}%` }}
+                />
+                {journeyLabels.map((label, index) => {
+                  const state = index < journeyStageIndex ? 'done' : index === journeyStageIndex ? 'active' : 'idle'
+                  return <JourneyStep key={label} index={index} label={label} state={state} />
+                })}
+              </div>
             </div>
           </div>
         </section>
 
-        <div className="grid gap-6 lg:grid-cols-12">
-          <div className="min-w-0 space-y-6 lg:col-span-8">
-            <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-3 dark:border-slate-800">
+        <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_360px]">
+          <div className="min-w-0 space-y-5">
+            <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+              <div className="flex flex-col gap-3 border-b border-slate-100 pb-4 sm:flex-row sm:items-center sm:justify-between dark:border-slate-800">
                 <div className="flex items-center gap-3">
-                  <h2 className="text-sm font-bold text-slate-900 dark:text-white">{t('mentorProposalDetail.timeline.title')}</h2>
-                  <span className="rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-500 dark:bg-slate-800 dark:text-slate-400">
-                    {t('mentorProposalDetail.timeline.updates', { count: threadItems.length })}
+                  <div>
+                    <h2 className="text-base font-bold tracking-tight text-slate-950 dark:text-white">{t('mentorProposalDetail.timeline.title')}</h2>
+                    <p className="mt-1 text-sm text-slate-500">{t('mentorProposalDetail.timeline.updates', { count: threadItems.length })}</p>
+                  </div>
+                </div>
+                {isClientOffer ? (
+                  <span className="inline-flex h-8 items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-3 text-xs font-bold text-amber-700">
+                    <span className="h-2 w-2 rounded-full bg-amber-500" />
+                    {t('mentorProposalDetail.timeline.actionNeeded')}
                   </span>
-                </div>
-                <div>
-                  {isClientOffer ? (
-                    <span className="flex items-center gap-1.5 text-xs font-bold text-amber-600">
-                      <span className="relative flex h-2 w-2">
-                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75"></span>
-                        <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-500"></span>
-                      </span>
-                      {t('mentorProposalDetail.timeline.actionNeeded')}
-                    </span>
-                  ) : (
-                    <span className="text-xs font-medium text-slate-400">{t('mentorProposalDetail.timeline.clientReviewing')}</span>
-                  )}
-                </div>
+                ) : (
+                  <span className="inline-flex h-8 items-center rounded-full border border-slate-200 bg-slate-50 px-3 text-xs font-semibold text-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">{t('mentorProposalDetail.timeline.clientReviewing')}</span>
+                )}
               </div>
               <div className="mt-5 space-y-5">
                 {threadItems.map((item, index) => (
@@ -432,7 +517,7 @@ export default function MentorProposalDetailPage() {
             </section>
             
             {canRespond && showRespondForm ? (
-              <section id="mentor-proposal-response" className="mt-6 rounded-xl border border-emerald-200 bg-emerald-50/50 p-5 shadow-sm dark:border-emerald-500/30 dark:bg-emerald-500/5">
+              <section id="mentor-proposal-response" className="rounded-2xl border border-emerald-200 bg-emerald-50/50 p-5 shadow-sm dark:border-emerald-500/30 dark:bg-emerald-500/5">
                 <div className="flex flex-col gap-2 border-b border-emerald-100 pb-3 lg:flex-row lg:items-center lg:justify-between dark:border-emerald-500/20">
                   <div>
                     <div className="flex items-center gap-2">
@@ -518,9 +603,9 @@ export default function MentorProposalDetailPage() {
                 </div>
               </section>
             ) : canRespond && !showRespondForm ? (
-              <div className="mt-6"></div>
+              null
             ) : !isFinalized ? (
-              <section className="mt-6 rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+              <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                   <div>
                     <h2 className="text-base font-bold tracking-tight text-slate-900 dark:text-white">Your latest offer is with the client</h2>
@@ -537,127 +622,99 @@ export default function MentorProposalDetailPage() {
               </section>
             ) : null}
           </div>
-          <aside className="space-y-4 lg:col-span-4">
-            <section className="sticky top-[104px] space-y-4">
-              <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                <div className="flex items-center gap-3">
-                  <StatusBadge label={agreementStatus} tone={getStatusTone(currentStatus, isClientOffer)} />
-                  <span className="text-sm font-medium text-slate-500 dark:text-slate-400">#{proposal.id.slice(0, 8)}</span>
+          <aside className="min-w-0">
+            <section className="sticky top-[104px] rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-400">{t('mentorProposalDetail.decision.title')}</p>
+                  <h2 className="mt-2 text-lg font-bold leading-6 tracking-tight text-slate-950 dark:text-white">{decisionTitle}</h2>
                 </div>
-                <h1 className="mt-3 text-lg font-bold tracking-tight text-slate-900 sm:text-xl dark:text-white">{job.title}</h1>
-                <div className="mt-4 flex flex-col gap-2 text-sm text-slate-500 dark:text-slate-400">
-                  <span className="inline-flex items-center gap-2">
-                    <Avatar avatarUrl={clientAvatar} initials={clientInitials} size="sm" />
-                    <span className="font-medium text-slate-700 dark:text-slate-300">{clientName}</span>
-                  </span>
-                  <span className="inline-flex items-center gap-1.5">
-                    Started {formatDate(proposal.createdAt)}
-                    {proposal.viewCount !== undefined ? (
-                      <>
-                        <span className="h-1 w-1 rounded-full bg-slate-300 dark:bg-slate-600" />
-                        <span className="inline-flex items-center gap-1 font-medium text-slate-700 dark:text-slate-300">
-                          <Eye className="h-4 w-4 text-emerald-500" />
-                          {proposal.viewCount} views
-                        </span>
-                      </>
-                    ) : null}
-                  </span>
-                </div>
-                <div className="mt-4 flex flex-col gap-3 border-t border-slate-100 pt-4 dark:border-slate-800">
-                  <div className="flex flex-wrap gap-2">
-                    <span className="inline-flex items-center rounded-md bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600 dark:bg-slate-800 dark:text-slate-400">{categoryName}</span>
-                  </div>
+                <StatusBadge label={agreementStatus} tone={getStatusTone(currentStatus, isClientOffer)} />
+              </div>
+              <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">{decisionBody}</p>
+              {currentFlowNotice ? (
+                <p className="mt-4 rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-xs font-semibold leading-5 text-emerald-700">
+                  {currentFlowNotice}
+                </p>
+              ) : null}
+
+              <div className="mt-5 space-y-3">
+                {!isFinalized && isClientOffer ? (
+                  <>
+                    <button
+                      type="button"
+                      disabled={submitting}
+                      onClick={() => setShowAcceptModal(true)}
+                      className="inline-flex h-11 w-full items-center justify-center rounded-xl bg-emerald-600 text-sm font-bold text-white transition hover:bg-emerald-700 focus:outline-none focus:ring-4 focus:ring-emerald-500/20 disabled:opacity-60"
+                    >
+                      {t('mentorProposalDetail.offer.acceptTerms')}
+                    </button>
+                    <button
+                      type="button"
+                      disabled={submitting}
+                      onClick={() => handleOpenCounter('COUNTER')}
+                      className="inline-flex h-11 w-full items-center justify-center rounded-xl border border-slate-200 bg-white text-sm font-bold text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 disabled:opacity-60 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+                    >
+                      {t('mentorProposalDetail.sidebar.prepareCounter')}
+                    </button>
+                    <button
+                      type="button"
+                      disabled={submitting}
+                      onClick={() => {
+                        setError('')
+                        setRejectReason('')
+                        setShowRejectModal(true)
+                      }}
+                      className="inline-flex h-11 w-full items-center justify-center rounded-xl border border-rose-200 bg-white text-sm font-bold text-rose-600 transition hover:bg-rose-50 focus:outline-none focus:ring-4 focus:ring-rose-500/10 disabled:opacity-60 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-400 dark:hover:bg-rose-500/20"
+                    >
+                      {t('mentorProposalDetail.sidebar.rejectProposal')}
+                    </button>
+                  </>
+                ) : canOpenChat ? (
+                  <button
+                    type="button"
+                    onClick={() => setIsChatDrawerOpen(true)}
+                    className="inline-flex h-11 w-full items-center justify-center rounded-xl border border-emerald-200 bg-emerald-50 text-sm font-bold text-emerald-700 transition hover:bg-emerald-100 focus:outline-none focus:ring-4 focus:ring-emerald-500/10"
+                  >
+                    {t('mentorProposalDetail.sidebar.openProjectChat')}
+                  </button>
+                ) : (
+                  <p className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                    {t('mentorProposalDetail.decision.noAction')}
+                  </p>
+                )}
+              </div>
+
+              <div className="mt-6 border-t border-slate-100 pt-5 dark:border-slate-800">
+                <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-400">{t('mentorProposalDetail.decision.currentMessage')}</p>
+                <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">{truncateText(currentOfferMessage, 220)}</p>
+              </div>
+
+              <div className="mt-5 border-t border-slate-100 pt-5 dark:border-slate-800">
+                <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-400">{t('mentorProposalDetail.decision.supportingLinks')}</p>
+                <div className="mt-3 grid gap-2">
                   <Link
                     to={`/jobs/${job.jobId}`}
-                    className="inline-flex h-9 w-full items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+                    className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
                   >
                     <ArrowUpRight className="h-4 w-4" />
-                    View Original Job
+                    {t('mentorProposalDetail.hero.viewOriginalJob')}
                   </Link>
                   <button
                     type="button"
-                    onClick={() => setShowAiExplain(true)}
-                    className="inline-flex h-9 w-full items-center justify-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-4 text-sm font-medium text-emerald-700 transition hover:border-emerald-300 hover:bg-emerald-100"
+                    onClick={() => setIsChatDrawerOpen(true)}
+                    className="inline-flex h-10 items-center justify-center rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
                   >
-                    <Sparkles className="h-4 w-4" />
-                    Hỏi AI giải thích
+                    {t('mentorProposalDetail.decision.openDiscussion')}
                   </button>
-                </div>
-              </div>
-
-              <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                <div className="bg-slate-50 px-5 py-5 dark:bg-slate-800/50">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">{t('mentorProposalDetail.sidebar.currentTerms')}</p>
-                      <h2 className="mt-1 text-lg font-bold tracking-tight text-slate-900 dark:text-white">{currentBudgetLabel}</h2>
-                    </div>
-                  </div>
-                  <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
-                    <RailMetric icon={<Wallet className="h-4 w-4" />} label={t('mentorProposalDetail.offer.price')} value={currentBudgetLabel} />
-                    <RailMetric icon={<Clock3 className="h-4 w-4" />} label={t('mentorProposalDetail.offer.deadline')} value={currentDeadlineLabel} />
-                    <RailMetric icon={<CircleDashed className="h-4 w-4" />} label={t('mentorProposalDetail.offer.timeUntilDeadline')} value={currentTimeRemainingLabel} />
-                  </div>
-                  <div className="mt-4 rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
-                    <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">{t('mentorProposalDetail.sidebar.messageDetails')}</p>
-                    <p className="mt-2 text-sm leading-6 text-slate-700 dark:text-slate-300">
-                      {truncateText(currentOfferMessage, 180)}
-                    </p>
-                  </div>
-                  {currentFlowNotice ? (
-                    <p className="mt-4 rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-xs font-semibold leading-5 text-emerald-700">
-                      {currentFlowNotice}
-                    </p>
-                  ) : null}
-                </div>
-                <div className="space-y-4 px-5 py-5">
-                  {!isFinalized ? (
-                    isClientOffer ? (
-                      <>
-                        <button
-                          type="button"
-                          disabled={submitting}
-                          onClick={() => setShowAcceptModal(true)}
-                          className="inline-flex h-10 w-full items-center justify-center rounded-lg bg-emerald-600 text-sm font-medium text-white transition hover:bg-emerald-700 disabled:opacity-60"
-                        >
-                          {t('mentorProposalDetail.offer.acceptTerms')}
-                        </button>
-                        <button
-                          type="button"
-                          disabled={submitting}
-                          onClick={() => handleOpenCounter('COUNTER')}
-                          className="inline-flex h-10 w-full items-center justify-center rounded-lg border border-slate-200 bg-white text-sm font-medium text-slate-700 transition hover:border-emerald-200 hover:text-emerald-700 disabled:opacity-60 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
-                        >
-                          {t('mentorProposalDetail.sidebar.prepareCounter')}
-                        </button>
-                        <button
-                          type="button"
-                          disabled={submitting}
-                          onClick={() => {
-                            setError('')
-                            setRejectReason('')
-                            setShowRejectModal(true)
-                          }}
-                          className="inline-flex h-10 w-full items-center justify-center rounded-lg border border-rose-200 bg-white text-sm font-medium text-rose-600 transition hover:bg-rose-50 disabled:opacity-60 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-400 dark:hover:bg-rose-500/20"
-                        >
-                          {t('mentorProposalDetail.sidebar.rejectProposal')}
-                        </button>
-                      </>
-                    ) : null
-                  ) : null}
-                  {canOpenChat ? (
-                    <button
-                      type="button"
-                      onClick={() => setIsChatDrawerOpen(true)}
-                      className="inline-flex h-10 w-full items-center justify-center rounded-lg border border-emerald-200 bg-emerald-50 text-sm font-medium text-emerald-700 transition hover:bg-emerald-100"
-                    >
-                      {t('mentorProposalDetail.sidebar.openProjectChat')}
-                    </button>
-                  ) : null}
                 </div>
               </div>
             </section>
           </aside>
+
+          {/*
+                    Hỏi AI giải thích
+          */}
         </div>
       </div>
 
@@ -946,15 +1003,6 @@ function ConversationCard({ item, isLast, onCounter, onAccept }: { item: Convers
   )
 }
 
-function CompactMetaPill({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-[18px] bg-slate-50 px-3.5 py-3">
-      <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">{label}</p>
-      <p className="mt-1.5 text-sm font-black leading-5 text-slate-950">{value}</p>
-    </div>
-  )
-}
-
 function StatusBadge({ label, tone }: { label: string; tone: 'indigo' | 'amber' | 'emerald' | 'rose' | 'slate' }) {
   const toneClass = {
     indigo: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400',
@@ -1005,22 +1053,15 @@ function JourneyStep({
   )
 }
 
-function MiniFact({ label, value }: { label: string; value: string }) {
+function DealTerm({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
-    <div className="rounded-xl bg-slate-50 px-4 py-3 dark:bg-slate-800/50">
-      <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">{label}</p>
-      <p className="mt-1 text-sm font-bold text-slate-900 dark:text-white">{value}</p>
-    </div>
-  )
-}
-
-function RailMetric({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
-  return (
-    <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm dark:border-slate-700 dark:bg-slate-800">
-      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-100 text-slate-500 dark:bg-slate-700 dark:text-slate-300">{icon}</div>
-      <div>
-        <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">{label}</p>
-        <p className="mt-0.5 text-sm font-bold text-slate-900 dark:text-white">{value}</p>
+    <div className="flex items-start gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 dark:border-slate-700 dark:bg-slate-900">
+      <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400">
+        {icon}
+      </div>
+      <div className="min-w-0">
+        <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-slate-400">{label}</p>
+        <p className="mt-1 break-words text-sm font-bold leading-5 text-slate-950 dark:text-white">{value}</p>
       </div>
     </div>
   )
@@ -1078,6 +1119,7 @@ function formatBudgetValue(
   return 'To discuss'
 }
 
+
 function getAgreementStatus(status: ProposalStatus, latestNegotiation: NegotiationResponse | null, t: ReturnType<typeof useI18n>['t']) {
   if (status === 'ACCEPTED') return t('mentorProposalDetail.status.acceptedByClient')
   if (status === 'OFFER_ACCEPTED') return t('mentorProposalDetail.status.termsAgreed')
@@ -1105,14 +1147,14 @@ function getJourneyStageIndex(
   if (!proposal) return 0
   
   if (contract) {
-    if (contract.status === 'ACTIVE' || contract.status === 'COMPLETED') return 3
+    if (contract.status === 'COMPLETED') return 4
+    if (contract.status === 'ACTIVE') return 3
     return 2
   }
   
   if (proposal.status === 'ACCEPTED') return 3
   if (proposal.status === 'OFFER_ACCEPTED') return 2
   if (proposal.status === 'NEGOTIATING' || proposal.status === 'INTERVIEW_REQUESTED' || negotiations.length > 0) return 1
-  
   return 0
 }
 

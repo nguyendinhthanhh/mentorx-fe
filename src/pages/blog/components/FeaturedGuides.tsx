@@ -12,7 +12,7 @@ export function FeaturedGuides({
   return (
     <section>
       <div className="mb-6 border-b border-slate-200 pb-4">
-        <h2 className="text-2xl font-bold tracking-tight text-slate-900">Featured Guides</h2>
+        <h2 className="text-2xl font-bold tracking-tight text-slate-900">Bài viết nổi bật</h2>
       </div>
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[2fr_1fr]">
         <article className="group relative flex min-h-[400px] flex-col justify-end overflow-hidden rounded-2xl bg-slate-900 shadow-sm transition-all hover:shadow-md">

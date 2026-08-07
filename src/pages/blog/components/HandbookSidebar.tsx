@@ -18,7 +18,7 @@ export function HandbookSidebar({
       <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         <div className="mb-4 flex items-center gap-2">
           <Flame className="h-5 w-5 text-orange-500" />
-          <h3 className="text-lg font-bold tracking-tight text-slate-900">Popular topics</h3>
+          <h3 className="text-lg font-bold tracking-tight text-slate-900">Chủ đề phổ biến</h3>
         </div>
         <div className="flex flex-wrap gap-2">
           {topics.map((topic) => (
@@ -37,7 +37,7 @@ export function HandbookSidebar({
       <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         <div className="mb-4 flex items-center gap-2">
           <Quote className="h-5 w-5 text-emerald-500" />
-          <h3 className="text-lg font-bold tracking-tight text-slate-900">Top contributors</h3>
+          <h3 className="text-lg font-bold tracking-tight text-slate-900">Người đóng góp hàng đầu</h3>
         </div>
         <div className="space-y-4">
           {contributors.map((contributor) => (
@@ -60,7 +60,7 @@ export function HandbookSidebar({
       <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         <div className="mb-4 flex items-center gap-2">
           <Compass className="h-5 w-5 text-blue-500" />
-          <h3 className="text-lg font-bold tracking-tight text-slate-900">Start here</h3>
+          <h3 className="text-lg font-bold tracking-tight text-slate-900">Bắt đầu từ đây</h3>
         </div>
         <ol className="space-y-4">
           {startHere.map((item, index) => (

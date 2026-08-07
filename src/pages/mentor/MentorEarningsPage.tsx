@@ -12,14 +12,15 @@ import { LoadingRows, MetricCard, PageShell, SelectInput, StateCard, StatusPill,
 import { useEarningsSummary } from '@/hooks/useAnalytics'
 import { AnalyticsPeriod } from '@/api/analyticsApi'
 import EarningsChart from '@/components/analytics/EarningsChart'
+import WithdrawalHistory from '@/components/wallet/WithdrawalHistory'
 
 type TabKey = 'overview' | 'transactions' | 'contracts' | 'withdrawals'
 
 const PERIOD_OPTIONS: { value: AnalyticsPeriod; label: string }[] = [
-  { value: 'DAY', label: 'Daily' },
-  { value: 'WEEK', label: 'Weekly' },
-  { value: 'MONTH', label: 'Monthly' },
-  { value: 'YEAR', label: 'Yearly' },
+  { value: 'DAY', label: 'Theo ngày' },
+  { value: 'WEEK', label: 'Theo tuần' },
+  { value: 'MONTH', label: 'Theo tháng' },
+  { value: 'YEAR', label: 'Theo năm' },
 ]
 
 const releasedTxnTypes = new Set<string>([TxnType.JOB_RELEASE, TxnType.COURSE_PURCHASE, TxnType.APPOINTMENT_RELEASE])
@@ -102,7 +103,7 @@ export default function MentorEarningsPage() {
         <div>
           <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-[11px] uppercase tracking-widest font-black text-emerald-600 mb-3 border border-emerald-100 shadow-sm">
             <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-            Pipeline Overview
+            Tổng quan
           </div>
           <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Quản lý Thu nhập</h1>
           <p className="mt-2 text-sm font-medium text-slate-500">
@@ -138,19 +139,19 @@ export default function MentorEarningsPage() {
 
       <div className="rounded-[2.5rem] border border-slate-200/60 bg-white/50 p-6 sm:p-8 shadow-xl shadow-slate-200/40 backdrop-blur-2xl">
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <MetricCard label="Available balance" value={formatCurrency(summary.available)} helper="Withdrawable after payout approval." icon={<DollarSign className="h-5 w-5" />} tone="emerald" />
-        <MetricCard label="In escrow" value={formatCurrency(summary.inEscrow)} helper="Released only after client confirms completion." icon={<LockKeyhole className="h-5 w-5" />} tone="amber" />
-        <MetricCard label="This month" value={formatCurrency(summary.thisMonth)} helper="Released credits found in wallet transactions." icon={<ArrowUpRight className="h-5 w-5" />} />
-        <MetricCard label="Lifetime earnings" value={formatCurrency(summary.lifetime)} helper="Based on loaded release/course sale transactions." icon={<ReceiptText className="h-5 w-5" />} tone="slate" />
+        <MetricCard label="Số dư khả dụng" value={formatCurrency(summary.available)} helper="Có thể rút sau khi cài đặt tài khoản nhận tiền." icon={<DollarSign className="h-5 w-5" />} tone="emerald" />
+        <MetricCard label="Đang giữ (Escrow)" value={formatCurrency(summary.inEscrow)} helper="Sẽ được giải ngân khi khách hàng nghiệm thu." icon={<LockKeyhole className="h-5 w-5" />} tone="amber" />
+        <MetricCard label="Tháng này" value={formatCurrency(summary.thisMonth)} helper="Các khoản thu nhập đã được giải ngân trong tháng." icon={<ArrowUpRight className="h-5 w-5" />} />
+        <MetricCard label="Tổng thu nhập" value={formatCurrency(summary.lifetime)} helper="Tổng hợp từ tất cả các giao dịch giải ngân." icon={<ReceiptText className="h-5 w-5" />} tone="slate" />
       </div>
 
       <Toolbar>
         <div className="scrollbar-hide flex w-full overflow-x-auto rounded-2xl bg-slate-100 p-1 lg:w-auto">
           {[
-            ['overview', 'Overview'],
-            ['transactions', 'Transactions'],
-            ['contracts', 'Contracts'],
-            ['withdrawals', 'Withdrawals'],
+            ['overview', 'Tổng quan'],
+            ['transactions', 'Lịch sử giao dịch'],
+            ['contracts', 'Hợp đồng'],
+            ['withdrawals', 'Lịch sử rút tiền'],
           ].map(([key, label]) => (
             <button
               key={key}
@@ -164,11 +165,11 @@ export default function MentorEarningsPage() {
         </div>
         {activeTab === 'transactions' ? (
           <SelectInput value={transactionFilter} onChange={(event) => setTransactionFilter(event.target.value)} className="w-full lg:ml-auto lg:w-48">
-            <option value="ALL">All transactions</option>
-            <option value="RELEASED">Released</option>
-            <option value="ESCROW">Escrow</option>
-            <option value="WITHDRAWAL">Withdrawal</option>
-            <option value="REFUND">Refund</option>
+            <option value="ALL">Tất cả giao dịch</option>
+            <option value="RELEASED">Đã giải ngân</option>
+            <option value="ESCROW">Đang giữ</option>
+            <option value="WITHDRAWAL">Rút tiền</option>
+            <option value="REFUND">Hoàn tiền</option>
           </SelectInput>
         ) : null}
       </Toolbar>
@@ -176,14 +177,14 @@ export default function MentorEarningsPage() {
       {loading ? (
         <LoadingRows rows={4} />
       ) : error ? (
-        <StateCard tone="error" title="Unable to load earnings" message={error} action={<button onClick={loadEarnings} className="rounded-2xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white">Retry</button>} />
+        <StateCard tone="error" title="Không thể tải dữ liệu" message={error} action={<button onClick={loadEarnings} className="rounded-2xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white">Thử lại</button>} />
       ) : activeTab === 'overview' ? (
         <div className="space-y-5">
           {/* Analytics Earnings Summary */}
           {earningsSummary ? (
             <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <h2 className="text-lg font-bold text-slate-950">Earnings Overview</h2>
+                <h2 className="text-lg font-bold text-slate-950">Tổng quan thu nhập</h2>
                 <div className="flex gap-1 rounded-xl bg-slate-100 p-1">
                   {PERIOD_OPTIONS.map((opt) => (
                     <button
@@ -198,10 +199,10 @@ export default function MentorEarningsPage() {
                 </div>
               </div>
               <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                <MetricCard label="Total earned" value={formatCurrency(earningsSummary.totalEarnedMxc)} tone="indigo" />
-                <MetricCard label="Available" value={formatCurrency(earningsSummary.availableBalanceMxc)} tone="emerald" />
-                <MetricCard label="In escrow" value={formatCurrency(earningsSummary.escrowBalanceMxc)} tone="amber" />
-                <MetricCard label="Withdrawn" value={formatCurrency(earningsSummary.withdrawnMxc)} tone="slate" />
+                <MetricCard label="Tổng thu nhập" value={formatCurrency(earningsSummary.totalEarnedMxc)} tone="indigo" />
+                <MetricCard label="Khả dụng" value={formatCurrency(earningsSummary.availableBalanceMxc)} tone="emerald" />
+                <MetricCard label="Đang giữ" value={formatCurrency(earningsSummary.escrowBalanceMxc)} tone="amber" />
+                <MetricCard label="Đã rút" value={formatCurrency(earningsSummary.withdrawnMxc)} tone="slate" />
               </div>
               {earningsSummary.bySource.length > 0 && (
                 <div className="mt-4 flex flex-wrap gap-2">
@@ -222,30 +223,30 @@ export default function MentorEarningsPage() {
           <div className="grid gap-5 xl:grid-cols-[1fr_380px]">
           <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
             <div className="flex items-center justify-between gap-3">
-              <h2 className="text-lg font-bold text-slate-950">Recent transactions</h2>
-              <button type="button" onClick={() => setActiveTab('transactions')} className="text-sm font-bold text-emerald-600">View all</button>
+              <h2 className="text-lg font-bold text-slate-950">Giao dịch gần đây</h2>
+              <button type="button" onClick={() => setActiveTab('transactions')} className="text-sm font-bold text-emerald-600">Xem tất cả</button>
             </div>
             <TransactionList transactions={transactions.slice(0, 6)} />
           </section>
 
           <aside className="space-y-5">
             <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-              <h2 className="text-lg font-bold text-slate-950">Withdrawal readiness</h2>
+              <h2 className="text-lg font-bold text-slate-950">Điều kiện rút tiền</h2>
               <div className="mt-4 space-y-3">
-                <ReadinessItem label="Mentor approved" passed={user?.mentorStatus === 'APPROVED'} />
-                <ReadinessItem label="Payout account approved" passed={payoutStatus === 'APPROVED'} />
-                <ReadinessItem label="Available balance" passed={summary.available > 0} />
+                <ReadinessItem label="Mentor được duyệt" passed={user?.mentorStatus === 'APPROVED'} />
+                <ReadinessItem label="Tài khoản nhận tiền được duyệt" passed={payoutStatus === 'APPROVED'} />
+                <ReadinessItem label="Có số dư khả dụng" passed={summary.available > 0} />
               </div>
               {!canWithdraw ? (
                 <div className="mt-4 rounded-2xl bg-amber-50 p-4 text-sm font-semibold leading-6 text-amber-800">
                   <AlertTriangle className="mr-2 inline h-4 w-4" />
-                  Withdrawal is disabled until payout is approved and available balance is greater than zero.
+                  Chức năng rút tiền bị khóa cho đến khi tài khoản được duyệt và số dư lớn hơn 0.
                 </div>
               ) : null}
             </section>
 
             <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-              <h2 className="text-lg font-bold text-slate-950">Payout account</h2>
+              <h2 className="text-lg font-bold text-slate-950">Tài khoản nhận tiền</h2>
               {defaultPayout ? (
                 <div className="mt-4 space-y-2 text-sm font-semibold text-slate-600">
                   <p>{defaultPayout.accountHolderName}</p>
@@ -254,7 +255,7 @@ export default function MentorEarningsPage() {
                   <StatusPill label={formatPayoutStatus(payoutStatus)} tone={payoutStatus === 'APPROVED' ? 'emerald' : payoutStatus === 'REJECTED' ? 'rose' : 'amber'} />
                 </div>
               ) : (
-                <p className="mt-3 text-sm font-medium leading-6 text-slate-500">No payout account submitted yet.</p>
+                <p className="mt-3 text-sm font-medium leading-6 text-slate-500">Bạn chưa thêm tài khoản nhận tiền.</p>
               )}
             </section>
           </aside>
@@ -262,7 +263,7 @@ export default function MentorEarningsPage() {
         </div>
       ) : activeTab === 'transactions' ? (
         filteredTransactions.length === 0 ? (
-          <StateCard title="No transactions yet" message="Released earnings, escrow movements, withdrawals, and refunds will appear here when they exist." />
+          <StateCard title="Không có giao dịch" message="Các khoản thu nhập, dòng tiền giải ngân, rút tiền, và hoàn tiền sẽ hiển thị tại đây." />
         ) : (
           <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
             <TransactionList transactions={filteredTransactions} />
@@ -270,7 +271,7 @@ export default function MentorEarningsPage() {
         )
       ) : activeTab === 'contracts' ? (
         contracts.length === 0 ? (
-          <StateCard title="No earning contracts yet" message="Active escrow and completed contracts will appear here after clients accept your proposals." />
+          <StateCard title="Chưa có hợp đồng nào" message="Các hợp đồng đang giữ tiền hoặc đã hoàn thành sẽ hiển thị tại đây." />
         ) : (
           <div className="grid gap-4 xl:grid-cols-2">
             {contracts.map((contract) => (
@@ -278,25 +279,37 @@ export default function MentorEarningsPage() {
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <h2 className="text-lg font-bold text-slate-950">{contract.jobTitle || contract.title}</h2>
-                    <p className="mt-1 text-sm font-semibold text-slate-500">Client: {contract.clientName}</p>
+                    <p className="mt-1 text-sm font-semibold text-slate-500">Khách hàng: {contract.clientName}</p>
                   </div>
                   <StatusPill label={formatContractStatus(contract.status)} tone={contract.status === ContractStatus.COMPLETED ? 'emerald' : contract.status === ContractStatus.IN_DISPUTE ? 'rose' : contract.status === ContractStatus.CANCELLED ? 'slate' : 'indigo'} />
                 </div>
                 <div className="mt-5 grid grid-cols-2 gap-3">
-                  <MiniAmount label="In escrow" value={contract.amountInEscrow} />
-                  <MiniAmount label="Paid" value={contract.amountPaid} />
-                  <MiniAmount label="Total" value={contract.totalAmount} />
-                  <MiniAmount label="Started" value={contract.createdAt} isDate />
+                  <MiniAmount label="Đang giữ" value={contract.amountInEscrow} />
+                  <MiniAmount label="Đã trả" value={contract.amountPaid} />
+                  <MiniAmount label="Tổng cộng" value={contract.totalAmount} />
+                  <MiniAmount label="Bắt đầu" value={contract.createdAt} isDate />
                 </div>
-                <Link to="/mentor/contracts" className="mt-5 inline-flex rounded-2xl border border-slate-200 px-4 py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-50">
-                  View contract
+                <Link to={`/mentor/proposals/${contract.proposalId || contract.id}`} className="mt-5 inline-flex rounded-2xl border border-slate-200 px-4 py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-50">
+                  Xem chi tiết
                 </Link>
               </article>
             ))}
           </div>
         )
       ) : (
-        <StateCard title="No withdrawal list endpoint" message="Withdrawal creation exists, but the backend currently exposes withdrawal listing only to admins. Mentor withdrawal history is not shown to avoid fake data." />
+        <div className="space-y-4">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-bold text-slate-900">Lịch sử rút tiền</h2>
+            
+              <Link
+                to="/wallet?tab=withdraw"
+                className="inline-flex h-9 items-center justify-center rounded-lg bg-emerald-600 px-4 text-xs font-bold text-white shadow-sm hover:bg-emerald-700 transition"
+              >
+                Tạo yêu cầu rút tiền
+              </Link>
+          </div>
+          {user?.userId && <WithdrawalHistory userId={user.userId} />}
+        </div>
       )}
       </div>
     </div>
@@ -305,7 +318,7 @@ export default function MentorEarningsPage() {
 
 function TransactionList({ transactions }: { transactions: WalletTransactionResponse[] }) {
   if (transactions.length === 0) {
-    return <StateCard title="No transactions yet" message="Wallet transactions will appear here once money moves through your account." />
+    return <StateCard title="Không có giao dịch" message="Lịch sử thay đổi số dư ví sẽ hiển thị ở đây." />
   }
 
   return (
@@ -338,7 +351,7 @@ function ReadinessItem({ label, passed }: { label: string; passed: boolean }) {
   return (
     <div className="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3">
       <span className="text-sm font-bold text-slate-700">{label}</span>
-      <StatusPill label={passed ? 'Ready' : 'Missing'} tone={passed ? 'emerald' : 'amber'} />
+      <StatusPill label={passed ? 'Sẵn sàng' : 'Còn thiếu'} tone={passed ? 'emerald' : 'amber'} />
     </div>
   )
 }
@@ -366,27 +379,27 @@ function formatTxnType(type: string) {
 
 function formatContractStatus(status: string) {
   const labels: Record<string, string> = {
-    ACTIVE: 'Active',
-    UNDER_REVIEW: 'Completion requested',
-    IN_DISPUTE: 'In dispute',
-    COMPLETED: 'Completed',
-    CANCELLED: 'Cancelled',
+    ACTIVE: 'Đang hoạt động',
+    UNDER_REVIEW: 'Chờ duyệt',
+    IN_DISPUTE: 'Tranh chấp',
+    COMPLETED: 'Hoàn thành',
+    CANCELLED: 'Đã hủy',
   }
   return labels[status] || formatTxnType(status)
 }
 
 function formatPayoutStatus(status: string) {
   const labels: Record<string, string> = {
-    NOT_SUBMITTED: 'Not submitted',
-    PENDING: 'Pending review',
-    APPROVED: 'Approved',
-    REJECTED: 'Rejected',
+    NOT_SUBMITTED: 'Chưa thêm',
+    PENDING: 'Đang xét duyệt',
+    APPROVED: 'Đã duyệt',
+    REJECTED: 'Bị từ chối',
   }
   return labels[status] || formatTxnType(status)
 }
 
 function maskAccount(account?: string) {
-  if (!account) return 'Account not provided'
+  if (!account) return 'Chưa thêm số tài khoản'
   const last4 = account.slice(-4)
   return `**** ${last4}`
 }

@@ -90,13 +90,13 @@ export default function BankAccountSettings({ userId }: BankAccountSettingsProps
   const currentPolicyNote = useMemo(() => {
     switch (payoutStatus) {
       case VerificationStatus.APPROVED:
-        return 'Your payout details are approved and ready for withdrawal.'
+        return 'Thông tin nhận tiền của bạn đã được duyệt và sẵn sàng cho việc rút tiền.'
       case VerificationStatus.PENDING:
-        return 'Your payout details are under review. You can use Mentor Mode, but withdrawal stays locked until approval.'
+        return 'Thông tin nhận tiền của bạn đang được duyệt. Bạn có thể sử dụng Mentor Mode, nhưng chức năng rút tiền sẽ bị khóa cho đến khi được duyệt.'
       case VerificationStatus.REJECTED:
-        return 'Your payout details were rejected. Update them and resubmit before requesting withdrawal.'
+        return 'Thông tin nhận tiền của bạn đã bị từ chối. Vui lòng cập nhật và gửi lại trước khi yêu cầu rút tiền.'
       default:
-        return 'Payout setup is required before your first withdrawal.'
+        return 'Bạn cần thiết lập thông tin nhận tiền trước khi rút tiền lần đầu.'
     }
   }, [payoutStatus])
 
@@ -109,7 +109,7 @@ export default function BankAccountSettings({ userId }: BankAccountSettingsProps
     return (
       <div className="flex flex-col items-center justify-center py-12 space-y-4">
         <Loader2 className="w-8 h-8 text-primary-600 animate-spin" />
-        <p className="text-sm text-gray-500">Loading payout details...</p>
+        <p className="text-sm text-gray-500">Đang tải thông tin nhận tiền...</p>
       </div>
     )
   }
@@ -124,16 +124,15 @@ export default function BankAccountSettings({ userId }: BankAccountSettingsProps
                 <Landmark className="h-5 w-5" />
               </div>
               <div>
-                <p className="text-sm font-black text-slate-950">Payout setup</p>
+                <p className="text-sm font-black text-slate-950">Thiết lập nhận tiền</p>
                 <p className="mt-1 text-sm leading-6 text-slate-500">
-                  Add payout information when you are ready to withdraw mentor earnings. This is separate from
-                  mentor approval.
+                  Thêm thông tin nhận tiền khi bạn đã sẵn sàng rút thu nhập từ việc mentor. Thông tin này tách biệt với việc phê duyệt mentor.
                 </p>
               </div>
             </div>
           </div>
           <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600 lg:max-w-xs">
-            <p className="font-semibold text-slate-900">Payout review</p>
+            <p className="font-semibold text-slate-900">Đang chờ duyệt nhận tiền</p>
             <p className="mt-1">{currentPolicyNote}</p>
           </div>
         </div>
@@ -142,7 +141,7 @@ export default function BankAccountSettings({ userId }: BankAccountSettingsProps
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700">
           <BadgeCheck className="h-4 w-4 text-emerald-600" />
-          Status: {formatVerificationStatus(payoutStatus)}
+          Trạng thái: {formatVerificationStatus(payoutStatus)}
         </div>
 
         {!showAddForm && (
@@ -151,7 +150,7 @@ export default function BankAccountSettings({ userId }: BankAccountSettingsProps
             className="inline-flex items-center gap-2 rounded-2xl bg-slate-950 px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-slate-800"
           >
             <Plus className="h-4 w-4" />
-            Set up payout
+            Thiết lập nhận tiền
           </button>
         )}
       </div>
@@ -160,9 +159,9 @@ export default function BankAccountSettings({ userId }: BankAccountSettingsProps
         <div className="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-lg font-black text-slate-950">Add payout details</h3>
+              <h3 className="text-lg font-black text-slate-950">Thêm thông tin nhận tiền</h3>
               <p className="mt-1 text-sm text-slate-500">
-                Choose the method you want us to review before enabling withdrawals.
+                Chọn phương thức bạn muốn chúng tôi xét duyệt trước khi cho phép rút tiền.
               </p>
             </div>
             <button
@@ -172,7 +171,7 @@ export default function BankAccountSettings({ userId }: BankAccountSettingsProps
               }}
               className="text-sm font-semibold text-slate-500 hover:text-slate-900"
             >
-              Cancel
+              Hủy
             </button>
           </div>
 
@@ -185,65 +184,88 @@ export default function BankAccountSettings({ userId }: BankAccountSettingsProps
             )}
 
             <div className="grid gap-4 md:grid-cols-2">
-              <Field label="Payout country">
+              <Field label="Quốc gia">
                 <select
                   {...register('payoutCountry', { required: 'Payout country is required' })}
-                  className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
+                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 cursor-not-allowed text-slate-500"
                 >
-                  <option value="VN">Vietnam</option>
-                  <option value="US">United States</option>
-                  <option value="SG">Singapore</option>
-                  <option value="JP">Japan</option>
-                  <option value="OTHER">Other</option>
+                  <option value="VN">Việt Nam</option>
                 </select>
               </Field>
 
-              <Field label="Payout method">
+              <Field label="Phương thức thanh toán">
                 <select
                   {...register('payoutMethod')}
-                  className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
+                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 cursor-not-allowed text-slate-500"
                 >
-                  <option value={PayoutMethod.LOCAL_BANK}>Local bank</option>
-                  <option value={PayoutMethod.INTERNATIONAL_BANK}>International bank</option>
-                  <option value={PayoutMethod.PAYPAL}>PayPal</option>
-                  <option value={PayoutMethod.WISE}>Wise</option>
-                  <option value={PayoutMethod.STRIPE_CONNECT}>Stripe Connect</option>
+                  <option value={PayoutMethod.LOCAL_BANK}>Ngân hàng nội địa</option>
                 </select>
               </Field>
             </div>
 
             <div className="grid gap-4 md:grid-cols-2">
-              <Field label="Account holder name" error={errors.accountHolderName?.message}>
+              <Field label="Tên chủ tài khoản" error={errors.accountHolderName?.message}>
                 <input
-                  {...register('accountHolderName', { required: 'Account holder name is required' })}
-                  placeholder="Full legal name"
+                  {...register('accountHolderName', { 
+                    required: 'Account holder name is required',
+                    onChange: (e) => {
+                      let val = e.target.value;
+                      val = val.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, "a").replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, "e").replace(/ì|í|ị|ỉ|ĩ/g, "i").replace(/ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g, "o").replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g, "u").replace(/ỳ|ý|ỵ|ỷ|ỹ/g, "y").replace(/đ/g, "d");
+                      val = val.replace(/À|Á|Ạ|Ả|Ã|Â|Ầ|Ấ|Ậ|Ẩ|Ẫ|Ă|Ằ|Ắ|Ặ|Ẳ|Ẵ/g, "A").replace(/È|É|Ẹ|Ẻ|Ẽ|Ê|Ề|Ế|Ệ|Ể|Ễ/g, "E").replace(/Ì|Í|Ị|Ỉ|Ĩ/g, "I").replace(/Ò|Ó|Ọ|Ỏ|Õ|Ô|Ồ|Ố|Ộ|Ổ|Ỗ|Ơ|Ờ|Ớ|Ợ|Ở|Ỡ/g, "O").replace(/Ù|Ú|Ụ|Ủ|Ũ|Ư|Ừ|Ứ|Ự|Ử|Ữ/g, "U").replace(/Ỳ|Ý|Ỵ|Ỷ|Ỹ/g, "Y").replace(/Đ/g, "D");
+                      val = val.toUpperCase().replace(/[^A-Z\s]/g, "");
+                      e.target.value = val;
+                    }
+                  })}
+                  placeholder="NGUYEN VAN A"
                   className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
                 />
               </Field>
 
-              {(payoutMethod === PayoutMethod.LOCAL_BANK || payoutMethod === PayoutMethod.INTERNATIONAL_BANK) && (
-                <Field label="Bank name" error={errors.bankName?.message}>
-                  <input
+              {payoutMethod === PayoutMethod.LOCAL_BANK && (
+                <Field label="Tên ngân hàng" error={errors.bankName?.message}>
+                  <select
                     {...register('bankName', { required: 'Bank name is required' })}
-                    placeholder={payoutMethod === PayoutMethod.LOCAL_BANK ? 'e.g. Vietcombank' : 'e.g. DBS Bank'}
                     className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
-                  />
+                  >
+                    <option value="">Chọn ngân hàng</option>
+                    <option value="Vietcombank">Vietcombank</option>
+                    <option value="Techcombank">Techcombank</option>
+                    <option value="MBBank">MBBank (Quân Đội)</option>
+                    <option value="VietinBank">VietinBank</option>
+                    <option value="BIDV">BIDV</option>
+                    <option value="ACB">ACB</option>
+                    <option value="VPBank">VPBank</option>
+                    <option value="Agribank">Agribank</option>
+                    <option value="TPBank">TPBank</option>
+                    <option value="VIB">VIB</option>
+                    <option value="Sacombank">Sacombank</option>
+                    <option value="HDBank">HDBank</option>
+                    <option value="SeABank">SeABank</option>
+                    <option value="SHB">SHB</option>
+                    <option value="MSB">MSB (Hàng Hải)</option>
+                    <option value="OCB">OCB (Phương Đông)</option>
+                  </select>
                 </Field>
               )}
 
               {payoutMethod === PayoutMethod.LOCAL_BANK && (
                 <>
-                  <Field label="Bank account number" error={errors.accountNumber?.message}>
+                  <Field label="Số tài khoản ngân hàng" error={errors.accountNumber?.message}>
                     <input
-                      {...register('accountNumber', { required: 'Bank account number is required' })}
-                      placeholder="Account number"
+                      {...register('accountNumber', { 
+                        required: 'Bank account number is required',
+                        onChange: (e) => {
+                          e.target.value = e.target.value.replace(/[^0-9]/g, "");
+                        }
+                      })}
+                      placeholder="e.g. 1907123456789"
                       className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
                     />
                   </Field>
-                  <Field label="Branch name (optional)">
+                  <Field label="Tên chi nhánh (Tùy chọn)">
                     <input
                       {...register('branchName')}
-                      placeholder="Branch"
+                      placeholder="e.g. HCM Branch"
                       className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
                     />
                   </Field>
@@ -252,21 +274,21 @@ export default function BankAccountSettings({ userId }: BankAccountSettingsProps
 
               {payoutMethod === PayoutMethod.INTERNATIONAL_BANK && (
                 <>
-                  <Field label="Account number or IBAN" error={errors.accountNumber?.message}>
+                  <Field label="Số tài khoản hoặc IBAN" error={errors.accountNumber?.message}>
                     <input
                       {...register('accountNumber', { required: 'Account number or IBAN is required' })}
                       placeholder="Account number or IBAN"
                       className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
                     />
                   </Field>
-                  <Field label="SWIFT code" error={errors.swiftCode?.message}>
+                  <Field label="Mã SWIFT" error={errors.swiftCode?.message}>
                     <input
                       {...register('swiftCode', { required: 'SWIFT code is required' })}
                       placeholder="SWIFT / BIC"
                       className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
                     />
                   </Field>
-                  <Field label="IBAN (optional)">
+                  <Field label="IBAN (Tùy chọn)">
                     <input
                       {...register('iban')}
                       placeholder="IBAN"
@@ -308,8 +330,7 @@ export default function BankAccountSettings({ userId }: BankAccountSettingsProps
             </div>
 
             <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900">
-              We review payout details separately from mentor approval. This step is only required before your
-              first withdrawal.
+              Chúng tôi duyệt thông tin nhận tiền độc lập với việc phê duyệt mentor. Bước này chỉ yêu cầu trước lần rút tiền đầu tiên của bạn.
             </div>
 
             <button
@@ -318,7 +339,7 @@ export default function BankAccountSettings({ userId }: BankAccountSettingsProps
               className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-4 py-3.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {createMutation.isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
-              Save payout details
+              Lưu thông tin nhận tiền
             </button>
           </form>
         </div>
@@ -340,13 +361,13 @@ export default function BankAccountSettings({ userId }: BankAccountSettingsProps
                   </div>
                   <div>
                     <p className="text-sm font-black text-slate-950">{formatPayoutMethod(account.payoutMethod)}</p>
-                    <p className="text-xs text-slate-500">{account.payoutCountry || 'Unknown country'}</p>
+                    <p className="text-xs text-slate-500">{account.payoutCountry || 'Không rõ quốc gia'}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                   {account.isDefault && (
                     <span className="rounded-full bg-emerald-600 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-white">
-                      Default
+                      Mặc định
                     </span>
                   )}
                   <button
@@ -362,9 +383,9 @@ export default function BankAccountSettings({ userId }: BankAccountSettingsProps
                 <p className="font-semibold text-slate-900">{account.accountHolderName}</p>
                 <p>{getAccountDescriptor(account)}</p>
                 {account.isVerified ? (
-                  <p className="text-xs font-semibold text-emerald-600">Approved for payout</p>
+                  <p className="text-xs font-semibold text-emerald-600">Đã được duyệt</p>
                 ) : (
-                  <p className="text-xs font-semibold text-amber-600">Pending payout review</p>
+                  <p className="text-xs font-semibold text-amber-600">Đang chờ duyệt</p>
                 )}
               </div>
 
@@ -374,7 +395,7 @@ export default function BankAccountSettings({ userId }: BankAccountSettingsProps
                   className="mt-4 inline-flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
                 >
                   <RefreshCcw className="h-3.5 w-3.5" />
-                  Set as default
+                  Đặt làm mặc định
                 </button>
               )}
             </div>
@@ -384,9 +405,9 @@ export default function BankAccountSettings({ userId }: BankAccountSettingsProps
         !showAddForm && (
           <div className="rounded-[1.75rem] border border-dashed border-slate-300 bg-white px-6 py-12 text-center">
             <Globe2 className="mx-auto h-10 w-10 text-slate-300" />
-            <p className="mt-4 text-sm font-semibold text-slate-700">No payout method added yet</p>
+            <p className="mt-4 text-sm font-semibold text-slate-700">Chưa có phương thức nhận tiền nào</p>
             <p className="mt-1 text-sm text-slate-500">
-              Add a payout method when you are ready to request your first withdrawal.
+              Thêm phương thức nhận tiền khi bạn đã sẵn sàng yêu cầu rút tiền lần đầu.
             </p>
           </div>
         )
@@ -464,15 +485,15 @@ function buildPayoutPayload(values: PayoutFormValues, isFirstAccount = false): B
 function formatVerificationStatus(status?: VerificationStatus) {
   switch (status) {
     case VerificationStatus.PENDING:
-      return 'Pending review'
+      return 'Đang chờ duyệt'
     case VerificationStatus.APPROVED:
-      return 'Approved'
+      return 'Đã duyệt'
     case VerificationStatus.REJECTED:
-      return 'Rejected'
+      return 'Bị từ chối'
     case VerificationStatus.NEEDS_MORE_INFO:
-      return 'Needs more info'
+      return 'Cần thêm thông tin'
     default:
-      return 'Not submitted'
+      return 'Chưa gửi'
   }
 }
 

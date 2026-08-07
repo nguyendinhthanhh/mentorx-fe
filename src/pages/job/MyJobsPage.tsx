@@ -19,6 +19,7 @@ import {
   X,
 } from 'lucide-react'
 import { jobApi } from '@/api/jobApi'
+import JobCancelConfirmModal from '@/components/job/JobCancelConfirmModal'
 import { useAuthStore } from '@/store/authStore'
 import { JobResponse, JobStatus, JobType } from '@/types'
 import { formatCurrency, formatDate, formatRelativeTime } from '@/utils/formatters'
@@ -71,6 +72,7 @@ export default function MyJobsPage() {
   const [statusFilter, setStatusFilter] = useState<string>('ALL')
   const [sortValue, setSortValue] = useState('newest')
   const [openMenuJobId, setOpenMenuJobId] = useState<string | null>(null)
+  const [cancelJobId, setCancelJobId] = useState<string | null>(null)
 
   const { data, isLoading } = useQuery(
     ['user-requests', user?.userId],
@@ -104,7 +106,7 @@ export default function MyJobsPage() {
 
   const closeMutation = useMutation((jobId: string) => jobApi.updateStatus(jobId, JobStatus.CLOSED), {
     onSuccess: async () => {
-      toast.success('Yêu cầu đã được đóng.')
+      toast.success('Yêu cầu đã tạm đóng. MXC vẫn được giữ để bạn có thể mở lại.')
       await Promise.all([
         queryClient.invalidateQueries(['user-requests', user?.userId]),
         queryClient.invalidateQueries(['my-posted-jobs', user?.userId]),
@@ -112,6 +114,21 @@ export default function MyJobsPage() {
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.message || 'Không thể đóng yêu cầu này.')
+    },
+  })
+
+  const cancelMutation = useMutation((jobId: string) => jobApi.updateStatus(jobId, JobStatus.CANCELLED), {
+    onSuccess: async () => {
+      setCancelJobId(null)
+      toast.success('Yêu cầu đã được thu hồi. MXC đang giữ đã được hoàn về ví.')
+      await Promise.all([
+        queryClient.invalidateQueries(['user-requests', user?.userId]),
+        queryClient.invalidateQueries(['my-posted-jobs', user?.userId]),
+        queryClient.invalidateQueries(['userBalance', user?.userId]),
+      ])
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || 'Không thể thu hồi và hoàn tiền yêu cầu này.')
     },
   })
 
@@ -272,8 +289,13 @@ export default function MyJobsPage() {
                 onCloseMenu={() => setOpenMenuJobId(null)}
                 onPublish={() => publishMutation.mutate(job.jobId)}
                 onCloseRequest={() => closeMutation.mutate(job.jobId)}
+                onCancelRequest={() => {
+                  setOpenMenuJobId(null)
+                  setCancelJobId(job.jobId)
+                }}
                 isPublishing={publishMutation.isLoading && publishMutation.variables === job.jobId}
                 isClosing={closeMutation.isLoading && closeMutation.variables === job.jobId}
+                isCancelling={cancelMutation.isLoading && cancelMutation.variables === job.jobId}
               />
             ))}
           </section>
@@ -283,6 +305,17 @@ export default function MyJobsPage() {
       ) : (
         <EmptyState hasFilters={hasFilters} onClear={clearFilters} />
       )}
+
+      <JobCancelConfirmModal
+        isOpen={Boolean(cancelJobId)}
+        isLoading={cancelMutation.isLoading && cancelMutation.variables === cancelJobId}
+        onClose={() => setCancelJobId(null)}
+        onConfirm={() => {
+          if (cancelJobId) {
+            cancelMutation.mutate(cancelJobId)
+          }
+        }}
+      />
     </div>
   )
 }
@@ -294,8 +327,10 @@ function RequestCard({
   onCloseMenu,
   onPublish,
   onCloseRequest,
+  onCancelRequest,
   isPublishing,
   isClosing,
+  isCancelling,
 }: {
   job: JobResponse
   menuOpen: boolean
@@ -303,13 +338,16 @@ function RequestCard({
   onCloseMenu: () => void
   onPublish: () => void
   onCloseRequest: () => void
+  onCancelRequest: () => void
   isPublishing: boolean
   isClosing: boolean
+  isCancelling: boolean
 }) {
   const skillTags = job.requiredSkills?.slice(0, 3) || []
   const additionalSkills = Math.max((job.requiredSkills?.length || 0) - skillTags.length, 0)
   const isDraft = job.status === JobStatus.DRAFT
   const canClose = job.status === JobStatus.OPEN
+  const canCancel = job.status === JobStatus.OPEN || job.status === JobStatus.CLOSED
 
   return (
     <article className="relative overflow-hidden rounded-[20px] border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md lg:flex lg:gap-6 lg:p-6">
@@ -378,7 +416,17 @@ function RequestCard({
                       disabled={isClosing}
                       className="flex w-full rounded-xl px-3 py-2 text-left text-sm font-bold text-rose-600 transition hover:bg-rose-50 disabled:opacity-50"
                     >
-                      Đóng yêu cầu
+                      Tạm đóng yêu cầu
+                    </button>
+                  )}
+                  {canCancel && (
+                    <button
+                      type="button"
+                      onClick={onCancelRequest}
+                      disabled={isCancelling}
+                      className="flex w-full rounded-xl px-3 py-2 text-left text-sm font-bold text-rose-600 transition hover:bg-rose-50 disabled:opacity-50"
+                    >
+                      Thu hồi & hoàn tiền
                     </button>
                   )}
                 </div>

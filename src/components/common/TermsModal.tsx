@@ -19,7 +19,7 @@ export default function TermsModal({ isOpen, onClose }: TermsModalProps) {
                   <FileText className="h-4 w-4" />
                 </div>
                 <Dialog.Title className="text-lg font-bold text-slate-900">
-                  Terms of Service & Privacy
+                  Điều khoản Dịch vụ & Quyền riêng tư
                 </Dialog.Title>
               </div>
               <Dialog.Close asChild>
@@ -32,31 +32,31 @@ export default function TermsModal({ isOpen, onClose }: TermsModalProps) {
             <div className="max-h-[60vh] overflow-y-auto px-6 py-6 text-sm text-slate-600">
               <div className="space-y-6">
                 <section>
-                  <h3 className="mb-2 text-base font-bold text-slate-900">1. Acceptance of Terms</h3>
+                  <h3 className="mb-2 text-base font-bold text-slate-900">1. Chấp nhận Điều khoản</h3>
                   <p>
-                    By accessing and using MentorX, you accept and agree to be bound by the terms and provision of this agreement. 
-                    In addition, when using these particular services, you shall be subject to any posted guidelines or rules applicable to such services.
+                    Bằng việc truy cập và sử dụng MentorX, bạn chấp nhận và đồng ý bị ràng buộc bởi các điều khoản và quy định của thỏa thuận này.
+                    Ngoài ra, khi sử dụng các dịch vụ cụ thể này, bạn sẽ phải tuân theo bất kỳ hướng dẫn hoặc quy tắc nào được đăng tải áp dụng cho các dịch vụ đó.
                   </p>
                 </section>
                 <section>
-                  <h3 className="mb-2 text-base font-bold text-slate-900">2. Description of Service</h3>
+                  <h3 className="mb-2 text-base font-bold text-slate-900">2. Mô tả Dịch vụ</h3>
                   <p>
-                    MentorX provides users with access to a rich collection of resources, including various communications tools, forums, shopping services, 
-                    and personalized content. You also understand and agree that the service may include certain communications from MentorX.
+                    MentorX cung cấp cho người dùng quyền truy cập vào một bộ sưu tập tài nguyên phong phú, bao gồm nhiều công cụ giao tiếp, diễn đàn, dịch vụ mua sắm,
+                    và nội dung được cá nhân hóa. Bạn cũng hiểu và đồng ý rằng dịch vụ có thể bao gồm một số thông tin liên lạc từ MentorX.
                   </p>
                 </section>
                 <section>
-                  <h3 className="mb-2 text-base font-bold text-slate-900">3. Escrow and Payments</h3>
+                  <h3 className="mb-2 text-base font-bold text-slate-900">3. Quỹ đảm bảo (Escrow) và Thanh toán</h3>
                   <p>
-                    All transactions made through the platform are secured via our escrow system. Funds are held securely until the 
-                    agreed milestones or deliverables are met and approved by the Client. MXC is the official token used within the platform.
+                    Tất cả các giao dịch được thực hiện qua nền tảng đều được bảo mật thông qua hệ thống quỹ đảm bảo (escrow) của chúng tôi. Tiền được giữ an toàn cho đến khi
+                    các cột mốc hoặc sản phẩm bàn giao đã thỏa thuận được đáp ứng và được Khách hàng phê duyệt. MXC là token chính thức được sử dụng trong nền tảng.
                   </p>
                 </section>
                 <section>
-                  <h3 className="mb-2 text-base font-bold text-slate-900">4. Privacy Policy</h3>
+                  <h3 className="mb-2 text-base font-bold text-slate-900">4. Chính sách Bảo mật</h3>
                   <p>
-                    Your registration data and certain other information about you is subject to our Privacy Policy. For more information, 
-                    we never share your personal code or ideas outside of the platform without your explicit permission.
+                    Dữ liệu đăng ký của bạn và một số thông tin khác về bạn phải tuân theo Chính sách Bảo mật của chúng tôi.
+                    Chúng tôi không bao giờ chia sẻ mã cá nhân hoặc ý tưởng của bạn ra ngoài nền tảng mà không có sự cho phép rõ ràng của bạn.
                   </p>
                 </section>
               </div>
@@ -67,7 +67,7 @@ export default function TermsModal({ isOpen, onClose }: TermsModalProps) {
                 onClick={onClose}
                 className="rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-indigo-700"
               >
-                I Understand
+                Tôi đã hiểu
               </button>
             </div>
           </div>

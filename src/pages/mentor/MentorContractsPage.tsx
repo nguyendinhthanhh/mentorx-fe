@@ -34,17 +34,18 @@ import {
 } from '@/types'
 import { formatCurrency, formatDate, formatDateTime, formatRelativeTime } from '@/utils/formatters'
 
-type ContractTab = 'ALL' | 'ACTIVE' | 'COMPLETION_REQUESTED' | 'IN_DISPUTE' | 'COMPLETED' | 'CANCELLED'
+type ContractTab = 'ALL' | 'ACTIVE' | 'COMPLETION_REQUESTED' | 'IN_DISPUTE' | 'COMPLETED' | 'CANCELLED' | 'ARCHIVED'
 type SortKey = 'LAST_ACTIVITY' | 'DUE_DATE' | 'AMOUNT_HIGH' | 'NEWEST'
 type CancellationDecisionMode = 'APPROVE' | 'REJECT' | null
 
 const contractTabs: Array<{ key: ContractTab; label: string }> = [
-  { key: 'ALL', label: 'All' },
-  { key: 'ACTIVE', label: 'Active' },
-  { key: 'COMPLETION_REQUESTED', label: 'Completion Requested' },
-  { key: 'IN_DISPUTE', label: 'In Dispute' },
-  { key: 'COMPLETED', label: 'Completed' },
-  { key: 'CANCELLED', label: 'Cancelled' },
+  { key: 'ALL', label: 'Tất cả' },
+  { key: 'ACTIVE', label: 'Đang hoạt động' },
+  { key: 'COMPLETION_REQUESTED', label: 'Chờ duyệt' },
+  { key: 'IN_DISPUTE', label: 'Tranh chấp' },
+  { key: 'COMPLETED', label: 'Hoàn thành' },
+  { key: 'CANCELLED', label: 'Đã hủy' },
+  { key: 'ARCHIVED', label: 'Đã lưu trữ' },
 ]
 
 const liveDisputeStatuses: DisputeStatus[] = [
@@ -57,17 +58,17 @@ const liveDisputeStatuses: DisputeStatus[] = [
 ]
 
 const contractStatusLabel: Record<ContractStatus, string> = {
-  DRAFT: 'Draft',
-  PENDING_SIGNATURE: 'Pending signature',
-  ACTIVE: 'Active',
-  PAUSED: 'Paused',
-  COMPLETED: 'Completed',
-  CANCELLED: 'Cancelled',
-  TERMINATED: 'Terminated',
-  IN_DISPUTE: 'In dispute',
-  EXPIRED: 'Expired',
-  PENDING_PAYMENT: 'Completion requested',
-  UNDER_REVIEW: 'Under review',
+  DRAFT: 'Bản nháp',
+  PENDING_SIGNATURE: 'Chờ ký',
+  ACTIVE: 'Đang hoạt động',
+  PAUSED: 'Đã tạm dừng',
+  COMPLETED: 'Hoàn thành',
+  CANCELLED: 'Đã hủy',
+  TERMINATED: 'Bị chấm dứt',
+  IN_DISPUTE: 'Đang tranh chấp',
+  EXPIRED: 'Hết hạn',
+  PENDING_PAYMENT: 'Chờ thanh toán',
+  UNDER_REVIEW: 'Đang xem xét',
 }
 
 const contractStatusTone: Record<ContractStatus, string> = {
@@ -108,11 +109,7 @@ export default function MentorContractsPage() {
   const [activeTab, setActiveTab] = useState<ContractTab>('ALL')
   const [searchQuery, setSearchQuery] = useState('')
   const [sortBy, setSortBy] = useState<SortKey>('LAST_ACTIVITY')
-  const [selectedContractId, setSelectedContractId] = useState<string | null>(null)
-  const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false)
   const [chatDrawer, setChatDrawer] = useState<ChatDrawerState>(null)
-  const [decisionMode, setDecisionMode] = useState<CancellationDecisionMode>(null)
-  const [decisionNote, setDecisionNote] = useState('')
 
   const dashboardQuery = useQuery<MentorContractsDashboardData>(
     ['mentor-contracts-dashboard', user?.userId],
@@ -182,29 +179,6 @@ export default function MentorContractsPage() {
   const categoryMap = dashboardQuery.data?.categoryMap || {}
   const disputesByContractId = dashboardQuery.data?.disputesByContractId || {}
 
-  const selectedContract = useMemo(
-    () => contracts.find((contract) => contract.id === selectedContractId) || null,
-    [contracts, selectedContractId]
-  )
-
-  useEffect(() => {
-    if (contracts.length === 0) {
-      setSelectedContractId(null)
-      return
-    }
-
-    if (!selectedContractId || !contracts.some((contract) => contract.id === selectedContractId)) {
-      setSelectedContractId(contracts[0].id)
-    }
-  }, [contracts, selectedContractId])
-
-  useEffect(() => {
-    if (!selectedContract) {
-      setDecisionMode(null)
-      setDecisionNote('')
-    }
-  }, [selectedContract])
-
   const summary = useMemo(() => {
     const now = new Date()
     const activeContracts = contracts.filter((contract) => contract.status === ContractStatus.ACTIVE).length
@@ -244,6 +218,7 @@ export default function MentorContractsPage() {
       IN_DISPUTE: 0,
       COMPLETED: 0,
       CANCELLED: 0,
+      ARCHIVED: 0,
     })
   }, [contracts, disputesByContractId])
 
@@ -281,77 +256,7 @@ export default function MentorContractsPage() {
       .sort((left, right) => sortContracts(left, right, sortBy, jobsMap))
   }, [activeTab, categoryMap, contracts, disputesByContractId, jobsMap, searchQuery, sortBy])
 
-  const openDisputeForSelected = selectedContract
-    ? getPrimaryDispute(disputesByContractId[selectedContract.id] || [])
-    : null
 
-  const approveCancellationMutation = useMutation(
-    async ({ contractId, note }: { contractId: string; note: string }) => {
-      return contractApi.approveCancellation(contractId, user!.userId, note)
-    },
-    {
-      onSuccess: async () => {
-        toast.success('Cancellation approved and escrow refunded.')
-        setDecisionMode(null)
-        setDecisionNote('')
-        await queryClient.invalidateQueries(['mentor-contracts-dashboard', user?.userId])
-      },
-      onError: (error: any) => {
-        toast.error(error?.response?.data?.message || 'Unable to approve this cancellation request.')
-      },
-    }
-  )
-
-  const rejectCancellationMutation = useMutation(
-    async ({ contractId, note }: { contractId: string; note: string }) => {
-      return contractApi.rejectCancellation(contractId, user!.userId, note)
-    },
-    {
-      onSuccess: async () => {
-        toast.success('Contract stays active. The client can continue or open a dispute.')
-        setDecisionMode(null)
-        setDecisionNote('')
-        await queryClient.invalidateQueries(['mentor-contracts-dashboard', user?.userId])
-      },
-      onError: (error: any) => {
-        toast.error(error?.response?.data?.message || 'Unable to keep this contract active.')
-      },
-    }
-  )
-
-  const submitCompletionMutation = useMutation(
-    (contractId: string) => contractApi.submitCompletion(contractId),
-    {
-      onSuccess: async () => {
-        toast.success('Đã gửi xác nhận hoàn thành. Escrow chỉ được giải ngân sau khi khách hàng duyệt.')
-        await queryClient.invalidateQueries(['mentor-contracts-dashboard', user?.userId])
-      },
-      onError: (error: any) => {
-        toast.error(error?.response?.data?.message || 'Không thể gửi xác nhận hoàn thành lúc này.')
-      },
-    }
-  )
-
-  const isSubmittingDecision = approveCancellationMutation.isLoading || rejectCancellationMutation.isLoading
-
-  const handleSubmitDecision = async () => {
-    if (!selectedContract || !decisionMode) {
-      return
-    }
-
-    const trimmedNote = decisionNote.trim()
-    if (!trimmedNote) {
-      toast.error(decisionMode === 'APPROVE' ? 'Add a note before approving the cancellation.' : 'Explain why you want to keep the contract active.')
-      return
-    }
-
-    if (decisionMode === 'APPROVE') {
-      await approveCancellationMutation.mutateAsync({ contractId: selectedContract.id, note: trimmedNote })
-      return
-    }
-
-    await rejectCancellationMutation.mutateAsync({ contractId: selectedContract.id, note: trimmedNote })
-  }
 
   if (dashboardQuery.isLoading) {
     return <MentorContractsLoadingState />
@@ -364,16 +269,16 @@ export default function MentorContractsPage() {
           <div className="flex items-start gap-3">
             <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" />
             <div>
-              <h1 className="text-lg font-bold text-rose-900">Unable to load active contracts</h1>
+              <h1 className="text-lg font-bold text-rose-900">Không thể tải hợp đồng</h1>
               <p className="mt-1 text-sm leading-6">
-                {((dashboardQuery.error as any)?.response?.data?.message as string) || 'Please try again in a moment.'}
+                {((dashboardQuery.error as any)?.response?.data?.message as string) || 'Vui lòng thử lại sau.'}
               </p>
               <button
                 type="button"
                 onClick={() => dashboardQuery.refetch()}
                 className="mt-4 inline-flex h-10 items-center rounded-xl bg-rose-600 px-4 text-sm font-bold text-white transition hover:bg-rose-700"
               >
-                Retry
+                Thử lại
               </button>
             </div>
           </div>
@@ -421,28 +326,38 @@ export default function MentorContractsPage() {
           </div>
         </div>
 
-        <div className="grid gap-6 2xl:grid-cols-[minmax(0,1fr)_420px] rounded-[2.5rem] border border-slate-200/60 bg-white/50 p-6 sm:p-8 shadow-xl shadow-slate-200/40 backdrop-blur-2xl">
-          <section className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white/70 shadow-sm backdrop-blur-md">
-            <div className="border-b border-slate-100 px-5 py-4">
-              <div className="flex flex-wrap items-center gap-2">
-                {contractTabs.map((tab) => {
-                  const isActive = activeTab === tab.key
-                  return (
-                    <button
-                      key={tab.key}
-                      type="button"
-                      onClick={() => setActiveTab(tab.key)}
-                      className={`inline-flex h-10 items-center gap-2 rounded-xl px-3.5 text-xs font-bold transition ${
-                        isActive ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700'
-                      }`}
-                    >
-                      {tab.label}
-                      <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'}`}>
-                        {tabCounts[tab.key]}
-                      </span>
-                    </button>
-                  )
-                })}
+        <div className="rounded-[2.5rem] border border-slate-200/60 bg-white/50 p-6 sm:p-8 shadow-xl shadow-slate-200/40 backdrop-blur-2xl">
+          <section className="flex flex-col overflow-hidden rounded-3xl border border-white/60 bg-white/40 shadow-xl shadow-slate-200/40 backdrop-blur-xl">
+            <div className="border-b border-slate-100/60 px-5 py-3 bg-white/40 backdrop-blur-md">
+              <div className="flex w-full overflow-x-auto scrollbar-hide">
+                <div className="flex items-center gap-2 rounded-2xl bg-slate-200/30 p-1.5 backdrop-blur-sm">
+                  {contractTabs.map((tab) => {
+                    const isActive = activeTab === tab.key
+                    return (
+                      <button
+                        key={tab.key}
+                        type="button"
+                        onClick={() => setActiveTab(tab.key)}
+                        className={`group relative flex h-10 shrink-0 items-center gap-2.5 rounded-xl px-4 text-sm font-bold transition-all duration-300 ${
+                          isActive
+                            ? 'bg-white text-emerald-600 shadow-md shadow-slate-200/50 ring-1 ring-slate-200/50'
+                            : 'text-slate-500 hover:bg-slate-200/50 hover:text-slate-700'
+                        }`}
+                      >
+                        {tab.label}
+                        <span
+                          className={`flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-[11px] font-black transition-colors duration-300 ${
+                            isActive
+                              ? 'bg-emerald-100 text-emerald-700'
+                              : 'bg-slate-200/80 text-slate-500 group-hover:bg-slate-300/80'
+                          }`}
+                        >
+                          {tabCounts[tab.key]}
+                        </span>
+                      </button>
+                    )
+                  })}
+                </div>
               </div>
             </div>
 
@@ -453,7 +368,7 @@ export default function MentorContractsPage() {
                   type="text"
                   value={searchQuery}
                   onChange={(event) => setSearchQuery(event.target.value)}
-                  placeholder="Search by job, client, skill, or category"
+                  placeholder="Tìm kiếm theo công việc, khách hàng, kỹ năng, ..."
                   className="h-11 w-full rounded-2xl border border-slate-200 bg-slate-50 pl-10 pr-3 text-sm text-slate-700 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10"
                 />
               </div>
@@ -463,18 +378,18 @@ export default function MentorContractsPage() {
                   value={sortBy}
                   onChange={(value) => setSortBy(value as SortKey)}
                   options={[
-                    ['LAST_ACTIVITY', 'Last activity'],
-                    ['DUE_DATE', 'Due soon'],
-                    ['AMOUNT_HIGH', 'Highest amount'],
-                    ['NEWEST', 'Newest start'],
+                    ['LAST_ACTIVITY', 'Hoạt động gần nhất'],
+                    ['DUE_DATE', 'Sắp đến hạn'],
+                    ['AMOUNT_HIGH', 'Giá trị cao nhất'],
+                    ['NEWEST', 'Mới nhất'],
                   ]}
                 />
               </div>
             </div>
 
             <div className="flex flex-col gap-1 border-b border-slate-100 px-5 py-3 text-xs font-medium text-slate-500 sm:flex-row sm:items-center sm:justify-between">
-              <p>{filteredContracts.length} contracts visible</p>
-              <p>Contracts move to history after completion or cancellation.</p>
+              <p>{filteredContracts.length} hợp đồng</p>
+              <p>Hợp đồng sẽ được chuyển vào lịch sử sau khi hoàn thành hoặc bị hủy.</p>
             </div>
 
             <div className="space-y-3 p-4">
@@ -483,15 +398,15 @@ export default function MentorContractsPage() {
                   <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-slate-400 shadow-sm">
                     <FolderKanban className="h-5 w-5" />
                   </div>
-                  <h2 className="mt-4 text-lg font-bold text-slate-900">No contracts match this filter.</h2>
+                  <h2 className="mt-4 text-lg font-bold text-slate-900">Không có hợp đồng nào phù hợp.</h2>
                   <p className="mt-2 text-sm leading-6 text-slate-500">
-                    Try a different tab or search term, or review your proposals to pick up new work.
+                    Thử thay đổi bộ lọc hoặc xem các đề xuất của bạn để nhận việc mới.
                   </p>
                   <Link
                     to="/mentor/proposals"
                     className="mt-5 inline-flex h-10 items-center gap-1.5 rounded-xl bg-emerald-600 px-4 text-sm font-bold text-white transition hover:bg-emerald-700"
                   >
-                    Open proposals
+                    Xem đề xuất
                   </Link>
                 </div>
               ) : (
@@ -499,18 +414,13 @@ export default function MentorContractsPage() {
                   const job = jobsMap[contract.jobId]
                   const disputes = disputesByContractId[contract.id] || []
                   const primaryDispute = getPrimaryDispute(disputes)
-                  const isSelected = contract.id === selectedContractId
 
                   return (
                     <article
                       key={contract.id}
-                      className={`rounded-xl border px-5 py-5 shadow-sm transition ${
-                        isSelected
-                          ? 'border-emerald-200 bg-emerald-50/40 shadow-emerald-100/60'
-                          : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/50'
-                      }`}
+                      className="group relative overflow-hidden rounded-3xl border border-white/60 bg-white/60 px-6 py-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-emerald-200 hover:bg-white hover:shadow-xl hover:shadow-slate-200/50"
                     >
-                      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                      <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
                         <div className="min-w-0 flex-1">
                           <div className="flex flex-wrap items-center gap-2">
                             <span className={`inline-flex h-7 items-center rounded-full border px-2.5 text-[11px] font-semibold uppercase tracking-wider ${contractStatusTone[contract.status]}`}>
@@ -521,7 +431,7 @@ export default function MentorContractsPage() {
                             </span>
                             {contract.cancellationRequestStatus === 'PENDING' ? (
                               <span className="inline-flex h-7 items-center rounded-full border border-amber-200 bg-amber-50 px-2.5 text-[11px] font-bold text-amber-700">
-                                Client requested cancellation
+                                Khách hàng yêu cầu hủy
                               </span>
                             ) : null}
                           </div>
@@ -533,36 +443,32 @@ export default function MentorContractsPage() {
                             <div className="min-w-0 flex-1">
                               <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
                                 <h2 className="truncate text-lg font-bold tracking-tight text-slate-950">{contract.jobTitle}</h2>
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    setSelectedContractId(contract.id)
-                                    setIsMobileDrawerOpen(true)
-                                  }}
+                                <Link
+                                  to={contract.proposalId ? `/mentor/proposals/${contract.proposalId}` : '#'}
                                   className="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 transition hover:text-emerald-700"
                                 >
-                                  Review details
-                                  <ChevronRight className="h-3.5 w-3.5" />
-                                </button>
+                                  Xem chi tiết
+                                  <ChevronRight className="h-4 w-4" />
+                                </Link>
                               </div>
                               <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-slate-500">
-                                <span>Client: <span className="font-semibold text-slate-700">{contract.clientName}</span></span>
+                                <span>Khách hàng: <span className="font-semibold text-slate-700">{contract.clientName}</span></span>
                                 <span>{getCategoryLabel(job, categoryMap)}</span>
-                                <span>Started {formatRelativeTime(contract.activatedAt || contract.createdAt)}</span>
+                                <span>Bắt đầu {formatRelativeTime(contract.activatedAt || contract.createdAt)}</span>
                               </div>
                             </div>
                           </div>
 
                           <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                            <DataFact label="In escrow" value={formatCurrency(contract.amountInEscrow)} icon={<ShieldCheck className="h-4 w-4" />} />
-                            <DataFact label="Amount paid" value={formatCurrency(contract.amountPaid)} icon={<Wallet className="h-4 w-4" />} />
-                            <DataFact label="Due date" value={getDueDateLabel(contract, job)} icon={<CalendarDays className="h-4 w-4" />} />
-                            <DataFact label="Last activity" value={formatRelativeTime(getLastActivity(contract))} icon={<Clock3 className="h-4 w-4" />} />
+                            <DataFact label="Đang giữ (Escrow)" value={formatCurrency(contract.amountInEscrow)} icon={<ShieldCheck className="h-4 w-4" />} />
+                            <DataFact label="Đã thanh toán" value={formatCurrency(contract.amountPaid)} icon={<Wallet className="h-4 w-4" />} />
+                            <DataFact label="Hạn chót" value={getDueDateLabel(contract, job)} icon={<CalendarDays className="h-4 w-4" />} />
+                            <DataFact label="Hoạt động gần nhất" value={formatRelativeTime(getLastActivity(contract))} icon={<Clock3 className="h-4 w-4" />} />
                           </div>
 
                           <div className="mt-4">
                             <div className="flex items-center justify-between text-xs font-semibold text-slate-500">
-                              <span>Progress</span>
+                              <span>Tiến độ</span>
                               <span>{getProgressLabel(contract)}</span>
                             </div>
                             <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100">
@@ -571,39 +477,23 @@ export default function MentorContractsPage() {
                                 style={{ width: `${Math.max(8, Math.min(100, getProgressValue(contract)))}%` }}
                               />
                             </div>
-                            <div className="mt-3 flex flex-wrap gap-2 text-[11px] font-bold text-slate-500">
-                              {buildMiniTimeline(contract, primaryDispute).map((step) => (
-                                <span
-                                  key={step.label}
-                                  className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 ${
-                                    step.active ? 'bg-emerald-600 shadow-md hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 hover:bg-emerald-700 text-white' : 'bg-slate-100 text-slate-500'
-                                  }`}
-                                >
-                                  {step.label}
-                                </span>
-                              ))}
-                            </div>
                           </div>
                         </div>
 
-                        <div className="flex shrink-0 flex-row gap-2 lg:flex-col">
+                        <div className="flex shrink-0 flex-row gap-2">
                           <Link
                             to={buildWorkspaceLink(contract)}
-                            className="inline-flex h-10 items-center justify-center gap-1.5 rounded-xl bg-emerald-600 px-4 text-sm font-bold text-white transition hover:bg-emerald-700"
+                            className="inline-flex h-12 items-center justify-center gap-1.5 rounded-2xl bg-emerald-600 px-6 text-sm font-bold text-white transition hover:bg-emerald-700 hover:shadow-lg hover:shadow-emerald-500/20"
                           >
-                            View workspace
+                            Không gian làm việc
                             <ArrowUpRight className="h-4 w-4" />
                           </Link>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setSelectedContractId(contract.id)
-                              setIsMobileDrawerOpen(true)
-                            }}
-                            className="inline-flex h-10 items-center justify-center rounded-xl border border-slate-200 px-4 text-sm font-bold text-slate-700 transition hover:bg-slate-50"
+                          <Link
+                            to={contract.proposalId ? `/mentor/proposals/${contract.proposalId}` : '#'}
+                            className="inline-flex h-12 items-center justify-center rounded-2xl border border-slate-200 bg-white px-5 text-sm font-bold text-slate-700 transition-all duration-300 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md"
                           >
-                            Details
-                          </button>
+                            Chi tiết
+                          </Link>
                         </div>
                       </div>
                     </article>
@@ -613,74 +503,8 @@ export default function MentorContractsPage() {
             </div>
           </section>
 
-          <aside className="hidden 2xl:block">
-            <ContractDetailPanel
-              contract={selectedContract}
-              job={selectedContract ? jobsMap[selectedContract.jobId] : undefined}
-              categoryMap={categoryMap}
-              dispute={openDisputeForSelected}
-              decisionMode={decisionMode}
-              decisionNote={decisionNote}
-              onDecisionModeChange={setDecisionMode}
-              onDecisionNoteChange={setDecisionNote}
-              onSubmitDecision={handleSubmitDecision}
-              isSubmittingDecision={isSubmittingDecision}
-              onSubmitCompletion={(contractId) => submitCompletionMutation.mutate(contractId)}
-              isSubmittingCompletion={submitCompletionMutation.isLoading}
-              onOpenChat={(contract) =>
-                setChatDrawer({
-                  recipientId: contract.clientId,
-                  contextType: 'CONTRACT',
-                  contextId: contract.id,
-                  title: contract.clientName,
-                  subtitle: 'Contract chat',
-                  contextTitle: contract.jobTitle,
-                  statusLabel: contractStatusLabel[contract.status],
-                  statusToneClassName: contractStatusTone[contract.status],
-                })
-              }
-            />
-          </aside>
         </div>
       </div>
-
-      {selectedContract && isMobileDrawerOpen ? (
-        <div className="fixed inset-0 z-50 bg-slate-950/40 backdrop-blur-sm 2xl:hidden">
-          <div className="absolute inset-y-0 right-0 w-full max-w-[560px] overflow-y-auto bg-white shadow-2xl">
-            <ContractDetailPanel
-              contract={selectedContract}
-              job={jobsMap[selectedContract.jobId]}
-              categoryMap={categoryMap}
-              dispute={openDisputeForSelected}
-              decisionMode={decisionMode}
-              decisionNote={decisionNote}
-              onDecisionModeChange={setDecisionMode}
-              onDecisionNoteChange={setDecisionNote}
-              onSubmitDecision={handleSubmitDecision}
-              isSubmittingDecision={isSubmittingDecision}
-              onSubmitCompletion={(contractId) => submitCompletionMutation.mutate(contractId)}
-              isSubmittingCompletion={submitCompletionMutation.isLoading}
-              onOpenChat={(contract) =>
-                setChatDrawer({
-                  recipientId: contract.clientId,
-                  contextType: 'CONTRACT',
-                  contextId: contract.id,
-                  title: contract.clientName,
-                  subtitle: 'Contract chat',
-                  contextTitle: contract.jobTitle,
-                  statusLabel: contractStatusLabel[contract.status],
-                  statusToneClassName: contractStatusTone[contract.status],
-                })
-              }
-              onClose={() => {
-                setIsMobileDrawerOpen(false)
-                setDecisionMode(null)
-                setDecisionNote('')
-              }}
-            />
-          </div>
-        </div>
-      ) : null}
 
       <ContextualChatDrawer
         open={!!chatDrawer}
@@ -699,335 +523,6 @@ export default function MentorContractsPage() {
         statusToneClassName={chatDrawer?.statusToneClassName}
       />
     </>
-  )
-}
-
-function ContractDetailPanel({
-  contract,
-  job,
-  categoryMap,
-  dispute,
-  decisionMode,
-  decisionNote,
-  onDecisionModeChange,
-  onDecisionNoteChange,
-  onSubmitDecision,
-  isSubmittingDecision,
-  onSubmitCompletion,
-  isSubmittingCompletion,
-  onOpenChat,
-  onClose,
-}: {
-  contract: ContractResponse | null
-  job?: JobSummaryResponse
-  categoryMap: Record<number, CategoryResponse>
-  dispute: DisputeResponse | null
-  decisionMode: CancellationDecisionMode
-  decisionNote: string
-  onDecisionModeChange: (mode: CancellationDecisionMode) => void
-  onDecisionNoteChange: (value: string) => void
-  onSubmitDecision: () => void
-  isSubmittingDecision: boolean
-  onSubmitCompletion: (contractId: string) => void
-  isSubmittingCompletion: boolean
-  onOpenChat: (contract: ContractResponse) => void
-  onClose?: () => void
-}) {
-  if (!contract) {
-    return (
-      <div className="sticky top-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <div className="flex h-[420px] flex-col items-center justify-center text-center">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
-            <FolderKanban className="h-5 w-5" />
-          </div>
-          <h2 className="mt-4 text-lg font-bold text-slate-900">Select a contract</h2>
-          <p className="mt-2 max-w-xs text-sm leading-6 text-slate-500">
-            Open any contract from the list to inspect escrow, terms, cancellation status, and client context.
-          </p>
-        </div>
-      </div>
-    )
-  }
-
-  const categoryLabel = getCategoryLabel(job, categoryMap)
-  const dueDateLabel = getDueDateLabel(contract, job)
-  const workspaceLink = buildWorkspaceLink(contract)
-  const showCancellationActions =
-    contract.status === ContractStatus.ACTIVE &&
-    contract.cancellationRequestStatus === 'PENDING' &&
-    !dispute
-
-  return (
-    <div className="sticky top-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-      <div className="border-b border-slate-100 px-6 py-5">
-        <div className="flex items-start justify-between gap-4">
-          <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className={`inline-flex h-7 items-center rounded-full border px-2.5 text-[11px] font-semibold uppercase tracking-wider ${contractStatusTone[contract.status]}`}>
-                {contractStatusLabel[contract.status]}
-              </span>
-              <span className={`inline-flex h-7 items-center rounded-full border px-2.5 text-[11px] font-bold ${getEscrowTone(contract, dispute)}`}>
-                {getEscrowLabel(contract, dispute)}
-              </span>
-            </div>
-            <h2 className="mt-3 text-2xl font-bold tracking-tight text-slate-950">{contract.jobTitle}</h2>
-            <div className="mt-2 space-y-1 text-sm text-slate-500">
-              <p>
-                Client <span className="font-semibold text-slate-700">{contract.clientName}</span>
-              </p>
-              <p>Started {formatDateTime(contract.activatedAt || contract.createdAt)}</p>
-            </div>
-          </div>
-          {onClose ? (
-            <button
-              type="button"
-              onClick={onClose}
-              className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-200 text-slate-500 transition hover:bg-slate-50"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          ) : null}
-        </div>
-      </div>
-
-      <div className="space-y-6 px-6 py-5">
-        <PanelSection title="Contract summary">
-          <div className="grid gap-3 sm:grid-cols-2">
-            <PanelFact label="Contract status" value={contractStatusLabel[contract.status]} />
-            <PanelFact label="Category" value={categoryLabel} />
-            <PanelFact label="Started" value={formatDate(contract.startDate || contract.activatedAt || contract.createdAt)} />
-            <PanelFact label="Due date" value={dueDateLabel} />
-            <PanelFact label="Progress" value={getProgressLabel(contract)} />
-            <PanelFact label="Last activity" value={formatRelativeTime(getLastActivity(contract))} />
-          </div>
-          <p className="rounded-2xl bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-600">
-            {contract.description}
-          </p>
-        </PanelSection>
-
-        <PanelSection title="Escrow status">
-          <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-            <div className="flex items-start gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-emerald-500 shadow-sm">
-                <ShieldCheck className="h-5 w-5" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <h3 className="text-sm font-bold text-slate-900">{getEscrowLabel(contract, dispute)}</h3>
-                <p className="mt-1 text-sm leading-6 text-slate-500">{getEscrowDescription(contract, dispute)}</p>
-              </div>
-            </div>
-            <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              <PanelFact label="Amount in escrow" value={formatCurrency(contract.amountInEscrow)} />
-              <PanelFact label="Amount paid" value={formatCurrency(contract.amountPaid)} />
-            </div>
-          </div>
-        </PanelSection>
-
-        <PanelSection title="Client info">
-          <div className="grid gap-3 sm:grid-cols-2">
-            <PanelFact label="Client name" value={contract.clientName} />
-            <PanelFact label="Contract title" value={contract.title} />
-            <PanelFact label="Created" value={formatDateTime(contract.createdAt)} />
-            <PanelFact label="Updated" value={formatDateTime(contract.updatedAt)} />
-          </div>
-        </PanelSection>
-
-        <PanelSection title="Job and proposal terms">
-          <div className="grid gap-3 sm:grid-cols-2">
-            <PanelFact label="Total amount" value={formatCurrency(contract.totalAmount)} />
-            <PanelFact label="Hourly rate" value={contract.hourlyRate ? formatCurrency(contract.hourlyRate) : 'Not set'} />
-            <PanelFact label="Client budget" value={getBudgetLabel(job)} />
-            <PanelFact label="Delivery target" value={dueDateLabel} />
-          </div>
-
-          {job?.requiredSkills?.length ? (
-            <div className="flex flex-wrap gap-2">
-              {job.requiredSkills.slice(0, 6).map((skill) => (
-                <span key={skill} className="inline-flex h-8 items-center rounded-full border border-slate-200 bg-white px-3 text-xs font-bold text-slate-600">
-                  {skill}
-                </span>
-              ))}
-            </div>
-          ) : null}
-
-          <div className="space-y-3 rounded-xl border border-slate-200 bg-white p-4">
-            <LongField label="Deliverables" value={contract.deliverables} />
-            <LongField label="Payment terms" value={contract.paymentTerms} />
-            <LongField label="Terms and conditions" value={contract.termsAndConditions} />
-          </div>
-        </PanelSection>
-
-        <PanelSection title="Cancellation and dispute status">
-          <div className="space-y-3">
-            <StatusLine
-              label="Cancellation"
-              value={
-                contract.cancellationRequestStatus === 'PENDING'
-                  ? 'Client requested cancellation'
-                  : contract.cancellationRequestStatus === 'APPROVED'
-                    ? 'Cancellation approved'
-                    : contract.cancellationRequestStatus === 'REJECTED'
-                      ? 'Cancellation rejected'
-                      : 'No cancellation request'
-              }
-            />
-            <StatusLine
-              label="Client reason"
-              value={contract.cancellationRequestReason || 'No cancellation request on file'}
-            />
-            <StatusLine
-              label="Dispute"
-              value={dispute ? `${dispute.status} · ${dispute.title}` : 'No open dispute'}
-            />
-            {contract.cancellationResponseNote ? (
-              <StatusLine label="Latest response note" value={contract.cancellationResponseNote} />
-            ) : null}
-          </div>
-        </PanelSection>
-
-        <PanelSection title="Actions">
-          <div className="grid gap-3 sm:grid-cols-2">
-            <Link
-              to={workspaceLink}
-              className="inline-flex h-11 items-center justify-center gap-1.5 rounded-2xl bg-emerald-600 px-4 text-sm font-bold text-white transition hover:bg-emerald-700"
-            >
-              View workspace
-              <ArrowUpRight className="h-4 w-4" />
-            </Link>
-            <button
-              type="button"
-              onClick={() => onOpenChat(contract)}
-              className="inline-flex h-11 items-center justify-center gap-1.5 rounded-2xl border border-slate-200 px-4 text-sm font-bold text-slate-700 transition hover:bg-slate-50"
-            >
-              Message client
-            </button>
-          </div>
-
-          {contract.status === ContractStatus.ACTIVE && !showCancellationActions && !dispute ? (
-            <div className="space-y-3 rounded-2xl border border-sky-200 bg-sky-50 px-4 py-4 text-sm leading-6 text-sky-900">
-              <p>Hoàn thành công việc rồi? Bấm gửi bàn giao để khách hàng kiểm tra. Hành động này chưa giải ngân tiền.</p>
-              {contract.overdue ? <p className="font-bold text-amber-800">Contract đã quá deadline. Bạn vẫn có thể gửi bàn giao, nhưng hệ thống sẽ ghi nhận là trễ hạn.</p> : null}
-              <button
-                type="button"
-                onClick={() => onSubmitCompletion(contract.id)}
-                disabled={isSubmittingCompletion}
-                className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-sky-600 px-4 text-sm font-bold text-white transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:bg-slate-300"
-              >
-                <CheckCircle2 className="h-4 w-4" />
-                {isSubmittingCompletion ? 'Đang gửi...' : 'Đã hoàn thành, gửi khách hàng duyệt'}
-              </button>
-            </div>
-          ) : null}
-
-          {contract.status === ContractStatus.UNDER_REVIEW && !dispute ? (
-            <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-4 text-sm leading-6 text-amber-900">
-              <p className="font-bold">Đã gửi bàn giao, đang chờ khách hàng duyệt và giải ngân.</p>
-              {contract.mentorSubmittedLate ? <p className="mt-1 font-semibold">Bàn giao được gửi sau deadline đã cam kết.</p> : null}
-              {contract.clientReviewNote ? <p className="mt-2 text-amber-800">Phản hồi gần nhất: {contract.clientReviewNote}</p> : null}
-            </div>
-          ) : null}
-
-          {contract.status === ContractStatus.ACTIVE && !showCancellationActions && !dispute ? (
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-500">
-              Escrow remains locked until the client marks the contract as completed. You have not been paid yet.
-            </div>
-          ) : null}
-
-          {dispute ? (
-            <div className="rounded-2xl border border-orange-200 bg-orange-50 px-4 py-3 text-sm leading-6 text-orange-700">
-              This contract is in dispute. Escrow stays locked until admin resolution, so direct completion or cancellation actions are unavailable.
-            </div>
-          ) : null}
-
-          {showCancellationActions ? (
-            <div className="space-y-3 rounded-xl border border-amber-200 bg-amber-50/80 p-4">
-              <div>
-                <h3 className="text-sm font-bold text-slate-900">Client requested cancellation</h3>
-                <p className="mt-1 text-sm leading-6 text-slate-600">
-                  Respond to the request. Approving will refund escrow to the client. Keeping the contract active lets the client continue or open a dispute.
-                </p>
-              </div>
-
-              <div className="rounded-2xl bg-white px-4 py-3 text-sm leading-6 text-slate-600">
-                <span className="font-bold text-slate-800">Client reason:</span> {contract.cancellationRequestReason || 'No reason provided.'}
-              </div>
-
-              <div className="flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={() => onDecisionModeChange('APPROVE')}
-                  className={`inline-flex h-10 items-center justify-center rounded-xl px-4 text-sm font-bold transition ${
-                    decisionMode === 'APPROVE'
-                      ? 'bg-emerald-600 text-white'
-                      : 'border border-emerald-200 bg-white text-emerald-700 hover:bg-emerald-50'
-                  }`}
-                >
-                  Approve cancellation
-                </button>
-                <button
-                  type="button"
-                  onClick={() => onDecisionModeChange('REJECT')}
-                  className={`inline-flex h-10 items-center justify-center rounded-xl px-4 text-sm font-bold transition ${
-                    decisionMode === 'REJECT'
-                      ? 'bg-emerald-600 shadow-md hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 hover:bg-emerald-700 text-white'
-                      : 'border border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
-                  }`}
-                >
-                  Keep contract active
-                </button>
-              </div>
-
-              {decisionMode ? (
-                <div className="space-y-3 rounded-xl border border-white/80 bg-white/90 p-4">
-                  <label className="block space-y-2">
-                    <span className="text-sm font-bold text-slate-700">
-                      {decisionMode === 'APPROVE' ? 'Note before refunding escrow' : 'Why should the contract continue?'}
-                    </span>
-                    <textarea
-                      value={decisionNote}
-                      onChange={(event) => onDecisionNoteChange(event.target.value)}
-                      placeholder={
-                        decisionMode === 'APPROVE'
-                          ? 'Add a short note for the client before the contract is cancelled...'
-                          : 'Explain why the contract should remain active...'
-                      }
-                      className="min-h-[120px] w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm leading-6 text-slate-700 outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
-                    />
-                  </label>
-                  <div className="flex gap-2">
-                    <button
-                      type="button"
-                      disabled={isSubmittingDecision}
-                      onClick={() => {
-                        onDecisionModeChange(null)
-                        onDecisionNoteChange('')
-                      }}
-                      className="inline-flex h-11 flex-1 items-center justify-center rounded-2xl border border-slate-200 px-4 text-sm font-bold text-slate-600 transition hover:bg-slate-50 disabled:opacity-60"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="button"
-                      disabled={isSubmittingDecision}
-                      onClick={onSubmitDecision}
-                      className={`inline-flex h-11 flex-1 items-center justify-center rounded-2xl px-4 text-sm font-bold text-white transition disabled:opacity-60 ${
-                        decisionMode === 'APPROVE' ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-slate-900 hover:bg-slate-800'
-                      }`}
-                    >
-                      {isSubmittingDecision
-                        ? 'Submitting...'
-                        : decisionMode === 'APPROVE'
-                          ? 'Approve and refund'
-                          : 'Keep contract active'}
-                    </button>
-                  </div>
-                </div>
-              ) : null}
-            </div>
-          ) : null}
-        </PanelSection>
-      </div>
-    </div>
   )
 }
 
@@ -1099,7 +594,7 @@ function LongField({ label, value }: { label: string; value?: string | null }) {
   return (
     <div>
       <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">{label}</p>
-      <p className="mt-1 text-sm leading-6 text-slate-600">{value?.trim() ? value : 'Not specified'}</p>
+      <p className="mt-1 text-sm leading-6 text-slate-600">{value?.trim() ? value : 'Không xác định'}</p>
     </div>
   )
 }
@@ -1218,7 +713,7 @@ function MentorContractsLoadingState() {
 
 function getCategoryLabel(job: JobSummaryResponse | undefined, categoryMap: Record<number, CategoryResponse>): string {
   if (!job) {
-    return 'Unassigned category'
+    return 'Chưa phân loại'
   }
   if (job.customCategoryName) {
     return job.customCategoryName
@@ -1226,23 +721,23 @@ function getCategoryLabel(job: JobSummaryResponse | undefined, categoryMap: Reco
   if (job.categoryId && categoryMap[job.categoryId]) {
     return categoryMap[job.categoryId].name
   }
-  return 'General request'
+  return 'Yêu cầu chung'
 }
 
 function getBudgetLabel(job?: JobSummaryResponse): string {
   if (!job) {
-    return 'Not available'
+    return 'Không có thông tin'
   }
   if (job.budgetType === 'HOURLY' && job.hourlyRateMxc) {
-    return `${formatCurrency(job.hourlyRateMxc)} / hour`
+    return `${formatCurrency(job.hourlyRateMxc)} / giờ`
   }
   if (job.budgetMinMxc != null && job.budgetMaxMxc != null) {
     return `${formatCurrency(job.budgetMinMxc)} - ${formatCurrency(job.budgetMaxMxc)}`
   }
   if (job.budgetMinMxc != null) {
-    return `From ${formatCurrency(job.budgetMinMxc)}`
+    return `Từ ${formatCurrency(job.budgetMinMxc)}`
   }
-  return 'Not specified'
+  return 'Không xác định'
 }
 
 function getLastActivity(contract: ContractResponse): string {
@@ -1290,7 +785,7 @@ function getDueTimestamp(contract: ContractResponse, job?: JobSummaryResponse): 
 function getDueDateLabel(contract: ContractResponse, job?: JobSummaryResponse): string {
   const dueDate = contract.endDate || job?.deadlineAt
   if (!dueDate) {
-    return 'Flexible'
+    return 'Linh hoạt'
   }
   return formatDate(dueDate)
 }
@@ -1310,18 +805,18 @@ function getProgressValue(contract: ContractResponse): number {
 
 function getProgressLabel(contract: ContractResponse): string {
   if (contract.status === ContractStatus.COMPLETED) {
-    return 'Completed and released'
+    return 'Đã hoàn thành và giải ngân'
   }
   if (contract.status === ContractStatus.CANCELLED) {
-    return 'Cancelled and closed'
+    return 'Đã hủy và đóng'
   }
   if (contract.status === ContractStatus.IN_DISPUTE) {
-    return 'Blocked by dispute'
+    return 'Bị khóa do tranh chấp'
   }
   if (contract.fundsInEscrow && contract.amountInEscrow > 0) {
-    return `${contract.progressPercentage || 0}% complete, awaiting client sign-off`
+    return `${contract.progressPercentage || 0}% hoàn thành, chờ khách hàng xác nhận`
   }
-  return `${contract.progressPercentage || 0}% complete`
+  return `${contract.progressPercentage || 0}% hoàn thành`
 }
 
 function getProgressBarTone(contract: ContractResponse): string {
@@ -1347,7 +842,13 @@ function getPrimaryDispute(disputes: DisputeResponse[]): DisputeResponse | null 
 
 function matchesContractTab(contract: ContractResponse, disputes: DisputeResponse[], tab: ContractTab): boolean {
   if (tab === 'ALL') {
-    return true
+    return !contract.isArchived
+  }
+  if (tab === 'ARCHIVED') {
+    return !!contract.isArchived
+  }
+  if (contract.isArchived) {
+    return false
   }
   if (tab === 'ACTIVE') {
     return contract.status === ContractStatus.ACTIVE
@@ -1366,34 +867,34 @@ function matchesContractTab(contract: ContractResponse, disputes: DisputeRespons
 
 function getEscrowLabel(contract: ContractResponse, dispute: DisputeResponse | null): string {
   if (dispute || contract.status === ContractStatus.IN_DISPUTE) {
-    return 'Escrow locked in dispute'
+    return 'Escrow bị khóa do tranh chấp'
   }
   if (contract.fundsInEscrow && contract.amountInEscrow > 0) {
-    return 'Escrow locked'
+    return 'Escrow đã khóa'
   }
   if (contract.status === ContractStatus.COMPLETED || contract.amountPaid > 0) {
-    return 'Released to mentor'
+    return 'Đã giải ngân cho mentor'
   }
   if (contract.status === ContractStatus.CANCELLED) {
-    return 'Refunded to client'
+    return 'Đã hoàn tiền cho khách'
   }
-  return 'No escrow movement'
+  return 'Không có giao dịch escrow'
 }
 
 function getEscrowDescription(contract: ContractResponse, dispute: DisputeResponse | null): string {
   if (dispute || contract.status === ContractStatus.IN_DISPUTE) {
-    return 'Escrow remains frozen until the dispute is reviewed and resolved by the platform.'
+    return 'Tiền trong escrow sẽ bị đóng băng cho đến khi tranh chấp được giải quyết bởi nền tảng.'
   }
   if (contract.fundsInEscrow && contract.amountInEscrow > 0) {
-    return 'The client has funded this contract. Money stays protected until completion is confirmed.'
+    return 'Khách hàng đã nạp tiền cho hợp đồng này. Tiền được bảo vệ an toàn cho đến khi hoàn thành được xác nhận.'
   }
   if (contract.status === ContractStatus.COMPLETED || contract.amountPaid > 0) {
-    return 'The client confirmed completion, and escrow has already been released to your wallet.'
+    return 'Khách hàng đã xác nhận hoàn thành, tiền trong escrow đã được giải ngân vào ví của bạn.'
   }
   if (contract.status === ContractStatus.CANCELLED) {
-    return 'The contract was cancelled, and any escrow for this deal was refunded to the client.'
+    return 'Hợp đồng đã bị hủy, mọi khoản tiền trong escrow đã được hoàn trả cho khách hàng.'
   }
-  return 'This contract does not currently hold escrow funds.'
+  return 'Hợp đồng này hiện không giữ tiền escrow.'
 }
 
 function getEscrowTone(contract: ContractResponse, dispute: DisputeResponse | null): string {
@@ -1415,32 +916,32 @@ function getEscrowTone(contract: ContractResponse, dispute: DisputeResponse | nu
 function buildMiniTimeline(contract: ContractResponse, dispute: DisputeResponse | null) {
   if (dispute || contract.status === ContractStatus.IN_DISPUTE) {
     return [
-      { label: 'Started', active: true },
-      { label: 'Escrow locked', active: true },
-      { label: 'Dispute', active: true },
+      { label: 'Bắt đầu', active: true },
+      { label: 'Đã khóa Escrow', active: true },
+      { label: 'Tranh chấp', active: true },
     ]
   }
 
   if (contract.status === ContractStatus.COMPLETED) {
     return [
-      { label: 'Started', active: true },
-      { label: 'Escrow locked', active: true },
-      { label: 'Released', active: true },
+      { label: 'Bắt đầu', active: true },
+      { label: 'Đã khóa Escrow', active: true },
+      { label: 'Giải ngân', active: true },
     ]
   }
 
   if (contract.status === ContractStatus.CANCELLED) {
     return [
-      { label: 'Started', active: true },
-      { label: 'Escrow locked', active: true },
-      { label: 'Refunded', active: true },
+      { label: 'Bắt đầu', active: true },
+      { label: 'Đã khóa Escrow', active: true },
+      { label: 'Hoàn tiền', active: true },
     ]
   }
 
   return [
-    { label: 'Started', active: true },
-    { label: 'Escrow locked', active: contract.fundsInEscrow || contract.amountInEscrow > 0 },
-    { label: 'Awaiting completion', active: contract.status === ContractStatus.ACTIVE },
+    { label: 'Bắt đầu', active: true },
+    { label: 'Đã khóa Escrow', active: contract.fundsInEscrow || contract.amountInEscrow > 0 },
+    { label: 'Đang chờ hoàn thành', active: contract.status === ContractStatus.ACTIVE },
   ]
 }
 

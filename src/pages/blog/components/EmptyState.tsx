@@ -15,10 +15,10 @@ export function EmptyState({
       <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
         <SearchX className="h-6 w-6" />
       </div>
-      <h2 className="mt-5 text-2xl font-black tracking-tight text-slate-950">No guides found</h2>
+      <h2 className="mt-5 text-2xl font-black tracking-tight text-slate-950">Không tìm thấy bài viết nào</h2>
       <p className="mx-auto mt-3 max-w-2xl text-sm leading-7 text-slate-600">
-        We couldn&apos;t find results for tab <strong>{activeTab}</strong>
-        {query ? <> with keyword <strong>&ldquo;{query}&rdquo;</strong></> : null}. Try a broader topic or reset filters.
+        Chúng tôi không tìm thấy kết quả cho tab <strong>{activeTab}</strong>
+        {query ? <> với từ khóa <strong>&ldquo;{query}&rdquo;</strong></> : null}. Hãy thử một chủ đề rộng hơn hoặc đặt lại bộ lọc.
       </p>
       <button
         type="button"

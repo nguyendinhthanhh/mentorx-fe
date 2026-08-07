@@ -74,6 +74,16 @@ const formatAudience = (aud: string) => {
   return map[aud] || aud
 }
 
+export interface BlogPostCreateRequest {
+  title: string
+  excerpt: string
+  content: string
+  category: string
+  audience: string
+  coverImage?: string
+  tags?: string[]
+}
+
 const blogApi = {
   getPosts: async (params: SearchBlogParams) => {
     const { data } = await client.get<ApiResponse<PageResponse<BlogPost>>>('/blogs', { params })
@@ -98,6 +108,16 @@ const blogApi = {
 
   getPostBySlug: async (slug: string) => {
     const { data } = await client.get<ApiResponse<BlogPost>>(`/blogs/${slug}`)
+    return {
+      ...data.data,
+      category: formatCategory(data.data.category as any) as any,
+      audience: formatAudience(data.data.audience as any) as any,
+      date: new Date(data.data.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
+    }
+  },
+
+  createPost: async (request: BlogPostCreateRequest) => {
+    const { data } = await client.post<ApiResponse<BlogPost>>('/blogs', request)
     return {
       ...data.data,
       category: formatCategory(data.data.category as any) as any,

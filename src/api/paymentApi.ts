@@ -72,4 +72,11 @@ export const paymentApi = {
     )
     return response.data.data
   },
+
+  checkPayOSStatus: async (orderCode: number): Promise<PayOSReturnResponse> => {
+    const response = await apiClient.get<ApiResponse<PayOSReturnResponse>>(
+      `/v1/payment/payos/status/${orderCode}`
+    )
+    return response.data.data
+  },
 }

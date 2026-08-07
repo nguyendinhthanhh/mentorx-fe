@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react'
+﻿import { useState, type ReactNode } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useMutation, useQuery } from 'react-query'
 import {
@@ -24,6 +24,7 @@ import {
 import { chatApi } from '@/api/chatApi'
 import { courseApi } from '@/api/courseApi'
 import { mentorApi } from '@/api/mentorApi'
+import blogApi, { type BlogPost } from '@/api/blogApi'
 import { platformSettingApi } from '@/api/platformSettingApi'
 import { reviewApi } from '@/api/reviewApi'
 import ViewTimelineChart from '@/components/analytics/ViewTimelineChart'
@@ -109,6 +110,11 @@ export default function MentorPublicProfilePage() {
     ['published-courses-by-instructor', userId],
     () => courseApi.getPublished({ instructorId: userId!, page: 0, size: 6 }),
     { enabled: Boolean(userId), retry: false }
+  )
+  const blogQuery = useQuery(
+    ['mentor-blogs', userId, mentorQuery.data?.user?.fullName],
+    () => blogApi.getPosts({ query: mentorQuery.data?.user?.fullName || '', size: 3 }),
+    { enabled: Boolean(mentorQuery.data?.user?.fullName), retry: false }
   )
   const availabilityQuery = useQuery(
     ['mentor-availability', userId],
@@ -343,6 +349,13 @@ export default function MentorPublicProfilePage() {
                 isError={coursesQuery.isError}
                 onRetry={() => coursesQuery.refetch()}
                 mentorUserId={mentor.userId}
+                mentorName={name}
+              />
+            )}
+
+            {blogQuery.data?.content && blogQuery.data.content.length > 0 && (
+              <BlogPostsSection
+                posts={blogQuery.data.content}
                 mentorName={name}
               />
             )}
@@ -1859,4 +1872,63 @@ function formatRating(value: number | undefined, language: 'en' | 'vi') {
     minimumFractionDigits: 1,
     maximumFractionDigits: 1,
   }).format(value || 0)
+}
+function BlogPostsSection({
+  posts,
+  mentorName,
+}: {
+  posts: BlogPost[]
+  mentorName: string
+}) {
+  return (
+    <section className="border-t border-slate-200 pt-9 dark:border-slate-800" aria-labelledby="mentor-blogs-title">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between mb-8">
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-emerald-700 dark:text-emerald-300">
+            C?m nang & Ki?n th?c
+          </p>
+          <h2 id="mentor-blogs-title" className="mt-3 text-[28px] font-semibold tracking-[-0.02em] text-slate-950 sm:text-[30px] dark:text-slate-100">
+            B�i vi?t c?a {mentorName}
+          </h2>
+          <p className="mt-2 max-w-[62ch] text-[15px] leading-6 text-slate-600 dark:text-slate-300">
+            Kh�m ph� c�c b�i vi?t, chia s? kinh nghi?m v� ki?n th?c chuy�n m�n.
+          </p>
+        </div>
+      </div>
+
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {posts.map((post) => (
+          <Link
+            key={post.id}
+            to={/blog/ + post.slug}
+            className="group flex flex-col overflow-hidden rounded-[20px] bg-white ring-1 ring-inset ring-slate-200 transition-all hover:-translate-y-1 hover:shadow-lg dark:bg-slate-900 dark:ring-slate-800"
+          >
+            <div className="aspect-[16/9] w-full overflow-hidden bg-slate-100 dark:bg-slate-800">
+              {post.coverImage ? (
+                <img src={post.coverImage} alt="" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center text-slate-300">
+                  <BookOpen className="h-10 w-10" />
+                </div>
+              )}
+            </div>
+            <div className="flex flex-1 flex-col p-5">
+              <h3 className="line-clamp-2 text-lg font-bold leading-snug text-slate-900 dark:text-white group-hover:text-emerald-600 transition-colors">
+                {post.title}
+              </h3>
+              <p className="mt-3 line-clamp-2 text-sm text-slate-500 dark:text-slate-400 flex-1">
+                {post.excerpt}
+              </p>
+              <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-4 dark:border-slate-800">
+                <span className="text-xs font-semibold text-slate-500">{post.readTime}</span>
+                <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-600">
+                  �?c ti?p <ArrowUpRight className="h-3.5 w-3.5" />
+                </span>
+              </div>
+            </div>
+          </Link>
+        ))}
+      </div>
+    </section>
+  )
 }

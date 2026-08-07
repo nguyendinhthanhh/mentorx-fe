@@ -350,7 +350,7 @@ export default function ProposalList({ jobId }: Props) {
             content: msg,
             messageType: 'TEXT',
           })
-          toast.success('Deal accepted. Chat is ready.')
+          toast.success('Đã chấp nhận thỏa thuận. Bạn có thể bắt đầu chat.')
           navigate(getJobChatRoute(jobId, acceptCandidate.mentorId))
         } catch (chatError) {
           console.error('Lỗi khi setup không gian làm việc:', chatError)
@@ -538,11 +538,11 @@ export default function ProposalList({ jobId }: Props) {
               <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
                 <div className="grid gap-3 text-sm sm:grid-cols-2">
                   <div className="rounded-2xl bg-white p-4">
-                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400">Additional amount</p>
+                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400">Phải bù thêm</p>
                     <p className="mt-1 font-bold text-slate-950">{formatCurrency(acceptAdditionalAmount)}</p>
                   </div>
                   <div className="rounded-2xl bg-white p-4">
-                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400">Already held</p>
+                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400">Đã giữ khi đăng bài</p>
                     <p className="mt-1 font-bold text-slate-950">{formatCurrency(reservedBudgetAmount)}</p>
                   </div>
                 </div>
@@ -551,7 +551,7 @@ export default function ProposalList({ jobId }: Props) {
 
             {acceptRefundAmount > 0 && (
               <div className="mt-4 rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm leading-6 text-sky-900">
-                This proposal is below the budget already held. <span className="font-bold">{formatCurrency(acceptRefundAmount)}</span> will return to your wallet after acceptance.
+                Giá chốt thấp hơn ngân sách đã giữ. <span className="font-bold">{formatCurrency(acceptRefundAmount)}</span> sẽ được trả lại ví sau khi chấp nhận.
               </div>
             )}
 
@@ -1208,7 +1208,7 @@ function ProposalActions({
 
       if (response.code === '00' && (response.qrCode || response.checkoutUrl)) {
         setCounterTopUpPayment(response)
-        toast.success('Da tao ma thanh toan. Quet QR de nap tien ngay trong man hinh nay.')
+        toast.success('Đã tạo mã thanh toán. Quét QR để nạp tiền ngay trong màn hình này.')
         return
       }
 
@@ -1222,17 +1222,17 @@ function ProposalActions({
 
   const handleNegotiate = async () => {
     if (!negotiateMessage.trim() || negotiateMessage.length < 10) {
-      toast.error('Vui long nhap noi dung it nhat 10 ky tu.')
+      toast.error('Vui lòng nhập nội dung ít nhất 10 ký tự.')
       return
     }
 
     if (!negotiateAmount && !negotiateDeadline) {
-      toast.error('Vui long nhap it nhat gia hoac thoi gian deadline.')
+      toast.error('Vui lòng nhập ít nhất giá hoặc thời gian deadline.')
       return
     }
 
     if (!user?.userId) {
-      toast.error('Vui long dang nhap.')
+      toast.error('Vui lòng đăng nhập.')
       return
     }
 
@@ -1263,10 +1263,10 @@ function ProposalActions({
 
       if (isEditingOwnPendingOffer && latestNegotiation) {
         await negotiationApi.updatePendingNegotiation(latestNegotiation.id, negotiationPayload)
-        toast.success('Da cap nhat de xuat thuong luong.')
+        toast.success('Đã cập nhật đề xuất thương lượng.')
       } else {
         await negotiationApi.clientCounterOffer(negotiationPayload)
-        toast.success('Da gui de xuat thuong luong.')
+        toast.success('Đã gửi đề xuất thương lượng.')
       }
 
       setShowNegotiateForm(false)

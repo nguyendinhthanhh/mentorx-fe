@@ -59,7 +59,7 @@ export default function AdminUsersPage() {
       userApi.updateUserStatus(userId, status),
     {
       onSuccess: () => {
-        toast.success('User status updated')
+        toast.success('Đã cập nhật trạng thái người dùng')
         queryClient.invalidateQueries('admin-users')
       }
     }
@@ -69,7 +69,7 @@ export default function AdminUsersPage() {
     (userId: string) => mentorApi.approveMentorApplication(userId, currentUser!.userId),
     {
       onSuccess: () => {
-        toast.success('Mentor approved')
+        toast.success('Mentor đã được phê duyệt')
         queryClient.invalidateQueries('admin-users')
       }
     }
@@ -80,7 +80,7 @@ export default function AdminUsersPage() {
       mentorApi.requestMentorApplicationRevision(userId, reason, currentUser!.userId),
     {
       onSuccess: () => {
-        toast.success('Revision requested')
+        toast.success('Đã yêu cầu chỉnh sửa')
         queryClient.invalidateQueries('admin-users')
       }
     }
@@ -91,7 +91,7 @@ export default function AdminUsersPage() {
       adminMentorVerificationApi.suspendMentor(userId, reason),
     {
       onSuccess: () => {
-        toast.success('Mentor mode suspended')
+        toast.success('Chế độ mentor đã bị đình chỉ')
         queryClient.invalidateQueries('admin-users')
       }
     }
@@ -114,7 +114,7 @@ export default function AdminUsersPage() {
     (userId: string) => userApi.updateMentorStatus(userId, MentorStatus.APPROVED),
     {
       onSuccess: () => {
-        toast.success('Mentor mode restored')
+        toast.success('Chế độ mentor đã được khôi phục')
         queryClient.invalidateQueries('admin-users')
       }
     }
@@ -124,7 +124,7 @@ export default function AdminUsersPage() {
     (userId: string) => userApi.softDeleteUser(userId),
     {
       onSuccess: () => {
-        toast.success('User deleted')
+        toast.success('Đã xóa người dùng')
         queryClient.invalidateQueries('admin-users')
       }
     }

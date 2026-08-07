@@ -66,7 +66,7 @@ export default function AdminSettingsPage() {
 
   const createMutation = useMutation(platformSettingApi.create, {
     onSuccess: (setting) => {
-      toast.success('Platform setting created')
+      toast.success('Đã tạo cài đặt hệ thống')
       setSelectedKey(setting.key)
       setDraft(toDraft(setting))
       void queryClient.invalidateQueries(['platform-settings'])
@@ -78,7 +78,7 @@ export default function AdminSettingsPage() {
 
   const updateBadgeSettingsMutation = useMutation(platformSettingApi.updateMentorBadgeSettings, {
     onSuccess: (settings) => {
-      toast.success('Mentor badge rules updated')
+      toast.success('Đã cập nhật quy tắc huy hiệu mentor')
       setBadgeDraft(settings)
       void queryClient.invalidateQueries(['mentor-badge-settings'])
       void queryClient.invalidateQueries(['platform-settings'])
@@ -92,7 +92,7 @@ export default function AdminSettingsPage() {
     ({ key, request }: { key: string; request: PlatformSettingRequest }) => platformSettingApi.update(key, request),
     {
       onSuccess: (setting) => {
-        toast.success('Platform setting updated')
+        toast.success('Đã cập nhật cài đặt hệ thống')
         setDraft(toDraft(setting))
         void queryClient.invalidateQueries(['platform-settings'])
       },
@@ -104,7 +104,7 @@ export default function AdminSettingsPage() {
 
   const deleteMutation = useMutation(platformSettingApi.delete, {
     onSuccess: () => {
-      toast.success('Platform setting deleted')
+      toast.success('Đã xóa cài đặt hệ thống')
       setSelectedKey(null)
       setDraft(emptyDraft)
       void queryClient.invalidateQueries(['platform-settings'])
@@ -134,7 +134,7 @@ export default function AdminSettingsPage() {
     }
 
     if (!normalizedDraft.key || !normalizedDraft.value) {
-      toast.error('Key and value are required')
+      toast.error('Cần nhập cả khóa và giá trị')
       return
     }
 

@@ -91,7 +91,7 @@ export function MessageAttachment({ message, mine }: { message: MessageResponse;
       >
         <img
           src={resolveAttachmentUrl(message.attachmentUrl)}
-          alt={message.attachmentFilename || 'Shared image'}
+          alt={message.attachmentFilename || 'Ảnh đã chia sẻ'}
           className="max-h-72 w-full rounded-2xl object-cover"
         />
       </a>
@@ -122,7 +122,7 @@ export function MessageAttachment({ message, mine }: { message: MessageResponse;
       </span>
       <span className="min-w-0 flex-1">
         <span className="block truncate text-sm font-semibold">
-          {message.attachmentFilename || 'Attachment'}
+          {message.attachmentFilename || 'Tệp đính kèm'}
         </span>
         <span className={`mt-1 flex items-center gap-1 text-xs ${mine ? 'text-white/75' : 'text-slate-400'}`}>
           <LinkIcon className="h-3.5 w-3.5" />
@@ -134,17 +134,17 @@ export function MessageAttachment({ message, mine }: { message: MessageResponse;
 }
 
 export function getPrimaryOtherMember(room: ChatRoomResponse, currentUserId?: string | null) {
-  return room.members.find((member) => member.userId !== currentUserId) || room.members[0]
+  return room.members.find((member) => member.userId !== currentUserId)
 }
 
 export function getRoomDisplayName(room: ChatRoomResponse, currentUserId?: string | null) {
   if (room.roomName && room.roomType !== 'DIRECT_MESSAGE') return room.roomName
   const otherMember = getPrimaryOtherMember(room, currentUserId)
-  return otherMember?.displayName || otherMember?.fullName || room.roomName || 'Conversation'
+  return otherMember?.displayName || otherMember?.fullName || room.roomName || 'Trò chuyện'
 }
 
 export function getRoomPreview(room: ChatRoomResponse) {
-  return room.lastMessagePreview || room.description || 'No messages yet'
+  return room.lastMessagePreview || 'Chưa có tin nhắn'
 }
 
 export function getAvatarLabel(member: ChatRoomMemberSummary | undefined, fallback: string) {
@@ -158,10 +158,11 @@ export function getAvatarLabel(member: ChatRoomMemberSummary | undefined, fallba
 }
 
 export function getPresenceLabel(member?: ChatRoomMemberSummary) {
-  if (!member) return 'Conversation'
+  if (!member) return 'Trò chuyện'
   if (member.isOnline) return 'Online'
   if (member.lastSeenAt) return `Seen ${formatRelativeTime(member.lastSeenAt)}`
-  return member.memberRole?.replace(/_/g, ' ').toLowerCase() || 'Conversation'
+  const roleStr = member.memberRole === 'MEMBER' ? 'Thành viên' : member.memberRole?.replace(/_/g, ' ')
+  return roleStr?.toLowerCase() || 'Trò chuyện'
 }
 
 export function formatRoomType(roomType: string) {
@@ -204,7 +205,7 @@ export function formatAttachmentMeta(message: MessageResponse) {
   const parts: string[] = []
   if (message.attachmentMimeType) parts.push(message.attachmentMimeType.split('/').pop()?.toUpperCase() || 'FILE')
   if (message.attachmentSize) parts.push(formatFileSize(message.attachmentSize))
-  return parts.join(' - ') || 'File'
+  return parts.join(' - ') || 'Tệp'
 }
 
 export function resolveAttachmentUrl(url: string) {
@@ -251,7 +252,7 @@ export function buildSharedImages(messages: MessageResponse[]): SharedImage[] {
     .map((message) => ({
       id: message.id,
       url: resolveAttachmentUrl(message.attachmentUrl!),
-      name: message.attachmentFilename || 'Image',
+      name: message.attachmentFilename || 'Ảnh',
       sentAt: message.sentAt,
     }))
 }
@@ -262,7 +263,7 @@ export function buildSharedFiles(messages: MessageResponse[]): SharedFile[] {
     .map((message) => ({
       id: message.id,
       url: resolveAttachmentUrl(message.attachmentUrl!),
-      name: message.attachmentFilename || 'Attachment',
+      name: message.attachmentFilename || 'Tệp đính kèm',
       sentAt: message.sentAt,
       meta: formatAttachmentMeta(message),
     }))
@@ -323,7 +324,7 @@ export function buildContextBanner(room: ChatRoomResponse | null) {
 export function summarizeWeeklyAvailability(weeklyAvailability: any) {
   if (!weeklyAvailability?.weeklySchedule) return []
 
-  const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+  const dayNames = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7']
   const today = new Date()
   const entries: string[] = []
 
@@ -335,7 +336,7 @@ export function summarizeWeeklyAvailability(weeklyAvailability: any) {
 
     if (!slots.length) continue
 
-    const label = offset === 0 ? 'Today' : offset === 1 ? 'Tomorrow' : dayNames[date.getDay()]
+    const label = offset === 0 ? 'Hôm nay' : offset === 1 ? 'Ngày mai' : dayNames[date.getDay()]
     const slotText = slots
       .slice(0, 2)
       .map((slot: { startTime: string; endTime: string }) => `${slot.startTime.slice(0, 5)}-${slot.endTime.slice(0, 5)}`)

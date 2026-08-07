@@ -6,7 +6,7 @@ import {
   Sparkles,
   Target,
 } from 'lucide-react'
-import { ChatRoomMemberSummary, ChatRoomResponse, MessageResponse } from '@/types'
+import { ChatRoomMemberSummary, ChatRoomResponse, MessageResponse, JobResponse, ContractResponse } from '@/types'
 import {
   ATTACHMENT_ACCEPT,
   buildContextBanner,
@@ -58,6 +58,8 @@ type ConversationPaneProps = {
   detailsButtonClassName?: string
   detailsButtonLabel?: string
   profileHref?: string
+  linkedJob?: JobResponse | null
+  linkedContract?: ContractResponse | null
 }
 
 export default function ConversationPane({
@@ -93,6 +95,8 @@ export default function ConversationPane({
   detailsButtonClassName = 'lg:hidden',
   detailsButtonLabel = 'Details',
   profileHref,
+  linkedJob,
+  linkedContract,
 }: ConversationPaneProps) {
   const banner = buildContextBanner(selectedRoom)
 
@@ -103,8 +107,8 @@ export default function ConversationPane({
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50 text-emerald-500">
             <Sparkles className="h-6 w-6" />
           </div>
-          <h2 className="mt-5 text-xl font-semibold text-[#10164a]">Select a conversation</h2>
-          <p className="mt-2 text-sm text-[#66729d]">Choose a room from the inbox to read messages and files.</p>
+          <h2 className="mt-5 text-xl font-semibold text-[#10164a]">Chọn một cuộc trò chuyện</h2>
+          <p className="mt-2 text-sm text-[#66729d]">Chọn một phòng từ hộp thư để đọc tin nhắn và tập tin.</p>
         </div>
       </section>
     )
@@ -161,10 +165,22 @@ export default function ConversationPane({
                 )}
                 {otherMember?.isOnline && <span className="h-2 w-2 rounded-full bg-emerald-400" />}
                 {otherMember?.isOnline && <span className="text-[13px] font-medium text-[#10164a]">Online</span>}
+                {linkedContract && (
+                  <span className="ml-2 inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 border border-emerald-200" title="Tiến độ hợp đồng đang chạy">
+                    <Target className="h-3 w-3" />
+                    {linkedContract.jobTitle || linkedContract.title} ({Math.round(linkedContract.progressPercentage || 0)}%)
+                  </span>
+                )}
+                {!linkedContract && linkedJob && (
+                  <span className="ml-2 inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700 border border-blue-200" title="Công việc được liên kết">
+                    <Target className="h-3 w-3" />
+                    {linkedJob.title}
+                  </span>
+                )}
               </div>
               <p className="truncate text-[14px] text-[#66729d]">
                 {selectedRoom.roomType === 'DIRECT_MESSAGE'
-                  ? participantRoleLabel || otherMember?.memberRole?.replace(/_/g, ' ') || roomPresence
+                  ? participantRoleLabel || (otherMember?.memberRole === 'MEMBER' ? 'Participant' : otherMember?.memberRole?.replace(/_/g, ' ')) || roomPresence
                   : `${roomPresence} - ${formatRoomType(selectedRoom.roomType)}`}
               </p>
             </div>

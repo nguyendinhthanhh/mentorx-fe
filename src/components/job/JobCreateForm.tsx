@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -31,22 +31,23 @@ const OTHER_CATEGORY_VALUE = -1
 const EXPERIENCE_CUSTOM = 'CUSTOM'
 const COMMUNICATION_CUSTOM = 'CUSTOM'
 const SKIP_JOB_FUNDING_FOR_DEMO = import.meta.env.VITE_SKIP_JOB_FUNDING === 'true'
+const ENABLE_JOB_FUNDING_DEMO = import.meta.env.DEV && import.meta.env.VITE_JOB_FUNDING_DEMO === 'true'
 
 const experienceOptions = [
-  { value: '', label: 'Open to suggestion' },
-  { value: 'INTERMEDIATE', label: 'Intermediate mentor or above' },
-  { value: 'SENIOR', label: 'Senior mentor' },
-  { value: 'EXPERT', label: 'Domain expert' },
-  { value: EXPERIENCE_CUSTOM, label: 'Other' },
+  { value: '', label: 'Mở để nhận đề xuất' },
+  { value: 'INTERMEDIATE', label: 'Mentor trung cấp trở lên' },
+  { value: 'SENIOR', label: 'Mentor cao cấp' },
+  { value: 'EXPERT', label: 'Chuyên gia trong lĩnh vực' },
+  { value: EXPERIENCE_CUSTOM, label: 'Khác' },
 ]
 
 const communicationOptions = [
-  { value: '', label: 'Flexible' },
-  { value: 'CHAT', label: 'Chat' },
-  { value: 'VIDEO_CALL', label: 'Video call' },
-  { value: 'CODE_REVIEW', label: 'Code review' },
-  { value: 'MIXED', label: 'Mixed' },
-  { value: COMMUNICATION_CUSTOM, label: 'Other' },
+  { value: '', label: 'Linh hoạt' },
+  { value: 'CHAT', label: 'Nhắn tin' },
+  { value: 'VIDEO_CALL', label: 'Gọi video' },
+  { value: 'CODE_REVIEW', label: 'Đánh giá mã' },
+  { value: 'MIXED', label: 'Kết hợp' },
+  { value: COMMUNICATION_CUSTOM, label: 'Khác' },
 ]
 
 const optionalNumber = z.preprocess(
@@ -103,7 +104,7 @@ const formatDeadlinePreview = (value?: string | null) => {
 
 const jobSchema = z
   .object({
-    title: z.string().trim().min(5, 'Title must be at least 5 characters').max(200),
+    title: z.string().trim().min(5, 'Tiêu đề phải có ít nhất 5 ký tự').max(200),
     description: z.string().trim(),
     categoryId: optionalCategory,
     customCategoryName: optionalText(120),
@@ -136,48 +137,48 @@ const jobSchema = z
       if (wordCount < 10) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: `Description needs at least 10 words. Current: ${wordCount}.`,
+          message: `Mô tả cần ít nhất 10 từ. Hiện tại: ${wordCount}.`,
           path: ['description'],
         })
       }
     }
 
     if (!data.categoryId && !data.customCategoryName) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Please choose a category or enter your own category.',
-        path: ['categoryId'],
-      })
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Vui lòng chọn một danh mục hoặc nhập danh mục của riêng bạn.',
+          path: ['categoryId'],
+        })
     }
 
     if (data.categoryId === OTHER_CATEGORY_VALUE && !data.customCategoryName) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Please enter a custom category.',
-        path: ['customCategoryName'],
-      })
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Vui lòng nhập danh mục tùy chỉnh.',
+          path: ['customCategoryName'],
+        })
     }
 
     if (data.budgetType === 'FIXED' && !data.budgetAmount) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Please enter a fixed budget.',
-        path: ['budgetAmount'],
-      })
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Vui lòng nhập ngân sách cố định.',
+          path: ['budgetAmount'],
+        })
     }
 
     if (data.budgetType === 'HOURLY') {
       if (!data.hourlyRate) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: 'Please enter an hourly rate.',
+          message: 'Vui lòng nhập mức lương theo giờ.',
           path: ['hourlyRate'],
         })
       }
       if (!data.estimatedHours) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: 'Please enter estimated hours.',
+          message: 'Vui lòng nhập số giờ ước tính.',
           path: ['estimatedHours'],
         })
       }
@@ -186,13 +187,13 @@ const jobSchema = z
     if (!data.deadlineDate) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'Please provide an end date and time.',
+        message: 'Vui lòng cung cấp ngày và giờ kết thúc.',
         path: ['deadlineDate'],
       })
     } else if (new Date(data.deadlineDate).getTime() <= Date.now()) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'The deadline must be in the future.',
+        message: 'Hạn chót phải ở trong tương lai.',
         path: ['deadlineDate'],
       })
     }
@@ -200,7 +201,7 @@ const jobSchema = z
     if (data.experiencePreset === EXPERIENCE_CUSTOM && !data.customExperienceLevel) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'Please enter the mentor level you want.',
+        message: 'Vui lòng nhập cấp độ mentor bạn muốn.',
         path: ['customExperienceLevel'],
       })
     }
@@ -208,7 +209,7 @@ const jobSchema = z
     if (data.communicationPreset === COMMUNICATION_CUSTOM && !data.customCommunicationPreference) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'Please enter a communication preference.',
+        message: 'Vui lòng nhập sở thích giao tiếp.',
         path: ['customCommunicationPreference'],
       })
     }
@@ -216,7 +217,7 @@ const jobSchema = z
     if ((data.availabilityStartTime && !data.availabilityEndTime) || (!data.availabilityStartTime && data.availabilityEndTime)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'Please provide both start and end time.',
+        message: 'Vui lòng cung cấp cả thời gian bắt đầu và kết thúc.',
         path: ['availabilityEndTime'],
       })
     }
@@ -246,6 +247,7 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
   const [showPaymentModal, setShowPaymentModal] = useState(false)
   const [paymentData, setPaymentData] = useState<JobFormData | null>(null)
   const [createdJobId, setCreatedJobId] = useState<string | null>(null)
+  const createdJobIdRef = useRef<string | null>(initialJob?.jobId ?? null)
   const [previewFile, setPreviewFile] = useState<{ url: string; name: string; type: string } | null>(null)
 
   const {
@@ -297,6 +299,8 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
   useEffect(() => {
     if (!initialJob) return
 
+    createdJobIdRef.current = initialJob.jobId
+
     const initialExperiencePreset = isKnownExperienceValue(initialJob.experienceLevel) ? initialJob.experienceLevel : initialJob.experienceLevel ? EXPERIENCE_CUSTOM : ''
     const initialCommunicationPreset = isKnownCommunicationValue(initialJob.communicationPreference)
       ? initialJob.communicationPreference
@@ -342,8 +346,8 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
   }, [initialJob, reset])
 
   const attachmentSummary = useMemo(() => {
-    if (attachments.length === 0) return 'No files uploaded yet.'
-    return `${attachments.length} file(s) ready to send`
+    if (attachments.length === 0) return 'Chưa tải lên file nào.'
+    return `${attachments.length} file sẵn sàng gửi`
   }, [attachments])
 
   const { data: walletBalance, refetch: refetchWalletBalance } = useQuery(
@@ -422,7 +426,7 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
         return merged.filter((item, index, self) => self.findIndex((candidate) => candidate.fileUrl === item.fileUrl) === index)
       })
     } catch {
-      setError('File upload failed. Please try again.')
+      setError('Tải file thất bại. Vui lòng thử lại.')
     } finally {
       setUploading(false)
       event.target.value = ''
@@ -433,11 +437,35 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
     setAttachments((current) => current.filter((item) => item.fileUrl !== fileUrl))
   }
 
+  const getBackendErrorMessage = (err: any) =>
+    err?.response?.data?.message || err?.message || ''
+
+  const isInsufficientBalanceError = (err: any) => {
+    const code = String(err?.response?.data?.code || err?.response?.data?.errorCode || '').toUpperCase()
+    const message = getBackendErrorMessage(err).toLowerCase()
+
+    return (
+      code === 'INSUFFICIENT_BALANCE' ||
+      message.includes('not enough mxc') ||
+      message.includes('insufficient balance')
+    )
+  }
+
+  const reopenFundingModalForBalanceError = async (data: JobFormData, jobId?: string | null) => {
+    if (jobId) {
+      createdJobIdRef.current = jobId
+      setCreatedJobId(jobId)
+    }
+    setPaymentData(data)
+    await refetchWalletBalance()
+    setShowPaymentModal(true)
+  }
+
   const handleSaveDraft = async () => {
     const data = getValues()
 
     if (!data.title || data.title.trim().length < 5) {
-      setError('Please enter at least 5 characters for the title before saving a draft.')
+      setError('Vui lòng nhập ít nhất 5 ký tự cho tiêu đề trước khi lưu bản nháp.')
       return
     }
 
@@ -454,7 +482,7 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
       }
       navigate('/my-jobs')
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Could not save draft.')
+      setError(err.response?.data?.message || 'Không thể lưu bản nháp.')
     } finally {
       setLoading(false)
     }
@@ -472,7 +500,12 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
 
       navigate(`/jobs/${job.jobId}`)
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Could not create job.')
+      if (status === JobStatus.OPEN && isInsufficientBalanceError(err)) {
+        await reopenFundingModalForBalanceError(data, isEditing ? initialJob?.jobId : createdJobId)
+        setError('')
+        return
+      }
+      setError(err.response?.data?.message || 'Không thể tạo công việc.')
     } finally {
       setLoading(false)
     }
@@ -480,7 +513,7 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
 
   const onSubmit = async (data: JobFormData) => {
     if (!agreeTerms && submitStatus !== 'DRAFT') {
-      setError('Please agree to the terms before posting.')
+      setError('Vui lòng đồng ý với các điều khoản trước khi đăng.')
       return
     }
 
@@ -496,18 +529,19 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
         return
       }
 
+      let jobId = initialJob?.jobId
       try {
         setLoading(true)
         setError('')
         // Save as DRAFT first to validate data against backend
         const payload = buildJobPayload(data, JobStatus.DRAFT)
-        let jobId = initialJob?.jobId
         
         if (isEditing && jobId) {
           await jobApi.update(jobId, payload)
         } else {
           const job = await jobApi.create({ clientId, ...payload })
           jobId = job.jobId
+          createdJobIdRef.current = jobId
           setCreatedJobId(jobId)
         }
         
@@ -515,7 +549,12 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
         setPaymentData(data)
         setShowPaymentModal(true)
       } catch (err: any) {
-        setError(err.response?.data?.message || 'Could not validate job details.')
+        if (isInsufficientBalanceError(err)) {
+          await reopenFundingModalForBalanceError(data, jobId)
+          setError('')
+          return
+        }
+        setError(err.response?.data?.message || 'Không thể xác thực chi tiết công việc.')
       } finally {
         setLoading(false)
       }
@@ -530,28 +569,28 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
       {/* Decorative gradient corner inside form */}
       <div className="absolute -top-24 -right-24 w-48 h-48 bg-gradient-to-br from-[#4f46e5]/10 to-emerald-500/10 rounded-full blur-2xl pointer-events-none"></div>
       <div>
-        <label className="mb-2 block text-sm font-bold text-[#1b2252]">Job title</label>
+        <label className="mb-2 block text-sm font-bold text-[#1b2252]">Tiêu đề công việc</label>
         <input
           {...register('title')}
           className="w-full rounded-xl border border-slate-200 bg-white/80 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300 transition"
-          placeholder="Example: Need a React Native mentor to review booking app architecture"
+          placeholder="Ví dụ: Cần một mentor React Native để đánh giá kiến trúc ứng dụng đặt chỗ"
         />
         {errors.title && <p className="mt-1.5 text-xs font-medium text-rose-500">{errors.title.message}</p>}
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label className="mb-2 block text-sm font-bold text-[#1b2252]">Category</label>
+          <label className="mb-2 block text-sm font-bold text-[#1b2252]">Danh mục</label>
           <div className="relative">
             <select
               {...register('categoryId')}
               className="w-full appearance-none rounded-xl border border-slate-200 bg-white/80 px-4 py-3 text-sm text-slate-900 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300 transition"
             >
-              <option value="">Choose a category</option>
+              <option value="">Chọn một danh mục</option>
               {categories.map((category) => (
                 <option key={category.id} value={category.id}>{category.name}</option>
               ))}
-              <option value={OTHER_CATEGORY_VALUE}>Other</option>
+              <option value={OTHER_CATEGORY_VALUE}>Khác</option>
             </select>
             <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
           </div>
@@ -561,7 +600,7 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
               <input
                 {...register('customCategoryName')}
                 className="w-full rounded-xl border border-slate-200 bg-white/80 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300 transition"
-                placeholder="Enter your own category"
+                placeholder="Nhập danh mục của riêng bạn"
               />
               {errors.customCategoryName && <p className="mt-1.5 text-xs font-medium text-rose-500">{errors.customCategoryName.message}</p>}
             </div>
@@ -569,7 +608,7 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-bold text-[#1b2252]">End date and time</label>
+          <label className="mb-2 block text-sm font-bold text-[#1b2252]">Ngày và giờ kết thúc</label>
           <input
             type="datetime-local"
             step={1}
@@ -578,7 +617,7 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
           />
           <div className="mt-2 space-y-1 rounded-xl border border-slate-100 bg-slate-50 px-3 py-2">
             <p className="text-xs font-semibold text-[#1b2252]/80">
-              Selected: <span className="font-bold text-slate-900">{selectedDeadlinePreview}</span>
+              Đã chọn: <span className="font-bold text-slate-900">{selectedDeadlinePreview}</span>
             </p>
             <p className={`text-xs font-semibold ${selectedDeadline && new Date(selectedDeadline).getTime() > Date.now() ? 'text-emerald-700' : 'text-slate-500'}`}>
               {selectedDeadlineRemaining}
@@ -589,24 +628,24 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
       </div>
 
       <div>
-        <label className="mb-2 block text-sm font-bold text-[#1b2252]">Description</label>
+        <label className="mb-2 block text-sm font-bold text-[#1b2252]">Mô tả</label>
         <textarea
           {...register('description')}
           rows={5}
           className="w-full resize-none rounded-xl border border-slate-200 bg-white/80 px-4 py-3 text-sm leading-6 text-slate-900 placeholder:text-slate-400 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300 transition"
-          placeholder="Describe the problem, goal, scope, and what kind of mentor support you need."
+          placeholder="Mô tả vấn đề, mục tiêu, phạm vi và loại hỗ trợ của mentor mà bạn cần."
         />
         {errors.description && <p className="mt-1.5 text-xs font-medium text-rose-500">{errors.description.message}</p>}
       </div>
 
       <div>
         <div className="mb-2 flex items-baseline justify-between">
-          <label className="block text-sm font-bold text-[#1b2252]">Skills or topics <span className="text-slate-400 font-normal">(optional)</span></label>
+          <label className="block text-sm font-bold text-[#1b2252]">Kỹ năng hoặc chủ đề <span className="text-slate-400 font-normal">(không bắt buộc)</span></label>
         </div>
         <input
           {...register('requiredSkillsInput')}
           className="w-full rounded-xl border border-slate-200 bg-white/80 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300 transition"
-          placeholder="e.g. React Native, UI Design, AWS (comma separated)"
+          placeholder="VD: React Native, Thiết kế UI, AWS (phân cách bằng dấu phẩy)"
         />
         {errors.requiredSkillsInput && <p className="mt-1.5 text-xs font-medium text-rose-500">{errors.requiredSkillsInput.message}</p>}
       </div>
@@ -617,23 +656,23 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
           onClick={() => setShowAdvanced((value) => !value)}
           className="flex w-full items-center justify-between px-5 py-4 text-left text-sm font-bold text-[#1b2252]/80 hover:bg-slate-100/50"
         >
-          <span>Advanced details</span>
+          <span>Chi tiết nâng cao</span>
           <ChevronDown className={`h-4 w-4 text-slate-400 transition-transform ${showAdvanced ? 'rotate-180' : ''}`} />
         </button>
 
         {showAdvanced && (
           <div className="grid gap-4 border-t border-slate-100 p-5 pt-4 sm:grid-cols-2">
             <div>
-              <label className="mb-2 block text-xs font-bold text-[#1b2252]/80">Your current level</label>
+              <label className="mb-2 block text-xs font-bold text-[#1b2252]/80">Trình độ hiện tại của bạn</label>
               <input
                 {...register('currentLevel')}
                 className="w-full rounded-lg border border-slate-200 bg-white/80 px-3 py-2.5 text-sm text-slate-900 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300"
-                placeholder="Example: I can build screens but need architecture help"
+                placeholder="Ví dụ: Tôi có thể xây dựng giao diện nhưng cần trợ giúp về kiến trúc"
               />
             </div>
 
             <div>
-              <label className="mb-2 block text-xs font-bold text-[#1b2252]/80">Preferred mentor level</label>
+              <label className="mb-2 block text-xs font-bold text-[#1b2252]/80">Cấp độ mentor mong muốn</label>
               <select
                 {...register('experiencePreset')}
                 className="w-full rounded-lg border border-slate-200 bg-white/80 px-3 py-2.5 text-sm text-slate-900 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300"
@@ -646,34 +685,34 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
                 <input
                   {...register('customExperienceLevel')}
                   className="mt-3 w-full rounded-lg border border-slate-200 bg-white/80 px-3 py-2.5 text-sm text-slate-900 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300"
-                  placeholder="Enter your own preferred mentor level"
+                  placeholder="Nhập cấp độ mentor mong muốn của riêng bạn"
                 />
               )}
               {errors.customExperienceLevel && <p className="mt-1.5 text-xs font-medium text-rose-500">{errors.customExperienceLevel.message}</p>}
             </div>
 
             <div className="sm:col-span-2">
-              <label className="mb-2 block text-xs font-bold text-[#1b2252]/80">Learning goals</label>
+              <label className="mb-2 block text-xs font-bold text-[#1b2252]/80">Mục tiêu học tập</label>
               <textarea
                 {...register('learningGoals')}
                 rows={2}
                 className="w-full resize-none rounded-lg border border-slate-200 bg-white/80 px-3 py-2 text-sm text-slate-900 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300"
-                placeholder="What should change after working with the mentor?"
+                placeholder="Điều gì sẽ thay đổi sau khi làm việc với mentor?"
               />
             </div>
 
             <div className="sm:col-span-2">
-              <label className="mb-2 block text-xs font-bold text-[#1b2252]/80">Success criteria</label>
+              <label className="mb-2 block text-xs font-bold text-[#1b2252]/80">Tiêu chí thành công</label>
               <textarea
                 {...register('successCriteria')}
                 rows={2}
                 className="w-full resize-none rounded-lg border border-slate-200 bg-white/80 px-3 py-2 text-sm text-slate-900 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300"
-                placeholder="How will you know this job is done well?"
+                placeholder="Làm thế nào để biết công việc này hoàn thành tốt?"
               />
             </div>
 
             <div>
-              <label className="mb-2 block text-xs font-bold text-[#1b2252]/80">Preferred communication</label>
+              <label className="mb-2 block text-xs font-bold text-[#1b2252]/80">Hình thức giao tiếp mong muốn</label>
               <select
                 {...register('communicationPreset')}
                 className="w-full rounded-lg border border-slate-200 bg-white/80 px-3 py-2.5 text-sm text-slate-900 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300"
@@ -686,18 +725,18 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
                 <input
                   {...register('customCommunicationPreference')}
                   className="mt-3 w-full rounded-lg border border-slate-200 bg-white/80 px-3 py-2.5 text-sm text-slate-900 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300"
-                  placeholder="Enter your own communication preference"
+                  placeholder="Nhập sở thích giao tiếp của riêng bạn"
                 />
               )}
               {errors.customCommunicationPreference && <p className="mt-1.5 text-xs font-medium text-rose-500">{errors.customCommunicationPreference.message}</p>}
             </div>
 
             <div>
-              <label className="mb-2 block text-xs font-bold text-[#1b2252]/80">Availability note</label>
+              <label className="mb-2 block text-xs font-bold text-[#1b2252]/80">Ghi chú thời gian</label>
               <input
                 {...register('availabilityExpectation')}
                 className="w-full rounded-lg border border-slate-200 bg-white/80 px-3 py-2.5 text-sm text-slate-900 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300"
-                placeholder="Example: Weeknights or weekends"
+                placeholder="Ví dụ: Buổi tối trong tuần hoặc cuối tuần"
               />
             </div>
 
@@ -707,21 +746,21 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
 
       <div>
         <div className="mb-4 flex items-center justify-between">
-          <label className="block text-sm font-bold text-[#1b2252]">Budget</label>
+          <label className="block text-sm font-bold text-[#1b2252]">Ngân sách</label>
           <div className="flex items-center rounded-lg border border-slate-200 bg-slate-50 p-1">
             <button
               type="button"
               onClick={() => setValue('budgetType', 'FIXED')}
               className={`rounded-md px-3 py-1.5 text-xs font-bold transition ${budgetType === 'FIXED' ? 'bg-white/80 text-blue-600 shadow-sm' : 'text-slate-500 hover:text-[#1b2252]/80'}`}
             >
-              Fixed
+              Cố định
             </button>
             <button
               type="button"
               onClick={() => setValue('budgetType', 'HOURLY')}
               className={`rounded-md px-3 py-1.5 text-xs font-bold transition ${budgetType === 'HOURLY' ? 'bg-white/80 text-blue-600 shadow-sm' : 'text-slate-500 hover:text-[#1b2252]/80'}`}
             >
-              Hourly
+              Theo giờ
             </button>
           </div>
         </div>
@@ -732,7 +771,7 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
               type="number"
               {...register('budgetAmount')}
               className="w-full rounded-xl border border-slate-200 bg-white/80 pl-4 pr-16 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300 transition [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-              placeholder="Total budget"
+              placeholder="Tổng ngân sách"
             />
             <div className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-bold text-[#1b2252]/80">
               MXC
@@ -746,7 +785,7 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
                 type="number"
                 {...register('hourlyRate')}
                 className="w-full rounded-xl border border-slate-200 bg-white/80 pl-4 pr-20 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300 transition [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                placeholder="Hourly rate"
+                placeholder="Mức lương theo giờ"
               />
               <div className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-bold text-[#1b2252]/80">
                 MXC/h
@@ -759,7 +798,7 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
                 type="number"
                 {...register('estimatedHours')}
                 className="w-full rounded-xl border border-slate-200 bg-white/80 pl-4 pr-16 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300 transition [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                placeholder="Estimated hours"
+                placeholder="Số giờ ước tính"
               />
               <div className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-bold text-[#1b2252]/80">
                 hrs
@@ -774,13 +813,13 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
         <Info className="mt-[3px] h-4 w-4 shrink-0 text-[#4f46e5]" />
         <p>
           {SKIP_JOB_FUNDING_FOR_DEMO
-            ? 'Demo mode: post now without topping up. Payment is still handled when you select a mentor.'
-            : 'The job budget is held before publishing. Escrow starts later when you select a mentor.'}
+            ? 'Chế độ demo: đăng ngay không cần nạp tiền. Thanh toán sẽ được xử lý khi bạn chọn một mentor.'
+            : 'Ngân sách công việc được giữ trước khi đăng. Quỹ đảm bảo bắt đầu sau khi bạn chọn một mentor.'}
         </p>
       </div>
 
       <div>
-        <label className="mb-2 block text-sm font-bold text-[#1b2252]">Attachments (multiple files supported)</label>
+        <label className="mb-2 block text-sm font-bold text-[#1b2252]">Tệp đính kèm (hỗ trợ nhiều file)</label>
         <p className="mb-3 text-xs font-medium text-slate-500">{attachmentSummary}</p>
 
         <label className="group flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 bg-[#fafafa] px-6 py-8 transition hover:border-[#4f46e5]/50 hover:bg-[#4f46e5]/5">
@@ -793,9 +832,9 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
             </div>
           )}
           <p className="mt-4 text-[13px] font-medium text-slate-500">
-            {uploading ? 'Uploading files...' : 'Drop files here or browse from your device'}
+            {uploading ? 'Đang tải file lên...' : 'Thả file vào đây hoặc duyệt từ thiết bị của bạn'}
           </p>
-          <p className="mt-1 text-[11px] font-medium uppercase tracking-wide text-slate-400">PDF, DOCX, JPG, PNG, or ZIP</p>
+          <p className="mt-1 text-[11px] font-medium uppercase tracking-wide text-slate-400">PDF, DOCX, JPG, PNG, hoặc ZIP</p>
         </label>
 
         {attachments.length > 0 && (
@@ -848,9 +887,9 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
           </svg>
         </div>
         <span className="text-[13px] leading-relaxed text-slate-600">
-          I agree with the{' '}
+          Tôi đồng ý với{' '}
           <button type="button" onClick={() => setShowTermsModal(true)} className="font-bold text-[#4f46e5] hover:underline">
-            Terms of Service and Privacy Policy
+            Điều khoản Dịch vụ và Chính sách Bảo mật
           </button>.
         </span>
       </label>
@@ -870,7 +909,7 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
           className="flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white/80 px-6 py-3.5 text-[15px] font-bold text-[#1b2252] shadow-sm transition-all hover:bg-slate-50 hover:shadow-md hover:-translate-y-0.5 focus:outline-none focus:ring-4 focus:ring-slate-500/10 disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0"
         >
           {loading && submitStatus === 'DRAFT' ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4 text-slate-400" />}
-          {isEditing ? 'Update draft' : 'Save draft'}
+          {isEditing ? 'Cập nhật bản nháp' : 'Lưu bản nháp'}
         </button>
 
         <button
@@ -882,10 +921,10 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
           {loading && submitStatus === 'OPEN'
             ? <Loader2 className="h-5 w-5 animate-spin" />
             : isEditing
-              ? 'Update and publish'
+              ? 'Cập nhật và đăng'
               : SKIP_JOB_FUNDING_FOR_DEMO
-                ? 'Post job'
-                : 'Pay & Post job'}
+                ? 'Đăng công việc'
+                : 'Thanh toán & Đăng công việc'}
           {(!loading || submitStatus !== 'OPEN') && <Send className="h-[18px] w-[18px] -mr-1" />}
         </button>
       </div>
@@ -902,17 +941,35 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
           const refreshed = await refetchWalletBalance()
           return refreshed.data?.available ?? walletBalance?.available ?? 0
         }}
+        demoTopUpEnabled={ENABLE_JOB_FUNDING_DEMO}
+        onDemoTopUp={async (amountMxc) => {
+          // await walletApi.createDevTopUp(amountMxc, 'Dev-only job funding top-up')
+          await refetchWalletBalance()
+        }}
         onConfirm={async () => {
-          setShowPaymentModal(false)
-          const targetJobId = isEditing ? initialJob?.jobId : createdJobId
+          const targetJobId = isEditing ? initialJob?.jobId : createdJobId || createdJobIdRef.current
+          if (!targetJobId) {
+            throw new Error('Không thể tìm thấy công việc nháp để đăng. Đóng modal này và lưu công việc thành nháp, sau đó đăng nó từ Công việc của tôi.')
+          }
+          if (!paymentData) {
+            throw new Error('Không thể tìm thấy chi tiết công việc để đăng. Đóng modal này và gửi lại biểu mẫu.')
+          }
+
           if (targetJobId && paymentData) {
             try {
               setLoading(true)
               const payload = buildJobPayload(paymentData, JobStatus.OPEN)
               await jobApi.update(targetJobId, payload)
+              setShowPaymentModal(false)
               navigate(`/jobs/${targetJobId}`)
             } catch (err: any) {
-              setError(err.response?.data?.message || 'Payment secured, but failed to publish job. You can publish it from your Drafts.')
+              if (isInsufficientBalanceError(err)) {
+                await reopenFundingModalForBalanceError(paymentData, targetJobId)
+                throw new Error('Số dư ví của bạn vẫn chưa đủ. Tạo hoặc quét mã QR PayOS dưới đây, sau đó đăng lại.')
+              }
+              const message = err.response?.data?.message || 'Thanh toán đã được đảm bảo, nhưng không thể đăng công việc. Bạn có thể đăng nó từ Bản nháp.'
+              setError(message)
+              throw new Error(message)
             } finally {
               setLoading(false)
             }
