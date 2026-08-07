@@ -1,22 +1,30 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import type { ReactNode } from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { toast } from "react-hot-toast";
+import { QRCodeSVG } from "qrcode.react";
 import {
   AlertCircle,
   ArrowDownLeft,
   ArrowUpRight,
+  Camera,
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
   Clock3,
   Eye,
   History,
+  ImageIcon,
+  Loader2,
+  QrCode,
   RefreshCw,
   Search,
   ShieldAlert,
   ShieldCheck,
+  Upload,
   Wallet,
+  X,
   XCircle,
 } from "lucide-react";
 
@@ -30,6 +38,7 @@ import {
   WalletTransactionResponse,
 } from "@/types";
 import { formatCurrency, formatDateTime } from "@/utils/formatters";
+import { resolveBankBin, buildVietQRData } from "@/utils/vietqr";
 
 type ActiveTab = "overview" | "withdrawals" | "reconciliation" | "audit";
 
@@ -183,9 +192,26 @@ export default function AdminWalletPage() {
   );
 
   const visibleWithdrawals = useMemo(() => {
+    let result = withdrawalsQuery.data ?? [];
+
+    // Sort: PENDING (0) -> PROCESSING (1) -> Others (2), then newest first
+    const getWeight = (s: WithdrawalStatus) => {
+      if (s === WithdrawalStatus.PENDING) return 0;
+      if (s === WithdrawalStatus.PROCESSING) return 1;
+      return 2;
+    };
+
+    result = [...result].sort((a, b) => {
+      const weightA = getWeight(a.status);
+      const weightB = getWeight(b.status);
+      if (weightA !== weightB) return weightA - weightB;
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
+
     const query = search.trim().toLowerCase();
-    if (!query) return withdrawalsQuery.data ?? [];
-    return (withdrawalsQuery.data ?? []).filter((item) =>
+    if (!query) return result;
+
+    return result.filter((item) =>
       [
         item.id,
         item.userFullName,
@@ -257,11 +283,10 @@ export default function AdminWalletPage() {
             key={id}
             type="button"
             onClick={() => setActiveTab(id)}
-            className={`inline-flex min-h-11 items-center gap-2 border-b-2 px-4 text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-inset focus:ring-emerald-500 ${
-              activeTab === id
+            className={`inline-flex min-h-11 items-center gap-2 border-b-2 px-4 text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-inset focus:ring-emerald-500 ${activeTab === id
                 ? "border-emerald-600 text-emerald-700 dark:text-emerald-300"
                 : "border-transparent text-slate-500 hover:text-slate-900 dark:hover:text-slate-100"
-            }`}
+              }`}
           >
             <Icon className="h-4 w-4" />
             {label}
@@ -766,6 +791,7 @@ function WithdrawalDetails(props: {
   onComplete: (id: string) => void;
 }) {
   const { t } = useI18n();
+  const [isPayoutModalOpen, setIsPayoutModalOpen] = useState(false);
   const item = props.withdrawal;
   return (
     <aside
@@ -829,31 +855,24 @@ function WithdrawalDetails(props: {
                 value={item.rejectionReason}
               />
             )}
+            {item.payoutProofUrl && (
+              <div>
+                <dt className={labelClass}>Bằng chứng chuyển khoản</dt>
+                <dd className="mt-1">
+                  <a href={item.payoutProofUrl} target="_blank" rel="noopener noreferrer">
+                    <img
+                      src={item.payoutProofUrl}
+                      alt="Payment proof"
+                      className="h-32 w-full rounded-lg border border-slate-200 object-cover transition hover:opacity-80 dark:border-slate-700"
+                    />
+                  </a>
+                </dd>
+              </div>
+            )}
           </dl>
-          {item.status === WithdrawalStatus.PENDING && (
+          {(item.status === WithdrawalStatus.PENDING || item.status === WithdrawalStatus.PROCESSING) && (
             <div className="border-t border-slate-200 pt-4 dark:border-slate-800">
-              {props.confirmingApprovalId === item.id ? (
-                <div className="rounded-xl bg-amber-50 p-3 dark:bg-amber-950/20">
-                  <p className="text-sm text-amber-900 dark:text-amber-200">
-                    {t("admin.wallet.approveConfirm")}
-                  </p>
-                  <div className="mt-3 flex gap-2">
-                    <ActionButton
-                      onClick={() => props.onApprove(item.id)}
-                      disabled={props.busy}
-                      tone="success"
-                    >
-                      {t("admin.wallet.confirmFirstReview")}
-                    </ActionButton>
-                    <ActionButton
-                      onClick={props.onCancelApprove}
-                      disabled={props.busy}
-                    >
-                      {t("common.cancel")}
-                    </ActionButton>
-                  </div>
-                </div>
-              ) : props.rejectingId === item.id ? (
+              {props.rejectingId === item.id ? (
                 <div className="space-y-3">
                   <label className="block text-sm font-semibold">
                     {t("admin.wallet.rejectionReason")}
@@ -884,61 +903,357 @@ function WithdrawalDetails(props: {
                     </ActionButton>
                   </div>
                 </div>
+              ) : item.status === WithdrawalStatus.PENDING ? (
+                props.confirmingApprovalId === item.id ? (
+                  <div className="rounded-xl bg-amber-50 p-3 dark:bg-amber-950/20">
+                    <p className="text-sm text-amber-900 dark:text-amber-200">
+                      {t("admin.wallet.approveConfirm")}
+                    </p>
+                    <div className="mt-3 flex gap-2">
+                      <ActionButton
+                        onClick={() => props.onApprove(item.id)}
+                        disabled={props.busy}
+                        tone="success"
+                      >
+                        {t("admin.wallet.confirmFirstReview")}
+                      </ActionButton>
+                      <ActionButton
+                        onClick={props.onCancelApprove}
+                        disabled={props.busy}
+                      >
+                        {t("common.cancel")}
+                      </ActionButton>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex gap-2">
+                    <ActionButton
+                      onClick={() => props.onStartApprove(item.id)}
+                      tone="success"
+                    >
+                      <CheckCircle2 className="h-4 w-4" />
+                      {t("admin.wallet.approve")}
+                    </ActionButton>
+                    <ActionButton
+                      onClick={() => props.onStartReject(item.id)}
+                      tone="danger"
+                    >
+                      <XCircle className="h-4 w-4" />
+                      {t("admin.wallet.reject")}
+                    </ActionButton>
+                  </div>
+                )
               ) : (
                 <div className="flex gap-2">
                   <ActionButton
-                    onClick={() => props.onStartApprove(item.id)}
-                    tone="success"
+                    onClick={() => setIsPayoutModalOpen(true)}
+                    tone="primary"
+                    className="w-full"
                   >
-                    <CheckCircle2 className="h-4 w-4" />
-                    {t("admin.wallet.approve")}
+                    Duyệt để chi trả
                   </ActionButton>
                   <ActionButton
                     onClick={() => props.onStartReject(item.id)}
                     tone="danger"
+                    className="px-2"
                   >
                     <XCircle className="h-4 w-4" />
-                    {t("admin.wallet.reject")}
                   </ActionButton>
                 </div>
               )}
             </div>
           )}
-          {item.status === WithdrawalStatus.PROCESSING && (
-            <div className="space-y-3 border-t border-slate-200 pt-4 dark:border-slate-800">
-              {item.reviewedByUserId === props.currentAdminId ? (
-                <div className="rounded-xl bg-amber-50 p-3 text-sm text-amber-900 dark:bg-amber-950/20 dark:text-amber-200">
-                  {t("admin.wallet.secondAdminRequired")}
-                </div>
-              ) : (
-                <>
-                  <label className="block text-sm font-semibold">
-                    {t("admin.wallet.gatewayReference")}
-                    <input
-                      value={props.payoutReference}
-                      onChange={(event) =>
-                        props.onPayoutReferenceChange(event.target.value)
-                      }
-                      maxLength={255}
-                      placeholder={t("admin.wallet.gatewayReferencePlaceholder")}
-                      className="mt-2 h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 dark:border-slate-700 dark:bg-slate-950"
-                    />
-                  </label>
-                  <ActionButton
-                    onClick={() => props.onComplete(item.id)}
-                    disabled={props.busy || props.payoutReference.trim().length < 3}
-                    tone="success"
-                  >
-                    <CheckCircle2 className="h-4 w-4" />
-                    {t("admin.wallet.completePayout")}
-                  </ActionButton>
-                </>
-              )}
-            </div>
+
+          {item.status === WithdrawalStatus.PROCESSING && isPayoutModalOpen && createPortal(
+            <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/40 p-2 backdrop-blur-sm sm:p-4">
+              <div 
+                className="max-h-[calc(100dvh-1rem)] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200 dark:bg-slate-900"
+                onClick={e => e.stopPropagation()}
+              >
+                 <div className="mb-4 flex items-center justify-between">
+                   <h3 className="text-lg font-semibold dark:text-slate-100">Chi tiết chi trả</h3>
+                   <button onClick={() => setIsPayoutModalOpen(false)} className="rounded-full p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800 dark:hover:text-slate-200">
+                     <X className="h-5 w-5" />
+                   </button>
+                 </div>
+                 <ProcessingPayoutSection
+                   item={item}
+                   currentAdminId={props.currentAdminId}
+                   payoutReference={props.payoutReference}
+                   busy={props.busy}
+                   onPayoutReferenceChange={props.onPayoutReferenceChange}
+                   onComplete={(id) => {
+                     props.onComplete(id);
+                     setIsPayoutModalOpen(false);
+                   }}
+                 />
+              </div>
+            </div>,
+            document.body
           )}
         </div>
       )}
     </aside>
+  );
+}
+
+function ProcessingPayoutSection({
+  item,
+  currentAdminId,
+  payoutReference,
+  busy,
+  onPayoutReferenceChange,
+  onComplete,
+}: {
+  item: WithdrawalResponse;
+  currentAdminId?: string;
+  payoutReference: string;
+  busy: boolean;
+  onPayoutReferenceChange: (value: string) => void;
+  onComplete: (id: string) => void;
+}) {
+  const { t } = useI18n();
+  const queryClient = useQueryClient();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [proofUrl, setProofUrl] = useState<string | null>(item.payoutProofUrl ?? null);
+  const [proofPreview, setProofPreview] = useState<string | null>(item.payoutProofUrl ?? null);
+  const [showQR, setShowQR] = useState(true);
+  const [showProofModal, setShowProofModal] = useState(false);
+
+  const uploadMutation = useMutation(
+    (file: File) => walletApi.uploadWithdrawalProof(item.id, file),
+    {
+      onSuccess: (url) => {
+        setProofUrl(url);
+        setProofPreview(url);
+        toast.success('Đã tải lên minh chứng thanh toán');
+        void queryClient.invalidateQueries('admin-withdrawals');
+      },
+      onError: (err: any) => {
+        toast.error(err?.response?.data?.message || 'Upload failed');
+      },
+    }
+  );
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    // Preview immediately
+    const reader = new FileReader();
+    reader.onload = () => setProofPreview(reader.result as string);
+    reader.readAsDataURL(file);
+    uploadMutation.mutate(file);
+  };
+
+  // VietQR
+  const bankBin = resolveBankBin(item.bankName || '');
+  const vndAmount = item.netMxc * 1000; // 1 MXC = 1,000 VND
+  const qrUrl = bankBin && item.bankAccountNo
+    ? buildVietQRData({
+      bankBin,
+      accountNo: item.bankAccountNo,
+      accountName: item.bankAccountName,
+      amount: vndAmount,
+      description: `MentorX Payout ${item.id.slice(0, 8)}`,
+    })
+    : null;
+
+  if (item.reviewedByUserId === currentAdminId) {
+    return (
+      <div className="border-t border-slate-200 pt-4 dark:border-slate-800">
+        <div className="rounded-xl bg-amber-50 p-3 text-sm text-amber-900 dark:bg-amber-950/20 dark:text-amber-200">
+          {t("admin.wallet.secondAdminRequired")}
+        </div>
+      </div>
+    );
+  }
+
+  const canComplete = proofUrl && payoutReference.trim().length >= 3 && !busy;
+
+  return (
+    <div className="space-y-4 border-t border-slate-200 pt-4 dark:border-slate-800">
+      {/* Step 1: QR Code for bank transfer */}
+      <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800/50">
+        <button
+          type="button"
+          onClick={() => setShowQR(!showQR)}
+          className="flex w-full items-center justify-between text-sm font-semibold text-slate-900 dark:text-slate-100"
+        >
+          <span className="flex items-center gap-2">
+            <QrCode className="h-4 w-4 text-emerald-600" />
+            Bước 1 — Chuyển khoản qua QR
+          </span>
+          <span className="text-xs text-slate-400">{showQR ? '▲' : '▼'}</span>
+        </button>
+
+        {showQR && (
+          <div className="mt-3 space-y-3">
+            {qrUrl ? (
+              <div className="flex flex-col items-center gap-3">
+                <div className="rounded-xl bg-white p-3 shadow-sm">
+                  <img
+                    src={qrUrl}
+                    alt="VietQR"
+                    className="h-52 w-52 object-contain"
+                    onError={(e) => {
+                      // Fallback to QRCodeSVG if VietQR image fails
+                      (e.target as HTMLImageElement).style.display = 'none';
+                    }}
+                  />
+                </div>
+                <div className="w-full space-y-1.5 text-xs">
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Ngân hàng</span>
+                    <span className="font-semibold text-slate-900 dark:text-slate-100">{item.bankName}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Số tài khoản</span>
+                    <span className="font-mono font-semibold text-slate-900 dark:text-slate-100">{item.bankAccountNo}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Chủ tài khoản</span>
+                    <span className="font-semibold text-slate-900 dark:text-slate-100">{item.bankAccountName}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Số tiền</span>
+                    <span className="font-bold text-emerald-700 dark:text-emerald-400">
+                      {new Intl.NumberFormat('vi-VN').format(vndAmount)} VND
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="rounded-lg bg-amber-50 p-3 text-xs text-amber-800 dark:bg-amber-950/30 dark:text-amber-300">
+                <p className="font-semibold">Không thể tạo mã QR</p>
+                <p className="mt-1">Không nhận diện được ngân hàng "{item.bankName}". Vui lòng chuyển khoản thủ công.</p>
+                <div className="mt-2 space-y-1">
+                  <p><strong>STK:</strong> {item.bankAccountNo}</p>
+                  <p><strong>Tên:</strong> {item.bankAccountName}</p>
+                  <p><strong>Số tiền:</strong> {new Intl.NumberFormat('vi-VN').format(vndAmount)} VND</p>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Step 2: Upload proof */}
+      <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800/50">
+        <div className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-slate-100">
+          <Camera className="h-4 w-4 text-emerald-600" />
+          Bước 2 — Chụp bằng chứng chuyển khoản
+        </div>
+        <p className="mt-1 text-xs text-slate-500">
+          Tải lên ảnh chụp màn hình giao dịch chuyển khoản thành công. Mentor sẽ nhận được bằng chứng này.
+        </p>
+
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={handleFileSelect}
+        />
+
+        {proofPreview ? (
+          <div className="mt-3 space-y-2">
+            <div
+              className="relative cursor-pointer overflow-hidden rounded-lg border border-slate-200 dark:border-slate-600"
+              onClick={() => setShowProofModal(true)}
+            >
+              <img
+                src={proofPreview}
+                alt="Payment proof"
+                className="h-40 w-full object-cover transition hover:scale-105"
+              />
+              <div className="absolute inset-0 flex items-center justify-center bg-black/0 transition hover:bg-black/20">
+                <Eye className="h-6 w-6 text-white opacity-0 transition hover:opacity-100" />
+              </div>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="flex items-center gap-1 text-xs text-emerald-700 dark:text-emerald-400">
+                <CheckCircle2 className="h-3.5 w-3.5" />
+                Đã tải lên
+              </span>
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="text-xs font-semibold text-emerald-700 hover:underline dark:text-emerald-400"
+                disabled={uploadMutation.isLoading}
+              >
+                Thay đổi
+              </button>
+            </div>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploadMutation.isLoading}
+            className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg border-2 border-dashed border-slate-300 bg-white px-4 py-6 text-sm font-semibold text-slate-500 transition hover:border-emerald-400 hover:text-emerald-600 disabled:opacity-50 dark:border-slate-600 dark:bg-slate-900 dark:hover:border-emerald-500"
+          >
+            {uploadMutation.isLoading ? (
+              <>
+                <Loader2 className="h-5 w-5 animate-spin" />
+                Đang tải lên...
+              </>
+            ) : (
+              <>
+                <Upload className="h-5 w-5" />
+                Chọn ảnh bằng chứng
+              </>
+            )}
+          </button>
+        )}
+      </div>
+
+      {/* Step 3: Reference + Complete */}
+      <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800/50">
+        <div className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-slate-100">
+          <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+          Bước 3 — Xác nhận hoàn tất
+        </div>
+        <label className="mt-3 block">
+          <span className="text-xs font-semibold text-slate-600 dark:text-slate-300">
+            Mã giao dịch ngân hàng
+          </span>
+          <input
+            value={payoutReference}
+            onChange={(e) => onPayoutReferenceChange(e.target.value)}
+            maxLength={255}
+            placeholder="VD: FT24123456789"
+            className="mt-1.5 h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 dark:border-slate-700 dark:bg-slate-950"
+          />
+        </label>
+
+        {!proofUrl && payoutReference.trim().length >= 3 && (
+          <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">
+            ⚠ Vui lòng tải lên bằng chứng chuyển khoản trước khi hoàn tất.
+          </p>
+        )}
+
+        <ActionButton
+          onClick={() => onComplete(item.id)}
+          disabled={!canComplete}
+          tone="success"
+        >
+          <CheckCircle2 className="h-4 w-4" />
+          Hoàn tất chi trả
+        </ActionButton>
+      </div>
+
+      {/* Proof modal */}
+      {showProofModal && proofPreview && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+          onClick={() => setShowProofModal(false)}
+        >
+          <div className="max-h-[90vh] max-w-2xl overflow-auto rounded-2xl bg-white p-2 shadow-2xl dark:bg-slate-900">
+            <img src={proofPreview} alt="Payment proof" className="w-full rounded-xl" />
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -1123,11 +1438,13 @@ function ActionButton({
   onClick,
   disabled,
   tone = "neutral",
+  className = "",
 }: {
   children: ReactNode;
   onClick: () => void;
   disabled?: boolean;
-  tone?: "neutral" | "success" | "danger";
+  tone?: "neutral" | "success" | "danger" | "primary";
+  className?: string;
 }) {
   const tones = {
     neutral:
@@ -1135,13 +1452,14 @@ function ActionButton({
     success:
       "border-emerald-700 bg-emerald-700 text-white hover:bg-emerald-800",
     danger: "border-rose-700 bg-rose-700 text-white hover:bg-rose-800",
+    primary: "border-indigo-600 bg-indigo-600 text-white hover:bg-indigo-700",
   };
   return (
     <button
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className={`inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border px-3 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:cursor-not-allowed disabled:opacity-50 ${tones[tone]}`}
+      className={`inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border px-3 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:cursor-not-allowed disabled:opacity-50 ${tones[tone]} ${className}`}
     >
       {children}
     </button>
@@ -1231,9 +1549,9 @@ function shortId(value?: string) {
 function humanize(value?: string) {
   return value
     ? value
-        .toLowerCase()
-        .replace(/_/g, " ")
-        .replace(/\b\w/g, (letter) => letter.toUpperCase())
+      .toLowerCase()
+      .replace(/_/g, " ")
+      .replace(/\b\w/g, (letter) => letter.toUpperCase())
     : "—";
 }
 function maskAccount(value?: string) {

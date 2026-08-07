@@ -12,36 +12,20 @@ export async function ensureDirectJobChat({
   peerUserId,
   jobId,
 }: EnsureDirectJobChatParams): Promise<ChatRoomResponse> {
-  const rooms: ChatRoomResponse[] = []
-  let page = 0
-  let hasMore = true
-
-  while (hasMore && page < 10) {
-    const result = await chatApi.getUserRooms(currentUserId, { page, size: 100 })
-    rooms.push(...result.content)
-    hasMore = !result.last
-    page += 1
+  if (currentUserId === peerUserId) {
+    throw new Error('Bạn không thể mở phòng chat với chính mình.')
   }
 
-  const existingDirectRoom = rooms.find(
-    (room) =>
-      room.roomType === 'DIRECT_MESSAGE' &&
-      room.members.some((member) => member.userId === peerUserId)
-  )
-
-  if (existingDirectRoom) {
-    localStorage.setItem(`chat_job_${existingDirectRoom.id}`, jobId)
-    return existingDirectRoom
-  }
-
-  const createdRoom = await chatApi.createRoom({
-    roomType: 'DIRECT_MESSAGE',
-    memberIds: [currentUserId, peerUserId],
-    createdByUserId: currentUserId,
+  // Use resolveConversation — backend finds existing room by (JOB, jobId, both users)
+  // or creates one with proper referenceType/referenceId. Idempotent.
+  const room = await chatApi.resolveConversation({
+    recipientId: peerUserId,
+    contextType: 'JOB',
+    contextId: jobId,
   })
 
-  localStorage.setItem(`chat_job_${createdRoom.id}`, jobId)
-  return createdRoom
+  localStorage.setItem(`chat_job_${room.id}`, jobId)
+  return room
 }
 
 export function getJobChatRoute(jobId: string, peerUserId: string) {

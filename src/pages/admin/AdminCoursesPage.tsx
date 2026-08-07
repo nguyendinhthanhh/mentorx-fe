@@ -28,7 +28,7 @@ export default function AdminCoursesPage() {
 
   const archiveMutation = useMutation((courseId: string) => courseApi.archive(courseId), {
     onSuccess: () => {
-      toast.success('Course archived')
+      toast.success('Đã lưu trữ khóa học')
       queryClient.invalidateQueries('admin-courses')
       setArchiveTarget(null)
     },

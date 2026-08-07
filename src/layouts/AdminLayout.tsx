@@ -90,9 +90,7 @@ export default function AdminLayout() {
             <aside className="relative flex h-full w-[min(84vw,320px)] flex-col bg-white shadow-2xl dark:bg-[#09090b]">
               <div className="flex h-[80px] shrink-0 items-center justify-between px-5">
                 <Link to="/" className="flex items-center gap-3" onClick={() => setIsMobileSidebarOpen(false)}>
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-md dark:bg-emerald-500/20 dark:text-emerald-400">
-                    <ShieldAlert className="h-5 w-5 text-white" />
-                  </div>
+                  <img src="/logo.png" alt="MentorX Logo" className="h-8 w-auto object-contain" />
                   <div className="min-w-0 flex flex-col">
                     <p className="text-[19px] font-bold leading-none tracking-tight text-slate-900 dark:text-white">MentorX</p>
                     <p className="mt-1 text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest leading-none">Admin Workspace</p>
@@ -168,9 +166,7 @@ export default function AdminLayout() {
           {/* Sidebar Header */}
           <div className="h-[80px] shrink-0 flex items-center px-5 border-b border-slate-100 dark:border-slate-800/60">
             <Link to="/" className="flex items-center gap-3 overflow-hidden w-full">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-md dark:bg-emerald-500/20 dark:text-emerald-400 flex-shrink-0">
-                <ShieldAlert className="w-5 h-5 text-white" />
-              </div>
+              <img src="/logo.png" alt="MentorX Logo" className="h-8 w-auto object-contain flex-shrink-0" />
               {!isSidebarCollapsed && (
                 <div className="flex flex-col justify-center min-w-0 opacity-100 transition-opacity duration-300 delay-100">
                   <span className="text-[19px] font-bold text-slate-900 dark:text-white tracking-tight leading-none">MentorX</span>

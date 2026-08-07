@@ -153,15 +153,6 @@ export default function NotificationDropdown({ userId, allHref = '/profile/notif
                 </div>
               )}
             </div>
-
-            <Link
-              to={allHref}
-              onClick={() => setIsOpen(false)}
-              className="flex items-center justify-center gap-2 border-t border-slate-100 bg-slate-50 py-3 text-xs font-black text-slate-600 transition-colors hover:bg-slate-100 hover:text-emerald-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
-            >
-              View all notifications
-              <ArrowRight className="h-3.5 w-3.5" />
-            </Link>
           </div>
         </>
       ) : null}

@@ -22,11 +22,11 @@ export function NewsletterCTA({
         <div>
           <p className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[11px] font-black uppercase tracking-[0.15em] text-emerald-100">
             <Mail className="h-3.5 w-3.5" />
-            Weekly Digest
+            Bản tin hàng tuần
           </p>
-          <h3 className="mt-4 text-3xl font-black tracking-tight sm:text-4xl">Get the Mentor X Weekly Digest</h3>
+          <h3 className="mt-4 text-3xl font-black tracking-tight sm:text-4xl">Nhận bản tin hàng tuần của Mentor X</h3>
           <p className="mt-3 max-w-2xl text-sm leading-7 text-emerald-100/90">
-            No spam. Just practical mentoring, career, and learning insights.
+            Không spam. Chỉ bao gồm thông tin thực tế về mentoring, sự nghiệp và học tập.
           </p>
         </div>
 

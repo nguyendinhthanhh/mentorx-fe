@@ -12,7 +12,7 @@ export function PathwayCards({ pathways, onSelect }: { pathways: BlogTrack[], on
   return (
     <section>
       <div className="mb-6 border-b border-slate-200 pb-4">
-        <h2 className="text-2xl font-bold tracking-tight text-slate-900">Browse by track</h2>
+        <h2 className="text-2xl font-bold tracking-tight text-slate-900">Khám phá theo lộ trình</h2>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">

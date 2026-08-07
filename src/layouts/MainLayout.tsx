@@ -11,8 +11,7 @@ function SiteFooter() {
         <div className="grid gap-8 md:grid-cols-5">
           <div className="md:col-span-2">
             <Link to="/" className="inline-flex items-center gap-2">
-              <div className="h-8 w-8 rounded-lg bg-white/15" />
-              <span className="text-xl font-bold">Mentor X</span>
+              <img src="/logo.png" alt="MentorX Logo" className="h-10 w-auto transition-transform duration-300 hover:scale-105" />
             </Link>
             <p className="mt-3 max-w-sm text-sm text-blue-100">{t('footer.description')}</p>
           </div>

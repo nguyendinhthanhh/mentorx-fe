@@ -176,7 +176,7 @@ export default function JobDetailPage() {
     {
       onSuccess: async () => {
         setShowCompleteContractConfirm(false)
-        toast.success('Job marked as completed. Escrow has been released to the mentor.')
+        toast.success('Đã đánh dấu công việc hoàn thành. Quỹ đảm bảo đã được giải ngân cho mentor.')
         await Promise.all([
           queryClient.invalidateQueries(['job', jobId]),
           queryClient.invalidateQueries(['job-contracts', jobId]),
@@ -185,7 +185,7 @@ export default function JobDetailPage() {
         ])
       },
       onError: (err: any) => {
-        toast.error(err.response?.data?.message || 'Unable to complete this job right now.')
+        toast.error(err.response?.data?.message || 'Không thể hoàn thành công việc lúc này.')
       },
     }
   )

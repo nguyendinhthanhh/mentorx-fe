@@ -50,7 +50,7 @@ export default function MentorCoursesPage() {
       setCourses(coursePage.content || [])
       setCategories(categoryList)
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Unable to load mentor courses.')
+      setError(err.response?.data?.message || 'Không thể tải khóa học của mentor.')
     } finally {
       setLoading(false)
     }
@@ -117,7 +117,7 @@ export default function MentorCoursesPage() {
         <div>
           <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-[11px] uppercase tracking-widest font-black text-emerald-600 mb-3 border border-emerald-100 shadow-sm">
             <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-            Pipeline Overview
+            Tổng quan Khóa học
           </div>
           <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Quản lý Khóa học</h1>
           <p className="mt-2 text-sm font-medium text-slate-500">
@@ -158,41 +158,41 @@ export default function MentorCoursesPage() {
           <TextInput
             value={searchQuery}
             onChange={(event) => setSearchQuery(event.target.value)}
-            placeholder="Search by title, domain, or skill"
+            placeholder="Tìm kiếm theo tiêu đề, lĩnh vực hoặc kỹ năng"
             className="w-full pl-11"
           />
         </div>
         <SelectInput value={statusFilter} onChange={(event) => setStatusFilter(event.target.value as (typeof statusOptions)[number])} className="w-full lg:w-44">
           {statusOptions.map((status) => (
             <option key={status} value={status}>
-              {status === 'ALL' ? 'All statuses' : formatStatusLabel(status)}
+              {status === 'ALL' ? 'Tất cả trạng thái' : formatStatusLabel(status)}
             </option>
           ))}
         </SelectInput>
         <SelectInput value={typeFilter} onChange={(event) => setTypeFilter(event.target.value as (typeof typeOptions)[number])} className="w-full lg:w-40">
-          <option value="ALL">All types</option>
-          <option value={CourseProductType.COURSE}>Course</option>
-          <option value={CourseProductType.DOCUMENT}>Document</option>
+          <option value="ALL">Tất cả loại</option>
+          <option value={CourseProductType.COURSE}>Khóa học</option>
+          <option value={CourseProductType.DOCUMENT}>Tài liệu</option>
         </SelectInput>
         <SelectInput value={sortBy} onChange={(event) => setSortBy(event.target.value)} className="w-full lg:w-48">
-          <option value="updated">Recently updated</option>
-          <option value="enrolled">Enrollments</option>
-          <option value="rated">Rating</option>
+          <option value="updated">Cập nhật gần đây</option>
+          <option value="enrolled">Lượt đăng ký</option>
+          <option value="rated">Đánh giá</option>
         </SelectInput>
       </Toolbar>
 
       {loading ? (
         <LoadingRows rows={5} />
       ) : error ? (
-        <StateCard tone="error" title="Unable to load courses and documents" message={error} action={<button onClick={loadCourses} className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white">Retry</button>} />
+        <StateCard tone="error" title="Không thể tải khóa học và tài liệu" message={error} action={<button onClick={loadCourses} className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white">Thử lại</button>} />
       ) : filteredCourses.length === 0 ? (
         <StateCard
-          title={courses.length === 0 ? 'No courses or documents yet' : 'No courses or documents match this filter'}
-          message={courses.length === 0 ? 'Create your first course or document.' : 'Adjust search, status, or type filters.'}
+          title={courses.length === 0 ? 'Chưa có khóa học hoặc tài liệu nào' : 'Không có khóa học hoặc tài liệu nào phù hợp với bộ lọc này'}
+          message={courses.length === 0 ? 'Hãy tạo khóa học hoặc tài liệu đầu tiên của bạn.' : 'Vui lòng thay đổi bộ lọc tìm kiếm, trạng thái hoặc loại.'}
           action={
             <div className="flex flex-wrap justify-center gap-2">
-              <Link to="/courses/create" className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white">Create course</Link>
-              <Link to="/documents/create" className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-700">Create document</Link>
+              <Link to="/courses/create" className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white">Tạo khóa học</Link>
+              <Link to="/documents/create" className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-700">Tạo tài liệu</Link>
             </div>
           }
         />
@@ -202,13 +202,13 @@ export default function MentorCoursesPage() {
             <table className="w-full min-w-[980px]">
               <thead className="border-b border-slate-100 bg-slate-50 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-400">
                 <tr>
-                  <th className="px-4 py-3">Course / document</th>
-                  <th className="px-4 py-3">Status</th>
-                  <th className="px-4 py-3">Price</th>
-                  <th className="px-4 py-3">Enrollments</th>
-                  <th className="px-4 py-3">Rating</th>
-                  <th className="px-4 py-3">Last updated</th>
-                  <th className="px-4 py-3 text-right">Actions</th>
+                  <th className="px-4 py-3">Khóa học / Tài liệu</th>
+                  <th className="px-4 py-3">Trạng thái</th>
+                  <th className="px-4 py-3">Giá</th>
+                  <th className="px-4 py-3">Lượt đăng ký</th>
+                  <th className="px-4 py-3">Đánh giá</th>
+                  <th className="px-4 py-3">Cập nhật lần cuối</th>
+                  <th className="px-4 py-3 text-right">Thao tác</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -236,8 +236,8 @@ export default function MentorCoursesPage() {
                           <div className="min-w-0">
                             <p className="truncate text-sm font-bold text-slate-950">{course.title}</p>
                             <p className="mt-1 text-xs font-bold text-slate-500">
-                              {course.productType === CourseProductType.DOCUMENT ? 'Document' : 'Course'}
-                              {course.categoryId ? ` - ${categoryNameById[course.categoryId] || `Category ${course.categoryId}`}` : ''}
+                              {course.productType === CourseProductType.DOCUMENT ? 'Tài liệu' : 'Khóa học'}
+                              {course.categoryId ? ` - ${categoryNameById[course.categoryId] || `Danh mục ${course.categoryId}`}` : ''}
                             </p>
                           </div>
                         </div>
@@ -252,7 +252,7 @@ export default function MentorCoursesPage() {
                             <span className="text-xs font-bold text-slate-400 line-through">{formatCurrency(course.priceMxc || 0)}</span>
                           </span>
                         ) : (
-                          <span>{effectivePrice ? formatCurrency(effectivePrice) : 'Free'}</span>
+                          <span>{effectivePrice ? formatCurrency(effectivePrice) : 'Miễn phí'}</span>
                         )}
                       </td>
                       <td className="px-4 py-4 text-sm font-bold text-slate-700">{course.totalEnrollments || 0}</td>
@@ -271,7 +271,7 @@ export default function MentorCoursesPage() {
                             className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-200 px-3 text-xs font-bold text-slate-700 hover:bg-white"
                           >
                             <Settings className="h-3.5 w-3.5" />
-                            Manage
+                            Quản lý
                           </Link>
                           {course.status === CourseStatus.PUBLISHED && (
                             <button
@@ -281,18 +281,18 @@ export default function MentorCoursesPage() {
                               className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-200 px-3 text-xs font-bold text-slate-700 hover:bg-white disabled:opacity-60"
                             >
                               <Archive className="h-3.5 w-3.5" />
-                              Archive
+                              Lưu trữ
                             </button>
                           )}
                           <button
                             type="button"
                             onClick={(event) => requestAction('delete', course, event)}
                             disabled={hasEnrollments || deleteMutation.isLoading}
-                            title={hasEnrollments ? 'Courses or documents with enrollments cannot be deleted. Archive instead.' : 'Delete'}
+                            title={hasEnrollments ? 'Không thể xóa khóa học hoặc tài liệu đã có học viên đăng ký. Vui lòng chọn Lưu trữ.' : 'Xóa'}
                             className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-rose-200 px-3 text-xs font-bold text-rose-600 hover:bg-rose-50 disabled:cursor-not-allowed disabled:border-slate-200 disabled:text-slate-300"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
-                            Delete
+                            Xóa
                           </button>
                         </div>
                       </td>
@@ -308,11 +308,11 @@ export default function MentorCoursesPage() {
       <CourseNameConfirmModal
         isOpen={!!confirmAction}
         courseName={confirmAction?.courseTitle || ''}
-        title={confirmAction?.type === 'delete' ? 'Delete item?' : 'Archive item?'}
+        title={confirmAction?.type === 'delete' ? 'Xóa khóa học/tài liệu?' : 'Lưu trữ khóa học/tài liệu?'}
         message={confirmAction?.type === 'delete'
-          ? 'This course or document will be removed. Deletion is only allowed when it has zero enrollments.'
-          : 'This course or document will leave the marketplace. Enrolled learners can still access it from their library.'}
-        confirmText={confirmAction?.type === 'delete' ? 'Delete' : 'Archive'}
+          ? 'Khóa học hoặc tài liệu này sẽ bị xóa. Chỉ có thể xóa khi chưa có học viên nào đăng ký.'
+          : 'Khóa học hoặc tài liệu này sẽ không còn hiển thị trên thị trường. Các học viên đã đăng ký vẫn có thể truy cập từ thư viện của họ.'}
+        confirmText={confirmAction?.type === 'delete' ? 'Xóa' : 'Lưu trữ'}
         confirmTone={confirmAction?.type === 'delete' ? 'rose' : 'slate'}
         isLoading={actionLoading}
         onClose={() => {
@@ -328,8 +328,8 @@ export default function MentorCoursesPage() {
 
 function formatStatusLabel(status: string) {
   const labels: Record<string, string> = {
-    PUBLISHED: 'Published',
-    ARCHIVED: 'Archived',
+    PUBLISHED: 'Đang mở',
+    ARCHIVED: 'Lưu trữ',
   }
   return labels[status] || status.replace(/_/g, ' ').toLowerCase()
 }
@@ -340,22 +340,22 @@ function CourseAnalyticsSection() {
 
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <h2 className="text-lg font-bold text-slate-950">Course Analytics</h2>
+      <h2 className="text-lg font-bold text-slate-950">Thống kê Khóa học</h2>
       <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <div className="rounded-2xl bg-slate-50 px-4 py-3">
-          <p className="text-xs font-bold uppercase tracking-wide text-slate-400">Total courses</p>
+          <p className="text-xs font-bold uppercase tracking-wide text-slate-400">Tổng khóa học</p>
           <p className="mt-1 text-xl font-bold text-slate-950">{courseStats.totalCourses}</p>
         </div>
         <div className="rounded-2xl bg-slate-50 px-4 py-3">
-          <p className="text-xs font-bold uppercase tracking-wide text-slate-400">Total revenue</p>
+          <p className="text-xs font-bold uppercase tracking-wide text-slate-400">Tổng doanh thu</p>
           <p className="mt-1 text-xl font-bold text-slate-950">{courseStats.totalRevenueMxc.toLocaleString()} MXC</p>
         </div>
         <div className="rounded-2xl bg-slate-50 px-4 py-3">
-          <p className="text-xs font-bold uppercase tracking-wide text-slate-400">Total enrollments</p>
+          <p className="text-xs font-bold uppercase tracking-wide text-slate-400">Tổng lượt đăng ký</p>
           <p className="mt-1 text-xl font-bold text-slate-950">{courseStats.totalEnrollments}</p>
         </div>
         <div className="rounded-2xl bg-slate-50 px-4 py-3">
-          <p className="text-xs font-bold uppercase tracking-wide text-slate-400">Avg completion</p>
+          <p className="text-xs font-bold uppercase tracking-wide text-slate-400">Trung bình hoàn thành</p>
           <p className="mt-1 text-xl font-bold text-slate-950">{(courseStats.averageCompletionRate * 100).toFixed(1)}%</p>
         </div>
       </div>
@@ -364,12 +364,12 @@ function CourseAnalyticsSection() {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-slate-100 text-left text-xs font-bold uppercase tracking-wide text-slate-400">
-              <th className="pb-2 pr-4">Course</th>
-              <th className="pb-2 pr-4">Revenue</th>
-              <th className="pb-2 pr-4">Enrollments</th>
-              <th className="pb-2 pr-4">Completion</th>
-              <th className="pb-2 pr-4">Views</th>
-              <th className="pb-2">Rating</th>
+              <th className="pb-2 pr-4">Khóa học</th>
+              <th className="pb-2 pr-4">Doanh thu</th>
+              <th className="pb-2 pr-4">Lượt đăng ký</th>
+              <th className="pb-2 pr-4">Hoàn thành</th>
+              <th className="pb-2 pr-4">Lượt xem</th>
+              <th className="pb-2">Đánh giá</th>
             </tr>
           </thead>
           <tbody>

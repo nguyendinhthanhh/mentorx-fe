@@ -192,7 +192,7 @@ export default function InboxSidebar({
           <button
             type="button"
             className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-transparent text-[#10164a] transition-colors hover:border-emerald-100 hover:bg-emerald-50"
-            title="New message"
+            title="Tin nhắn mới"
           >
             <Edit3 className="h-5 w-5" />
           </button>
@@ -203,7 +203,7 @@ export default function InboxSidebar({
           <input
             value={searchTerm}
             onChange={(event) => onSearchTermChange(event.target.value)}
-            placeholder="Search conversations"
+            placeholder="Tìm kiếm trò chuyện"
             className="w-full bg-transparent text-[14px] text-[#192052] outline-none placeholder:text-slate-400"
           />
         </label>
@@ -300,7 +300,7 @@ function RoomListItem({
 }) {
   const active = room.id === selectedRoomId
   const roomName = getRoomDisplayName(room, currentUserId)
-  const otherMember = room.members.find((member) => member.userId !== currentUserId) || room.members[0]
+  const otherMember = room.members.find((member) => member.userId !== currentUserId)
   const avatarLabel = getAvatarLabel(otherMember, roomName)
 
   return (

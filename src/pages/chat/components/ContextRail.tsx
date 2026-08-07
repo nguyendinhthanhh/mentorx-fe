@@ -24,6 +24,7 @@ import {
   formatRoomType,
   summarizeWeeklyAvailability,
 } from '../chatShared'
+import ActiveContractActions from './ActiveContractActions'
 
 type ContextRailProps = {
   selectedRoom: ChatRoomResponse | null
@@ -44,6 +45,7 @@ type ContextRailProps = {
   isLinkedContractLoading?: boolean
   onClose?: () => void
   compact?: boolean
+  currentUserId?: string
 }
 
 export default function ContextRail({
@@ -65,6 +67,7 @@ export default function ContextRail({
   isLinkedContractLoading,
   onClose,
   compact = false,
+  currentUserId,
 }: ContextRailProps) {
   const [isJobModalOpen, setIsJobModalOpen] = useState(false)
 
@@ -86,6 +89,12 @@ export default function ContextRail({
     mentorProfile?.helpDescription ||
     userProfile?.bio ||
     ''
+  const rawRole = otherMember?.memberRole
+  const formattedRole = rawRole === 'MEMBER' 
+    ? (mentorProfile ? 'Mentor' : 'Participant') 
+    : rawRole === 'OWNER' ? 'Client' 
+    : rawRole?.replace(/_/g, ' ')
+
   const profileMeta = mentorProfile
     ? [
         mentorProfile.primaryDomain,
@@ -95,7 +104,6 @@ export default function ContextRail({
     : [
         userProfile?.preferredLanguage,
         userProfile?.createdAt ? `Member since ${new Date(userProfile.createdAt).toLocaleDateString('vi-VN')}` : undefined,
-        otherMember?.memberRole?.replace(/_/g, ' '),
       ].filter(Boolean) as string[]
 
   return (
@@ -104,14 +112,14 @@ export default function ContextRail({
         <section className="rounded-lg border border-[#dce2f2] bg-white p-4">
           <div className="flex items-center justify-between gap-3">
             <h2 className="text-[15px] font-bold text-[#10164a]">
-              {mentorProfile || userProfile ? 'Profile' : 'Room details'}
+              {linkedContract ? 'Job Progress' : (mentorProfile || userProfile ? 'Profile' : 'Room details')}
             </h2>
             {onClose ? (
               <button
                 type="button"
                 onClick={onClose}
                 className="inline-flex h-8 w-8 items-center justify-center rounded-full text-[#52608b] hover:bg-emerald-50 hover:text-emerald-700"
-                title="Close details"
+                title="Đóng chi tiết"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -121,83 +129,105 @@ export default function ContextRail({
           </div>
 
           <div className="mt-4 text-center">
-            <div className="relative mx-auto h-[86px] w-[86px]">
-              {avatarUrl ? (
-                <img src={avatarUrl} alt={displayName} className="h-full w-full rounded-full object-cover" />
-              ) : (
-                <div className="flex h-full w-full items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-emerald-500 text-2xl font-bold text-white">
-                  {getInitials(displayName)}
-                </div>
-              )}
-              {otherMember?.isOnline && (
-                <span className="absolute bottom-1 right-1 h-4 w-4 rounded-full border-2 border-white bg-emerald-400" />
-              )}
+            {/* Avatar Section */}
+            <div className="relative mx-auto h-[92px] w-[92px]">
+              <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-emerald-100 to-teal-100 blur-sm" />
+              <div className="relative h-full w-full rounded-full border-[3px] border-white bg-white shadow-sm">
+                {avatarUrl ? (
+                  <img src={avatarUrl} alt={displayName} className="h-full w-full rounded-full object-cover" />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 text-3xl font-bold text-white">
+                    {getInitials(displayName)}
+                  </div>
+                )}
+                {otherMember?.isOnline && (
+                  <span className="absolute bottom-1 right-1 h-[18px] w-[18px] rounded-full border-[3px] border-white bg-emerald-500 shadow-sm" />
+                )}
+              </div>
             </div>
 
-            <div className="mt-3 flex items-center justify-center gap-2">
-              <h3 className="truncate text-[17px] font-bold text-[#10164a]">{displayName}</h3>
-              {mentorProfile?.isFeatured && (
-                <span className="rounded-md bg-emerald-50 px-2 py-1 text-[11px] font-bold text-emerald-600">Top Mentor</span>
-              )}
+            {/* Name and Role Section */}
+            <div className="mt-4">
+              <div className="flex items-center justify-center gap-2">
+                <h3 className="truncate text-[18px] font-black text-slate-900">{displayName}</h3>
+                {mentorProfile?.isFeatured && (
+                  <span className="rounded-md bg-emerald-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-600 ring-1 ring-emerald-200">
+                    Top
+                  </span>
+                )}
+              </div>
+              <p className="mt-1 text-[13px] font-semibold text-slate-500">
+                {mentorProfile?.headline || userProfile?.bio || formattedRole || formatRoomType(selectedRoom.roomType)}
+              </p>
             </div>
-            <p className="mt-1 text-[13px] text-[#52608b]">
-              {mentorProfile?.headline || userProfile?.bio || otherMember?.memberRole?.replace(/_/g, ' ') || formatRoomType(selectedRoom.roomType)}
-            </p>
 
+            {/* Profile Meta & Actions */}
             {isProfileLoading ? (
-              <div className="mx-auto mt-4 h-4 w-40 animate-pulse rounded-full bg-slate-100" />
+              <div className="mx-auto mt-6 h-4 w-40 animate-pulse rounded-full bg-slate-100" />
             ) : mentorProfile ? (
-              <>
-                <div className="mt-3 flex items-center justify-center gap-1 text-[13px] text-[#52608b]">
-                  <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
-                  <span className="font-semibold text-[#10164a]">{mentorProfile.averageRating?.toFixed(1) || 'N/A'}</span>
-                  <span>({mentorProfile.totalReviews} reviews)</span>
+              <div className="mt-5 space-y-5 border-t border-slate-100 pt-5">
+                <div className="flex items-center justify-center gap-1.5 text-[13px]">
+                  <div className="flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 font-bold text-amber-700 ring-1 ring-amber-200">
+                    <Star className="h-3.5 w-3.5 fill-amber-500 text-amber-500" />
+                    {mentorProfile.averageRating?.toFixed(1) || 'N/A'}
+                  </div>
+                  <span className="font-medium text-slate-500">({mentorProfile.totalReviews} reviews)</span>
                 </div>
 
                 {skillChips.length > 0 && (
-                  <div className="mt-4 flex flex-wrap justify-center gap-2">
+                  <div className="flex flex-wrap justify-center gap-1.5">
                     {skillChips.map((chip) => (
-                      <span key={chip} className="rounded-lg bg-[#f0f2ff] px-2.5 py-1 text-[11px] font-medium text-[#25305f]">
+                      <span key={chip} className="rounded-md bg-slate-50 px-2 py-1 text-[11px] font-semibold text-slate-600 ring-1 ring-slate-200">
                         {chip}
                       </span>
                     ))}
                   </div>
                 )}
 
-                <div className="mt-4 space-y-2">
+                <div className="space-y-2">
                   <Link
                     to={`/mentors/${mentorProfile.userId}`}
-                    className="inline-flex h-10 w-full items-center justify-center rounded-lg bg-emerald-600 px-4 text-[13px] font-bold text-white shadow-sm shadow-emerald-200 transition-colors hover:bg-emerald-700"
+                    className="inline-flex h-10 w-full items-center justify-center rounded-xl bg-emerald-600 px-4 text-[13px] font-bold text-white shadow-sm shadow-emerald-200 transition-colors hover:bg-emerald-700"
                   >
                     <CalendarDays className="mr-2 h-4 w-4" />
                     Book session
                   </Link>
                   <Link
                     to={`/mentors/${mentorProfile.userId}`}
-                    className="inline-flex h-10 w-full items-center justify-center rounded-lg border border-[#dce2f2] bg-white px-4 text-[13px] font-semibold text-emerald-700 transition-colors hover:bg-emerald-50"
+                    className="inline-flex h-10 w-full items-center justify-center rounded-xl border border-slate-200 bg-white px-4 text-[13px] font-semibold text-slate-700 transition-colors hover:bg-slate-50"
                   >
                     View profile
                   </Link>
                 </div>
-              </>
+              </div>
             ) : userProfile ? (
-              <div className="mt-4 rounded-lg bg-[#f7f8fe] px-3 py-3 text-left">
+              <div className="mt-5 space-y-4 border-t border-slate-100 pt-5 text-left">
                 <div className="flex flex-wrap gap-2">
                   {profileMeta.slice(0, compact ? 2 : 3).map((item) => (
-                    <span key={item} className="rounded-lg bg-white px-2.5 py-1 text-[11px] font-medium text-[#25305f] ring-1 ring-[#dce2f2]">
+                    <span key={item} className="rounded-md bg-slate-50 px-2.5 py-1 text-[11px] font-semibold text-slate-600 ring-1 ring-slate-200">
                       {item}
                     </span>
                   ))}
                 </div>
                 {userProfile.bio && (
-                  <p className="mt-3 text-[13px] leading-6 text-[#52608b]">
+                  <p className="text-[13px] leading-relaxed text-slate-600">
                     {userProfile.bio}
                   </p>
                 )}
               </div>
             ) : (
-              <div className="mt-4 rounded-lg bg-[#f7f8fe] px-3 py-3 text-[13px] text-[#66729d]">
+              <div className="mt-5 rounded-xl bg-slate-50 px-4 py-3 text-[13px] text-slate-500">
                 This conversation is using room-level context.
+              </div>
+            )}
+            
+            {/* Active Contract Actions - Make it stand out and stick to the bottom of the profile block */}
+            {linkedContract && currentUserId && (
+              <div className="mt-6 border-t border-slate-100 pt-6 text-left">
+                <ActiveContractActions 
+                  contract={linkedContract}
+                  currentUserId={currentUserId}
+                />
               </div>
             )}
           </div>
@@ -216,21 +246,21 @@ export default function ContextRail({
 
             <div className="mt-3 space-y-3">
               {mentorProfile?.primaryDomain && (
-                <MetaRow label="Domain" value={mentorProfile.primaryDomain} />
+                <MetaRow label="Lĩnh vực" value={mentorProfile.primaryDomain} />
               )}
               {mentorProfile?.yearsOfExperience && (
-                <MetaRow label="Experience" value={`${mentorProfile.yearsOfExperience}+ years`} />
+                <MetaRow label="Kinh nghiệm" value={`${mentorProfile.yearsOfExperience}+ năm`} />
               )}
               {mentorProfile?.hourlyRateMxc && (
-                <MetaRow label="Rate" value={`${formatCurrency(mentorProfile.hourlyRateMxc)} / session`} />
+                <MetaRow label="Mức phí" value={`${formatCurrency(mentorProfile.hourlyRateMxc)} / buổi`} />
               )}
               {mentorProfile?.languages?.length ? (
-                <MetaRow label="Languages" value={mentorProfile.languages.join(', ')} />
+                <MetaRow label="Ngôn ngữ" value={mentorProfile.languages.join(', ')} />
               ) : userProfile?.preferredLanguage ? (
-                <MetaRow label="Language" value={userProfile.preferredLanguage} />
+                <MetaRow label="Ngôn ngữ" value={userProfile.preferredLanguage} />
               ) : null}
               {userProfile?.createdAt && !mentorProfile && (
-                <MetaRow label="Member since" value={new Date(userProfile.createdAt).toLocaleDateString('vi-VN')} />
+                <MetaRow label="Thành viên từ" value={new Date(userProfile.createdAt).toLocaleDateString('vi-VN')} />
               )}
               {profileSummary && (
                 <div className="rounded-xl bg-[#f7f8fe] px-3 py-3">

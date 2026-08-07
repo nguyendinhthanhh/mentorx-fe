@@ -999,7 +999,7 @@ function ReviewWorkspacePanel({
   const handleSubmit = () => {
     if (!draftAction) return
     if (requiresReason(draftAction) && !actionReason.trim()) {
-      toast.error('Please provide the required review reason before submitting.')
+      toast.error('Vui lòng nhập lý do từ chối/yêu cầu chỉnh sửa trước khi xác nhận.')
       return
     }
     onSubmitAction(draftAction, actionReason)

@@ -4,6 +4,8 @@ import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuthStore } from '@/store/authStore'
 import { useI18n } from '@/i18n/I18nProvider'
+
+
 import { 
   Search, MapPin, Star, ChevronRight, LayoutGrid, ChevronDown, 
   Bookmark, Briefcase, Code, Megaphone, PenTool, Users, TrendingUp, 
@@ -35,6 +37,7 @@ export default function HomePage() {
   const [location, setLocation] = useState('')
   const { user } = useAuthStore()
   const isAuthenticated = !!user
+
 
   const { data, isLoading } = useQuery(['home-data', isAuthenticated], () => homeApi.getHomeData(isAuthenticated), {
     staleTime: 2 * 60 * 1000,
@@ -112,6 +115,8 @@ export default function HomePage() {
                 </Link>
               ))}
             </div>
+
+
           </div>
 
           <div className="relative min-h-[440px] hidden lg:flex items-center justify-center">

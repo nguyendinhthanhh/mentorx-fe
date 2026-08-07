@@ -109,6 +109,17 @@ export const walletApi = {
     return response.data.data
   },
 
+  getUserWithdrawals: async (
+    userId: string,
+    params: { page?: number; size?: number }
+  ): Promise<PaginatedResponse<WithdrawalResponse>> => {
+    const response = await apiClient.get<ApiResponse<PaginatedResponse<WithdrawalResponse>>>(
+      `/v1/wallet/user/${userId}/withdrawals`,
+      { params }
+    )
+    return response.data.data
+  },
+
   // Transaction APIs
   getUserTransactions: async (
     userId: string,
@@ -194,6 +205,17 @@ export const walletApi = {
 
   rejectWithdrawal: async (requestId: string, reason: string): Promise<void> => {
     await apiClient.post(`/v1/wallet/admin/withdraw/${requestId}/reject?reason=${encodeURIComponent(reason)}`)
+  },
+
+  uploadWithdrawalProof: async (requestId: string, file: File): Promise<string> => {
+    const formData = new FormData()
+    formData.append('file', file)
+    const response = await apiClient.post<ApiResponse<string>>(
+      `/v1/wallet/admin/withdraw/${requestId}/upload-proof`,
+      formData,
+      { headers: { 'Content-Type': 'multipart/form-data' } }
+    )
+    return response.data.data
   },
 
   // Admin Overview & Audit

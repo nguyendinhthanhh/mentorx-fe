@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { useQuery } from 'react-query'
+import { useQuery, useMutation, useQueryClient } from 'react-query'
+import { toast } from 'react-hot-toast'
 import {
   ArrowRight,
   Briefcase,
@@ -15,7 +16,10 @@ import {
   ShieldCheck,
   Video,
   X,
+  AlertCircle,
+  Clock,
 } from 'lucide-react'
+import ActiveContractActions from '@/pages/chat/components/ActiveContractActions'
 import { chatApi } from '@/api/chatApi'
 import { contractApi } from '@/api/contractApi'
 import { FILE_UPLOAD_DIRS, fileApi } from '@/api/fileApi'
@@ -51,21 +55,21 @@ type ConversationContextMaps = {
 }
 
 const mentorFilters: Array<{ key: MentorInboxFilter; label: string }> = [
-  { key: 'ALL', label: 'All' },
-  { key: 'UNREAD', label: 'Unread' },
-  { key: 'CONTRACTS', label: 'Contracts' },
-  { key: 'PROPOSALS', label: 'Proposals' },
-  { key: 'JOBS', label: 'Jobs' },
+  { key: 'ALL', label: 'Tất cả' },
+  { key: 'UNREAD', label: 'Chưa đọc' },
+  { key: 'CONTRACTS', label: 'Hợp đồng' },
+  { key: 'PROPOSALS', label: 'Đề xuất' },
+  { key: 'JOBS', label: 'Công việc' },
 ]
 
 const contractStatusLabel: Record<string, string> = {
-  ACTIVE: 'Active',
-  PENDING_PAYMENT: 'Completion requested',
-  UNDER_REVIEW: 'Under review',
-  IN_DISPUTE: 'In dispute',
-  COMPLETED: 'Completed',
-  CANCELLED: 'Cancelled',
-  TERMINATED: 'Cancelled',
+  ACTIVE: 'Đang hoạt động',
+  PENDING_PAYMENT: 'Yêu cầu nghiệm thu',
+  UNDER_REVIEW: 'Đang xem xét',
+  IN_DISPUTE: 'Tranh chấp',
+  COMPLETED: 'Hoàn thành',
+  CANCELLED: 'Đã hủy',
+  TERMINATED: 'Đã hủy',
 }
 
 const contractStatusTone: Record<string, string> = {
@@ -79,19 +83,19 @@ const contractStatusTone: Record<string, string> = {
 }
 
 const proposalStatusLabel: Record<ProposalStatus, string> = {
-  DRAFT: 'Draft',
-  SUBMITTED: 'Submitted',
-  UNDER_REVIEW: 'Under review',
-  SHORTLISTED: 'Shortlisted',
-  INTERVIEW_REQUESTED: 'Interview requested',
-  NEGOTIATING: 'Negotiating',
-  OFFER_ACCEPTED: 'Offer agreed',
-  ACCEPTED: 'Accepted',
-  REJECTED: 'Rejected',
-  WITHDRAWN: 'Withdrawn',
-  EXPIRED: 'Expired',
-  AUTO_CLOSED: 'Closed',
-  CONTRACT_CANCELLED: 'Contract cancelled',
+  DRAFT: 'Bản nháp',
+  SUBMITTED: 'Đã gửi',
+  UNDER_REVIEW: 'Đang xem xét',
+  SHORTLISTED: 'Vòng trong',
+  INTERVIEW_REQUESTED: 'Phỏng vấn',
+  NEGOTIATING: 'Thương lượng',
+  OFFER_ACCEPTED: 'Đã chốt',
+  ACCEPTED: 'Chấp nhận',
+  REJECTED: 'Từ chối',
+  WITHDRAWN: 'Đã rút',
+  EXPIRED: 'Hết hạn',
+  AUTO_CLOSED: 'Đã đóng',
+  CONTRACT_CANCELLED: 'Hợp đồng hủy',
 }
 
 const proposalStatusTone: Record<ProposalStatus, string> = {
@@ -112,7 +116,9 @@ const proposalStatusTone: Record<ProposalStatus, string> = {
 
 export default function MentorMessagesPage() {
   const { user } = useAuthStore()
+  const queryClient = useQueryClient()
   const [searchParams, setSearchParams] = useSearchParams()
+
   const scrollRef = useRef<HTMLDivElement>(null)
   const [activeFilter, setActiveFilter] = useState<MentorInboxFilter>('ALL')
   const [searchTerm, setSearchTerm] = useState('')
@@ -136,6 +142,21 @@ export default function MentorMessagesPage() {
 
   const roomList = roomsQuery.data?.content || []
   const visibleRooms = useMemo(() => roomList.filter((room) => !room.isArchived), [roomList])
+
+  // Base rooms for counts: all visible rooms except self-chats
+  const deduplicatedRooms = useMemo(() => {
+    return visibleRooms.filter((room) => {
+      // Hide self-chat rooms
+      if (
+        room.roomType === 'DIRECT_MESSAGE' &&
+        room.members.length > 0 &&
+        room.members.every((m) => m.userId === user?.userId)
+      ) {
+        return false
+      }
+      return true
+    })
+  }, [visibleRooms, user?.userId])
 
   const contextMapsQuery = useQuery<ConversationContextMaps>(
     ['mentor-message-context-maps', roomList.map((room) => `${room.referenceType || 'NONE'}:${room.referenceId || room.id}`).join('|')],
@@ -176,7 +197,17 @@ export default function MentorMessagesPage() {
 
   const filteredRooms = useMemo(() => {
     const keyword = searchTerm.trim().toLowerCase()
+
     return visibleRooms.filter((room) => {
+      // Hide self-chat rooms
+      if (
+        room.roomType === 'DIRECT_MESSAGE' &&
+        room.members.length > 0 &&
+        room.members.every((m) => m.userId === user?.userId)
+      ) {
+        return false
+      }
+
       if (activeFilter === 'UNREAD' && room.unreadCount === 0) return false
       if (activeFilter === 'CONTRACTS' && room.referenceType !== 'CONTRACT') return false
       if (activeFilter === 'PROPOSALS' && room.referenceType !== 'PROPOSAL') return false
@@ -211,8 +242,23 @@ export default function MentorMessagesPage() {
 
   const effectiveRoomId = effectiveRoom?.id || null
 
+  const targetUserId = searchParams.get('targetUserId')
+
   useEffect(() => {
     if (roomsQuery.isLoading) return
+
+    if (targetUserId && !selectedRoomId) {
+      const existingRoom = deduplicatedRooms.find(
+        (r) => r.members?.some((m) => m.userId === targetUserId)
+      )
+      if (existingRoom) {
+        setSearchParams({ conversationId: existingRoom.id }, { replace: true })
+      } else {
+        setSelectionError('Không tìm thấy cuộc hội thoại với người dùng này.')
+      }
+      return
+    }
+
     if (!selectedRoomId) {
       setSelectionError(null)
       return
@@ -221,8 +267,8 @@ export default function MentorMessagesPage() {
       setSelectionError(null)
       return
     }
-    setSelectionError('You do not have access to this conversation.')
-  }, [roomsQuery.isLoading, selectedRoom, selectedRoomId])
+    setSelectionError('Bạn không có quyền truy cập cuộc trò chuyện này.')
+  }, [roomsQuery.isLoading, selectedRoom, selectedRoomId, targetUserId, deduplicatedRooms, setSearchParams])
 
   const selectedMessagesQuery = useQuery(
     ['mentor-messages-thread', effectiveRoomId],
@@ -256,20 +302,45 @@ export default function MentorMessagesPage() {
     chatApi
       .markAsRead(latestMessage.id, user.userId)
       .then(() => {
-        if (!cancelled) void roomsQuery.refetch()
+        if (!cancelled) {
+          void roomsQuery.refetch()
+          void queryClient.invalidateQueries(['chatRooms', user.userId])
+          void queryClient.invalidateQueries(['unreadCount', user.userId])
+        }
       })
       .catch(() => undefined)
 
     return () => {
       cancelled = true
     }
-  }, [effectiveRoom, latestMessage, roomsQuery, user?.userId])
+  }, [effectiveRoom, latestMessage, roomsQuery, user?.userId, queryClient])
 
   const contractContextQuery = useQuery(
     ['mentor-message-contract-context', effectiveRoom?.referenceId],
     () => contractApi.getMineById(effectiveRoom!.referenceId!),
     {
       enabled: effectiveRoom?.referenceType === 'CONTRACT' && !!effectiveRoom.referenceId,
+      retry: false,
+    }
+  )
+
+  const linkedContractQuery = useQuery(
+    ['mentor-message-linked-contract', otherMember?.userId],
+    async () => {
+      const result = await contractApi.getMine({ page: 0, size: 50 }).catch(() => null)
+      const contracts = result?.content || []
+      const clientContracts = contracts.filter((c) => c.clientId === otherMember?.userId)
+      return (
+        clientContracts.find((c) => c.status === 'UNDER_REVIEW') ||
+        clientContracts.find((c) => c.status === 'ACTIVE') ||
+        clientContracts.find((c) => c.status === 'PENDING_PAYMENT') ||
+        clientContracts.find((c) => c.status === 'COMPLETED') ||
+        clientContracts[0] ||
+        null
+      )
+    },
+    {
+      enabled: !!otherMember?.userId && effectiveRoom?.roomType === 'DIRECT_MESSAGE',
       retry: false,
     }
   )
@@ -299,40 +370,40 @@ export default function MentorMessagesPage() {
         actionHref: undefined as string | undefined,
         statusLabel: undefined as string | undefined,
         statusToneClassName: undefined as string | undefined,
-        noMessagesDescription: 'Start the conversation with this client.',
+        noMessagesDescription: 'Bắt đầu cuộc trò chuyện với khách hàng này.',
       }
     }
 
-    if (effectiveRoom.referenceType === 'CONTRACT') {
-      const contract = (contextMaps.contractMap[effectiveRoom.referenceId || ''] || contractContextQuery.data) as ContractResponse | undefined
+    if (effectiveRoom.referenceType === 'CONTRACT' || (effectiveRoom.roomType === 'DIRECT_MESSAGE' && linkedContractQuery.data)) {
+      const contract = (effectiveRoom.referenceType === 'CONTRACT' ? (contextMaps.contractMap[effectiveRoom.referenceId || ''] || contractContextQuery.data) : linkedContractQuery.data) as ContractResponse | undefined
       return {
-        actionLabel: 'View contract',
-        actionHref: contract ? '/mentor/contracts' : undefined,
+        actionLabel: 'Xem hợp đồng',
+        actionHref: contract ? '/mentor/projects?tab=contracts' : undefined,
         statusLabel: contract ? contractStatusLabel[contract.status] || contract.status : undefined,
         statusToneClassName: contract ? contractStatusTone[contract.status] || undefined : undefined,
-        noMessagesDescription: 'Start the conversation with this client.',
+        noMessagesDescription: 'Bắt đầu cuộc trò chuyện với khách hàng này.',
       }
     }
 
     if (effectiveRoom.referenceType === 'PROPOSAL') {
       const proposal = (contextMaps.proposalMap[effectiveRoom.referenceId || ''] || proposalContextQuery.data) as ProposalResponse | undefined
       return {
-        actionLabel: proposal ? 'View proposal' : undefined,
+        actionLabel: proposal ? 'Xem đề xuất' : undefined,
         actionHref: proposal ? `/mentor/proposals/${proposal.id}` : undefined,
         statusLabel: proposal ? proposalStatusLabel[proposal.status] || proposal.status : undefined,
         statusToneClassName: proposal ? proposalStatusTone[proposal.status] || undefined : undefined,
-        noMessagesDescription: 'Start the conversation with this client.',
+        noMessagesDescription: 'Bắt đầu cuộc trò chuyện với khách hàng này.',
       }
     }
 
     if (effectiveRoom.referenceType === 'JOB') {
       const job = (contextMaps.jobMap[effectiveRoom.referenceId || ''] || jobContextQuery.data) as JobResponse | undefined
       return {
-        actionLabel: job ? 'View job' : undefined,
+        actionLabel: job ? 'Xem công việc' : undefined,
         actionHref: job ? `/jobs/${job.jobId}` : undefined,
         statusLabel: job ? formatJobStatus(job.status) : undefined,
         statusToneClassName: job ? getJobStatusTone(job.status) : undefined,
-        noMessagesDescription: 'Start the conversation with this client.',
+        noMessagesDescription: 'Bắt đầu cuộc trò chuyện với khách hàng này.',
       }
     }
 
@@ -341,29 +412,29 @@ export default function MentorMessagesPage() {
       actionHref: undefined as string | undefined,
       statusLabel: undefined as string | undefined,
       statusToneClassName: undefined as string | undefined,
-      noMessagesDescription: 'Start the conversation with this client.',
+      noMessagesDescription: 'Bắt đầu cuộc trò chuyện với khách hàng này.',
     }
   }, [contextMaps, contractContextQuery.data, effectiveRoom, jobContextQuery.data, proposalContextQuery.data])
 
   const contextCard = useMemo(() => {
     if (!effectiveRoom) return null
 
-    if (effectiveRoom.referenceType === 'CONTRACT') {
-      const contract = (contextMaps.contractMap[effectiveRoom.referenceId || ''] || contractContextQuery.data) as ContractResponse | undefined
+    if (effectiveRoom.referenceType === 'CONTRACT' || (effectiveRoom.roomType === 'DIRECT_MESSAGE' && linkedContractQuery.data)) {
+      const contract = (effectiveRoom.referenceType === 'CONTRACT' ? (contextMaps.contractMap[effectiveRoom.referenceId || ''] || contractContextQuery.data) : linkedContractQuery.data) as ContractResponse | undefined
       if (!contract) return null
       return {
         title: contract.title || contract.jobTitle,
-        description: contract.description || contract.deliverables || 'Contract conversation and delivery details.',
+        description: contract.description || contract.deliverables || 'Chi tiết hợp đồng và giao tiếp công việc.',
         metrics: [
-          { label: 'Value', value: formatCurrency(contract.totalAmount || 0), icon: CircleDollarSign },
+          { label: 'Giá trị', value: formatCurrency(contract.totalAmount || 0), icon: CircleDollarSign },
           {
-            label: 'Progress',
-            value: contract.milestoneCount > 0 ? `${contract.completedMilestoneCount}/${contract.milestoneCount} milestones` : `${contract.progressPercentage}% complete`,
+            label: 'Tiến độ',
+            value: contract.milestoneCount > 0 ? `${contract.completedMilestoneCount}/${contract.milestoneCount} cột mốc` : `${contract.progressPercentage}% hoàn thành`,
             icon: CalendarDays,
           },
         ],
         primaryAction: contextMeta.actionHref && contextMeta.actionLabel ? { href: contextMeta.actionHref, label: contextMeta.actionLabel } : undefined,
-        secondaryAction: { href: '/mentor/contracts', label: 'Open contracts' },
+        secondaryAction: { href: '/mentor/projects?tab=contracts', label: 'Mở hợp đồng' },
       }
     }
 
@@ -372,13 +443,13 @@ export default function MentorMessagesPage() {
       if (!proposal) return null
       return {
         title: proposal.jobTitle,
-        description: proposal.relevantExperience || proposal.coverLetter || 'Proposal discussion and negotiation thread.',
+        description: proposal.relevantExperience || proposal.coverLetter || 'Kênh thảo luận và thương lượng đề xuất.',
         metrics: [
-          { label: 'Offer', value: formatCurrency(proposal.proposedAmount || proposal.proposedHourlyRate || 0), icon: CircleDollarSign },
-          { label: 'Timeline', value: proposal.estimatedDurationDays ? `${proposal.estimatedDurationDays} days` : 'Flexible', icon: CalendarDays },
+          { label: 'Chào giá', value: formatCurrency(proposal.proposedAmount || proposal.proposedHourlyRate || 0), icon: CircleDollarSign },
+          { label: 'Thời gian', value: proposal.estimatedDurationDays ? `${proposal.estimatedDurationDays} ngày` : 'Linh hoạt', icon: CalendarDays },
         ],
         primaryAction: contextMeta.actionHref && contextMeta.actionLabel ? { href: contextMeta.actionHref, label: contextMeta.actionLabel } : undefined,
-        secondaryAction: { href: '/jobs', label: 'Find jobs' },
+        secondaryAction: { href: '/jobs', label: 'Tìm việc' },
       }
     }
 
@@ -387,22 +458,22 @@ export default function MentorMessagesPage() {
       if (!job) return null
       return {
         title: job.title,
-        description: job.description || 'Job discussion and project discovery thread.',
+        description: job.description || 'Kênh thảo luận công việc.',
         metrics: [
-          { label: 'Budget', value: formatJobBudget(job), icon: CircleDollarSign },
-          { label: 'Deadline', value: job.deadlineAt ? formatRoomDate(job.deadlineAt) : 'Flexible', icon: CalendarDays },
+          { label: 'Ngân sách', value: formatJobBudget(job), icon: CircleDollarSign },
+          { label: 'Hạn chót', value: job.deadlineAt ? formatRoomDate(job.deadlineAt) : 'Linh hoạt', icon: CalendarDays },
         ],
         primaryAction: contextMeta.actionHref && contextMeta.actionLabel ? { href: contextMeta.actionHref, label: contextMeta.actionLabel } : undefined,
-        secondaryAction: { href: '/jobs', label: 'Browse jobs' },
+        secondaryAction: { href: '/jobs', label: 'Tìm việc' },
       }
     }
 
     return {
       title: getRoomDisplayName(effectiveRoom, user?.userId),
-      description: effectiveRoom.description || 'Direct conversation space.',
+      description: effectiveRoom.description || 'Không gian trò chuyện trực tiếp.',
       metrics: [
-        { label: 'Type', value: formatContextLabel(effectiveRoom.referenceType), icon: FileText },
-        { label: 'Messages', value: String(effectiveRoom.messageCount || 0), icon: MessageCircle },
+        { label: 'Loại', value: formatContextLabel(effectiveRoom.referenceType), icon: FileText },
+        { label: 'Tin nhắn', value: String(effectiveRoom.messageCount || 0), icon: MessageCircle },
       ],
       primaryAction: undefined,
       secondaryAction: undefined,
@@ -422,13 +493,13 @@ export default function MentorMessagesPage() {
 
   const counts = useMemo(
     () => ({
-      ALL: visibleRooms.length,
-      UNREAD: visibleRooms.filter((room) => room.unreadCount > 0).length,
-      CONTRACTS: visibleRooms.filter((room) => room.referenceType === 'CONTRACT').length,
-      PROPOSALS: visibleRooms.filter((room) => room.referenceType === 'PROPOSAL').length,
-      JOBS: visibleRooms.filter((room) => room.referenceType === 'JOB').length,
+      ALL: deduplicatedRooms.length,
+      UNREAD: deduplicatedRooms.filter((room) => room.unreadCount > 0).length,
+      CONTRACTS: deduplicatedRooms.filter((room) => room.referenceType === 'CONTRACT').length,
+      PROPOSALS: deduplicatedRooms.filter((room) => room.referenceType === 'PROPOSAL').length,
+      JOBS: deduplicatedRooms.filter((room) => room.referenceType === 'JOB').length,
     }),
-    [visibleRooms]
+    [deduplicatedRooms]
   )
 
   const sharedFiles = useMemo(() => buildSharedFiles(selectedMessages).slice(-4).reverse(), [selectedMessages])
@@ -436,6 +507,7 @@ export default function MentorMessagesPage() {
 
   const handleSelectRoom = (roomId: string) => {
     setSelectionError(null)
+    setShowContextPanel(true)
     setSearchParams({ conversationId: roomId })
   }
 
@@ -478,7 +550,7 @@ export default function MentorMessagesPage() {
 
       await Promise.all([selectedMessagesQuery.refetch(), roomsQuery.refetch()])
     } catch (error: any) {
-      setComposerError(error?.response?.data?.message || 'Unable to send this message. Please try again.')
+      setComposerError(error?.response?.data?.message || 'Không thể gửi tin nhắn. Vui lòng thử lại.')
     } finally {
       setIsSending(false)
     }
@@ -496,22 +568,22 @@ export default function MentorMessagesPage() {
         <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-500">
           <MessageCircle className="h-6 w-6" />
         </div>
-        <h2 className="mt-5 text-2xl font-black tracking-tight text-slate-950">No messages yet</h2>
+        <h2 className="mt-5 text-2xl font-black tracking-tight text-slate-950">Chưa có tin nhắn</h2>
         <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-slate-500">
-          When you message a client from a proposal or contract, conversations will appear here.
+          Các cuộc hội thoại với khách hàng từ các dự án sẽ hiển thị tại đây.
         </p>
         <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
           <Link
             to="/jobs"
             className="inline-flex h-11 items-center justify-center rounded-2xl bg-emerald-600 px-5 text-sm font-bold text-white transition hover:bg-emerald-700"
           >
-            Find jobs
+            Tìm việc
           </Link>
           <Link
-            to="/mentor/proposals"
+            to="/mentor/projects?tab=proposals"
             className="inline-flex h-11 items-center justify-center rounded-2xl border border-slate-200 bg-white px-5 text-sm font-bold text-slate-700 transition hover:bg-slate-50"
           >
-            View proposals
+            Xem đề xuất
           </Link>
         </div>
       </div>
@@ -519,22 +591,22 @@ export default function MentorMessagesPage() {
   }
 
   return (
-    <div className="space-y-5">
+    <div className="relative h-[calc(100vh-104px)] w-full overflow-hidden rounded-[24px] border border-slate-200 bg-white shadow-sm">
       {selectionError ? (
-        <div className="rounded-[24px] border border-rose-200 bg-rose-50 px-5 py-4 text-sm font-medium text-rose-700">
+        <div className="absolute top-4 left-1/2 z-10 -translate-x-1/2 rounded-[24px] border border-rose-200 bg-rose-50 px-5 py-4 text-sm font-medium text-rose-700 shadow-sm">
           {selectionError}
         </div>
       ) : null}
 
-      <section className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_24px_80px_-48px_rgba(15,23,42,0.22)]">
-        <div className={`grid min-h-[calc(100dvh-180px)] ${showContextPanel ? '2xl:grid-cols-[340px_minmax(0,1fr)_300px]' : '2xl:grid-cols-[340px_minmax(0,1fr)]'}`}>
-          <aside className="border-b border-slate-200 xl:border-b-0 xl:border-r">
-            <div className="border-b border-slate-100 px-5 py-5">
+      <section className="h-full w-full">
+        <div className={`grid h-full lg:grid-cols-[340px_minmax(0,1fr)] ${showContextPanel ? '2xl:grid-cols-[340px_minmax(0,1fr)_300px]' : '2xl:grid-cols-[340px_minmax(0,1fr)]'}`}>
+          <aside className="flex min-h-0 flex-col border-b border-slate-200 xl:border-b-0 xl:border-r">
+            <div className="shrink-0 border-b border-slate-100 px-5 py-5">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <h1 className="text-[18px] font-bold tracking-[-0.02em] text-slate-950">Messages</h1>
+                  <h1 className="text-[18px] font-bold tracking-[-0.02em] text-slate-950">Tin nhắn</h1>
                   <p className="mt-1 text-[13px] font-medium text-slate-500">
-                    {counts.UNREAD > 0 ? `${counts.UNREAD} unread conversations` : 'All caught up'}
+                    {counts.UNREAD > 0 ? `${counts.UNREAD} cuộc trò chuyện chưa đọc` : 'Đã xem tất cả'}
                   </p>
                 </div>
               </div>
@@ -545,38 +617,50 @@ export default function MentorMessagesPage() {
                   type="text"
                   value={searchTerm}
                   onChange={(event) => setSearchTerm(event.target.value)}
-                  placeholder="Search conversations"
+                  placeholder="Tìm kiếm tin nhắn"
                   className="h-11 w-full rounded-2xl border border-slate-200 bg-slate-50 pl-11 pr-3 text-sm text-slate-700 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10"
                 />
               </div>
 
-              <div className="mt-4 flex flex-wrap gap-2">
-                {mentorFilters.map((filter) => {
-                  const active = activeFilter === filter.key
-                  return (
-                    <button
-                      key={filter.key}
-                      type="button"
-                      onClick={() => setActiveFilter(filter.key)}
-                      className={`inline-flex h-8 items-center gap-2 rounded-full px-3 text-[12px] font-semibold transition ${
-                        active ? 'bg-emerald-600 text-white shadow-sm' : 'border border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
-                      }`}
-                    >
-                      {filter.label}
-                      <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-black ${active ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'}`}>
-                        {counts[filter.key]}
-                      </span>
-                    </button>
-                  )
-                })}
+              <div className="mt-5 -mx-5 px-5 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                <div className="flex w-max items-center gap-1.5 pb-2">
+                  {mentorFilters.map((filter) => {
+                    const active = activeFilter === filter.key
+                    const count = counts[filter.key]
+                    return (
+                      <button
+                        key={filter.key}
+                        onClick={() => setActiveFilter(filter.key)}
+                        className={`group relative flex items-center gap-2 rounded-full px-3 py-1.5 text-[12px] font-semibold transition-all duration-300 ${
+                          active
+                            ? 'bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:ring-emerald-500/20 shadow-sm'
+                            : 'bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900 ring-1 ring-inset ring-slate-200 dark:bg-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200 dark:ring-slate-700'
+                        }`}
+                      >
+                        <span>{filter.label}</span>
+                        {count >= 0 && (
+                          <span
+                            className={`flex h-4.5 min-w-[18px] items-center justify-center rounded-full px-1.5 text-[10px] font-black transition-colors ${
+                              active
+                                ? 'bg-emerald-600 text-white dark:bg-emerald-500'
+                                : 'bg-slate-100 text-slate-500 group-hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400'
+                            }`}
+                          >
+                            {count}
+                          </span>
+                        )}
+                      </button>
+                    )
+                  })}
+                </div>
               </div>
             </div>
 
-            <div className="max-h-[calc(100dvh-340px)] overflow-y-auto xl:max-h-[calc(100dvh-245px)]">
+            <div className="flex-1 overflow-y-auto">
               {filteredRooms.length === 0 ? (
                 <div className="px-6 py-16 text-center">
-                  <p className="text-base font-black text-slate-950">No conversations found</p>
-                  <p className="mt-2 text-sm leading-6 text-slate-500">Try another keyword or clear filters.</p>
+                  <p className="text-base font-black text-slate-950">Không tìm thấy cuộc trò chuyện nào</p>
+                  <p className="mt-2 text-sm leading-6 text-slate-500">Thử từ khóa khác hoặc xóa bộ lọc.</p>
                 </div>
               ) : (
                 filteredRooms.map((room) => (
@@ -593,7 +677,7 @@ export default function MentorMessagesPage() {
             </div>
           </aside>
 
-          <section className={`border-b border-slate-200 xl:border-b-0 ${showContextPanel ? '2xl:border-r' : ''}`}>
+          <section className={`flex min-h-0 flex-col border-b border-slate-200 xl:border-b-0 ${showContextPanel ? '2xl:border-r' : ''}`}>
             {effectiveRoom ? (
               <div className="flex h-full flex-col">
                 <div className="border-b border-slate-100 px-5 py-4">
@@ -610,19 +694,19 @@ export default function MentorMessagesPage() {
                           </h2>
                         </div>
                         <p className="mt-0.5 text-[13px] font-medium text-emerald-600">
-                          {otherMember?.isOnline ? 'Online' : getPresenceLabel(otherMember)}
+                          {otherMember?.isOnline ? 'Đang hoạt động' : getPresenceLabel(otherMember)}
                         </p>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-2">
                       <div className="hidden items-center gap-2 sm:flex">
-                        <HeaderActionButton icon={<Briefcase className="h-4 w-4" />} label="Context" href={contextMeta.actionHref} />
-                        <HeaderActionButton icon={<Video className="h-4 w-4" />} label="Meet" href="/mentor/schedule" />
+                        <HeaderActionButton icon={<Briefcase className="h-4 w-4" />} label="Thông tin" href={contextMeta.actionHref} />
+                        <HeaderActionButton icon={<Video className="h-4 w-4" />} label="Họp trực tuyến" href="/mentor/schedule" />
                       </div>
                       <button
                         type="button"
-                        title="Info"
+                        title="Thông tin"
                         onClick={() => setShowContextPanel(true)}
                         className="inline-flex h-9 w-9 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-500 transition hover:border-emerald-200 hover:text-emerald-700"
                       >
@@ -632,7 +716,7 @@ export default function MentorMessagesPage() {
                   </div>
                 </div>
 
-                <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto bg-[linear-gradient(180deg,#ffffff,#fafbff)] px-5 py-5">
+                <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto bg-slate-50/50 px-5 py-5">
                   {selectedMessagesQuery.isLoading ? (
                     <MessageThreadLoading />
                   ) : selectedMessages.length === 0 ? (
@@ -641,17 +725,18 @@ export default function MentorMessagesPage() {
                         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50 text-emerald-500">
                           <Send className="h-6 w-6" />
                         </div>
-                        <h3 className="mt-4 text-base font-bold text-slate-950">No messages yet</h3>
+                        <h3 className="mt-4 text-base font-bold text-slate-950">Chưa có tin nhắn</h3>
                         <p className="mt-2 text-sm leading-6 text-slate-500">{contextMeta.noMessagesDescription}</p>
                       </div>
                     </div>
                   ) : (
-                    <div className="space-y-6">
+                    <div className="flex flex-col pb-2">
                       {selectedMessages.map((message, index) => (
                         <WorkspaceMessageBubble
                           key={message.id}
                           message={message}
                           previousMessage={selectedMessages[index - 1]}
+                          nextMessage={selectedMessages[index + 1]}
                           mine={message.senderId === user.userId}
                         />
                       ))}
@@ -659,14 +744,16 @@ export default function MentorMessagesPage() {
                   )}
                 </div>
 
-                <div className="border-t border-slate-100 bg-white px-5 py-4">
-                  <PromptInputBox
-                    onSend={(msg, files) => handleSendMessage(msg, files || [])}
-                    isLoading={isSending}
-                    placeholder="Type your message..."
-                    className="rounded-[24px] border border-slate-200 shadow-none"
-                  />
-                  {composerError ? <p className="px-2 pt-3 text-sm text-rose-500">{composerError}</p> : null}
+                <div className="border-t border-slate-100 bg-slate-50/50 px-5 py-4">
+                  <div className="rounded-[24px] border border-slate-200 bg-white p-1 shadow-sm ring-1 ring-inset ring-slate-200/50 transition-shadow focus-within:border-emerald-500 focus-within:ring-4 focus-within:ring-emerald-500/10 hover:shadow-md">
+                    <PromptInputBox
+                      onSend={(msg, files) => handleSendMessage(msg, files || [])}
+                      isLoading={isSending}
+                      placeholder="Nhập tin nhắn..."
+                      className="rounded-[20px] border-none shadow-none focus:ring-0"
+                    />
+                  </div>
+                  {composerError ? <p className="px-2 pt-3 text-sm font-medium text-rose-500">{composerError}</p> : null}
                 </div>
               </div>
             ) : (
@@ -675,23 +762,23 @@ export default function MentorMessagesPage() {
                   <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50 text-emerald-500">
                     <MessageCircle className="h-6 w-6" />
                   </div>
-                  <h2 className="mt-5 text-base font-bold text-slate-950">Select a conversation</h2>
-                  <p className="mt-2 text-sm text-slate-500">Choose a room from the inbox to read messages and files.</p>
+                  <h2 className="mt-5 text-base font-bold text-slate-950">Chọn một cuộc trò chuyện</h2>
+                  <p className="mt-2 text-sm text-slate-500">Chọn một cuộc trò chuyện từ hộp thư để xem tin nhắn.</p>
                 </div>
               </div>
             )}
           </section>
 
           {showContextPanel ? (
-          <aside className="hidden bg-white 2xl:block">
-            <div className="border-b border-slate-100 px-6 py-5">
+          <aside className="hidden min-h-0 flex-col bg-white 2xl:flex">
+            <div className="shrink-0 border-b border-slate-100 px-6 py-5">
               <div className="flex items-center justify-between gap-3">
-                <p className="text-[12px] font-bold uppercase tracking-[0.16em] text-slate-900">Project Context</p>
+                <p className="text-[12px] font-bold uppercase tracking-[0.16em] text-slate-900">Thông tin dự án</p>
                 <button
                   type="button"
                   onClick={() => setShowContextPanel(false)}
                   className="inline-flex h-8 w-8 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-400 transition hover:border-slate-300 hover:text-slate-700"
-                  aria-label="Close project context"
+                  aria-label="Đóng thông tin"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -700,14 +787,14 @@ export default function MentorMessagesPage() {
 
             <div className="space-y-5 px-6 py-5">
               {contextCard ? (
-                <div className="rounded-[24px] border border-slate-200 bg-slate-50/80 p-5">
+                <div className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-[0_4px_24px_rgba(0,0,0,0.02)] ring-1 ring-inset ring-slate-200/50 transition hover:shadow-md">
                   <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-emerald-600">{formatContextLabel(effectiveRoom?.referenceType)}</p>
                   <h3 className="mt-2 text-[15px] font-bold leading-6 text-slate-950">{contextCard.title}</h3>
                   <p className="mt-2 text-[13px] leading-6 text-slate-500">{truncateText(contextCard.description, 180)}</p>
                 </div>
               ) : (
-                <div className="rounded-[24px] border border-slate-200 bg-slate-50/80 p-5 text-sm text-slate-500">
-                  Conversation details are loading.
+                <div className="rounded-[24px] border border-slate-200 bg-white p-5 text-sm text-slate-500 shadow-[0_4px_24px_rgba(0,0,0,0.02)] ring-1 ring-inset ring-slate-200/50">
+                  Đang tải thông tin cuộc trò chuyện...
                 </div>
               )}
 
@@ -726,6 +813,19 @@ export default function MentorMessagesPage() {
               </div>
 
               <div className="space-y-3">
+                {(effectiveRoom?.referenceType === 'CONTRACT' || (effectiveRoom?.roomType === 'DIRECT_MESSAGE' && linkedContractQuery.data)) && (() => {
+                  const contract = (effectiveRoom.referenceType === 'CONTRACT' ? (contextMaps.contractMap[effectiveRoom.referenceId || ''] || contractContextQuery.data) : linkedContractQuery.data) as ContractResponse | undefined
+                  
+                  if (!contract) return null
+
+                  return (
+                    <ActiveContractActions 
+                      contract={contract} 
+                      currentUserId={user?.userId || ''} 
+                    />
+                  )
+                })()}
+
                 {contextCard?.primaryAction ? (
                   <Link
                     to={contextCard.primaryAction.href}
@@ -746,10 +846,10 @@ export default function MentorMessagesPage() {
 
               <div className="border-t border-slate-100 pt-6">
                 <div className="mb-4 flex items-center justify-between">
-                  <p className="text-[12px] font-black uppercase tracking-[0.16em] text-slate-400">Shared Files</p>
+                  <p className="text-[12px] font-black uppercase tracking-[0.16em] text-slate-400">Tệp đính kèm</p>
                   {contextMeta.actionHref ? (
                     <Link to={contextMeta.actionHref} className="text-sm font-black text-emerald-600">
-                      See all
+                      Xem tất cả
                     </Link>
                   ) : null}
                 </div>
@@ -757,7 +857,7 @@ export default function MentorMessagesPage() {
                 <div className="space-y-3">
                   {sharedFiles.length === 0 && sharedLinks.length === 0 ? (
                     <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-5 text-sm text-slate-400">
-                      No shared files yet.
+                      Chưa có tệp đính kèm nào.
                     </div>
                   ) : (
                     <>
@@ -815,12 +915,12 @@ export default function MentorMessagesPage() {
           <aside className="absolute right-0 top-0 h-full w-full max-w-[380px] overflow-y-auto border-l border-slate-200 bg-white shadow-2xl">
             <div className="border-b border-slate-100 px-6 py-5">
               <div className="flex items-center justify-between gap-3">
-                <p className="text-[12px] font-bold uppercase tracking-[0.16em] text-slate-900">Project Context</p>
+                <p className="text-[12px] font-bold uppercase tracking-[0.16em] text-slate-900">Thông tin dự án</p>
                 <button
                   type="button"
                   onClick={() => setShowContextPanel(false)}
                   className="inline-flex h-8 w-8 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-400 transition hover:border-slate-300 hover:text-slate-700"
-                  aria-label="Close project context"
+                  aria-label="Đóng thông tin"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -829,14 +929,14 @@ export default function MentorMessagesPage() {
 
             <div className="space-y-5 px-6 py-5">
               {contextCard ? (
-                <div className="rounded-[24px] border border-slate-200 bg-slate-50/80 p-5">
+                <div className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-[0_4px_24px_rgba(0,0,0,0.02)] ring-1 ring-inset ring-slate-200/50 transition hover:shadow-md">
                   <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-emerald-600">{formatContextLabel(effectiveRoom?.referenceType)}</p>
                   <h3 className="mt-2 text-[15px] font-bold leading-6 text-slate-950">{contextCard.title}</h3>
                   <p className="mt-2 text-[13px] leading-6 text-slate-500">{truncateText(contextCard.description, 180)}</p>
                 </div>
               ) : (
-                <div className="rounded-[24px] border border-slate-200 bg-slate-50/80 p-5 text-sm text-slate-500">
-                  Conversation details are loading.
+                <div className="rounded-[24px] border border-slate-200 bg-white p-5 text-sm text-slate-500 shadow-[0_4px_24px_rgba(0,0,0,0.02)] ring-1 ring-inset ring-slate-200/50">
+                  Đang tải thông tin cuộc trò chuyện...
                 </div>
               )}
 
@@ -855,6 +955,19 @@ export default function MentorMessagesPage() {
               </div>
 
               <div className="space-y-3">
+                {(effectiveRoom?.referenceType === 'CONTRACT' || (effectiveRoom?.roomType === 'DIRECT_MESSAGE' && linkedContractQuery.data)) && (() => {
+                  const contract = (effectiveRoom.referenceType === 'CONTRACT' ? (contextMaps.contractMap[effectiveRoom.referenceId || ''] || contractContextQuery.data) : linkedContractQuery.data) as ContractResponse | undefined
+                  
+                  if (!contract) return null
+
+                  return (
+                    <ActiveContractActions 
+                      contract={contract} 
+                      currentUserId={user?.userId || ''} 
+                    />
+                  )
+                })()}
+
                 {contextCard?.primaryAction ? (
                   <Link
                     to={contextCard.primaryAction.href}
@@ -906,7 +1019,7 @@ function WorkspaceConversationRow({
       type="button"
       onClick={() => onSelect(room.id)}
       className={`w-full border-b border-slate-100 px-5 py-4 text-left transition ${
-        isActive ? 'bg-[linear-gradient(180deg,#edf3ff,#e7f0ff)] shadow-[inset_-3px_0_0_0_#2563eb]' : 'hover:bg-slate-50'
+        isActive ? 'bg-emerald-50/50 shadow-[inset_-3px_0_0_0_#059669]' : 'hover:bg-slate-50'
       }`}
     >
       <div className="flex items-start gap-3">
@@ -919,35 +1032,31 @@ function WorkspaceConversationRow({
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
               <p className={`truncate text-[15px] ${isUnread ? 'font-bold text-slate-950' : 'font-semibold text-slate-900'}`}>{roomName}</p>
-              <p className="mt-0.5 truncate text-[13px] font-medium text-emerald-600">{contextTitle || formatContextLabel(room.referenceType)}</p>
             </div>
-            <div className="shrink-0 text-right">
-              <p className="text-xs font-medium text-slate-400">{formatRoomTime(room.lastMessageAt || room.updatedAt)}</p>
+            <div className="flex shrink-0 flex-col items-end gap-1 text-right">
+              <p className={`text-xs font-medium ${isUnread ? 'text-emerald-600' : 'text-slate-400'}`}>{formatRoomTime(room.lastMessageAt || room.updatedAt)}</p>
+              {isUnread ? (
+                <span className="inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-emerald-600 px-1.5 text-[10px] font-black text-white">
+                  {room.unreadCount}
+                </span>
+              ) : null}
             </div>
           </div>
 
-          <div className="mt-2 flex items-center gap-2 text-[13px] text-slate-500">
-            <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
-            <span className="truncate">{getRoomPreview(room)}</span>
+          <div className="mt-0.5 flex items-center text-[13px] text-slate-500">
+            <span className={`truncate ${isUnread ? 'font-medium text-slate-700' : ''}`}>{getRoomPreview(room)}</span>
           </div>
 
-          <div className="mt-3 flex flex-wrap items-center gap-2">
-            <span className="inline-flex h-5 items-center rounded-full bg-white px-2.5 text-[10px] font-semibold text-slate-500 ring-1 ring-slate-200">
-              {participantRoleLabel}
-            </span>
-            {contextStatusLabel ? (
-              <span className={`inline-flex h-5 items-center rounded-full border px-2.5 text-[10px] font-semibold ${getContextStatusTone(room, contextMaps)}`}>
-                {contextStatusLabel}
+          <div className="mt-2.5 flex flex-wrap items-center gap-2">
+            {(!room.referenceType || room.referenceType === 'DIRECT_MESSAGE') ? null : (
+              <span className={`inline-flex h-5 max-w-full items-center gap-1 rounded-full border px-2 text-[10px] font-bold ${getContextStatusTone(room, contextMaps)}`}>
+                {room.referenceType === 'CONTRACT' ? <FileText className="h-3 w-3 shrink-0" /> : <Briefcase className="h-3 w-3 shrink-0" />}
+                <span className="truncate">
+                  {contextTitle || formatContextLabel(room.referenceType)}
+                </span>
+                {contextStatusLabel ? <span className="shrink-0">· {contextStatusLabel}</span> : null}
               </span>
-            ) : null}
-            <span className={`inline-flex h-5 items-center rounded-full border px-2.5 text-[10px] font-semibold ${getConversationStateTone(room, currentUserId)}`}>
-              {conversationStateLabel}
-            </span>
-            {room.unreadCount > 0 ? (
-              <span className="inline-flex h-6 min-w-[24px] items-center justify-center rounded-full bg-emerald-600 px-1.5 text-[11px] font-black text-white">
-                {room.unreadCount}
-              </span>
-            ) : null}
+            )}
           </div>
         </div>
       </div>
@@ -958,18 +1067,23 @@ function WorkspaceConversationRow({
 function WorkspaceMessageBubble({
   message,
   previousMessage,
+  nextMessage,
   mine,
 }: {
   message: MessageResponse
   previousMessage?: MessageResponse
+  nextMessage?: MessageResponse
   mine: boolean
 }) {
   const showDate = shouldShowDateSeparator(previousMessage, message)
+  
+  const isFirstInGroup = !previousMessage || previousMessage.senderId !== message.senderId || showDate || (new Date(message.sentAt).getTime() - new Date(previousMessage.sentAt).getTime() > 5 * 60 * 1000)
+  const isLastInGroup = !nextMessage || nextMessage.senderId !== message.senderId || shouldShowDateSeparator(message, nextMessage) || (new Date(nextMessage.sentAt).getTime() - new Date(message.sentAt).getTime() > 5 * 60 * 1000)
 
   return (
-    <div>
+    <div className={isFirstInGroup && !showDate ? 'mt-6' : 'mt-1'}>
       {showDate ? (
-        <div className="mb-6 flex items-center justify-center">
+        <div className="mb-6 mt-6 flex items-center justify-center">
           <span className="rounded-full bg-slate-100 px-3 py-1 text-[11px] font-black uppercase tracking-[0.16em] text-slate-400">
             {formatMessageDate(message.sentAt)}
           </span>
@@ -978,25 +1092,35 @@ function WorkspaceMessageBubble({
 
       <div className={`flex gap-3 ${mine ? 'justify-end' : 'justify-start'}`}>
         {!mine ? (
-          <div className="mt-1 hidden sm:block">
-            <AvatarBadge name={message.senderName} avatarUrl={message.senderAvatarUrl} size="xs" />
+          <div className="mt-1 hidden shrink-0 sm:block">
+            {isFirstInGroup ? (
+              <AvatarBadge name={message.senderName} avatarUrl={message.senderAvatarUrl} size="xs" />
+            ) : (
+              <div className="h-9 w-9" />
+            )}
           </div>
         ) : null}
 
-        <div className={`max-w-[78%] ${mine ? 'items-end' : 'items-start'}`}>
+        <div className={`flex max-w-[78%] flex-col ${mine ? 'items-end' : 'items-start'}`}>
           <div
-            className={`rounded-[22px] px-4 py-3.5 shadow-sm ${
+            className={`px-4 py-3.5 shadow-sm ${
               mine
-                ? 'bg-[linear-gradient(180deg,#2f67f6,#2457dc)] text-white'
-                : 'border border-slate-200 bg-white text-slate-900'
+                ? 'bg-gradient-to-br from-emerald-500 to-emerald-600 text-white ring-1 ring-inset ring-emerald-400/20'
+                : 'bg-slate-50 text-slate-900 ring-1 ring-inset ring-slate-200/50'
+            } ${
+              mine
+                ? `rounded-l-[22px] ${isFirstInGroup ? 'rounded-tr-[22px]' : 'rounded-tr-[8px]'} ${isLastInGroup ? 'rounded-br-[22px]' : 'rounded-br-[2px]'}`
+                : `rounded-r-[22px] ${isFirstInGroup ? 'rounded-tl-[22px]' : 'rounded-tl-[8px]'} ${isLastInGroup ? 'rounded-bl-[22px]' : 'rounded-bl-[2px]'}`
             }`}
           >
             <MessageText content={message.content} mine={mine} />
             <MessageAttachment message={message} mine={mine} />
           </div>
-          <p className={`mt-2 px-1 text-xs text-slate-400 ${mine ? 'text-right' : ''}`}>
-            {formatMessageTime(message.sentAt)}
-          </p>
+          {isLastInGroup ? (
+            <p className={`mt-1.5 px-1 text-[11px] font-medium text-slate-400 ${mine ? 'text-right' : ''}`}>
+              {formatMessageTime(message.sentAt)}
+            </p>
+          ) : null}
         </div>
       </div>
     </div>
@@ -1079,8 +1203,8 @@ function MessageThreadLoading() {
 
 function MentorMessagesWorkspaceLoading() {
   return (
-    <div className="overflow-hidden rounded-[34px] border border-slate-200 bg-white shadow-sm">
-      <div className="grid min-h-[calc(100vh-180px)] xl:grid-cols-[360px_minmax(0,1fr)_320px]">
+    <div className="overflow-hidden rounded-[24px] border border-slate-200 bg-white shadow-sm">
+      <div className="grid h-[calc(100vh-104px)] xl:grid-cols-[360px_minmax(0,1fr)_320px]">
         <div className="border-r border-slate-100 p-5">
           <div className="h-10 w-40 animate-pulse rounded-full bg-slate-100" />
           <div className="mt-4 h-11 w-full animate-pulse rounded-2xl bg-slate-100" />
@@ -1127,10 +1251,10 @@ function MentorMessagesWorkspaceLoading() {
 }
 
 function formatContextLabel(referenceType?: string) {
-  if (referenceType === 'CONTRACT') return 'Contract'
-  if (referenceType === 'PROPOSAL') return 'Proposal'
-  if (referenceType === 'JOB') return 'Job'
-  return 'General'
+  if (referenceType === 'CONTRACT') return 'Hợp đồng'
+  if (referenceType === 'PROPOSAL') return 'Đề xuất'
+  if (referenceType === 'JOB') return 'Công việc'
+  return 'Chung'
 }
 
 function getContextTitle(room: ChatRoomResponse) {
@@ -1160,21 +1284,21 @@ function getJobStatusTone(status?: string) {
 function getParticipantRoleLabel(room: ChatRoomResponse, currentUserId?: string) {
   const otherMember = room.members.find((member) => member.userId !== currentUserId) || room.members[0]
   if (room.referenceType === 'CONTRACT' || room.referenceType === 'PROPOSAL' || room.referenceType === 'JOB') {
-    return 'Client'
+    return 'Khách hàng'
   }
   const rawRole = otherMember?.memberRole?.toUpperCase()
-  if (rawRole?.includes('ADMIN')) return 'Admin'
-  if (rawRole?.includes('SYSTEM')) return 'System'
+  if (rawRole?.includes('ADMIN')) return 'Quản trị viên'
+  if (rawRole?.includes('SYSTEM')) return 'Hệ thống'
   if (rawRole?.includes('MENTOR')) return 'Mentor'
-  if (rawRole?.includes('CLIENT') || rawRole?.includes('USER')) return 'Client'
-  return 'Participant'
+  if (rawRole?.includes('CLIENT') || rawRole?.includes('USER')) return 'Khách hàng'
+  return 'Người tham gia'
 }
 
 function getContextStatusLabel(room: ChatRoomResponse, contextMaps: ConversationContextMaps) {
   if (room.referenceType === 'CONTRACT' && room.referenceId) {
     const contract = contextMaps.contractMap[room.referenceId]
     if (!contract) return undefined
-    return contract.status === 'ACTIVE' && contract.fundsInEscrow ? 'Escrow locked' : contractStatusLabel[contract.status] || contract.status
+    return contract.status === 'ACTIVE' && contract.fundsInEscrow ? 'Đã khóa Escrow' : contractStatusLabel[contract.status] || contract.status
   }
   if (room.referenceType === 'PROPOSAL' && room.referenceId) {
     const proposal = contextMaps.proposalMap[room.referenceId]
@@ -1206,31 +1330,31 @@ function getContextStatusTone(room: ChatRoomResponse, contextMaps: ConversationC
 }
 
 function getConversationStateLabel(room: ChatRoomResponse, currentUserId: string) {
-  if (!room.lastMessagePreview && !room.lastMessageAt) return 'No messages yet'
-  if (room.unreadCount > 0) return 'Unread'
-  if (room.lastMessageSenderId === currentUserId) return 'Waiting for client'
-  return 'Waiting for you'
+  if (!room.lastMessagePreview && !room.lastMessageAt) return 'Chưa có tin nhắn'
+  if (room.unreadCount > 0) return 'Chưa đọc'
+  if (room.lastMessageSenderId === currentUserId) return 'Đang đợi khách hàng'
+  return 'Đang đợi bạn'
 }
 
 function getConversationStateTone(room: ChatRoomResponse, currentUserId: string) {
   const state = getConversationStateLabel(room, currentUserId)
-  if (state === 'Unread') return 'border-emerald-200 bg-emerald-50 text-emerald-700'
-  if (state === 'Waiting for client') return 'border-amber-200 bg-amber-50 text-amber-700'
-  if (state === 'Waiting for you') return 'border-rose-200 bg-rose-50 text-rose-700'
+  if (state === 'Chưa đọc') return 'border-emerald-200 bg-emerald-50 text-emerald-700'
+  if (state === 'Đang đợi khách hàng') return 'border-amber-200 bg-amber-50 text-amber-700'
+  if (state === 'Đang đợi bạn') return 'border-rose-200 bg-rose-50 text-rose-700'
   return 'border-slate-200 bg-slate-100 text-slate-600'
 }
 
 function formatJobBudget(job: JobResponse) {
-  if (job.budgetType === 'HOURLY' && job.hourlyRateMxc) return `${formatCurrency(job.hourlyRateMxc)}/hr`
+  if (job.budgetType === 'HOURLY' && job.hourlyRateMxc) return `${formatCurrency(job.hourlyRateMxc)}/giờ`
   if (job.budgetMinMxc || job.budgetMaxMxc) {
     if (job.budgetMinMxc && job.budgetMaxMxc) return `${formatCurrency(job.budgetMinMxc)} - ${formatCurrency(job.budgetMaxMxc)}`
     return formatCurrency(job.budgetMaxMxc || job.budgetMinMxc || 0)
   }
-  return 'Budget flexible'
+  return 'Ngân sách linh hoạt'
 }
 
 function formatRoomDate(value: string) {
-  return new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' }).format(new Date(value))
+  return new Intl.DateTimeFormat('vi-VN', { month: 'short', day: 'numeric' }).format(new Date(value))
 }
 
 function truncateText(value?: string, limit = 120) {

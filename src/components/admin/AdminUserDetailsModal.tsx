@@ -57,12 +57,12 @@ export default function AdminUserDetailsModal({ isOpen, onClose, user }: AdminUs
         message: notifContent,
         notificationType: 'SYSTEM_ANNOUNCEMENT'
       })
-      toast.success('Notification sent successfully')
+      toast.success('Đã gửi thông báo thành công')
       setIsNotifModalOpen(false)
       setNotifTitle('')
       setNotifContent('')
     } catch (error) {
-      toast.error('Failed to send notification')
+      toast.error('Không thể gửi thông báo')
     } finally {
       setIsSendingNotif(false)
     }

@@ -44,7 +44,7 @@ export default function AdminNotifyModal({ isOpen, onClose, userId, referenceId,
     const finalMessage = customMessage || (selectedTemplate !== null ? templates[selectedTemplate].content : '')
     
     if (!finalMessage) {
-      toast.error('Please select a template or enter a message')
+      toast.error('Vui lòng chọn một mẫu thông báo hoặc nhập nội dung')
       return
     }
 
@@ -65,11 +65,11 @@ export default function AdminNotifyModal({ isOpen, onClose, userId, referenceId,
       if (onConfirm) {
         onConfirm(content)
       } else {
-        toast.success('Notification sent to user')
+        toast.success('Đã gửi thông báo cho người dùng')
       }
       onClose()
     } catch (error) {
-      toast.error('Failed to send notification')
+      toast.error('Không thể gửi thông báo')
     } finally {
       setIsSending(false)
     }

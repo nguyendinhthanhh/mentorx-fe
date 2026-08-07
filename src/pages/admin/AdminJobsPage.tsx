@@ -47,7 +47,7 @@ export default function AdminJobsPage() {
       jobApi.updateStatus(jobId, status, reason),
     {
       onSuccess: () => {
-        toast.success('Job status updated')
+        toast.success('Đã cập nhật trạng thái công việc')
         queryClient.invalidateQueries('admin-jobs')
         setIsArchiveModalOpen(false)
       },
@@ -61,7 +61,7 @@ export default function AdminJobsPage() {
     (jobId: string) => jobApi.delete(jobId),
     {
       onSuccess: () => {
-        toast.success('Job deleted successfully')
+        toast.success('Xóa công việc thành công')
         queryClient.invalidateQueries('admin-jobs')
       },
       onError: (error: any) => {
@@ -80,7 +80,7 @@ export default function AdminJobsPage() {
       jobApi.update(jobId, { isFeatured }),
     {
       onSuccess: () => {
-        toast.success('Featured status updated')
+        toast.success('Đã cập nhật trạng thái nổi bật')
         queryClient.invalidateQueries('admin-jobs')
       },
       onError: (error: any) => {

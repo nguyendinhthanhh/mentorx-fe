@@ -630,7 +630,7 @@ export default function MentorCourseManagePage() {
         setError('')
         queryClient.invalidateQueries(['course', courseId])
       },
-      onError: (err: any) => setError(err.message || err.response?.data?.message || 'Failed to update course details.'),
+      onError: (err: any) => setError(err.message || err.response?.data?.message || 'Cập nhật thông tin thất bại.'),
     }
   )
 
@@ -642,7 +642,7 @@ export default function MentorCourseManagePage() {
         queryClient.invalidateQueries(['reviews', ReviewTargetType.COURSE, courseId, 'mentor-manage'])
         queryClient.invalidateQueries(['reviews', ReviewTargetType.COURSE, courseId])
       },
-      onError: (err: any) => setError(err.message || err.response?.data?.message || 'Failed to save review response.'),
+      onError: (err: any) => setError(err.message || err.response?.data?.message || 'Gửi phản hồi thất bại.'),
     }
   )
 
@@ -655,7 +655,7 @@ export default function MentorCourseManagePage() {
         queryClient.invalidateQueries(['course-qa-summary', courseId])
         queryClient.invalidateQueries(['mentor-course-qa-summaries'])
       },
-      onError: (err: any) => setError(err.message || err.response?.data?.message || 'Failed to send Q&A reply.'),
+      onError: (err: any) => setError(err.message || err.response?.data?.message || 'Gửi phản hồi Q&A thất bại.'),
     }
   )
 
@@ -666,7 +666,7 @@ export default function MentorCourseManagePage() {
       queryClient.invalidateQueries(['course', courseId])
       queryClient.invalidateQueries(['course-stats', courseId])
     },
-    onError: (err: any) => setError(err.message || err.response?.data?.message || 'Failed to archive product.'),
+    onError: (err: any) => setError(err.message || err.response?.data?.message || 'Lưu trữ thất bại.'),
   })
 
   const deleteCourseMutation = useMutation(() => courseApi.delete(courseId!), {
@@ -674,7 +674,7 @@ export default function MentorCourseManagePage() {
       setConfirmAction(null)
       navigate('/mentor/courses')
     },
-    onError: (err: any) => setError(err.message || err.response?.data?.message || 'Failed to delete product.'),
+    onError: (err: any) => setError(err.message || err.response?.data?.message || 'Xóa thất bại.'),
   })
 
   const actionLoading = archiveCourseMutation.isLoading || deleteCourseMutation.isLoading
@@ -903,23 +903,23 @@ export default function MentorCourseManagePage() {
     <div className="min-h-[calc(100vh-8rem)] space-y-4">
       <Link to="/mentor/courses" className="inline-flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-slate-900">
         <ArrowLeft className="h-4 w-4" />
-        Back to products
+        Quay lại
       </Link>
 
       <div className="flex flex-col gap-4 border-b border-slate-200 pb-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <p className="text-xs font-black uppercase tracking-widest text-emerald-600">{course?.status || 'PUBLISHED'}</p>
-          <h1 className="text-2xl font-black text-slate-900">{course?.title || 'Course editor'}</h1>
+          <p className="text-xs font-black uppercase tracking-widest text-emerald-600">{course?.status || 'ĐANG MỞ'}</p>
+          <h1 className="text-2xl font-black text-slate-900">{course?.title || 'Quản lý Khóa học'}</h1>
         </div>
         <div className="flex flex-wrap gap-2">
-          {activeTab === 'content' && dirty && <span className="rounded-full bg-amber-50 px-3 py-2 text-xs font-black text-amber-700">Unsaved changes</span>}
-          {(activeTab === 'info' || activeTab === 'sale') && (detailsDirty || (isDocumentProduct && dirty)) && <span className="rounded-full bg-amber-50 px-3 py-2 text-xs font-black text-amber-700">Unsaved info</span>}
+          {activeTab === 'content' && dirty && <span className="rounded-full bg-amber-50 px-3 py-2 text-xs font-black text-amber-700">Chưa lưu</span>}
+          {(activeTab === 'info' || activeTab === 'sale') && (detailsDirty || (isDocumentProduct && dirty)) && <span className="rounded-full bg-amber-50 px-3 py-2 text-xs font-black text-amber-700">Chưa lưu</span>}
           {courseId && (
             <Link
               to={`/courses/${courseId}`}
               className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 shadow-md hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 hover:bg-emerald-700 px-4 py-2 text-sm font-bold text-white hover:bg-slate-800"
             >
-              View course page
+              Xem trang khóa học
             </Link>
           )}
           {course?.status === CourseStatus.PUBLISHED && (
@@ -930,18 +930,18 @@ export default function MentorCourseManagePage() {
               className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-60"
             >
               <Archive className="h-4 w-4" />
-              Archive
+              Lưu trữ
             </button>
           )}
           <button
             type="button"
             onClick={() => setConfirmAction('delete')}
             disabled={!course || totalEnrollments > 0 || actionLoading}
-            title={totalEnrollments > 0 ? 'Products with enrollments cannot be deleted. Archive instead.' : 'Delete product'}
+            title={totalEnrollments > 0 ? 'Không thể xóa khi đã có lượt đăng ký. Vui lòng chọn Lưu trữ.' : 'Xóa'}
             className="inline-flex items-center gap-2 rounded-xl border border-rose-200 px-4 py-2 text-sm font-bold text-rose-600 hover:bg-rose-50 disabled:cursor-not-allowed disabled:border-slate-200 disabled:text-slate-300"
           >
             <Trash2 className="h-4 w-4" />
-            Delete
+            Xóa
           </button>
         </div>
       </div>
@@ -950,7 +950,7 @@ export default function MentorCourseManagePage() {
         <div className="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-900">
           <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" />
           <div>
-            <p className="font-black">Admin review note</p>
+            <p className="font-black">Lưu ý từ Admin</p>
             <p className="mt-1 leading-6">{course.rejectionReason}</p>
           </div>
         </div>
@@ -962,28 +962,28 @@ export default function MentorCourseManagePage() {
           onClick={() => setActiveTab('info')}
           className={`shrink-0 rounded-xl px-4 py-2 text-sm font-black ${activeTab === 'info' ? 'bg-emerald-600 text-white' : 'text-slate-600 hover:bg-slate-50'}`}
         >
-          {isDocumentProduct ? 'Document info' : 'Course info'}
+          {isDocumentProduct ? 'Thông tin Tài liệu' : 'Thông tin Khóa học'}
         </button>
         {!isDocumentProduct && <button
           type="button"
           onClick={() => setActiveTab('content')}
           className={`shrink-0 rounded-xl px-4 py-2 text-sm font-black ${activeTab === 'content' ? 'bg-emerald-600 text-white' : 'text-slate-600 hover:bg-slate-50'}`}
         >
-          Course content
+          Nội dung Khóa học
         </button>}
         <button
           type="button"
           onClick={() => setActiveTab('sale')}
           className={`shrink-0 rounded-xl px-4 py-2 text-sm font-black ${activeTab === 'sale' ? 'bg-emerald-600 text-white' : 'text-slate-600 hover:bg-slate-50'}`}
         >
-          Sales
+          Doanh thu
         </button>
         <button
           type="button"
           onClick={() => setActiveTab('qa')}
           className={`shrink-0 rounded-xl px-4 py-2 text-sm font-black ${activeTab === 'qa' ? 'bg-emerald-600 text-white' : 'text-slate-600 hover:bg-slate-50'}`}
         >
-          Q&A
+          Hỏi đáp
           {(qaSummary?.unansweredLearners || 0) > 0 && (
             <span className={`ml-2 rounded-full px-2 py-0.5 text-[10px] ${activeTab === 'qa' ? 'bg-white/20 text-white' : 'bg-rose-50 text-rose-700'}`}>
               {qaSummary?.unansweredLearners}
@@ -996,7 +996,7 @@ export default function MentorCourseManagePage() {
             onClick={() => setActiveTab('reviews')}
             className={`shrink-0 rounded-xl px-4 py-2 text-sm font-black ${activeTab === 'reviews' ? 'bg-emerald-600 text-white' : 'text-slate-600 hover:bg-slate-50'}`}
           >
-            Reviews
+            Đánh giá
           </button>
         )}
       </div>
@@ -1004,19 +1004,19 @@ export default function MentorCourseManagePage() {
       {activeTab === 'info' && (
         <section className="rounded-2xl border border-slate-200 bg-white p-5">
           <div className="mb-5">
-            <h2 className="text-base font-black text-slate-900">{isDocumentProduct ? 'Document info' : 'Course info'}</h2>
+            <h2 className="text-base font-black text-slate-900">{isDocumentProduct ? 'Thông tin tài liệu' : 'Thông tin khóa học'}</h2>
             <p className="text-sm font-medium text-slate-500">
               {isDocumentProduct
-                ? 'Manage the document listing, cover image, and downloadable file.'
-                : 'Title, price, domain, skills, level, language, and preview media.'}
+                ? 'Quản lý danh sách, ảnh bìa và file tải xuống của tài liệu.'
+                : 'Tiêu đề, giá, lĩnh vực, kỹ năng, cấp độ, ngôn ngữ và ảnh/video xem trước.'}
             </p>
           </div>
           <div className="space-y-4">
               <div className="grid gap-4 md:grid-cols-2">
-                <Field label={isDocumentProduct ? 'Document title' : 'Course title'}>
+                <Field label={isDocumentProduct ? 'Tiêu đề tài liệu' : 'Tiêu đề khóa học'}>
                   <input value={courseDetails.title} onChange={(event) => updateCourseDetails({ title: event.target.value })} className={editorInputClass} />
                 </Field>
-                <Field label="Price (MXC)">
+                <Field label="Giá (MXC)">
                   <input
                     type="number"
                     min="0"
@@ -1027,16 +1027,16 @@ export default function MentorCourseManagePage() {
                     disabled={!!course?.publishedAt}
                   />
                   {!!course?.publishedAt && (
-                    <p className="mt-1 text-xs font-semibold text-slate-500">Price is locked after publication.</p>
+                    <p className="mt-1 text-xs font-semibold text-slate-500">Giá không thể thay đổi sau khi đã xuất bản.</p>
                   )}
                 </Field>
               </div>
-              <Field label="Description">
+              <Field label="Mô tả">
                 <textarea value={courseDetails.description} onChange={(event) => updateCourseDetails({ description: event.target.value })} className={`${editorInputClass} min-h-28`} />
               </Field>
               <div className={`grid gap-4 ${isDocumentProduct ? 'md:grid-cols-1' : 'md:grid-cols-2'}`}>
                 <CourseMediaDropZone
-                  label={isDocumentProduct ? 'Document cover image' : 'Course thumbnail'}
+                  label={isDocumentProduct ? 'Ảnh bìa tài liệu' : 'Ảnh đại diện khóa học'}
                   kind="image"
                   file={courseDetails.pendingThumbnailFile}
                   mediaUrl={courseDetails.thumbnailUrl}
@@ -1044,7 +1044,7 @@ export default function MentorCourseManagePage() {
                   onClear={() => clearCourseMedia('image')}
                 />
                 {!isDocumentProduct && <CourseMediaDropZone
-                  label="Preview video"
+                  label="Video xem trước"
                   kind="video"
                   file={courseDetails.pendingPreviewVideoFile}
                   mediaUrl={courseDetails.previewVideoUrl}
@@ -1061,7 +1061,7 @@ export default function MentorCourseManagePage() {
                 />
               )}
               <div className="grid gap-4 md:grid-cols-3">
-                <Field label="Domain">
+                <Field label="Lĩnh vực">
                   <div className="rounded-xl border border-slate-200 p-3">
                     <div className="relative">
                       <input
@@ -1073,7 +1073,7 @@ export default function MentorCourseManagePage() {
                         onFocus={() => setIsCategoryMenuOpen(true)}
                         onBlur={() => window.setTimeout(() => setIsCategoryMenuOpen(false), 120)}
                         className={editorInputClass}
-                        placeholder="Type a domain"
+                        placeholder="Nhập lĩnh vực"
                         autoComplete="off"
                       />
                       {isCategoryMenuOpen && (
@@ -1092,31 +1092,31 @@ export default function MentorCourseManagePage() {
                               </button>
                             ))
                           ) : (
-                            <div className="px-3 py-2 text-sm text-slate-500">No matching active domains.</div>
+                            <div className="px-3 py-2 text-sm text-slate-500">Không có lĩnh vực nào phù hợp.</div>
                           )}
                         </div>
                       )}
                     </div>
                   </div>
                 </Field>
-                <Field label="Language">
+                <Field label="Ngôn ngữ">
                   <select value={courseDetails.language} onChange={(event) => updateCourseDetails({ language: event.target.value as SupportedLanguage })} className={editorInputClass}>
-                    <option value={SupportedLanguage.EN}>English</option>
-                    <option value={SupportedLanguage.VI}>Vietnamese</option>
-                    <option value={SupportedLanguage.ZH}>Chinese</option>
-                    <option value={SupportedLanguage.JA}>Japanese</option>
+                    <option value={SupportedLanguage.EN}>Tiếng Anh</option>
+                    <option value={SupportedLanguage.VI}>Tiếng Việt</option>
+                    <option value={SupportedLanguage.ZH}>Tiếng Trung</option>
+                    <option value={SupportedLanguage.JA}>Tiếng Nhật</option>
                   </select>
                 </Field>
-                <Field label="Level">
+                <Field label="Cấp độ">
                   <select value={courseDetails.level} onChange={(event) => updateCourseDetails({ level: event.target.value })} className={editorInputClass}>
-                    <option value="Beginner">Beginner</option>
-                    <option value="Intermediate">Intermediate</option>
-                    <option value="Advanced">Advanced</option>
-                    <option value="Expert">Expert</option>
+                    <option value="Beginner">Người mới bắt đầu</option>
+                    <option value="Intermediate">Trung cấp</option>
+                    <option value="Advanced">Cao cấp</option>
+                    <option value="Expert">Chuyên gia</option>
                   </select>
                 </Field>
               </div>
-              <Field label="Skills">
+              <Field label="Kỹ năng">
                 <div className="rounded-xl border border-slate-200 p-3">
                   <div className="relative">
                     <input
@@ -1137,7 +1137,7 @@ export default function MentorCourseManagePage() {
                         }
                       }}
                       className={editorInputClass}
-                      placeholder="Search skills, e.g. React, Java, Data Science"
+                      placeholder="Tìm kiếm kỹ năng, vd. React, Java, Data Science"
                       autoComplete="off"
                     />
                     {isSkillMenuOpen && (
@@ -1151,8 +1151,8 @@ export default function MentorCourseManagePage() {
                                 onClick={commitCourseSkillQuery}
                                 className="flex w-full flex-col rounded-lg px-3 py-2 text-left text-emerald-700 hover:bg-emerald-50"
                               >
-                                <span className="text-sm font-black">Add "{normalizeLabel(skillQuery)}"</span>
-                                <span className="text-xs">Use this skill for the course</span>
+                                <span className="text-sm font-black">Thêm "{normalizeLabel(skillQuery)}"</span>
+                                <span className="text-xs">Sử dụng kỹ năng này cho khóa học</span>
                               </button>
                             )}
                             {suggestedCourseSkills.map((skill: SkillResponse) => (
@@ -1176,8 +1176,8 @@ export default function MentorCourseManagePage() {
                             disabled={!normalizeLabel(skillQuery)}
                             className="flex w-full flex-col rounded-lg px-3 py-2 text-left text-emerald-700 hover:bg-emerald-50 disabled:cursor-not-allowed disabled:text-slate-400"
                           >
-                            <span className="text-sm font-black">{normalizeLabel(skillQuery) ? `Add "${normalizeLabel(skillQuery)}"` : 'No matching active skills.'}</span>
-                            {normalizeLabel(skillQuery) && <span className="text-xs">Use this skill for the course</span>}
+                            <span className="text-sm font-black">{normalizeLabel(skillQuery) ? `Thêm "${normalizeLabel(skillQuery)}"` : 'Không có kỹ năng nào phù hợp.'}</span>
+                            {normalizeLabel(skillQuery) && <span className="text-xs">Sử dụng kỹ năng này cho khóa học</span>}
                           </button>
                         )}
                       </div>
@@ -1187,19 +1187,19 @@ export default function MentorCourseManagePage() {
                     {selectedCourseSkills.map((skill: SkillChip) => (
                       <span key={skill.label.toLowerCase()} className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-sm font-semibold text-emerald-700">
                         {skill.label}
-                        <button type="button" onClick={() => removeCourseSkill(skill.label)} className="text-emerald-400 hover:text-emerald-700" title="Remove skill">
+                        <button type="button" onClick={() => removeCourseSkill(skill.label)} className="text-emerald-400 hover:text-emerald-700" title="Xóa kỹ năng">
                           <X className="h-3.5 w-3.5" />
                         </button>
                       </span>
                     ))}
-                    {selectedCourseSkills.length === 0 && <span className="text-sm text-slate-400">No skills selected.</span>}
+                    {selectedCourseSkills.length === 0 && <span className="text-sm text-slate-400">Chưa chọn kỹ năng.</span>}
                   </div>
                 </div>
               </Field>
               <div className="space-y-3">
                 {!isDocumentProduct && (
                 <div className="rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-700">
-                  Certificate is included upon completion
+                  Cấp chứng chỉ khi hoàn thành
                 </div>
                 )}
                 <div>
@@ -1210,7 +1210,7 @@ export default function MentorCourseManagePage() {
                     className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 shadow-md hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 hover:bg-emerald-700 px-4 py-2 text-sm font-bold text-white disabled:bg-slate-300"
                   >
                     {updateCourseDetailsMutation.isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                    Save {isDocumentProduct ? 'document' : 'course'} details
+                    Lưu thông tin {isDocumentProduct ? 'tài liệu' : 'khóa học'}
                   </button>
                 </div>
               </div>
@@ -1222,39 +1222,39 @@ export default function MentorCourseManagePage() {
         <section className="space-y-5 rounded-2xl border border-slate-200 bg-white p-5">
           <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
             <div>
-              <h2 className="text-base font-black text-slate-900">Sales</h2>
-              <p className="text-sm font-medium text-slate-500">Track course sales performance and manage the scheduled sale window.</p>
+              <h2 className="text-base font-black text-slate-900">Doanh thu</h2>
+              <p className="text-sm font-medium text-slate-500">Theo dõi doanh thu khóa học và quản lý giảm giá.</p>
             </div>
             {course?.activeDiscount ? (
-              <span className="rounded-full bg-emerald-50 px-3 py-2 text-xs font-black text-emerald-700">Sale active</span>
+              <span className="rounded-full bg-emerald-50 px-3 py-2 text-xs font-black text-emerald-700">Đang giảm giá</span>
             ) : (
-              <span className="rounded-full bg-slate-100 px-3 py-2 text-xs font-black text-slate-600">No active sale</span>
+              <span className="rounded-full bg-slate-100 px-3 py-2 text-xs font-black text-slate-600">Không có giảm giá</span>
             )}
           </div>
 
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-            <SaleMetricCard label="Lifetime revenue" value={formatCurrency(saleStats.totalRevenue)} helper={`${totalEnrollments} total enrollments`} icon={<CircleDollarSign className="h-5 w-5" />} />
-            <SaleMetricCard label="Last 7 days" value={formatCurrency(saleStats.last7Revenue)} helper={`${saleStats.last7Enrollments} new enrollments`} icon={<TrendingUp className="h-5 w-5" />} tone="emerald" />
-            <SaleMetricCard label="Previous 7 days" value={formatCurrency(saleStats.previous7Revenue)} helper={`${saleStats.previous7Enrollments} enrollments`} icon={<Calendar className="h-5 w-5" />} tone="slate" />
-            <SaleMetricCard label="7-day change" value={saleStats.revenueDeltaPercent == null ? 'New' : `${saleStats.revenueDeltaPercent >= 0 ? '+' : ''}${saleStats.revenueDeltaPercent}%`} helper={`${saleStats.revenueDelta >= 0 ? '+' : ''}${formatCurrency(saleStats.revenueDelta)} vs previous period`} icon={<Users className="h-5 w-5" />} tone={saleStats.revenueDelta >= 0 ? 'emerald' : 'rose'} />
+            <SaleMetricCard label="Tổng doanh thu" value={formatCurrency(saleStats.totalRevenue)} helper={`${totalEnrollments} lượt đăng ký`} icon={<CircleDollarSign className="h-5 w-5" />} />
+            <SaleMetricCard label="7 ngày qua" value={formatCurrency(saleStats.last7Revenue)} helper={`${saleStats.last7Enrollments} lượt đăng ký mới`} icon={<TrendingUp className="h-5 w-5" />} tone="emerald" />
+            <SaleMetricCard label="7 ngày trước đó" value={formatCurrency(saleStats.previous7Revenue)} helper={`${saleStats.previous7Enrollments} lượt đăng ký`} icon={<Calendar className="h-5 w-5" />} tone="slate" />
+            <SaleMetricCard label="Thay đổi trong 7 ngày" value={saleStats.revenueDeltaPercent == null ? 'Mới' : `${saleStats.revenueDeltaPercent >= 0 ? '+' : ''}${saleStats.revenueDeltaPercent}%`} helper={`${saleStats.revenueDelta >= 0 ? '+' : ''}${formatCurrency(saleStats.revenueDelta)} so với khoảng thời gian trước`} icon={<Users className="h-5 w-5" />} tone={saleStats.revenueDelta >= 0 ? 'emerald' : 'rose'} />
           </div>
 
           <div className="grid gap-4 lg:grid-cols-[1fr_1.3fr]">
             <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-              <p className="text-xs font-black uppercase tracking-widest text-slate-400">Current pricing</p>
+              <p className="text-xs font-black uppercase tracking-widest text-slate-400">Giá hiện tại</p>
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                <PriceStat label="Base price" value={formatCurrency(saleStats.basePrice)} />
-                <PriceStat label="Effective price" value={saleStats.effectivePrice ? formatCurrency(saleStats.effectivePrice) : 'Free'} />
-                <PriceStat label="Discount" value={saleStats.discountAmount ? formatCurrency(saleStats.discountAmount) : 'None'} />
-                <PriceStat label="Discount rate" value={saleStats.discountPercent ? `${saleStats.discountPercent}%` : '0%'} />
+                <PriceStat label="Giá gốc" value={formatCurrency(saleStats.basePrice)} />
+                <PriceStat label="Giá áp dụng" value={saleStats.effectivePrice ? formatCurrency(saleStats.effectivePrice) : 'Miễn phí'} />
+                <PriceStat label="Giảm giá" value={saleStats.discountAmount ? formatCurrency(saleStats.discountAmount) : 'Không'} />
+                <PriceStat label="Tỷ lệ giảm giá" value={saleStats.discountPercent ? `${saleStats.discountPercent}%` : '0%'} />
               </div>
             </div>
 
             <div className="rounded-2xl border border-slate-200 p-4">
               <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
-                  <p className="text-sm font-black text-slate-900">Sale schedule</p>
-                  <p className="text-xs font-semibold text-slate-500">Set or clear the scheduled sale window.</p>
+                  <p className="text-sm font-black text-slate-900">Lịch giảm giá</p>
+                  <p className="text-xs font-semibold text-slate-500">Cài đặt hoặc xóa lịch giảm giá.</p>
                 </div>
                 {(courseDetails.discountPriceMxc || courseDetails.discountStartAt || courseDetails.discountEndAt || course?.discountPriceMxc) && (
                   <button
@@ -1267,13 +1267,13 @@ export default function MentorCourseManagePage() {
                     })}
                     className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-black text-slate-600 hover:bg-rose-50 hover:text-rose-600"
                   >
-                    Clear sale
+                    Xóa giảm giá
                   </button>
                 )}
               </div>
 
               <div className="grid gap-4 md:grid-cols-3">
-                <Field label="Sale price (MXC)">
+                <Field label="Giá khuyến mãi (MXC)">
                   <input
                     type="number"
                     min="0"
@@ -1281,10 +1281,10 @@ export default function MentorCourseManagePage() {
                     value={courseDetails.discountPriceMxc}
                     onChange={(event) => updateCourseDetails({ discountPriceMxc: event.target.value, clearDiscount: false })}
                     className={editorInputClass}
-                    placeholder="Lower than base price"
+                    placeholder="Nhỏ hơn giá gốc"
                   />
                 </Field>
-                <Field label="Starts">
+                <Field label="Bắt đầu">
                   <input
                     type="datetime-local"
                     value={courseDetails.discountStartAt}
@@ -1292,7 +1292,7 @@ export default function MentorCourseManagePage() {
                     className={editorInputClass}
                   />
                 </Field>
-                <Field label="Ends">
+                <Field label="Kết thúc">
                   <input
                     type="datetime-local"
                     value={courseDetails.discountEndAt}
@@ -1303,7 +1303,7 @@ export default function MentorCourseManagePage() {
               </div>
 
               {courseDetails.clearDiscount && (
-                <p className="mt-3 rounded-xl bg-amber-50 px-4 py-3 text-xs font-bold text-amber-700">Save sale schedule to remove the current sale.</p>
+                <p className="mt-3 rounded-xl bg-amber-50 px-4 py-3 text-xs font-bold text-amber-700">Lưu lịch giảm giá để xóa giảm giá hiện tại.</p>
               )}
 
               <button
@@ -1313,7 +1313,7 @@ export default function MentorCourseManagePage() {
                 className="mt-4 inline-flex items-center gap-2 rounded-xl bg-emerald-600 shadow-md hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 hover:bg-emerald-700 px-4 py-2 text-sm font-bold text-white disabled:bg-slate-300"
               >
                 {updateCourseDetailsMutation.isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                Save sale schedule
+                Lưu lịch giảm giá
               </button>
             </div>
           </div>
@@ -1326,8 +1326,8 @@ export default function MentorCourseManagePage() {
         <div className="grid h-[calc(100vh-15rem)] min-h-[520px] overflow-hidden lg:grid-cols-[320px_1fr]">
           <aside className="min-h-0 overflow-y-auto border-r border-slate-200 bg-slate-50">
           <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-slate-50 p-4">
-            <h2 className="text-sm font-black uppercase tracking-widest text-slate-500">{isDocumentProduct ? 'Document' : 'Sections'}</h2>
-            {!isDocumentProduct && <button onClick={addSection} className="rounded-lg p-2 text-slate-500 hover:bg-white hover:text-emerald-600" title="Add section">
+            <h2 className="text-sm font-black uppercase tracking-widest text-slate-500">{isDocumentProduct ? 'Tài liệu' : 'Phần'}</h2>
+            {!isDocumentProduct && <button onClick={addSection} className="rounded-lg p-2 text-slate-500 hover:bg-white hover:text-emerald-600" title="Thêm phần">
               <Plus className="h-5 w-5" />
             </button>}
           </div>
@@ -1343,13 +1343,13 @@ export default function MentorCourseManagePage() {
                     onClick={() => setSelection({ type: 'section', sectionClientId: section.clientId })}
                     className="min-w-0 flex-1 rounded-lg px-1 py-1 text-left hover:bg-slate-50"
                   >
-                    <span className="block truncate text-sm font-black">{sectionIndex + 1}. {section.title || 'Untitled section'}</span>
+                    <span className="block truncate text-sm font-black">{sectionIndex + 1}. {section.title || 'Phần chưa có tiêu đề'}</span>
                   </button>
                   {!isDocumentProduct && <button
                     onClick={() => removeSection(section.clientId)}
                     className="rounded-lg p-2 text-slate-400 hover:bg-rose-50 hover:text-rose-600"
-                    title="Delete section"
-                    aria-label={`Delete ${section.title || 'section'}`}
+                    title="Xóa phần"
+                    aria-label={`Xóa ${section.title || 'phần'}`}
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>}
@@ -1369,13 +1369,13 @@ export default function MentorCourseManagePage() {
                         className="flex min-w-0 flex-1 items-center gap-2 rounded-md px-1 py-1 text-left"
                       >
                         {lesson.lessonType === LessonType.QUIZ ? <HelpCircle className="h-4 w-4 shrink-0" /> : <FileText className="h-4 w-4 shrink-0" />}
-                        <span className="truncate">{sectionIndex + 1}.{lessonIndex + 1} {lesson.title || 'Untitled'}</span>
+                        <span className="truncate">{sectionIndex + 1}.{lessonIndex + 1} {lesson.title || 'Chưa có tiêu đề'}</span>
                       </button>
                       {!isDocumentProduct && <button
                         onClick={() => removeLesson(section.clientId, lesson.clientId)}
                         className="rounded-md p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-600"
-                        title={lesson.lessonType === LessonType.QUIZ ? 'Delete quiz' : 'Delete lesson'}
-                        aria-label={`Delete ${lesson.title || (lesson.lessonType === LessonType.QUIZ ? 'quiz' : 'lesson')}`}
+                        title={lesson.lessonType === LessonType.QUIZ ? 'Xóa bài trắc nghiệm' : 'Xóa bài học'}
+                        aria-label={`Xóa ${lesson.title || (lesson.lessonType === LessonType.QUIZ ? 'bài trắc nghiệm' : 'bài học')}`}
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                       </button>}
@@ -1383,16 +1383,16 @@ export default function MentorCourseManagePage() {
                   ))}
                   {!isDocumentProduct && <div className="grid grid-cols-2 gap-1 pt-1">
                     <button onClick={() => addLesson(section.clientId, LessonType.LESSON)} className="rounded-lg border border-slate-200 px-2 py-1.5 text-xs font-bold text-slate-600 hover:border-emerald-200 hover:text-emerald-600">
-                      + Lesson
+                      + Bài học
                     </button>
                     <button onClick={() => addLesson(section.clientId, LessonType.QUIZ)} className="rounded-lg border border-slate-200 px-2 py-1.5 text-xs font-bold text-slate-600 hover:border-emerald-200 hover:text-emerald-600">
-                      + Quiz
+                      + Trắc nghiệm
                     </button>
                   </div>}
                 </div>
               </div>
             ))}
-            {sections.length === 0 && <p className="rounded-xl border border-dashed border-slate-300 p-4 text-sm font-semibold text-slate-500">Use the plus button to add your first section.</p>}
+            {sections.length === 0 && <p className="rounded-xl border border-dashed border-slate-300 p-4 text-sm font-semibold text-slate-500">Sử dụng nút cộng để thêm phần đầu tiên.</p>}
           </div>
           </aside>
 
@@ -1418,14 +1418,14 @@ export default function MentorCourseManagePage() {
           </main>
         </div>
         <div className="flex items-center justify-between gap-3 border-t border-slate-200 bg-slate-50 px-5 py-4">
-          <p className="text-xs font-bold text-slate-500">{dirty ? 'You have unsaved course content changes.' : 'Course content is up to date.'}</p>
+          <p className="text-xs font-bold text-slate-500">{dirty ? 'Bạn có thay đổi nội dung khóa học chưa lưu.' : 'Nội dung khóa học đã được cập nhật.'}</p>
           <button
             onClick={() => saveMutation.mutate()}
             disabled={saveMutation.isLoading}
             className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white disabled:bg-slate-300"
           >
             {saveMutation.isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-            Save content
+            Lưu nội dung
           </button>
         </div>
       </section>}
@@ -1436,12 +1436,12 @@ export default function MentorCourseManagePage() {
             <div>
               <h2 className="flex items-center gap-2 text-base font-black text-slate-900">
                 <MessageSquare className="h-5 w-5 text-emerald-600" />
-                Course Q&A
+                Hỏi đáp khóa học
               </h2>
-              <p className="text-sm font-medium text-slate-500">Answer learner questions for this product.</p>
+              <p className="text-sm font-medium text-slate-500">Trả lời câu hỏi của học viên cho sản phẩm này.</p>
             </div>
             <span className={`rounded-full px-3 py-2 text-xs font-black ${qaSummary?.unansweredLearners ? 'bg-rose-50 text-rose-700' : 'bg-emerald-50 text-emerald-700'}`}>
-              {qaSummary?.unansweredLearners || 0} unanswered
+              {qaSummary?.unansweredLearners || 0} chưa trả lời
             </span>
           </div>
 
@@ -1452,7 +1452,7 @@ export default function MentorCourseManagePage() {
           ) : qaThreads.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-slate-200 p-8 text-center">
               <MessageSquare className="mx-auto mb-3 h-8 w-8 text-slate-300" />
-              <p className="text-sm font-bold text-slate-600">No learner questions yet.</p>
+              <p className="text-sm font-bold text-slate-600">Chưa có câu hỏi nào từ học viên.</p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -1463,9 +1463,9 @@ export default function MentorCourseManagePage() {
                     <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
                       <div>
                         <p className="text-sm font-black text-slate-900">{thread.learnerName}</p>
-                        <p className="text-xs font-semibold text-slate-500">{thread.messages.length} message{thread.messages.length === 1 ? '' : 's'}</p>
+                        <p className="text-xs font-semibold text-slate-500">{thread.messages.length} tin nhắn</p>
                       </div>
-                      {thread.unanswered && <span className="rounded-full bg-rose-100 px-3 py-1 text-xs font-black text-rose-700">Needs reply</span>}
+                      {thread.unanswered && <span className="rounded-full bg-rose-100 px-3 py-1 text-xs font-black text-rose-700">Cần trả lời</span>}
                     </div>
 
                     <div className="max-h-96 space-y-3 overflow-auto rounded-xl border border-slate-200 bg-white p-3">
@@ -1484,12 +1484,12 @@ export default function MentorCourseManagePage() {
                     </div>
 
                     <div className="mt-3 space-y-2">
-                      <label className="text-xs font-black uppercase tracking-widest text-slate-400">Reply</label>
+                      <label className="text-xs font-black uppercase tracking-widest text-slate-400">Trả lời</label>
                       <textarea
                         value={draft}
                         onChange={(event) => setQaReplyDrafts((current) => ({ ...current, [thread.learnerId]: event.target.value }))}
                         className="min-h-24 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-emerald-400 focus:ring-4 focus:ring-emerald-500/10"
-                        placeholder={`Reply to ${thread.learnerName}`}
+                        placeholder={`Trả lời ${thread.learnerName}`}
                       />
                       <button
                         type="button"
@@ -1498,7 +1498,7 @@ export default function MentorCourseManagePage() {
                         className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white disabled:bg-slate-300"
                       >
                         {sendQaReplyMutation.isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-                        Send reply
+                        Gửi phản hồi
                       </button>
                     </div>
                   </article>
@@ -1515,17 +1515,17 @@ export default function MentorCourseManagePage() {
             <div>
               <h2 className="flex items-center gap-2 text-base font-black text-slate-900">
                 <Star className="h-5 w-5 fill-amber-400 text-amber-400" />
-                Course reviews
+                Đánh giá khóa học
               </h2>
-              <p className="text-sm font-medium text-slate-500">Track learner satisfaction and respond publicly to reviews.</p>
+              <p className="text-sm font-medium text-slate-500">Theo dõi mức độ hài lòng của học viên và phản hồi công khai các đánh giá.</p>
             </div>
           </div>
 
           <div className="grid gap-3 md:grid-cols-4">
-            <ReviewMetric label="Completion rate" value={`${Math.round(courseStats?.completionRate || 0)}%`} helper={`${courseStats?.completedEnrollments || 0}/${courseStats?.totalEnrollments || 0} learners completed`} />
-            <ReviewMetric label="Average rating" value={averageReviewRating ? averageReviewRating.toFixed(1) : '0.0'} helper={`${courseReviewsData?.totalElements || 0} reviews`} />
-            <ReviewMetric label="Total enrollments" value={String(courseStats?.totalEnrollments || 0)} helper="Learners in this course" />
-            <ReviewMetric label="Responses" value={String(courseReviews.filter((review) => review.responseText).length)} helper="Reviews with mentor reply" />
+            <ReviewMetric label="Tỷ lệ hoàn thành" value={`${Math.round(courseStats?.completionRate || 0)}%`} helper={`${courseStats?.completedEnrollments || 0}/${courseStats?.totalEnrollments || 0} học viên hoàn thành`} />
+            <ReviewMetric label="Đánh giá trung bình" value={averageReviewRating ? averageReviewRating.toFixed(1) : '0.0'} helper={`${courseReviewsData?.totalElements || 0} đánh giá`} />
+            <ReviewMetric label="Tổng lượt đăng ký" value={String(courseStats?.totalEnrollments || 0)} helper="Học viên trong khóa học này" />
+            <ReviewMetric label="Phản hồi" value={String(courseReviews.filter((review) => review.responseText).length)} helper="Đánh giá có phản hồi từ mentor" />
           </div>
 
           {reviewsLoading ? (
@@ -1535,8 +1535,8 @@ export default function MentorCourseManagePage() {
           ) : courseReviews.length === 0 ? (
             <div className="rounded-xl border border-dashed border-slate-200 p-8 text-center">
               <Star className="mx-auto mb-3 h-8 w-8 text-slate-300" />
-              <p className="text-sm font-black text-slate-700">No reviews yet</p>
-              <p className="mt-1 text-sm font-medium text-slate-500">Completed learners can leave reviews from their course library.</p>
+              <p className="text-sm font-black text-slate-700">Chưa có đánh giá nào</p>
+              <p className="mt-1 text-sm font-medium text-slate-500">Học viên hoàn thành khóa học có thể để lại đánh giá từ thư viện khóa học của họ.</p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -1546,7 +1546,7 @@ export default function MentorCourseManagePage() {
                   <article key={review.id} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                     <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
                       <div>
-                        <p className="text-sm font-black text-slate-900">{review.isAnonymous ? 'Anonymous learner' : review.reviewerName}</p>
+                        <p className="text-sm font-black text-slate-900">{review.isAnonymous ? 'Học viên ẩn danh' : review.reviewerName}</p>
                         <div className="mt-1 flex items-center gap-2">
                           <div className="flex">
                             {[1, 2, 3, 4, 5].map((star) => (
@@ -1557,20 +1557,20 @@ export default function MentorCourseManagePage() {
                         </div>
                       </div>
                       {review.responseText ? (
-                        <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-black text-emerald-700">Responded</span>
+                        <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-black text-emerald-700">Đã phản hồi</span>
                       ) : (
-                        <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-black text-amber-700">Needs response</span>
+                        <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-black text-amber-700">Cần phản hồi</span>
                       )}
                     </div>
                     {review.reviewTitle && <h3 className="mb-2 text-sm font-black text-slate-900">{review.reviewTitle}</h3>}
                     <p className="whitespace-pre-wrap text-sm font-medium leading-6 text-slate-700">{review.reviewText}</p>
                     <div className="mt-4 space-y-2">
-                      <label className="text-xs font-black uppercase tracking-widest text-slate-400">Mentor response</label>
+                      <label className="text-xs font-black uppercase tracking-widest text-slate-400">Phản hồi của Mentor</label>
                       <textarea
                         value={draft}
                         onChange={(event) => setReviewResponseDrafts((current) => ({ ...current, [review.id]: event.target.value }))}
                         className="min-h-24 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-emerald-400 focus:ring-4 focus:ring-emerald-500/10"
-                        placeholder="Write a public response to this review"
+                        placeholder="Viết phản hồi công khai cho đánh giá này"
                       />
                       <button
                         type="button"
@@ -1579,7 +1579,7 @@ export default function MentorCourseManagePage() {
                         className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white disabled:bg-slate-300"
                       >
                         {respondToReviewMutation.isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-                        Save response
+                        Lưu phản hồi
                       </button>
                     </div>
                   </article>
@@ -1593,11 +1593,11 @@ export default function MentorCourseManagePage() {
       <CourseNameConfirmModal
         isOpen={!!confirmAction}
         courseName={course?.title || ''}
-        title={confirmAction === 'delete' ? 'Delete product?' : 'Archive product?'}
+        title={confirmAction === 'delete' ? 'Xóa sản phẩm?' : 'Lưu trữ sản phẩm?'}
         message={confirmAction === 'delete'
-          ? 'This product will be removed. Deletion is only allowed when it has zero enrollments.'
-          : 'This product will leave the marketplace. Enrolled learners can still access it from their library.'}
-        confirmText={confirmAction === 'delete' ? 'Delete Product' : 'Archive Product'}
+          ? 'Sản phẩm này sẽ bị xóa. Chỉ có thể xóa khi chưa có lượt đăng ký.'
+          : 'Sản phẩm này sẽ bị ẩn khỏi chợ. Học viên đã đăng ký vẫn có thể truy cập.'}
+        confirmText={confirmAction === 'delete' ? 'Xóa Sản Phẩm' : 'Lưu Trữ Sản Phẩm'}
         confirmTone={confirmAction === 'delete' ? 'rose' : 'slate'}
         isLoading={actionLoading}
         onClose={() => {
@@ -1649,9 +1649,9 @@ function EmptyEditor({ onAddSection }: { onAddSection: () => void }) {
       <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
         <Plus className="h-7 w-7" />
       </div>
-      <h2 className="text-xl font-black text-slate-900">Start your curriculum</h2>
-      <p className="mt-1 max-w-sm text-sm font-medium text-slate-500">Add sections on the left, then add lessons or quizzes inside each section.</p>
-      <button onClick={onAddSection} className="mt-5 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white">Add Section</button>
+      <h2 className="text-xl font-black text-slate-900">Bắt đầu chương trình học</h2>
+      <p className="mt-1 max-w-sm text-sm font-medium text-slate-500">Thêm phần học ở bên trái, sau đó thêm bài học hoặc bài trắc nghiệm vào mỗi phần.</p>
+      <button onClick={onAddSection} className="mt-5 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white">Thêm Phần</button>
     </div>
   )
 }
@@ -1663,16 +1663,16 @@ function SectionEditor({ section, onChange, onDelete }: {
 }) {
   return (
     <div className="max-w-3xl space-y-5">
-      <EditorHeader title="Section Settings" onDelete={onDelete} />
-      <Field label="Section title">
+      <EditorHeader title="Cài đặt Phần" onDelete={onDelete} />
+      <Field label="Tiêu đề phần">
         <input value={section.title} onChange={(event) => onChange({ title: event.target.value })} className={editorInputClass} />
       </Field>
-      <Field label="Description">
+      <Field label="Mô tả">
         <textarea value={section.description} onChange={(event) => onChange({ description: event.target.value })} className={`${editorInputClass} min-h-32`} />
       </Field>
       <label className="flex items-center gap-2 text-sm font-semibold text-slate-700">
         <input type="checkbox" checked={section.isPublished} onChange={(event) => onChange({ isPublished: event.target.checked })} />
-        Visible when course is published
+        Hiển thị khi khóa học được xuất bản
       </label>
     </div>
   )
@@ -1688,20 +1688,20 @@ function LessonEditor({ lesson, uploadingField, onChange, onDelete, onUpload, on
 }) {
   return (
     <div className="max-w-3xl space-y-5">
-      <EditorHeader title={lesson.lessonType === LessonType.QUIZ ? 'Quiz Settings' : lesson.lessonType === LessonType.DOCUMENT ? 'Document File' : 'Lesson Settings'} onDelete={onDelete} />
-      <Field label="Title">
+      <EditorHeader title={lesson.lessonType === LessonType.QUIZ ? 'Cài đặt Trắc nghiệm' : lesson.lessonType === LessonType.DOCUMENT ? 'File Tài liệu' : 'Cài đặt Bài học'} onDelete={onDelete} />
+      <Field label="Tiêu đề">
         <input value={lesson.title} onChange={(event) => onChange({ title: event.target.value })} className={editorInputClass} />
       </Field>
-      <Field label="Summary">
+      <Field label="Tóm tắt">
         <textarea value={lesson.description} onChange={(event) => onChange({ description: event.target.value })} className={`${editorInputClass} min-h-24`} />
       </Field>
-      {lesson.lessonType !== LessonType.DOCUMENT && <Field label="Duration minutes">
+      {lesson.lessonType !== LessonType.DOCUMENT && <Field label="Thời lượng (phút)">
         <input type="number" min="0" step="1" value={lesson.durationMinutes} onChange={(event) => onChange({ durationMinutes: event.target.value })} className={`${editorInputClass} max-w-xs`} />
       </Field>}
 
       {lesson.lessonType === LessonType.LESSON && (
         <UploadField
-          label="Optional video"
+          label="Video tùy chọn"
           value={lesson.videoUrl}
           uploading={uploadingField === 'videoUrl'}
           accept="video/*"
@@ -1715,7 +1715,7 @@ function LessonEditor({ lesson, uploadingField, onChange, onDelete, onUpload, on
       )}
       {lesson.lessonType !== LessonType.QUIZ && (
         <UploadField
-          label={lesson.lessonType === LessonType.DOCUMENT ? 'Document file' : 'Optional downloadable file'}
+          label={lesson.lessonType === LessonType.DOCUMENT ? 'File tài liệu' : 'File tải xuống tùy chọn'}
           value={lesson.resourceUrl}
           uploading={uploadingField === 'resourceUrl'}
           accept=".pdf,.doc,.docx,.ppt,.pptx,.zip"
@@ -1729,7 +1729,7 @@ function LessonEditor({ lesson, uploadingField, onChange, onDelete, onUpload, on
       )}
       {lesson.lessonType === LessonType.LESSON && (
         <RichTextEditor
-          label="Lesson content"
+          label="Nội dung bài học"
           value={lesson.articleContent}
           onChange={(articleContent) => onChange({ articleContent })}
           onImageChange={(articleContent, pendingImage) => onChange({
@@ -1740,7 +1740,7 @@ function LessonEditor({ lesson, uploadingField, onChange, onDelete, onUpload, on
         />
       )}
       {lesson.lessonType === LessonType.QUIZ && (
-        <Field label="Passing score (%)">
+        <Field label="Điểm đạt (%)">
           <input
             type="number"
             min="0"
@@ -1763,15 +1763,15 @@ function LessonEditor({ lesson, uploadingField, onChange, onDelete, onUpload, on
       <div className="flex flex-wrap gap-5">
         <label className="flex items-center gap-2 text-sm font-semibold text-slate-700">
           <input type="checkbox" checked={lesson.isFreePreview} onChange={(event) => onChange({ isFreePreview: event.target.checked })} />
-          Free preview
+          Xem trước miễn phí
         </label>
         <label className="flex items-center gap-2 text-sm font-semibold text-slate-700">
           <input type="checkbox" checked={lesson.isMandatory} onChange={(event) => onChange({ isMandatory: event.target.checked })} />
-          Required
+          Bắt buộc
         </label>
         <label className="flex items-center gap-2 text-sm font-semibold text-slate-700">
           <input type="checkbox" checked={lesson.isPublished} onChange={(event) => onChange({ isPublished: event.target.checked })} />
-          Visible
+          Hiển thị
         </label>
       </div>
     </div>
@@ -1784,7 +1784,7 @@ function EditorHeader({ title, onDelete }: { title: string; onDelete: () => void
       <h2 className="text-xl font-black text-slate-900">{title}</h2>
       <button onClick={onDelete} className="inline-flex items-center gap-2 rounded-xl border border-rose-200 px-3 py-2 text-sm font-bold text-rose-600 hover:bg-rose-50">
         <Trash2 className="h-4 w-4" />
-        Delete
+        Xóa
       </button>
     </div>
   )
@@ -1840,7 +1840,7 @@ function UploadField({
         <div className="mb-3 flex flex-wrap gap-2">
           <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white">
             {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-            Select
+            Chọn
             <input
               type="file"
               accept={accept}
@@ -1855,12 +1855,12 @@ function UploadField({
           {value && (
             <button type="button" onClick={onClear} className="inline-flex items-center gap-2 rounded-xl border border-rose-200 px-4 py-2 text-sm font-bold text-rose-600 hover:bg-rose-50">
               <Trash2 className="h-4 w-4" />
-              Remove
+              Xóa
             </button>
           )}
         </div>
         {allowManualUrl && (
-          <input value={value} onChange={(event) => onChange(event.target.value)} className={editorInputClass} placeholder="Uploaded or external URL" />
+          <input value={value} onChange={(event) => onChange(event.target.value)} className={editorInputClass} placeholder="URL tải lên hoặc bên ngoài" />
         )}
         {value && mediaKind === 'video' && (
           <div className="mt-3 overflow-hidden rounded-xl border border-slate-200 bg-white">
@@ -1877,7 +1877,7 @@ function UploadField({
                 <FileText className="h-5 w-5" />
               </div>
               <div className="min-w-0">
-                <p className="text-xs font-black uppercase tracking-widest text-slate-400">Downloadable material</p>
+                <p className="text-xs font-black uppercase tracking-widest text-slate-400">Tài liệu tải xuống</p>
                 <p className="truncate text-sm font-black text-slate-900">{displayName}</p>
               </div>
             </div>
@@ -1887,7 +1887,7 @@ function UploadField({
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white hover:bg-emerald-700"
             >
               <Download className="h-4 w-4" />
-              Download
+              Tải xuống
             </a>
           </div>
         )}
@@ -1911,7 +1911,7 @@ function DocumentResourceManager({ resourceUrl, pendingFileName, onFile, onClear
   }
 
   return (
-    <Field label="Downloadable file">
+    <Field label="File tải xuống">
       <div
         onDragOver={(event) => event.preventDefault()}
         onDrop={(event) => {
@@ -1927,35 +1927,35 @@ function DocumentResourceManager({ resourceUrl, pendingFileName, onFile, onClear
                 <FileText className="h-5 w-5" />
               </div>
               <div className="min-w-0">
-                <p className="truncate text-sm font-black text-slate-900">{displayName || 'Document file'}</p>
-                <p className="text-xs font-semibold text-slate-500">{pendingFileName ? 'Pending upload. Save document details to publish this file.' : 'Current downloadable material.'}</p>
+                <p className="truncate text-sm font-black text-slate-900">{displayName || 'File tài liệu'}</p>
+                <p className="text-xs font-semibold text-slate-500">{pendingFileName ? 'Chờ tải lên. Lưu thông tin tài liệu để xuất bản file này.' : 'Tài liệu tải xuống hiện tại.'}</p>
               </div>
             </div>
             <div className="flex shrink-0 flex-wrap gap-2">
               {!resourceUrl.startsWith('blob:') && (
                 <a href={resourceUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-3 py-2 text-sm font-bold text-white hover:bg-emerald-700">
                   <Download className="h-4 w-4" />
-                  Download
+                  Tải xuống
                 </a>
               )}
               <label htmlFor={inputId} className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50">
                 <Upload className="h-4 w-4" />
-                Replace
+                Thay thế
               </label>
               <button type="button" onClick={onClear} className="inline-flex items-center gap-2 rounded-xl border border-rose-200 px-3 py-2 text-sm font-bold text-rose-600 hover:bg-rose-50">
                 <Trash2 className="h-4 w-4" />
-                Remove
+                Xóa
               </button>
             </div>
           </div>
         ) : (
           <label htmlFor={inputId} className="flex min-h-40 cursor-pointer flex-col items-center justify-center rounded-lg bg-white px-4 py-6 text-center">
             <Download className="mb-3 h-8 w-8 text-emerald-500" />
-            <span className="text-sm font-semibold text-slate-900">Drop the document here or click to browse</span>
-            <span className="mt-1 text-xs text-slate-500">PDF, Word, PowerPoint, or ZIP up to 100 MB</span>
+            <span className="text-sm font-semibold text-slate-900">Kéo thả tài liệu vào đây hoặc nhấp để tìm</span>
+            <span className="mt-1 text-xs text-slate-500">PDF, Word, PowerPoint, hoặc ZIP tối đa 100 MB</span>
             <span className="mt-3 inline-flex items-center gap-2 rounded-lg bg-emerald-50 px-3 py-2 text-xs font-bold text-emerald-700">
               <Upload className="h-3.5 w-3.5" />
-              Choose file
+              Chọn file
             </span>
           </label>
         )}
@@ -2028,11 +2028,11 @@ function RichTextEditor({ label, value, onChange, onImageChange, onImageInsert }
       <span className="mb-1.5 block text-sm font-bold text-slate-700">{label}</span>
       <div className="overflow-hidden rounded-xl border border-slate-200">
         <div className="flex flex-wrap gap-1 border-b border-slate-200 bg-slate-50 p-2">
-          <ToolbarButton title="Bold" onClick={() => runCommand('bold')}><Bold className="h-4 w-4" /></ToolbarButton>
-          <ToolbarButton title="Italic" onClick={() => runCommand('italic')}><Italic className="h-4 w-4" /></ToolbarButton>
-          <ToolbarButton title="Bulleted list" onClick={() => runCommand('insertUnorderedList')}><List className="h-4 w-4" /></ToolbarButton>
-          <ToolbarButton title="Numbered list" onClick={() => runCommand('insertOrderedList')}><ListOrdered className="h-4 w-4" /></ToolbarButton>
-          <label className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg text-slate-600 hover:bg-white hover:text-emerald-600" title="Upload image">
+          <ToolbarButton title="In đậm" onClick={() => runCommand('bold')}><Bold className="h-4 w-4" /></ToolbarButton>
+          <ToolbarButton title="In nghiêng" onClick={() => runCommand('italic')}><Italic className="h-4 w-4" /></ToolbarButton>
+          <ToolbarButton title="Danh sách dấu chấm" onClick={() => runCommand('insertUnorderedList')}><List className="h-4 w-4" /></ToolbarButton>
+          <ToolbarButton title="Danh sách số" onClick={() => runCommand('insertOrderedList')}><ListOrdered className="h-4 w-4" /></ToolbarButton>
+          <label className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg text-slate-600 hover:bg-white hover:text-emerald-600" title="Tải ảnh lên">
             <Image className="h-4 w-4" />
             <input
               type="file"
@@ -2102,7 +2102,7 @@ function QuizEditor({ questions, onChange, onImageInsert }: {
   return (
     <div className="space-y-4">
       <div className="border-b border-slate-200 pb-3">
-        <h3 className="text-sm font-black uppercase tracking-widest text-slate-500">Questions</h3>
+        <h3 className="text-sm font-black uppercase tracking-widest text-slate-500">Câu hỏi</h3>
       </div>
 
       {questions.map((question, index) => (
@@ -2118,15 +2118,15 @@ function QuizEditor({ questions, onChange, onImageInsert }: {
 
       {questions.length === 0 && (
         <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4 text-sm font-semibold text-slate-600">
-          Add at least one question before publishing this quiz.
+          Thêm ít nhất một câu hỏi trước khi xuất bản bài trắc nghiệm này.
         </div>
       )}
 
       <div className="flex flex-wrap gap-2 border-t border-slate-200 pt-4">
-        <button type="button" onClick={() => addQuestion(QuizQuestionType.SINGLE_CHOICE)} className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-bold text-slate-600 hover:border-emerald-200 hover:text-emerald-600">+ Multiple Choice</button>
-        <button type="button" onClick={() => addQuestion(QuizQuestionType.MULTIPLE_CHOICE)} className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-bold text-slate-600 hover:border-emerald-200 hover:text-emerald-600">+ Checkboxes</button>
-        <button type="button" onClick={() => addQuestion(QuizQuestionType.TRUE_FALSE)} className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-bold text-slate-600 hover:border-emerald-200 hover:text-emerald-600">+ T/F</button>
-        <button type="button" onClick={() => addQuestion(QuizQuestionType.TEXT_ANSWER)} className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-bold text-slate-600 hover:border-emerald-200 hover:text-emerald-600">+ Text</button>
+        <button type="button" onClick={() => addQuestion(QuizQuestionType.SINGLE_CHOICE)} className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-bold text-slate-600 hover:border-emerald-200 hover:text-emerald-600">+ Nhiều lựa chọn</button>
+        <button type="button" onClick={() => addQuestion(QuizQuestionType.MULTIPLE_CHOICE)} className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-bold text-slate-600 hover:border-emerald-200 hover:text-emerald-600">+ Hộp kiểm</button>
+        <button type="button" onClick={() => addQuestion(QuizQuestionType.TRUE_FALSE)} className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-bold text-slate-600 hover:border-emerald-200 hover:text-emerald-600">+ Đúng / Sai</button>
+        <button type="button" onClick={() => addQuestion(QuizQuestionType.TEXT_ANSWER)} className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-bold text-slate-600 hover:border-emerald-200 hover:text-emerald-600">+ Văn bản</button>
       </div>
     </div>
   )
@@ -2143,31 +2143,31 @@ function QuizQuestionEditor({ index, question, onChange, onDelete, onImageInsert
     <div className="space-y-4 rounded-xl border border-slate-200 bg-white p-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="text-xs font-black uppercase tracking-widest text-emerald-600">Question {index + 1}</p>
+          <p className="text-xs font-black uppercase tracking-widest text-emerald-600">Câu hỏi {index + 1}</p>
           <p className="text-sm font-bold text-slate-700">{questionTypeLabel(question.questionType)}</p>
         </div>
         <button type="button" onClick={onDelete} className="inline-flex items-center gap-2 rounded-xl border border-rose-200 px-3 py-2 text-sm font-bold text-rose-600 hover:bg-rose-50">
           <Trash2 className="h-4 w-4" />
-          Delete
+          Xóa
         </button>
       </div>
 
       <div className="grid gap-4 md:grid-cols-[1fr_140px]">
-        <Field label="Question type">
+        <Field label="Loại câu hỏi">
           <select value={question.questionType} onChange={(event) => onChange({ questionType: event.target.value as QuizQuestionType })} className={editorInputClass}>
-            <option value={QuizQuestionType.SINGLE_CHOICE}>Multiple choice</option>
-            <option value={QuizQuestionType.MULTIPLE_CHOICE}>Checkboxes</option>
-            <option value={QuizQuestionType.TRUE_FALSE}>True / False</option>
-            <option value={QuizQuestionType.TEXT_ANSWER}>Text answer</option>
+            <option value={QuizQuestionType.SINGLE_CHOICE}>Nhiều lựa chọn</option>
+            <option value={QuizQuestionType.MULTIPLE_CHOICE}>Hộp kiểm</option>
+            <option value={QuizQuestionType.TRUE_FALSE}>Đúng / Sai</option>
+            <option value={QuizQuestionType.TEXT_ANSWER}>Câu trả lời văn bản</option>
           </select>
         </Field>
-        <Field label="Points">
+        <Field label="Điểm">
           <input type="number" min="1" step="1" value={question.points} onChange={(event) => onChange({ points: event.target.value })} className={editorInputClass} />
         </Field>
       </div>
 
       <RichTextEditor
-        label="Question description"
+        label="Mô tả câu hỏi"
         value={question.questionText}
         onChange={(questionText) => onChange({ questionText })}
         onImageChange={(questionText, pendingImage) => onChange({
@@ -2178,14 +2178,14 @@ function QuizQuestionEditor({ index, question, onChange, onDelete, onImageInsert
       />
 
       {question.questionType === QuizQuestionType.TEXT_ANSWER ? (
-        <Field label="Correct text answer">
+        <Field label="Câu trả lời văn bản chính xác">
           <input value={question.textAnswer} onChange={(event) => onChange({ textAnswer: event.target.value })} className={editorInputClass} />
         </Field>
       ) : (
         <QuizOptionsEditor question={question} onChange={onChange} />
       )}
 
-      <Field label="Explanation">
+      <Field label="Giải thích">
         <textarea value={question.explanation} onChange={(event) => onChange({ explanation: event.target.value })} className={`${editorInputClass} min-h-20`} />
       </Field>
     </div>
@@ -2197,7 +2197,7 @@ function QuizOptionsEditor({ question, onChange }: {
   onChange: (patch: Partial<DraftQuizQuestion>) => void
 }) {
   const isMultiple = question.questionType === QuizQuestionType.MULTIPLE_CHOICE
-  const options = question.questionType === QuizQuestionType.TRUE_FALSE ? ['True', 'False'] : question.options
+  const options = question.questionType === QuizQuestionType.TRUE_FALSE ? ['Đúng', 'Sai'] : question.options
 
   const updateOption = (index: number, value: string) => {
     const nextOptions = question.options.map((option, optionIndex) => optionIndex === index ? value : option)
@@ -2206,7 +2206,7 @@ function QuizOptionsEditor({ question, onChange }: {
   }
 
   const addOption = () => {
-    onChange({ options: [...question.options, `Option ${question.options.length + 1}`] })
+    onChange({ options: [...question.options, `Lựa chọn ${question.options.length + 1}`] })
   }
 
   const removeOption = (index: number) => {
@@ -2226,7 +2226,7 @@ function QuizOptionsEditor({ question, onChange }: {
 
   return (
     <div className="space-y-2">
-      <p className="text-sm font-bold text-slate-700">Choices</p>
+      <p className="text-sm font-bold text-slate-700">Lựa chọn</p>
       {options.map((option, index) => (
         <div key={`${option}-${index}`} className="flex items-center gap-2">
           <input
@@ -2241,7 +2241,7 @@ function QuizOptionsEditor({ question, onChange }: {
             <input value={option} onChange={(event) => updateOption(index, event.target.value)} className={editorInputClass} />
           )}
           {question.questionType !== QuizQuestionType.TRUE_FALSE && question.options.length > 2 && (
-            <button type="button" onClick={() => removeOption(index)} className="rounded-lg p-2 text-slate-400 hover:bg-rose-50 hover:text-rose-600" title="Remove choice">
+            <button type="button" onClick={() => removeOption(index)} className="rounded-lg p-2 text-slate-400 hover:bg-rose-50 hover:text-rose-600" title="Xóa lựa chọn">
               <Trash2 className="h-4 w-4" />
             </button>
           )}
@@ -2249,7 +2249,7 @@ function QuizOptionsEditor({ question, onChange }: {
       ))}
       {question.questionType !== QuizQuestionType.TRUE_FALSE && (
         <button type="button" onClick={addOption} className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-bold text-slate-600 hover:border-emerald-200 hover:text-emerald-600">
-          + Choice
+          + Lựa chọn
         </button>
       )}
     </div>
@@ -2398,10 +2398,10 @@ function getResourceFileName(resourceUrl: string) {
   try {
     const path = new URL(resourceUrl).pathname
     const fileName = decodeURIComponent(path.split('/').filter(Boolean).pop() || '')
-    return fileName || 'Course resource'
+    return fileName || 'Tài nguyên khóa học'
   } catch {
     const clean = resourceUrl.split(/[?#]/)[0]
-    return decodeURIComponent(clean.split('/').filter(Boolean).pop() || 'Course resource')
+    return decodeURIComponent(clean.split('/').filter(Boolean).pop() || 'Tài nguyên khóa học')
   }
 }
 
@@ -2457,19 +2457,19 @@ function parseAnswerData(value: string | undefined, questionType: QuizQuestionTy
 }
 
 function defaultOptionsForType(questionType: QuizQuestionType) {
-  if (questionType === QuizQuestionType.TRUE_FALSE) return ['True', 'False']
+  if (questionType === QuizQuestionType.TRUE_FALSE) return ['Đúng', 'Sai']
   if (questionType === QuizQuestionType.TEXT_ANSWER) return []
-  return ['Option 1', 'Option 2']
+  return ['Lựa chọn 1', 'Lựa chọn 2']
 }
 
 function applyQuestionTypeDefaults(question: DraftQuizQuestion) {
   if (question.questionType === QuizQuestionType.TRUE_FALSE) {
-    return { ...question, options: ['True', 'False'], correctAnswers: question.correctAnswers.includes('False') ? ['False'] : ['True'], textAnswer: '' }
+    return { ...question, options: ['Đúng', 'Sai'], correctAnswers: question.correctAnswers.includes('Sai') ? ['Sai'] : ['Đúng'], textAnswer: '' }
   }
   if (question.questionType === QuizQuestionType.TEXT_ANSWER) {
     return { ...question, options: [], correctAnswers: [], textAnswer: question.textAnswer || '', }
   }
-  const options = question.options.length >= 2 ? question.options : ['Option 1', 'Option 2']
+  const options = question.options.length >= 2 ? question.options : ['Lựa chọn 1', 'Lựa chọn 2']
   const correctAnswers = question.questionType === QuizQuestionType.MULTIPLE_CHOICE
     ? question.correctAnswers.filter((answer) => options.includes(answer))
     : [question.correctAnswers.find((answer) => options.includes(answer)) || options[0]]
@@ -2480,9 +2480,9 @@ function answerDataJsonForQuestion(question: DraftQuizQuestion) {
   if (question.questionType === QuizQuestionType.TEXT_ANSWER) {
     return JSON.stringify({ correctAnswer: question.textAnswer.trim() })
   }
-  const options = question.questionType === QuizQuestionType.TRUE_FALSE ? ['True', 'False'] : question.options
+  const options = question.questionType === QuizQuestionType.TRUE_FALSE ? ['Đúng', 'Sai'] : question.options
   const correctAnswers = question.questionType === QuizQuestionType.TRUE_FALSE
-    ? (question.correctAnswers.length ? question.correctAnswers : ['True'])
+    ? (question.correctAnswers.length ? question.correctAnswers : ['Đúng'])
     : question.correctAnswers
   return JSON.stringify({ options, correctAnswers })
 }
@@ -2490,15 +2490,15 @@ function answerDataJsonForQuestion(question: DraftQuizQuestion) {
 function questionTypeLabel(questionType: QuizQuestionType) {
   switch (questionType) {
     case QuizQuestionType.SINGLE_CHOICE:
-      return 'Multiple choice'
+      return 'Nhiều lựa chọn'
     case QuizQuestionType.MULTIPLE_CHOICE:
-      return 'Checkboxes'
+      return 'Hộp kiểm'
     case QuizQuestionType.TRUE_FALSE:
-      return 'True / False'
+      return 'Đúng / Sai'
     case QuizQuestionType.TEXT_ANSWER:
-      return 'Text answer'
+      return 'Câu trả lời văn bản'
     default:
-      return 'Question'
+      return 'Câu hỏi'
   }
 }
 
@@ -2536,29 +2536,29 @@ function preserveSelection(currentSelection: Selection | null, previousSections:
 }
 
 function validateCurriculum(sections: DraftSection[]) {
-  if (!sections.length) return 'Add at least one section before saving.'
+  if (!sections.length) return 'Thêm ít nhất một phần trước khi lưu.'
   for (const section of sections) {
-    if (section.title.trim().length < 3) return 'Each section needs a title with at least 3 characters.'
-    if (section.description.length > 1000) return 'Section descriptions must be 1000 characters or fewer.'
+    if (section.title.trim().length < 3) return 'Mỗi phần cần một tiêu đề có ít nhất 3 ký tự.'
+    if (section.description.length > 1000) return 'Mô tả phần phải từ 1000 ký tự trở xuống.'
     for (const lesson of section.lessons) {
-      if (lesson.title.trim().length < 3) return 'Each lesson needs a title with at least 3 characters.'
-      if (lesson.description.length > 2000) return 'Lesson summaries must be 2000 characters or fewer.'
+      if (lesson.title.trim().length < 3) return 'Mỗi bài học cần một tiêu đề có ít nhất 3 ký tự.'
+      if (lesson.description.length > 2000) return 'Tóm tắt bài học phải từ 2000 ký tự trở xuống.'
       if (lesson.durationMinutes) {
         const duration = Number(lesson.durationMinutes)
-        if (!Number.isInteger(duration) || duration < 0) return 'Lesson duration must be a full number and cannot be negative.'
+        if (!Number.isInteger(duration) || duration < 0) return 'Thời lượng bài học phải là số nguyên và không được âm.'
       }
       if (lesson.lessonType === LessonType.QUIZ) {
         const passingPercent = Number(lesson.passingPercent || 50)
-        if (!Number.isInteger(passingPercent) || passingPercent < 0 || passingPercent > 100) return 'Quiz passing score must be a full number from 0 to 100.'
-        if (!lesson.quizQuestions.length) return 'Each quiz needs at least one question.'
+        if (!Number.isInteger(passingPercent) || passingPercent < 0 || passingPercent > 100) return 'Điểm đạt bài trắc nghiệm phải là số nguyên từ 0 đến 100.'
+        if (!lesson.quizQuestions.length) return 'Mỗi bài trắc nghiệm cần ít nhất một câu hỏi.'
         for (const question of lesson.quizQuestions) {
-          if (stripHtml(question.questionText).length < 3) return 'Each quiz question needs a description.'
+          if (stripHtml(question.questionText).length < 3) return 'Mỗi câu hỏi trắc nghiệm cần một mô tả.'
           const points = Number(question.points)
-          if (!Number.isInteger(points) || points < 1) return 'Quiz question points must be a full number greater than zero.'
-          if (question.questionType === QuizQuestionType.TEXT_ANSWER && !question.textAnswer.trim()) return 'Text answer questions need a correct answer.'
-          if (question.questionType !== QuizQuestionType.TEXT_ANSWER && question.correctAnswers.length === 0) return 'Choice questions need at least one correct answer.'
+          if (!Number.isInteger(points) || points < 1) return 'Điểm câu hỏi trắc nghiệm phải là số nguyên lớn hơn không.'
+          if (question.questionType === QuizQuestionType.TEXT_ANSWER && !question.textAnswer.trim()) return 'Câu hỏi trả lời văn bản cần một câu trả lời chính xác.'
+          if (question.questionType !== QuizQuestionType.TEXT_ANSWER && question.correctAnswers.length === 0) return 'Câu hỏi lựa chọn cần ít nhất một câu trả lời chính xác.'
           if ((question.questionType === QuizQuestionType.SINGLE_CHOICE || question.questionType === QuizQuestionType.MULTIPLE_CHOICE)
-            && question.options.some((option) => !option.trim())) return 'Quiz choices cannot be empty.'
+            && question.options.some((option) => !option.trim())) return 'Lựa chọn trắc nghiệm không được để trống.'
         }
       }
     }
@@ -2573,8 +2573,8 @@ function stripHtml(html: string) {
 
 function validateAsset(file: File, field: 'videoUrl' | 'resourceUrl') {
   if (field === 'videoUrl') {
-    if (!file.type.startsWith('video/')) return 'Lesson video must be a video file.'
-    if (file.size > 500 * 1024 * 1024) return 'Lesson video must be 500 MB or smaller.'
+    if (!file.type.startsWith('video/')) return 'Video bài học phải là định dạng file video.'
+    if (file.size > 500 * 1024 * 1024) return 'Video bài học phải từ 500 MB trở xuống.'
   }
   if (field === 'resourceUrl') {
     const allowed = [
@@ -2585,8 +2585,8 @@ function validateAsset(file: File, field: 'videoUrl' | 'resourceUrl') {
       'application/msword',
       'application/vnd.ms-powerpoint',
     ]
-    if (file.type && !allowed.includes(file.type)) return 'Downloadable file must be PDF, Word, PowerPoint, or ZIP.'
-    if (file.size > 100 * 1024 * 1024) return 'Downloadable file must be 100 MB or smaller.'
+    if (file.type && !allowed.includes(file.type)) return 'File tải xuống phải là định dạng PDF, Word, PowerPoint hoặc ZIP.'
+    if (file.size > 100 * 1024 * 1024) return 'File tải xuống phải từ 100 MB trở xuống.'
   }
   return ''
 }

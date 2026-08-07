@@ -3,12 +3,11 @@ import { useEffect, useState } from 'react'
 import { useQuery } from 'react-query'
 import {
   BookOpen,
-  Briefcase,
   Calendar,
   ChevronDown,
   ChevronRight,
   Menu,
-  CreditCard,
+  FolderKanban,
   LayoutDashboard,
   LogOut,
   MessageCircle,
@@ -31,13 +30,12 @@ import { courseApi } from '@/api/courseApi'
 
 const navigationItems = [
   { to: '/mentor/dashboard', label: 'Overview', icon: LayoutDashboard },
-  { to: '/mentor/proposals', label: 'My Proposals', icon: CreditCard, badge: 3 },
-  { to: '/mentor/contracts', label: 'Active Contracts', icon: Briefcase },
+  { to: '/mentor/messages', label: 'Messages', icon: MessageCircle, badge: 2 },
+  { to: '/mentor/projects', label: 'My Projects', icon: FolderKanban },
   { to: '/mentor/courses', label: 'My Courses', icon: BookOpen },
   { to: '/mentor/schedule', label: 'Schedule', icon: Calendar },
   { to: '/mentor/earnings', label: 'Earnings', icon: Wallet },
   { to: '/mentor/reviews', label: 'Reviews', icon: Star },
-  { to: '/mentor/messages', label: 'Messages', icon: MessageCircle, badge: 2 },
 ]
 
 export default function MentorLayout() {
@@ -93,9 +91,7 @@ export default function MentorLayout() {
         >
           <div className="h-[80px] shrink-0 flex items-center px-5 border-b border-slate-100 dark:border-slate-800/60">
             <Link to="/mentor" className="group flex items-center gap-3 w-full">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-md dark:bg-emerald-500/20 dark:text-emerald-400 transition-transform group-hover:scale-105 flex-shrink-0">
-                <Sparkles className="h-5 w-5" />
-              </div>
+              <img src="/logo.png" alt="MentorX Logo" className="h-9 w-auto object-contain transition-transform group-hover:scale-105 flex-shrink-0" />
               {!isSidebarCollapsed && (
                 <div className="min-w-0 flex flex-col opacity-100 transition-opacity duration-300 delay-100">
                   <p className="text-[19px] font-bold leading-none tracking-tight text-slate-900 dark:text-white">MentorX</p>
@@ -187,9 +183,7 @@ export default function MentorLayout() {
             <div className="relative flex h-full w-[min(84vw,320px)] flex-col bg-white shadow-2xl dark:bg-[#09090b]">
               <div className="flex h-[80px] shrink-0 items-center justify-between px-5">
                 <Link to="/mentor" className="flex items-center gap-3" onClick={() => setMobileNavOpen(false)}>
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-md dark:bg-emerald-500/20 dark:text-emerald-400">
-                    <Sparkles className="h-5 w-5" />
-                  </div>
+                  <img src="/logo.png" alt="MentorX Logo" className="h-8 w-auto object-contain" />
                   <div className="min-w-0 flex flex-col">
                     <p className="text-[19px] font-bold leading-none tracking-tight text-slate-900 dark:text-white">MentorX</p>
                     <p className="mt-1 text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Workspace</p>

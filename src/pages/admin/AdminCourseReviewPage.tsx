@@ -34,7 +34,7 @@ export default function AdminCourseReviewPage() {
     onSuccess: () => {
       queryClient.invalidateQueries('admin-courses')
       queryClient.invalidateQueries(['admin-course-review', courseId])
-      toast.success('Course archived')
+      toast.success('Đã lưu trữ khóa học')
       setArchiveConfirmOpen(false)
     },
   })

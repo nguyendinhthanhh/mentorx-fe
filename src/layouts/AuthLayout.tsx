@@ -35,9 +35,7 @@ export default function AuthLayout() {
         <div className="w-full max-w-[440px] animate-fade-in" style={{ animationDuration: '0.6s' }}>
           
           <Link to="/" className="group mx-auto mb-8 flex min-h-11 w-fit items-center justify-center gap-3 sm:mb-10">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-600 shadow-md shadow-primary-500/30 transition-transform duration-300 group-hover:scale-105">
-              <Sparkles className="h-5 w-5 text-white" />
-            </div>
+            <img src="/logo.png" alt="MentorX Logo" className="h-10 w-auto transition-transform duration-300 group-hover:scale-105" />
             <span className="text-2xl font-black tracking-tight text-slate-900">MentorX</span>
           </Link>
 

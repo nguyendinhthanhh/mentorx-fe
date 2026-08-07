@@ -194,7 +194,7 @@ export default function MentorDashboardPage() {
       subtitle: contract.clientName || 'Client workspace',
       meta: contract.startDate ? `Bắt đầu ${formatShortDate(contract.startDate)}` : `Cập nhật ${formatRelativeTime(contract.updatedAt)}`,
       sortKey: new Date(contract.startDate || contract.updatedAt).getTime(),
-      route: '/mentor/contracts',
+      route: '/mentor/projects?tab=contracts',
       actionLabel: 'Mở contract',
       tone: contract.status === ContractStatus.UNDER_REVIEW ? 'amber' : 'emerald',
       statusLabel: formatContractStatus(contract.status),
@@ -257,7 +257,7 @@ export default function MentorDashboardPage() {
       value: formatCurrency(contract.totalAmount || 0),
       time: formatRelativeTime(contract.updatedAt),
       sortKey: new Date(contract.updatedAt).getTime(),
-      route: '/mentor/contracts',
+      route: '/mentor/projects?tab=contracts',
     }))
 
     return [...proposalRows, ...contractRows]
@@ -344,7 +344,7 @@ export default function MentorDashboardPage() {
         title: 'Việc cần escalations',
         value: `${summary.disputeCount + summary.underReviewCount}`,
         helper: `${summary.disputeCount} dispute, ${summary.underReviewCount} under review`,
-        route: '/mentor/contracts',
+        route: '/mentor/projects?tab=contracts',
         tone: summary.disputeCount > 0 ? 'rose' : summary.underReviewCount > 0 ? 'amber' : 'emerald',
       },
     ]
@@ -410,6 +410,10 @@ export default function MentorDashboardPage() {
            </div>
            
            <div className="flex shrink-0 gap-3">
+              <Link to="/blogs/create" className="group flex items-center gap-2 rounded-2xl bg-white/10 px-5 py-3 text-sm font-bold text-white backdrop-blur-md transition-all hover:bg-white/20 border border-white/10 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-emerald-500/20">
+                 <Plus className="w-4 h-4 transition-transform group-hover:scale-110" />
+                 Viết Blog
+              </Link>
               <Link to="/courses/create" className="group flex items-center gap-2 rounded-2xl bg-white/10 px-5 py-3 text-sm font-bold text-white backdrop-blur-md transition-all hover:bg-white/20 border border-white/10 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-emerald-500/20">
                  <Plus className="w-4 h-4 transition-transform group-hover:scale-110" />
                  Tạo khóa học

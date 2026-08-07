@@ -394,15 +394,17 @@ export default function UserRequestDetailPageNew() {
                   </div>
 
                   {/* Actions */}
-                  <div className="flex flex-wrap gap-3 border-t border-slate-100 pt-4">
-                    <Link
-                      to={`/jobs/${job.jobId}/edit`}
-                      className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-sm font-bold text-slate-700 hover:bg-slate-50 transition"
-                    >
-                      <Edit className="h-4 w-4" />
-                      Chỉnh sửa
-                    </Link>
-                  </div>
+                  {(job.status === JobStatus.DRAFT || job.status === JobStatus.OPEN || job.status === JobStatus.PENDING_APPROVAL) && (
+                    <div className="flex flex-wrap gap-3 border-t border-slate-100 pt-4">
+                      <Link
+                        to={`/jobs/${job.jobId}/edit`}
+                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-sm font-bold text-slate-700 hover:bg-slate-50 transition"
+                      >
+                        <Edit className="h-4 w-4" />
+                        Chỉnh sửa
+                      </Link>
+                    </div>
+                  )}
                 </div>
               </div>
             )}

@@ -12,6 +12,16 @@ export const contractApi = {
     return response.data.data
   },
 
+  getByClient: async (clientId: string, params?: { page?: number; size?: number }): Promise<PaginatedResponse<ContractResponse>> => {
+    const response = await apiClient.get<ApiResponse<PaginatedResponse<ContractResponse>>>(`/contracts/client/${clientId}`, { params })
+    return response.data.data
+  },
+
+  getById: async (contractId: string): Promise<ContractResponse> => {
+    const response = await apiClient.get<ApiResponse<ContractResponse>>(`/contracts/${contractId}`)
+    return response.data.data
+  },
+
   getByJob: async (jobId: string, params?: { page?: number; size?: number }): Promise<PaginatedResponse<ContractResponse>> => {
     const response = await apiClient.get<ApiResponse<PaginatedResponse<ContractResponse>>>(`/contracts/job/${jobId}`, { params })
     return response.data.data
@@ -68,6 +78,16 @@ export const contractApi = {
       `/contracts/${contractId}/cancellation-request/reject`,
       { mentorId, note }
     )
+    return response.data.data
+  },
+
+  archive: async (contractId: string): Promise<ContractResponse> => {
+    const response = await apiClient.post<ApiResponse<ContractResponse>>(`/contracts/${contractId}/archive`)
+    return response.data.data
+  },
+
+  unarchive: async (contractId: string): Promise<ContractResponse> => {
+    const response = await apiClient.post<ApiResponse<ContractResponse>>(`/contracts/${contractId}/unarchive`)
     return response.data.data
   },
 }

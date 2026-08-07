@@ -12,8 +12,8 @@ import {
 } from '@/utils/formatters'
 import type { WalletConversionPreviewResponse } from '@/types'
 
-const CURRENCY_OPTIONS = ['VND', 'USD', 'EUR', 'SGD', 'JPY'] as const
-const quickAmounts = ['50000', '100000', '200000', '500000', '1000000', '2000000']
+const CURRENCY_OPTIONS = ['VND'] as const
+const quickAmounts = ['50', '100', '200', '500', '1000', '2000']
 
 const isPositiveDecimalString = (value: string) => /^\d+(\.\d{1,6})?$/.test(value.trim()) && Number(value) > 0
 
@@ -27,11 +27,11 @@ const depositSchema = z.object({
     errorMap: () => ({ message: 'Choose a currency' }),
   }),
 }).superRefine((value, ctx) => {
-  if (value.originalCurrency === 'VND' && Number(value.originalAmount) < 10000) {
+  if (Number(value.originalAmount) < 10) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       path: ['originalAmount'],
-      message: 'Minimum deposit is 10,000 VND',
+      message: 'Minimum deposit is 10 MXC (10,000 VND)',
     })
   }
 })
@@ -59,7 +59,6 @@ export default function DepositForm({ userId: _userId, onSuccess }: DepositFormP
   } = useForm<DepositFormData>({
     resolver: zodResolver(depositSchema),
     defaultValues: {
-      originalAmount: '100000',
       originalCurrency: 'VND',
     },
   })
@@ -82,8 +81,9 @@ export default function DepositForm({ userId: _userId, onSuccess }: DepositFormP
       try {
         setPreviewLoading(true)
         setPreviewError('')
+        const amountVnd = String(Number(originalAmount.trim()) * 1000)
         const result = await walletApi.getConversionPreview({
-          originalAmount: originalAmount.trim(),
+          originalAmount: amountVnd,
           originalCurrency,
         })
         setPreview(result)
@@ -112,9 +112,10 @@ export default function DepositForm({ userId: _userId, onSuccess }: DepositFormP
       setLoading(true)
       setError('')
 
-      const orderInfo = `MentorX wallet top-up - ${formatFiatCurrency(data.originalAmount, data.originalCurrency)}`
+      const amountVnd = String(Number(data.originalAmount.trim()) * 1000)
+      const orderInfo = `MentorX wallet top-up - ${formatFiatCurrency(amountVnd, data.originalCurrency)}`
       const response = await paymentApi.createPayOSPayment({
-        amount: data.originalAmount.trim(),
+        amount: amountVnd,
         currency: data.originalCurrency,
         orderInfo,
       })
@@ -149,9 +150,8 @@ export default function DepositForm({ userId: _userId, onSuccess }: DepositFormP
             <Info className="h-4 w-4 text-slate-600" />
           </div>
           <div className="space-y-1">
-            <p className="text-sm font-semibold text-slate-900">Backend-settled deposit flow</p>
-            <p className="text-sm text-slate-600">
-              You enter the original amount and currency. Mentor X backend computes the exchange rate, converted VND amount, and final MXC credit.
+            <p className="text-sm font-semibold text-slate-900">Quy trình nạp tiền tự động</p>
+              <p className="text-sm text-slate-600">Bạn nhập số lượng MXC mong muốn. Hệ thống sẽ tự động tính toán số tiền VND tương ứng để nạp.
             </p>
           </div>
         </div>
@@ -161,7 +161,7 @@ export default function DepositForm({ userId: _userId, onSuccess }: DepositFormP
         <div className="grid gap-4 md:grid-cols-[1.35fr_0.65fr]">
           <div>
             <label htmlFor="originalAmount" className="mb-2 block text-sm font-semibold text-slate-700">
-              Amount
+              Số lượng (MXC)
             </label>
             <div className="relative">
               <div className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
@@ -173,7 +173,7 @@ export default function DepositForm({ userId: _userId, onSuccess }: DepositFormP
                 autoComplete="off"
                 {...register('originalAmount')}
                 className="block w-full rounded-2xl border border-slate-200 bg-white py-3 pl-12 pr-4 text-base font-semibold text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
-                placeholder={originalCurrency === 'VND' ? '100000' : '10'}
+                placeholder="100"
               />
             </div>
             {errors.originalAmount && (
@@ -183,12 +183,12 @@ export default function DepositForm({ userId: _userId, onSuccess }: DepositFormP
 
           <div>
             <label htmlFor="originalCurrency" className="mb-2 block text-sm font-semibold text-slate-700">
-              Currency
+              Đơn vị tiền tệ
             </label>
             <select
               id="originalCurrency"
               {...register('originalCurrency')}
-              className="block w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base font-semibold text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
+              disabled className="block w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-base font-semibold text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
             >
               {CURRENCY_OPTIONS.map((currency) => (
                 <option key={currency} value={currency}>
@@ -204,7 +204,7 @@ export default function DepositForm({ userId: _userId, onSuccess }: DepositFormP
 
         {originalCurrency === 'VND' && (
           <div>
-            <label className="mb-2 block text-sm font-semibold text-slate-700">Quick amounts</label>
+            <label className="mb-2 block text-sm font-semibold text-slate-700">Số tiền nhanh</label>
             <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
               {quickAmounts.map((amount) => (
                 <button
@@ -217,7 +217,7 @@ export default function DepositForm({ userId: _userId, onSuccess }: DepositFormP
                       : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50'
                   }`}
                 >
-                  {formatFiatCurrency(amount, 'VND')}
+                  {formatMxc(Number(amount))} MXC
                 </button>
               ))}
             </div>
@@ -227,8 +227,8 @@ export default function DepositForm({ userId: _userId, onSuccess }: DepositFormP
         <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">Conversion preview</p>
-              <h3 className="mt-1 text-lg font-bold text-slate-900">Settlement handled by backend</h3>
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">Xem trước chuyển đổi</p>
+              <h3 className="mt-1 text-lg font-bold text-slate-900">Giao dịch được xử lý tự động</h3>
             </div>
             {previewLoading && <Loader2 className="h-5 w-5 animate-spin text-emerald-600" />}
           </div>
@@ -242,10 +242,10 @@ export default function DepositForm({ userId: _userId, onSuccess }: DepositFormP
               </div>
             ) : preview ? (
               <div className="grid gap-3">
-                <PreviewRow label="You pay" value={formatFiatCurrency(preview.originalAmount, preview.originalCurrency)} />
+                <PreviewRow label="Số tiền thanh toán" value={formatFiatCurrency(preview.originalAmount, preview.originalCurrency)} />
                 <PreviewRow label={previewRateLabel} value={previewRateValue} />
-                <PreviewRow label="Converted amount" value={formatFiatCurrency(preview.convertedAmountVnd, 'VND')} />
-                <PreviewRow label="You receive" value={formatMxc(preview.amountMxc)} highlight />
+                <PreviewRow label="Số tiền chuyển đổi" value={formatFiatCurrency(preview.convertedAmountVnd, 'VND')} />
+                <PreviewRow label="Số MXC nhận được" value={formatMxc(preview.amountMxc)} highlight />
               </div>
             ) : previewError ? (
               <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
@@ -253,7 +253,7 @@ export default function DepositForm({ userId: _userId, onSuccess }: DepositFormP
               </div>
             ) : (
               <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-500">
-                Enter an amount and select a currency to load the backend conversion preview.
+                Nhập số lượng và chọn đơn vị tiền tệ để xem trước số tiền chuyển đổi.
               </div>
             )}
           </div>
@@ -274,9 +274,9 @@ export default function DepositForm({ userId: _userId, onSuccess }: DepositFormP
         ) : (
           <div className="space-y-4">
             <div className="rounded-2xl border border-cyan-200 bg-cyan-50 px-4 py-4">
-              <p className="text-sm font-semibold text-slate-900">Payment method</p>
+              <p className="text-sm font-semibold text-slate-900">Phương thức thanh toán</p>
               <p className="mt-1 text-sm text-slate-600">
-                PayOS is the only supported web checkout. You will be redirected to the PayOS hosted payment page after confirmation.
+                Bạn sẽ được chuyển hướng đến cổng thanh toán PayOS sau khi xác nhận.
               </p>
             </div>
           </div>
@@ -296,18 +296,18 @@ export default function DepositForm({ userId: _userId, onSuccess }: DepositFormP
           {loading ? (
             <>
               <Loader2 className="h-4 w-4 animate-spin" />
-              <span>Redirecting to payment gateway...</span>
+              <span>Đang chuyển hướng đến cổng thanh toán...</span>
             </>
           ) : (
             <>
               <CreditCard className="h-4 w-4" />
-              <span>Confirm deposit</span>
+              <span>Xác nhận nạp tiền</span>
             </>
           )}
         </button>
 
         <p className="text-center text-xs text-slate-500">
-          Wallet balances are refreshed from backend after payment confirmation. Frontend never calculates or credits MXC directly.
+          Số dư ví sẽ được cập nhật tự động sau khi thanh toán thành công.
         </p>
       </form>
     </div>

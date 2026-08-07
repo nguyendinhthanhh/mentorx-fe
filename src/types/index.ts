@@ -645,8 +645,9 @@ export interface ContractResponse {
   renewalTerms?: string;
   ndaRequired?: boolean;
   ndaSigned?: boolean;
+  isArchived?: boolean;
   createdAt: string;
-    updatedAt: string;
+  updatedAt: string;
   }
 
   export interface JobSummaryResponse {
@@ -1037,6 +1038,7 @@ export interface WithdrawalResponse {
   payoutReference?: string;
   status: WithdrawalStatus;
   gatewayTxnId?: string;
+  payoutProofUrl?: string;
   reviewedByUserId?: string;
   completedByUserId?: string;
   rejectionReason?: string;

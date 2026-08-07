@@ -50,12 +50,12 @@ type ChatDrawerState = {
 type TabKey = 'ALL' | 'AWAITING' | 'NEGOTIATING' | 'ACCEPTED' | 'REJECTED' | 'ARCHIVED'
 
 const tabs: Array<{ key: TabKey; label: string }> = [
-  { key: 'ALL', label: 'All' },
-  { key: 'AWAITING', label: 'Awaiting' },
-  { key: 'NEGOTIATING', label: 'Negotiating' },
-  { key: 'ACCEPTED', label: 'Active' },
-  { key: 'REJECTED', label: 'Rejected' },
-  { key: 'ARCHIVED', label: 'Archived' },
+  { key: 'ALL', label: 'Tất cả' },
+  { key: 'AWAITING', label: 'Đang chờ' },
+  { key: 'NEGOTIATING', label: 'Đang đàm phán' },
+  { key: 'ACCEPTED', label: 'Đã chốt' },
+  { key: 'REJECTED', label: 'Từ chối' },
+  { key: 'ARCHIVED', label: 'Lưu trữ' },
 ]
 
 const stageLabels = ['Sent', 'Viewed', 'Negotiating', 'Agreed', 'Contract'] as const
@@ -316,7 +316,7 @@ export default function MentorProposalsPage() {
               ['SUBMITTED', 'Đã nộp'],
               ['NEGOTIATING', 'Đang đàm phán'],
               ['OFFER_ACCEPTED', 'Đã chốt offer'],
-              ['ACCEPTED', 'Contract active'],
+              ['ACCEPTED', 'Đã chốt hợp đồng'],
               ['REJECTED', 'Bị từ chối'],
               ['AUTO_CLOSED', 'Đã đóng'],
               ['WITHDRAWN', 'Đã rút'],
@@ -402,7 +402,7 @@ export default function MentorProposalsPage() {
 
                     <div className="flex flex-col items-start md:items-end shrink-0 md:pl-6 md:border-l md:border-slate-100">
                       <p className="text-2xl font-black text-slate-900">{currentOffer.primary}</p>
-                      <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-slate-400">Offer của bạn</p>
+                      <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-slate-400">{currentOffer.label}</p>
                     </div>
                   </div>
 
@@ -419,21 +419,13 @@ export default function MentorProposalsPage() {
 
                     <div className="flex w-full items-center gap-3 sm:w-auto">
                       {job?.clientId && (
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setChatDrawer({
-                              recipientId: job.clientId,
-                              contextId: proposal.id,
-                              title: clientName,
-                              subtitle: 'Proposal discussion',
-                            })
-                          }
+                        <Link
+                          to={`/mentor/messages?targetUserId=${job.clientId}`}
                           className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 text-sm font-bold text-slate-700 shadow-sm transition-all hover:bg-slate-50 hover:text-emerald-600 sm:flex-none"
                         >
                           <MessageCircleMore className="w-4 h-4" />
                           Nhắn tin
-                        </button>
+                        </Link>
                       )}
                       <Link
                         to={`/mentor/proposals/${proposal.id}`}
@@ -557,23 +549,23 @@ function EmptyPremiumState({
 function getStatusLabel(status: string) {
   switch (status) {
     case 'SUBMITTED':
-      return 'Submitted'
+      return 'Đã nộp'
     case 'NEGOTIATING':
-      return 'Negotiating'
+      return 'Đang đàm phán'
     case 'OFFER_ACCEPTED':
-      return 'Offer agreed'
+      return 'Đã chốt offer'
     case 'ACCEPTED':
-      return 'Contract active'
+      return 'Đã chốt hợp đồng'
     case 'REJECTED':
-      return 'Rejected'
+      return 'Từ chối'
     case 'AUTO_CLOSED':
-      return 'Closed'
+      return 'Đã đóng'
     case 'CONTRACT_CANCELLED':
-      return 'Contract cancelled'
+      return 'Đã hủy'
     case 'WITHDRAWN':
-      return 'Withdrawn'
+      return 'Đã rút'
     case 'UNDER_REVIEW':
-      return 'In review'
+      return 'Đang xem xét'
     default:
       return status
   }
@@ -599,7 +591,7 @@ function getStatusMeta(status: string, negotiation?: NegotiationInfo) {
     case 'ACCEPTED':
       return {
         icon: <Zap className="h-3.5 w-3.5" />,
-        helper: 'Contract đã kích hoạt. Bạn có thể bắt đầu làm việc.',
+        helper: 'Đề xuất đã được chuyển thành hợp đồng.',
       }
     case 'REJECTED':
       return {
@@ -676,20 +668,28 @@ function getProposalValue(proposal: ProposalResponse) {
 }
 
 function getCurrentOffer(proposal: ProposalResponse, negotiation?: NegotiationInfo) {
+  let label = 'Offer của bạn'
+  
+  if (proposal.status === 'ACCEPTED') {
+    label = 'Giá trị Contract'
+  } else if (proposal.status === 'OFFER_ACCEPTED') {
+    label = 'Ngân sách chốt'
+  } else if (proposal.status === 'NEGOTIATING' && negotiation?.senderType === 'CLIENT') {
+    label = 'Offer từ khách'
+  } else if (['REJECTED', 'AUTO_CLOSED', 'CONTRACT_CANCELLED', 'WITHDRAWN'].includes(proposal.status)) {
+    label = 'Offer cuối cùng'
+  }
+
   if (negotiation?.proposedAmount) {
     return {
       primary: formatCurrency(negotiation.proposedAmount),
-    }
-  }
-
-  if ((negotiation?.estimatedDurationDays || negotiation?.deadlineAt) && !negotiation?.proposedAmount) {
-    return {
-      primary: getProposalValue(proposal),
+      label
     }
   }
 
   return {
     primary: getProposalValue(proposal),
+    label
   }
 }
 

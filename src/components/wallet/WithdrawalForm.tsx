@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useQuery } from 'react-query'
+import { toast } from 'react-hot-toast'
 import { AlertCircle, ArrowRight, CheckCircle2, ChevronDown, Landmark, Loader2, ShieldCheck } from 'lucide-react'
 
 import { bankAccountApi } from '@/api/bankAccountApi'
@@ -13,7 +14,7 @@ import { MentorStatus, VerificationStatus } from '@/types'
 import { formatFiatCurrency, formatMxc } from '@/utils/formatters'
 
 const withdrawalSchema = z.object({
-  mxcAmount: z.number().min(100, 'Minimum withdrawal is 100 MXC'),
+  mxcAmount: z.number().min(10, 'Minimum withdrawal is 10 MXC'),
   bankName: z.string().min(1, 'A payout destination is required'),
   bankAccountNo: z.string().min(1, 'A payout destination is required'),
   bankAccountName: z.string().min(1, 'Account holder name is required'),
@@ -41,11 +42,13 @@ export default function WithdrawalForm({ userId, onSuccess, onOpenPayoutSetup }:
     handleSubmit,
     watch,
     setValue,
+    control,
+    reset,
     formState: { errors },
   } = useForm<WithdrawCreateRequest>({
     resolver: zodResolver(withdrawalSchema),
     defaultValues: {
-      mxcAmount: 100,
+      mxcAmount: 10,
     },
   })
 
@@ -61,13 +64,11 @@ export default function WithdrawalForm({ userId, onSuccess, onOpenPayoutSetup }:
   }, [defaultAccount, setValue])
 
   const mxcAmount = watch('mxcAmount')
-  const feeMxc = mxcAmount ? mxcAmount * 0.02 : 0
+  const feeMxc = 0 // No fee applied
   const netMxc = mxcAmount ? mxcAmount - feeMxc : 0
   const estimatedAmountVnd = netMxc * 1000
 
   const guard = getWithdrawalGuard({
-    mentorStatus: user?.mentorStatus,
-    payoutStatus: user?.payoutStatus,
     hasPayoutAccount: !!defaultAccount,
   })
 
@@ -84,6 +85,8 @@ export default function WithdrawalForm({ userId, onSuccess, onOpenPayoutSetup }:
 
       await walletApi.createWithdrawal(userId, data)
       setSuccess(true)
+      toast.success('Yêu cầu rút tiền đã được gửi. Admin sẽ sớm xem xét.')
+      reset({ mxcAmount: 10, bankName: data.bankName, bankAccountNo: data.bankAccountNo, bankAccountName: data.bankAccountName })
       onSuccess?.()
     } catch (err: any) {
       const rawMessage = err?.response?.data?.message || err?.message || 'Withdrawal failed. Please try again.'
@@ -109,9 +112,9 @@ export default function WithdrawalForm({ userId, onSuccess, onOpenPayoutSetup }:
       <div className="rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-sm">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <h3 className="text-base font-black text-slate-950">Withdrawal eligibility</h3>
+            <h3 className="text-base font-black text-slate-950">Điều kiện rút tiền</h3>
             <p className="mt-1 text-sm leading-6 text-slate-500">
-              Mentor approval unlocks Mentor Mode. Withdrawal stays locked until payout review is approved.
+              Chức năng rút tiền bị khóa cho đến khi tài khoản nhận tiền của bạn được duyệt.
             </p>
           </div>
           <div
@@ -119,13 +122,13 @@ export default function WithdrawalForm({ userId, onSuccess, onOpenPayoutSetup }:
               guard.blocked ? 'bg-amber-50 text-amber-700' : 'bg-emerald-50 text-emerald-700'
             }`}
           >
-            {guard.blocked ? 'Blocked' : 'Ready'}
+            {guard.blocked ? 'Bị khóa' : 'Sẵn sàng'}
           </div>
         </div>
 
         {guard.blocked ? (
           <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-            <p className="font-semibold">Action needed</p>
+            <p className="font-semibold">Cần thao tác</p>
             <p className="mt-1 leading-6">{guard.message}</p>
             {guard.action === 'payout' && onOpenPayoutSetup && (
               <button
@@ -133,7 +136,7 @@ export default function WithdrawalForm({ userId, onSuccess, onOpenPayoutSetup }:
                 onClick={onOpenPayoutSetup}
                 className="mt-3 inline-flex items-center gap-2 rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-bold text-white"
               >
-                Set up payout
+                Thiết lập tài khoản nhận tiền
                 <ArrowRight className="h-4 w-4" />
               </button>
             )}
@@ -141,7 +144,7 @@ export default function WithdrawalForm({ userId, onSuccess, onOpenPayoutSetup }:
         ) : (
           <div className="mt-4 flex items-start gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
             <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0" />
-            <p>Your mentor approval and payout setup meet the current withdrawal policy.</p>
+            <p>Tài khoản nhận tiền của bạn đã đáp ứng đủ điều kiện rút tiền.</p>
           </div>
         )}
       </div>
@@ -150,17 +153,28 @@ export default function WithdrawalForm({ userId, onSuccess, onOpenPayoutSetup }:
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
             <label htmlFor="mxcAmount" className="mb-1 block text-sm font-semibold text-gray-700">
-              Withdraw amount (MXC)
+              Số tiền rút (MXC)
             </label>
             <div className="relative">
-              <input
-                id="mxcAmount"
-                type="number"
-                step="1"
-                {...register('mxcAmount', { valueAsNumber: true })}
-                className="block w-full rounded-xl border border-gray-200 px-4 py-3 transition-all focus:border-transparent focus:ring-2 focus:ring-primary-500"
-                placeholder="100"
-                disabled={guard.blocked}
+              <Controller
+                name="mxcAmount"
+                control={control}
+                render={({ field: { onChange, value, ref } }) => (
+                  <input
+                    id="mxcAmount"
+                    type="text"
+                    inputMode="numeric"
+                    ref={ref}
+                    value={value ? new Intl.NumberFormat('vi-VN').format(value) : ''}
+                    onChange={(e) => {
+                      const rawValue = e.target.value.replace(/\D/g, '')
+                      onChange(rawValue ? Number(rawValue) : 0)
+                    }}
+                    className="block w-full rounded-xl border border-gray-200 pl-4 pr-14 py-3 transition-all focus:border-transparent focus:ring-2 focus:ring-primary-500"
+                    placeholder="10"
+                    disabled={guard.blocked}
+                  />
+                )}
               />
               <div className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-medium text-gray-400">MXC</div>
             </div>
@@ -168,16 +182,12 @@ export default function WithdrawalForm({ userId, onSuccess, onOpenPayoutSetup }:
           </div>
 
           <div className="flex flex-col justify-center rounded-xl border border-gray-100 bg-gray-50 p-3">
-            <div className="flex justify-between text-[10px] font-bold uppercase text-gray-500">
-              <span>Fee (2%)</span>
-              <span className="text-red-500">-{formatMxc(feeMxc)}</span>
-            </div>
-            <div className="mt-1 flex justify-between text-xs font-bold text-gray-900">
-              <span>Net amount</span>
+            <div className="flex justify-between text-xs font-bold text-gray-900">
+              <span>Số tiền thực nhận</span>
               <span className="text-green-600">{formatMxc(netMxc)}</span>
             </div>
             <p className="mt-1 text-right text-[10px] italic text-gray-400">
-              Estimated payout: {formatFiatCurrency(estimatedAmountVnd, 'VND')}
+              Số tiền ước tính nhận được: {formatFiatCurrency(estimatedAmountVnd, 'VND')}
             </p>
           </div>
         </div>
@@ -186,7 +196,7 @@ export default function WithdrawalForm({ userId, onSuccess, onOpenPayoutSetup }:
           <div className="mb-1 flex items-center justify-between">
             <div className="flex items-center gap-2 text-blue-800">
               <Landmark className="h-4 w-4" />
-              <h4 className="text-sm font-bold">Selected payout destination</h4>
+              <h4 className="text-sm font-bold">Phương thức nhận tiền đã chọn</h4>
             </div>
 
             {accounts && accounts.length > 1 && (
@@ -196,14 +206,14 @@ export default function WithdrawalForm({ userId, onSuccess, onOpenPayoutSetup }:
                   onClick={() => setShowAccountList(!showAccountList)}
                   className="flex items-center gap-1 rounded-lg border border-primary-100 bg-white px-2 py-1 text-[10px] font-bold text-primary-600 shadow-sm transition-colors hover:bg-primary-50"
                 >
-                  Saved payout methods
+                  Phương thức nhận tiền đã lưu
                   <ChevronDown className="h-3 w-3" />
                 </button>
 
                 {showAccountList && (
                   <div className="absolute right-0 z-20 mt-1 w-72 overflow-hidden rounded-xl border border-gray-100 bg-white py-2 shadow-xl">
                     <div className="mb-1 border-b border-gray-50 px-3 py-1.5">
-                      <p className="text-[10px] font-bold uppercase text-gray-400">Choose payout destination</p>
+                      <p className="text-[10px] font-bold uppercase text-gray-400">Chọn phương thức nhận tiền</p>
                     </div>
                     {accounts.map((account) => (
                       <button
@@ -228,7 +238,7 @@ export default function WithdrawalForm({ userId, onSuccess, onOpenPayoutSetup }:
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
               <label htmlFor="bankName" className="mb-1 block text-[10px] font-bold uppercase text-gray-500">
-                Payout provider
+                Ngân hàng/Ví điện tử
               </label>
               <input
                 id="bankName"
@@ -242,7 +252,7 @@ export default function WithdrawalForm({ userId, onSuccess, onOpenPayoutSetup }:
 
             <div>
               <label htmlFor="bankAccountNo" className="mb-1 block text-[10px] font-bold uppercase text-gray-500">
-                Destination reference
+                Số tài khoản/ID
               </label>
               <input
                 id="bankAccountNo"
@@ -257,7 +267,7 @@ export default function WithdrawalForm({ userId, onSuccess, onOpenPayoutSetup }:
 
           <div>
             <label htmlFor="bankAccountName" className="mb-1 block text-[10px] font-bold uppercase text-gray-500">
-              Account holder
+              Tên chủ tài khoản
             </label>
             <input
               id="bankAccountName"
@@ -275,8 +285,7 @@ export default function WithdrawalForm({ userId, onSuccess, onOpenPayoutSetup }:
         <div className="flex gap-2 rounded-lg border border-amber-100 bg-amber-50 p-3 text-[10px] text-amber-600">
           <AlertCircle className="h-3.5 w-3.5 shrink-0" />
           <p>
-            Withdrawals are reviewed by Admin. The VND amount shown above is only an estimate based on the
-            system rule 1 MXC = 1,000 VND.
+            Các yêu cầu rút tiền sẽ được Admin xét duyệt. Số tiền VND hiển thị ở trên chỉ là ước tính dựa trên tỷ lệ quy đổi của hệ thống: 1 MXC = 1.000 VND.
           </p>
         </div>
 
@@ -284,7 +293,7 @@ export default function WithdrawalForm({ userId, onSuccess, onOpenPayoutSetup }:
 
         {success && (
           <div className="rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
-            Withdrawal request submitted. Admin will review it shortly.
+            Yêu cầu rút tiền đã được gửi. Admin sẽ xét duyệt trong thời gian sớm nhất.
           </div>
         )}
 
@@ -293,7 +302,7 @@ export default function WithdrawalForm({ userId, onSuccess, onOpenPayoutSetup }:
           disabled={loading || guard.blocked}
           className="w-full rounded-xl bg-gray-900 py-3.5 font-bold text-white shadow-lg transition-all hover:bg-black disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {loading ? 'Processing...' : 'Request withdrawal'}
+          {loading ? 'Đang xử lý...' : 'Yêu cầu rút tiền'}
         </button>
       </form>
     </div>
@@ -313,43 +322,16 @@ function hydrateWithdrawalTarget(
 }
 
 function getWithdrawalGuard({
-  mentorStatus,
-  payoutStatus,
   hasPayoutAccount,
 }: {
-  mentorStatus?: MentorStatus
-  payoutStatus?: VerificationStatus
   hasPayoutAccount: boolean
 }) {
-  if (mentorStatus !== MentorStatus.APPROVED) {
-    return {
-      blocked: true,
-      action: 'mentor' as const,
-      message: 'Withdrawal is only available after your mentor application is approved.',
-    }
-  }
 
-  if (!hasPayoutAccount || payoutStatus === VerificationStatus.NOT_SUBMITTED) {
+  if (!hasPayoutAccount) {
     return {
       blocked: true,
       action: 'payout' as const,
-      message: 'Set up payout details before requesting your first withdrawal.',
-    }
-  }
-
-  if (payoutStatus === VerificationStatus.PENDING) {
-    return {
-      blocked: true,
-      action: 'payout' as const,
-      message: 'Your payout details are still under review. Withdrawal will unlock after approval.',
-    }
-  }
-
-  if (payoutStatus === VerificationStatus.REJECTED || payoutStatus === VerificationStatus.NEEDS_MORE_INFO) {
-    return {
-      blocked: true,
-      action: 'payout' as const,
-      message: 'Your payout details need updates before withdrawal can be requested.',
+      message: 'Vui lòng thiết lập thông tin nhận tiền trước khi yêu cầu rút tiền.',
     }
   }
 

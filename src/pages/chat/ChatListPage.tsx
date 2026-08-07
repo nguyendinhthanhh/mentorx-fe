@@ -6,7 +6,7 @@ import { contractApi } from '@/api/contractApi'
 import { FILE_UPLOAD_DIRS, fileApi } from '@/api/fileApi'
 import { mentorApi } from '@/api/mentorApi'
 import { userApi } from '@/api/userApi'
-import { ContractResponse, MentorOfferingResponse, MessageType } from '@/types'
+import { ChatRoomResponse, ContractResponse, MentorOfferingResponse, MessageType } from '@/types'
 import { useAuthStore } from '@/store/authStore'
 import ConversationPane from './components/ConversationPane'
 import ContextRail from './components/ContextRail'
@@ -33,6 +33,7 @@ export default function ChatListPage() {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false)
   const [showConversationMobile, setShowConversationMobile] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
+  const isCreatingRef = useRef(false)
   const [searchParams, setSearchParams] = useSearchParams()
   const targetUserId = searchParams.get('userId')
   const targetRoomId = searchParams.get('conversationId') || searchParams.get('roomId')
@@ -52,7 +53,57 @@ export default function ChatListPage() {
   const roomList = rooms?.content || []
 
   const filteredRooms = useMemo(() => {
+    // ── Per-user deduplication ──
+    // For each unique other user, keep only ONE conversation entry.
+    // Priority: CONTRACT > PROPOSAL > JOB > DIRECT_MESSAGE.
+    const typePriority: Record<string, number> = {
+      CONTRACT: 4,
+      PROPOSAL: 3,
+      JOB: 2,
+      DIRECT_MESSAGE: 1,
+    }
+
+    const bestRoomByUser = new Map<string, ChatRoomResponse>()
+    for (const room of roomList) {
+      // Skip self-chat rooms
+      if (
+        room.roomType === 'DIRECT_MESSAGE' &&
+        room.members.length > 0 &&
+        room.members.every((m) => m.userId === user?.userId)
+      ) {
+        continue
+      }
+
+      const otherMember = room.members.find((m) => m.userId !== user?.userId)
+      if (!otherMember) continue
+
+      const otherUserId = otherMember.userId
+      const existing = bestRoomByUser.get(otherUserId)
+
+      if (!existing) {
+        bestRoomByUser.set(otherUserId, room)
+        continue
+      }
+
+      const roomPriority = typePriority[room.referenceType || room.roomType] || 0
+      const existingPriority = typePriority[existing.referenceType || existing.roomType] || 0
+
+      if (roomPriority > existingPriority) {
+        bestRoomByUser.set(otherUserId, room)
+      } else if (roomPriority === existingPriority) {
+        const roomTime = new Date(room.lastMessageAt || room.updatedAt || 0).getTime()
+        const existingTime = new Date(existing.lastMessageAt || existing.updatedAt || 0).getTime()
+        if (roomTime > existingTime) {
+          bestRoomByUser.set(otherUserId, room)
+        }
+      }
+    }
+
+    const allowedRoomIds = new Set(Array.from(bestRoomByUser.values()).map((r) => r.id))
+
     return roomList.filter((room) => {
+      if (!allowedRoomIds.has(room.id)) return false
+
       if (activeFilter === 'unread' && (room.unreadCount === 0 || room.isArchived)) return false
       if (activeFilter === 'archived' && !room.isArchived) return false
       if (activeFilter === 'mentors' && (room.memberCount !== 2 || room.roomType !== 'DIRECT_MESSAGE')) return false
@@ -68,7 +119,7 @@ export default function ChatListPage() {
 
       return roomLabel.includes(keyword)
     })
-  }, [activeFilter, roomList, searchTerm])
+  }, [activeFilter, roomList, searchTerm, user?.userId])
 
   useEffect(() => {
     if (roomsLoading || !user?.userId) return
@@ -79,6 +130,12 @@ export default function ChatListPage() {
         setSelectedRoomId(existingRoom.id)
         setSearchParams({})
       }
+      return
+    }
+
+    if (targetUserId === user.userId) {
+      console.warn('Cannot open a conversation with yourself.')
+      setSearchParams({})
       return
     }
 
@@ -110,6 +167,8 @@ export default function ChatListPage() {
 
         setSearchParams({})
       } else {
+        if (isCreatingRef.current) return
+        isCreatingRef.current = true
         chatApi
           .createRoom({
             roomType: 'DIRECT_MESSAGE',
@@ -143,26 +202,21 @@ export default function ChatListPage() {
             refetchRooms()
           })
           .catch(console.error)
+          .finally(() => {
+            isCreatingRef.current = false
+          })
       }
       return
     }
 
-    if (roomList.length === 0) {
-      setSelectedRoomId(null)
+    if (roomList.length === 0 || filteredRooms.length === 0) {
+      if (selectedRoomId !== null) {
+        setSelectedRoomId(null)
+      }
       return
     }
 
-    if (!selectedRoomId) {
-      setSelectedRoomId((filteredRooms[0] || roomList[0]).id)
-      return
-    }
-
-    if (filteredRooms.length === 0) {
-      setSelectedRoomId(null)
-      return
-    }
-
-    if (!filteredRooms.some((room) => room.id === selectedRoomId)) {
+    if (!selectedRoomId || !filteredRooms.some((room) => room.id === selectedRoomId)) {
       setSelectedRoomId(filteredRooms[0].id)
     }
   }, [filteredRooms, roomList, selectedRoomId, targetRoomId, targetUserId, roomsLoading, user?.userId, setSearchParams, refetchRooms])
@@ -246,14 +300,14 @@ export default function ChatListPage() {
 
   const linkedJobId = useMemo(() => {
     if (!selectedRoomId) return null
-    return localStorage.getItem(`chat_job_${selectedRoomId}`) || selectedRoom?.referenceId || null
-  }, [selectedRoomId, selectedRoom?.referenceId])
+    if (selectedRoom?.referenceType === 'JOB' && selectedRoom.referenceId) return selectedRoom.referenceId
+    return localStorage.getItem(`chat_job_${selectedRoomId}`) || null
+  }, [selectedRoomId, selectedRoom?.referenceType, selectedRoom?.referenceId])
 
   const { data: linkedJob, isLoading: linkedJobLoading } = useQuery(
     ['chat-linked-job', linkedJobId],
     async () => {
       if (!linkedJobId) return null
-      // Import jobApi first
       const { jobApi } = await import('@/api/jobApi')
       return jobApi.getById(linkedJobId).catch(() => null)
     },
@@ -264,21 +318,43 @@ export default function ChatListPage() {
   )
 
   const { data: linkedContract, isLoading: linkedContractLoading } = useQuery(
-    ['chat-linked-contract', linkedJobId],
+    ['chat-linked-contract', selectedRoom?.referenceType, selectedRoom?.referenceId, linkedJobId, selectedRoom?.roomType, user?.userId, otherMemberId],
     async () => {
-      if (!linkedJobId) return null
-      const result = await contractApi.getByJob(linkedJobId, { page: 0, size: 10 }).catch(() => null)
-      const contracts = result?.content || []
-      return (
-        contracts.find((contract) => contract.status === 'ACTIVE') ||
-        contracts.find((contract) => contract.status === 'PENDING_PAYMENT') ||
-        contracts.find((contract) => contract.status === 'COMPLETED') ||
-        contracts[0] ||
-        null
-      ) as ContractResponse | null
+      if (selectedRoom?.referenceType === 'CONTRACT' && selectedRoom.referenceId) {
+        return contractApi.getById(selectedRoom.referenceId).catch(() => null)
+      }
+      
+      if (linkedJobId) {
+        const result = await contractApi.getByJob(linkedJobId, { page: 0, size: 10 }).catch(() => null)
+        const contracts = result?.content || []
+        const found = 
+          contracts.find((contract) => contract.status === 'UNDER_REVIEW') ||
+          contracts.find((contract) => contract.status === 'ACTIVE') ||
+          contracts.find((contract) => contract.status === 'PENDING_PAYMENT') ||
+          contracts.find((contract) => contract.status === 'COMPLETED') ||
+          contracts[0]
+          
+        if (found) return found as ContractResponse
+      }
+
+      if (selectedRoom?.roomType === 'DIRECT_MESSAGE' && user?.userId && otherMemberId) {
+        const result = await contractApi.getByClient(user.userId, { page: 0, size: 50 }).catch(() => null)
+        const contracts = result?.content || []
+        const mentorContracts = contracts.filter((contract) => contract.mentorId === otherMemberId)
+        return (
+          mentorContracts.find((contract) => contract.status === 'UNDER_REVIEW') ||
+          mentorContracts.find((contract) => contract.status === 'ACTIVE') ||
+          mentorContracts.find((contract) => contract.status === 'PENDING_PAYMENT') ||
+          mentorContracts.find((contract) => contract.status === 'COMPLETED') ||
+          mentorContracts[0] ||
+          null
+        ) as ContractResponse | null
+      }
+      
+      return null
     },
     {
-      enabled: !!linkedJobId,
+      enabled: (selectedRoom?.referenceType === 'CONTRACT' && !!selectedRoom?.referenceId) || !!linkedJobId || (selectedRoom?.roomType === 'DIRECT_MESSAGE' && !!user?.userId && !!otherMemberId),
       retry: false,
     }
   )
@@ -411,11 +487,14 @@ export default function ChatListPage() {
               onBackToList={handleBackToList}
               showBackButton={showConversationMobile}
               heightClassName="h-dvh"
+              linkedJob={linkedJob}
+              linkedContract={linkedContract}
             />
           </div>
 
           <div className="hidden h-dvh border-l border-slate-200 2xl:block">
             <ContextRail
+              currentUserId={user.userId}
               selectedRoom={selectedRoom}
               otherMember={otherMember}
               userProfile={otherUserProfile}
@@ -446,6 +525,7 @@ export default function ChatListPage() {
           />
           <div className="absolute right-0 top-0 h-full w-full max-w-[380px] overflow-y-auto border-l border-slate-200 bg-white shadow-2xl">
             <ContextRail
+              currentUserId={user.userId}
               selectedRoom={selectedRoom}
               otherMember={otherMember}
               userProfile={otherUserProfile}

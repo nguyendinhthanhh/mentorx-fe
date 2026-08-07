@@ -4,8 +4,8 @@ import { categoryApi } from '@/api/categoryApi'
 import { skillApi } from '@/api/skillApi'
 import { Link } from 'react-router-dom'
 import { formatCurrency } from '@/utils/formatters'
-import { Plus, BookOpen, Star, Search, Users, FileText, Download, Tag } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { Plus, BookOpen, Star, Search, Users, FileText, Download, Tag, ChevronLeft, ChevronRight } from 'lucide-react'
+import { useMemo, useState, useEffect } from 'react'
 import { useI18n } from '@/i18n/I18nProvider'
 import { CategoryResponse, CourseProductType, SkillResponse, SupportedLanguage } from '@/types'
 import { categoryLabel, skillLabel } from '@/utils/freeFormTaxonomy'
@@ -22,6 +22,11 @@ export default function CourseListPage() {
   const [isSkillMenuOpen, setIsSkillMenuOpen] = useState(false)
   const [languageFilter, setLanguageFilter] = useState<'' | SupportedLanguage>('')
   const [levelFilter, setLevelFilter] = useState('')
+  const [page, setPage] = useState(0)
+
+  useEffect(() => {
+    setPage(0)
+  }, [search, typeFilter, categoryFilter, skillFilter, languageFilter, levelFilter])
 
   const selectedCategoryId = useMemo(() => {
     if (!categoryFilter) return undefined
@@ -30,10 +35,10 @@ export default function CourseListPage() {
   }, [categoryFilter])
 
   const { data, isLoading } = useQuery(
-    ['courses', selectedCategoryId, skillFilter, languageFilter, levelFilter, typeFilter],
+    ['courses', selectedCategoryId, skillFilter, languageFilter, levelFilter, typeFilter, page],
     () =>
       courseApi.getPublished({
-        page: 0,
+        page,
         size: 20,
         categoryId: selectedCategoryId,
         skill: skillFilter.trim() || undefined,
@@ -328,107 +333,22 @@ export default function CourseListPage() {
             ))}
           </div>
         ) : filteredCourses && filteredCourses.length > 0 ? (
-          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {filteredCourses.map((course) => {
-              const courseType = resolveCourseType(course.productType)
-              const typeLabel =
-                courseType === 'document' ? t('courses.typeDocument') : t('courses.typeCourse')
-              const typeClass =
-                courseType === 'document'
-                  ? 'bg-amber-100 text-amber-800'
-                  : 'bg-emerald-50 text-emerald-700'
-              const accentClass =
-                courseType === 'document'
-                  ? 'hover:border-amber-200 hover:shadow-amber-500/10'
-                  : 'hover:border-emerald-200 hover:shadow-emerald-500/10'
-              const domainName = course.categoryId ? categoryNameById[course.categoryId] : ''
-              const courseSkills = course.skills || []
-
-              return (
-                <Link
-                  key={course.courseId}
-                  to={`/courses/${course.courseId}`}
-                  className={`group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg ${accentClass}`}
-                >
-                  <div className={`relative h-48 overflow-hidden ${courseType === 'document' ? 'bg-amber-50' : 'bg-emerald-50'}`}>
-                    {course.thumbnailUrl ? (
-                      <img
-                        src={course.thumbnailUrl}
-                        alt={course.title}
-                        loading="lazy"
-                        decoding="async"
-                        className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
-                      />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center">
-                        {courseType === 'document' ? (
-                          <FileText className="h-12 w-12 text-amber-300" />
-                        ) : (
-                          <BookOpen className="h-12 w-12 text-emerald-300" />
-                        )}
-                      </div>
-                    )}
-                    <span className="absolute left-3 top-3 rounded-lg bg-white/90 px-2.5 py-1 text-xs font-black text-slate-700 backdrop-blur">
-                      {course.level || t('courses.resourceType')}
-                    </span>
-                    <span className={`absolute right-3 top-3 rounded-lg px-2.5 py-1 text-xs font-black ${typeClass}`}>
-                      {typeLabel}
-                    </span>
-                  </div>
-
-                  <div className="p-5">
-                    <h3 className="line-clamp-1 font-black text-slate-950 transition group-hover:text-emerald-700">
-                      {course.title}
-                    </h3>
-                    <p className="mt-2 line-clamp-2 text-sm leading-6 text-slate-600">
-                      {course.description || t('courses.noDescription')}
-                    </p>
-                    <CourseMetadata domainName={domainName} skills={courseSkills} />
-
-                    {course.totalLessons ? (
-                      <div className="mt-3 flex flex-wrap items-center gap-2 text-xs font-semibold text-slate-500">
-                        {courseType === 'document' && (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-1 text-amber-700">
-                            <Download className="h-3 w-3" />
-                            Downloadable
-                          </span>
-                        )}
-                        <span className="rounded-full bg-slate-100 px-2.5 py-1 text-slate-600">
-                          {courseType === 'document' ? '1 File' : `${course.totalLessons} Lessons`}
-                        </span>
-                      </div>
-                    ) : null}
-
-                    <div className="mt-4 flex items-center justify-between text-sm">
-                      {(course.instructor?.fullName || course.instructorName) ? (
-                        <span className="mr-2 truncate font-bold text-slate-500">
-                          {course.instructor?.fullName || course.instructorName}
-                        </span>
-                      ) : <span />}
-                      {course.averageRating && (
-                        <div className="flex items-center gap-1">
-                          <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-                          <span className="font-bold text-slate-700">
-                            {course.averageRating.toFixed(1)}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-4">
-                      <span className="text-lg font-black text-emerald-700">
-                        {course.priceMxc ? formatCurrency(course.priceMxc) : t('courses.free')}
-                      </span>
-                      <span className="flex items-center gap-1 text-xs font-bold text-slate-400">
-                        {courseType === 'document' ? <Download className="h-3.5 w-3.5" /> : <Users className="h-3.5 w-3.5" />}
-                        {course.totalEnrollments}
-                      </span>
-                    </div>
-                  </div>
-                </Link>
-              )
-            })}
-          </div>
+          <>
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+              {filteredCourses.map((course) => {
+                const courseType = resolveCourseType(course.productType)
+                if (courseType === 'document') {
+                  return <DocumentCard key={course.courseId} course={course} categoryName={course.categoryId ? categoryNameById[course.categoryId] : ''} />
+                }
+                return <CourseCard key={course.courseId} course={course} categoryName={course.categoryId ? categoryNameById[course.categoryId] : ''} />
+              })}
+            </div>
+            {data && data.totalPages > 1 && (
+              <div className="mt-10 flex justify-center">
+                <Pagination page={page} totalPages={data.totalPages} onPageChange={setPage} />
+              </div>
+            )}
+          </>
         ) : (
           <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center">
             <BookOpen className="mx-auto h-14 w-14 text-slate-300" />
@@ -477,5 +397,212 @@ function CourseMetadata({ domainName, skills }: { domainName?: string; skills: s
         </div>
       )}
     </div>
+  )
+}
+
+function CourseCard({ course, categoryName }: { course: any; categoryName: string }) {
+  const { t } = useI18n()
+  const courseSkills = course.skills || []
+
+  return (
+    <Link
+      to={`/courses/${course.courseId}`}
+      className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg hover:border-emerald-200 hover:shadow-emerald-500/10 flex flex-col h-full"
+    >
+      <div className="relative h-48 overflow-hidden bg-emerald-50 shrink-0">
+        {course.thumbnailUrl ? (
+          <img
+            src={course.thumbnailUrl}
+            alt={course.title}
+            loading="lazy"
+            decoding="async"
+            className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center">
+            <BookOpen className="h-12 w-12 text-emerald-300" />
+          </div>
+        )}
+        <span className="absolute left-3 top-3 rounded-lg bg-white/90 px-2.5 py-1 text-xs font-black text-slate-700 backdrop-blur">
+          {course.level || t('courses.resourceType')}
+        </span>
+        <span className="absolute right-3 top-3 rounded-lg px-2.5 py-1 text-xs font-black bg-emerald-50 text-emerald-700">
+          {t('courses.typeCourse')}
+        </span>
+      </div>
+
+      <div className="p-5 flex flex-col flex-grow">
+        <h3 className="line-clamp-1 font-black text-slate-950 transition group-hover:text-emerald-700">
+          {course.title}
+        </h3>
+        <p className="mt-2 line-clamp-2 text-sm leading-6 text-slate-600 flex-grow">
+          {course.description || t('courses.noDescription')}
+        </p>
+        <CourseMetadata domainName={categoryName} skills={courseSkills} />
+
+        {course.totalLessons ? (
+          <div className="mt-3 flex flex-wrap items-center gap-2 text-xs font-semibold text-slate-500">
+            <span className="rounded-full bg-slate-100 px-2.5 py-1 text-slate-600">
+              {course.totalLessons} Lessons
+            </span>
+          </div>
+        ) : null}
+
+        <div className="mt-4 flex items-center justify-between text-sm">
+          {(course.instructor?.fullName || course.instructorName) ? (
+            <span className="mr-2 truncate font-bold text-slate-500">
+              {course.instructor?.fullName || course.instructorName}
+            </span>
+          ) : <span />}
+          {course.averageRating && (
+            <div className="flex items-center gap-1">
+              <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+              <span className="font-bold text-slate-700">
+                {course.averageRating.toFixed(1)}
+              </span>
+            </div>
+          )}
+        </div>
+
+        <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-4">
+          <span className="text-lg font-black text-emerald-700">
+            {course.priceMxc ? formatCurrency(course.priceMxc) : t('courses.free')}
+          </span>
+          <span className="flex items-center gap-1 text-xs font-bold text-slate-400">
+            <Users className="h-3.5 w-3.5" />
+            {course.totalEnrollments}
+          </span>
+        </div>
+      </div>
+    </Link>
+  )
+}
+
+function DocumentCard({ course, categoryName }: { course: any; categoryName: string }) {
+  const { t } = useI18n()
+  const courseSkills = course.skills || []
+
+  return (
+    <Link
+      to={`/courses/${course.courseId}`}
+      className="group relative overflow-hidden rounded-[24px] bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-indigo-500/10 border border-slate-200 hover:border-indigo-200 flex flex-col h-full"
+    >
+      <div className="relative flex h-52 items-center justify-center bg-gradient-to-br from-indigo-50 to-blue-50 shrink-0 p-4">
+        {/* Abstract Background pattern */}
+        <div className="absolute inset-0 opacity-[0.03] mix-blend-multiply" style={{ backgroundImage: 'radial-gradient(#4f46e5 1px, transparent 1px)', backgroundSize: '16px 16px' }} />
+        
+        {course.thumbnailUrl ? (
+          <img
+            src={course.thumbnailUrl}
+            alt={course.title}
+            loading="lazy"
+            decoding="async"
+            className="relative z-10 h-full w-[130px] rounded-r-md rounded-l-sm object-cover shadow-[4px_0_15px_rgba(0,0,0,0.1),-1px_0_1px_rgba(0,0,0,0.05)] transition-transform duration-500 group-hover:scale-105 group-hover:-rotate-2"
+          />
+        ) : (
+          <div className="relative z-10 flex h-full w-[130px] flex-col items-center justify-center rounded-r-md rounded-l-sm bg-gradient-to-tr from-indigo-500 to-blue-500 text-white shadow-[4px_0_15px_rgba(0,0,0,0.1),-1px_0_1px_rgba(0,0,0,0.05)] transition-transform duration-500 group-hover:scale-105 group-hover:-rotate-2">
+            <FileText className="h-10 w-10 opacity-50" />
+            <span className="mt-4 w-full px-2 text-center text-[10px] font-black uppercase tracking-wider opacity-80 line-clamp-3 leading-snug">
+              {course.title}
+            </span>
+          </div>
+        )}
+        
+        {/* Badges */}
+        <div className="absolute left-4 top-4 z-20 flex gap-2">
+          <span className="rounded-xl bg-white/70 px-3 py-1 text-xs font-black text-indigo-700 shadow-sm backdrop-blur-md">
+            {t('courses.typeDocument')}
+          </span>
+        </div>
+      </div>
+
+      <div className="p-5 flex flex-col flex-grow bg-white">
+        <h3 className="line-clamp-2 font-black text-slate-900 text-lg leading-tight transition group-hover:text-indigo-600">
+          {course.title}
+        </h3>
+        
+        <p className="mt-3 line-clamp-2 text-sm leading-relaxed text-slate-500 flex-grow">
+          {course.description || t('courses.noDescription')}
+        </p>
+
+        <div className="mt-4">
+          <CourseMetadata domainName={categoryName} skills={courseSkills} />
+        </div>
+
+        <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-5">
+          <div className="flex flex-col">
+            <span className="text-sm font-semibold text-slate-500">Price</span>
+            <span className="text-xl font-black text-indigo-700">
+              {course.priceMxc ? formatCurrency(course.priceMxc) : t('courses.free')}
+            </span>
+          </div>
+          
+          <div className="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-50 text-indigo-600 transition-colors group-hover:bg-indigo-600 group-hover:text-white">
+            <Download className="h-4 w-4 stroke-[2.5]" />
+          </div>
+        </div>
+      </div>
+    </Link>
+  )
+}
+
+function Pagination({
+  page,
+  totalPages,
+  onPageChange,
+}: {
+  page: number
+  totalPages: number
+  onPageChange: (page: number) => void
+}) {
+  const { t } = useI18n()
+  if (totalPages <= 1) return null
+
+  const visiblePages = Array.from({ length: Math.min(totalPages, 7) }).map((_, index) => {
+    return totalPages <= 7 ? index : Math.max(0, Math.min(page - 3, totalPages - 7)) + index
+  })
+
+  return (
+    <nav
+      className="inline-flex items-center gap-1 rounded-2xl border border-slate-200 bg-white p-1.5 shadow-sm"
+      aria-label="Pagination"
+    >
+      <button
+        type="button"
+        onClick={() => onPageChange(Math.max(0, page - 1))}
+        disabled={page === 0}
+        className="flex h-11 w-11 items-center justify-center rounded-xl text-slate-600 transition-colors hover:bg-slate-100 active:translate-y-px disabled:pointer-events-none disabled:opacity-35"
+        aria-label="Previous page"
+      >
+        <ChevronLeft className="h-5 w-5" aria-hidden="true" />
+      </button>
+
+      {visiblePages.map((pageNumber) => (
+        <button
+          key={pageNumber}
+          type="button"
+          onClick={() => onPageChange(pageNumber)}
+          aria-current={page === pageNumber ? 'page' : undefined}
+          aria-label={`Page ${pageNumber + 1}`}
+          className={`h-11 min-w-11 rounded-xl px-3 text-sm font-bold transition-colors active:translate-y-px ${
+            page === pageNumber
+              ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-sm'
+              : 'text-slate-600 hover:bg-slate-100'
+          }`}
+        >
+          {pageNumber + 1}
+        </button>
+      ))}
+
+      <button
+        type="button"
+        onClick={() => onPageChange(Math.min(totalPages - 1, page + 1))}
+        disabled={page >= totalPages - 1}
+        className="flex h-11 w-11 items-center justify-center rounded-xl text-slate-600 transition-colors hover:bg-slate-100 active:translate-y-px disabled:pointer-events-none disabled:opacity-35"
+        aria-label="Next page"
+      >
+        <ChevronRight className="h-5 w-5" aria-hidden="true" />
+      </button>
+    </nav>
   )
 }

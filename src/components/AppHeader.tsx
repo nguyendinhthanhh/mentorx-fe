@@ -77,7 +77,11 @@ export default function AppHeader() {
     { enabled: !!user?.userId, refetchInterval: 30000 }
   )
 
-  const unreadCount = rooms?.content.reduce((sum, room) => sum + (room.unreadCount || 0), 0) || 0
+  const unreadCount = rooms?.content.reduce((sum, room) => {
+    if (room.isArchived) return sum
+    if (room.roomType === 'DIRECT_MESSAGE' && room.members?.length > 0 && room.members.every(m => m.userId === user?.userId)) return sum
+    return sum + (room.unreadCount || 0)
+  }, 0) || 0
   const mentorCtaLabel = getMentorCtaLabel(user?.mentorStatus, t)
 
   const navLinks = [
@@ -97,9 +101,7 @@ export default function AppHeader() {
     <header className="sticky top-0 z-50 border-b border-[#E2E8F0] bg-white/95 backdrop-blur-md dark:border-slate-800 dark:bg-slate-950/95">
       <div className="mx-auto flex h-16 max-w-[1600px] items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link to="/" className="group flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-sm font-bold text-[#4f46e5] transition group-hover:border-indigo-200 group-hover:bg-indigo-50 dark:border-slate-700 dark:bg-slate-900 dark:text-indigo-300 dark:group-hover:border-indigo-500/40 dark:group-hover:bg-indigo-500/10">
-            MX
-          </div>
+          <img src="/logo.png" alt="MentorX Logo" className="h-10 w-auto object-contain transition-transform group-hover:scale-105" />
           <div className="flex flex-col leading-none">
             <span className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
               Mentor<span className="text-indigo-600">X</span>
@@ -174,9 +176,9 @@ export default function AppHeader() {
 
                 <div className="flex items-center">
                   <Link
-                    to="/chat"
+                    to={location.pathname.startsWith('/mentor') ? '/mentor/messages' : '/chat'}
                     className={`relative flex h-8 w-8 items-center justify-center rounded-xl transition-colors ${
-                      location.pathname.startsWith('/chat')
+                      location.pathname.startsWith('/chat') || location.pathname.startsWith('/mentor/messages')
                         ? 'bg-indigo-600 text-white'
                         : 'text-slate-500 hover:bg-white hover:text-indigo-600 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white'
                     }`}

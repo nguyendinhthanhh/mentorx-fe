@@ -62,12 +62,12 @@ export default function TransferForm({ userId, onSuccess }: TransferFormProps) {
       <div className="bg-blue-50/50 rounded-2xl p-5 border border-blue-100 space-y-4">
         <div className="flex items-center gap-2 text-blue-800 mb-1">
           <Send className="w-4 h-4" />
-          <h4 className="text-sm font-bold">Transfer Funds</h4>
+          <h4 className="text-sm font-bold">Chuyển tiền</h4>
         </div>
 
         <div>
           <label htmlFor="toUserId" className="block text-[10px] font-bold text-gray-500 uppercase mb-1">
-            Recipient User ID *
+            ID người nhận *
           </label>
           <div className="relative">
             <input
@@ -84,7 +84,7 @@ export default function TransferForm({ userId, onSuccess }: TransferFormProps) {
 
         <div>
           <label htmlFor="amount" className="block text-[10px] font-bold text-gray-500 uppercase mb-1">
-            Amount (MXC) *
+            Số tiền (MXC) *
           </label>
           <input
             id="amount"
@@ -99,14 +99,14 @@ export default function TransferForm({ userId, onSuccess }: TransferFormProps) {
 
         <div>
           <label htmlFor="description" className="block text-[10px] font-bold text-gray-500 uppercase mb-1">
-            Note (Optional)
+            Ghi chú (Tùy chọn)
           </label>
           <textarea
             id="description"
             {...register('description')}
             className="block w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all text-sm"
             rows={2}
-            placeholder="What is this for?"
+            placeholder="Chuyển tiền vì lý do gì?"
           />
         </div>
       </div>
@@ -119,7 +119,7 @@ export default function TransferForm({ userId, onSuccess }: TransferFormProps) {
 
       {success && (
         <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-xl text-sm">
-          Transfer successful! Funds have been sent.
+          Chuyển tiền thành công! Số tiền đã được gửi.
         </div>
       )}
 
@@ -128,7 +128,7 @@ export default function TransferForm({ userId, onSuccess }: TransferFormProps) {
         disabled={loading} 
         className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-blue-200 transition-all disabled:opacity-50"
       >
-        {loading ? 'Sending...' : 'Send MXC Now'}
+        {loading ? 'Đang gửi...' : 'Gửi MXC Ngay'}
       </button>
     </form>
   )
