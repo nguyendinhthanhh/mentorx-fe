@@ -8,7 +8,6 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Eye, EyeOff, Loader2 } from 'lucide-react'
 import GoogleLoginButton from './GoogleLoginButton'
-import GithubLoginButton from './GithubLoginButton'
 import EmailVerificationPending from './EmailVerificationPending'
 import { getSocialAuthRedirectPath } from '@/utils/socialAuth'
 
@@ -162,14 +161,6 @@ export default function RegisterForm() {
           onSuccess={handleSocialRegisterSuccess}
           onError={(error) => setError(error)}
           text="Sign up with Google"
-        />
-      </div>
-
-      <div className="flex justify-center">
-        <GithubLoginButton
-          onSuccess={handleSocialRegisterSuccess}
-          onError={(error) => setError(error)}
-          text="Sign up with GitHub"
         />
       </div>
     </form>
