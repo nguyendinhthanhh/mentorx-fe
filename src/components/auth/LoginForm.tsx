@@ -10,7 +10,6 @@ import { Eye, EyeOff, Loader2, ArrowRight } from 'lucide-react'
 import { toast } from 'react-hot-toast'
 
 import GoogleLoginButton from './GoogleLoginButton'
-import GithubLoginButton from './GithubLoginButton'
 import EmailVerificationPending from './EmailVerificationPending'
 
 import { getSocialAuthRedirectPath } from '@/utils/socialAuth'
@@ -181,16 +180,11 @@ export default function LoginForm({ onVerificationPendingChange }: LoginFormProp
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4">
           <GoogleLoginButton
             onSuccess={handleSocialLoginSuccess}
             onError={(error) => setError(error)}
             text="Google"
-          />
-          <GithubLoginButton
-            onSuccess={handleSocialLoginSuccess}
-            onError={(error) => setError(error)}
-            text="GitHub"
           />
         </div>
       </form>
