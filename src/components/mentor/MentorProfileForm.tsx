@@ -22,12 +22,8 @@ import {
   Video,
 } from 'lucide-react'
 
-import { useQuery } from 'react-query'
-
-import { categoryApi } from '@/api/categoryApi'
 import { FILE_UPLOAD_DIRS, fileApi } from '@/api/fileApi'
 import { mentorApi } from '@/api/mentorApi'
-import { skillApi } from '@/api/skillApi'
 import { userApi } from '@/api/userApi'
 import { useAuthStore } from '@/store/authStore'
 import { MentorProfileRequest } from '@/types'
@@ -35,6 +31,21 @@ import { deriveLegacyProofFields, getMentorProofLinks, normalizeProofLinks } fro
 
 const isDevEnvironment = import.meta.env.DEV
 
+const DOMAIN_OPTIONS = [
+  { value: 'Software Engineering', label: 'Kỹ thuật phần mềm' },
+  { value: 'Data Science & AI', label: 'Khoa học dữ liệu & AI' },
+  { value: 'Product Management', label: 'Quản lý sản phẩm' },
+  { value: 'Design', label: 'Thiết kế (Design)' },
+  { value: 'Marketing', label: 'Marketing' },
+  { value: 'Business & Finance', label: 'Kinh doanh & Tài chính' },
+  { value: 'Career Coaching', label: 'Huấn luyện sự nghiệp (Career Coaching)' },
+  { value: 'Education', label: 'Giáo dục' },
+  { value: 'Sales', label: 'Bán hàng (Sales)' },
+  { value: 'Human Resources', label: 'Nhân sự (HR)' },
+  { value: 'Operations', label: 'Vận hành (Operations)' },
+  { value: 'Healthcare', label: 'Chăm sóc sức khỏe' },
+  { value: 'Other', label: 'Khác' },
+] as const
 
 // A small fallback list used only if the browser doesn't support Intl.supportedValuesOf
 // (e.g. very old Safari). Modern browsers use the full IANA tz database instead (see below).
@@ -85,8 +96,7 @@ function getTimezoneOffsetMinutes(timeZone: string): number {
 // IANA canonicalizes a few zones to older/less recognizable names (e.g. Ho Chi Minh City's
 // zone resolves to "Asia/Saigon"). Override just those so the label reads naturally.
 const TIMEZONE_DISPLAY_OVERRIDES: Record<string, string> = {
-  'Asia/Saigon': 'HÃ  Ná»™i / Há»“ ChÃ­ Minh, Viá»‡t Nam',
-  'Asia/Ho_Chi_Minh': 'HÃ  Ná»™i / Há»“ ChÃ­ Minh, Viá»‡t Nam',
+  'Asia/Saigon': 'Hồ Chí Minh',
 }
 
 function formatTimezoneCityLabel(timeZone: string): string {
@@ -136,31 +146,43 @@ function buildLocationOptions() {
 const LOCATION_OPTIONS = buildLocationOptions()
 
 const LANGUAGE_OPTIONS = [
-  { value: 'English', label: 'Tiáº¿ng Anh' },
-  { value: 'Vietnamese', label: 'Tiáº¿ng Viá»‡t' },
-  { value: 'Japanese', label: 'Tiáº¿ng Nháº­t' },
-  { value: 'English, Vietnamese', label: 'Anh, Viá»‡t' },
-  { value: 'English, Japanese', label: 'Anh, Nháº­t' },
-  { value: 'Vietnamese, Japanese', label: 'Viá»‡t, Nháº­t' },
-  { value: 'English, Vietnamese, Japanese', label: 'Anh, Viá»‡t, Nháº­t' },
-  { value: 'Other', label: 'KhÃ¡c' },
+  { value: 'English', label: 'Tiếng Anh' },
+  { value: 'Vietnamese', label: 'Tiếng Việt' },
+  { value: 'Japanese', label: 'Tiếng Nhật' },
+  { value: 'English, Vietnamese', label: 'Anh, Việt' },
+  { value: 'English, Japanese', label: 'Anh, Nhật' },
+  { value: 'Vietnamese, Japanese', label: 'Việt, Nhật' },
+  { value: 'English, Vietnamese, Japanese', label: 'Anh, Việt, Nhật' },
+  { value: 'Other', label: 'Khác' },
 ] as const
 
+const SKILL_SUGGESTIONS = [
+  'Frontend',
+  'Backend',
+  'Mobile',
+  'Data Analysis',
+  'Machine Learning',
+  'UI/UX Design',
+  'Product Strategy',
+  'Marketing',
+  'Career Coaching',
+  'Public Speaking',
+]
 
 const EXPERIENCE_OPTIONS = [
-  { value: '0.5', label: 'DÆ°á»›i 1 nÄƒm' },
-  { value: '1', label: '1 - 3 nÄƒm' },
-  { value: '3', label: '3 - 5 nÄƒm' },
-  { value: '5', label: '5 - 8 nÄƒm' },
-  { value: '8', label: '8 - 12 nÄƒm' },
-  { value: '12', label: '12+ nÄƒm' },
+  { value: '0.5', label: 'Dưới 1 năm' },
+  { value: '1', label: '1 - 3 năm' },
+  { value: '3', label: '3 - 5 năm' },
+  { value: '5', label: '5 - 8 năm' },
+  { value: '8', label: '8 - 12 năm' },
+  { value: '12', label: '12+ năm' },
 ] as const
 
 const AVAILABILITY_OPTIONS = [
-  { value: 'Flexible', label: 'Linh hoáº¡t' },
-  { value: 'Weekdays', label: 'NgÃ y thÆ°á»ng' },
-  { value: 'Evenings', label: 'Buá»•i tá»‘i' },
-  { value: 'Weekends', label: 'Cuá»‘i tuáº§n' },
+  { value: 'Flexible', label: 'Linh hoạt' },
+  { value: 'Weekdays', label: 'Ngày thường' },
+  { value: 'Evenings', label: 'Buổi tối' },
+  { value: 'Weekends', label: 'Cuối tuần' },
 ] as const
 
 const RATE_SUGGESTIONS = [150, 250, 500, 800] as const
@@ -227,27 +249,27 @@ const schema = z
     headline: z
       .string()
       .trim()
-      .min(20, 'Vui lÃ²ng nháº­p Ã­t nháº¥t 20 kÃ½ tá»±.')
-      .max(120, 'TiÃªu Ä‘á» khÃ´ng Ä‘Æ°á»£c vÆ°á»£t quÃ¡ 120 kÃ½ tá»±.'),
+      .min(20, 'Vui lòng nhập ít nhất 20 ký tự.')
+      .max(120, 'Tiêu đề không được vượt quá 120 ký tự.'),
     currentTitle: z.string().optional(),
     currentCompany: z.string().optional(),
-    primaryDomain: z.string().min(2, 'Vui lÃ²ng chá»n lÄ©nh vá»±c chuyÃªn mÃ´n chÃ­nh.'),
+    primaryDomain: z.string().min(2, 'Vui lòng chọn lĩnh vực chuyên môn chính.'),
     primaryDomainCustom: z.string().optional(),
     skills: z
       .array(z.string().trim().min(1).max(60))
-      .min(3, 'Vui lÃ²ng thÃªm Ã­t nháº¥t 3 ká»¹ nÄƒng.')
-      .max(15, 'Báº¡n chá»‰ cÃ³ thá»ƒ thÃªm tá»‘i Ä‘a 15 ká»¹ nÄƒng.'),
+      .min(3, 'Vui lòng thêm ít nhất 3 kỹ năng.')
+      .max(15, 'Bạn chỉ có thể thêm tối đa 15 kỹ năng.'),
     professionalBio: z.string().trim(),
     helpDescription: z
       .string()
       .trim()
-      .min(40, 'Vui lÃ²ng thÃªm tÃ³m táº¯t vá» nhá»¯ng gÃ¬ há»c viÃªn cÃ³ thá»ƒ ká»³ vá»ng.')
-      .max(500, 'Ná»™i dung nÃ y khÃ´ng Ä‘Æ°á»£c vÆ°á»£t quÃ¡ 500 kÃ½ tá»±.'),
-    yearsOfExperience: z.coerce.number().positive('Vui lÃ²ng chá»n sá»‘ nÄƒm kinh nghiá»‡m.'),
-    hourlyRateMxc: z.coerce.number().positive('Má»©c phÃ­ theo giá» pháº£i lá»›n hÆ¡n 0.').optional(),
-    availability: z.string().min(1, 'Vui lÃ²ng chá»n khung giá» trá»‘ng.'),
-    location: z.string().trim().min(2, 'Vui lÃ²ng nháº­p mÃºi giá» / khu vá»±c cá»§a báº¡n.'),
-    languagesOption: z.string().min(1, 'Vui lÃ²ng chá»n Ã­t nháº¥t má»™t ngÃ´n ngá»¯.'),
+      .min(40, 'Vui lòng thêm tóm tắt về những gì học viên có thể kỳ vọng.')
+      .max(500, 'Nội dung này không được vượt quá 500 ký tự.'),
+    yearsOfExperience: z.coerce.number().positive('Vui lòng chọn số năm kinh nghiệm.'),
+    hourlyRateMxc: z.coerce.number().positive('Mức phí theo giờ phải lớn hơn 0.').optional(),
+    availability: z.string().min(1, 'Vui lòng chọn khung giờ trống.'),
+    location: z.string().trim().min(2, 'Vui lòng nhập múi giờ / khu vực của bạn.'),
+    languagesOption: z.string().min(1, 'Vui lòng chọn ít nhất một ngôn ngữ.'),
     languagesCustom: z.string().optional(),
     proofLinks: z.array(
       z.object({
@@ -259,14 +281,14 @@ const schema = z
     coverUrl: z.string().optional(),
     cvUrl: z.string().optional(),
     certificateUrl: z.string().optional(),
-    mentorAgreementAccepted: z.boolean().refine(Boolean, 'Vui lÃ²ng xÃ¡c nháº­n thÃ´ng tin lÃ  chÃ­nh xÃ¡c.'),
-    disputePolicyAccepted: z.boolean().refine(Boolean, 'Vui lÃ²ng Ä‘á»“ng Ã½ vá»›i chÃ­nh sÃ¡ch kiá»ƒm duyá»‡t.'),
+    mentorAgreementAccepted: z.boolean().refine(Boolean, 'Vui lòng xác nhận thông tin là chính xác.'),
+    disputePolicyAccepted: z.boolean().refine(Boolean, 'Vui lòng đồng ý với chính sách kiểm duyệt.'),
   })
   .superRefine((value, context) => {
     if (value.primaryDomain === 'Other' && (!value.primaryDomainCustom || value.primaryDomainCustom.trim().length < 2)) {
       context.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'Vui lÃ²ng nháº­p lÄ©nh vá»±c chuyÃªn mÃ´n cá»§a báº¡n.',
+        message: 'Vui lòng nhập lĩnh vực chuyên môn của bạn.',
         path: ['primaryDomainCustom'],
       })
     }
@@ -274,7 +296,7 @@ const schema = z
     if (value.languagesOption === 'Other' && (!value.languagesCustom || value.languagesCustom.trim().length < 2)) {
       context.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'Vui lÃ²ng nháº­p ngÃ´n ngá»¯ cá»§a báº¡n.',
+        message: 'Vui lòng nhập ngôn ngữ của bạn.',
         path: ['languagesCustom'],
       })
     }
@@ -282,7 +304,7 @@ const schema = z
     if (isUrlLike(value.headline)) {
       context.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'TiÃªu Ä‘á» pháº£i lÃ  vÄƒn báº£n thÃ´ng thÆ°á»ng, khÃ´ng Ä‘Æ°á»£c chá»©a URL.',
+        message: 'Tiêu đề phải là văn bản thông thường, không được chứa URL.',
         path: ['headline'],
       })
     }
@@ -290,7 +312,7 @@ const schema = z
     if (isUrlLike(value.currentTitle)) {
       context.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'Chá»©c danh pháº£i lÃ  vÄƒn báº£n thÃ´ng thÆ°á»ng, khÃ´ng Ä‘Æ°á»£c chá»©a URL.',
+        message: 'Chức danh phải là văn bản thông thường, không được chứa URL.',
         path: ['currentTitle'],
       })
     }
@@ -298,7 +320,7 @@ const schema = z
     if (isUrlLike(value.currentCompany)) {
       context.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'TÃªn cÃ´ng ty pháº£i lÃ  vÄƒn báº£n thÃ´ng thÆ°á»ng, khÃ´ng Ä‘Æ°á»£c chá»©a URL.',
+        message: 'Tên công ty phải là văn bản thông thường, không được chứa URL.',
         path: ['currentCompany'],
       })
     }
@@ -307,7 +329,7 @@ const schema = z
     if (bioLength < 50 || bioLength > 500) {
       context.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'Giá»›i thiá»‡u báº£n thÃ¢n cáº§n tá»« 50 Ä‘áº¿n 500 kÃ½ tá»±.',
+        message: 'Giới thiệu bản thân cần từ 50 đến 500 ký tự.',
         path: ['professionalBio'],
       })
     }
@@ -323,7 +345,7 @@ const schema = z
       if (!label) {
         context.addIssue({
           code: z.ZodIssueCode.custom,
-          message: 'Vui lÃ²ng nháº­p tÃªn nhÃ£n.',
+          message: 'Vui lòng nhập tên nhãn.',
           path: ['proofLinks', index, 'label'],
         })
       }
@@ -331,7 +353,7 @@ const schema = z
       if (!url) {
         context.addIssue({
           code: z.ZodIssueCode.custom,
-          message: 'Vui lÃ²ng nháº­p URL.',
+          message: 'Vui lòng nhập URL.',
           path: ['proofLinks', index, 'url'],
         })
         continue
@@ -341,13 +363,13 @@ const schema = z
       if (!parsed) {
         context.addIssue({
           code: z.ZodIssueCode.custom,
-          message: 'Vui lÃ²ng nháº­p URL há»£p lá»‡.',
+          message: 'Vui lòng nhập URL hợp lệ.',
           path: ['proofLinks', index, 'url'],
         })
       } else if (!isDevEnvironment && ['localhost', '127.0.0.1'].includes(parsed.hostname.toLowerCase())) {
         context.addIssue({
           code: z.ZodIssueCode.custom,
-          message: 'Localhost URL khÃ´ng Ä‘Æ°á»£c phÃ©p.',
+          message: 'Localhost URL không được phép.',
           path: ['proofLinks', index, 'url'],
         })
       }
@@ -357,7 +379,7 @@ const schema = z
     if (!hasProof) {
       context.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'Vui lÃ²ng thÃªm Ã­t nháº¥t má»™t liÃªn káº¿t nÄƒng lá»±c, CV, hoáº·c chá»©ng chá»‰.',
+        message: 'Vui lòng thêm ít nhất một liên kết năng lực, CV, hoặc chứng chỉ.',
         path: ['proofLinks'],
       })
     }
@@ -366,42 +388,7 @@ const schema = z
 type FormValues = z.infer<typeof schema>
 type UploadField = 'cvUrl' | 'certificateUrl'
 
-interface InnerProps extends Props {
-  domainOptions: { value: string; label: string }[]
-  skillSuggestions: string[]
-}
-
-export default function MentorProfileForm(props: Props) {
-  const { data: categories = [], isLoading: isLoadingCategories } = useQuery(
-    ['categories'],
-    () => categoryApi.getAllActive(),
-    { staleTime: 1000 * 60 * 60 }
-  )
-
-  const { data: skills = [], isLoading: isLoadingSkills } = useQuery(
-    ['skills'],
-    () => skillApi.getAllActive(),
-    { staleTime: 1000 * 60 * 60 }
-  )
-
-  if (isLoadingCategories || isLoadingSkills) {
-    return (
-      <div className="flex flex-col items-center justify-center p-12 text-slate-500">
-        <Loader2 className="h-8 w-8 animate-spin text-emerald-500 mb-4" />
-        <p className="text-sm font-medium">Đang tải cấu hình biểu mẫu...</p>
-      </div>
-    )
-  }
-
-  const domainOptions = categories.map((c) => ({ value: c.slug, label: c.name }))
-  domainOptions.push({ value: 'Other', label: 'Khác' })
-
-  const skillSuggestions = skills.map((s) => s.labelVi || s.labelEn)
-
-  return <MentorProfileFormInner {...props} domainOptions={domainOptions} skillSuggestions={skillSuggestions} />
-}
-
-function MentorProfileFormInner({
+export default function MentorProfileForm({
   userId,
   initialData,
   isEdit,
@@ -412,9 +399,7 @@ function MentorProfileFormInner({
   successDescription,
   successRedirectTo = '/become-a-mentor',
   onSaved,
-  domainOptions,
-  skillSuggestions,
-}: InnerProps) {
+}: Props) {
   const navigate = useNavigate()
   const { user, refreshUser } = useAuthStore()
   const [uploading, setUploading] = useState<Record<string, boolean>>({})
@@ -425,7 +410,7 @@ function MentorProfileFormInner({
 
   const initialDomain = initialData?.primaryDomain || ''
   const initialLanguagesText = initialData?.languages?.join(', ') || ''
-  const resolvedDomain = domainOptions.some(o => o.value === initialDomain) ? initialDomain : (initialDomain ? 'Other' : '')
+  const resolvedDomain = DOMAIN_OPTIONS.some(o => o.value === initialDomain) ? initialDomain : (initialDomain ? 'Other' : '')
   const resolvedLanguages = LANGUAGE_OPTIONS.some(o => o.value === initialLanguagesText)
     ? initialLanguagesText
     : (initialLanguagesText ? 'Other' : '')
@@ -490,14 +475,14 @@ function MentorProfileFormInner({
       (!err?.response && typeof err?.message === 'string' && err.message.toLowerCase().includes('network error'))
 
     if (isNetworkError) {
-      return 'KhÃ´ng thá»ƒ káº¿t ná»‘i Ä‘áº¿n mÃ¡y chá»§. Vui lÃ²ng thá»­ láº¡i sau.'
+      return 'Không thể kết nối đến máy chủ. Vui lòng thử lại sau.'
     }
 
     const status = err?.response?.status
-    if (status === 401) return 'PhiÃªn Ä‘Äƒng nháº­p Ä‘Ã£ háº¿t háº¡n. Vui lÃ²ng Ä‘Äƒng nháº­p láº¡i.'
-    if (status === 403) return 'Báº¡n khÃ´ng cÃ³ quyá»n táº£i lÃªn tá»‡p nÃ y.'
-    if (status === 413) return 'Tá»‡p quÃ¡ lá»›n. KÃ­ch thÆ°á»›c tá»‘i Ä‘a lÃ  10MB.'
-    if (status === 415) return 'Loáº¡i tá»‡p khÃ´ng Ä‘Æ°á»£c há»— trá»£. Vui lÃ²ng táº£i lÃªn PDF, JPG, JPEG, PNG, hoáº·c WEBP.'
+    if (status === 401) return 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.'
+    if (status === 403) return 'Bạn không có quyền tải lên tệp này.'
+    if (status === 413) return 'Tệp quá lớn. Kích thước tối đa là 10MB.'
+    if (status === 415) return 'Loại tệp không được hỗ trợ. Vui lòng tải lên PDF, JPG, JPEG, PNG, hoặc WEBP.'
 
     return (
       err?.response?.data?.message ||
@@ -513,7 +498,7 @@ function MentorProfileFormInner({
     if (!file) return
 
     if (!allowedMimeTypes.has(file.type)) {
-      setError(`Loáº¡i hÃ¬nh áº£nh khÃ´ng Ä‘Æ°á»£c há»— trá»£.`)
+      setError(`Loại hình ảnh không được hỗ trợ.`)
       return
     }
 
@@ -528,7 +513,7 @@ function MentorProfileFormInner({
       setValue(fieldName, response.fileUrl, { shouldValidate: true, shouldDirty: true })
     } catch (err) {
       setValue(fieldName, previousValue || '', { shouldValidate: true, shouldDirty: true })
-      setError(getApiErrorMessage(err, 'Lá»—i khi táº£i áº£nh lÃªn.'))
+      setError(getApiErrorMessage(err, 'Lỗi khi tải ảnh lên.'))
     } finally {
       URL.revokeObjectURL(previewUrl)
       setUploading((prev) => ({ ...prev, [fieldName]: false }))
@@ -541,12 +526,12 @@ function MentorProfileFormInner({
 
     const extension = file.name?.toLowerCase().slice(file.name.lastIndexOf('.')) || ''
     if (!allowedMimeTypes.has(file.type) || !allowedExtensions.includes(extension)) {
-      setError('Äá»‹nh dáº¡ng tá»‡p khÃ´ng Ä‘Æ°á»£c há»— trá»£. Vui lÃ²ng chá»n PDF, JPG, PNG, hoáº·c WEBP.')
+      setError('Định dạng tệp không được hỗ trợ. Vui lòng chọn PDF, JPG, PNG, hoặc WEBP.')
       return
     }
 
     if (file.size > maxUploadBytes) {
-      setError('Tá»‡p quÃ¡ lá»›n. KÃ­ch thÆ°á»›c tá»‘i Ä‘a lÃ  10MB.')
+      setError('Tệp quá lớn. Kích thước tối đa là 10MB.')
       return
     }
 
@@ -556,7 +541,7 @@ function MentorProfileFormInner({
       const response = await fileApi.upload(file, { subDirectory: FILE_UPLOAD_DIRS.PRIVATE_DOCUMENT })
       setValue(field, response.fileUrl, { shouldDirty: true, shouldValidate: true })
     } catch (err: any) {
-      setError(getApiErrorMessage(err, 'KhÃ´ng thá»ƒ táº£i tá»‡p lÃªn. Vui lÃ²ng thá»­ láº¡i.'))
+      setError(getApiErrorMessage(err, 'Không thể tải tệp lên. Vui lòng thử lại.'))
     } finally {
       setUploading((prev) => ({ ...prev, [field]: false }))
     }
@@ -574,7 +559,7 @@ function MentorProfileFormInner({
     }
 
     if (currentSkills.length >= 15) {
-      setError('Báº¡n chá»‰ cÃ³ thá»ƒ thÃªm tá»‘i Ä‘a 15 ká»¹ nÄƒng.')
+      setError('Bạn chỉ có thể thêm tối đa 15 kỹ năng.')
       return
     }
 
@@ -652,7 +637,7 @@ function MentorProfileFormInner({
         }
       }, 900)
     } catch (err: any) {
-      setError(getApiErrorMessage(err, 'KhÃ´ng thá»ƒ gá»­i há»“ sÆ¡ cá»§a báº¡n lÃºc nÃ y.'))
+      setError(getApiErrorMessage(err, 'Không thể gửi hồ sơ của bạn lúc này.'))
     } finally {
       setLoading(false)
     }
@@ -665,10 +650,10 @@ function MentorProfileFormInner({
           <CheckCircle2 className="h-8 w-8" />
         </div>
         <h3 className="mt-5 text-2xl font-black tracking-tight text-slate-900">
-          {successTitle || (isEdit ? 'ÄÃ£ cáº­p nháº­t há»“ sÆ¡' : 'ÄÃ£ gá»­i há»“ sÆ¡ á»©ng tuyá»ƒn')}
+          {successTitle || (isEdit ? 'Đã cập nhật hồ sơ' : 'Đã gửi hồ sơ ứng tuyển')}
         </h3>
         <p className="mx-auto mt-3 max-w-lg text-sm font-semibold text-slate-600">
-          {successDescription || 'Há»“ sÆ¡ cá»§a báº¡n Ä‘Ã£ Ä‘Æ°á»£c gá»­i. ChÃºng tÃ´i sáº½ pháº£n há»“i trong vÃ²ng 2-5 ngÃ y lÃ m viá»‡c.'}
+          {successDescription || 'Hồ sơ của bạn đã được gửi. Chúng tôi sẽ phản hồi trong vòng 2-5 ngày làm việc.'}
         </p>
       </div>
     )
@@ -678,13 +663,13 @@ function MentorProfileFormInner({
     <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-5">
       {isLocked && (
         <section className="rounded-xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm font-semibold text-amber-900">
-          {lockedMessage || 'Há»“ sÆ¡ cá»§a báº¡n Ä‘ang Ä‘Æ°á»£c xÃ©t duyá»‡t. KhÃ´ng thá»ƒ chá»‰nh sá»­a lÃºc nÃ y.'}
+          {lockedMessage || 'Hồ sơ của bạn đang được xét duyệt. Không thể chỉnh sửa lúc này.'}
         </section>
       )}
 
       <fieldset disabled={isLocked} className="space-y-5 disabled:cursor-not-allowed disabled:opacity-75">
         
-        {/* áº¢nh Ä‘áº¡i diá»‡n & Khá»Ÿi Ä‘áº§u */}
+        {/* Ảnh đại diện & Khởi đầu */}
         <section className={sectionClass}>
           <div className="flex flex-col gap-6 md:flex-row md:items-center">
             <div className="flex flex-col items-center shrink-0">
@@ -705,7 +690,7 @@ function MentorProfileFormInner({
                   disabled={uploading.avatarUrl || isLocked}
                 />
                 {uploading.avatarUrl ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <UploadCloud className="h-3.5 w-3.5" />}
-                {values.avatarUrl ? 'Äá»•i áº£nh' : 'Táº£i áº£nh lÃªn'}
+                {values.avatarUrl ? 'Đổi ảnh' : 'Tải ảnh lên'}
               </label>
 
               {values.avatarUrl && (
@@ -714,7 +699,7 @@ function MentorProfileFormInner({
                   onClick={() => setValue('avatarUrl', '', { shouldDirty: true, shouldValidate: true })}
                   className="mt-2 text-[10px] font-bold text-slate-400 hover:text-slate-600"
                 >
-                  Gá»¡ áº£nh
+                  Gỡ ảnh
                 </button>
               )}
             </div>
@@ -722,45 +707,45 @@ function MentorProfileFormInner({
             <div className="md:border-l md:border-slate-200 md:pl-6">
               <div className="mb-2 inline-flex items-center gap-1.5 text-xs font-semibold text-sky-700">
                 <CheckCircle2 className="w-3 h-3" />
-                áº¤n tÆ°á»£ng Ä‘áº§u tiÃªn
+                Ấn tượng đầu tiên
               </div>
-              <h3 className="text-xl font-black text-slate-900">HÃ¬nh áº£nh chuyÃªn nghiá»‡p, dá»… nháº­n diá»‡n</h3>
+              <h3 className="text-xl font-black text-slate-900">Hình ảnh chuyên nghiệp, dễ nhận diện</h3>
               <p className="mt-2 text-sm font-medium text-slate-500 leading-relaxed max-w-lg">
-                áº¢nh Ä‘áº¡i diá»‡n rÃµ nÃ©t, khuÃ´n máº·t thÃ¢n thiá»‡n sáº½ giÃºp há»c viÃªn tin tÆ°á»Ÿng báº¡n hÆ¡n vÃ  tÄƒng tá»· lá»‡ booking. File há»— trá»£: JPG, PNG, WEBP (tá»‘i Ä‘a 10MB).
+                Ảnh đại diện rõ nét, khuôn mặt thân thiện sẽ giúp học viên tin tưởng bạn hơn và tăng tỷ lệ booking. File hỗ trợ: JPG, PNG, WEBP (tối đa 10MB).
               </p>
             </div>
           </div>
         </section>
 
-        {/* ThÃ´ng tin chuyÃªn mÃ´n */}
+        {/* Thông tin chuyên môn */}
         <SectionCard
-          eyebrow="ThÃ´ng tin cÃ¡ nhÃ¢n"
-          title="Äá»‹nh vá»‹ chuyÃªn mÃ´n cá»§a báº¡n"
-          description="Giá»›i thiá»‡u nhanh vá» báº¡n, lÄ©nh vá»±c máº¡nh nháº¥t vÃ  cÃ¡c ká»¹ nÄƒng cá»‘t lÃµi."
+          eyebrow="Thông tin cá nhân"
+          title="Định vị chuyên môn của bạn"
+          description="Giới thiệu nhanh về bạn, lĩnh vực mạnh nhất và các kỹ năng cốt lõi."
           icon={<Sparkles className="h-5 w-5" />}
           tone="indigo"
         >
           <div className="grid gap-5 md:grid-cols-2">
             <Field
-              label="TiÃªu Ä‘á» (Headline)"
-              description="Má»™t cÃ¢u ngáº¯n gá»n tÃ³m táº¯t vá»‹ tháº¿ cá»§a báº¡n."
+              label="Tiêu đề (Headline)"
+              description="Một câu ngắn gọn tóm tắt vị thế của bạn."
               error={errors.headline?.message}
             >
               <input
                 {...register('headline')}
                 className={inputClass}
-                placeholder="VD: Senior Backend Engineer giÃºp báº¡n master Spring Boot"
+                placeholder="VD: Senior Backend Engineer giúp bạn master Spring Boot"
               />
             </Field>
 
             <Field
-              label="LÄ©nh vá»±c chÃ­nh"
-              description="Há»— trá»£ phÃ¢n loáº¡i há»“ sÆ¡ cá»§a báº¡n."
+              label="Lĩnh vực chính"
+              description="Hỗ trợ phân loại hồ sơ của bạn."
               error={errors.primaryDomain?.message}
             >
               <select {...register('primaryDomain')} className={inputClass}>
-                <option value="">Chá»n lÄ©nh vá»±c cá»§a báº¡n</option>
-                {domainOptions.map((domain) => (
+                <option value="">Chọn lĩnh vực của bạn</option>
+                {DOMAIN_OPTIONS.map((domain) => (
                   <option key={domain.value} value={domain.value}>
                     {domain.label}
                   </option>
@@ -771,18 +756,18 @@ function MentorProfileFormInner({
             {values.primaryDomain === 'Other' && (
               <div className="md:col-span-2">
                 <Field
-                  label="LÄ©nh vá»±c khÃ¡c"
+                  label="Lĩnh vực khác"
                   error={errors.primaryDomainCustom?.message}
                 >
-                  <input {...register('primaryDomainCustom')} className={inputClass} placeholder="VD: Luáº­t, Kiáº¿n trÃºc, Nha khoa" />
+                  <input {...register('primaryDomainCustom')} className={inputClass} placeholder="VD: Luật, Kiến trúc, Nha khoa" />
                 </Field>
               </div>
             )}
 
             <div className="md:col-span-2">
               <Field
-                label="Ká»¹ nÄƒng (Skills)"
-                description="ThÃªm 3 - 15 ká»¹ nÄƒng cá»‘t lÃµi mÃ  báº¡n tá»± tin mentor."
+                label="Kỹ năng (Skills)"
+                description="Thêm 3 - 15 kỹ năng cốt lõi mà bạn tự tin mentor."
                 error={errors.skills?.message as string | undefined}
               >
                 <div className="rounded-2xl border border-slate-200/80 bg-slate-50/50 p-4">
@@ -812,20 +797,20 @@ function MentorProfileFormInner({
                         }
                       }}
                       className={inputClass}
-                      placeholder="Nháº­p tÃªn ká»¹ nÄƒng vÃ  nháº¥n Enter..."
+                      placeholder="Nhập tên kỹ năng và nhấn Enter..."
                     />
                     <button
                       type="button"
                       onClick={() => addSkill(skillInput)}
                       className="shrink-0 rounded-xl bg-emerald-600 shadow-md hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 hover:bg-emerald-700 px-5 text-sm font-bold text-white transition hover:bg-emerald-600"
                     >
-                      ThÃªm
+                      Thêm
                     </button>
                   </div>
 
                   <div className="mt-4 flex flex-wrap gap-2">
-                    <span className="text-xs font-semibold text-slate-400">Gá»£i Ã½:</span>
-                    {skillSuggestions.map((skill) => (
+                    <span className="text-xs font-semibold text-slate-400">Gợi ý:</span>
+                    {SKILL_SUGGESTIONS.map((skill) => (
                       <button
                         key={skill}
                         type="button"
@@ -843,20 +828,20 @@ function MentorProfileFormInner({
           </div>
         </SectionCard>
 
-        {/* Giá»›i thiá»‡u chi tiáº¿t */}
+        {/* Giới thiệu chi tiết */}
         <SectionCard
-          eyebrow="Giá»›i thiá»‡u báº£n thÃ¢n"
-          title="Ká»ƒ cÃ¢u chuyá»‡n nghá» nghiá»‡p cá»§a báº¡n"
-          description="Cho há»c viÃªn biáº¿t phong cÃ¡ch mentor cá»§a báº¡n vÃ  há» sáº½ Ä‘áº¡t Ä‘Æ°á»£c gÃ¬ khi lÃ m viá»‡c vá»›i báº¡n."
+          eyebrow="Giới thiệu bản thân"
+          title="Kể câu chuyện nghề nghiệp của bạn"
+          description="Cho học viên biết phong cách mentor của bạn và họ sẽ đạt được gì khi làm việc với bạn."
           icon={<FileText className="h-5 w-5" />}
           tone="emerald"
         >
           <div className="grid gap-5 md:grid-cols-2">
             <div className="md:col-span-2">
               <Field
-                label="Tiá»ƒu sá»­ chuyÃªn mÃ´n"
-                description="Ká»ƒ vá» kinh nghiá»‡m, ngÃ nh nghá» Ä‘Ã£ lÃ m vÃ  nhá»¯ng ai báº¡n thÃ­ch giÃºp Ä‘á»¡."
-                hint={`${bioLength}/500 kÃ½ tá»± Â· tá»‘i thiá»ƒu 50 kÃ½ tá»±`}
+                label="Tiểu sử chuyên môn"
+                description="Kể về kinh nghiệm, ngành nghề đã làm và những ai bạn thích giúp đỡ."
+                hint={`${bioLength}/500 ký tự · tối thiểu 50 ký tự`}
                 error={errors.professionalBio?.message}
               >
                 <textarea
@@ -864,55 +849,55 @@ function MentorProfileFormInner({
                   rows={6}
                   maxLength={500}
                   className={textareaClass}
-                  placeholder="Chia sáº» vá» con Ä‘Æ°á»ng sá»± nghiá»‡p cá»§a báº¡n..."
+                  placeholder="Chia sẻ về con đường sự nghiệp của bạn..."
                 />
               </Field>
             </div>
 
             <div className="md:col-span-2">
               <Field
-                label="Há»c viÃªn sáº½ nháº­n Ä‘Æ°á»£c gÃ¬?"
-                description="VD: Luyá»‡n phá»ng váº¥n, Review CV, Roadmap nghá» nghiá»‡p..."
+                label="Học viên sẽ nhận được gì?"
+                description="VD: Luyện phỏng vấn, Review CV, Roadmap nghề nghiệp..."
                 error={errors.helpDescription?.message}
               >
                 <textarea
                   {...register('helpDescription')}
                   rows={4}
                   className={textareaClass}
-                  placeholder="MÃ´ táº£ cá»¥ thá»ƒ nhá»¯ng giÃ¡ trá»‹ báº¡n mang láº¡i sau khÃ³a há»c..."
+                  placeholder="Mô tả cụ thể những giá trị bạn mang lại sau khóa học..."
                 />
               </Field>
             </div>
           </div>
         </SectionCard>
 
-        {/* ThÃ´ng tin cÆ¡ báº£n */}
+        {/* Thông tin cơ bản */}
         <SectionCard
-          eyebrow="Kinh nghiá»‡m & Dá»‹ch vá»¥"
-          title="Chá»©c danh vÃ  Má»©c phÃ­"
-          description="Bá»• sung chá»©c danh hiá»‡n táº¡i vÃ  thiáº¿t láº­p má»©c phÃ­ cÆ¡ báº£n cho cÃ¡c buá»•i há»c."
+          eyebrow="Kinh nghiệm & Dịch vụ"
+          title="Chức danh và Mức phí"
+          description="Bổ sung chức danh hiện tại và thiết lập mức phí cơ bản cho các buổi học."
           icon={<Briefcase className="h-5 w-5" />}
           tone="amber"
         >
           <div className="grid gap-5 md:grid-cols-2">
-            <Field label="Chá»©c vá»¥ hiá»‡n táº¡i" error={errors.currentTitle?.message}>
+            <Field label="Chức vụ hiện tại" error={errors.currentTitle?.message}>
               <input {...register('currentTitle')} className={inputClass} placeholder="VD: Senior Product Designer" />
             </Field>
 
-            <Field label="CÃ´ng ty" error={errors.currentCompany?.message}>
-              <input {...register('currentCompany')} className={inputClass} placeholder="VD: FPT Software, Tá»± do..." />
+            <Field label="Công ty" error={errors.currentCompany?.message}>
+              <input {...register('currentCompany')} className={inputClass} placeholder="VD: FPT Software, Tự do..." />
             </Field>
 
-            <Field label="Sá»‘ nÄƒm kinh nghiá»‡m" error={errors.yearsOfExperience?.message}>
+            <Field label="Số năm kinh nghiệm" error={errors.yearsOfExperience?.message}>
               <select {...register('yearsOfExperience')} className={inputClass}>
-                <option value="">Chá»n sá»‘ nÄƒm</option>
+                <option value="">Chọn số năm</option>
                 {EXPERIENCE_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>{option.label}</option>
                 ))}
               </select>
             </Field>
 
-            <Field label="PhÃ­ dá»± kiáº¿n (MXC/Giá»)" description="Báº¡n cÃ³ thá»ƒ thay Ä‘á»•i sau." error={errors.hourlyRateMxc?.message}>
+            <Field label="Phí dự kiến (MXC/Giờ)" description="Bạn có thể thay đổi sau." error={errors.hourlyRateMxc?.message}>
               <div className="space-y-3">
                 <input type="number" step="1" {...register('hourlyRateMxc')} className={inputClass} placeholder="VD: 250" />
                 <div className="flex flex-wrap gap-2">
@@ -931,22 +916,22 @@ function MentorProfileFormInner({
             </Field>
 
             <Field
-              label="MÃºi giá» (Khu vá»±c)"
-              description="GÃµ Ä‘á»ƒ tÃ¬m theo tÃªn thÃ nh phá»‘ hoáº·c chá»n tá»« gá»£i Ã½."
+              label="Múi giờ (Khu vực)"
+              description="Gõ để tìm theo tên thành phố hoặc chọn từ gợi ý."
               error={errors.location?.message}
             >
               <Combobox
                 value={values.location}
                 onChange={(next) => setValue('location', next, { shouldDirty: true, shouldValidate: true })}
                 options={LOCATION_OPTIONS}
-                placeholder="VD: Há»“ ChÃ­ Minh, GMT+7"
+                placeholder="VD: Hồ Chí Minh, GMT+7"
                 disabled={isLocked}
               />
             </Field>
 
-            <Field label="NgÃ´n ngá»¯" error={errors.languagesOption?.message}>
+            <Field label="Ngôn ngữ" error={errors.languagesOption?.message}>
               <select {...register('languagesOption')} className={inputClass}>
-                <option value="">Chá»n ngÃ´n ngá»¯ giao tiáº¿p</option>
+                <option value="">Chọn ngôn ngữ giao tiếp</option>
                 {LANGUAGE_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>{opt.label}</option>
                 ))}
@@ -954,12 +939,12 @@ function MentorProfileFormInner({
             </Field>
 
             {values.languagesOption === 'Other' && (
-              <Field label="NgÃ´n ngá»¯ khÃ¡c" error={errors.languagesCustom?.message}>
-                <input {...register('languagesCustom')} className={inputClass} placeholder="VD: Tiáº¿ng HÃ n..." />
+              <Field label="Ngôn ngữ khác" error={errors.languagesCustom?.message}>
+                <input {...register('languagesCustom')} className={inputClass} placeholder="VD: Tiếng Hàn..." />
               </Field>
             )}
 
-            <Field label="Khung giá» hoáº¡t Ä‘á»™ng" error={errors.availability?.message}>
+            <Field label="Khung giờ hoạt động" error={errors.availability?.message}>
               <select {...register('availability')} className={inputClass}>
                 {AVAILABILITY_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -969,11 +954,11 @@ function MentorProfileFormInner({
           </div>
         </SectionCard>
 
-        {/* NÄƒng lá»±c & Báº±ng chá»©ng */}
+        {/* Năng lực & Bằng chứng */}
         <SectionCard
-          eyebrow="Há»“ sÆ¡ nÄƒng lá»±c"
-          title="Minh chá»©ng ká»¹ nÄƒng cá»§a báº¡n"
-          description="Cung cáº¥p cÃ¡c link profile (LinkedIn, GitHub) hoáº·c CV Ä‘á»ƒ tÄƒng Ä‘á»™ uy tÃ­n."
+          eyebrow="Hồ sơ năng lực"
+          title="Minh chứng kỹ năng của bạn"
+          description="Cung cấp các link profile (LinkedIn, GitHub) hoặc CV để tăng độ uy tín."
           icon={<ShieldCheck className="h-5 w-5" />}
           tone="sky"
         >
@@ -998,13 +983,13 @@ function MentorProfileFormInner({
                 onClick={() => addProofLinkTemplate()}
                 className="rounded-lg border border-dashed border-slate-300 px-3 py-1.5 text-xs font-bold text-slate-500 transition hover:border-slate-400 hover:bg-slate-50"
               >
-                + ThÃªm link tÃ¹y chá»‰nh
+                + Thêm link tùy chỉnh
               </button>
             </div>
 
             {proofLinkFields.length === 0 ? (
               <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50/50 px-5 py-6 text-center text-sm font-semibold text-slate-400">
-                ChÆ°a cÃ³ liÃªn káº¿t nÃ o. HÃ£y thÃªm LinkedIn, GitHub, hoáº·c Portfolio cá»§a báº¡n.
+                Chưa có liên kết nào. Hãy thêm LinkedIn, GitHub, hoặc Portfolio của bạn.
               </div>
             ) : (
               <div className="space-y-3">
@@ -1014,7 +999,7 @@ function MentorProfileFormInner({
                       <input
                         {...register(`proofLinks.${index}.label` as const)}
                         className={inputClass}
-                        placeholder="TÃªn nhÃ£n (VD: LinkedIn)"
+                        placeholder="Tên nhãn (VD: LinkedIn)"
                       />
                       {errors.proofLinks?.[index]?.label?.message && (
                         <p className="mt-1 text-xs font-bold text-rose-500">{errors.proofLinks[index]?.label?.message}</p>
@@ -1037,7 +1022,7 @@ function MentorProfileFormInner({
                       onClick={() => removeProofLink(index)}
                       className="shrink-0 rounded-xl bg-rose-50 px-4 py-2 text-xs font-bold text-rose-600 hover:bg-rose-100 transition-colors h-10"
                     >
-                      XÃ³a
+                      Xóa
                     </button>
                   </div>
                 ))}
@@ -1050,16 +1035,16 @@ function MentorProfileFormInner({
 
             <div className="grid gap-4 sm:grid-cols-2 pt-2 border-t border-slate-100/80">
               <UploadFieldCard
-                title="SÆ¡ yáº¿u lÃ½ lá»‹ch (CV)"
-                description="Äá» xuáº¥t PDF. Tá»‘i Ä‘a 10MB."
+                title="Sơ yếu lý lịch (CV)"
+                description="Đề xuất PDF. Tối đa 10MB."
                 busy={Boolean(uploading.cvUrl)}
                 value={values.cvUrl}
                 disabled={isLocked}
                 onSelect={(file) => uploadFile('cvUrl', file)}
               />
               <UploadFieldCard
-                title="Chá»©ng chá»‰ (TÃ¹y chá»n)"
-                description="HÃ¬nh áº£nh hoáº·c PDF. Tá»‘i Ä‘a 10MB."
+                title="Chứng chỉ (Tùy chọn)"
+                description="Hình ảnh hoặc PDF. Tối đa 10MB."
                 busy={Boolean(uploading.certificateUrl)}
                 value={values.certificateUrl}
                 disabled={isLocked}
@@ -1069,7 +1054,7 @@ function MentorProfileFormInner({
           </div>
         </SectionCard>
 
-        {/* Cam káº¿t & Submit */}
+        {/* Cam kết & Submit */}
         <div className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8">
           <div className="mb-6 space-y-4">
             <label className="flex items-start gap-3 cursor-pointer group">
@@ -1079,7 +1064,7 @@ function MentorProfileFormInner({
                 className="mt-1 h-5 w-5 shrink-0 rounded border-slate-300 text-sky-700 focus:ring-sky-500"
               />
               <span className="text-sm font-semibold text-slate-700 group-hover:text-slate-900 transition-colors">
-                TÃ´i cam káº¿t nhá»¯ng thÃ´ng tin trÃªn lÃ  chÃ­nh xÃ¡c vÃ  pháº£n Ã¡nh Ä‘Ãºng kinh nghiá»‡m thá»±c táº¿ cá»§a báº£n thÃ¢n.
+                Tôi cam kết những thông tin trên là chính xác và phản ánh đúng kinh nghiệm thực tế của bản thân.
               </span>
             </label>
             {errors.mentorAgreementAccepted && <p className="ml-8 text-xs font-bold text-rose-500">{errors.mentorAgreementAccepted.message}</p>}
@@ -1091,7 +1076,7 @@ function MentorProfileFormInner({
                 className="mt-1 h-5 w-5 shrink-0 rounded border-slate-300 text-sky-700 focus:ring-sky-500"
               />
               <span className="text-sm font-semibold text-slate-700 group-hover:text-slate-900 transition-colors">
-                TÃ´i Ä‘á»“ng Ã½ vá»›i chÃ­nh sÃ¡ch cá»§a Mentor X vá» viá»‡c kiá»ƒm duyá»‡t há»“ sÆ¡ vÃ  Ä‘áº£m báº£o cháº¥t lÆ°á»£ng mentor.
+                Tôi đồng ý với chính sách của Mentor X về việc kiểm duyệt hồ sơ và đảm bảo chất lượng mentor.
               </span>
             </label>
             {errors.disputePolicyAccepted && <p className="ml-8 text-xs font-bold text-rose-500">{errors.disputePolicyAccepted.message}</p>}
@@ -1105,7 +1090,7 @@ function MentorProfileFormInner({
 
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-t border-slate-200/60 pt-6">
             <p className="text-sm font-medium text-slate-500">
-              Thá»i gian xÃ©t duyá»‡t thÃ´ng thÆ°á»ng tá»« <span className="font-bold text-slate-900">2-5 ngÃ y lÃ m viá»‡c</span>.
+              Thời gian xét duyệt thông thường từ <span className="font-bold text-slate-900">2-5 ngày làm việc</span>.
             </p>
             <button
               type="submit"
@@ -1113,7 +1098,7 @@ function MentorProfileFormInner({
               className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-slate-950 px-8 text-sm font-semibold text-white transition hover:bg-slate-800 active:translate-y-px disabled:cursor-not-allowed disabled:opacity-70"
             >
               {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <ArrowRight className="h-5 w-5" />}
-              {submitButtonLabel || (isEdit ? 'Cáº­p nháº­t há»“ sÆ¡' : 'Gá»­i há»“ sÆ¡ Ä‘Äƒng kÃ½')}
+              {submitButtonLabel || (isEdit ? 'Cập nhật hồ sơ' : 'Gửi hồ sơ đăng ký')}
             </button>
           </div>
         </div>
@@ -1226,7 +1211,7 @@ function Combobox({
       {open && !disabled && (
         <div className="absolute z-20 mt-2 max-h-64 w-full overflow-y-auto rounded-xl border border-slate-200 bg-white p-1.5 shadow-lg">
           {filteredOptions.length === 0 ? (
-            <div className="px-3 py-2 text-xs font-semibold text-slate-400">KhÃ´ng tÃ¬m tháº¥y káº¿t quáº£ phÃ¹ há»£p.</div>
+            <div className="px-3 py-2 text-xs font-semibold text-slate-400">Không tìm thấy kết quả phù hợp.</div>
           ) : (
             filteredOptions.slice(0, 200).map((option, index) => (
               <button
@@ -1342,14 +1327,14 @@ function UploadFieldCard({
       {busy ? (
         <div className="flex flex-col items-center">
           <Loader2 className="h-6 w-6 animate-spin text-sky-700" />
-          <p className="mt-3 text-[13px] font-bold text-emerald-700">Äang táº£i tá»‡p lÃªn...</p>
+          <p className="mt-3 text-[13px] font-bold text-emerald-700">Đang tải tệp lên...</p>
         </div>
       ) : value ? (
         <div className="flex flex-col items-center">
           <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600 shadow-sm">
             <CheckCircle2 className="h-6 w-6" />
           </div>
-          <p className="mt-3 text-sm font-bold text-slate-900">ÄÃ£ Ä‘Ã­nh kÃ¨m {title}</p>
+          <p className="mt-3 text-sm font-bold text-slate-900">Đã đính kèm {title}</p>
           <p className="mt-1 break-all text-[11px] font-semibold text-slate-500 line-clamp-1">{value}</p>
         </div>
       ) : (
@@ -1361,11 +1346,10 @@ function UploadFieldCard({
           <p className="mt-1 text-[11px] font-semibold text-slate-500">{description}</p>
           <div className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-slate-950 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-white transition-colors group-hover:bg-slate-800">
             <FileText className="h-3 w-3" />
-            Chá»n tá»‡p
+            Chọn tệp
           </div>
         </div>
       )}
     </label>
   )
 }
-
