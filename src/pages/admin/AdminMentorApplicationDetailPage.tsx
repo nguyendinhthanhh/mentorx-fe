@@ -70,6 +70,11 @@ export default function AdminMentorApplicationDetailPage() {
       }
     },
     {
+      onMutate: async () => {
+        if (userId) {
+          await queryClient.cancelQueries(['admin-mentor-application-detail', userId])
+        }
+      },
       onSuccess: (updatedProfile, variables) => {
         toast.success(getSuccessMessage(variables.action))
         if (updatedProfile) {
@@ -77,7 +82,6 @@ export default function AdminMentorApplicationDetailPage() {
         }
         queryClient.invalidateQueries('admin-mentor-expertise')
         queryClient.invalidateQueries('admin-mentor-payouts')
-        queryClient.invalidateQueries('admin-mentor-application-detail')
         setDraftAction(null)
         setActionReason('')
       },
