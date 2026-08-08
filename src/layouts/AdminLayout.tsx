@@ -238,7 +238,7 @@ export default function AdminLayout() {
         </aside>
 
         {/* Main Content */}
-        <div className="flex-1 flex flex-col min-w-0">
+        <div className="flex-1 flex flex-col min-w-0 max-h-dvh overflow-y-auto">
           {/* Top Header */}
           <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-gray-100 bg-white/90 px-3 backdrop-blur-md dark:border-gray-800 dark:bg-gray-900/90 min-[360px]:px-4 sm:h-20 sm:px-6 lg:px-8">
             <div className="flex items-center gap-3 sm:gap-6">
