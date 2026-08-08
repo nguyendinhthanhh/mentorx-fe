@@ -55,14 +55,18 @@ export default function MentorBlogEditPage() {
       try {
         const post = await blogApi.getPostBySlug(slug as string)
         setPostId(post.id)
+        const categoryValue = CATEGORIES.find(c => c.value === post.category || c.label === post.category)?.value || 'CAREER_GROWTH'
+        const audienceValue = AUDIENCES.find(a => a.value === post.audience || a.label === post.audience)?.value || 'FOR_LEARNERS'
+
         setFormData({
           title: post.title,
           excerpt: post.excerpt || '',
-          content: post.content,
-          category: post.category,
-          audience: post.audience,
-          tags: (post.tags || []).join(', ')
+          category: categoryValue,
+          audience: audienceValue,
+          tags: (post.tags || []).join(', '),
+          content: post.content || ''
         })
+        setContent(post.content || '')
         if (post.coverImage) {
           setCoverImagePreview(post.coverImage)
         }
@@ -127,7 +131,7 @@ export default function MentorBlogEditPage() {
     setLoading(true)
 
     try {
-      let coverImageUrl = ''
+      let coverImageUrl = coverImagePreview
       if (coverImageFile) {
         const result = await fileApi.uploadCourseMedia(coverImageFile, 'mentorx/blogs/covers')
         if (result?.fileUrl) {
