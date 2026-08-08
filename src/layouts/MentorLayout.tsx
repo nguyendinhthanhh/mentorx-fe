@@ -90,7 +90,7 @@ export default function MentorLayout() {
           } hidden bg-white dark:bg-[#09090b] border-r border-slate-100 dark:border-slate-800/60 shrink-0 xl:flex flex-col transition-all duration-300 ease-in-out sticky top-0 h-screen z-50`}
         >
           <div className="h-[80px] shrink-0 flex items-center px-5 border-b border-slate-100 dark:border-slate-800/60">
-            <Link to="/mentor" className="group flex items-center gap-3 w-full">
+            <Link to="/" className="group flex items-center gap-3 w-full">
               <img src="/logo.png" alt="MentorX Logo" className="h-9 w-auto object-contain transition-transform group-hover:scale-105 flex-shrink-0" />
               {!isSidebarCollapsed && (
                 <div className="min-w-0 flex flex-col opacity-100 transition-opacity duration-300 delay-100">
@@ -182,7 +182,7 @@ export default function MentorLayout() {
             />
             <div className="relative flex h-full w-[min(84vw,320px)] flex-col bg-white shadow-2xl dark:bg-[#09090b]">
               <div className="flex h-[80px] shrink-0 items-center justify-between px-5">
-                <Link to="/mentor" className="flex items-center gap-3" onClick={() => setMobileNavOpen(false)}>
+                <Link to="/" className="flex items-center gap-3" onClick={() => setMobileNavOpen(false)}>
                   <img src="/logo.png" alt="MentorX Logo" className="h-8 w-auto object-contain" />
                   <div className="min-w-0 flex flex-col">
                     <p className="text-[19px] font-bold leading-none tracking-tight text-slate-900 dark:text-white">MentorX</p>
