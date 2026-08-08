@@ -492,13 +492,15 @@ function DocumentCard({ course, categoryName }: { course: any; categoryName: str
         <div className="absolute inset-0 opacity-[0.03] mix-blend-multiply" style={{ backgroundImage: 'radial-gradient(#4f46e5 1px, transparent 1px)', backgroundSize: '16px 16px' }} />
         
         {course.thumbnailUrl ? (
-          <img
-            src={course.thumbnailUrl}
-            alt={course.title}
-            loading="lazy"
-            decoding="async"
-            className="relative z-10 h-full w-[130px] rounded-r-md rounded-l-sm object-cover shadow-[4px_0_15px_rgba(0,0,0,0.1),-1px_0_1px_rgba(0,0,0,0.05)] transition-transform duration-500 group-hover:scale-105 group-hover:-rotate-2"
-          />
+          <div className="relative z-10 flex h-full w-[130px] items-center justify-center rounded-r-md rounded-l-sm bg-white p-1 shadow-[4px_0_15px_rgba(0,0,0,0.1),-1px_0_1px_rgba(0,0,0,0.05)] transition-transform duration-500 group-hover:scale-105 group-hover:-rotate-2">
+            <img
+              src={course.thumbnailUrl}
+              alt={course.title}
+              loading="lazy"
+              decoding="async"
+              className="max-h-full max-w-full object-contain rounded-[2px]"
+            />
+          </div>
         ) : (
           <div className="relative z-10 flex h-full w-[130px] flex-col items-center justify-center rounded-r-md rounded-l-sm bg-gradient-to-tr from-indigo-500 to-blue-500 text-white shadow-[4px_0_15px_rgba(0,0,0,0.1),-1px_0_1px_rgba(0,0,0,0.05)] transition-transform duration-500 group-hover:scale-105 group-hover:-rotate-2">
             <FileText className="h-10 w-10 opacity-50" />

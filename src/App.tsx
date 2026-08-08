@@ -197,6 +197,9 @@ function App() {
             <Route path="/blog" element={<GuidePage />} />
             <Route path="/blog/:slug" element={<BlogDetailPage />} />
             <Route path="/companies" element={<Navigate to="/courses" replace />} />
+            
+            {/* Public Payment Return Routes */}
+            <Route path="/payment/payos-return" element={<PayOSReturnPage />} />
           </Route>
 
           {/* Protected Routes */}
@@ -214,7 +217,6 @@ function App() {
             {/* Payment Routes */}
             <Route path="/payment/vnpay-return" element={<Navigate to="/wallet" replace />} />
             <Route path="/payment/momo-return" element={<Navigate to="/wallet" replace />} />
-            <Route path="/payment/payos-return" element={<PayOSReturnPage />} />
             
             {/* Blog Routes */}
             <Route path="/blogs/create" element={<BlogCreatePage />} />
