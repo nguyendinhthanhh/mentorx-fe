@@ -64,7 +64,13 @@ export default function AdminDashboardPage() {
     title: profile.user?.displayName || profile.user?.fullName || t('admin.dashboard.queue.mentorFallback'),
     detail: profile.headline || profile.primaryDomain,
     tone: 'amber',
-    icon: <ShieldCheck className="h-4 w-4" />,
+    icon: profile.user?.avatarUrl ? (
+      <img src={profile.user.avatarUrl} alt="Avatar" className="h-full w-full object-cover rounded-lg" />
+    ) : (
+      <span className="text-sm font-black">
+        {profile.user?.fullName?.charAt(0)?.toUpperCase() || 'M'}
+      </span>
+    ),
   }))
   const complaintQueue: QueueItem[] = (complaintQuery.data?.content ?? []).map((complaint) => ({
     id: `complaint-${complaint.id}`,
