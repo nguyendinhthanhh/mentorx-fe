@@ -58,7 +58,11 @@ export default function MentorBlogEditPage() {
         setFormData({
           title: post.title,
           excerpt: post.excerpt || '',
-          content: post.content,
+          category: post.category,
+          audience: post.audience,
+          tags: (post.tags || []).join(', ')
+        })
+        setContent(post.content || '')
           category: post.category,
           audience: post.audience,
           tags: (post.tags || []).join(', ')
