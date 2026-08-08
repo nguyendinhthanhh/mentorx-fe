@@ -128,7 +128,7 @@ export default function MentorBlogEditPage() {
     setLoading(true)
 
     try {
-      let coverImageUrl = ''
+      let coverImageUrl = coverImagePreview
       if (coverImageFile) {
         const result = await fileApi.uploadCourseMedia(coverImageFile, 'mentorx/blogs/covers')
         if (result?.fileUrl) {
