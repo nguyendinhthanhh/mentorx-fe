@@ -1063,10 +1063,13 @@ export interface EscrowRecordResponse {
 }
 
 export interface DepositCreateRequest {
-  amount?: string;
-  amountVnd?: string;
-  currency?: string;
-  gateway: string;
+  amount?: number
+  amountVnd?: number
+  currency?: string
+  bankCode?: string
+  gateway: string
+  returnUrl?: string
+  cancelUrl?: string
 }
 
 export interface WalletConversionPreviewRequest {
