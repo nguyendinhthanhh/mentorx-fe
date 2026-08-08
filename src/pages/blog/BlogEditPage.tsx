@@ -63,10 +63,6 @@ export default function MentorBlogEditPage() {
           tags: (post.tags || []).join(', ')
         })
         setContent(post.content || '')
-          category: post.category,
-          audience: post.audience,
-          tags: (post.tags || []).join(', ')
-        })
         if (post.coverImage) {
           setCoverImagePreview(post.coverImage)
         }
