@@ -14,7 +14,6 @@ import {
   Moon,
   Search,
   Settings,
-  ShoppingBag,
   Star,
   Sun,
   X,
@@ -25,7 +24,7 @@ import {
 import { useAuthStore } from '@/store/authStore'
 import { useThemeStore } from '@/store/themeStore'
 import NotificationDropdown from '@/components/notification/NotificationDropdown'
-import { UserMode } from '@/types'
+import ModeSwitcher from '@/components/ModeSwitcher'
 import { courseApi } from '@/api/courseApi'
 
 const navigationItems = [
@@ -41,7 +40,7 @@ const navigationItems = [
 export default function MentorLayout() {
   const navigate = useNavigate()
   const location = useLocation()
-  const { user, logout, setCurrentMode } = useAuthStore()
+  const { user, logout } = useAuthStore()
   const { isDarkMode, toggleTheme } = useThemeStore()
   const [availability] = useState('Available')
   const [userDropdownOpen, setUserDropdownOpen] = useState(false)
@@ -234,7 +233,11 @@ export default function MentorLayout() {
                 })}
               </nav>
 
-              <div className="border-t border-slate-100 p-4 dark:border-slate-800/60">
+              <div className="border-t border-slate-100 px-4 pt-4 dark:border-slate-800/60">
+                <ModeSwitcher className="w-full" />
+              </div>
+
+              <div className="p-4">
                 <div className="flex items-center gap-3 rounded-xl p-2 transition hover:bg-slate-50 dark:hover:bg-slate-800/50">
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300 overflow-hidden border border-slate-200 dark:border-slate-700">
                     {user?.avatarUrl ? (
@@ -316,6 +319,8 @@ export default function MentorLayout() {
                   <MessageCircle className="h-4 w-4" />
                 </button>
 
+                <ModeSwitcher className="hidden sm:inline-flex" />
+
                 <div className="relative">
                   <button
                     onClick={() => setUserDropdownOpen(!userDropdownOpen)}
@@ -363,19 +368,6 @@ export default function MentorLayout() {
                           <Star className="h-4 w-4" />
                           View Mentor Profile
                         </Link>
-
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setUserDropdownOpen(false)
-                            setCurrentMode(UserMode.USER)
-                            navigate('/')
-                          }}
-                          className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50 hover:text-blue-600"
-                        >
-                          <ShoppingBag className="h-4 w-4" />
-                          Back to Market
-                        </button>
 
                         <div className="my-1 border-t border-slate-100" />
                         <button
