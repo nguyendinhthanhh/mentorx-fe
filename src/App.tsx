@@ -84,6 +84,7 @@ const AdminCourseReviewPage = lazy(() => import('./pages/admin/AdminCourseReview
 const AdminReportsPage = lazy(() => import('./pages/admin/AdminReportsPage'))
 const AdminWalletPage = lazy(() => import('./pages/admin/AdminWalletPage'))
 const AdminMentorApplicationsPage = lazy(() => import('./pages/admin/AdminMentorApplicationsPage'))
+const AdminMentorApplicationDetailPage = lazy(() => import('./pages/admin/AdminMentorApplicationDetailPage'))
 const AdminSupportPage = lazy(() => import('./pages/admin/AdminSupportPage'))
 const AdminComplaintsPage = lazy(() => import('./pages/admin/AdminComplaintsPage'))
 const AdminComplaintDetailPage = lazy(() => import('./pages/admin/AdminComplaintDetailPage'))
@@ -261,6 +262,7 @@ function App() {
             <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
             <Route path="/admin/users" element={<AdminOnlyRoute><AdminUsersPage /></AdminOnlyRoute>} />
             <Route path="/admin/mentor-applications" element={<AdminMentorApplicationsPage />} />
+            <Route path="/admin/mentor-applications/:userId" element={<AdminMentorApplicationDetailPage />} />
             <Route path="/admin/jobs" element={<AdminJobsPage />} />
             <Route path="/admin/courses" element={<AdminCoursesPage />} />
             <Route path="/admin/courses/:courseId/review" element={<AdminCourseReviewPage />} />
