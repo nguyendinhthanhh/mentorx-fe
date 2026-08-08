@@ -24,7 +24,7 @@ import {
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useThemeStore } from '@/store/themeStore'
-import { isAdmin, isModerator } from '@/utils/roleRedirect'
+import { isAdmin, isModerator, isSuperAdmin } from '@/utils/roleRedirect'
 import NotificationDropdown from '@/components/notification/NotificationDropdown'
 
 const adminLinks = [
@@ -50,7 +50,7 @@ export default function AdminLayout() {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false)
   const isFinanceAdmin = isAdmin(user)
   const isSupportWorkspace = location.pathname === '/admin/support'
-  const userRoleLabel = isAdmin(user) ? 'Admin' : isModerator(user) ? 'Moderator' : 'Operations'
+  const userRoleLabel = isSuperAdmin(user) ? 'Super Admin' : isAdmin(user) ? 'Admin' : isModerator(user) ? 'Moderator' : 'Operations'
   const visibleAdminLinks = adminLinks.filter((link) => {
     if (isFinanceAdmin) return true
     return !['/admin/wallet', '/admin/users', '/admin/settings'].includes(link.to)

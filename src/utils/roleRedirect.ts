@@ -31,7 +31,11 @@ export const hasRole = (user: UserResponse | null, role: string): boolean => {
  * Check if user is admin
  */
 export const isAdmin = (user: UserResponse | null): boolean => {
-  return hasRole(user, 'ADMIN')
+  return hasRole(user, 'ADMIN') || hasRole(user, 'SUPER_ADMIN')
+}
+
+export const isSuperAdmin = (user: UserResponse | null): boolean => {
+  return hasRole(user, 'SUPER_ADMIN')
 }
 
 export const isModerator = (user: UserResponse | null): boolean => {
