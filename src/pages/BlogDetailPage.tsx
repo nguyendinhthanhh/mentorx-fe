@@ -1,11 +1,15 @@
 import { useEffect, useMemo, useState } from 'react'
+import { Helmet } from 'react-helmet-async'
 import DOMPurify from 'dompurify'
 import { Link, useParams } from 'react-router-dom'
-import { ArrowLeft, ArrowRight } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Eye, Edit } from 'lucide-react'
 import blogApi, { BlogPost } from '../api/blogApi'
 import { BlogCard } from './blog/components/BlogCard'
+import { useAuthStore } from '../store/authStore'
+import { isAdmin } from '../utils/roleRedirect'
 
 export default function BlogDetailPage() {
+  const { user } = useAuthStore()
   const { slug = '' } = useParams()
   const [post, setPost] = useState<BlogPost | null>(null)
   const [relatedPosts, setRelatedPosts] = useState<BlogPost[]>([])
@@ -85,6 +89,25 @@ export default function BlogDetailPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 pb-20 text-slate-900">
+      <Helmet>
+        <title>{post.title} | MentorX</title>
+        <meta name="description" content={post.excerpt} />
+        
+        {/* Open Graph / Facebook */}
+        <meta property="og:type" content="article" />
+        <meta property="og:url" content={window.location.href} />
+        <meta property="og:title" content={post.title} />
+        <meta property="og:description" content={post.excerpt} />
+        {post.coverImage && <meta property="og:image" content={post.coverImage} />}
+
+        {/* Twitter */}
+        <meta property="twitter:card" content="summary_large_image" />
+        <meta property="twitter:url" content={window.location.href} />
+        <meta property="twitter:title" content={post.title} />
+        <meta property="twitter:description" content={post.excerpt} />
+        {post.coverImage && <meta property="twitter:image" content={post.coverImage} />}
+      </Helmet>
+      
       <section className="border-b border-slate-200 bg-white/80 backdrop-blur">
         <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
           <Link to="/blog" className="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 transition hover:text-slate-900">
@@ -100,12 +123,27 @@ export default function BlogDetailPage() {
             <span className="text-sm font-medium text-slate-400">|</span>
             <span className="text-sm font-medium text-slate-500">{post.readTime}</span>
             <span className="text-sm font-medium text-slate-400">|</span>
-            <span className="text-sm font-medium text-slate-500">{post.date}</span>
+            <span className="flex items-center gap-1 text-sm font-medium text-slate-500">
+              <Eye className="h-4 w-4" /> {post.viewCount || 0}
+            </span>
+            <span className="text-sm font-medium text-slate-400">|</span>
+            <span className="text-sm font-medium text-slate-500">{post.date || new Date(post.updatedAt).toLocaleDateString()}</span>
           </div>
 
-          <h1 className="mt-5 max-w-4xl text-3xl font-black tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
-            {post.title}
-          </h1>
+          <div className="mt-5 flex items-start justify-between gap-6">
+            <h1 className="max-w-4xl text-3xl font-black tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
+              {post.title}
+            </h1>
+            {(user?.userId === post.authorId || isAdmin(user)) && (
+              <Link 
+                to={`/blog/${post.slug}/edit`}
+                className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 hover:text-emerald-600 shrink-0"
+              >
+                <Edit className="h-4 w-4" />
+                Chỉnh sửa bài viết
+              </Link>
+            )}
+          </div>
           <p className="mt-5 max-w-3xl text-lg leading-8 text-slate-600">
             {post.excerpt}
           </p>
@@ -122,7 +160,9 @@ export default function BlogDetailPage() {
 
       <main className="mx-auto mt-10 max-w-5xl px-4 sm:px-6 lg:px-8">
         <div className="overflow-hidden rounded-[32px] border border-slate-200 bg-white shadow-sm">
-          <img src={post.coverImage} alt={post.title} className="h-[260px] w-full object-cover sm:h-[380px]" />
+          {Boolean(post.coverImage) && post.coverImage.trim() !== '' && post.coverImage !== 'null' && (
+            <img src={post.coverImage} alt={post.title} className="h-[260px] w-full object-cover sm:h-[380px]" />
+          )}
 
           <div className="px-6 py-8 sm:px-10 sm:py-10">
             <div

@@ -6,7 +6,8 @@ function contentSecurityPolicy(mode: string) {
   const devConnectSources =
     mode === 'development' ? ['http://localhost:8080', 'ws://localhost:8080', 'ws://localhost:3000'] : []
   const devImageSources = mode === 'development' ? ['http://localhost:8080'] : []
-  const workerSources = mode === 'development' ? ["'self'", 'blob:'] : ["'self'"]
+  // Sentry (and other observability tools) use blob: for web workers in production
+  const workerSources = ["'self'", 'blob:']
 
   return [
     "default-src 'self'",
