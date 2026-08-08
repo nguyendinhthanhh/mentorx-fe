@@ -58,6 +58,7 @@ const MentorEarningsPage = lazy(() => import('./pages/mentor/MentorEarningsPage'
 const MentorReviewsPage = lazy(() => import('./pages/mentor/MentorReviewsPage'))
 
 const BlogCreatePage = lazy(() => import('./pages/blog/BlogCreatePage'))
+const BlogEditPage = lazy(() => import('./pages/blog/BlogEditPage'))
 
 const JobListPage = lazy(() => import('./pages/job/JobListPage'))
 const JobDetailPage = lazy(() => import('./pages/job/JobDetailPage'))
@@ -108,6 +109,8 @@ const queryClient = new QueryClient({
   },
 })
 
+import { HelmetProvider } from 'react-helmet-async'
+
 function AppLoadingScreen() {
   return (
     <div
@@ -152,6 +155,7 @@ function App() {
   if (!authReady) return <AppLoadingScreen />
 
   return (
+    <HelmetProvider>
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <Toaster position="top-right" reverseOrder={false} />
@@ -214,6 +218,7 @@ function App() {
             
             {/* Blog Routes */}
             <Route path="/blogs/create" element={<BlogCreatePage />} />
+            <Route path="/blog/:slug/edit" element={<BlogEditPage />} />
 
           </Route>
 
@@ -310,6 +315,7 @@ function App() {
         </Router>
       </ThemeProvider>
     </QueryClientProvider>
+    </HelmetProvider>
   )
 }
 

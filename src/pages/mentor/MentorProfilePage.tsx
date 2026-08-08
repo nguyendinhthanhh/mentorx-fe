@@ -42,7 +42,7 @@ export default function MentorProfilePage() {
 
   if (!user) return null
 
-  if (isLoading && user.mentorStatus !== MentorStatus.NOT_APPLIED) {
+  if (isLoading) {
     return (
       <div className="mx-auto max-w-[1440px] space-y-5 px-4 py-6 sm:px-6 lg:px-8">
         <div className="h-56 animate-pulse rounded-2xl bg-slate-200/70" />
