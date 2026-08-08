@@ -55,11 +55,14 @@ export default function MentorBlogEditPage() {
       try {
         const post = await blogApi.getPostBySlug(slug as string)
         setPostId(post.id)
+        const categoryValue = CATEGORIES.find(c => c.value === post.category || c.label === post.category)?.value || 'CAREER_GROWTH'
+        const audienceValue = AUDIENCES.find(a => a.value === post.audience || a.label === post.audience)?.value || 'FOR_LEARNERS'
+
         setFormData({
           title: post.title,
           excerpt: post.excerpt || '',
-          category: post.category,
-          audience: post.audience,
+          category: categoryValue,
+          audience: audienceValue,
           tags: (post.tags || []).join(', '),
           content: post.content || ''
         })
