@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/api/:path*",
+      "destination": "https://mentorx.duykhiem.id.vn/api/:path*"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
