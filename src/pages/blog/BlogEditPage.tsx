@@ -60,7 +60,8 @@ export default function MentorBlogEditPage() {
           excerpt: post.excerpt || '',
           category: post.category,
           audience: post.audience,
-          tags: (post.tags || []).join(', ')
+          tags: (post.tags || []).join(', '),
+          content: post.content || ''
         })
         setContent(post.content || '')
         if (post.coverImage) {
