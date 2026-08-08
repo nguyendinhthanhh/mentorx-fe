@@ -16,6 +16,8 @@ export default function VerifyEmailPage() {
   const { isAuthenticated, user, refreshUser } = useAuthStore()
   const [status, setStatus] = React.useState<VerificationStatus>('idle')
 
+  const hasVerified = React.useRef(false)
+
   React.useEffect(() => {
     let active = true
 
@@ -26,6 +28,9 @@ export default function VerifyEmailPage() {
       }
     }
 
+    if (hasVerified.current) return
+    hasVerified.current = true
+
     const verifyEmail = async () => {
       setStatus('verifying')
       try {
@@ -34,7 +39,10 @@ export default function VerifyEmailPage() {
           await refreshUser()
         }
         if (active) setStatus('success')
-      } catch {
+      } catch (error: any) {
+        // If it's already verified, we might get a 400 from the backend on a retry.
+        // It's safer to consider it an error if we genuinely failed, but in strict mode
+        // the first one succeeds, so we shouldn't hit this unless the first one failed too.
         if (active) setStatus('error')
       }
     }
