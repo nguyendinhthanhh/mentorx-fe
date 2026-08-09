@@ -1,5 +1,12 @@
 {
   "rewrites": [
-    { "source": "/((?!api|_next|favicon).*)", "destination": "/index.html" }
+    {
+      "source": "/api/(.*)",
+      "destination": "https://mentorx.duykhiem.id.vn/api/$1"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
   ]
 }

@@ -9,11 +9,13 @@ export interface BlogPost {
   category: BlogCategory
   audience: BlogAudience
   author: string
+  authorId?: string
   authorRole: string
   authorAvatar: string
   coverImage: string
   content: string
   readTime: string
+  viewCount?: number
   featured: boolean
   tags: string[]
   createdAt: string
@@ -118,6 +120,16 @@ const blogApi = {
 
   createPost: async (request: BlogPostCreateRequest) => {
     const { data } = await client.post<ApiResponse<BlogPost>>('/blogs', request)
+    return {
+      ...data.data,
+      category: formatCategory(data.data.category as any) as any,
+      audience: formatAudience(data.data.audience as any) as any,
+      date: new Date(data.data.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
+    }
+  },
+
+  updatePost: async (id: string, request: BlogPostCreateRequest) => {
+    const { data } = await client.put<ApiResponse<BlogPost>>(`/blogs/${id}`, request)
     return {
       ...data.data,
       category: formatCategory(data.data.category as any) as any,

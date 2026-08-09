@@ -13,6 +13,7 @@ export type ModerationAction =
   | 'reject-expertise'
   | 'request-more-info'
   | 'suspend'
+  | 'reinstate'
   | 'approve-payout'
   | 'reject-payout'
 
@@ -375,6 +376,7 @@ export function requiresReason(action: ModerationAction) {
   return action === 'reject-expertise'
     || action === 'request-more-info'
     || action === 'suspend'
+    || action === 'reinstate'
     || action === 'reject-payout'
 }
 
@@ -388,6 +390,8 @@ export function getActionTitle(action: ModerationAction) {
       return 'Request more information'
     case 'suspend':
       return 'Suspend mentor'
+    case 'reinstate':
+      return 'Reinstate mentor'
     case 'approve-payout':
       return 'Approve payout'
     case 'reject-payout':
@@ -405,6 +409,8 @@ export function getActionDescription(action: ModerationAction) {
       return 'Use this when the mentor can qualify after improving their profile or adding evidence.'
     case 'suspend':
       return 'Suspension removes Mentor Mode access but preserves the user account and user features.'
+    case 'reinstate':
+      return 'Reinstatement will unlock Mentor Mode and restore the user to their approved status.'
     case 'approve-payout':
       return 'Approve this payout destination so the mentor can request withdrawals.'
     case 'reject-payout':
@@ -422,6 +428,8 @@ export function getSuccessMessage(action: ModerationAction) {
       return 'A revision request has been sent.'
     case 'suspend':
       return 'The mentor has been suspended.'
+    case 'reinstate':
+      return 'The mentor has been reinstated.'
     case 'approve-payout':
       return 'Payout destination approved.'
     case 'reject-payout':

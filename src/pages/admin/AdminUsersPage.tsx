@@ -111,7 +111,7 @@ export default function AdminUsersPage() {
   }
 
   const restoreMentorMutation = useMutation(
-    (userId: string) => userApi.updateMentorStatus(userId, MentorStatus.APPROVED),
+    ({ userId, reason }: { userId: string; reason: string }) => adminMentorVerificationApi.reinstateMentor(userId, reason),
     {
       onSuccess: () => {
         toast.success('Chế độ mentor đã được khôi phục')
@@ -140,6 +140,13 @@ export default function AdminUsersPage() {
     const reason = window.prompt('Mentor cần bổ sung/chỉnh sửa thông tin gì?')
     if (reason && reason.trim()) {
       rejectMentorMutation.mutate({ userId, reason: reason.trim() })
+    }
+  }
+
+  const handleRestoreMentor = (userId: string) => {
+    const reason = window.prompt('Nhập ghi chú cho việc khôi phục quyền mentor (Ví dụ: Kháng nghị thành công):', 'Kháng nghị thành công')
+    if (reason && reason.trim()) {
+      restoreMentorMutation.mutate({ userId, reason: reason.trim() })
     }
   }
 
@@ -334,7 +341,7 @@ export default function AdminUsersPage() {
 
                         {user.mentorStatus === MentorStatus.SUSPENDED && (
                           <button 
-                            onClick={() => restoreMentorMutation.mutate(user.userId)}
+                            onClick={() => handleRestoreMentor(user.userId)}
                             className="p-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-emerald-500 hover:border-emerald-200 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5"
                             title="Restore Mentor Mode"
                           >

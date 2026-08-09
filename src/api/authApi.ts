@@ -1,6 +1,8 @@
 import apiClient from './client'
 import { ApiResponse, AuthResponse, LoginRequest, RegisterRequest, UserResponse } from '@/types'
 
+let initialRefreshPromise: Promise<AuthResponse> | null = null;
+
 export const authApi = {
   login: async (data: LoginRequest): Promise<AuthResponse> => {
     const response = await apiClient.post<ApiResponse<AuthResponse>>('/auth/login', data)
@@ -23,8 +25,14 @@ export const authApi = {
   },
 
   refreshToken: async (): Promise<AuthResponse> => {
-    const response = await apiClient.post<ApiResponse<AuthResponse>>('/auth/refresh')
-    return response.data.data
+    if (!initialRefreshPromise) {
+      initialRefreshPromise = apiClient.post<ApiResponse<AuthResponse>>('/auth/refresh')
+        .then(response => response.data.data)
+        .finally(() => {
+          initialRefreshPromise = null;
+        });
+    }
+    return initialRefreshPromise;
   },
 
   logout: async (): Promise<void> => {

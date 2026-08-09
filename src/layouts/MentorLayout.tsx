@@ -14,7 +14,6 @@ import {
   Moon,
   Search,
   Settings,
-  ShoppingBag,
   Star,
   Sun,
   X,
@@ -25,7 +24,7 @@ import {
 import { useAuthStore } from '@/store/authStore'
 import { useThemeStore } from '@/store/themeStore'
 import NotificationDropdown from '@/components/notification/NotificationDropdown'
-import { UserMode } from '@/types'
+import ModeSwitcher from '@/components/ModeSwitcher'
 import { courseApi } from '@/api/courseApi'
 
 const navigationItems = [
@@ -41,7 +40,7 @@ const navigationItems = [
 export default function MentorLayout() {
   const navigate = useNavigate()
   const location = useLocation()
-  const { user, logout, setCurrentMode } = useAuthStore()
+  const { user, logout } = useAuthStore()
   const { isDarkMode, toggleTheme } = useThemeStore()
   const [availability] = useState('Available')
   const [userDropdownOpen, setUserDropdownOpen] = useState(false)
@@ -90,7 +89,7 @@ export default function MentorLayout() {
           } hidden bg-white dark:bg-[#09090b] border-r border-slate-100 dark:border-slate-800/60 shrink-0 xl:flex flex-col transition-all duration-300 ease-in-out sticky top-0 h-screen z-50`}
         >
           <div className="h-[80px] shrink-0 flex items-center px-5 border-b border-slate-100 dark:border-slate-800/60">
-            <Link to="/mentor" className="group flex items-center gap-3 w-full">
+            <Link to="/" className="group flex items-center gap-3 w-full">
               <img src="/logo.png" alt="MentorX Logo" className="h-9 w-auto object-contain transition-transform group-hover:scale-105 flex-shrink-0" />
               {!isSidebarCollapsed && (
                 <div className="min-w-0 flex flex-col opacity-100 transition-opacity duration-300 delay-100">
@@ -182,7 +181,7 @@ export default function MentorLayout() {
             />
             <div className="relative flex h-full w-[min(84vw,320px)] flex-col bg-white shadow-2xl dark:bg-[#09090b]">
               <div className="flex h-[80px] shrink-0 items-center justify-between px-5">
-                <Link to="/mentor" className="flex items-center gap-3" onClick={() => setMobileNavOpen(false)}>
+                <Link to="/" className="flex items-center gap-3" onClick={() => setMobileNavOpen(false)}>
                   <img src="/logo.png" alt="MentorX Logo" className="h-8 w-auto object-contain" />
                   <div className="min-w-0 flex flex-col">
                     <p className="text-[19px] font-bold leading-none tracking-tight text-slate-900 dark:text-white">MentorX</p>
@@ -234,7 +233,11 @@ export default function MentorLayout() {
                 })}
               </nav>
 
-              <div className="border-t border-slate-100 p-4 dark:border-slate-800/60">
+              <div className="border-t border-slate-100 px-4 pt-4 dark:border-slate-800/60">
+                <ModeSwitcher className="w-full" />
+              </div>
+
+              <div className="p-4">
                 <div className="flex items-center gap-3 rounded-xl p-2 transition hover:bg-slate-50 dark:hover:bg-slate-800/50">
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300 overflow-hidden border border-slate-200 dark:border-slate-700">
                     {user?.avatarUrl ? (
@@ -316,6 +319,8 @@ export default function MentorLayout() {
                   <MessageCircle className="h-4 w-4" />
                 </button>
 
+                <ModeSwitcher className="hidden sm:inline-flex" />
+
                 <div className="relative">
                   <button
                     onClick={() => setUserDropdownOpen(!userDropdownOpen)}
@@ -363,19 +368,6 @@ export default function MentorLayout() {
                           <Star className="h-4 w-4" />
                           View Mentor Profile
                         </Link>
-
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setUserDropdownOpen(false)
-                            setCurrentMode(UserMode.USER)
-                            navigate('/')
-                          }}
-                          className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50 hover:text-blue-600"
-                        >
-                          <ShoppingBag className="h-4 w-4" />
-                          Back to Market
-                        </button>
 
                         <div className="my-1 border-t border-slate-100" />
                         <button

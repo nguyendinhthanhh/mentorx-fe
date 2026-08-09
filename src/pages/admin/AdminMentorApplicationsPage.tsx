@@ -354,8 +354,12 @@ function QueueRow({ activeTab, profile }: { activeTab: QueueTab; profile: Mentor
     <tr className="group cursor-pointer hover:bg-slate-50/80 dark:hover:bg-slate-800/80 transition-colors">
       <td className="px-6 py-4">
         <Link to={detailHref} className="flex items-center gap-3 min-w-0">
-          <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-950 text-sm font-black text-white dark:bg-white dark:text-slate-950">
-            {user?.fullName?.charAt(0)?.toUpperCase() || 'M'}
+          <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-950 text-sm font-black text-white overflow-hidden dark:bg-white dark:text-slate-950">
+            {user?.avatarUrl ? (
+              <img src={user.avatarUrl} alt="Avatar" className="h-full w-full object-cover" />
+            ) : (
+              user?.fullName?.charAt(0)?.toUpperCase() || 'M'
+            )}
           </div>
           <div className="min-w-0">
             <p className="truncate text-sm font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">

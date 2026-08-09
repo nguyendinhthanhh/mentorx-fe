@@ -42,7 +42,7 @@ export default function MentorProfilePage() {
 
   if (!user) return null
 
-  if (isLoading && user.mentorStatus !== MentorStatus.NOT_APPLIED) {
+  if (isLoading) {
     return (
       <div className="mx-auto max-w-[1440px] space-y-5 px-4 py-6 sm:px-6 lg:px-8">
         <div className="h-56 animate-pulse rounded-2xl bg-slate-200/70" />
@@ -191,31 +191,26 @@ export default function MentorProfilePage() {
 
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_300px] lg:items-start">
         <div>
-          {canEditProfile ? (
-            <MentorProfileForm
-              key={mentorProfile ? 'existing-profile' : 'new-profile'}
-              userId={user.userId}
-              userEmail={user.email}
-              isEmailVerified={user.emailVerified}
-              initialData={mentorProfile}
-              isEdit={Boolean(mentorProfile)}
-              isLocked={!canEditProfile}
-              lockedMessage={lockMessage}
-            />
-          ) : (
-            <section className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8">
-              <div className="rounded-xl border border-slate-200 bg-slate-50 px-5 py-4 text-sm leading-6 text-slate-700">
-                {lockMessage}
-              </div>
-              {approved && (
-                <Link
-                  to="/mentor/dashboard"
-                  className="mt-5 inline-flex h-11 items-center gap-2 rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 active:translate-y-px"
-                >
-                  {t('mentor.application.goToDashboard')}
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              )}
+          <MentorProfileForm
+            key={mentorProfile ? 'existing-profile' : 'new-profile'}
+            userId={user.userId}
+            userEmail={user.email}
+            isEmailVerified={user.emailVerified}
+            initialData={mentorProfile}
+            isEdit={Boolean(mentorProfile)}
+            isLocked={!canEditProfile}
+            lockedMessage={lockMessage}
+          />
+          
+          {!canEditProfile && approved && (
+            <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-6 sm:p-8">
+              <Link
+                to="/mentor/dashboard"
+                className="inline-flex h-11 items-center gap-2 rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 active:translate-y-px"
+              >
+                {t('mentor.application.goToDashboard')}
+                <ArrowRight className="h-4 w-4" />
+              </Link>
             </section>
           )}
         </div>

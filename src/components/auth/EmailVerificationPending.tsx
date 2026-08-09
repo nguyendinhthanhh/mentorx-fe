@@ -33,16 +33,21 @@ export default function EmailVerificationPending({ email }: EmailVerificationPen
   const sentRef = useRef(false)
 
   useEffect(() => {
+    let active = true
+
     if (sentRef.current) return
     sentRef.current = true
+
     setSending(true)
     authApi.sendEmailVerification(email)
       .then(() => {
+        if (!active) return
         setSent(true)
         setCooldown(RESEND_COOLDOWN_SECONDS)
         setStatusMessage(t('auth.verification.sentNotice'))
       })
       .catch((error) => {
+        if (!active) return
         const retryAfterSeconds = getRetryAfterSeconds(error)
         if (retryAfterSeconds) {
           setCooldown(retryAfterSeconds)
@@ -51,7 +56,13 @@ export default function EmailVerificationPending({ email }: EmailVerificationPen
         }
         setStatusMessage(t('auth.verification.sendFailed'))
       })
-      .finally(() => setSending(false))
+      .finally(() => {
+        if (active) setSending(false)
+      })
+
+    return () => {
+      active = false
+    }
   }, [email, t])
 
   useEffect(() => {

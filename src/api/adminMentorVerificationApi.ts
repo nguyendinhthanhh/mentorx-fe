@@ -63,6 +63,14 @@ export const adminMentorVerificationApi = {
     return response.data.data
   },
 
+  reinstateMentor: async (userId: string, reason: string): Promise<MentorProfileResponse> => {
+    const response = await apiClient.post<ApiResponse<MentorProfileResponse>>(
+      `/v1/admin/mentors/${userId}/reinstate`,
+      { reason } satisfies ModerationReasonPayload
+    )
+    return response.data.data
+  },
+
   approvePayout: async (userId: string): Promise<BankAccountResponse> => {
     const response = await apiClient.post<ApiResponse<BankAccountResponse>>(`/v1/admin/mentor-payouts/${userId}/approve`)
     return response.data.data

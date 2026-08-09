@@ -58,6 +58,7 @@ const MentorEarningsPage = lazy(() => import('./pages/mentor/MentorEarningsPage'
 const MentorReviewsPage = lazy(() => import('./pages/mentor/MentorReviewsPage'))
 
 const BlogCreatePage = lazy(() => import('./pages/blog/BlogCreatePage'))
+const BlogEditPage = lazy(() => import('./pages/blog/BlogEditPage'))
 
 const JobListPage = lazy(() => import('./pages/job/JobListPage'))
 const JobDetailPage = lazy(() => import('./pages/job/JobDetailPage'))
@@ -108,6 +109,8 @@ const queryClient = new QueryClient({
   },
 })
 
+import { HelmetProvider } from 'react-helmet-async'
+
 function AppLoadingScreen() {
   return (
     <div
@@ -152,6 +155,7 @@ function App() {
   if (!authReady) return <AppLoadingScreen />
 
   return (
+    <HelmetProvider>
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <Toaster position="top-right" reverseOrder={false} />
@@ -193,6 +197,9 @@ function App() {
             <Route path="/blog" element={<GuidePage />} />
             <Route path="/blog/:slug" element={<BlogDetailPage />} />
             <Route path="/companies" element={<Navigate to="/courses" replace />} />
+            
+            {/* Public Payment Return Routes */}
+            <Route path="/payment/payos-return" element={<PayOSReturnPage />} />
           </Route>
 
           {/* Protected Routes */}
@@ -210,10 +217,10 @@ function App() {
             {/* Payment Routes */}
             <Route path="/payment/vnpay-return" element={<Navigate to="/wallet" replace />} />
             <Route path="/payment/momo-return" element={<Navigate to="/wallet" replace />} />
-            <Route path="/payment/payos-return" element={<PayOSReturnPage />} />
             
             {/* Blog Routes */}
             <Route path="/blogs/create" element={<BlogCreatePage />} />
+            <Route path="/blog/:slug/edit" element={<BlogEditPage />} />
 
           </Route>
 
@@ -310,6 +317,7 @@ function App() {
         </Router>
       </ThemeProvider>
     </QueryClientProvider>
+    </HelmetProvider>
   )
 }
 

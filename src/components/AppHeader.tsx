@@ -18,6 +18,7 @@ import {
   X,
 } from 'lucide-react'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
+import ModeSwitcher from '@/components/ModeSwitcher'
 import NotificationDropdown from '@/components/notification/NotificationDropdown'
 import { useAuthStore } from '@/store/authStore'
 import { useThemeStore } from '@/store/themeStore'
@@ -26,7 +27,7 @@ import { walletApi } from '@/api/walletApi'
 import { useI18n } from '@/i18n/I18nProvider'
 import { formatMxc } from '@/utils/formatters'
 import { canAccessAdminWorkspace, canSwitchToMentorMode, isAdmin } from '@/utils/roleRedirect'
-import { MentorStatus, UserMode } from '@/types'
+import { MentorStatus } from '@/types'
 
 function getMentorCtaLabel(status: MentorStatus | undefined, t: ReturnType<typeof useI18n>['t']) {
   switch (status) {
@@ -45,7 +46,7 @@ export default function AppHeader() {
   const { t, language } = useI18n()
   const navigate = useNavigate()
   const location = useLocation()
-  const { user, logout, setCurrentMode } = useAuthStore()
+  const { user, logout } = useAuthStore()
   const { isDarkMode, toggleTheme } = useThemeStore()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [userDropdownOpen, setUserDropdownOpen] = useState(false)
@@ -194,6 +195,8 @@ export default function AppHeader() {
                 </div>
               </div>
 
+              {mentorApproved && <ModeSwitcher />}
+
               <div className="relative">
                 <button
                   onClick={() => setUserDropdownOpen(!userDropdownOpen)}
@@ -286,21 +289,6 @@ export default function AppHeader() {
                         {t('nav.settings')}
                       </Link>
 
-                      {mentorApproved && (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setUserDropdownOpen(false)
-                            setCurrentMode(UserMode.MENTOR)
-                            navigate('/mentor/dashboard')
-                          }}
-                          className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 hover:text-blue-600 dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-indigo-300"
-                        >
-                          <GraduationCap className="h-4 w-4" />
-                          {t('nav.mentorDashboard')}
-                        </button>
-                      )}
-
                       <div className="my-1 border-t border-slate-100 dark:border-slate-800" />
                       <button
                         onClick={() => {
@@ -390,16 +378,9 @@ export default function AppHeader() {
                   <span className="font-black">{formatMxc(balance?.available || 0, language)}</span>
                 </div>
                 {mentorApproved && (
-                  <Link
-                    to="/mentor/dashboard"
-                    onClick={() => {
-                      setMobileOpen(false)
-                      setCurrentMode(UserMode.MENTOR)
-                    }}
-                    className="rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-900"
-                  >
-                    {t('nav.mentorDashboard')}
-                  </Link>
+                  <div className="mb-1">
+                    <ModeSwitcher className="w-full" />
+                  </div>
                 )}
                 {!mentorApproved && (
                   <Link
