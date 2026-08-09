@@ -5,6 +5,7 @@ import { useRecordView } from '@/hooks/useAnalytics'
 import { courseApi } from '@/api/courseApi'
 import { mentorApi } from '@/api/mentorApi'
 import { categoryApi } from '@/api/categoryApi'
+import { reviewApi } from '@/api/reviewApi'
 import { formatCurrency } from '@/utils/formatters'
 import {
   BookOpen,
@@ -30,8 +31,9 @@ import {
   Wallet,
   X,
 } from 'lucide-react'
+import ReviewForm from '@/components/review/ReviewForm'
 import ReviewList from '@/components/review/ReviewList'
-import { CategoryResponse, CourseLessonResponse, CourseProductType, CourseResponse, CourseStatus, MentorProfileResponse, ReviewTargetType } from '@/types'
+import { CategoryResponse, CourseLessonResponse, CourseProductType, CourseResponse, CourseStatus, MentorProfileResponse, ReviewResponse, ReviewTargetType } from '@/types'
 import { useAuthStore } from '@/store/authStore'
 import { categoryLabel } from '@/utils/freeFormTaxonomy'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
@@ -58,6 +60,7 @@ export default function CourseDetailPage() {
   const [downloadingLessonId, setDownloadingLessonId] = useState<string | null>(null)
   const [enrollError, setEnrollError] = useState<string | null>(null)
   const [showAddCoinsPrompt, setShowAddCoinsPrompt] = useState(false)
+  const [showReviewForm, setShowReviewForm] = useState(false)
   const locationState = location.state as CourseDetailLocationState | null
   const mentorOrigin = locationState?.fromMentorProfile
 
@@ -88,6 +91,12 @@ export default function CourseDetailPage() {
     ['course-preview-lessons', courseId],
     () => courseApi.getFreePreviewLessonsByCourse(courseId!),
     { enabled: !!courseId }
+  )
+
+  const { data: myReviewsData } = useQuery(
+    ['my-reviews', user?.userId],
+    () => reviewApi.getByReviewer(user!.userId, { page: 0, size: 100 }),
+    { enabled: !!user?.userId }
   )
 
   const enrollMutation = useMutation(
@@ -181,6 +190,20 @@ export default function CourseDetailPage() {
   const isPaidCourse = displayPrice > 0
   const canDownload = !!user && (!isPaidCourse || isEnrolled)
   const isPreviewLimited = isPaidCourse && !isEnrolled && !isEnrollmentLoading
+  const currentUserCourseReview = useMemo<ReviewResponse | undefined>(() => {
+    if (!course?.courseId) return undefined
+    return (myReviewsData?.content || []).find(
+      (review) => review.targetType === ReviewTargetType.COURSE && review.targetId === course.courseId
+    )
+  }, [course?.courseId, myReviewsData])
+  const canReviewCourse = Boolean(
+    user?.userId &&
+    course?.courseId &&
+    isEnrolled &&
+    !isEnrollmentLoading &&
+    course.instructorId !== user.userId
+  )
+  const courseProductLabel = isDocumentProduct ? 'tài liệu' : 'khóa học'
   const domainName = useMemo(() => {
     if (!course?.categoryId) return ''
     return categories.find((category: CategoryResponse) => category.id === course.categoryId)
@@ -603,7 +626,40 @@ export default function CourseDetailPage() {
 
             {/* Reviews Tab */}
             {activeTab === 'reviews' && (
-              <div>
+              <div className="space-y-6">
+                <div className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-5 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <h2 className="text-lg font-bold text-slate-950">Đánh giá {courseProductLabel}</h2>
+                    <p className="mt-1 text-sm leading-6 text-slate-600">
+                      {canReviewCourse || currentUserCourseReview
+                        ? `Bạn đã mua ${courseProductLabel} này nên có thể chia sẻ trải nghiệm học.`
+                        : user
+                          ? `Bạn cần mua ${courseProductLabel} trước khi gửi đánh giá.`
+                          : `Đăng nhập và mua ${courseProductLabel} để gửi đánh giá đã xác thực.`}
+                    </p>
+                  </div>
+                  {canReviewCourse || currentUserCourseReview ? (
+                    <button
+                      type="button"
+                      onClick={() => setShowReviewForm((value) => !value)}
+                      className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl border border-amber-200 bg-white px-4 text-sm font-semibold text-amber-700 transition hover:bg-amber-50"
+                    >
+                      <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+                      {currentUserCourseReview ? 'Sửa đánh giá' : 'Viết đánh giá'}
+                    </button>
+                  ) : null}
+                </div>
+
+                {showReviewForm && (canReviewCourse || currentUserCourseReview) ? (
+                  <ReviewForm
+                    targetType={ReviewTargetType.COURSE}
+                    targetId={course.courseId}
+                    initialReview={currentUserCourseReview}
+                    onClose={() => setShowReviewForm(false)}
+                    onSuccess={() => setShowReviewForm(false)}
+                  />
+                ) : null}
+
                 <ReviewList targetType={ReviewTargetType.COURSE} targetId={course.courseId} />
               </div>
             )}

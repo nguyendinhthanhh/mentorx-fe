@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { type ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
   AlertTriangle,
@@ -24,7 +24,7 @@ import {
   WalletTransactionResponse,
 } from '@/types'
 import { formatCurrency, formatDateTime } from '@/utils/formatters'
-import { LoadingRows, MetricCard, SelectInput, StateCard, StatusPill, Toolbar } from './shared/MentorHubUI'
+import { LoadingRows, SelectInput, StateCard, StatusPill, Toolbar } from './shared/MentorHubUI'
 import { useEarningsSummary } from '@/hooks/useAnalytics'
 import { AnalyticsPeriod, BySourceEntry } from '@/api/analyticsApi'
 import EarningsChart from '@/components/analytics/EarningsChart'
@@ -117,54 +117,88 @@ export default function MentorEarningsPage() {
 
   return (
     <div className="mx-auto max-w-[1400px] space-y-6 pb-12">
-      <header className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+      <header>
         <div>
           <p className="text-xs font-semibold uppercase tracking-wider text-emerald-700">MentorHub</p>
           <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-950 md:text-3xl">Doanh thu & rút tiền</h1>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">
-            Theo dõi số dư MXC, khoản chờ giải ngân và giao dịch từ backend wallet. Doanh thu và số dư là hai nghĩa khác nhau, nên một khoản mới bán có thể vừa được ghi nhận doanh thu vừa đang chờ giải ngân.
+            Quản lý số dư MXC, khoản chờ giải ngân, escrow hợp đồng và lịch sử giao dịch trong một màn hình.
           </p>
         </div>
-        <Link
-          to={canWithdraw ? '/wallet?tab=withdraw' : '/mentor/settings'}
-          className={`inline-flex h-11 items-center justify-center gap-2 rounded-lg px-4 text-sm font-semibold transition focus:outline-none focus:ring-4 focus:ring-emerald-500/10 ${
-            canWithdraw ? 'bg-emerald-600 text-white hover:bg-emerald-700' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-          }`}
-        >
-          <CreditCard className="h-4 w-4" />
-          {canWithdraw ? 'Tạo yêu cầu rút tiền' : 'Cài đặt tài khoản nhận tiền'}
-        </Link>
       </header>
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <MetricCard
-          label="Khả dụng"
-          value={formatCurrency(summary.available)}
-          helper="Số dư có thể rút khi tài khoản nhận tiền đã được duyệt."
-          icon={<DollarSign className="h-5 w-5" />}
-          tone="emerald"
-        />
-        <MetricCard
-          label="Chờ giải ngân"
-          value={formatCurrency(summary.pending)}
-          helper="Doanh thu đã ghi nhận nhưng còn trong thời gian giữ trước khi chuyển sang khả dụng."
-          icon={<Clock3 className="h-5 w-5" />}
-          tone="amber"
-        />
-        <MetricCard
-          label="Escrow hợp đồng"
-          value={formatCurrency(summary.contractEscrow)}
-          helper="Tiền hợp đồng còn khóa trước nghiệm thu, hủy hoặc xử lý tranh chấp."
-          icon={<LockKeyhole className="h-5 w-5" />}
-          tone="slate"
-        />
-        <MetricCard
-          label="Doanh thu ghi nhận"
-          value={formatCurrency(summary.recordedRevenue)}
-          helper="Tổng giao dịch doanh thu trong lịch sử gần nhất đang tải."
-          icon={<ReceiptText className="h-5 w-5" />}
-          tone="slate"
-        />
+      <section className="grid gap-5 xl:grid-cols-[minmax(0,1.35fr)_minmax(340px,0.65fr)]">
+        <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+          <div className="border-b border-slate-100 p-5">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Số dư khả dụng</p>
+                <p className="mt-3 text-4xl font-bold tracking-tight text-slate-950">{formatCurrency(summary.available)}</p>
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
+                  Đây là khoản mentor có thể rút sau khi tài khoản nhận tiền được duyệt.
+                </p>
+              </div>
+              <StatusPill label={canWithdraw ? 'Có thể rút' : 'Chưa thể rút'} tone={canWithdraw ? 'emerald' : 'amber'} />
+            </div>
+            <div className="mt-5 flex flex-col gap-2 sm:flex-row">
+              <Link
+                to={canWithdraw ? '/wallet?tab=withdraw' : '/mentor/settings'}
+                className={`inline-flex h-10 items-center justify-center gap-2 rounded-lg px-4 text-sm font-semibold transition focus:outline-none focus:ring-4 focus:ring-emerald-500/10 ${
+                  canWithdraw ? 'bg-emerald-600 text-white hover:bg-emerald-700' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                }`}
+              >
+                <CreditCard className="h-4 w-4" />
+                {canWithdraw ? 'Tạo yêu cầu rút tiền' : 'Hoàn tất tài khoản nhận tiền'}
+              </Link>
+              <button
+                type="button"
+                onClick={() => setActiveTab('withdrawals')}
+                className="inline-flex h-10 items-center justify-center rounded-lg border border-slate-200 px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+              >
+                Xem lịch sử rút tiền
+              </button>
+            </div>
+          </div>
+          <div className="grid divide-y divide-slate-100 md:grid-cols-3 md:divide-x md:divide-y-0">
+            <SettlementFigure
+              label="Chờ giải ngân"
+              value={summary.pending}
+              helper="Doanh thu đã ghi nhận nhưng chưa chuyển sang khả dụng."
+              icon={<Clock3 className="h-4 w-4" />}
+              tone="amber"
+            />
+            <SettlementFigure
+              label="Escrow hợp đồng"
+              value={summary.contractEscrow}
+              helper="Tiền hợp đồng còn khóa trước nghiệm thu hoặc xử lý."
+              icon={<LockKeyhole className="h-4 w-4" />}
+              tone="slate"
+            />
+            <SettlementFigure
+              label="Tháng này"
+              value={summary.thisMonth}
+              helper="Doanh thu đã giải ngân trong tháng hiện tại."
+              icon={<DollarSign className="h-4 w-4" />}
+              tone="emerald"
+            />
+          </div>
+        </div>
+
+        <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Tổng hợp dòng tiền</p>
+              <h2 className="mt-1 text-base font-bold text-slate-950">Sổ cái hiện tại</h2>
+            </div>
+            <ReceiptText className="h-5 w-5 text-slate-400" />
+          </div>
+          <dl className="mt-5 space-y-4">
+            <CashflowRow label="Khả dụng" value={summary.available} tone="emerald" />
+            <CashflowRow label="Chờ giải ngân" value={summary.pending} tone="amber" />
+            <CashflowRow label="Escrow hợp đồng" value={summary.contractEscrow} tone="slate" />
+            <CashflowRow label="Doanh thu ghi nhận" value={summary.recordedRevenue} tone="slate" />
+          </dl>
+        </section>
       </section>
 
       <Toolbar>
@@ -334,33 +368,90 @@ export default function MentorEarningsPage() {
   )
 }
 
+function SettlementFigure({
+  label,
+  value,
+  helper,
+  icon,
+  tone,
+}: {
+  label: string
+  value: number
+  helper: string
+  icon: ReactNode
+  tone: 'emerald' | 'amber' | 'slate'
+}) {
+  const toneClass = {
+    emerald: 'bg-emerald-50 text-emerald-700',
+    amber: 'bg-amber-50 text-amber-700',
+    slate: 'bg-slate-100 text-slate-600',
+  }[tone]
+
+  return (
+    <div className="p-5">
+      <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${toneClass}`}>{icon}</div>
+      <p className="mt-4 text-xs font-semibold uppercase tracking-wider text-slate-500">{label}</p>
+      <p className="mt-1 text-xl font-bold tracking-tight text-slate-950">{formatCurrency(value)}</p>
+      <p className="mt-2 text-xs leading-5 text-slate-500">{helper}</p>
+    </div>
+  )
+}
+
+function CashflowRow({ label, value, tone }: { label: string; value: number; tone: 'emerald' | 'amber' | 'slate' }) {
+  const dotClass = {
+    emerald: 'bg-emerald-500',
+    amber: 'bg-amber-500',
+    slate: 'bg-slate-400',
+  }[tone]
+
+  return (
+    <div className="flex items-center justify-between gap-4">
+      <dt className="flex min-w-0 items-center gap-3 text-sm font-semibold text-slate-600">
+        <span className={`h-2 w-2 shrink-0 rounded-full ${dotClass}`} />
+        <span className="truncate">{label}</span>
+      </dt>
+      <dd className="shrink-0 text-sm font-bold text-slate-950">{formatCurrency(value)}</dd>
+    </div>
+  )
+}
+
 function TransactionList({ transactions }: { transactions: WalletTransactionResponse[] }) {
   if (transactions.length === 0) {
     return <StateCard title="Không có giao dịch" message="Lịch sử thay đổi số dư ví sẽ hiển thị ở đây." />
   }
 
   return (
-    <div className="mt-4 divide-y divide-slate-100">
-      {transactions.map((txn) => (
-        <div key={txn.id} className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex min-w-0 items-start gap-3">
-            <div className={`mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${txn.direction === 'CREDIT' ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-100 text-slate-600'}`}>
-              <ReceiptText className="h-4 w-4" />
+    <div className="mt-4 overflow-hidden rounded-lg border border-slate-200">
+      <div className="hidden grid-cols-[minmax(0,1.4fr)_160px_130px_140px] gap-4 border-b border-slate-100 bg-slate-50 px-4 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 md:grid">
+        <span>Giao dịch</span>
+        <span>Thời gian</span>
+        <span>Trạng thái</span>
+        <span className="text-right">Số tiền</span>
+      </div>
+      <div className="divide-y divide-slate-100 bg-white">
+        {transactions.map((txn) => (
+          <div key={txn.id} className="grid gap-3 px-4 py-4 md:grid-cols-[minmax(0,1.4fr)_160px_130px_140px] md:items-center">
+            <div className="flex min-w-0 items-start gap-3">
+              <div className={`mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${txn.direction === 'CREDIT' ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-100 text-slate-600'}`}>
+                <ReceiptText className="h-4 w-4" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-slate-950">{formatTxnType(txn.txnType)}</p>
+                <p className="mt-1 truncate text-xs font-medium text-slate-500">{txn.note || txn.referenceType || 'Giao dịch ví'}</p>
+              </div>
             </div>
-            <div className="min-w-0">
-              <p className="text-sm font-semibold text-slate-950">{formatTxnType(txn.txnType)}</p>
-              <p className="mt-1 truncate text-xs font-medium text-slate-500">{txn.note || txn.referenceType || 'Wallet transaction'}</p>
-              <p className="mt-1 text-xs font-medium text-slate-400">{formatDateTime(txn.createdAt)}</p>
+            <p className="text-xs font-medium text-slate-500 md:text-sm">{formatDateTime(txn.createdAt)}</p>
+            <div>
+              <StatusPill label={formatTxnStatus(txn.txnStatus)} tone={txnStatusTone(txn.txnStatus)} />
+            </div>
+            <div className="shrink-0 text-left md:text-right">
+              <p className={`text-sm font-semibold ${txn.direction === 'CREDIT' ? 'text-emerald-600' : 'text-slate-900'}`}>
+                {txn.direction === 'CREDIT' ? '+' : '-'}{formatCurrency(txn.amountMxc)}
+              </p>
             </div>
           </div>
-          <div className="shrink-0 text-left sm:text-right">
-            <p className={`text-sm font-semibold ${txn.direction === 'CREDIT' ? 'text-emerald-600' : 'text-slate-900'}`}>
-              {txn.direction === 'CREDIT' ? '+' : '-'}{formatCurrency(txn.amountMxc)}
-            </p>
-            <p className="mt-1 text-xs font-semibold uppercase tracking-wider text-slate-400">{formatTxnStatus(txn.txnStatus)}</p>
-          </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   )
 }
@@ -423,6 +514,13 @@ function formatTxnStatus(status: string) {
     CANCELLED: 'Đã hủy',
   }
   return labels[status] || status
+}
+
+function txnStatusTone(status: string): 'indigo' | 'emerald' | 'amber' | 'rose' | 'slate' {
+  if (status === 'COMPLETED') return 'emerald'
+  if (status === 'PENDING' || status === 'FLAGGED') return 'amber'
+  if (status === 'FAILED') return 'rose'
+  return 'slate'
 }
 
 function formatContractStatus(status: string) {
