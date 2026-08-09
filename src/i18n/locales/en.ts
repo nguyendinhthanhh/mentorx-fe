@@ -173,6 +173,7 @@ const en = {
   "home.stats.users": "Users",
   "home.stats.activeJobs": "Active Jobs",
   "home.stats.qualityMentors": "Quality Mentors",
+  "home.stats.categories": "Categories",
   "home.stats.successfulMatches": "Successful Matches",
 
   "jobs.all": "All jobs",

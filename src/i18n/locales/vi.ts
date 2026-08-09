@@ -168,6 +168,7 @@ const vi = {
   "home.stats.users": "Người dùng",
   "home.stats.activeJobs": "Việc đang mở",
   "home.stats.qualityMentors": "Mentor chất lượng",
+  "home.stats.categories": "Lĩnh vực",
   "home.stats.successfulMatches": "Kết nối thành công",
 
   "jobs.all": "Tất cả việc làm",
