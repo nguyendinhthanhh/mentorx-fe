@@ -216,10 +216,6 @@ function App() {
             {/* Wallet Routes */}
             <Route path="/wallet" element={<WalletPage />} />
 
-            {/* Payment Routes */}
-            <Route path="/payment/vnpay-return" element={<Navigate to="/wallet" replace />} />
-            <Route path="/payment/momo-return" element={<Navigate to="/wallet" replace />} />
-            
             {/* Blog Routes */}
             <Route path="/blogs/create" element={<BlogCreatePage />} />
             <Route path="/blog/:slug/edit" element={<BlogEditPage />} />

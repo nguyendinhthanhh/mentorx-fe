@@ -9,7 +9,7 @@ import { useI18n } from '@/i18n/I18nProvider'
 import { 
   Search, MapPin, Star, ChevronRight, LayoutGrid, ChevronDown, 
   Bookmark, Briefcase, Code, Megaphone, PenTool, Users, TrendingUp, 
-  Database, Package, Rocket, Handshake, CheckCircle2 
+  BookOpen, Database, Package, Rocket, Handshake, CheckCircle2
 } from 'lucide-react'
 
 const formatBudget = (job: any, fallback: string) => {
@@ -18,6 +18,32 @@ const formatBudget = (job: any, fallback: string) => {
   }
   if (job.hourlyRateMxc) return `${job.hourlyRateMxc.toLocaleString('en-US')} VND/hr`
   return fallback
+}
+
+const formatStatValue = (value: number) => value.toLocaleString('en-US')
+
+const getTagList = (value: unknown): string[] => {
+  if (Array.isArray(value)) {
+    return value
+      .map((item) => String(item).trim())
+      .filter(Boolean)
+  }
+
+  if (typeof value === 'string') {
+    return value
+      .split(',')
+      .map((item) => item.trim())
+      .filter(Boolean)
+  }
+
+  return []
+}
+
+type HomeStatItem = {
+  key: string
+  value: number | null | undefined
+  label: string
+  icon: JSX.Element
 }
 
 const CATEGORY_ICONS: Record<string, React.ReactNode> = {
@@ -55,7 +81,46 @@ export default function HomePage() {
   const jobs = data?.featuredJobs || []
   const mentors = data?.featuredMentors || []
   const categories = data?.categories || []
-  const stats = data?.stats || { users: 0, openJobs: 0, mentors: 0, successfulMatches: 0 }
+  const heroJob = jobs[0]
+  const heroMentor = mentors[0]
+  const heroJobClientName = heroJob?.clientName || heroJob?.client?.displayName || heroJob?.client?.fullName || t('common.company')
+  const heroJobAvatarUrl = heroJob
+    ? heroJob.clientAvatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(heroJobClientName)}&background=random&color=fff&rounded=true&bold=true`
+    : ''
+  const heroJobType = heroJob?.jobType ? heroJob.jobType.replace(/_/g, ' ') : t('common.remote')
+  const heroJobTags = getTagList(heroJob?.skills || heroJob?.requiredSkills || heroJob?.skillTags).slice(0, 4)
+  const heroMentorName = heroMentor?.fullName || heroMentor?.user?.displayName || heroMentor?.user?.fullName || t('common.mentor')
+  const heroMentorAvatarUrl = heroMentor
+    ? heroMentor.avatarUrl || heroMentor.user?.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(heroMentorName)}&background=random&color=fff&rounded=true&bold=true`
+    : ''
+  const heroMentorTags = getTagList(heroMentor?.skills || heroMentor?.expertiseTags || heroMentor?.skillTags).slice(0, 3)
+  const stats = data?.stats
+  const platformStats: HomeStatItem[] = [
+    {
+      key: 'open-jobs',
+      value: stats?.openJobs,
+      label: t('home.stats.activeJobs'),
+      icon: <Briefcase className="h-7 w-7 text-blue-300" />,
+    },
+    {
+      key: 'mentors',
+      value: stats?.mentors,
+      label: t('home.stats.qualityMentors'),
+      icon: <CheckCircle2 className="h-7 w-7 text-emerald-300" />,
+    },
+    {
+      key: 'courses',
+      value: stats?.courses,
+      label: t('home.stats.courses'),
+      icon: <BookOpen className="h-7 w-7 text-violet-300" />,
+    },
+    {
+      key: 'categories',
+      value: stats?.categories,
+      label: t('home.stats.categories'),
+      icon: <LayoutGrid className="h-7 w-7 text-cyan-300" />,
+    },
+  ]
 
   return (
     <div className="min-h-screen bg-[#f7f8fc] dark:bg-slate-950">
@@ -126,56 +191,63 @@ export default function HomePage() {
                <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
             </div>
 
-            {/* FPT Card */}
-            <div className="absolute -left-6 top-16 w-[280px] rounded-2xl border border-white/40 bg-white/95 p-4 shadow-xl backdrop-blur-md animate-[bounce_6s_ease-in-out_infinite] dark:border-slate-700 dark:bg-slate-900/95">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                   <div className="flex h-8 w-8 items-center justify-center rounded bg-gradient-to-br from-orange-400 to-amber-500 text-[10px] font-bold text-white shadow-sm">FPT</div>
-                   <span className="text-xs font-bold text-gray-800 dark:text-slate-200">FPT Software</span>
+            {heroJob && (
+              <Link to={`/jobs/${heroJob.jobId}`} className="absolute -left-6 top-16 w-[280px] rounded-2xl border border-white/40 bg-white/95 p-4 shadow-xl backdrop-blur-md animate-[bounce_6s_ease-in-out_infinite] dark:border-slate-700 dark:bg-slate-900/95">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex min-w-0 items-center gap-2">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded bg-white text-[10px] font-bold text-slate-700 shadow-sm dark:bg-slate-800 dark:text-slate-200">
+                      <img src={heroJobAvatarUrl} alt={heroJobClientName} loading="lazy" decoding="async" className="h-full w-full object-contain" />
+                    </div>
+                    <span className="truncate text-xs font-bold text-gray-800 dark:text-slate-200">{heroJobClientName}</span>
+                  </div>
+                  <span className="shrink-0 rounded bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-600">{t('home.hero.companyCard.new')}</span>
                 </div>
-                <span className="rounded bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-600">{t('home.hero.companyCard.new')}</span>
-              </div>
-              <div className="mt-3 text-sm font-bold text-gray-900 dark:text-white">{t('home.hero.companyCard.title')}</div>
-              <div className="mt-1.5 flex gap-3 text-[11px] text-gray-600 dark:text-slate-400">
-                <span className="flex items-center gap-1"><MapPin className="h-3 w-3" /> Hanoi</span>
-                <span className="flex items-center gap-1"><Briefcase className="h-3 w-3" /> {t('common.remote')}</span>
-              </div>
-              <div className="mt-2 text-xs font-bold text-amber-500">{t('home.hero.companyCard.salary')}</div>
-              <div className="mt-3 flex flex-wrap gap-1 text-[9px] text-gray-700 font-medium dark:text-slate-300">
-                <span className="rounded bg-slate-100 px-2 py-1 dark:bg-slate-800">Java</span>
-                <span className="rounded bg-slate-100 px-2 py-1 dark:bg-slate-800">Spring Boot</span>
-                <span className="rounded bg-slate-100 px-2 py-1 dark:bg-slate-800">MySQL</span>
-                <span className="rounded bg-slate-100 px-2 py-1 dark:bg-slate-800">API</span>
-              </div>
-              <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3 dark:border-slate-800">
-                <span className="text-[11px] font-bold text-[#4f46e5] cursor-pointer">{t('common.viewDetails')}</span>
-                <Bookmark className="h-4 w-4 text-gray-400 cursor-pointer hover:text-[#4f46e5]" />
-              </div>
-            </div>
+                <div className="mt-3 line-clamp-2 text-sm font-bold text-gray-900 dark:text-white">{heroJob.title}</div>
+                <div className="mt-1.5 flex gap-3 text-[11px] text-gray-600 dark:text-slate-400">
+                  <span className="flex min-w-0 items-center gap-1"><MapPin className="h-3 w-3 shrink-0" /> <span className="truncate">{heroJob.location || t('common.remote')}</span></span>
+                  <span className="flex items-center gap-1"><Briefcase className="h-3 w-3" /> {heroJobType}</span>
+                </div>
+                <div className="mt-2 text-xs font-bold text-amber-500">{formatBudget(heroJob, t('common.negotiable'))}</div>
+                {heroJobTags.length > 0 && (
+                  <div className="mt-3 flex flex-wrap gap-1 text-[9px] text-gray-700 font-medium dark:text-slate-300">
+                    {heroJobTags.map((tag) => (
+                      <span key={tag} className="rounded bg-slate-100 px-2 py-1 dark:bg-slate-800">{tag}</span>
+                    ))}
+                  </div>
+                )}
+                <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3 dark:border-slate-800">
+                  <span className="text-[11px] font-bold text-[#4f46e5]">{t('common.viewDetails')}</span>
+                  <Bookmark className="h-4 w-4 text-gray-400" />
+                </div>
+              </Link>
+            )}
 
-            {/* Mentor Card */}
-            <div className="absolute -right-2 bottom-12 w-[240px] rounded-2xl border border-white/40 bg-white/95 p-4 shadow-xl backdrop-blur-md animate-[bounce_5s_ease-in-out_infinite_reverse] dark:border-slate-700 dark:bg-slate-900/95">
-              <div className="flex justify-end mb-2">
-                 <span className="rounded bg-emerald-100 px-2 py-0.5 text-[9px] font-bold text-emerald-600 uppercase tracking-wide">{t('home.hero.mentorCard.featured')}</span>
-              </div>
-              <div className="flex items-center gap-3">
-                 <img src="https://i.pravatar.cc/150?u=12" alt="Avatar" className="h-12 w-12 rounded-full border-2 border-white shadow-sm object-cover" />
-                 <div>
-                    <div className="text-sm font-bold text-gray-900 dark:text-white">Nguyễn Hoàng Anh</div>
-                    <div className="text-[9px] text-gray-600 mt-0.5 dark:text-slate-400">{t('home.hero.mentorCard.role')}<br/>Product Mentor</div>
-                 </div>
-              </div>
-              <div className="mt-2.5 flex items-center gap-1 text-[11px] font-bold text-gray-800 dark:text-slate-200">
-                <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-                4.9 <span className="font-medium text-gray-500">(128 {t('common.reviews')})</span>
-              </div>
-              <div className="mt-3 flex flex-wrap gap-1 text-[9px] text-gray-700 font-medium dark:text-slate-300">
-                <span className="rounded-full border border-slate-100 bg-slate-50 px-2 py-1 dark:border-slate-700 dark:bg-slate-800">Leadership</span>
-                <span className="rounded-full border border-slate-100 bg-slate-50 px-2 py-1 dark:border-slate-700 dark:bg-slate-800">System Design</span>
-                <span className="rounded-full border border-slate-100 bg-slate-50 px-2 py-1 dark:border-slate-700 dark:bg-slate-800">Career Coaching</span>
-              </div>
-              <button className="mt-4 w-full rounded-xl bg-[#4f46e5] py-2 text-xs font-bold text-white hover:bg-[#4338ca] transition shadow-sm">{t('home.hero.mentorCard.book')}</button>
-            </div>
+            {heroMentor && (
+              <Link to={`/mentors/${heroMentor.userId || heroMentor.mentorId}`} className="absolute -right-2 bottom-12 w-[240px] rounded-2xl border border-white/40 bg-white/95 p-4 shadow-xl backdrop-blur-md animate-[bounce_5s_ease-in-out_infinite_reverse] dark:border-slate-700 dark:bg-slate-900/95">
+                <div className="flex justify-end mb-2">
+                  <span className="rounded bg-emerald-100 px-2 py-0.5 text-[9px] font-bold text-emerald-600 uppercase tracking-wide">{t('home.hero.mentorCard.featured')}</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <img src={heroMentorAvatarUrl} alt={heroMentorName} loading="lazy" decoding="async" className="h-12 w-12 rounded-full border-2 border-white shadow-sm object-cover" />
+                  <div className="min-w-0">
+                    <div className="truncate text-sm font-bold text-gray-900 dark:text-white">{heroMentorName}</div>
+                    <div className="mt-0.5 line-clamp-2 text-[9px] text-gray-600 dark:text-slate-400">{heroMentor.headline || t('common.mentor')}</div>
+                  </div>
+                </div>
+                <div className="mt-2.5 flex items-center gap-1 text-[11px] font-bold text-gray-800 dark:text-slate-200">
+                  <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+                  {typeof heroMentor.averageRating === 'number' ? heroMentor.averageRating.toFixed(1) : 'N/A'} <span className="font-medium text-gray-500">({heroMentor.totalReviews || 0} {t('common.reviews')})</span>
+                </div>
+                {heroMentorTags.length > 0 && (
+                  <div className="mt-3 flex flex-wrap gap-1 text-[9px] text-gray-700 font-medium dark:text-slate-300">
+                    {heroMentorTags.map((tag) => (
+                      <span key={tag} className="rounded-full border border-slate-100 bg-slate-50 px-2 py-1 dark:border-slate-700 dark:bg-slate-800">{tag}</span>
+                    ))}
+                  </div>
+                )}
+                <span className="mt-4 block w-full rounded-xl bg-[#4f46e5] py-2 text-center text-xs font-bold text-white transition hover:bg-[#4338ca] shadow-sm">{t('home.hero.mentorCard.book')}</span>
+              </Link>
+            )}
           </div>
         </div>
       </section>
@@ -342,7 +414,7 @@ export default function HomePage() {
                         <p className="mt-1 text-[11px] text-gray-600 line-clamp-2 leading-[1.6] dark:text-slate-400">{mentor.headline || t('common.mentor')}</p>
                         <div className="mt-1.5 flex items-center gap-1 text-[11px] font-bold text-gray-800 dark:text-slate-200">
                           <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-                          {mentor.averageRating?.toFixed(1) || '4.9'} <span className="font-medium text-gray-500">({mentor.totalReviews || 0} {t('common.reviews')})</span>
+                          {typeof mentor.averageRating === 'number' ? mentor.averageRating.toFixed(1) : 'N/A'} <span className="font-medium text-gray-500">({mentor.totalReviews || 0} {t('common.reviews')})</span>
                         </div>
                       </div>
                     </div>
@@ -463,50 +535,34 @@ export default function HomePage() {
 
       {/* STATS */}
       <section className="mx-auto max-w-[1600px] px-4 pb-16 pt-8 sm:px-6 lg:px-8">
-        <div className="rounded-3xl bg-gray-900 p-8 md:p-10 shadow-2xl relative overflow-hidden">
-          {/* Decorative shapes */}
-          <div className="absolute top-0 left-0 w-64 h-64 bg-emerald-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 -translate-x-1/2 -translate-y-1/2"></div>
-          <div className="absolute bottom-0 right-0 w-64 h-64 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 translate-x-1/2 translate-y-1/2"></div>
-          
-          <div className="grid grid-cols-2 gap-y-10 gap-x-6 md:grid-cols-4 relative z-10">
-            <div className="flex flex-col md:flex-row items-center md:items-start gap-4 text-center md:text-left">
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10 shrink-0">
-                 <Users className="h-7 w-7 text-emerald-300" />
-              </div>
-              <div>
-                <p className="text-3xl font-bold text-white">{stats.users.toLocaleString('en-US')}+</p>
-                <p className="mt-1 text-[13px] font-medium text-emerald-200">{t('home.stats.users')}</p>
-              </div>
-            </div>
-            
-            <div className="flex flex-col md:flex-row items-center md:items-start gap-4 text-center md:text-left">
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10 shrink-0">
-                 <Briefcase className="h-7 w-7 text-blue-300" />
-              </div>
-              <div>
-                <p className="text-3xl font-bold text-white">{stats.openJobs.toLocaleString('en-US')}+</p>
-                <p className="mt-1 text-[13px] font-medium text-emerald-200">{t('home.stats.activeJobs')}</p>
-              </div>
+        <div className="overflow-hidden rounded-3xl bg-gray-900 shadow-2xl ring-1 ring-white/10">
+          <div className="grid gap-0 lg:grid-cols-[1.05fr_2fr]">
+            <div className="border-b border-white/10 p-7 md:p-8 lg:border-b-0 lg:border-r">
+              <span className="inline-flex rounded-full bg-emerald-400/10 px-3 py-1 text-[12px] font-semibold text-emerald-200 ring-1 ring-emerald-300/20">
+                {t('home.stats.source')}
+              </span>
+              <h2 className="mt-4 text-2xl font-bold text-white md:text-3xl">
+                {t('home.stats.title')}
+              </h2>
+              <p className="mt-3 max-w-sm text-sm leading-[1.7] text-slate-300">
+                {t('home.stats.description')}
+              </p>
             </div>
 
-            <div className="flex flex-col md:flex-row items-center md:items-start gap-4 text-center md:text-left">
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10 shrink-0">
-                 <CheckCircle2 className="h-7 w-7 text-emerald-300" />
-              </div>
-              <div>
-                <p className="text-3xl font-bold text-white">{stats.mentors.toLocaleString('en-US')}+</p>
-                <p className="mt-1 text-[13px] font-medium text-emerald-200">{t('home.stats.qualityMentors')}</p>
-              </div>
-            </div>
-
-            <div className="flex flex-col md:flex-row items-center md:items-start gap-4 text-center md:text-left">
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10 shrink-0">
-                 <Handshake className="h-7 w-7 text-emerald-300" />
-              </div>
-              <div>
-                <p className="text-3xl font-bold text-white">{stats.successfulMatches.toLocaleString('en-US')}+</p>
-                <p className="mt-1 text-[13px] font-medium text-emerald-200">{t('home.stats.successfulMatches')}</p>
-              </div>
+            <div className="grid grid-cols-2 divide-x divide-y divide-white/10 md:grid-cols-4 md:divide-y-0">
+              {platformStats
+                .filter((item) => typeof item.value === 'number' && Number.isFinite(item.value))
+                .map((item) => (
+                  <div key={item.key} className="flex min-h-[170px] flex-col items-center justify-center p-5 text-center md:p-6">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10">
+                      {item.icon}
+                    </div>
+                    <p className="mt-6 text-3xl font-bold text-white">
+                      {formatStatValue(item.value as number)}
+                    </p>
+                    <p className="mt-2 text-[13px] font-medium text-emerald-200">{item.label}</p>
+                  </div>
+                ))}
             </div>
           </div>
         </div>

@@ -1,14 +1,15 @@
 import { categoryApi } from '@/api/categoryApi'
+import { courseApi } from '@/api/courseApi'
 import { jobApi } from '@/api/jobApi'
 import { mentorApi } from '@/api/mentorApi'
 import { fetchJobRecommendations, fetchMentorRecommendations } from '@/api/feedApi'
 import { CategoryResponse } from '@/types'
 
 export interface HomeStats {
-  users: number
-  openJobs: number
-  mentors: number
-  successfulMatches: number
+  openJobs: number | null
+  mentors: number | null
+  courses: number | null
+  categories: number | null
 }
 
 export interface HomeData {
@@ -18,12 +19,8 @@ export interface HomeData {
   stats: HomeStats
 }
 
-const DEFAULT_STATS: HomeStats = {
-  users: 150000,
-  openJobs: 25000,
-  mentors: 3000,
-  successfulMatches: 45000,
-}
+const fulfilledValue = <T>(result: PromiseSettledResult<T>): T | null =>
+  result.status === 'fulfilled' ? result.value : null
 
 export const homeApi = {
   getHomeData: async (isAuthenticated: boolean): Promise<HomeData> => {
@@ -65,12 +62,26 @@ export const homeApi = {
     promises.push(categoryApi.getAllActive())
 
     const [finalJobs, finalMentors, categoriesResult] = await Promise.all(promises)
+    const categories = Array.isArray(categoriesResult) ? categoriesResult : []
+
+    const [openJobsResult, mentorsResult, coursesResult] = await Promise.allSettled([
+      jobApi.getOpenJobs({ page: 0, size: 1 }).then(res => res.totalElements),
+      mentorApi.getApprovedMentorsCount().catch(() =>
+        mentorApi.getAllApprovedMentors({ page: 0, size: 1 }).then(res => res.totalElements)
+      ),
+      courseApi.getPublished({ page: 0, size: 1 }).then(res => res.totalElements),
+    ])
 
     return {
       featuredJobs: finalJobs || [],
       featuredMentors: finalMentors || [],
-      categories: Array.isArray(categoriesResult) ? categoriesResult : [],
-      stats: DEFAULT_STATS
+      categories,
+      stats: {
+        openJobs: fulfilledValue(openJobsResult),
+        mentors: fulfilledValue(mentorsResult),
+        courses: fulfilledValue(coursesResult),
+        categories: categories.length,
+      },
     }
   },
 }

@@ -127,6 +127,7 @@ export default function MentorMessagesPage() {
   const [selectionError, setSelectionError] = useState<string | null>(null)
   const [showContextPanel, setShowContextPanel] = useState(false)
   const selectedRoomId = searchParams.get('conversationId') || searchParams.get('roomId')
+  const isCreatingTargetRoomRef = useRef(false)
 
   const roomsQuery = useQuery(
     ['mentor-messages-rooms', user?.userId],
@@ -139,6 +140,7 @@ export default function MentorMessagesPage() {
       refetchOnWindowFocus: true,
     }
   )
+  const refetchRooms = roomsQuery.refetch
 
   const roomList = roomsQuery.data?.content || []
   const visibleRooms = useMemo(() => roomList.filter((room) => !room.isArchived), [roomList])
@@ -248,13 +250,37 @@ export default function MentorMessagesPage() {
     if (roomsQuery.isLoading) return
 
     if (targetUserId && !selectedRoomId) {
+      if (!user?.userId) return
+      if (targetUserId === user.userId) {
+        setSelectionError('Bạn không thể mở cuộc trò chuyện với chính mình.')
+        setSearchParams({}, { replace: true })
+        return
+      }
       const existingRoom = deduplicatedRooms.find(
-        (r) => r.members?.some((m) => m.userId === targetUserId)
+        (r) => r.roomType === 'DIRECT_MESSAGE' && r.members?.some((m) => m.userId === targetUserId)
       )
       if (existingRoom) {
         setSearchParams({ conversationId: existingRoom.id }, { replace: true })
       } else {
-        setSelectionError('Không tìm thấy cuộc hội thoại với người dùng này.')
+        if (isCreatingTargetRoomRef.current) return
+        isCreatingTargetRoomRef.current = true
+        setSelectionError(null)
+        chatApi
+          .createRoom({
+            roomType: 'DIRECT_MESSAGE',
+            memberIds: [user.userId, targetUserId],
+            createdByUserId: user.userId,
+          })
+          .then((newRoom) => {
+            setSearchParams({ conversationId: newRoom.id }, { replace: true })
+            void refetchRooms()
+          })
+          .catch(() => {
+            setSelectionError('Chưa thể mở cuộc hội thoại với người dùng này.')
+          })
+          .finally(() => {
+            isCreatingTargetRoomRef.current = false
+          })
       }
       return
     }
@@ -268,7 +294,7 @@ export default function MentorMessagesPage() {
       return
     }
     setSelectionError('Bạn không có quyền truy cập cuộc trò chuyện này.')
-  }, [roomsQuery.isLoading, selectedRoom, selectedRoomId, targetUserId, deduplicatedRooms, setSearchParams])
+  }, [roomsQuery.isLoading, refetchRooms, selectedRoom, selectedRoomId, targetUserId, deduplicatedRooms, setSearchParams, user?.userId])
 
   const selectedMessagesQuery = useQuery(
     ['mentor-messages-thread', effectiveRoomId],

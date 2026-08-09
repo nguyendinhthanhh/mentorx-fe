@@ -27,10 +27,11 @@ import { useThemeStore } from '@/store/themeStore'
 import NotificationDropdown from '@/components/notification/NotificationDropdown'
 import ModeSwitcher from '@/components/ModeSwitcher'
 import { courseApi } from '@/api/courseApi'
+import { chatApi } from '@/api/chatApi'
 
 const navigationItems = [
   { to: '/mentor/dashboard', label: 'Overview', icon: LayoutDashboard },
-  { to: '/mentor/messages', label: 'Messages', icon: MessageCircle, badge: 2 },
+  { to: '/mentor/messages', label: 'Messages', icon: MessageCircle },
   { to: '/mentor/projects', label: 'My Projects', icon: FolderKanban },
   { to: '/mentor/courses', label: 'My Courses', icon: BookOpen },
   { to: '/mentor/coupons', label: 'Coupons', icon: Ticket },
@@ -53,7 +54,23 @@ export default function MentorLayout() {
     () => courseApi.getMentorQaSummaries(),
     { enabled: !!user?.userId, refetchInterval: 30000 }
   )
+  const { data: rooms } = useQuery(
+    ['chatRooms', user?.userId],
+    () => chatApi.getUserRooms(user!.userId, { page: 0, size: 50 }),
+    { enabled: !!user?.userId, refetchInterval: 30000 }
+  )
   const unansweredCourseQaCount = qaSummaries.reduce((sum, item) => sum + (item.unansweredLearners || 0), 0)
+  const unreadMessagesCount = rooms?.content.reduce((sum, room) => {
+    if (room.isArchived) return sum
+    if (
+      room.roomType === 'DIRECT_MESSAGE' &&
+      room.members?.length > 0 &&
+      room.members.every((member) => member.userId === user?.userId)
+    ) {
+      return sum
+    }
+    return sum + (room.unreadCount || 0)
+  }, 0) || 0
 
   useEffect(() => {
     setMobileNavOpen(false)
@@ -105,7 +122,11 @@ export default function MentorLayout() {
           <nav className="flex-1 px-4 py-5 space-y-2 overflow-y-auto custom-scrollbar">
             {navigationItems.map((item) => {
               const active = isActive(item.to)
-              const badge = item.to === '/mentor/courses' ? unansweredCourseQaCount : item.badge
+              const badge = item.to === '/mentor/courses'
+                ? unansweredCourseQaCount
+                : item.to === '/mentor/messages'
+                  ? unreadMessagesCount
+                  : undefined
               return (
                 <Link
                   key={item.to}
@@ -203,7 +224,11 @@ export default function MentorLayout() {
               <nav className="flex-1 overflow-y-auto space-y-2 px-4 py-5">
                 {navigationItems.map((item) => {
                   const active = isActive(item.to)
-                  const badge = item.to === '/mentor/courses' ? unansweredCourseQaCount : item.badge
+                  const badge = item.to === '/mentor/courses'
+                    ? unansweredCourseQaCount
+                    : item.to === '/mentor/messages'
+                      ? unreadMessagesCount
+                      : undefined
                   return (
                     <Link
                       key={item.to}
@@ -317,9 +342,18 @@ export default function MentorLayout() {
 
                 {user && <NotificationDropdown userId={user.userId} />}
 
-                <button type="button" className="hidden h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-500 transition hover:bg-slate-50 hover:text-slate-900 sm:flex">
+                <Link
+                  to="/mentor/messages"
+                  className="relative hidden h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-500 transition hover:bg-slate-50 hover:text-slate-900 sm:flex"
+                  aria-label="Open messages"
+                >
                   <MessageCircle className="h-4 w-4" />
-                </button>
+                  {unreadMessagesCount > 0 && (
+                    <span className="absolute -right-1 -top-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-semibold text-white ring-2 ring-white">
+                      {unreadMessagesCount > 9 ? '9+' : unreadMessagesCount}
+                    </span>
+                  )}
+                </Link>
 
                 <ModeSwitcher className="hidden sm:inline-flex" />
 

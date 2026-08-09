@@ -21,6 +21,7 @@ export default function MyCoursesPage() {
   const { user } = useAuthStore()
   const [viewingCertificateId, setViewingCertificateId] = useState<string | null>(null)
   const [reviewingCourseId, setReviewingCourseId] = useState<string | null>(null)
+  const [reviewingMentorId, setReviewingMentorId] = useState<string | null>(null)
 
   const { data: enrollmentsData, isLoading } = useQuery(
     ['my-enrollments', user?.userId],
@@ -71,6 +72,13 @@ export default function MyCoursesPage() {
     const map = new Map<string, ReviewResponse>()
     ;(myReviewsData?.content || [])
       .filter((review) => review.targetType === ReviewTargetType.COURSE)
+      .forEach((review) => map.set(review.targetId, review))
+    return map
+  }, [myReviewsData])
+  const reviewByMentorId = useMemo(() => {
+    const map = new Map<string, ReviewResponse>()
+    ;(myReviewsData?.content || [])
+      .filter((review) => review.targetType === ReviewTargetType.MENTOR)
       .forEach((review) => map.set(review.targetId, review))
     return map
   }, [myReviewsData])
@@ -153,9 +161,12 @@ export default function MyCoursesPage() {
             const isDocumentProduct = course?.productType === CourseProductType.DOCUMENT
             const progress = Math.min(Math.max(enrollment.progressPercent || 0, 0), 100)
             const canViewCertificate = enrollment.isCompleted && progress >= 100 && course?.isCertificate
-            const canReview = enrollment.isCompleted && progress >= 100
+            const canReviewCourse = Boolean(enrollment.courseId)
+            const canReviewMentor = Boolean(course?.instructorId && course.instructorId !== user?.userId)
             const existingReview = reviewByCourseId.get(enrollment.courseId)
+            const existingMentorReview = course?.instructorId ? reviewByMentorId.get(course.instructorId) : undefined
             const domainName = course?.categoryId ? categoryNameById[course.categoryId] : ''
+            const secondaryActionCount = [canViewCertificate, canReviewCourse, canReviewMentor].filter(Boolean).length
 
             return (
               <div
@@ -187,9 +198,7 @@ export default function MyCoursesPage() {
                     <h3 className="line-clamp-2 text-base font-black leading-5 text-slate-900 group-hover:text-emerald-600 dark:text-white dark:group-hover:text-emerald-400">
                       {course?.title || enrollment.courseTitle}
                     </h3>
-                    {course?.instructorName && (
-                      <p className="mt-1 text-xs font-bold text-slate-500">Bởi {course.instructorName}</p>
-                    )}
+                    <InstructorProfileLink course={course} />
                     <CourseMetadata domainName={domainName} skills={course?.skills || []} />
                     <div className="mt-2 flex flex-wrap items-center gap-2 text-xs font-bold text-slate-500">
                       <div className="flex items-center gap-1">
@@ -222,7 +231,7 @@ export default function MyCoursesPage() {
                         style={{ width: `${progress}%` }}
                       />
                     </div>
-                    <div className={`grid gap-2 ${canViewCertificate || canReview ? 'sm:grid-cols-2' : ''}`}>
+                    <div className={`grid gap-2 ${secondaryActionCount > 0 ? 'sm:grid-cols-2' : ''}`}>
                       <Link
                         to={`/courses/${enrollment.courseId}/learn`}
                         className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 shadow-md hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 hover:bg-emerald-700 py-2 text-xs font-bold text-white transition hover:bg-emerald-600 dark:bg-emerald-900 dark:hover:bg-emerald-800"
@@ -245,14 +254,30 @@ export default function MyCoursesPage() {
                           Xem chứng chỉ
                         </button>
                       )}
-                      {canReview && (
+                      {canReviewCourse && (
                         <button
                           type="button"
-                          onClick={() => setReviewingCourseId(enrollment.courseId)}
+                          onClick={() => {
+                            setReviewingMentorId(null)
+                            setReviewingCourseId(enrollment.courseId)
+                          }}
                           className="flex w-full items-center justify-center gap-2 rounded-xl border border-amber-200 bg-amber-50 py-2 text-xs font-bold text-amber-700 transition hover:bg-amber-100"
                         >
                           <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
                           {existingReview ? 'Sửa đánh giá' : `Đánh giá ${isDocumentProduct ? 'tài liệu' : 'khóa học'}`}
+                        </button>
+                      )}
+                      {canReviewMentor && course?.instructorId && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setReviewingCourseId(null)
+                            setReviewingMentorId(course.instructorId!)
+                          }}
+                          className="flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-white py-2 text-xs font-bold text-emerald-700 transition hover:bg-emerald-50 dark:border-emerald-900 dark:bg-slate-950 dark:text-emerald-300"
+                        >
+                          <Star className="h-4 w-4 fill-emerald-400 text-emerald-500" />
+                          {existingMentorReview ? 'Sửa đánh giá mentor' : 'Đánh giá mentor'}
                         </button>
                       )}
                     </div>
@@ -264,12 +289,15 @@ export default function MyCoursesPage() {
         </div>
       )}
 
-      {reviewingCourseId && (
+      {(reviewingCourseId || reviewingMentorId) && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4 backdrop-blur-sm">
           <div className="max-h-[90vh] w-full max-w-3xl overflow-auto rounded-3xl bg-white p-2 shadow-2xl dark:bg-slate-950">
             <div className="mb-2 flex justify-end">
               <button
-                onClick={() => setReviewingCourseId(null)}
+                onClick={() => {
+                  setReviewingCourseId(null)
+                  setReviewingMentorId(null)
+                }}
                 className="rounded-xl p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
                 aria-label="Close review form"
               >
@@ -277,10 +305,17 @@ export default function MyCoursesPage() {
               </button>
             </div>
             <ReviewForm
-              targetType={ReviewTargetType.COURSE}
-              targetId={reviewingCourseId}
-              initialReview={reviewByCourseId.get(reviewingCourseId)}
-              onClose={() => setReviewingCourseId(null)}
+              targetType={reviewingMentorId ? ReviewTargetType.MENTOR : ReviewTargetType.COURSE}
+              targetId={reviewingMentorId || reviewingCourseId!}
+              initialReview={
+                reviewingMentorId
+                  ? reviewByMentorId.get(reviewingMentorId)
+                  : reviewByCourseId.get(reviewingCourseId!)
+              }
+              onClose={() => {
+                setReviewingCourseId(null)
+                setReviewingMentorId(null)
+              }}
             />
           </div>
         </div>
@@ -296,6 +331,23 @@ function StatCard({ label, value }: { label: string; value: string }) {
       <p className="mt-1 text-2xl font-black text-slate-900 dark:text-white">{value}</p>
     </div>
   )
+}
+
+function InstructorProfileLink({ course }: { course?: CourseEnrollmentCourseSummaryResponse }) {
+  if (!course?.instructorName) return null
+
+  if (course.instructorId) {
+    return (
+      <Link
+        to={`/mentors/${course.instructorId}`}
+        className="mt-1 inline-flex w-fit text-xs font-bold text-slate-500 transition hover:text-emerald-700 hover:underline hover:underline-offset-2"
+      >
+        Bởi {course.instructorName}
+      </Link>
+    )
+  }
+
+  return <p className="mt-1 text-xs font-bold text-slate-500">Bởi {course.instructorName}</p>
 }
 
 function CourseRow({

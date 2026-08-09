@@ -19,7 +19,7 @@ export default function EarningsChart({ data, height = 280 }: EarningsChartProps
 
   const chartData = data.map((point) => ({
     date: formatDateLabel(point.date),
-    value: point.value,
+    value: Number(point.earnedMxc ?? point.value ?? 0),
   }))
 
   return (

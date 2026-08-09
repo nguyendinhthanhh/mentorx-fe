@@ -1,6 +1,8 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { AlertTriangle, Loader2, X } from 'lucide-react'
 
+import { useI18n } from '@/i18n/I18nProvider'
+
 interface CourseNameConfirmModalProps {
   isOpen: boolean
   courseName: string
@@ -24,6 +26,7 @@ export default function CourseNameConfirmModal({
   onClose,
   onConfirm,
 }: CourseNameConfirmModalProps) {
+  const { t } = useI18n()
   const [typedName, setTypedName] = useState('')
   const [error, setError] = useState('')
 
@@ -41,7 +44,7 @@ export default function CourseNameConfirmModal({
   const submit = (event: FormEvent) => {
     event.preventDefault()
     if (typedName.trim().toLowerCase() !== normalizedExpected) {
-      setError('Type the course name exactly to continue.')
+      setError(t('courseConfirm.nameMismatch'))
       return
     }
     onConfirm()
@@ -63,19 +66,19 @@ export default function CourseNameConfirmModal({
         <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-900">
           <div className="mb-2 flex items-center gap-2">
             <AlertTriangle className="h-4 w-4 shrink-0" />
-            Type the course name below to confirm.
+            {t('courseConfirm.instructions')}
           </div>
           <p className="text-xs font-black uppercase tracking-widest text-amber-700">{courseName}</p>
         </div>
 
-        <label className="block text-xs font-black uppercase tracking-widest text-slate-400">Course name</label>
+        <label className="block text-xs font-black uppercase tracking-widest text-slate-400">{t('courseConfirm.courseName')}</label>
         <input
           value={typedName}
           onChange={(event) => {
             setTypedName(event.target.value)
             setError('')
           }}
-          placeholder="Enter the course name exactly"
+          placeholder={t('courseConfirm.placeholder')}
           autoFocus
           className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm font-medium text-slate-900 outline-none focus:border-emerald-400 focus:ring-4 focus:ring-emerald-500/10"
         />
@@ -87,7 +90,7 @@ export default function CourseNameConfirmModal({
             onClick={onClose}
             className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50"
           >
-            Cancel
+            {t('courseConfirm.cancel')}
           </button>
           <button
             type="submit"

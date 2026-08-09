@@ -1,16 +1,32 @@
-import { useEffect, useMemo, useState } from 'react'
+import { type ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { AlertTriangle, ArrowUpRight, Briefcase, CreditCard, DollarSign, LockKeyhole, ReceiptText, Sparkles } from 'lucide-react'
+import {
+  AlertTriangle,
+  Clock3,
+  CreditCard,
+  DollarSign,
+  LockKeyhole,
+  ReceiptText,
+} from 'lucide-react'
 import { bankAccountApi } from '@/api/bankAccountApi'
 import { contractApi } from '@/api/contractApi'
 import { mentorApi } from '@/api/mentorApi'
 import { walletApi } from '@/api/walletApi'
 import { useAuthStore } from '@/store/authStore'
-import { BankAccountResponse, ContractResponse, ContractStatus, MentorProfileResponse, TxnType, WalletAccountType, WalletResponse, WalletTransactionResponse } from '@/types'
+import {
+  BankAccountResponse,
+  ContractResponse,
+  ContractStatus,
+  MentorProfileResponse,
+  TxnType,
+  WalletAccountType,
+  WalletResponse,
+  WalletTransactionResponse,
+} from '@/types'
 import { formatCurrency, formatDateTime } from '@/utils/formatters'
-import { LoadingRows, MetricCard, PageShell, SelectInput, StateCard, StatusPill, Toolbar } from './shared/MentorHubUI'
+import { LoadingRows, SelectInput, StateCard, StatusPill, Toolbar } from './shared/MentorHubUI'
 import { useEarningsSummary } from '@/hooks/useAnalytics'
-import { AnalyticsPeriod } from '@/api/analyticsApi'
+import { AnalyticsPeriod, BySourceEntry } from '@/api/analyticsApi'
 import EarningsChart from '@/components/analytics/EarningsChart'
 import WithdrawalHistory from '@/components/wallet/WithdrawalHistory'
 
@@ -23,7 +39,7 @@ const PERIOD_OPTIONS: { value: AnalyticsPeriod; label: string }[] = [
   { value: 'YEAR', label: 'Theo năm' },
 ]
 
-const releasedTxnTypes = new Set<string>([TxnType.JOB_RELEASE, TxnType.COURSE_PURCHASE, TxnType.APPOINTMENT_RELEASE])
+const revenueTxnTypes = new Set<string>([TxnType.JOB_RELEASE, TxnType.COURSE_PURCHASE, TxnType.APPOINTMENT_RELEASE])
 
 export default function MentorEarningsPage() {
   const { user } = useAuthStore()
@@ -39,11 +55,7 @@ export default function MentorEarningsPage() {
   const [earningsPeriod, setEarningsPeriod] = useState<AnalyticsPeriod>('MONTH')
   const { data: earningsSummary } = useEarningsSummary(earningsPeriod)
 
-  useEffect(() => {
-    void loadEarnings()
-  }, [user?.userId])
-
-  const loadEarnings = async () => {
+  const loadEarnings = useCallback(async () => {
     if (!user?.userId) return
     try {
       setLoading(true)
@@ -53,7 +65,7 @@ export default function MentorEarningsPage() {
         walletApi.getUserTransactions(user.userId, { page: 0, size: 100 }),
         contractApi.getMine({ page: 0, size: 100 }),
         mentorApi.getMentorProfile(user.userId).catch(() => null),
-        bankAccountApi.getDefault(user.userId),
+        bankAccountApi.getDefault(user.userId).catch(() => null),
       ])
       setWallets(walletList || [])
       setTransactions(transactionPage.content || [])
@@ -61,33 +73,37 @@ export default function MentorEarningsPage() {
       setProfile(mentorProfile)
       setDefaultPayout(payoutAccount)
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Unable to load earnings data.')
+      setError(err.response?.data?.message || 'Không thể tải dữ liệu thu nhập.')
     } finally {
       setLoading(false)
     }
-  }
+  }, [user?.userId])
+
+  useEffect(() => {
+    void loadEarnings()
+  }, [loadEarnings])
 
   const summary = useMemo(() => {
     const available = Number(wallets.find((wallet) => wallet.accountType === WalletAccountType.USER_AVAILABLE)?.balanceMxc || 0)
     const pending = Number(wallets.find((wallet) => wallet.accountType === WalletAccountType.USER_PENDING)?.balanceMxc || 0)
-    const inEscrow = contracts
+    const contractEscrow = contracts
       .filter((contract) => [ContractStatus.ACTIVE, ContractStatus.IN_DISPUTE, ContractStatus.UNDER_REVIEW].includes(contract.status))
       .reduce((sum, contract) => sum + Number(contract.amountInEscrow || 0), 0)
     const now = new Date()
     const thisMonth = transactions
-      .filter((txn) => isReleasedCredit(txn) && sameMonth(new Date(txn.createdAt), now))
+      .filter((txn) => isRevenueCredit(txn) && sameMonth(new Date(txn.createdAt), now))
       .reduce((sum, txn) => sum + Number(txn.amountMxc || 0), 0)
-    const lifetime = transactions
-      .filter(isReleasedCredit)
+    const recordedRevenue = transactions
+      .filter(isRevenueCredit)
       .reduce((sum, txn) => sum + Number(txn.amountMxc || 0), 0)
 
-    return { available, pending, inEscrow, thisMonth, lifetime }
+    return { available, pending, contractEscrow, thisMonth, recordedRevenue }
   }, [contracts, transactions, wallets])
 
   const filteredTransactions = useMemo(() => {
     if (transactionFilter === 'ALL') return transactions
-    if (transactionFilter === 'RELEASED') return transactions.filter(isReleasedCredit)
-    if (transactionFilter === 'ESCROW') return transactions.filter((txn) => txn.txnType === TxnType.JOB_PAYMENT)
+    if (transactionFilter === 'REVENUE') return transactions.filter(isRevenueCredit)
+    if (transactionFilter === 'CONTRACT_LOCK') return transactions.filter((txn) => txn.txnType === TxnType.JOB_PAYMENT)
     if (transactionFilter === 'WITHDRAWAL') return transactions.filter((txn) => txn.txnType === TxnType.WITHDRAWAL)
     if (transactionFilter === 'REFUND') return transactions.filter((txn) => [TxnType.JOB_REFUND, TxnType.COURSE_REFUND, TxnType.APPOINTMENT_REFUND, TxnType.WITHDRAWAL_REFUND].includes(txn.txnType))
     return transactions
@@ -95,79 +111,121 @@ export default function MentorEarningsPage() {
 
   const payoutStatus = profile?.payoutStatus || user?.payoutStatus || 'NOT_SUBMITTED'
   const canWithdraw = payoutStatus === 'APPROVED' && summary.available > 0 && !!defaultPayout
+  const sourceBreakdown = (earningsSummary?.bySource || []).filter((source) => sourceAmount(source) > 0)
+  const trendTimeline = (earningsSummary?.timeline || []).filter((point) => Number(point.earnedMxc ?? point.value ?? 0) > 0)
+  const hasTrendData = sourceBreakdown.length > 0 || trendTimeline.length > 0
 
   return (
-    <div className="mx-auto max-w-[1400px] space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-12">
-      {/* Compact Header */}
-      <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between mb-8">
+    <div className="mx-auto max-w-[1400px] space-y-6 pb-12">
+      <header>
         <div>
-          <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-[11px] uppercase tracking-widest font-black text-emerald-600 mb-3 border border-emerald-100 shadow-sm">
-            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-            Tổng quan
-          </div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Quản lý Thu nhập</h1>
-          <p className="mt-2 text-sm font-medium text-slate-500">
-            Tổng thu nhập trọn đời: <span className="font-bold text-slate-700">{formatCurrency(summary.lifetime)}</span>
+          <p className="text-xs font-semibold uppercase tracking-wider text-emerald-700">MentorHub</p>
+          <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-950 md:text-3xl">Doanh thu & rút tiền</h1>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">
+            Quản lý số dư MXC, khoản chờ giải ngân, escrow hợp đồng và lịch sử giao dịch trong một màn hình.
           </p>
         </div>
-        
-        <div className="flex items-center gap-4">
-          <div className="hidden lg:flex items-center gap-4 rounded-2xl border border-slate-200/60 bg-white/50 py-2.5 shadow-sm backdrop-blur-md">
-            <div className="flex flex-col px-5 border-r border-slate-200/60">
-               <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600/70">Số dư khả dụng</span>
-               <span className="text-xl font-black text-emerald-600">{formatCurrency(summary.available)}</span>
+      </header>
+
+      <section className="grid gap-5 xl:grid-cols-[minmax(0,1.35fr)_minmax(340px,0.65fr)]">
+        <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+          <div className="border-b border-slate-100 p-5">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Số dư khả dụng</p>
+                <p className="mt-3 text-4xl font-bold tracking-tight text-slate-950">{formatCurrency(summary.available)}</p>
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
+                  Đây là khoản mentor có thể rút sau khi tài khoản nhận tiền được duyệt.
+                </p>
+              </div>
+              <StatusPill label={canWithdraw ? 'Có thể rút' : 'Chưa thể rút'} tone={canWithdraw ? 'emerald' : 'amber'} />
             </div>
-            <div className="flex flex-col px-5 border-r border-slate-200/60">
-               <span className="text-[10px] font-black uppercase tracking-widest text-amber-600/70">Đang giữ (Escrow)</span>
-               <span className="text-xl font-black text-amber-600">{formatCurrency(summary.inEscrow)}</span>
-            </div>
-            <div className="flex flex-col px-5">
-               <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600/70">Tháng này</span>
-               <span className="text-xl font-black text-emerald-600">{formatCurrency(summary.thisMonth)}</span>
+            <div className="mt-5 flex flex-col gap-2 sm:flex-row">
+              <Link
+                to={canWithdraw ? '/wallet?tab=withdraw' : '/mentor/settings'}
+                className={`inline-flex h-10 items-center justify-center gap-2 rounded-lg px-4 text-sm font-semibold transition focus:outline-none focus:ring-4 focus:ring-emerald-500/10 ${
+                  canWithdraw ? 'bg-emerald-600 text-white hover:bg-emerald-700' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                }`}
+              >
+                <CreditCard className="h-4 w-4" />
+                {canWithdraw ? 'Tạo yêu cầu rút tiền' : 'Hoàn tất tài khoản nhận tiền'}
+              </Link>
+              <button
+                type="button"
+                onClick={() => setActiveTab('withdrawals')}
+                className="inline-flex h-10 items-center justify-center rounded-lg border border-slate-200 px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+              >
+                Xem lịch sử rút tiền
+              </button>
             </div>
           </div>
-
-          <Link
-            to={canWithdraw ? '/wallet' : '/mentor/settings'}
-            className={`inline-flex h-12 items-center justify-center gap-2 rounded-xl px-6 text-sm font-bold shadow-sm transition-all hover:-translate-y-0.5 shrink-0 ${canWithdraw ? 'bg-emerald-600 shadow-md hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 hover:bg-emerald-700 text-white hover:bg-emerald-600 hover:shadow-emerald-500/30' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}
-          >
-            <CreditCard className="h-4 w-4" />
-            {canWithdraw ? 'Rút tiền' : 'Cài đặt thanh toán'}
-          </Link>
+          <div className="grid divide-y divide-slate-100 md:grid-cols-3 md:divide-x md:divide-y-0">
+            <SettlementFigure
+              label="Chờ giải ngân"
+              value={summary.pending}
+              helper="Doanh thu đã ghi nhận nhưng chưa chuyển sang khả dụng."
+              icon={<Clock3 className="h-4 w-4" />}
+              tone="amber"
+            />
+            <SettlementFigure
+              label="Escrow hợp đồng"
+              value={summary.contractEscrow}
+              helper="Tiền hợp đồng còn khóa trước nghiệm thu hoặc xử lý."
+              icon={<LockKeyhole className="h-4 w-4" />}
+              tone="slate"
+            />
+            <SettlementFigure
+              label="Tháng này"
+              value={summary.thisMonth}
+              helper="Doanh thu đã giải ngân trong tháng hiện tại."
+              icon={<DollarSign className="h-4 w-4" />}
+              tone="emerald"
+            />
+          </div>
         </div>
-      </div>
 
-      <div className="rounded-[2.5rem] border border-slate-200/60 bg-white/50 p-6 sm:p-8 shadow-xl shadow-slate-200/40 backdrop-blur-2xl">
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <MetricCard label="Số dư khả dụng" value={formatCurrency(summary.available)} helper="Có thể rút sau khi cài đặt tài khoản nhận tiền." icon={<DollarSign className="h-5 w-5" />} tone="emerald" />
-        <MetricCard label="Đang giữ (Escrow)" value={formatCurrency(summary.inEscrow)} helper="Sẽ được giải ngân khi khách hàng nghiệm thu." icon={<LockKeyhole className="h-5 w-5" />} tone="amber" />
-        <MetricCard label="Tháng này" value={formatCurrency(summary.thisMonth)} helper="Các khoản thu nhập đã được giải ngân trong tháng." icon={<ArrowUpRight className="h-5 w-5" />} />
-        <MetricCard label="Tổng thu nhập" value={formatCurrency(summary.lifetime)} helper="Tổng hợp từ tất cả các giao dịch giải ngân." icon={<ReceiptText className="h-5 w-5" />} tone="slate" />
-      </div>
+        <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Tổng hợp dòng tiền</p>
+              <h2 className="mt-1 text-base font-bold text-slate-950">Sổ cái hiện tại</h2>
+            </div>
+            <ReceiptText className="h-5 w-5 text-slate-400" />
+          </div>
+          <dl className="mt-5 space-y-4">
+            <CashflowRow label="Khả dụng" value={summary.available} tone="emerald" />
+            <CashflowRow label="Chờ giải ngân" value={summary.pending} tone="amber" />
+            <CashflowRow label="Escrow hợp đồng" value={summary.contractEscrow} tone="slate" />
+            <CashflowRow label="Doanh thu ghi nhận" value={summary.recordedRevenue} tone="slate" />
+          </dl>
+        </section>
+      </section>
 
       <Toolbar>
-        <div className="scrollbar-hide flex w-full overflow-x-auto rounded-2xl bg-slate-100 p-1 lg:w-auto">
+        <div className="scrollbar-hide flex w-full overflow-x-auto rounded-lg bg-slate-100 p-1 lg:w-auto">
           {[
             ['overview', 'Tổng quan'],
-            ['transactions', 'Lịch sử giao dịch'],
+            ['transactions', 'Giao dịch'],
             ['contracts', 'Hợp đồng'],
-            ['withdrawals', 'Lịch sử rút tiền'],
+            ['withdrawals', 'Rút tiền'],
           ].map(([key, label]) => (
             <button
               key={key}
               type="button"
               onClick={() => setActiveTab(key as TabKey)}
-              className={`h-10 whitespace-nowrap rounded-xl px-4 text-sm font-bold transition ${activeTab === key ? 'bg-white text-emerald-700 shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}
+              className={`h-10 whitespace-nowrap rounded-md px-4 text-sm font-semibold transition ${
+                activeTab === key ? 'bg-white text-emerald-700 shadow-sm' : 'text-slate-500 hover:text-slate-900'
+              }`}
             >
               {label}
             </button>
           ))}
         </div>
         {activeTab === 'transactions' ? (
-          <SelectInput value={transactionFilter} onChange={(event) => setTransactionFilter(event.target.value)} className="w-full lg:ml-auto lg:w-48">
+          <SelectInput value={transactionFilter} onChange={(event) => setTransactionFilter(event.target.value)} className="w-full lg:ml-auto lg:w-56">
             <option value="ALL">Tất cả giao dịch</option>
-            <option value="RELEASED">Đã giải ngân</option>
-            <option value="ESCROW">Đang giữ</option>
+            <option value="REVENUE">Doanh thu ghi nhận</option>
+            <option value="CONTRACT_LOCK">Thanh toán giữ hợp đồng</option>
             <option value="WITHDRAWAL">Rút tiền</option>
             <option value="REFUND">Hoàn tiền</option>
           </SelectInput>
@@ -177,95 +235,91 @@ export default function MentorEarningsPage() {
       {loading ? (
         <LoadingRows rows={4} />
       ) : error ? (
-        <StateCard tone="error" title="Không thể tải dữ liệu" message={error} action={<button onClick={loadEarnings} className="rounded-2xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white">Thử lại</button>} />
+        <StateCard tone="error" title="Không thể tải dữ liệu" message={error} action={<button onClick={loadEarnings} className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white">Thử lại</button>} />
       ) : activeTab === 'overview' ? (
-        <div className="space-y-5">
-          {/* Analytics Earnings Summary */}
-          {earningsSummary ? (
-            <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <h2 className="text-lg font-bold text-slate-950">Tổng quan thu nhập</h2>
-                <div className="flex gap-1 rounded-xl bg-slate-100 p-1">
-                  {PERIOD_OPTIONS.map((opt) => (
-                    <button
-                      key={opt.value}
-                      type="button"
-                      onClick={() => setEarningsPeriod(opt.value)}
-                      className={`rounded-lg px-3 py-1.5 text-xs font-bold transition ${earningsPeriod === opt.value ? 'bg-white text-emerald-700 shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}
-                    >
-                      {opt.label}
-                    </button>
-                  ))}
+        <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
+          <div className="space-y-5 min-w-0">
+            {hasTrendData ? (
+              <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <h2 className="text-base font-bold text-slate-950">Xu hướng doanh thu</h2>
+                    <p className="mt-1 text-xs leading-5 text-slate-500">Dữ liệu phân tích được tổng hợp hằng đêm, dùng để xem xu hướng doanh thu.</p>
+                  </div>
+                  <div className="flex gap-1 rounded-lg bg-slate-100 p-1">
+                    {PERIOD_OPTIONS.map((opt) => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => setEarningsPeriod(opt.value)}
+                        className={`rounded-md px-3 py-1.5 text-xs font-semibold transition ${earningsPeriod === opt.value ? 'bg-white text-emerald-700 shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
-              <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                <MetricCard label="Tổng thu nhập" value={formatCurrency(earningsSummary.totalEarnedMxc)} tone="indigo" />
-                <MetricCard label="Khả dụng" value={formatCurrency(earningsSummary.availableBalanceMxc)} tone="emerald" />
-                <MetricCard label="Đang giữ" value={formatCurrency(earningsSummary.escrowBalanceMxc)} tone="amber" />
-                <MetricCard label="Đã rút" value={formatCurrency(earningsSummary.withdrawnMxc)} tone="slate" />
-              </div>
-              {earningsSummary.bySource.length > 0 && (
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {earningsSummary.bySource.map((src) => (
-                    <span key={src.source} className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-700">
-                      {formatSourceLabel(src.source)}
-                      <span className="text-emerald-500">{formatCurrency(src.amountMxc)}</span>
-                    </span>
-                  ))}
+                {sourceBreakdown.length > 0 ? (
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {sourceBreakdown.map((source) => (
+                      <span key={source.source} className="inline-flex items-center gap-2 rounded-md bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-700 ring-1 ring-slate-200">
+                        {formatSourceLabel(source.source)}
+                        <span className="text-emerald-700">{formatCurrency(sourceAmount(source))}</span>
+                      </span>
+                    ))}
+                  </div>
+                ) : null}
+                <div className="mt-4">
+                  <EarningsChart data={trendTimeline} />
                 </div>
-              )}
-              <div className="mt-5">
-                <EarningsChart data={earningsSummary.timeline} />
-              </div>
-            </section>
-          ) : null}
+              </section>
+            ) : null}
 
-          <div className="grid gap-5 xl:grid-cols-[1fr_380px]">
-          <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-            <div className="flex items-center justify-between gap-3">
-              <h2 className="text-lg font-bold text-slate-950">Giao dịch gần đây</h2>
-              <button type="button" onClick={() => setActiveTab('transactions')} className="text-sm font-bold text-emerald-600">Xem tất cả</button>
-            </div>
-            <TransactionList transactions={transactions.slice(0, 6)} />
-          </section>
+            <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+              <div className="flex items-center justify-between gap-3">
+                <h2 className="text-base font-bold text-slate-950">Giao dịch gần đây</h2>
+                <button type="button" onClick={() => setActiveTab('transactions')} className="text-sm font-semibold text-emerald-700 hover:text-emerald-800">Xem tất cả</button>
+              </div>
+              <TransactionList transactions={transactions.slice(0, 6)} />
+            </section>
+          </div>
 
           <aside className="space-y-5">
-            <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-              <h2 className="text-lg font-bold text-slate-950">Điều kiện rút tiền</h2>
+            <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+              <h2 className="text-base font-bold text-slate-950">Điều kiện rút tiền</h2>
               <div className="mt-4 space-y-3">
                 <ReadinessItem label="Mentor được duyệt" passed={user?.mentorStatus === 'APPROVED'} />
                 <ReadinessItem label="Tài khoản nhận tiền được duyệt" passed={payoutStatus === 'APPROVED'} />
                 <ReadinessItem label="Có số dư khả dụng" passed={summary.available > 0} />
               </div>
               {!canWithdraw ? (
-                <div className="mt-4 rounded-2xl bg-amber-50 p-4 text-sm font-semibold leading-6 text-amber-800">
+                <div className="mt-4 rounded-lg bg-amber-50 p-4 text-sm font-medium leading-6 text-amber-800">
                   <AlertTriangle className="mr-2 inline h-4 w-4" />
-                  Chức năng rút tiền bị khóa cho đến khi tài khoản được duyệt và số dư lớn hơn 0.
+                  Chỉ có số dư khả dụng mới được tạo yêu cầu rút tiền.
                 </div>
               ) : null}
             </section>
 
-            <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-              <h2 className="text-lg font-bold text-slate-950">Tài khoản nhận tiền</h2>
+            <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+              <h2 className="text-base font-bold text-slate-950">Tài khoản nhận tiền</h2>
               {defaultPayout ? (
-                <div className="mt-4 space-y-2 text-sm font-semibold text-slate-600">
-                  <p>{defaultPayout.accountHolderName}</p>
+                <div className="mt-4 space-y-2 text-sm font-medium text-slate-600">
+                  <p className="font-semibold text-slate-900">{defaultPayout.accountHolderName}</p>
                   <p>{defaultPayout.bankName}</p>
                   <p>{maskAccount(defaultPayout.accountNumber)}</p>
                   <StatusPill label={formatPayoutStatus(payoutStatus)} tone={payoutStatus === 'APPROVED' ? 'emerald' : payoutStatus === 'REJECTED' ? 'rose' : 'amber'} />
                 </div>
               ) : (
-                <p className="mt-3 text-sm font-medium leading-6 text-slate-500">Bạn chưa thêm tài khoản nhận tiền.</p>
+                <p className="mt-3 text-sm leading-6 text-slate-500">Bạn chưa thêm tài khoản nhận tiền.</p>
               )}
             </section>
           </aside>
         </div>
-        </div>
       ) : activeTab === 'transactions' ? (
         filteredTransactions.length === 0 ? (
-          <StateCard title="Không có giao dịch" message="Các khoản thu nhập, dòng tiền giải ngân, rút tiền, và hoàn tiền sẽ hiển thị tại đây." />
+          <StateCard title="Không có giao dịch" message="Các khoản doanh thu, rút tiền và hoàn tiền sẽ hiển thị tại đây." />
         ) : (
-          <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
             <TransactionList transactions={filteredTransactions} />
           </section>
         )
@@ -275,21 +329,21 @@ export default function MentorEarningsPage() {
         ) : (
           <div className="grid gap-4 xl:grid-cols-2">
             {contracts.map((contract) => (
-              <article key={contract.id} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+              <article key={contract.id} className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
                 <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <h2 className="text-lg font-bold text-slate-950">{contract.jobTitle || contract.title}</h2>
-                    <p className="mt-1 text-sm font-semibold text-slate-500">Khách hàng: {contract.clientName}</p>
+                  <div className="min-w-0">
+                    <h2 className="truncate text-base font-bold text-slate-950">{contract.jobTitle || contract.title}</h2>
+                    <p className="mt-1 text-sm font-medium text-slate-500">Khách hàng: {contract.clientName}</p>
                   </div>
                   <StatusPill label={formatContractStatus(contract.status)} tone={contract.status === ContractStatus.COMPLETED ? 'emerald' : contract.status === ContractStatus.IN_DISPUTE ? 'rose' : contract.status === ContractStatus.CANCELLED ? 'slate' : 'indigo'} />
                 </div>
                 <div className="mt-5 grid grid-cols-2 gap-3">
-                  <MiniAmount label="Đang giữ" value={contract.amountInEscrow} />
+                  <MiniAmount label="Escrow còn khóa" value={contract.amountInEscrow} />
                   <MiniAmount label="Đã trả" value={contract.amountPaid} />
                   <MiniAmount label="Tổng cộng" value={contract.totalAmount} />
                   <MiniAmount label="Bắt đầu" value={contract.createdAt} isDate />
                 </div>
-                <Link to={`/mentor/proposals/${contract.proposalId || contract.id}`} className="mt-5 inline-flex rounded-2xl border border-slate-200 px-4 py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-50">
+                <Link to={`/mentor/proposals/${contract.proposalId || contract.id}`} className="mt-5 inline-flex rounded-lg border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50">
                   Xem chi tiết
                 </Link>
               </article>
@@ -298,20 +352,65 @@ export default function MentorEarningsPage() {
         )
       ) : (
         <div className="space-y-4">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-bold text-slate-900">Lịch sử rút tiền</h2>
-            
-              <Link
-                to="/wallet?tab=withdraw"
-                className="inline-flex h-9 items-center justify-center rounded-lg bg-emerald-600 px-4 text-xs font-bold text-white shadow-sm hover:bg-emerald-700 transition"
-              >
-                Tạo yêu cầu rút tiền
-              </Link>
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="text-base font-bold text-slate-900">Lịch sử rút tiền</h2>
+            <Link
+              to="/wallet?tab=withdraw"
+              className="inline-flex h-9 items-center justify-center rounded-lg bg-emerald-600 px-4 text-xs font-semibold text-white transition hover:bg-emerald-700"
+            >
+              Tạo yêu cầu rút tiền
+            </Link>
           </div>
           {user?.userId && <WithdrawalHistory userId={user.userId} />}
         </div>
       )}
-      </div>
+    </div>
+  )
+}
+
+function SettlementFigure({
+  label,
+  value,
+  helper,
+  icon,
+  tone,
+}: {
+  label: string
+  value: number
+  helper: string
+  icon: ReactNode
+  tone: 'emerald' | 'amber' | 'slate'
+}) {
+  const toneClass = {
+    emerald: 'bg-emerald-50 text-emerald-700',
+    amber: 'bg-amber-50 text-amber-700',
+    slate: 'bg-slate-100 text-slate-600',
+  }[tone]
+
+  return (
+    <div className="p-5">
+      <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${toneClass}`}>{icon}</div>
+      <p className="mt-4 text-xs font-semibold uppercase tracking-wider text-slate-500">{label}</p>
+      <p className="mt-1 text-xl font-bold tracking-tight text-slate-950">{formatCurrency(value)}</p>
+      <p className="mt-2 text-xs leading-5 text-slate-500">{helper}</p>
+    </div>
+  )
+}
+
+function CashflowRow({ label, value, tone }: { label: string; value: number; tone: 'emerald' | 'amber' | 'slate' }) {
+  const dotClass = {
+    emerald: 'bg-emerald-500',
+    amber: 'bg-amber-500',
+    slate: 'bg-slate-400',
+  }[tone]
+
+  return (
+    <div className="flex items-center justify-between gap-4">
+      <dt className="flex min-w-0 items-center gap-3 text-sm font-semibold text-slate-600">
+        <span className={`h-2 w-2 shrink-0 rounded-full ${dotClass}`} />
+        <span className="truncate">{label}</span>
+      </dt>
+      <dd className="shrink-0 text-sm font-bold text-slate-950">{formatCurrency(value)}</dd>
     </div>
   )
 }
@@ -322,35 +421,45 @@ function TransactionList({ transactions }: { transactions: WalletTransactionResp
   }
 
   return (
-    <div className="mt-4 divide-y divide-slate-100">
-      {transactions.map((txn) => (
-        <div key={txn.id} className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-start gap-3">
-            <div className={`mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl ${txn.direction === 'CREDIT' ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-100 text-slate-600'}`}>
-              <ReceiptText className="h-4 w-4" />
+    <div className="mt-4 overflow-hidden rounded-lg border border-slate-200">
+      <div className="hidden grid-cols-[minmax(0,1.4fr)_160px_130px_140px] gap-4 border-b border-slate-100 bg-slate-50 px-4 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 md:grid">
+        <span>Giao dịch</span>
+        <span>Thời gian</span>
+        <span>Trạng thái</span>
+        <span className="text-right">Số tiền</span>
+      </div>
+      <div className="divide-y divide-slate-100 bg-white">
+        {transactions.map((txn) => (
+          <div key={txn.id} className="grid gap-3 px-4 py-4 md:grid-cols-[minmax(0,1.4fr)_160px_130px_140px] md:items-center">
+            <div className="flex min-w-0 items-start gap-3">
+              <div className={`mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${txn.direction === 'CREDIT' ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-100 text-slate-600'}`}>
+                <ReceiptText className="h-4 w-4" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-slate-950">{formatTxnType(txn.txnType)}</p>
+                <p className="mt-1 truncate text-xs font-medium text-slate-500">{txn.note || txn.referenceType || 'Giao dịch ví'}</p>
+              </div>
             </div>
+            <p className="text-xs font-medium text-slate-500 md:text-sm">{formatDateTime(txn.createdAt)}</p>
             <div>
-              <p className="text-sm font-bold text-slate-950">{formatTxnType(txn.txnType)}</p>
-              <p className="mt-1 text-xs font-semibold text-slate-500">{txn.note || txn.referenceType || 'Wallet transaction'}</p>
-              <p className="mt-1 text-xs font-semibold text-slate-400">{formatDateTime(txn.createdAt)}</p>
+              <StatusPill label={formatTxnStatus(txn.txnStatus)} tone={txnStatusTone(txn.txnStatus)} />
+            </div>
+            <div className="shrink-0 text-left md:text-right">
+              <p className={`text-sm font-semibold ${txn.direction === 'CREDIT' ? 'text-emerald-600' : 'text-slate-900'}`}>
+                {txn.direction === 'CREDIT' ? '+' : '-'}{formatCurrency(txn.amountMxc)}
+              </p>
             </div>
           </div>
-          <div className="text-left sm:text-right">
-            <p className={`text-sm font-bold ${txn.direction === 'CREDIT' ? 'text-emerald-600' : 'text-slate-900'}`}>
-              {txn.direction === 'CREDIT' ? '+' : '-'}{formatCurrency(txn.amountMxc)}
-            </p>
-            <p className="mt-1 text-xs font-semibold uppercase tracking-wider text-slate-400">{txn.txnStatus}</p>
-          </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   )
 }
 
 function ReadinessItem({ label, passed }: { label: string; passed: boolean }) {
   return (
-    <div className="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3">
-      <span className="text-sm font-bold text-slate-700">{label}</span>
+    <div className="flex items-center justify-between rounded-lg bg-slate-50 px-4 py-3">
+      <span className="text-sm font-semibold text-slate-700">{label}</span>
       <StatusPill label={passed ? 'Sẵn sàng' : 'Còn thiếu'} tone={passed ? 'emerald' : 'amber'} />
     </div>
   )
@@ -358,15 +467,15 @@ function ReadinessItem({ label, passed }: { label: string; passed: boolean }) {
 
 function MiniAmount({ label, value, isDate = false }: { label: string; value?: number | string; isDate?: boolean }) {
   return (
-    <div className="rounded-2xl bg-slate-50 p-4">
+    <div className="rounded-lg bg-slate-50 p-4">
       <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">{label}</p>
-      <p className="mt-1 text-sm font-bold text-slate-900">{isDate && value ? formatDateTime(String(value)) : formatCurrency(value || 0)}</p>
+      <p className="mt-1 text-sm font-semibold text-slate-900">{isDate && value ? formatDateTime(String(value)) : formatCurrency(value || 0)}</p>
     </div>
   )
 }
 
-function isReleasedCredit(txn: WalletTransactionResponse) {
-  return txn.direction === 'CREDIT' && releasedTxnTypes.has(String(txn.txnType)) && txn.txnStatus === 'COMPLETED'
+function isRevenueCredit(txn: WalletTransactionResponse) {
+  return txn.direction === 'CREDIT' && revenueTxnTypes.has(String(txn.txnType)) && txn.txnStatus === 'COMPLETED'
 }
 
 function sameMonth(left: Date, right: Date) {
@@ -374,7 +483,44 @@ function sameMonth(left: Date, right: Date) {
 }
 
 function formatTxnType(type: string) {
-  return type.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase())
+  const labels: Record<string, string> = {
+    DEPOSIT: 'Nạp ví',
+    WITHDRAWAL: 'Rút tiền',
+    JOB_PAYMENT: 'Thanh toán giữ hợp đồng',
+    JOB_RELEASE: 'Giải ngân hợp đồng',
+    JOB_REFUND: 'Hoàn tiền hợp đồng',
+    COURSE_PURCHASE: 'Bán khóa học',
+    COURSE_REFUND: 'Hoàn tiền khóa học',
+    APPOINTMENT_BOOKING: 'Đặt lịch mentoring',
+    APPOINTMENT_RELEASE: 'Giải ngân mentoring',
+    APPOINTMENT_REFUND: 'Hoàn tiền mentoring',
+    PLATFORM_FEE: 'Phí nền tảng',
+    WITHDRAWAL_FEE: 'Phí rút tiền',
+    BONUS_CREDIT: 'Thưởng',
+    PENALTY_DEDUCTION: 'Khấu trừ',
+    WITHDRAWAL_REFUND: 'Hoàn yêu cầu rút',
+    ADJUSTMENT: 'Điều chỉnh',
+  }
+  return labels[type] || type.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase())
+}
+
+function formatTxnStatus(status: string) {
+  const labels: Record<string, string> = {
+    PENDING: 'Đang xử lý',
+    COMPLETED: 'Hoàn tất',
+    FAILED: 'Thất bại',
+    REVERSED: 'Đã đảo giao dịch',
+    FLAGGED: 'Cần kiểm tra',
+    CANCELLED: 'Đã hủy',
+  }
+  return labels[status] || status
+}
+
+function txnStatusTone(status: string): 'indigo' | 'emerald' | 'amber' | 'rose' | 'slate' {
+  if (status === 'COMPLETED') return 'emerald'
+  if (status === 'PENDING' || status === 'FLAGGED') return 'amber'
+  if (status === 'FAILED') return 'rose'
+  return 'slate'
 }
 
 function formatContractStatus(status: string) {
@@ -404,12 +550,16 @@ function maskAccount(account?: string) {
   return `**** ${last4}`
 }
 
+function sourceAmount(source: BySourceEntry) {
+  return Number(source.earnedMxc ?? source.amountMxc ?? 0)
+}
+
 function formatSourceLabel(source: string) {
   const labels: Record<string, string> = {
-    LONG_TERM_MENTORING: 'Mentoring',
-    SINGLE_SESSION_MENTORING: '1:1 sessions',
+    LONG_TERM_MENTORING: 'Mentoring dài hạn',
+    SINGLE_SESSION_MENTORING: 'Mentoring 1:1',
     FREELANCE_PROJECT: 'Freelance',
-    COURSE_SALE: 'Courses',
+    COURSE_SALE: 'Khóa học',
   }
   return labels[source] || source.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase())
 }

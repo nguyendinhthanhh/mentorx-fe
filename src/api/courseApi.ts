@@ -331,6 +331,17 @@ export const courseApi = {
     return unwrapApiResponse(response.data)
   },
 
+  getEnrollmentsByCourse: async (
+    courseId: string,
+    params: { page?: number; size?: number } = {}
+  ): Promise<PaginatedResponse<CourseEnrollmentResponse>> => {
+    const response = await apiClient.get<ApiResponse<PaginatedResponse<CourseEnrollmentResponse>> | PaginatedResponse<CourseEnrollmentResponse>>(
+      `/v1/course-enrollments/course/${courseId}`,
+      { params }
+    )
+    return unwrapApiResponse(response.data)
+  },
+
   getCompletedEnrollmentsByStudent: async (
     studentId: string
   ): Promise<CourseEnrollmentResponse[]> => {
