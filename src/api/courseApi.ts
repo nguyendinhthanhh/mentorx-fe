@@ -175,8 +175,12 @@ export const courseApi = {
     return response.data
   },
 
-  enrollCurrentUser: async (courseId: string): Promise<CourseEnrollmentResponse> => {
-    const response = await apiClient.post<CourseEnrollmentResponse>(`/v1/course-enrollments/course/${courseId}/me`)
+  enrollCurrentUser: async (courseId: string, couponCode?: string): Promise<CourseEnrollmentResponse> => {
+    const response = await apiClient.post<CourseEnrollmentResponse>(
+      `/v1/course-enrollments/course/${courseId}/me`,
+      undefined,
+      { params: couponCode ? { couponCode } : undefined }
+    )
     return response.data
   },
 

@@ -5,6 +5,8 @@ import { useRecordView } from '@/hooks/useAnalytics'
 import { courseApi } from '@/api/courseApi'
 import { mentorApi } from '@/api/mentorApi'
 import { categoryApi } from '@/api/categoryApi'
+import { couponApi } from '@/api/couponApi'
+import { useI18n } from '@/i18n/I18nProvider'
 import { formatCurrency } from '@/utils/formatters'
 import {
   BookOpen,
@@ -31,7 +33,7 @@ import {
   X,
 } from 'lucide-react'
 import ReviewList from '@/components/review/ReviewList'
-import { CategoryResponse, CourseLessonResponse, CourseProductType, CourseResponse, CourseStatus, MentorProfileResponse, ReviewTargetType } from '@/types'
+import { CategoryResponse, CourseLessonResponse, CourseProductType, CourseResponse, CourseStatus, CouponValidationResponse, MentorProfileResponse, ReviewTargetType } from '@/types'
 import { useAuthStore } from '@/store/authStore'
 import { categoryLabel } from '@/utils/freeFormTaxonomy'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
@@ -58,8 +60,12 @@ export default function CourseDetailPage() {
   const [downloadingLessonId, setDownloadingLessonId] = useState<string | null>(null)
   const [enrollError, setEnrollError] = useState<string | null>(null)
   const [showAddCoinsPrompt, setShowAddCoinsPrompt] = useState(false)
+  const [couponCode, setCouponCode] = useState('')
+  const [appliedCoupon, setAppliedCoupon] = useState<CouponValidationResponse | null>(null)
+  const [couponError, setCouponError] = useState<string | null>(null)
   const locationState = location.state as CourseDetailLocationState | null
   const mentorOrigin = locationState?.fromMentorProfile
+  const { t } = useI18n()
 
   const { data: course, isLoading } = useQuery(
     ['course', courseId],
@@ -90,11 +96,28 @@ export default function CourseDetailPage() {
     { enabled: !!courseId }
   )
 
+  const applyCouponMutation = useMutation(
+    () => couponApi.validate(couponCode.trim(), courseId!),
+    {
+      onSuccess: (data) => {
+        setAppliedCoupon(data)
+        setCouponError(null)
+      },
+      onError: (error: any) => {
+        setAppliedCoupon(null)
+        setCouponError(error?.response?.data?.message || t('coupon.invalidCode'))
+      },
+    }
+  )
+
   const enrollMutation = useMutation(
-    () => courseApi.enrollCurrentUser(courseId!),
+    () => courseApi.enrollCurrentUser(courseId!, appliedCoupon?.coupon.code),
     {
       onSuccess: () => {
         setEnrollError(null)
+        setAppliedCoupon(null)
+        setCouponCode('')
+        setCouponError(null)
         queryClient.invalidateQueries(['course-enrollment-status', courseId, user?.userId])
         queryClient.invalidateQueries(['my-enrollments', user?.userId])
         queryClient.invalidateQueries(['course', courseId])
@@ -269,6 +292,18 @@ export default function CourseDetailPage() {
   const handlePreview = () => {
     if (!courseId || !firstFreePreviewLesson) return
     navigate(lessonPath(courseId, firstFreePreviewLesson))
+  }
+
+  const handleApplyCoupon = () => {
+    if (!couponCode.trim() || !courseId) return
+    setCouponError(null)
+    applyCouponMutation.mutate()
+  }
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null)
+    setCouponCode('')
+    setCouponError(null)
   }
 
   if (isLoading) {
@@ -464,6 +499,13 @@ export default function CourseDetailPage() {
                 enrollError={enrollError}
                 onEnroll={handleEnroll}
                 onPreview={handlePreview}
+                couponCode={couponCode}
+                onCouponCodeChange={setCouponCode}
+                appliedCoupon={appliedCoupon}
+                couponError={couponError}
+                isApplyingCoupon={applyCouponMutation.isLoading}
+                onApplyCoupon={handleApplyCoupon}
+                onRemoveCoupon={handleRemoveCoupon}
               />
             </div>
           </div>
@@ -486,6 +528,13 @@ export default function CourseDetailPage() {
             enrollError={enrollError}
             onEnroll={handleEnroll}
             onPreview={handlePreview}
+            couponCode={couponCode}
+            onCouponCodeChange={setCouponCode}
+            appliedCoupon={appliedCoupon}
+            couponError={couponError}
+            isApplyingCoupon={applyCouponMutation.isLoading}
+            onApplyCoupon={handleApplyCoupon}
+            onRemoveCoupon={handleRemoveCoupon}
           />
         </div>
 
@@ -762,14 +811,36 @@ function AddCoinsPrompt({ onClose }: { onClose: () => void }) {
 }
 
 // Course Preview Card Component
-function CoursePreviewCard({ course, isEnrolled, isEnrollmentLoading, isEnrolling, isPublished = true, totalDuration = 0, lessonCount = 0, instructorName, previewLesson, enrollError, onEnroll, onPreview }: any) {
+function CoursePreviewCard({
+  course,
+  isEnrolled,
+  isEnrollmentLoading,
+  isEnrolling,
+  isPublished = true,
+  totalDuration = 0,
+  lessonCount = 0,
+  instructorName,
+  previewLesson,
+  enrollError,
+  onEnroll,
+  onPreview,
+  couponCode,
+  onCouponCodeChange,
+  appliedCoupon,
+  couponError,
+  isApplyingCoupon,
+  onApplyCoupon,
+  onRemoveCoupon,
+}: any) {
+  const { t } = useI18n()
   const isDocumentProduct = course.productType === CourseProductType.DOCUMENT
   const displayPrice = course.effectivePriceMxc ?? course.priceMxc ?? 0
+  const finalPrice = appliedCoupon ? appliedCoupon.finalPriceMxc : displayPrice
   const isPaid = displayPrice > 0
-  const actionLabel = isPaid
+  const actionLabel = finalPrice > 0
     ? isDocumentProduct
-      ? `Pay ${formatCurrency(displayPrice)} and get document`
-      : `Pay ${formatCurrency(displayPrice)} and enroll`
+      ? `Pay ${formatCurrency(finalPrice)} and get document`
+      : `Pay ${formatCurrency(finalPrice)} and enroll`
     : isDocumentProduct
       ? 'Get Document'
       : 'Enroll Now'
@@ -814,13 +885,58 @@ function CoursePreviewCard({ course, isEnrolled, isEnrollmentLoading, isEnrollin
         {/* Price */}
         <div>
           <p className="text-3xl font-bold text-gray-900">
-            {displayPrice ? formatCurrency(displayPrice) : 'Free'}
+            {finalPrice ? formatCurrency(finalPrice) : 'Free'}
           </p>
-          {course.activeDiscount && displayPrice < (course.priceMxc || 0) && (
-            <p className="text-sm font-bold text-gray-400 line-through">{formatCurrency(course.priceMxc)}</p>
+          {appliedCoupon ? (
+            <p className="text-sm font-bold text-gray-400 line-through">{formatCurrency(displayPrice)}</p>
+          ) : (
+            course.activeDiscount && displayPrice < (course.priceMxc || 0) && (
+              <p className="text-sm font-bold text-gray-400 line-through">{formatCurrency(course.priceMxc)}</p>
+            )
           )}
           <p className="mt-1 text-sm font-medium text-gray-500">{isDocumentProduct ? 'Document by' : 'Course by'} {instructorName}</p>
         </div>
+
+        {/* Coupon code */}
+        {!isEnrolled && isPaid && (
+          <div className="rounded-xl border border-gray-100 bg-gray-50 p-3">
+            {appliedCoupon ? (
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-sm font-semibold text-emerald-700">
+                  {t('coupon.appliedSuccess', { code: appliedCoupon.coupon.code })}
+                </p>
+                <button
+                  type="button"
+                  onClick={onRemoveCoupon}
+                  className="shrink-0 text-xs font-bold text-gray-500 hover:text-rose-600"
+                >
+                  {t('coupon.remove')}
+                </button>
+              </div>
+            ) : (
+              <>
+                <p className="mb-2 text-xs font-bold uppercase tracking-wide text-gray-500">{t('coupon.haveCode')}</p>
+                <div className="flex gap-2">
+                  <input
+                    value={couponCode}
+                    onChange={(event) => onCouponCodeChange(event.target.value.toUpperCase())}
+                    placeholder={t('coupon.codeInputPlaceholder')}
+                    className="min-w-0 flex-1 rounded-lg border border-gray-200 px-3 py-2 text-sm font-mono font-semibold text-gray-900 outline-none focus:border-emerald-400"
+                  />
+                  <button
+                    type="button"
+                    onClick={onApplyCoupon}
+                    disabled={isApplyingCoupon || !couponCode.trim()}
+                    className="shrink-0 rounded-lg bg-gray-900 px-3 py-2 text-xs font-bold text-white disabled:opacity-50"
+                  >
+                    {isApplyingCoupon ? t('coupon.applying') : t('coupon.apply')}
+                  </button>
+                </div>
+                {couponError && <p className="mt-2 text-xs font-medium text-rose-600">{couponError}</p>}
+              </>
+            )}
+          </div>
+        )}
 
         {/* CTA Buttons */}
         <div className="space-y-2">

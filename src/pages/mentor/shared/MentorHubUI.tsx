@@ -1,5 +1,5 @@
 import { InputHTMLAttributes, ReactNode, SelectHTMLAttributes } from 'react'
-import { AlertCircle, Loader2 } from 'lucide-react'
+import { AlertCircle, Inbox } from 'lucide-react'
 
 export function PageShell({
   eyebrow,
@@ -76,7 +76,7 @@ export function StateCard({
   return (
     <div className="rounded-xl border border-dashed border-slate-200 bg-white px-6 py-10 text-center shadow-sm">
       <div className={`mx-auto flex h-10 w-10 items-center justify-center rounded-lg ${isError ? 'bg-rose-50 text-rose-600' : 'bg-slate-50 text-slate-400'}`}>
-        {isError ? <AlertCircle className="h-5 w-5" /> : <Loader2 className="h-5 w-5 animate-spin" />}
+        {isError ? <AlertCircle className="h-5 w-5" /> : <Inbox className="h-5 w-5" />}
       </div>
       <h2 className="mt-4 text-base font-bold text-slate-900">{title}</h2>
       <p className="mx-auto mt-1 max-w-md text-sm leading-6 text-slate-500">{message}</p>

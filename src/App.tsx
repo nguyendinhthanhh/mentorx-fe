@@ -48,6 +48,8 @@ const RecommendedMentorsPage = lazy(() => import('./pages/mentor/RecommendedMent
 const MentorDashboardPage = lazy(() => import('./pages/mentor/MentorDashboardPage'))
 const MentorCoursesPage = lazy(() => import('./pages/mentor/MentorCoursesPage'))
 const MentorCourseManagePage = lazy(() => import('./pages/mentor/MentorCourseManagePage'))
+const MentorCouponsPage = lazy(() => import('./pages/mentor/MentorCouponsPage'))
+const MentorCouponFormPage = lazy(() => import('./pages/mentor/MentorCouponFormPage'))
 const MentorContractsPage = lazy(() => import('./pages/mentor/MentorContractsPage'))
 const MentorProposalsPage = lazy(() => import('./pages/mentor/MentorProposalsPage'))
 const MentorProjectsPage = lazy(() => import('./pages/mentor/MentorProjectsPage'))
@@ -302,6 +304,9 @@ function App() {
             <Route path="/mentor/messages" element={<MentorMessagesPage />} />
             <Route path="/mentor/courses" element={<MentorCoursesPage />} />
             <Route path="/mentor/courses/:courseId/manage" element={<MentorCourseManagePage />} />
+            <Route path="/mentor/coupons" element={<MentorCouponsPage />} />
+            <Route path="/mentor/coupons/new" element={<MentorCouponFormPage />} />
+            <Route path="/mentor/coupons/:couponId" element={<MentorCouponFormPage />} />
             <Route path="/mentor/my-courses" element={<Navigate to="/mentor/courses" replace />} />
             <Route path="/mentor/schedule" element={<MentorSchedulePage />} />
             <Route path="/mentor/earnings" element={<MentorEarningsPage />} />
