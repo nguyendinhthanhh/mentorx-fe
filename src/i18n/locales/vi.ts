@@ -168,7 +168,12 @@ const vi = {
   "home.stats.users": "Người dùng",
   "home.stats.activeJobs": "Việc đang mở",
   "home.stats.qualityMentors": "Mentor chất lượng",
+  "home.stats.courses": "Khóa học / Tài liệu",
   "home.stats.categories": "Lĩnh vực",
+  "home.stats.source": "Dữ liệu trực tiếp",
+  "home.stats.title": "Hoạt động trên Mentor X",
+  "home.stats.description": "Các chỉ số lấy từ dữ liệu hệ thống đang hiển thị công khai trên nền tảng.",
+  "home.stats.updating": "Đang cập nhật",
   "home.stats.successfulMatches": "Kết nối thành công",
 
   "jobs.all": "Tất cả việc làm",

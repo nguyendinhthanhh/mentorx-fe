@@ -1,12 +1,12 @@
 import { ChangeEvent, FormEvent, useEffect, useMemo, useRef, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
-import { useQuery } from 'react-query'
+import { useLocation, useSearchParams } from 'react-router-dom'
+import { useQuery, useQueryClient } from 'react-query'
 import { chatApi } from '@/api/chatApi'
 import { contractApi } from '@/api/contractApi'
 import { FILE_UPLOAD_DIRS, fileApi } from '@/api/fileApi'
 import { mentorApi } from '@/api/mentorApi'
 import { userApi } from '@/api/userApi'
-import { ChatRoomResponse, ContractResponse, MentorOfferingResponse, MessageType } from '@/types'
+import { ChatRoomMemberSummary, ChatRoomResponse, ContractResponse, MentorOfferingResponse, MessageType, PaginatedResponse } from '@/types'
 import { useAuthStore } from '@/store/authStore'
 import ConversationPane from './components/ConversationPane'
 import ContextRail from './components/ContextRail'
@@ -23,9 +23,44 @@ import {
   getPrimaryOtherMember,
 } from './chatShared'
 
+type ChatNavigationState = {
+  draftRecipient?: {
+    userId: string
+    fullName?: string
+    displayName?: string
+    avatarUrl?: string
+  }
+}
+
+function upsertRoomInPage(
+  current: PaginatedResponse<ChatRoomResponse> | undefined,
+  room: ChatRoomResponse
+): PaginatedResponse<ChatRoomResponse> {
+  if (!current) {
+    return {
+      content: [room],
+      totalElements: 1,
+      totalPages: 1,
+      size: 50,
+      number: 0,
+      first: true,
+      last: true,
+    }
+  }
+
+  const content = [room, ...current.content.filter((item) => item.id !== room.id)]
+  return {
+    ...current,
+    content,
+    totalElements: Math.max(current.totalElements, content.length),
+    totalPages: Math.max(current.totalPages, 1),
+  }
+}
+
 export default function ChatListPage() {
   const { user } = useAuthStore()
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null)
+  const [draftRecipientId, setDraftRecipientId] = useState<string | null>(null)
   const [activeFilter, setActiveFilter] = useState<InboxFilter>('all')
   const [searchTerm, setSearchTerm] = useState('')
   const [composerError, setComposerError] = useState<string | null>(null)
@@ -34,9 +69,14 @@ export default function ChatListPage() {
   const [showConversationMobile, setShowConversationMobile] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
   const isCreatingRef = useRef(false)
+  const isLoadingTargetRoomRef = useRef(false)
+  const location = useLocation()
+  const queryClient = useQueryClient()
   const [searchParams, setSearchParams] = useSearchParams()
   const targetUserId = searchParams.get('userId')
   const targetRoomId = searchParams.get('conversationId') || searchParams.get('roomId')
+  const navigationState = location.state as ChatNavigationState | null
+  const draftRecipientFromState = navigationState?.draftRecipient
 
   const { data: rooms, isLoading: roomsLoading, refetch: refetchRooms } = useQuery(
     ['chatRooms', user?.userId],
@@ -128,7 +168,27 @@ export default function ChatListPage() {
       const existingRoom = roomList.find((room) => room.id === targetRoomId)
       if (existingRoom) {
         setSelectedRoomId(existingRoom.id)
+        setDraftRecipientId(null)
+        setShowConversationMobile(true)
         setSearchParams({})
+      } else if (!isLoadingTargetRoomRef.current) {
+        isLoadingTargetRoomRef.current = true
+        chatApi
+          .getRoomById(targetRoomId, user.userId)
+          .then((room) => {
+            queryClient.setQueryData<PaginatedResponse<ChatRoomResponse> | undefined>(
+              ['chatRooms', user.userId],
+              (current) => upsertRoomInPage(current, room)
+            )
+            setSelectedRoomId(room.id)
+            setDraftRecipientId(null)
+            setShowConversationMobile(true)
+            setSearchParams({})
+          })
+          .catch(console.error)
+          .finally(() => {
+            isLoadingTargetRoomRef.current = false
+          })
       }
       return
     }
@@ -146,6 +206,8 @@ export default function ChatListPage() {
 
       if (existingRoom) {
         setSelectedRoomId(existingRoom.id)
+        setDraftRecipientId(null)
+        setShowConversationMobile(true)
         
         const contextMsg = searchParams.get('contextMsg')
         const linkedJobId = searchParams.get('jobId')
@@ -167,6 +229,20 @@ export default function ChatListPage() {
 
         setSearchParams({})
       } else {
+        const contextMsg = searchParams.get('contextMsg')
+        const linkedJobId = searchParams.get('jobId')
+
+        if (!contextMsg) {
+          setSelectedRoomId(null)
+          setDraftRecipientId(targetUserId)
+          setShowConversationMobile(true)
+          if (linkedJobId) {
+            localStorage.setItem(`chat_draft_job_${targetUserId}`, linkedJobId)
+          }
+          setSearchParams({})
+          return
+        }
+
         if (isCreatingRef.current) return
         isCreatingRef.current = true
         chatApi
@@ -176,11 +252,13 @@ export default function ChatListPage() {
             createdByUserId: user.userId,
           })
           .then(async (newRoom) => {
+            queryClient.setQueryData<PaginatedResponse<ChatRoomResponse> | undefined>(
+              ['chatRooms', user.userId],
+              (current) => upsertRoomInPage(current, newRoom)
+            )
             setSelectedRoomId(newRoom.id)
+            setDraftRecipientId(null)
             
-            const contextMsg = searchParams.get('contextMsg')
-            const linkedJobId = searchParams.get('jobId')
-
             if (linkedJobId) {
               localStorage.setItem(`chat_job_${newRoom.id}`, linkedJobId)
             }
@@ -225,26 +303,12 @@ export default function ChatListPage() {
     () => roomList.find((room) => room.id === selectedRoomId) || null,
     [roomList, selectedRoomId]
   )
-
-  const { data: messages, isLoading: messagesLoading, refetch: refetchMessages } = useQuery(
-    ['messages', selectedRoomId],
-    () => chatApi.getRoomMessages(selectedRoomId!, { page: 0, size: 50 }),
-    {
-      enabled: !!selectedRoomId,
-      refetchInterval: selectedRoomId ? 10_000 : false,
-      refetchIntervalInBackground: false,
-      refetchOnWindowFocus: true,
-    }
-  )
-
-  const selectedMessages = messages?.content || []
-  const latestMessage = selectedMessages[selectedMessages.length - 1]
-  const otherMember = useMemo(
+  const selectedRoomOtherMember = useMemo(
     () => (selectedRoom ? getPrimaryOtherMember(selectedRoom, user?.userId) : undefined),
     [selectedRoom, user?.userId]
   )
-  const isDirectRoom = selectedRoom?.roomType === 'DIRECT_MESSAGE'
-  const otherMemberId = isDirectRoom ? otherMember?.userId : undefined
+  const isDirectRoom = selectedRoom?.roomType === 'DIRECT_MESSAGE' || !!draftRecipientId
+  const otherMemberId = draftRecipientId || (isDirectRoom ? selectedRoomOtherMember?.userId : undefined)
 
   const { data: mentorProfile, isLoading: mentorProfileLoading } = useQuery(
     ['chat-mentor-profile', otherMemberId],
@@ -298,11 +362,93 @@ export default function ChatListPage() {
     }
   )
 
+  const draftRoom = useMemo<ChatRoomResponse | null>(() => {
+    if (!draftRecipientId || !user?.userId) return null
+
+    const mentorUser = mentorProfile?.user
+    const stateRecipient =
+      draftRecipientFromState?.userId === draftRecipientId ? draftRecipientFromState : undefined
+    const displayName =
+      mentorUser?.displayName ||
+      otherUserProfile?.displayName ||
+      stateRecipient?.displayName ||
+      mentorUser?.fullName ||
+      otherUserProfile?.fullName ||
+      stateRecipient?.fullName ||
+      'Conversation'
+    const fullName =
+      mentorUser?.fullName ||
+      otherUserProfile?.fullName ||
+      stateRecipient?.fullName ||
+      displayName
+    const avatarUrl = mentorUser?.avatarUrl || otherUserProfile?.avatarUrl || stateRecipient?.avatarUrl
+    const timestamp = new Date().toISOString()
+
+    return {
+      id: `draft:${draftRecipientId}`,
+      roomType: 'DIRECT_MESSAGE',
+      roomName: displayName,
+      description: undefined,
+      createdByUserId: user.userId,
+      isActive: true,
+      isPrivate: true,
+      maxMembers: 2,
+      memberCount: 2,
+      unreadCount: 0,
+      messageCount: 0,
+      members: [
+        {
+          userId: user.userId,
+          fullName: user.fullName,
+          displayName: user.displayName,
+          avatarUrl: user.avatarUrl,
+          memberRole: 'OWNER',
+          isOnline: true,
+          lastSeenAt: user.lastSeenAt,
+        },
+        {
+          userId: draftRecipientId,
+          fullName,
+          displayName,
+          avatarUrl,
+          memberRole: 'MEMBER',
+          isOnline: false,
+          lastSeenAt: mentorUser?.lastSeenAt || otherUserProfile?.lastSeenAt,
+        },
+      ],
+      isArchived: false,
+      createdAt: timestamp,
+      updatedAt: timestamp,
+      lastActivityAt: timestamp,
+    }
+  }, [draftRecipientFromState, draftRecipientId, mentorProfile?.user, otherUserProfile, user])
+
+  const effectiveRoom = selectedRoom || draftRoom
+
+  const { data: messages, isLoading: messagesLoading, refetch: refetchMessages } = useQuery(
+    ['messages', selectedRoomId],
+    () => chatApi.getRoomMessages(selectedRoomId!, { page: 0, size: 50 }),
+    {
+      enabled: !!selectedRoomId,
+      refetchInterval: selectedRoomId ? 10_000 : false,
+      refetchIntervalInBackground: false,
+      refetchOnWindowFocus: true,
+    }
+  )
+
+  const selectedMessages = selectedRoomId ? messages?.content || [] : []
+  const latestMessage = selectedMessages[selectedMessages.length - 1]
+  const otherMember = useMemo(
+    () => (effectiveRoom ? getPrimaryOtherMember(effectiveRoom, user?.userId) : undefined),
+    [effectiveRoom, user?.userId]
+  )
+
   const linkedJobId = useMemo(() => {
+    if (effectiveRoom?.referenceType === 'JOB' && effectiveRoom.referenceId) return effectiveRoom.referenceId
+    if (draftRecipientId) return localStorage.getItem(`chat_draft_job_${draftRecipientId}`) || null
     if (!selectedRoomId) return null
-    if (selectedRoom?.referenceType === 'JOB' && selectedRoom.referenceId) return selectedRoom.referenceId
     return localStorage.getItem(`chat_job_${selectedRoomId}`) || null
-  }, [selectedRoomId, selectedRoom?.referenceType, selectedRoom?.referenceId])
+  }, [draftRecipientId, effectiveRoom?.referenceType, effectiveRoom?.referenceId, selectedRoomId])
 
   const { data: linkedJob, isLoading: linkedJobLoading } = useQuery(
     ['chat-linked-job', linkedJobId],
@@ -318,10 +464,10 @@ export default function ChatListPage() {
   )
 
   const { data: linkedContract, isLoading: linkedContractLoading } = useQuery(
-    ['chat-linked-contract', selectedRoom?.referenceType, selectedRoom?.referenceId, linkedJobId, selectedRoom?.roomType, user?.userId, otherMemberId],
+    ['chat-linked-contract', effectiveRoom?.referenceType, effectiveRoom?.referenceId, linkedJobId, effectiveRoom?.roomType, user?.userId, otherMemberId],
     async () => {
-      if (selectedRoom?.referenceType === 'CONTRACT' && selectedRoom.referenceId) {
-        return contractApi.getById(selectedRoom.referenceId).catch(() => null)
+      if (effectiveRoom?.referenceType === 'CONTRACT' && effectiveRoom.referenceId) {
+        return contractApi.getById(effectiveRoom.referenceId).catch(() => null)
       }
       
       if (linkedJobId) {
@@ -337,7 +483,7 @@ export default function ChatListPage() {
         if (found) return found as ContractResponse
       }
 
-      if (selectedRoom?.roomType === 'DIRECT_MESSAGE' && user?.userId && otherMemberId) {
+      if (effectiveRoom?.roomType === 'DIRECT_MESSAGE' && user?.userId && otherMemberId) {
         const result = await contractApi.getByClient(user.userId, { page: 0, size: 50 }).catch(() => null)
         const contracts = result?.content || []
         const mentorContracts = contracts.filter((contract) => contract.mentorId === otherMemberId)
@@ -354,7 +500,7 @@ export default function ChatListPage() {
       return null
     },
     {
-      enabled: (selectedRoom?.referenceType === 'CONTRACT' && !!selectedRoom?.referenceId) || !!linkedJobId || (selectedRoom?.roomType === 'DIRECT_MESSAGE' && !!user?.userId && !!otherMemberId),
+      enabled: (effectiveRoom?.referenceType === 'CONTRACT' && !!effectiveRoom?.referenceId) || !!linkedJobId || (effectiveRoom?.roomType === 'DIRECT_MESSAGE' && !!user?.userId && !!otherMemberId),
       retry: false,
     }
   )
@@ -393,11 +539,15 @@ export default function ChatListPage() {
 
   const handleSelectRoom = (roomId: string) => {
     setSelectedRoomId(roomId)
+    setDraftRecipientId(null)
     setShowConversationMobile(true)
     setIsDetailsOpen(false)
   }
 
   const handleBackToList = () => {
+    if (!selectedRoomId) {
+      setDraftRecipientId(null)
+    }
     setShowConversationMobile(false)
     setIsDetailsOpen(false)
   }
@@ -405,15 +555,44 @@ export default function ChatListPage() {
   const handleSendMessage = async (message: string, files: File[] = []) => {
     const trimmedMessage = message.trim()
 
-    if ((!trimmedMessage && files.length === 0) || !selectedRoomId || isSending) return
+    if ((!trimmedMessage && files.length === 0) || (!selectedRoomId && !draftRecipientId) || isSending) return
 
     setComposerError(null)
     setIsSending(true)
 
     try {
+      let roomId = selectedRoomId
+
+      if (!roomId && draftRecipientId) {
+        const newRoom = await chatApi.createRoom({
+          roomType: 'DIRECT_MESSAGE',
+          roomName: otherMember?.displayName || otherMember?.fullName,
+          description: otherMember ? `Mentoring conversation with ${otherMember.displayName || otherMember.fullName}` : undefined,
+          createdByUserId: user.userId,
+          isPrivate: true,
+          maxMembers: 2,
+          memberIds: [user.userId, draftRecipientId],
+        })
+
+        queryClient.setQueryData<PaginatedResponse<ChatRoomResponse> | undefined>(
+          ['chatRooms', user.userId],
+          (current) => upsertRoomInPage(current, newRoom)
+        )
+        const draftJobId = localStorage.getItem(`chat_draft_job_${draftRecipientId}`)
+        if (draftJobId) {
+          localStorage.setItem(`chat_job_${newRoom.id}`, draftJobId)
+          localStorage.removeItem(`chat_draft_job_${draftRecipientId}`)
+        }
+        setSelectedRoomId(newRoom.id)
+        setDraftRecipientId(null)
+        roomId = newRoom.id
+      }
+
+      if (!roomId) return
+
       if (files.length === 0) {
         await chatApi.sendMessage({
-          chatRoomId: selectedRoomId,
+          chatRoomId: roomId,
           senderId: user.userId,
           content: trimmedMessage,
           messageType: MessageType.TEXT,
@@ -424,7 +603,7 @@ export default function ChatListPage() {
           const isImage = file.type.startsWith('image/')
 
           await chatApi.sendMessage({
-            chatRoomId: selectedRoomId,
+            chatRoomId: roomId,
             senderId: user.userId,
             content: index === 0 ? trimmedMessage : '',
             messageType: isImage ? MessageType.IMAGE : MessageType.FILE,
@@ -440,7 +619,10 @@ export default function ChatListPage() {
         }
       }
 
-      await Promise.all([refetchMessages(), refetchRooms()])
+      await Promise.all([
+        selectedRoomId ? refetchMessages() : queryClient.invalidateQueries(['messages', roomId]),
+        refetchRooms(),
+      ])
     } catch {
       setComposerError('Failed to send the message or upload attachment.')
     } finally {
@@ -467,11 +649,11 @@ export default function ChatListPage() {
 
           <div className={`${showConversationMobile ? 'flex' : 'hidden'} h-dvh min-w-0 flex-1 flex-col lg:flex`}>
             <ConversationPane
-              selectedRoom={selectedRoom}
+              selectedRoom={effectiveRoom}
               selectedMessages={selectedMessages}
               currentUserId={user.userId}
               otherMember={otherMember}
-              messagesLoading={messagesLoading}
+              messagesLoading={!!selectedRoomId && messagesLoading}
               scrollRef={scrollRef}
               messageInput=""
               onMessageInputChange={() => {}}
@@ -495,7 +677,7 @@ export default function ChatListPage() {
           <div className="hidden h-dvh border-l border-slate-200 2xl:block">
             <ContextRail
               currentUserId={user.userId}
-              selectedRoom={selectedRoom}
+              selectedRoom={effectiveRoom}
               otherMember={otherMember}
               userProfile={otherUserProfile}
               mentorProfile={mentorProfile}
@@ -516,7 +698,7 @@ export default function ChatListPage() {
         </div>
       </div>
 
-      {isDetailsOpen && selectedRoom && (
+      {isDetailsOpen && effectiveRoom && (
         <div className="fixed inset-0 z-40 bg-slate-950/30 2xl:hidden">
           <div
             className="absolute inset-0"
@@ -526,7 +708,7 @@ export default function ChatListPage() {
           <div className="absolute right-0 top-0 h-full w-full max-w-[380px] overflow-y-auto border-l border-slate-200 bg-white shadow-2xl">
             <ContextRail
               currentUserId={user.userId}
-              selectedRoom={selectedRoom}
+              selectedRoom={effectiveRoom}
               otherMember={otherMember}
               userProfile={otherUserProfile}
               mentorProfile={mentorProfile}

@@ -173,7 +173,12 @@ const en = {
   "home.stats.users": "Users",
   "home.stats.activeJobs": "Active Jobs",
   "home.stats.qualityMentors": "Quality Mentors",
+  "home.stats.courses": "Courses / Resources",
   "home.stats.categories": "Categories",
+  "home.stats.source": "Live data",
+  "home.stats.title": "Activity on Mentor X",
+  "home.stats.description": "Metrics are sourced from platform data currently visible in public areas.",
+  "home.stats.updating": "Updating",
   "home.stats.successfulMatches": "Successful Matches",
 
   "jobs.all": "All jobs",

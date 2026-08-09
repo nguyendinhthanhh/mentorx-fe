@@ -1,14 +1,14 @@
 import { categoryApi } from '@/api/categoryApi'
+import { courseApi } from '@/api/courseApi'
 import { jobApi } from '@/api/jobApi'
 import { mentorApi } from '@/api/mentorApi'
-import { userApi } from '@/api/userApi'
 import { fetchJobRecommendations, fetchMentorRecommendations } from '@/api/feedApi'
 import { CategoryResponse } from '@/types'
 
 export interface HomeStats {
-  users: number | null
   openJobs: number | null
   mentors: number | null
+  courses: number | null
   categories: number | null
 }
 
@@ -64,10 +64,12 @@ export const homeApi = {
     const [finalJobs, finalMentors, categoriesResult] = await Promise.all(promises)
     const categories = Array.isArray(categoriesResult) ? categoriesResult : []
 
-    const [usersResult, openJobsResult, mentorsResult] = await Promise.allSettled([
-      userApi.getTotalUsersCount(),
+    const [openJobsResult, mentorsResult, coursesResult] = await Promise.allSettled([
       jobApi.getOpenJobs({ page: 0, size: 1 }).then(res => res.totalElements),
-      mentorApi.getApprovedMentorsCount(),
+      mentorApi.getApprovedMentorsCount().catch(() =>
+        mentorApi.getAllApprovedMentors({ page: 0, size: 1 }).then(res => res.totalElements)
+      ),
+      courseApi.getPublished({ page: 0, size: 1 }).then(res => res.totalElements),
     ])
 
     return {
@@ -75,9 +77,9 @@ export const homeApi = {
       featuredMentors: finalMentors || [],
       categories,
       stats: {
-        users: fulfilledValue(usersResult),
         openJobs: fulfilledValue(openJobsResult),
         mentors: fulfilledValue(mentorsResult),
+        courses: fulfilledValue(coursesResult),
         categories: categories.length,
       },
     }
