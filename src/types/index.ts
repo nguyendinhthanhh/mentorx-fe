@@ -828,6 +828,96 @@ export interface CourseUpdateRequest {
   status?: CourseStatus;
 }
 
+export enum CouponDiscountType {
+  PERCENTAGE = "PERCENTAGE",
+  FIXED = "FIXED",
+}
+
+export enum CouponEffectiveStatus {
+  ACTIVE = "ACTIVE",
+  SCHEDULED = "SCHEDULED",
+  EXPIRED = "EXPIRED",
+  DISABLED = "DISABLED",
+  LIMIT_REACHED = "LIMIT_REACHED",
+}
+
+export interface CouponCourseSummary {
+  id: string;
+  title: string;
+  thumbnailUrl?: string;
+  productType?: CourseProductType;
+  priceMxc?: number;
+}
+
+export interface CouponResponse {
+  id: string;
+  instructorId: string;
+  code: string;
+  description?: string;
+  discountType: CouponDiscountType;
+  discountPercent?: number;
+  discountAmountMxc?: number;
+  maxDiscountAmountMxc?: number;
+  minPurchaseAmountMxc?: number;
+  appliesToAllCourses: boolean;
+  courses: CouponCourseSummary[];
+  usageLimitTotal?: number;
+  usageLimitPerUser: number;
+  timesUsed: number;
+  startsAt?: string;
+  expiresAt?: string;
+  active: boolean;
+  effectiveStatus: CouponEffectiveStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CouponCreateRequest {
+  code: string;
+  description?: string;
+  discountType: CouponDiscountType;
+  discountPercent?: number;
+  discountAmountMxc?: number;
+  maxDiscountAmountMxc?: number;
+  minPurchaseAmountMxc?: number;
+  appliesToAllCourses?: boolean;
+  courseIds?: string[];
+  usageLimitTotal?: number;
+  usageLimitPerUser?: number;
+  startsAt?: string;
+  expiresAt?: string;
+  active?: boolean;
+}
+
+export interface CouponUpdateRequest {
+  code?: string;
+  description?: string;
+  discountType?: CouponDiscountType;
+  discountPercent?: number;
+  discountAmountMxc?: number;
+  maxDiscountAmountMxc?: number;
+  clearMaxDiscountAmount?: boolean;
+  minPurchaseAmountMxc?: number;
+  clearMinPurchaseAmount?: boolean;
+  appliesToAllCourses?: boolean;
+  courseIds?: string[];
+  usageLimitTotal?: number;
+  clearUsageLimitTotal?: boolean;
+  usageLimitPerUser?: number;
+  startsAt?: string;
+  clearStartsAt?: boolean;
+  expiresAt?: string;
+  clearExpiresAt?: boolean;
+  active?: boolean;
+}
+
+export interface CouponValidationResponse {
+  coupon: CouponResponse;
+  basePriceMxc: number;
+  discountAmountMxc: number;
+  finalPriceMxc: number;
+}
+
 export interface CourseEnrollmentResponse {
   id: string;
   courseId: string;
