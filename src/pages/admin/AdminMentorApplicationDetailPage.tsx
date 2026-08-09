@@ -70,11 +70,18 @@ export default function AdminMentorApplicationDetailPage() {
       }
     },
     {
-      onSuccess: (_, variables) => {
+      onMutate: async () => {
+        if (userId) {
+          await queryClient.cancelQueries(['admin-mentor-application-detail', userId])
+        }
+      },
+      onSuccess: (updatedProfile, variables) => {
         toast.success(getSuccessMessage(variables.action))
+        if (updatedProfile) {
+          queryClient.setQueryData(['admin-mentor-application-detail', userId], updatedProfile)
+        }
         queryClient.invalidateQueries('admin-mentor-expertise')
         queryClient.invalidateQueries('admin-mentor-payouts')
-        queryClient.invalidateQueries('admin-mentor-application-detail')
         setDraftAction(null)
         setActionReason('')
       },

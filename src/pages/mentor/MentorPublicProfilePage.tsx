@@ -1,4 +1,4 @@
-﻿import { useState, type ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useMutation, useQuery } from 'react-query'
 import {
@@ -1885,13 +1885,13 @@ function BlogPostsSection({
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between mb-8">
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-emerald-700 dark:text-emerald-300">
-            C?m nang & Ki?n th?c
+            Cẩm nang & Kiến thức
           </p>
           <h2 id="mentor-blogs-title" className="mt-3 text-[28px] font-semibold tracking-[-0.02em] text-slate-950 sm:text-[30px] dark:text-slate-100">
-            B�i vi?t c?a {mentorName}
+            Bài viết của {mentorName}
           </h2>
           <p className="mt-2 max-w-[62ch] text-[15px] leading-6 text-slate-600 dark:text-slate-300">
-            Kh�m ph� c�c b�i vi?t, chia s? kinh nghi?m v� ki?n th?c chuy�n m�n.
+            Khám phá các bài viết, chia sẻ kinh nghiệm và kiến thức chuyên môn.
           </p>
         </div>
       </div>
@@ -1922,7 +1922,7 @@ function BlogPostsSection({
               <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-4 dark:border-slate-800">
                 <span className="text-xs font-semibold text-slate-500">{post.readTime}</span>
                 <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-600">
-                  �?c ti?p <ArrowUpRight className="h-3.5 w-3.5" />
+                  Đọc tiếp <ArrowUpRight className="h-3.5 w-3.5" />
                 </span>
               </div>
             </div>

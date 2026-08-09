@@ -7,7 +7,7 @@ function contentSecurityPolicy(mode: string) {
     mode === 'development' ? ['http://localhost:8080', 'ws://localhost:8080', 'ws://localhost:3000'] : []
   const devImageSources = mode === 'development' ? ['http://localhost:8080'] : []
   const devMediaSources = mode === 'development' ? ['http://localhost:8080'] : []
-  const workerSources = mode === 'development' ? ["'self'", 'blob:'] : ["'self'"]
+  const workerSources = ["'self'", 'blob:']
 
   return [
     "default-src 'self'",

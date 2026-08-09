@@ -33,6 +33,8 @@ export interface PayOSPaymentRequest {
   amount: string
   currency: string
   orderInfo?: string
+  returnUrl?: string
+  cancelUrl?: string
 }
 
 export interface PayOSPaymentResponse {
@@ -59,9 +61,14 @@ export interface PayOSReturnResponse {
 
 export const paymentApi = {
   createPayOSPayment: async (data: PayOSPaymentRequest): Promise<PayOSPaymentResponse> => {
+    const payload = {
+      ...data,
+      returnUrl: window.location.origin + '/payment/payos-return',
+      cancelUrl: window.location.origin + '/payment/payos-return'
+    }
     return createIdempotentPayment<PayOSPaymentResponse>(
       '/v1/payment/payos/create',
-      data
+      payload
     )
   },
 

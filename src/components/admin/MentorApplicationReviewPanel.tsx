@@ -170,8 +170,12 @@ export default function MentorApplicationReviewPanel({
     <div className={shellClass}>
       <div className="border-b border-white/20 bg-white/60 px-6 py-5 backdrop-blur-xl dark:border-slate-700/50 dark:bg-slate-900/60">
         <div className="flex items-start gap-4">
-          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[1.25rem] bg-gradient-to-br from-emerald-600 to-emerald-600 text-lg font-black text-white shadow-lg shadow-emerald-500/20">
-            {profile.user?.fullName?.charAt(0)?.toUpperCase() || 'M'}
+          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[1.25rem] bg-gradient-to-br from-emerald-600 to-emerald-600 text-lg font-black text-white shadow-lg shadow-emerald-500/20 overflow-hidden">
+            {profile.user?.avatarUrl ? (
+              <img src={profile.user.avatarUrl} alt="Avatar" className="h-full w-full object-cover" />
+            ) : (
+              profile.user?.fullName?.charAt(0)?.toUpperCase() || 'M'
+            )}
           </div>
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
