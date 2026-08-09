@@ -1,332 +1,396 @@
-import { type ReactNode } from 'react'
-import { Link } from 'react-router-dom'
 import { useQuery } from 'react-query'
 import {
+  Activity,
+  AlertCircle,
   AlertTriangle,
   BadgeDollarSign,
-  BookOpen,
   Briefcase,
   CheckCircle2,
-  ChevronRight,
-  AlertCircle,
+  Clock,
+  DollarSign,
   FileText,
+  Flag,
   Landmark,
+  MessageSquare,
   ShieldCheck,
+  UserCheck,
+  Users,
 } from 'lucide-react'
 
+import { adminDashboardApi } from '@/api/adminDashboardApi'
 import { adminMentorVerificationApi } from '@/api/adminMentorVerificationApi'
 import { complaintsApi } from '@/api/complaintsApi'
 import { walletApi } from '@/api/walletApi'
+import DashboardStatCard from '@/components/admin/DashboardStatCard'
+import DashboardPendingCard from '@/components/admin/DashboardPendingCard'
+import DashboardPanel from '@/components/admin/DashboardPanel'
+import DashboardActivityFeed from '@/components/admin/DashboardActivityFeed'
 import { useI18n } from '@/i18n/I18nProvider'
 import { useAuthStore } from '@/store/authStore'
 import { ComplaintStatus } from '@/types'
 import { isAdmin } from '@/utils/roleRedirect'
-
-type QueueItem = {
-  id: string
-  href: string
-  type: string
-  title: string
-  detail?: string
-  tone: 'amber' | 'rose'
-  icon: ReactNode
-}
 
 export default function AdminDashboardPage() {
   const { user } = useAuthStore()
   const { t } = useI18n()
   const financeAdmin = isAdmin(user)
 
-  const expertiseQuery = useQuery(
-    ['admin-dashboard-expertise-queue'],
-    () => adminMentorVerificationApi.getExpertiseQueue({ page: 0, size: 5 }),
-    { retry: false }
-  )
-  const complaintQuery = useQuery(
-    ['admin-dashboard-open-complaints'],
-    () => complaintsApi.getAdminQueue({ status: ComplaintStatus.OPEN, page: 0, size: 5 }),
-    { enabled: financeAdmin, retry: false }
-  )
-  const financialQuery = useQuery(
-    ['admin-financial-summary'],
-    () => walletApi.getFinancialSummary(),
-    { enabled: financeAdmin, retry: false }
+  const totalUsers = useQuery(['admin-stat-total-users'], adminDashboardApi.getTotalUsers, { retry: false, staleTime: 60_000 })
+  const activeUsers = useQuery(['admin-stat-active-users'], adminDashboardApi.getActiveUsers, { retry: false, staleTime: 60_000 })
+  const approvedMentors = useQuery(['admin-stat-approved-mentors'], adminDashboardApi.getApprovedMentors, { retry: false, staleTime: 60_000 })
+  const pendingMentors = useQuery(['admin-stat-pending-mentors'], adminDashboardApi.getPendingMentors, { retry: false, staleTime: 60_000 })
+  const totalEscrow = useQuery(['admin-stat-total-escrow'], adminDashboardApi.getTotalEscrowLocked, { retry: false, staleTime: 60_000, enabled: financeAdmin })
+  const walletsRecon = useQuery(['admin-stat-wallets-recon'], adminDashboardApi.getWalletsRequiringReconciliation, { retry: false, staleTime: 60_000, enabled: financeAdmin })
+
+  const financialSummary = useQuery(['admin-financial-summary'], () => walletApi.getFinancialSummary(), { retry: false, staleTime: 60_000, enabled: financeAdmin })
+  const pendingWithdrawals = useQuery(['admin-pending-withdrawals'], adminDashboardApi.getPendingWithdrawals, { retry: false, staleTime: 60_000, enabled: financeAdmin })
+  const pendingComplaints = useQuery(['admin-pending-complaints'], adminDashboardApi.getPendingComplaints, { retry: false, staleTime: 60_000, enabled: financeAdmin })
+  const expertiseQueue = useQuery(['admin-expertise-queue'], () => adminMentorVerificationApi.getExpertiseQueue({ page: 0, size: 5 }), { retry: false, staleTime: 60_000 })
+  const escalatedReports = useQuery(['admin-escalated-reports'], adminDashboardApi.getEscalatedReports, { retry: false, staleTime: 60_000, enabled: financeAdmin })
+
+  const recentReports = useQuery(['admin-recent-reports'], () => adminDashboardApi.getRecentReports(0, 5), { retry: false, staleTime: 60_000 })
+  const recentTransactions = useQuery(
+    ['admin-recent-transactions'],
+    () => adminDashboardApi.getRecentTransactions(0, 5),
+    { retry: false, staleTime: 60_000, enabled: financeAdmin }
   )
 
-  const mentorCount = expertiseQuery.data?.totalElements ?? 0
-  const complaintCount = complaintQuery.data?.totalElements ?? 0
-  const financialSummary = financialQuery.data
+  const statValue = (query: typeof totalUsers) => {
+    if (query.isLoading) return t('admin.dashboard.loading')
+    if (query.isError) return t('admin.dashboard.unavailable')
+    return new Intl.NumberFormat().format(query.data ?? 0)
+  }
 
-  const mentorQueue: QueueItem[] = (expertiseQuery.data?.content ?? []).map((profile) => ({
-    id: `mentor-${profile.userId}`,
-    href: '/admin/mentor-applications',
-    type: t('admin.dashboard.queue.mentor'),
-    title: profile.user?.displayName || profile.user?.fullName || t('admin.dashboard.queue.mentorFallback'),
-    detail: profile.headline || profile.primaryDomain,
-    tone: 'amber',
-    icon: <ShieldCheck className="h-4 w-4" />,
-  }))
-  const complaintQueue: QueueItem[] = (complaintQuery.data?.content ?? []).map((complaint) => ({
-    id: `complaint-${complaint.id}`,
-    href: '/admin/complaints',
-    type: t('admin.dashboard.queue.complaint'),
-    title: complaint.title,
-    detail: complaint.complaintCategory,
-    tone: 'rose',
-    icon: <AlertCircle className="h-4 w-4" />,
-  }))
-  const queueItems = [...mentorQueue, ...complaintQueue]
+  const walletsReconCount = walletsRecon.data?.length ?? 0
+  const pendingWithdrawalCount = pendingWithdrawals.data?.length ?? 0
+  const complaintsCount = pendingComplaints.data?.totalElements ?? 0
+  const escalatedCount = escalatedReports.data?.length ?? 0
+  const expertiseCount = expertiseQueue.data?.totalElements ?? 0
+  const financialData = financialSummary.data
 
   return (
-    <div className="space-y-5">
-      <header className="flex flex-col gap-4 border-b border-slate-200 pb-5 dark:border-slate-800 md:flex-row md:items-end md:justify-between">
-        <div>
-          <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400">
-            <span className="flex h-6 w-6 items-center justify-center rounded-md bg-emerald-600 shadow-md hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 hover:bg-emerald-700 text-white dark:bg-slate-100 dark:text-slate-950">
-              <ShieldCheck className="h-3.5 w-3.5" />
-            </span>
-            {financeAdmin ? t('admin.dashboard.role.admin') : t('admin.dashboard.role.moderator')}
+    <div className="space-y-4">
+      {/* Page Header — Gentelella style */}
+      <div className="mb-5">
+        <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+          {t('admin.dashboard.role.admin')}
+        </div>
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <h1 className="text-lg font-bold text-slate-900 dark:text-white">{t('admin.dashboard.title')}</h1>
+          <div className="flex flex-wrap gap-2">
+            <a
+              href="/admin/complaints"
+              className="inline-flex h-8 items-center gap-1.5 rounded border border-slate-200 bg-white px-3 text-[12px] font-medium text-slate-600 shadow-sm transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
+            >
+              <MessageSquare className="h-3.5 w-3.5" />
+              {t('nav.messages')}
+            </a>
+            {financeAdmin ? (
+              <a
+                href="/admin/wallet"
+                className="inline-flex h-8 items-center gap-1.5 rounded bg-emerald-600 px-3 text-[12px] font-medium text-white shadow-sm transition hover:bg-emerald-700"
+              >
+                <Landmark className="h-3.5 w-3.5" />
+                {t('admin.dashboard.finance.title')}
+              </a>
+            ) : (
+              <a
+                href="/admin/reports"
+                className="inline-flex h-8 items-center gap-1.5 rounded bg-emerald-600 px-3 text-[12px] font-medium text-white shadow-sm transition hover:bg-emerald-700"
+              >
+                <FileText className="h-3.5 w-3.5" />
+                {t('admin.dashboard.workflows.reports.title')}
+              </a>
+            )}
           </div>
-          <h1 className="mt-3 text-2xl font-bold tracking-tight text-slate-950 dark:text-white">
-            {t('admin.dashboard.title')}
-          </h1>
-          <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">{t('admin.dashboard.subtitle')}</p>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <ActionLink to="/admin/mentor-applications" icon={<ShieldCheck className="h-4 w-4" />}>
-            {t('admin.dashboard.action.reviewMentors')}
-          </ActionLink>
-          {financeAdmin ? (
-            <ActionLink to="/admin/wallet" icon={<Landmark className="h-4 w-4" />}>
-              {t('admin.dashboard.action.reviewPayouts')}
-            </ActionLink>
-          ) : (
-            <ActionLink to="/admin/complaints" icon={<AlertCircle className="h-4 w-4" />}>
-              {t('admin.dashboard.action.reviewComplaints')}
-            </ActionLink>
-          )}
-        </div>
-      </header>
+      </div>
 
-      <section className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
-        <Panel title={t('admin.dashboard.queue.title')}>
-          {expertiseQuery.isError || (financeAdmin && complaintQuery.isError) ? (
-            <UnavailableState label={t('admin.dashboard.unavailable')} />
-          ) : queueItems.length === 0 && !expertiseQuery.isLoading && !complaintQuery.isLoading ? (
-            <EmptyQueue />
-          ) : (
-            <div className="divide-y divide-slate-100 dark:divide-slate-800">
-              {expertiseQuery.isLoading || (financeAdmin && complaintQuery.isLoading) ? (
-                <QueueSkeleton />
-              ) : (
-                queueItems.map((item) => <QueueRow key={item.id} item={item} />)
-              )}
-            </div>
-          )}
-        </Panel>
+      {/* STAT CARDS ROW 1 */}
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <DashboardStatCard
+          icon={<Users className="h-5 w-5" />}
+          label={t('admin.dashboard.stats.totalUsers')}
+          value={statValue(totalUsers)}
+          iconColor="teal"
+          isLoading={totalUsers.isLoading}
+          href="/admin/users"
+          sparkValues={[35, 45, 40, 55, 48, 62, 58, 72, 68, 82]}
+        />
+        <DashboardStatCard
+          icon={<Activity className="h-5 w-5" />}
+          label={t('admin.dashboard.stats.activeUsers')}
+          value={statValue(activeUsers)}
+          iconColor="blue"
+          isLoading={activeUsers.isLoading}
+          sparkValues={[50, 40, 65, 55, 70, 60, 80, 75, 85, 90]}
+        />
+        <DashboardStatCard
+          icon={<CheckCircle2 className="h-5 w-5" />}
+          label={t('admin.dashboard.stats.approvedMentors')}
+          value={statValue(approvedMentors)}
+          iconColor="green"
+          isLoading={approvedMentors.isLoading}
+          sparkValues={[30, 40, 35, 50, 45, 55, 52, 65, 60, 72]}
+        />
+      </div>
 
-        <aside className="space-y-5">
-          <Panel title={t('admin.dashboard.overview.title')}>
-            <div className="divide-y divide-slate-100 dark:divide-slate-800">
-              <QueueCountRow
-                label={t('admin.dashboard.metrics.mentorApplications')}
-                value={getQueryValue(expertiseQuery.isLoading, expertiseQuery.isError, mentorCount, t)}
+      {/* STAT CARDS ROW 2 */}
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <DashboardStatCard
+          icon={<Clock className="h-5 w-5" />}
+          label={t('admin.dashboard.stats.pendingMentors')}
+          value={statValue(pendingMentors)}
+          iconColor="yellow"
+          isLoading={pendingMentors.isLoading}
+          href="/admin/mentor-applications"
+          sparkValues={[80, 70, 75, 60, 65, 50, 55, 45, 40, 35]}
+        />
+        {financeAdmin && (
+          <>
+            <DashboardStatCard
+              icon={<DollarSign className="h-5 w-5" />}
+              label={t('admin.dashboard.stats.totalEscrow')}
+              value={totalEscrow.isLoading ? t('admin.dashboard.loading') : totalEscrow.isError ? t('admin.dashboard.unavailable') : `${new Intl.NumberFormat().format(totalEscrow.data ?? 0)} MXC`}
+              iconColor="purple"
+              isLoading={totalEscrow.isLoading}
+              href="/admin/wallet"
+            />
+            <DashboardStatCard
+              icon={<AlertTriangle className="h-5 w-5" />}
+              label={t('admin.dashboard.stats.walletsRecon')}
+              value={walletsRecon.isLoading ? t('admin.dashboard.loading') : walletsRecon.isError ? t('admin.dashboard.unavailable') : new Intl.NumberFormat().format(walletsReconCount)}
+              iconColor="red"
+              isLoading={walletsRecon.isLoading}
+              href="/admin/wallet"
+            />
+          </>
+        )}
+        {!financeAdmin && (
+          <DashboardStatCard
+            icon={<Flag className="h-5 w-5" />}
+            label={t('admin.dashboard.workflows.reports.title')}
+            value={recentReports.isLoading ? t('admin.dashboard.loading') : recentReports.isError ? t('admin.dashboard.unavailable') : new Intl.NumberFormat().format(recentReports.data?.totalElements ?? 0)}
+            iconColor="red"
+            isLoading={recentReports.isLoading}
+            href="/admin/reports"
+          />
+        )}
+      </div>
+
+      {/* PENDING APPROVALS */}
+      {financeAdmin && (
+        <DashboardPendingCard
+          title={t('admin.dashboard.pending.title')}
+          items={[
+            {
+              label: t('admin.dashboard.pending.mentors'),
+              count: expertiseQueue.isLoading ? '...' : expertiseQueue.isError ? '-' : new Intl.NumberFormat().format(expertiseCount),
+              href: '/admin/mentor-applications',
+              icon: <ShieldCheck className="h-4 w-4" />,
+              tone: 'amber',
+            },
+            {
+              label: t('admin.dashboard.pending.payouts'),
+              count: '-',
+              href: '/admin/wallet',
+              icon: <Landmark className="h-4 w-4" />,
+              tone: 'amber',
+            },
+            {
+              label: t('admin.dashboard.pending.withdrawals'),
+              count: pendingWithdrawals.isLoading ? '...' : pendingWithdrawals.isError ? '-' : new Intl.NumberFormat().format(pendingWithdrawalCount),
+              href: '/admin/wallet',
+              icon: <BadgeDollarSign className="h-4 w-4" />,
+              tone: 'rose',
+            },
+            {
+              label: t('admin.dashboard.pending.escalatedReports'),
+              count: escalatedReports.isLoading ? '...' : escalatedReports.isError ? '-' : new Intl.NumberFormat().format(escalatedCount),
+              href: '/admin/reports',
+              icon: <Flag className="h-4 w-4" />,
+              tone: 'rose',
+            },
+            {
+              label: t('admin.dashboard.pending.complaints'),
+              count: pendingComplaints.isLoading ? '...' : pendingComplaints.isError ? '-' : new Intl.NumberFormat().format(complaintsCount),
+              href: '/admin/complaints',
+              icon: <AlertCircle className="h-4 w-4" />,
+              tone: 'rose',
+            },
+          ]}
+          isLoading={false}
+        />
+      )}
+
+      {/* FINANCIAL OVERVIEW + MODERATION WORKSPACES (8-4 grid) */}
+      <div className="grid gap-4 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+        {financeAdmin ? (
+          <DashboardPanel title={t('admin.dashboard.finance.title')}>
+            {financialSummary.isError ? (
+              <p className="px-4 py-8 text-sm text-slate-500 dark:text-slate-400">{t('admin.dashboard.unavailable')}</p>
+            ) : financialSummary.isLoading ? (
+              <div className="h-40 animate-pulse bg-slate-50 dark:bg-slate-800/30" />
+            ) : (
+              <dl className="divide-y divide-slate-100 dark:divide-slate-800">
+                <FinanceRow label={t('admin.dashboard.finance.totalCirculation')} value={formatMxc(financialData?.totalCirculation ?? 0)} />
+                <FinanceRow label={t('admin.dashboard.finance.depositsToday')} value={formatMxc(financialData?.totalDepositToday ?? 0)} />
+                <FinanceRow label={t('admin.dashboard.finance.withdrawalsToday')} value={formatMxc(financialData?.totalWithdrawToday ?? 0)} />
+                <FinanceRow label={t('admin.dashboard.metrics.pendingPayouts')} value={new Intl.NumberFormat().format(financialData?.pendingWithdrawals ?? 0)} />
+                <FinanceRow label={t('admin.dashboard.metrics.unmatchedDeposits')} value={new Intl.NumberFormat().format(financialData?.unmatchedDeposits ?? 0)} />
+                <FinanceRow label={t('admin.dashboard.metrics.fraudAlerts')} value={new Intl.NumberFormat().format(financialData?.fraudAlerts ?? 0)} />
+              </dl>
+            )}
+          </DashboardPanel>
+        ) : (
+          <DashboardPanel title={t('admin.dashboard.workflows.title')}>
+            <div className="grid grid-cols-1 sm:grid-cols-2">
+              <WorkflowCell
+                to="/admin/mentor-applications"
                 icon={<ShieldCheck className="h-4 w-4" />}
-                href="/admin/mentor-applications"
+                title={t('admin.dashboard.workflows.mentor.title')}
+                description={t('admin.dashboard.workflows.mentor.description')}
               />
-              {financeAdmin ? (
-                <>
-                  <QueueCountRow
-                    label={t('admin.dashboard.metrics.complaints')}
-                    value={getQueryValue(complaintQuery.isLoading, complaintQuery.isError, complaintCount, t)}
-                    icon={<AlertCircle className="h-4 w-4" />}
-                    href="/admin/complaints"
-                  />
-                  <QueueCountRow
-                    label={t('admin.dashboard.metrics.pendingPayouts')}
-                    value={getQueryValue(financialQuery.isLoading, financialQuery.isError, financialSummary?.pendingWithdrawals ?? 0, t)}
-                    icon={<BadgeDollarSign className="h-4 w-4" />}
-                    href="/admin/wallet"
-                  />
-                  <QueueCountRow
-                    label={t('admin.dashboard.metrics.fraudAlerts')}
-                    value={getQueryValue(financialQuery.isLoading, financialQuery.isError, financialSummary?.fraudAlerts ?? 0, t)}
-                    icon={<AlertTriangle className="h-4 w-4" />}
-                    href="/admin/wallet"
-                  />
-                </>
-              ) : (
-                <QueueCountRow
-                  label={t('admin.dashboard.workflows.reports.title')}
-                  value={t('admin.dashboard.action.reviewComplaints')}
-                  icon={<FileText className="h-4 w-4" />}
-                  href="/admin/reports"
-                />
-              )}
+              <WorkflowCell
+                to="/admin/jobs"
+                icon={<Briefcase className="h-4 w-4" />}
+                title={t('admin.dashboard.workflows.jobs.title')}
+                description={t('admin.dashboard.workflows.jobs.description')}
+              />
+              <WorkflowCell
+                to="/admin/courses"
+                icon={<CheckCircle2 className="h-4 w-4" />}
+                title={t('admin.dashboard.workflows.courses.title')}
+                description={t('admin.dashboard.workflows.courses.description')}
+              />
+              <WorkflowCell
+                to="/admin/reports"
+                icon={<FileText className="h-4 w-4" />}
+                title={t('admin.dashboard.workflows.reports.title')}
+                description={t('admin.dashboard.workflows.reports.description')}
+              />
             </div>
-          </Panel>
+          </DashboardPanel>
+        )}
 
-          {financeAdmin && (
-            <Panel title={t('admin.dashboard.finance.title')}>
-              {financialQuery.isError ? (
-                <UnavailableState label={t('admin.dashboard.unavailable')} />
-              ) : financialQuery.isLoading ? (
-                <FinancialSkeleton />
-              ) : (
-                <dl className="divide-y divide-slate-100 dark:divide-slate-800">
-                  <FinanceRow label={t('admin.dashboard.finance.totalCirculation')} value={formatMxc(financialSummary?.totalCirculation ?? 0)} />
-                  <FinanceRow label={t('admin.dashboard.finance.depositsToday')} value={formatMxc(financialSummary?.totalDepositToday ?? 0)} />
-                  <FinanceRow label={t('admin.dashboard.finance.withdrawalsToday')} value={formatMxc(financialSummary?.totalWithdrawToday ?? 0)} />
-                  <FinanceRow label={t('admin.dashboard.metrics.unmatchedDeposits')} value={String(financialSummary?.unmatchedDeposits ?? 0)} />
-                </dl>
-              )}
-            </Panel>
-          )}
-        </aside>
-      </section>
+        {/* Sidebar panel */}
+        <DashboardPanel title={t('admin.dashboard.reportStats.title')} subtitle={t('admin.dashboard.workflows.reports.description')}>
+          <ReportStatsList items={builtinReportStats(financeAdmin, expertiseCount, complaintsCount, escalatedCount)} />
+        </DashboardPanel>
+      </div>
 
-      <Panel title={t('admin.dashboard.workflows.title')}>
-        <div className="grid gap-px overflow-hidden rounded-xl border border-slate-200 bg-slate-200 dark:border-slate-800 dark:bg-slate-800 md:grid-cols-2 xl:grid-cols-4">
-          <WorkflowLink
-            to="/admin/mentor-applications"
-            icon={<ShieldCheck className="h-4 w-4" />}
-            title={t('admin.dashboard.workflows.mentor.title')}
-            description={t('admin.dashboard.workflows.mentor.description')}
+      {/* RECENT ACTIVITY (8-4 grid) */}
+      <div className="grid gap-4 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+        <DashboardActivityFeed
+          title={t('admin.dashboard.recent.reports')}
+          items={buildRecentReportItems(recentReports.data?.content ?? [])}
+          isLoading={recentReports.isLoading}
+          emptyLabel={t('admin.dashboard.queue.emptyTitle')}
+        />
+        {financeAdmin ? (
+          <DashboardActivityFeed
+            title={t('admin.dashboard.recent.transactions')}
+            items={buildRecentTransactionItems(recentTransactions.data?.content ?? [])}
+            isLoading={recentTransactions.isLoading}
+            emptyLabel={t('admin.dashboard.queue.emptyTitle')}
           />
-          <WorkflowLink
-            to="/admin/jobs"
-            icon={<Briefcase className="h-4 w-4" />}
-            title={t('admin.dashboard.workflows.jobs.title')}
-            description={t('admin.dashboard.workflows.jobs.description')}
+        ) : (
+          <DashboardActivityFeed
+            title={t('admin.dashboard.recent.transactions')}
+            items={[]}
+            emptyLabel="Finance access only"
           />
-          <WorkflowLink
-            to="/admin/courses"
-            icon={<BookOpen className="h-4 w-4" />}
-            title={t('admin.dashboard.workflows.courses.title')}
-            description={t('admin.dashboard.workflows.courses.description')}
-          />
-          <WorkflowLink
-            to="/admin/reports"
-            icon={<FileText className="h-4 w-4" />}
-            title={t('admin.dashboard.workflows.reports.title')}
-            description={t('admin.dashboard.workflows.reports.description')}
-          />
-        </div>
-      </Panel>
+        )}
+      </div>
     </div>
   )
-
-  function EmptyQueue() {
-    return (
-      <div className="flex min-h-48 flex-col items-center justify-center px-5 text-center">
-        <CheckCircle2 className="h-7 w-7 text-emerald-600" />
-        <p className="mt-3 text-sm font-semibold text-slate-900 dark:text-white">{t('admin.dashboard.queue.emptyTitle')}</p>
-        <p className="mt-1 max-w-sm text-sm leading-6 text-slate-500 dark:text-slate-400">{t('admin.dashboard.queue.emptyDescription')}</p>
-      </div>
-    )
-  }
 }
 
-function Panel({ title, children }: { title: string; children: ReactNode }) {
-  return (
-    <section className="overflow-hidden rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
-      <div className="border-b border-slate-100 px-5 py-4 dark:border-slate-800">
-        <h2 className="text-sm font-semibold text-slate-950 dark:text-white">{title}</h2>
-      </div>
-      {children}
-    </section>
-  )
-}
-
-function ActionLink({ to, icon, children }: { to: string; icon: ReactNode; children: ReactNode }) {
-  return (
-    <Link
-      to={to}
-      className="inline-flex h-10 items-center gap-2 rounded-lg border border-slate-200 bg-white px-3.5 text-sm font-semibold text-slate-800 transition hover:border-slate-300 hover:bg-slate-50 active:translate-y-px dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
-    >
-      {icon}
-      {children}
-    </Link>
-  )
-}
-
-function QueueCountRow({ label, value, icon, href }: { label: string; value: string | number; icon: ReactNode; href: string }) {
-  return (
-    <Link to={href} className="group flex items-center gap-3 px-4 py-3.5 transition hover:bg-slate-50 dark:hover:bg-slate-800">
-      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">
-        {icon}
-      </span>
-      <span className="min-w-0 flex-1 text-sm font-medium text-slate-700 dark:text-slate-200">{label}</span>
-      <span className="text-sm font-semibold tabular-nums text-slate-950 dark:text-white">{value}</span>
-      <ChevronRight className="h-4 w-4 shrink-0 text-slate-300 transition group-hover:translate-x-0.5 group-hover:text-slate-600 dark:text-slate-600 dark:group-hover:text-slate-300" />
-    </Link>
-  )
-}
-
-function QueueRow({ item }: { item: QueueItem }) {
-  const toneClass = item.tone === 'rose'
-    ? 'bg-rose-50 text-rose-700 dark:bg-rose-950/30 dark:text-rose-300'
-    : 'bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-300'
-
-  return (
-    <Link to={item.href} className="group flex items-center gap-3 px-5 py-4 transition hover:bg-slate-50 dark:hover:bg-slate-800/50">
-      <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${toneClass}`}>{item.icon}</div>
-      <div className="min-w-0 flex-1">
-        <p className="text-xs font-medium text-slate-500 dark:text-slate-400">{item.type}</p>
-        <p className="mt-0.5 truncate text-sm font-semibold text-slate-950 dark:text-white">{item.title}</p>
-        {item.detail && <p className="mt-0.5 truncate text-xs text-slate-500 dark:text-slate-400">{item.detail}</p>}
-      </div>
-      <ChevronRight className="h-4 w-4 shrink-0 text-slate-300 transition group-hover:translate-x-0.5 group-hover:text-slate-600 dark:text-slate-600 dark:group-hover:text-slate-300" />
-    </Link>
-  )
-}
-
-function WorkflowLink({ to, icon, title, description }: { to: string; icon: ReactNode; title: string; description: string }) {
-  return (
-    <Link to={to} className="group block bg-white p-4 transition hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800">
-      <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
-        {icon}
-        <h3 className="text-sm font-semibold text-slate-950 dark:text-white">{title}</h3>
-      </div>
-      <p className="mt-2 text-xs leading-5 text-slate-500 dark:text-slate-400">{description}</p>
-    </Link>
-  )
-}
+/* ── Internal helpers ── */
 
 function FinanceRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-center justify-between gap-4 px-5 py-3.5">
-      <dt className="text-sm text-slate-600 dark:text-slate-400">{label}</dt>
-      <dd className="text-sm font-semibold tabular-nums text-slate-950 dark:text-white">{value}</dd>
+    <div className="flex items-center justify-between gap-4 px-4 py-3">
+      <dt className="text-[13px] text-slate-600 dark:text-slate-400">{label}</dt>
+      <dd className="text-[13px] font-semibold tabular-nums text-slate-900 dark:text-white">{value}</dd>
     </div>
   )
 }
 
-function QueueSkeleton() {
+function WorkflowCell({ to, icon, title, description }: { to: string; icon: React.ReactNode; title: string; description: string }) {
   return (
-    <div className="space-y-0">
-      {[0, 1, 2].map((item) => <div key={item} className="h-[76px] animate-pulse border-b border-slate-100 bg-slate-50 dark:border-slate-800 dark:bg-slate-800/30" />)}
+    <a
+      href={to}
+      className="group block border border-slate-100 bg-white p-4 transition hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:hover:bg-slate-800"
+    >
+      <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
+        {icon}
+        <h3 className="text-[13px] font-semibold text-slate-900 dark:text-white">{title}</h3>
+      </div>
+      <p className="mt-1.5 text-[11px] leading-relaxed text-slate-500 dark:text-slate-400">{description}</p>
+    </a>
+  )
+}
+
+function ReportStatsList({ items }: { items: { label: string; value: string | number; color: string }[] }) {
+  return (
+    <div className="divide-y divide-slate-100 dark:divide-slate-800">
+      {items.map((item) => (
+        <div key={item.label} className="flex items-center justify-between gap-3 px-4 py-2.5">
+          <span className="flex items-center gap-2 text-[12px] text-slate-600 dark:text-slate-400">
+            <span className="h-2 w-2 rounded-full" style={{ background: item.color }} />
+            {item.label}
+          </span>
+          <span className="text-[12px] font-semibold tabular-nums text-slate-900 dark:text-white">{item.value}</span>
+        </div>
+      ))}
     </div>
   )
 }
 
-function FinancialSkeleton() {
-  return <div className="h-56 animate-pulse bg-slate-50 dark:bg-slate-800/30" />
+function builtinReportStats(financeAdmin: boolean, mentors: number, complaints: number, escalated: number) {
+  if (financeAdmin) {
+    return [
+      { label: 'Open', value: complaints, color: '#f59f00' },
+      { label: 'Escalated', value: escalated, color: '#d63939' },
+      { label: 'Resolved', value: '-', color: '#2fb344' },
+    ]
+  }
+  return [
+    { label: 'Pending Mentors', value: mentors, color: '#f59f00' },
+    { label: 'Reports', value: escalated, color: '#d63939' },
+  ]
 }
 
-function UnavailableState({ label }: { label: string }) {
-  return <p className="px-5 py-8 text-sm text-slate-500 dark:text-slate-400">{label}</p>
+function buildRecentReportItems(reports: any[]) {
+  return reports.map((r) => ({
+    id: r.id,
+    avatar: (r.reporter?.fullName || 'U').charAt(0).toUpperCase(),
+    avatarColor: '#d63939',
+    body: (
+      <>
+        <strong className="font-medium text-slate-900 dark:text-white">{r.reporter?.fullName || 'User'}</strong>{' '}
+        reported — {r.reason || r.category || 'Policy violation'}
+      </>
+    ),
+    time: r.createdAt ? new Date(r.createdAt).toLocaleDateString() : '',
+  }))
 }
 
-function getQueryValue(
-  isLoading: boolean,
-  isError: boolean,
-  value: number,
-  t: (key: 'admin.dashboard.loading' | 'admin.dashboard.unavailable') => string
-) {
-  if (isLoading) return t('admin.dashboard.loading')
-  if (isError) return t('admin.dashboard.unavailable')
-  return new Intl.NumberFormat().format(value)
+function buildRecentTransactionItems(transactions: any[]) {
+  const colors = ['#1ABB9C', '#066fd1', '#ae3ec9', '#f59f00', '#d63939']
+  return transactions.map((tx, i) => ({
+    id: tx.id || tx.transactionId || String(i),
+    avatar: (tx.wallet?.user?.fullName || 'S').charAt(0).toUpperCase(),
+    avatarColor: colors[i % colors.length],
+    body: (
+      <>
+        <strong className="font-medium text-slate-900 dark:text-white">{tx.type || 'Transaction'}</strong>{' '}
+        {tx.amount != null ? `${new Intl.NumberFormat().format(tx.amount)} MXC` : ''} — {tx.wallet?.user?.fullName || 'System'}
+      </>
+    ),
+    time: tx.createdAt ? new Date(tx.createdAt).toLocaleDateString() : '',
+  }))
 }
 
 function formatMxc(value: number) {
