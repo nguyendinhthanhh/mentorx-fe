@@ -6,6 +6,7 @@ import { courseApi } from '@/api/courseApi'
 import { useAuthStore } from '@/store/authStore'
 import {
   CourseLessonResponse,
+  CourseProductType,
   CourseSectionResponse,
   CourseStatus,
   LessonProgressResponse,
@@ -140,6 +141,9 @@ export default function CourseLearnPage() {
   const activeIndex = activeLesson ? orderedLessons.findIndex((lesson) => lesson.id === activeLesson.id) : -1
   const previousLesson = activeIndex > 0 ? orderedLessons[activeIndex - 1] : null
   const nextLesson = activeIndex >= 0 && activeIndex < orderedLessons.length - 1 ? orderedLessons[activeIndex + 1] : null
+  const displayPrice = Number(course?.effectivePriceMxc ?? course?.priceMxc ?? 0)
+  const isFreeProduct = displayPrice <= 0
+  const isDocumentProduct = course?.productType === CourseProductType.DOCUMENT
   const progressByLesson = useMemo(
     () => new Map(progress.map((item) => [item.lessonId, item])),
     [progress]
@@ -569,7 +573,13 @@ export default function CourseLearnPage() {
           {isPreviewMode ? (
             <div className="flex items-start gap-2 text-sm font-semibold text-slate-600 dark:text-slate-300">
               <PlayCircle className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
-              <p>Preview free lessons. Buy the course to unlock progress, Q&A, quizzes, and certificates.</p>
+              <p>
+                {isFreeProduct
+                  ? isDocumentProduct
+                    ? 'Get this free document to unlock download access.'
+                    : 'Enroll for free to unlock progress, Q&A, quizzes, and certificates.'
+                  : 'Preview free lessons. Buy the course to unlock progress, Q&A, quizzes, and certificates.'}
+              </p>
             </div>
           ) : (
             <>
@@ -688,7 +698,13 @@ export default function CourseLearnPage() {
             </Link>
           </div>
         ) : activeLessonLocked && activeLesson ? (
-          <LockedLessonPanel lesson={activeLesson} courseId={courseId!} onOpenModal={() => setLockedLesson(activeLesson)} />
+          <LockedLessonPanel
+            lesson={activeLesson}
+            courseId={courseId!}
+            isFreeProduct={isFreeProduct}
+            isDocumentProduct={isDocumentProduct}
+            onOpenModal={() => setLockedLesson(activeLesson)}
+          />
         ) : activeLesson ? (
           <div className="space-y-6">
             <LessonHeader lesson={activeLesson} progress={activeProgress} isPreviewMode={isPreviewMode} />
@@ -803,9 +819,13 @@ export default function CourseLearnPage() {
         </h2>
         {isPreviewMode ? (
           <div className="rounded-xl bg-slate-50 p-4 text-sm font-semibold text-slate-600 dark:bg-slate-900 dark:text-slate-300">
-            Buy this course to ask questions, track progress, submit quizzes, and unlock every lesson.
+            {isFreeProduct
+              ? isDocumentProduct
+                ? 'Get this free document to ask questions and download the file.'
+                : 'Enroll for free to ask questions, track progress, submit quizzes, and unlock every lesson.'
+              : 'Buy this course to ask questions, track progress, submit quizzes, and unlock every lesson.'}
             <Link to={`/courses/${courseId}`} className="mt-4 flex w-full items-center justify-center rounded-xl bg-emerald-600 px-4 py-2 text-sm font-black text-white">
-              Buy course
+              {isFreeProduct ? (isDocumentProduct ? 'Get document' : 'Enroll for free') : 'Buy course'}
             </Link>
           </div>
         ) : (
@@ -850,6 +870,8 @@ export default function CourseLearnPage() {
         <LockedLessonModal
           lesson={lockedLesson}
           courseId={courseId!}
+          isFreeProduct={isFreeProduct}
+          isDocumentProduct={isDocumentProduct}
           onClose={() => setLockedLesson(null)}
         />
       )}
@@ -889,7 +911,19 @@ function LessonHeader({ lesson, progress, isPreviewMode }: { lesson: CourseLesso
   )
 }
 
-function LockedLessonPanel({ lesson, courseId, onOpenModal }: { lesson: CourseLessonResponse; courseId: string; onOpenModal: () => void }) {
+function LockedLessonPanel({
+  lesson,
+  courseId,
+  isFreeProduct,
+  isDocumentProduct,
+  onOpenModal,
+}: {
+  lesson: CourseLessonResponse
+  courseId: string
+  isFreeProduct: boolean
+  isDocumentProduct: boolean
+  onOpenModal: () => void
+}) {
   return (
     <div className="flex min-h-[360px] flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-10 text-center dark:border-slate-800 dark:bg-slate-900/60">
       <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-slate-400 shadow-sm dark:bg-slate-950">
@@ -898,21 +932,37 @@ function LockedLessonPanel({ lesson, courseId, onOpenModal }: { lesson: CourseLe
       <p className="text-xs font-black uppercase tracking-widest text-slate-400">Locked lesson</p>
       <h1 className="mt-2 max-w-xl text-2xl font-black text-slate-900 dark:text-white">{lesson.title}</h1>
       <p className="mt-3 max-w-lg text-sm font-semibold leading-6 text-slate-500 dark:text-slate-300">
-        Buy this course to unlock this lesson and continue with the full curriculum.
+        {isFreeProduct
+          ? isDocumentProduct
+            ? 'Get this free document to unlock download access.'
+            : 'Enroll for free to unlock this lesson and continue with the full curriculum.'
+          : 'Buy this course to unlock this lesson and continue with the full curriculum.'}
       </p>
       <div className="mt-6 flex flex-wrap justify-center gap-3">
         <button onClick={onOpenModal} className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-black text-slate-700 hover:bg-white dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-950">
           View details
         </button>
         <Link to={`/courses/${courseId}`} className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-black text-white hover:bg-emerald-700">
-          Buy course
+          {isFreeProduct ? (isDocumentProduct ? 'Get document' : 'Enroll for free') : 'Buy course'}
         </Link>
       </div>
     </div>
   )
 }
 
-function LockedLessonModal({ lesson, courseId, onClose }: { lesson: CourseLessonResponse; courseId: string; onClose: () => void }) {
+function LockedLessonModal({
+  lesson,
+  courseId,
+  isFreeProduct,
+  isDocumentProduct,
+  onClose,
+}: {
+  lesson: CourseLessonResponse
+  courseId: string
+  isFreeProduct: boolean
+  isDocumentProduct: boolean
+  onClose: () => void
+}) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 px-4 py-6">
       <div className="w-full max-w-md rounded-2xl bg-white p-5 shadow-2xl dark:bg-slate-950">
@@ -922,8 +972,12 @@ function LockedLessonModal({ lesson, courseId, onClose }: { lesson: CourseLesson
               <Lock className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-xs font-black uppercase tracking-widest text-slate-400">Course required</p>
-              <h2 className="text-lg font-black text-slate-900 dark:text-white">Buy this course to unlock</h2>
+              <p className="text-xs font-black uppercase tracking-widest text-slate-400">
+                {isDocumentProduct ? 'Document access required' : 'Course required'}
+              </p>
+              <h2 className="text-lg font-black text-slate-900 dark:text-white">
+                {isFreeProduct ? (isDocumentProduct ? 'Get this document to unlock' : 'Enroll for free to unlock') : 'Buy this course to unlock'}
+              </h2>
             </div>
           </div>
           <button type="button" onClick={onClose} className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-900 dark:hover:text-slate-200" aria-label="Close">
@@ -931,14 +985,19 @@ function LockedLessonModal({ lesson, courseId, onClose }: { lesson: CourseLesson
           </button>
         </div>
         <p className="text-sm font-semibold leading-6 text-slate-600 dark:text-slate-300">
-          <span className="font-black text-slate-900 dark:text-white">{lesson.title}</span> is part of the paid curriculum. You can keep previewing free lessons or buy the course for full access.
+          <span className="font-black text-slate-900 dark:text-white">{lesson.title}</span>{' '}
+          {isFreeProduct
+            ? isDocumentProduct
+              ? 'is part of this free document. Get it first to download the file.'
+              : 'is part of this free course. Enroll first for full access.'
+            : 'is part of the paid curriculum. You can keep previewing free lessons or buy the course for full access.'}
         </p>
         <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
           <button type="button" onClick={onClose} className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-black text-slate-700 hover:bg-slate-50 dark:border-slate-800 dark:text-slate-200 dark:hover:bg-slate-900">
             Continue preview
           </button>
           <Link to={`/courses/${courseId}`} className="rounded-xl bg-emerald-600 px-4 py-2 text-center text-sm font-black text-white hover:bg-emerald-700">
-            Buy course
+            {isFreeProduct ? (isDocumentProduct ? 'Get document' : 'Enroll for free') : 'Buy course'}
           </Link>
         </div>
       </div>

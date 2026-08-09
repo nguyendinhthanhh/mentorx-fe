@@ -7,7 +7,7 @@ import { formatCurrency } from '@/utils/formatters'
 import { Plus, BookOpen, Star, Search, Users, FileText, Download, Tag, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useMemo, useState, useEffect } from 'react'
 import { useI18n } from '@/i18n/I18nProvider'
-import { CategoryResponse, CourseProductType, SkillResponse, SupportedLanguage } from '@/types'
+import { CategoryResponse, CourseProductType, CourseResponse, SkillResponse, SupportedLanguage } from '@/types'
 import { categoryLabel, skillLabel } from '@/utils/freeFormTaxonomy'
 
 export default function CourseListPage() {
@@ -403,6 +403,7 @@ function CourseMetadata({ domainName, skills }: { domainName?: string; skills: s
 function CourseCard({ course, categoryName }: { course: any; categoryName: string }) {
   const { t } = useI18n()
   const courseSkills = course.skills || []
+  const displayPrice = getDisplayPrice(course)
 
   return (
     <Link
@@ -466,7 +467,7 @@ function CourseCard({ course, categoryName }: { course: any; categoryName: strin
 
         <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-4">
           <span className="text-lg font-black text-emerald-700">
-            {course.priceMxc ? formatCurrency(course.priceMxc) : t('courses.free')}
+            {displayPrice > 0 ? formatCurrency(displayPrice) : t('courses.free')}
           </span>
           <span className="flex items-center gap-1 text-xs font-bold text-slate-400">
             <Users className="h-3.5 w-3.5" />
@@ -481,6 +482,7 @@ function CourseCard({ course, categoryName }: { course: any; categoryName: strin
 function DocumentCard({ course, categoryName }: { course: any; categoryName: string }) {
   const { t } = useI18n()
   const courseSkills = course.skills || []
+  const displayPrice = getDisplayPrice(course)
 
   return (
     <Link
@@ -535,7 +537,7 @@ function DocumentCard({ course, categoryName }: { course: any; categoryName: str
           <div className="flex flex-col">
             <span className="text-sm font-semibold text-slate-500">Price</span>
             <span className="text-xl font-black text-indigo-700">
-              {course.priceMxc ? formatCurrency(course.priceMxc) : t('courses.free')}
+              {displayPrice > 0 ? formatCurrency(displayPrice) : t('courses.free')}
             </span>
           </div>
           
@@ -546,6 +548,10 @@ function DocumentCard({ course, categoryName }: { course: any; categoryName: str
       </div>
     </Link>
   )
+}
+
+function getDisplayPrice(course: Pick<CourseResponse, 'effectivePriceMxc' | 'priceMxc'>) {
+  return Number(course.effectivePriceMxc ?? course.priceMxc ?? 0)
 }
 
 function Pagination({

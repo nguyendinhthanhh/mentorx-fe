@@ -596,7 +596,7 @@ const en = {
   "mentor.public.reviewSummary": "{{count}} reviews, average rating {{rating}}.",
   "mentor.public.writeReview": "Write a review",
   "mentor.public.reviewLocked":
-    "Only users who have hired this mentor can leave a review.",
+    "Only users who have hired this mentor or learned from their course can leave a review.",
   "mentor.public.verified": "Verified",
   "mentor.public.ratingReviews": "{{count}} reviews",
   "mentor.public.editProfile": "Edit Mentor Profile",
