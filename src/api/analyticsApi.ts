@@ -37,12 +37,20 @@ export interface EarningsSnapshotResponse {
 
 export interface TimelinePoint {
   date: string
-  value: number
+  earnedMxc?: number
+  value?: number
+  jobsCompleted?: number
+  coursesSold?: number
 }
 
 export interface BySourceEntry {
   source: string
-  amountMxc: number
+  earnedMxc?: number
+  amountMxc?: number
+  proposalsAccepted?: number
+  contractsActive?: number
+  coursesSold?: number
+  enrollments?: number
 }
 
 export interface EarningsSummaryResponse {

@@ -20,7 +20,6 @@ export function FeaturedGuides({
             src={mainPost.coverImage}
             alt={mainPost.title}
             decoding="async"
-            fetchPriority="high"
             className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />

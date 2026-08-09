@@ -1,5 +1,4 @@
 import { Outlet, Link } from 'react-router-dom'
-import { Sparkles } from 'lucide-react'
 
 export default function AuthLayout() {
   return (
@@ -12,7 +11,6 @@ export default function AuthLayout() {
           width="1024"
           height="1024"
           decoding="async"
-          fetchPriority="high"
           className="absolute inset-0 h-full w-full object-cover opacity-90 transition-transform duration-1000 ease-out hover:scale-105"
         />
         <div className="absolute inset-0 bg-gradient-to-tr from-slate-950/80 via-slate-900/40 to-transparent" />
