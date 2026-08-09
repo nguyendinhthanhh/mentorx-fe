@@ -452,7 +452,7 @@ export default function MentorDashboardPage() {
            eyebrow="Tháng hiện tại"
            label="Doanh thu phát sinh"
            value={formatCurrency(earningsSummary?.totalEarnedMxc || 0)}
-           helper={earningsSummary?.timeline?.length ? 'Đang trên đà tăng trưởng tốt' : 'Sẽ cập nhật khi có giao dịch'}
+           helper={earningsSummary?.timeline?.length ? 'Dữ liệu tổng hợp theo giao dịch đã ghi nhận' : 'Sẽ cập nhật khi có giao dịch'}
          />
          <DashboardMetricCard
            icon={<Briefcase className="h-6 w-6" />}
@@ -515,7 +515,7 @@ export default function MentorDashboardPage() {
                  <div className="space-y-6">
                    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                      <RevenueChip label="Đã thu" value={formatCurrency(earningsSummary.totalEarnedMxc)} />
-                     <RevenueChip label="Escrow" value={formatCurrency(earningsSummary.escrowBalanceMxc)} />
+                     <RevenueChip label="Chờ giải ngân" value={formatCurrency(earningsSummary.escrowBalanceMxc)} />
                      <RevenueChip label="Khả dụng" value={formatCurrency(earningsSummary.availableBalanceMxc)} />
                      <RevenueChip label="Đã rút" value={formatCurrency(earningsSummary.withdrawnMxc)} />
                    </div>
