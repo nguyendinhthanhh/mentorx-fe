@@ -9,7 +9,7 @@ import { useI18n } from '@/i18n/I18nProvider'
 import { 
   Search, MapPin, Star, ChevronRight, LayoutGrid, ChevronDown, 
   Bookmark, Briefcase, Code, Megaphone, PenTool, Users, TrendingUp, 
-  Database, Package, Rocket, Handshake, CheckCircle2 
+  BookOpen, Database, Package, Rocket, Handshake, CheckCircle2
 } from 'lucide-react'
 
 const formatBudget = (job: any, fallback: string) => {
@@ -39,15 +39,11 @@ const getTagList = (value: unknown): string[] => {
   return []
 }
 
-type VerifiedHomeStat = {
+type HomeStatItem = {
   key: string
-  value: number
+  value: number | null | undefined
   label: string
   icon: JSX.Element
-}
-
-type HomeStatItem = Omit<VerifiedHomeStat, 'value'> & {
-  value: number | null | undefined
 }
 
 const CATEGORY_ICONS: Record<string, React.ReactNode> = {
@@ -99,13 +95,7 @@ export default function HomePage() {
     : ''
   const heroMentorTags = getTagList(heroMentor?.skills || heroMentor?.expertiseTags || heroMentor?.skillTags).slice(0, 3)
   const stats = data?.stats
-  const verifiedStats = ([
-    {
-      key: 'users',
-      value: stats?.users,
-      label: t('home.stats.users'),
-      icon: <Users className="h-7 w-7 text-emerald-300" />,
-    },
+  const platformStats: HomeStatItem[] = [
     {
       key: 'open-jobs',
       value: stats?.openJobs,
@@ -119,14 +109,18 @@ export default function HomePage() {
       icon: <CheckCircle2 className="h-7 w-7 text-emerald-300" />,
     },
     {
+      key: 'courses',
+      value: stats?.courses,
+      label: t('home.stats.courses'),
+      icon: <BookOpen className="h-7 w-7 text-violet-300" />,
+    },
+    {
       key: 'categories',
       value: stats?.categories,
       label: t('home.stats.categories'),
       icon: <LayoutGrid className="h-7 w-7 text-cyan-300" />,
     },
-  ] satisfies HomeStatItem[]).filter((item): item is VerifiedHomeStat => (
-    typeof item.value === 'number' && Number.isFinite(item.value)
-  ))
+  ]
 
   return (
     <div className="min-h-screen bg-[#f7f8fc] dark:bg-slate-950">
@@ -540,28 +534,39 @@ export default function HomePage() {
       </section>
 
       {/* STATS */}
-      {verifiedStats.length > 0 && (
-        <section className="mx-auto max-w-[1600px] px-4 pb-16 pt-8 sm:px-6 lg:px-8">
-          <div className="rounded-3xl bg-gray-900 p-8 md:p-10 shadow-2xl relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-64 h-64 bg-emerald-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 -translate-x-1/2 -translate-y-1/2"></div>
-            <div className="absolute bottom-0 right-0 w-64 h-64 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 translate-x-1/2 translate-y-1/2"></div>
+      <section className="mx-auto max-w-[1600px] px-4 pb-16 pt-8 sm:px-6 lg:px-8">
+        <div className="overflow-hidden rounded-3xl bg-gray-900 shadow-2xl ring-1 ring-white/10">
+          <div className="grid gap-0 lg:grid-cols-[1.05fr_2fr]">
+            <div className="border-b border-white/10 p-7 md:p-8 lg:border-b-0 lg:border-r">
+              <span className="inline-flex rounded-full bg-emerald-400/10 px-3 py-1 text-[12px] font-semibold text-emerald-200 ring-1 ring-emerald-300/20">
+                {t('home.stats.source')}
+              </span>
+              <h2 className="mt-4 text-2xl font-bold text-white md:text-3xl">
+                {t('home.stats.title')}
+              </h2>
+              <p className="mt-3 max-w-sm text-sm leading-[1.7] text-slate-300">
+                {t('home.stats.description')}
+              </p>
+            </div>
 
-            <div className="grid grid-cols-2 gap-y-10 gap-x-6 md:grid-cols-4 relative z-10">
-              {verifiedStats.map((item) => (
-                <div key={item.key} className="flex flex-col md:flex-row items-center md:items-start gap-4 text-center md:text-left">
-                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10 shrink-0">
-                    {item.icon}
+            <div className="grid grid-cols-2 divide-x divide-y divide-white/10 md:grid-cols-4 md:divide-y-0">
+              {platformStats
+                .filter((item) => typeof item.value === 'number' && Number.isFinite(item.value))
+                .map((item) => (
+                  <div key={item.key} className="flex min-h-[170px] flex-col items-center justify-center p-5 text-center md:p-6">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10">
+                      {item.icon}
+                    </div>
+                    <p className="mt-6 text-3xl font-bold text-white">
+                      {formatStatValue(item.value as number)}
+                    </p>
+                    <p className="mt-2 text-[13px] font-medium text-emerald-200">{item.label}</p>
                   </div>
-                  <div>
-                    <p className="text-3xl font-bold text-white">{formatStatValue(item.value)}</p>
-                    <p className="mt-1 text-[13px] font-medium text-emerald-200">{item.label}</p>
-                  </div>
-                </div>
-              ))}
+                ))}
             </div>
           </div>
-        </section>
-      )}
+        </div>
+      </section>
     </div>
   )
 }

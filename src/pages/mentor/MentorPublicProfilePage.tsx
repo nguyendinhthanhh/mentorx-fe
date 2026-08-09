@@ -226,6 +226,20 @@ export default function MentorPublicProfilePage() {
           room.members.some((member) => member.userId === mentor.userId)
       )
 
+      if (!initialMessage && !existingRoom) {
+        navigate(`/chat?userId=${encodeURIComponent(mentor.userId)}`, {
+          state: {
+            draftRecipient: {
+              userId: mentor.userId,
+              fullName: mentor.user?.fullName || name,
+              displayName: mentor.user?.displayName || name,
+              avatarUrl: mentor.user?.avatarUrl,
+            },
+          },
+        })
+        return
+      }
+
       const room =
         existingRoom ||
         (await chatApi.createRoom({
@@ -235,8 +249,6 @@ export default function MentorPublicProfilePage() {
           createdByUserId: user.userId,
           isPrivate: true,
           maxMembers: 2,
-          referenceId: mentor.userId,
-          referenceType: 'MENTOR_PROFILE',
           memberIds: [user.userId, mentor.userId],
         }))
 
@@ -254,7 +266,7 @@ export default function MentorPublicProfilePage() {
         })
       }
 
-      navigate('/chat')
+      navigate(`/chat?roomId=${encodeURIComponent(room.id)}`)
     } catch (error) {
       console.error('Failed to open mentor chat', error)
       setActionError(t('mentor.public.error.chat'))
