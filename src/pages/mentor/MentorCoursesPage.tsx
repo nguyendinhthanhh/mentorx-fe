@@ -1,5 +1,5 @@
 import { type ReactNode, useEffect, useMemo, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
 import {
   Archive,
@@ -23,7 +23,6 @@ import {
 } from 'lucide-react'
 
 import { categoryApi } from '@/api/categoryApi'
-import { chatApi } from '@/api/chatApi'
 import { courseApi } from '@/api/courseApi'
 import CourseNameConfirmModal from '@/components/course/CourseNameConfirmModal'
 import { useI18n } from '@/i18n/I18nProvider'
@@ -616,14 +615,10 @@ function LearnerPanel({
   error: unknown
 }) {
   const { t, language } = useI18n()
-  const { user } = useAuthStore()
-  const navigate = useNavigate()
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<LearnerStatusFilter>('ALL')
   const [page, setPage] = useState(0)
   const [expandedEnrollmentId, setExpandedEnrollmentId] = useState<string | null>(null)
-  const [openingChatStudentId, setOpeningChatStudentId] = useState<string | null>(null)
-  const [chatErrorEnrollmentId, setChatErrorEnrollmentId] = useState<string | null>(null)
   const [certificateDownloadId, setCertificateDownloadId] = useState<string | null>(null)
   const [certificateErrorId, setCertificateErrorId] = useState<string | null>(null)
 
@@ -672,24 +667,6 @@ function LearnerPanel({
       setExpandedEnrollmentId(null)
     }
   }, [expandedEnrollmentId, filteredEnrollments])
-
-  const openLearnerChat = async (enrollment: CourseEnrollmentResponse) => {
-    if (!user?.userId || !enrollment.studentId || openingChatStudentId) return
-    try {
-      setOpeningChatStudentId(enrollment.studentId)
-      setChatErrorEnrollmentId(null)
-      const room = await chatApi.createRoom({
-        roomType: 'DIRECT_MESSAGE',
-        memberIds: [user.userId, enrollment.studentId],
-        createdByUserId: user.userId,
-      })
-      navigate(`/mentor/messages?conversationId=${room.id}`)
-    } catch {
-      setChatErrorEnrollmentId(enrollment.id)
-    } finally {
-      setOpeningChatStudentId(null)
-    }
-  }
 
   const downloadCertificate = async (enrollment: CourseEnrollmentResponse) => {
     if (!canDownloadCertificate(enrollment) || certificateDownloadId) return
@@ -792,15 +769,13 @@ function LearnerPanel({
                     <UserRound className="h-3.5 w-3.5" />
                     {t('mentorCourses.learners.actions.profile')}
                   </Link>
-                  <button
-                    type="button"
-                    onClick={() => void openLearnerChat(enrollment)}
-                    disabled={openingChatStudentId === enrollment.studentId}
+                  <Link
+                    to={`/mentor/messages?targetUserId=${enrollment.studentId}`}
                     className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-slate-200 px-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-60 focus:outline-none focus:ring-4 focus:ring-slate-500/10"
                   >
-                    {openingChatStudentId === enrollment.studentId ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <MessageSquare className="h-3.5 w-3.5" />}
+                    <MessageSquare className="h-3.5 w-3.5" />
                     {t('mentorCourses.learners.actions.message')}
-                  </button>
+                  </Link>
                   <button
                     type="button"
                     onClick={() => setExpandedEnrollmentId(expandedEnrollmentId === enrollment.id ? null : enrollment.id)}
@@ -820,9 +795,6 @@ function LearnerPanel({
                     {t('mentorCourses.learners.actions.downloadCertificate')}
                   </button>
                 </div>
-                {chatErrorEnrollmentId === enrollment.id ? (
-                  <p className="mt-2 rounded-lg bg-rose-50 px-3 py-2 text-xs font-medium text-rose-700">{t('mentorCourses.learners.chatError')}</p>
-                ) : null}
                 {certificateErrorId === enrollment.id ? (
                   <p className="mt-2 rounded-lg bg-rose-50 px-3 py-2 text-xs font-medium text-rose-700">{t('mentorCourses.learners.certificateError')}</p>
                 ) : null}
