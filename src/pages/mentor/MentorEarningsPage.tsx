@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import {
   AlertTriangle,
@@ -8,7 +7,6 @@ import {
   DollarSign,
   LockKeyhole,
   ReceiptText,
-  ShieldCheck,
 } from 'lucide-react'
 import { bankAccountApi } from '@/api/bankAccountApi'
 import { contractApi } from '@/api/contractApi'
@@ -114,6 +112,8 @@ export default function MentorEarningsPage() {
   const payoutStatus = profile?.payoutStatus || user?.payoutStatus || 'NOT_SUBMITTED'
   const canWithdraw = payoutStatus === 'APPROVED' && summary.available > 0 && !!defaultPayout
   const sourceBreakdown = (earningsSummary?.bySource || []).filter((source) => sourceAmount(source) > 0)
+  const trendTimeline = (earningsSummary?.timeline || []).filter((point) => Number(point.earnedMxc ?? point.value ?? 0) > 0)
+  const hasTrendData = sourceBreakdown.length > 0 || trendTimeline.length > 0
 
   return (
     <div className="mx-auto max-w-[1400px] space-y-6 pb-12">
@@ -167,24 +167,6 @@ export default function MentorEarningsPage() {
         />
       </section>
 
-      <section className="grid gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm md:grid-cols-3">
-        <BalanceNote
-          icon={<ReceiptText className="h-4 w-4" />}
-          title="Không phải cộng đôi"
-          body="Doanh thu là dòng tiền phát sinh; chờ giải ngân là trạng thái hiện tại của cùng khoản tiền."
-        />
-        <BalanceNote
-          icon={<Clock3 className="h-4 w-4" />}
-          title="Pending khác escrow"
-          body="Pending là tiền của mentor đang bị giữ tạm thời. Escrow là tiền hợp đồng còn khóa trước khi release."
-        />
-        <BalanceNote
-          icon={<ShieldCheck className="h-4 w-4" />}
-          title="Rút tiền theo số khả dụng"
-          body="Nút rút tiền chỉ dựa trên số dư khả dụng và tài khoản nhận tiền đã được duyệt."
-        />
-      </section>
-
       <Toolbar>
         <div className="scrollbar-hide flex w-full overflow-x-auto rounded-lg bg-slate-100 p-1 lg:w-auto">
           {[
@@ -223,39 +205,41 @@ export default function MentorEarningsPage() {
       ) : activeTab === 'overview' ? (
         <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
           <div className="space-y-5 min-w-0">
-            <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <h2 className="text-base font-bold text-slate-950">Xu hướng doanh thu</h2>
-                  <p className="mt-1 text-xs leading-5 text-slate-500">Dữ liệu phân tích được tổng hợp hằng đêm, dùng để xem xu hướng chứ không thay thế số dư ví.</p>
+            {hasTrendData ? (
+              <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <h2 className="text-base font-bold text-slate-950">Xu hướng doanh thu</h2>
+                    <p className="mt-1 text-xs leading-5 text-slate-500">Dữ liệu phân tích được tổng hợp hằng đêm, dùng để xem xu hướng doanh thu.</p>
+                  </div>
+                  <div className="flex gap-1 rounded-lg bg-slate-100 p-1">
+                    {PERIOD_OPTIONS.map((opt) => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => setEarningsPeriod(opt.value)}
+                        className={`rounded-md px-3 py-1.5 text-xs font-semibold transition ${earningsPeriod === opt.value ? 'bg-white text-emerald-700 shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-                <div className="flex gap-1 rounded-lg bg-slate-100 p-1">
-                  {PERIOD_OPTIONS.map((opt) => (
-                    <button
-                      key={opt.value}
-                      type="button"
-                      onClick={() => setEarningsPeriod(opt.value)}
-                      className={`rounded-md px-3 py-1.5 text-xs font-semibold transition ${earningsPeriod === opt.value ? 'bg-white text-emerald-700 shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}
-                    >
-                      {opt.label}
-                    </button>
-                  ))}
+                {sourceBreakdown.length > 0 ? (
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {sourceBreakdown.map((source) => (
+                      <span key={source.source} className="inline-flex items-center gap-2 rounded-md bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-700 ring-1 ring-slate-200">
+                        {formatSourceLabel(source.source)}
+                        <span className="text-emerald-700">{formatCurrency(sourceAmount(source))}</span>
+                      </span>
+                    ))}
+                  </div>
+                ) : null}
+                <div className="mt-4">
+                  <EarningsChart data={trendTimeline} />
                 </div>
-              </div>
-              {sourceBreakdown.length > 0 ? (
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {sourceBreakdown.map((source) => (
-                    <span key={source.source} className="inline-flex items-center gap-2 rounded-md bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-700 ring-1 ring-slate-200">
-                      {formatSourceLabel(source.source)}
-                      <span className="text-emerald-700">{formatCurrency(sourceAmount(source))}</span>
-                    </span>
-                  ))}
-                </div>
-              ) : null}
-              <div className="mt-4">
-                <EarningsChart data={earningsSummary?.timeline || []} />
-              </div>
-            </section>
+              </section>
+            ) : null}
 
             <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
               <div className="flex items-center justify-between gap-3">
@@ -346,20 +330,6 @@ export default function MentorEarningsPage() {
           {user?.userId && <WithdrawalHistory userId={user.userId} />}
         </div>
       )}
-    </div>
-  )
-}
-
-function BalanceNote({ icon, title, body }: { icon: ReactNode; title: string; body: string }) {
-  return (
-    <div className="flex gap-3">
-      <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-50 text-slate-600 ring-1 ring-slate-200">
-        {icon}
-      </div>
-      <div>
-        <p className="text-sm font-semibold text-slate-900">{title}</p>
-        <p className="mt-1 text-xs leading-5 text-slate-500">{body}</p>
-      </div>
     </div>
   )
 }
