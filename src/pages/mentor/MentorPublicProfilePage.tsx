@@ -52,6 +52,7 @@ import {
   MentorWeeklyAvailabilityResponse,
   MessageType,
   PackageType,
+  ReviewResponse,
   ReviewSummaryResponse,
   ReviewTargetType,
 } from '@/types'
@@ -141,6 +142,11 @@ export default function MentorPublicProfilePage() {
     () => reviewApi.getSummaryByTarget(ReviewTargetType.MENTOR, userId!),
     { enabled: Boolean(userId), retry: false }
   )
+  const myReviewsQuery = useQuery(
+    ['my-reviews', user?.userId],
+    () => reviewApi.getByReviewer(user!.userId, { page: 0, size: 100 }),
+    { enabled: Boolean(user?.userId), retry: false }
+  )
   const mentorBadgeSettingsQuery = useQuery(
     ['mentor-badge-settings'],
     platformSettingApi.getPublicMentorBadgeSettings,
@@ -185,6 +191,9 @@ export default function MentorPublicProfilePage() {
   const schedule = buildAvailableSchedule(availabilityQuery.data, language)
   const resources = buildResources(mentor, assets, language)
   const badgeSettings = mentorBadgeSettingsQuery.data || DEFAULT_MENTOR_BADGE_SETTINGS
+  const currentUserMentorReview = myReviewsQuery.data?.content.find(
+    (review) => review.targetType === ReviewTargetType.MENTOR && review.targetId === mentor.userId
+  )
   const heroBadges = buildMentorBadges({
     mentor,
     t,
@@ -380,6 +389,7 @@ export default function MentorPublicProfilePage() {
               mentor={mentor}
               reviewSummary={reviewSummaryQuery.data}
               canReview={Boolean(reviewEligibilityQuery.data)}
+              currentUserReview={currentUserMentorReview}
               isOwnProfile={isOwnProfile}
               isAuthenticated={Boolean(user)}
               showReviewForm={showReviewForm}
@@ -1421,6 +1431,7 @@ function ReviewsSection({
   mentor,
   reviewSummary,
   canReview,
+  currentUserReview,
   isOwnProfile,
   isAuthenticated,
   showReviewForm,
@@ -1430,6 +1441,7 @@ function ReviewsSection({
   mentor: MentorProfileResponse
   reviewSummary?: ReviewSummaryResponse
   canReview: boolean
+  currentUserReview?: ReviewResponse
   isOwnProfile: boolean
   isAuthenticated: boolean
   showReviewForm: boolean
@@ -1455,13 +1467,13 @@ function ReviewsSection({
           })}
           id="mentor-reviews-title"
         />
-        {isAuthenticated && !isOwnProfile && canReview && !showReviewForm ? (
+        {isAuthenticated && !isOwnProfile && (canReview || currentUserReview) && !showReviewForm ? (
           <button
             type="button"
             onClick={onShowReviewForm}
             className="inline-flex min-h-11 items-center justify-center rounded-xl border border-emerald-200 bg-white px-4 text-sm font-semibold text-emerald-800 transition-colors hover:bg-emerald-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 dark:border-emerald-500/25 dark:bg-slate-900 dark:text-emerald-200 dark:hover:bg-emerald-500/10"
           >
-            {t('mentor.public.writeReview')}
+            {currentUserReview ? t('reviews.edit') : t('mentor.public.writeReview')}
           </button>
         ) : null}
       </div>
@@ -1477,6 +1489,7 @@ function ReviewsSection({
           <ReviewForm
             targetType={ReviewTargetType.MENTOR}
             targetId={mentor.userId}
+            initialReview={currentUserReview}
             onClose={onCloseReviewForm}
             onSuccess={onCloseReviewForm}
           />

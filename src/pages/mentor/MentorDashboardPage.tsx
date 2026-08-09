@@ -269,7 +269,18 @@ export default function MentorDashboardPage() {
   const qaSummaries = qaSummaryQuery.data || []
   const unreadNotifications = unreadNotificationsQuery.data || 0
 
-  const unreadMessagesCount = roomList.reduce((sum, room) => sum + (room.unreadCount || 0), 0)
+  const visibleConversationRooms = useMemo(() => {
+    return roomList.filter((room) => {
+      if (room.isArchived) return false
+      return !(
+        room.roomType === 'DIRECT_MESSAGE' &&
+        room.members?.length > 0 &&
+        room.members.every((member) => member.userId === user?.userId)
+      )
+    })
+  }, [roomList, user?.userId])
+
+  const unreadMessagesCount = visibleConversationRooms.reduce((sum, room) => sum + (room.unreadCount || 0), 0)
   const unansweredCourseQaCount = qaSummaries.reduce((sum, item) => sum + (item.unansweredLearners || 0), 0)
   const supportBacklogCount =
     unreadMessagesCount +
@@ -289,15 +300,14 @@ export default function MentorDashboardPage() {
   }, [courseStats?.courses])
 
   const conversationHighlights = useMemo(() => {
-    return [...roomList]
-      .filter((room) => !room.isArchived)
+    return [...visibleConversationRooms]
       .sort((a, b) => {
         const unreadGap = Number(b.unreadCount || 0) - Number(a.unreadCount || 0)
         if (unreadGap !== 0) return unreadGap
         return new Date(b.lastMessageAt || b.updatedAt).getTime() - new Date(a.lastMessageAt || a.updatedAt).getTime()
       })
       .slice(0, 4)
-  }, [roomList])
+  }, [visibleConversationRooms])
 
   const supportSignals = useMemo<SupportSignal[]>(() => {
     const qaCourse = [...qaSummaries]

@@ -50,8 +50,13 @@ export default function ReviewForm({ targetType, targetId, initialReview, onClos
     {
       onSuccess: () => {
         queryClient.invalidateQueries(['reviews', targetType, targetId])
+        queryClient.invalidateQueries(['review-summary', targetType, targetId])
         queryClient.invalidateQueries(['my-reviews', user?.userId])
         queryClient.invalidateQueries(['course', targetId])
+        if (targetType === ReviewTargetType.MENTOR) {
+          queryClient.invalidateQueries(['mentor', targetId])
+          queryClient.invalidateQueries(['mentor-review-eligibility', user?.userId, targetId])
+        }
         onSuccess?.()
         onClose?.()
       },

@@ -771,8 +771,13 @@ function CoursePreviewCard({ course, isEnrolled, isEnrollmentLoading, isEnrollin
       ? `Pay ${formatCurrency(displayPrice)} and get document`
       : `Pay ${formatCurrency(displayPrice)} and enroll`
     : isDocumentProduct
-      ? 'Get Document'
+      ? 'Get document'
       : 'Enroll Now'
+  const loadingLabel = isPaid
+    ? 'Processing...'
+    : isDocumentProduct
+      ? 'Getting document...'
+      : 'Enrolling...'
 
   return (
     <div className={`bg-white rounded-2xl border overflow-hidden shadow-lg ${isDocumentProduct ? 'border-amber-200' : 'border-gray-200'}`}>
@@ -846,7 +851,7 @@ function CoursePreviewCard({ course, isEnrolled, isEnrollmentLoading, isEnrollin
                 disabled={isEnrollmentLoading || isEnrolling || (!isPublished && !isEnrolled)}
                 className="w-full bg-emerald-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-emerald-700 transition-colors disabled:bg-gray-300"
               >
-                {!isPublished && !isEnrolled ? 'Archived' : isEnrolling ? (isPaid ? 'Processing...' : 'Enrolling...') : actionLabel}
+                {!isPublished && !isEnrolled ? 'Archived' : isEnrolling ? loadingLabel : actionLabel}
               </button>
               {enrollError && (
                 <p className="rounded-lg bg-rose-50 px-3 py-2 text-sm font-medium text-rose-700">

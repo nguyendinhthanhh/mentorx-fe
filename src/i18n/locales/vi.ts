@@ -590,7 +590,7 @@ const vi = {
   "mentor.public.reviewSummary": "{{count}} đánh giá, điểm trung bình {{rating}}.",
   "mentor.public.writeReview": "Viết đánh giá",
   "mentor.public.reviewLocked":
-    "Chỉ những người đã từng thuê mentor này mới có thể để lại đánh giá.",
+    "Chỉ những người đã từng thuê mentor này hoặc học khóa học của mentor mới có thể để lại đánh giá.",
   "mentor.public.verified": "Đã xác minh",
   "mentor.public.ratingReviews": "{{count}} đánh giá",
   "mentor.public.editProfile": "Chỉnh sửa hồ sơ mentor",

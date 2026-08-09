@@ -854,6 +854,7 @@ export interface CourseEnrollmentCourseSummaryResponse {
   productType: CourseProductType;
   categoryId?: number;
   skills: string[];
+  instructorId?: string;
   instructorName?: string;
   isCertificate: boolean;
 }

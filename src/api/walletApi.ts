@@ -72,14 +72,9 @@ export const walletApi = {
 
   // Deposit APIs
   createDeposit: async (userId: string, data: DepositCreateRequest): Promise<DepositOrderResponse> => {
-    const payload = {
-      ...data,
-      returnUrl: window.location.origin + '/payment/payos-return',
-      cancelUrl: window.location.origin + '/payment/payos-return'
-    }
     const response = await apiClient.post<ApiResponse<DepositOrderResponse>>(
       `/v1/wallet/deposit?userId=${userId}`,
-      payload
+      data
     )
     return response.data.data
   },

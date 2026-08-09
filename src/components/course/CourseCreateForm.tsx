@@ -166,6 +166,7 @@ export default function CourseCreateForm({ instructorId, productType = CoursePro
   } = useForm<CourseFormData>({
     resolver: zodResolver(courseSchema),
     defaultValues: {
+      priceMxc: 0,
       language: SupportedLanguage.EN,
       level: 'Beginner',
     },
@@ -700,6 +701,9 @@ export default function CourseCreateForm({ instructorId, productType = CoursePro
             className={inputClass}
             placeholder="0 = Free"
           />
+          <p className="mt-1 text-xs font-semibold text-slate-500">
+            Set 0 to publish this {isDocumentProduct ? 'document' : 'course'} for free.
+          </p>
           {errors.priceMxc && <p className="text-xs text-red-500 mt-1">{errors.priceMxc.message}</p>}
         </div>
         <div>
