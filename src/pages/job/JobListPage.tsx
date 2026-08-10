@@ -1,4 +1,4 @@
-import { FormEvent, useState } from 'react'
+import { FormEvent, useEffect, useState } from 'react'
 import { useQuery } from 'react-query'
 import { Link, useSearchParams } from 'react-router-dom'
 import {
@@ -25,7 +25,7 @@ import { jobApi } from '@/api/jobApi'
 import { skillApi } from '@/api/skillApi'
 import { useI18n } from '@/i18n/I18nProvider'
 import { TranslationKey } from '@/i18n/translations'
-import { BudgetType, JobResponse, JobSort, JobStatus, JobType } from '@/types'
+import { BudgetType, CategoryResponse, JobResponse, JobSort, JobStatus, JobType } from '@/types'
 import { formatCurrency, formatRelativeTime } from '@/utils/formatters'
 
 const PAGE_SIZE = 10
@@ -71,6 +71,7 @@ export default function JobListPage() {
   const { language, t } = useI18n()
   const [searchParams, setSearchParams] = useSearchParams()
   const initialKeyword = searchParams.get('q') || ''
+  const categoryParam = searchParams.get('category') || ''
   const [keywordInput, setKeywordInput] = useState(initialKeyword)
   const [keyword, setKeyword] = useState(initialKeyword)
   const [jobType, setJobType] = useState<string>('ALL')
@@ -88,11 +89,6 @@ export default function JobListPage() {
 
   const apiJobType = jobType === 'ALL' ? undefined : (jobType as JobType)
   const apiBudgetType = budgetType === 'ALL' ? undefined : (budgetType as BudgetType)
-  const parsedCategoryId = Number(categoryId)
-  const apiCategoryId =
-    categoryId && Number.isInteger(parsedCategoryId) && parsedCategoryId > 0
-      ? parsedCategoryId
-      : undefined
   const apiExperienceLevel = experienceFilter === 'ALL' ? undefined : experienceFilter
 
   const { data: skills = [] } = useQuery('job-filter-skills', skillApi.getAllActive, {
@@ -102,6 +98,36 @@ export default function JobListPage() {
   const { data: categories = [] } = useQuery('job-filter-categories', categoryApi.getAllActive, {
     staleTime: 5 * 60 * 1000,
   })
+
+  const categoryFromParam = categoryParam ? findCategoryByParam(categories, categoryParam) : undefined
+  const effectiveCategoryId = categoryParam
+    ? categoryFromParam
+      ? String(getCategoryId(categoryFromParam))
+      : ''
+    : categoryId
+  const parsedCategoryId = Number(effectiveCategoryId)
+  const apiCategoryId =
+    effectiveCategoryId && Number.isInteger(parsedCategoryId) && parsedCategoryId > 0
+      ? parsedCategoryId
+      : undefined
+  const isCategoryFilterReady = !categoryParam || categories.length > 0
+
+  useEffect(() => {
+    if (!categoryParam) {
+      if (categoryId) setCategoryId('')
+      return
+    }
+
+    if (categories.length === 0) return
+
+    const matchedCategory = findCategoryByParam(categories, categoryParam)
+    const nextCategoryId = matchedCategory ? String(getCategoryId(matchedCategory)) : ''
+
+    if (nextCategoryId !== categoryId) {
+      setCategoryId(nextCategoryId)
+      setPage(0)
+    }
+  }, [categories, categoryId, categoryParam])
 
   const {
     data,
@@ -139,9 +165,10 @@ export default function JobListPage() {
         status: statusFilter,
         categoryId: apiCategoryId,
       }),
-    { keepPreviousData: true }
+    { keepPreviousData: true, enabled: isCategoryFilterReady }
   )
 
+  const showInitialLoading = isLoading || !isCategoryFilterReady
   const jobs = data?.content || []
   const totalPages = data?.totalPages || 1
   const totalJobs = data?.totalElements || 0
@@ -161,6 +188,27 @@ export default function JobListPage() {
 
   const setFilter = (setter: (value: string) => void) => (value: string) => {
     setter(value)
+    setPage(0)
+  }
+
+  const updateCategoryInUrl = (value: string) => {
+    const nextParams = new URLSearchParams(searchParams)
+    const selectedCategory = categories.find((category) => String(category.categoryId ?? category.id) === value)
+
+    if (value && selectedCategory?.slug) {
+      nextParams.set('category', selectedCategory.slug)
+    } else if (value) {
+      nextParams.set('category', value)
+    } else {
+      nextParams.delete('category')
+    }
+
+    setSearchParams(nextParams, { replace: true })
+  }
+
+  const setCategoryFilter = (value: string) => {
+    setCategoryId(value)
+    updateCategoryInUrl(value)
     setPage(0)
   }
 
@@ -201,7 +249,10 @@ export default function JobListPage() {
     setBudgetType('ALL')
     setStatusFilter(JobStatus.OPEN)
     setCategoryId('')
-    updateKeywordInUrl('')
+    const nextParams = new URLSearchParams(searchParams)
+    nextParams.delete('q')
+    nextParams.delete('category')
+    setSearchParams(nextParams, { replace: true })
     setPage(0)
   }
 
@@ -227,7 +278,7 @@ export default function JobListPage() {
               <Briefcase className="pointer-events-none absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
               <select
                 value={categoryId}
-                onChange={(event) => setFilter(setCategoryId)(event.target.value)}
+                onChange={(event) => setCategoryFilter(event.target.value)}
                 className="h-12 w-full appearance-none bg-transparent pl-10 pr-8 text-sm font-semibold text-slate-800 outline-none dark:text-slate-100"
               >
                 <option value="">{t('jobs.filter.categoryAll')}</option>
@@ -469,7 +520,7 @@ export default function JobListPage() {
                   {t('jobs.results.count', { count: totalJobs })}
                 </h2>
                 <p className="mt-1 min-h-5 text-xs text-slate-500 dark:text-slate-400">
-                  {isFetching && !isLoading ? t('jobs.results.updating') : t('jobs.results.hint')}
+                  {isFetching && !showInitialLoading ? t('jobs.results.updating') : t('jobs.results.hint')}
                 </p>
               </div>
 
@@ -523,7 +574,7 @@ export default function JobListPage() {
               </div>
             </div>
 
-            {isLoading ? (
+            {showInitialLoading ? (
               <JobListSkeleton viewMode={viewMode} />
             ) : isError ? (
               <ErrorState onRetry={() => void refetch()} />
@@ -941,6 +992,18 @@ function getDeadlineState(deadlineAt: string | undefined, language: 'en' | 'vi')
         ? `Hạn ${formattedDate}`
         : `Due ${formattedDate}`,
   }
+}
+
+function getCategoryId(category: CategoryResponse) {
+  return category.categoryId ?? category.id
+}
+
+function findCategoryByParam(categories: CategoryResponse[], categoryParam: string) {
+  if (!categoryParam.trim()) return undefined
+  return categories.find((category) => {
+    const id = getCategoryId(category)
+    return (id != null && categoryParam === String(id)) || categoryParam === category.slug
+  })
 }
 
 function parseNonNegativeNumber(value: string) {

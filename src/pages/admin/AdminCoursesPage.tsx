@@ -42,15 +42,31 @@ export default function AdminCoursesPage() {
     }
   }
 
+  const getStatusLabel = (status: CourseStatus) => {
+    const labels: Record<CourseStatus, string> = {
+      [CourseStatus.PUBLISHED]: 'Đã xuất bản',
+      [CourseStatus.ARCHIVED]: 'Đã lưu trữ',
+    }
+    return labels[status] || status
+  }
+
+  const getProductTypeLabel = (type?: CourseProductType) => {
+    const labels: Record<CourseProductType, string> = {
+      [CourseProductType.COURSE]: 'Khóa học',
+      [CourseProductType.DOCUMENT]: 'Tài liệu',
+    }
+    return type ? labels[type] || type : 'Học liệu'
+  }
+
   return (
     <div className="space-y-8 pb-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
       {/* Header */}
       <div className="space-y-1">
         <h1 className="bg-gradient-to-r from-slate-900 to-slate-600 bg-clip-text text-2xl font-extrabold tracking-tight text-transparent dark:from-white dark:to-slate-400 sm:text-3xl lg:text-4xl">
-          Course Catalog
+          Danh mục học liệu
         </h1>
         <p className="text-slate-500 dark:text-slate-400 text-sm md:text-base">
-          Manage and moderate platform courses and documents.
+          Quản lý và kiểm duyệt khóa học, tài liệu trên nền tảng.
         </p>
       </div>
 
@@ -61,7 +77,7 @@ export default function AdminCoursesPage() {
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
             <input 
               type="text" 
-              placeholder="Search courses..." 
+              placeholder="Tìm khóa học hoặc tài liệu..." 
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full pl-12 pr-6 py-3.5 rounded-2xl bg-white/50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700 focus:bg-white dark:focus:bg-slate-800 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500/30 transition-all text-sm font-bold text-slate-900 dark:text-white placeholder:text-slate-400 placeholder:font-medium shadow-sm hover:border-slate-300 dark:hover:border-slate-600"
@@ -73,9 +89,9 @@ export default function AdminCoursesPage() {
               onChange={(e) => setStatusFilter(e.target.value as CourseStatus)}
               className="w-full sm:w-auto px-6 py-3.5 rounded-2xl border border-slate-200/60 bg-white/50 text-sm font-bold text-slate-600 outline-none transition-all focus:border-emerald-500/30 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 dark:border-slate-700 dark:bg-slate-800/50 dark:text-slate-300 dark:focus:bg-slate-800 shadow-sm hover:border-slate-300 dark:hover:border-slate-600 appearance-none cursor-pointer"
             >
-              <option value="">All Statuses</option>
+              <option value="">Tất cả trạng thái</option>
               {Object.values(CourseStatus).map(s => (
-                <option key={s} value={s}>{s}</option>
+                <option key={s} value={s}>{getStatusLabel(s)}</option>
               ))}
             </select>
             <select
@@ -83,9 +99,9 @@ export default function AdminCoursesPage() {
               onChange={(e) => setProductTypeFilter(e.target.value as CourseProductType)}
               className="w-full sm:w-auto px-6 py-3.5 rounded-2xl border border-slate-200/60 bg-white/50 text-sm font-bold text-slate-600 outline-none transition-all focus:border-emerald-500/30 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 dark:border-slate-700 dark:bg-slate-800/50 dark:text-slate-300 dark:focus:bg-slate-800 shadow-sm hover:border-slate-300 dark:hover:border-slate-600 appearance-none cursor-pointer"
             >
-              <option value="">All Types</option>
-              <option value={CourseProductType.COURSE}>Courses</option>
-              <option value={CourseProductType.DOCUMENT}>Documents</option>
+              <option value="">Tất cả loại học liệu</option>
+              <option value={CourseProductType.COURSE}>Khóa học</option>
+              <option value={CourseProductType.DOCUMENT}>Tài liệu</option>
             </select>
           </div>
         </div>
@@ -97,11 +113,11 @@ export default function AdminCoursesPage() {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800/50">
-                <th className="px-8 py-5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Course Info & Instructor</th>
-                <th className="px-8 py-5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Price</th>
-                <th className="px-8 py-5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Enrollments</th>
-                <th className="px-8 py-5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Status</th>
-                <th className="px-8 py-5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-right">Actions</th>
+                <th className="px-8 py-5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Học liệu & giảng viên</th>
+                <th className="px-8 py-5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Giá</th>
+                <th className="px-8 py-5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Lượt học</th>
+                <th className="px-8 py-5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Trạng thái</th>
+                <th className="px-8 py-5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-right">Thao tác</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100/50 dark:divide-slate-800/50">
@@ -133,25 +149,25 @@ export default function AdminCoursesPage() {
                         <div className="flex flex-col min-w-0">
                           <span className="text-sm font-bold text-slate-900 dark:text-white truncate max-w-[250px] group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">{course.title}</span>
                           <span className="mt-1 w-fit rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-black uppercase tracking-widest text-slate-500 dark:bg-slate-800 dark:text-slate-400">
-                            {course.productType === CourseProductType.DOCUMENT ? 'Document' : 'Course'}
+                            {getProductTypeLabel(course.productType)}
                           </span>
-                          <span className="text-[10px] font-bold text-emerald-500 dark:text-emerald-400 uppercase tracking-wider mt-0.5">By {course.instructor?.fullName || course.instructorName || 'Unknown'}</span>
+                          <span className="text-[10px] font-bold text-emerald-500 dark:text-emerald-400 uppercase tracking-wider mt-0.5">Bởi {course.instructor?.fullName || course.instructorName || 'Chưa xác định'}</span>
                         </div>
                       </div>
                     </td>
                     <td className="px-8 py-5">
                       <span className="text-sm font-bold text-slate-900 dark:text-white">
-                        {course.priceMxc ? formatCurrency(course.priceMxc) : 'Free'}
+                        {course.priceMxc ? formatCurrency(course.priceMxc) : 'Miễn phí'}
                       </span>
                     </td>
                     <td className="px-8 py-5">
                       <span className="text-sm font-semibold text-slate-600 dark:text-slate-400">
-                        {course.totalEnrollments} Students
+                        {course.totalEnrollments} học viên
                       </span>
                     </td>
                     <td className="px-8 py-5">
                       <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${getStatusColor(course.status)} shadow-sm`}>
-                        {course.status}
+                        {getStatusLabel(course.status)}
                       </span>
                     </td>
                     <td className="px-8 py-5 text-right">
@@ -161,7 +177,7 @@ export default function AdminCoursesPage() {
                           className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-bold text-slate-600 shadow-sm hover:border-emerald-200 hover:text-emerald-600 hover:bg-emerald-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-emerald-900/20 transition-all hover:shadow-md hover:-translate-y-0.5"
                         >
                           <Eye className="w-4 h-4" />
-                          View
+                          Xem
                         </Link>
                         {course.status === CourseStatus.PUBLISHED && (
                           <button
@@ -170,7 +186,7 @@ export default function AdminCoursesPage() {
                             className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-bold text-slate-600 shadow-sm hover:border-rose-200 hover:text-rose-600 hover:bg-rose-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-rose-900/20 transition-all hover:shadow-md hover:-translate-y-0.5"
                           >
                             <Archive className="w-4 h-4" />
-                            Archive
+                            Lưu trữ
                           </button>
                         )}
                       </div>
@@ -185,7 +201,7 @@ export default function AdminCoursesPage() {
         {/* Pagination */}
         <div className="flex flex-col gap-4 border-t border-slate-100/50 bg-slate-50/30 px-6 py-5 dark:border-slate-800/50 dark:bg-slate-800/30 sm:flex-row sm:items-center sm:justify-between sm:px-8">
           <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
-            Total {data?.totalElements} courses listed
+            Tổng cộng {data?.totalElements} học liệu
           </p>
           <div className="flex gap-2">
             <button 
@@ -209,9 +225,9 @@ export default function AdminCoursesPage() {
       <CourseNameConfirmModal
         isOpen={!!archiveTarget}
         courseName={archiveTarget?.courseTitle || ''}
-        title="Archive course?"
-        message="This course will leave the marketplace. Enrolled learners can still access it from their library."
-        confirmText="Archive Course"
+        title="Lưu trữ học liệu?"
+        message="Học liệu này sẽ rời khỏi marketplace. Học viên đã đăng ký vẫn có thể truy cập từ thư viện của họ."
+        confirmText="Lưu trữ học liệu"
         confirmTone="slate"
         isLoading={archiveMutation.isLoading}
         onClose={() => {

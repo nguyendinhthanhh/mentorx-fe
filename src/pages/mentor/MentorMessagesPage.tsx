@@ -27,7 +27,7 @@ import { jobApi } from '@/api/jobApi'
 import { proposalApi } from '@/api/proposalApi'
 import { PromptInputBox } from '@/components/ui/ai-prompt-box'
 import { useAuthStore } from '@/store/authStore'
-import { ChatRoomResponse, ContractResponse, JobResponse, MessageResponse, MessageType, ProposalResponse, ProposalStatus } from '@/types'
+import { ChatRoomResponse, ContractResponse, JobResponse, MessageResponse, MessageType, PaginatedResponse, ProposalResponse, ProposalStatus } from '@/types'
 import { formatCurrency, formatRelativeTime } from '@/utils/formatters'
 import {
   MessageAttachment,
@@ -112,6 +112,31 @@ const proposalStatusTone: Record<ProposalStatus, string> = {
   EXPIRED: 'border-slate-200 bg-slate-100 text-slate-600',
   AUTO_CLOSED: 'border-slate-200 bg-slate-100 text-slate-600',
   CONTRACT_CANCELLED: 'border-rose-200 bg-rose-50 text-rose-700',
+}
+
+function upsertRoomInPage(
+  current: PaginatedResponse<ChatRoomResponse> | undefined,
+  room: ChatRoomResponse
+): PaginatedResponse<ChatRoomResponse> {
+  if (!current) {
+    return {
+      content: [room],
+      totalElements: 1,
+      totalPages: 1,
+      size: 50,
+      number: 0,
+      first: true,
+      last: true,
+    }
+  }
+
+  const content = [room, ...current.content.filter((item) => item.id !== room.id)]
+  return {
+    ...current,
+    content,
+    totalElements: Math.max(current.totalElements, content.length),
+    totalPages: Math.max(current.totalPages, 1),
+  }
 }
 
 export default function MentorMessagesPage() {
@@ -245,6 +270,7 @@ export default function MentorMessagesPage() {
   const effectiveRoomId = effectiveRoom?.id || null
 
   const targetUserId = searchParams.get('targetUserId')
+  const targetJobId = searchParams.get('jobId')
 
   useEffect(() => {
     if (roomsQuery.isLoading) return
@@ -254,6 +280,32 @@ export default function MentorMessagesPage() {
       if (targetUserId === user.userId) {
         setSelectionError('Bạn không thể mở cuộc trò chuyện với chính mình.')
         setSearchParams({}, { replace: true })
+        return
+      }
+      if (targetJobId) {
+        if (isCreatingTargetRoomRef.current) return
+        isCreatingTargetRoomRef.current = true
+        setSelectionError(null)
+        chatApi
+          .resolveConversation({
+            recipientId: targetUserId,
+            contextType: 'JOB',
+            contextId: targetJobId,
+          })
+          .then((room) => {
+            queryClient.setQueryData<PaginatedResponse<ChatRoomResponse> | undefined>(
+              ['mentor-messages-rooms', user.userId],
+              (current) => upsertRoomInPage(current, room)
+            )
+            setSearchParams({ conversationId: room.id }, { replace: true })
+            void refetchRooms()
+          })
+          .catch(() => {
+            setSelectionError('ChÆ°a thá»ƒ má»Ÿ cuá»™c há»™i thoáº¡i cho cÃ´ng viá»‡c nÃ y.')
+          })
+          .finally(() => {
+            isCreatingTargetRoomRef.current = false
+          })
         return
       }
       const existingRoom = deduplicatedRooms.find(
@@ -294,7 +346,7 @@ export default function MentorMessagesPage() {
       return
     }
     setSelectionError('Bạn không có quyền truy cập cuộc trò chuyện này.')
-  }, [roomsQuery.isLoading, refetchRooms, selectedRoom, selectedRoomId, targetUserId, deduplicatedRooms, setSearchParams, user?.userId])
+  }, [deduplicatedRooms, queryClient, refetchRooms, roomsQuery.isLoading, selectedRoom, selectedRoomId, setSearchParams, targetJobId, targetUserId, user?.userId])
 
   const selectedMessagesQuery = useQuery(
     ['mentor-messages-thread', effectiveRoomId],

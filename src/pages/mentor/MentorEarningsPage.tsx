@@ -1,7 +1,10 @@
 import { type ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useQuery } from 'react-query'
 import {
   AlertTriangle,
+  ChevronLeft,
+  ChevronRight,
   Clock3,
   CreditCard,
   DollarSign,
@@ -32,6 +35,9 @@ import WithdrawalHistory from '@/components/wallet/WithdrawalHistory'
 
 type TabKey = 'overview' | 'transactions' | 'contracts' | 'withdrawals'
 
+const RECENT_TRANSACTION_PAGE_SIZE = 6
+const TRANSACTION_PAGE_SIZE = 10
+
 const PERIOD_OPTIONS: { value: AnalyticsPeriod; label: string }[] = [
   { value: 'DAY', label: 'Theo ngày' },
   { value: 'WEEK', label: 'Theo tuần' },
@@ -52,8 +58,22 @@ export default function MentorEarningsPage() {
   const [error, setError] = useState('')
   const [activeTab, setActiveTab] = useState<TabKey>('overview')
   const [transactionFilter, setTransactionFilter] = useState('ALL')
+  const [recentTransactionPage, setRecentTransactionPage] = useState(0)
+  const [fullTransactionPage, setFullTransactionPage] = useState(0)
   const [earningsPeriod, setEarningsPeriod] = useState<AnalyticsPeriod>('MONTH')
   const { data: earningsSummary } = useEarningsSummary(earningsPeriod)
+  const { data: recentTransactionPageData, isFetching: recentTransactionsFetching } = useQuery(
+    ['mentor-earnings-recent-transactions', user?.userId, recentTransactionPage],
+    () => walletApi.getUserTransactions(user!.userId, {
+      page: recentTransactionPage,
+      size: RECENT_TRANSACTION_PAGE_SIZE,
+    }),
+    {
+      enabled: !!user?.userId,
+      keepPreviousData: true,
+      staleTime: 30 * 1000,
+    }
+  )
 
   const loadEarnings = useCallback(async () => {
     if (!user?.userId) return
@@ -83,6 +103,10 @@ export default function MentorEarningsPage() {
     void loadEarnings()
   }, [loadEarnings])
 
+  useEffect(() => {
+    setFullTransactionPage(0)
+  }, [transactionFilter])
+
   const summary = useMemo(() => {
     const available = Number(wallets.find((wallet) => wallet.accountType === WalletAccountType.USER_AVAILABLE)?.balanceMxc || 0)
     const pending = Number(wallets.find((wallet) => wallet.accountType === WalletAccountType.USER_PENDING)?.balanceMxc || 0)
@@ -108,6 +132,12 @@ export default function MentorEarningsPage() {
     if (transactionFilter === 'REFUND') return transactions.filter((txn) => [TxnType.JOB_REFUND, TxnType.COURSE_REFUND, TxnType.APPOINTMENT_REFUND, TxnType.WITHDRAWAL_REFUND].includes(txn.txnType))
     return transactions
   }, [transactionFilter, transactions])
+  const fullTransactionTotalPages = Math.max(1, Math.ceil(filteredTransactions.length / TRANSACTION_PAGE_SIZE))
+  const pagedFilteredTransactions = filteredTransactions.slice(
+    fullTransactionPage * TRANSACTION_PAGE_SIZE,
+    fullTransactionPage * TRANSACTION_PAGE_SIZE + TRANSACTION_PAGE_SIZE
+  )
+  const recentTransactions = recentTransactionPageData?.content ?? transactions.slice(0, RECENT_TRANSACTION_PAGE_SIZE)
 
   const payoutStatus = profile?.payoutStatus || user?.payoutStatus || 'NOT_SUBMITTED'
   const canWithdraw = payoutStatus === 'APPROVED' && summary.available > 0 && !!defaultPayout
@@ -280,7 +310,19 @@ export default function MentorEarningsPage() {
                 <h2 className="text-base font-bold text-slate-950">Giao dịch gần đây</h2>
                 <button type="button" onClick={() => setActiveTab('transactions')} className="text-sm font-semibold text-emerald-700 hover:text-emerald-800">Xem tất cả</button>
               </div>
-              <TransactionList transactions={transactions.slice(0, 6)} />
+              <TransactionList
+                transactions={recentTransactions}
+                loading={recentTransactionsFetching && !recentTransactionPageData}
+                pagination={recentTransactionPageData && recentTransactionPageData.totalPages > 1 ? {
+                  page: recentTransactionPage,
+                  totalPages: recentTransactionPageData.totalPages,
+                  totalElements: recentTransactionPageData.totalElements,
+                  onPrevious: () => setRecentTransactionPage((current) => Math.max(0, current - 1)),
+                  onNext: () => setRecentTransactionPage((current) => Math.min((recentTransactionPageData.totalPages || 1) - 1, current + 1)),
+                  previousDisabled: recentTransactionPageData.first,
+                  nextDisabled: recentTransactionPageData.last,
+                } : undefined}
+              />
             </section>
           </div>
 
@@ -320,7 +362,18 @@ export default function MentorEarningsPage() {
           <StateCard title="Không có giao dịch" message="Các khoản doanh thu, rút tiền và hoàn tiền sẽ hiển thị tại đây." />
         ) : (
           <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-            <TransactionList transactions={filteredTransactions} />
+            <TransactionList
+              transactions={pagedFilteredTransactions}
+              pagination={fullTransactionTotalPages > 1 ? {
+                page: fullTransactionPage,
+                totalPages: fullTransactionTotalPages,
+                totalElements: filteredTransactions.length,
+                onPrevious: () => setFullTransactionPage((current) => Math.max(0, current - 1)),
+                onNext: () => setFullTransactionPage((current) => Math.min(fullTransactionTotalPages - 1, current + 1)),
+                previousDisabled: fullTransactionPage === 0,
+                nextDisabled: fullTransactionPage >= fullTransactionTotalPages - 1,
+              } : undefined}
+            />
           </section>
         )
       ) : activeTab === 'contracts' ? (
@@ -415,7 +468,48 @@ function CashflowRow({ label, value, tone }: { label: string; value: number; ton
   )
 }
 
-function TransactionList({ transactions }: { transactions: WalletTransactionResponse[] }) {
+type TransactionPagination = {
+  page: number
+  totalPages: number
+  totalElements: number
+  onPrevious: () => void
+  onNext: () => void
+  previousDisabled: boolean
+  nextDisabled: boolean
+}
+
+function TransactionList({
+  transactions,
+  loading = false,
+  pagination,
+}: {
+  transactions: WalletTransactionResponse[]
+  loading?: boolean
+  pagination?: TransactionPagination
+}) {
+  if (loading) {
+    return (
+      <div className="mt-4 overflow-hidden rounded-lg border border-slate-200">
+        <div className="divide-y divide-slate-100 bg-white">
+          {Array.from({ length: 3 }).map((_, index) => (
+            <div key={index} className="grid gap-3 px-4 py-4 md:grid-cols-[minmax(0,1.4fr)_160px_130px_140px] md:items-center">
+              <div className="flex items-start gap-3">
+                <div className="h-10 w-10 animate-pulse rounded-lg bg-slate-100" />
+                <div className="min-w-0 flex-1 space-y-2">
+                  <div className="h-4 w-44 animate-pulse rounded bg-slate-100" />
+                  <div className="h-3 w-56 animate-pulse rounded bg-slate-100" />
+                </div>
+              </div>
+              <div className="h-4 w-28 animate-pulse rounded bg-slate-100" />
+              <div className="h-6 w-20 animate-pulse rounded-full bg-slate-100" />
+              <div className="ml-auto h-4 w-24 animate-pulse rounded bg-slate-100" />
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
   if (transactions.length === 0) {
     return <StateCard title="Không có giao dịch" message="Lịch sử thay đổi số dư ví sẽ hiển thị ở đây." />
   }
@@ -437,7 +531,7 @@ function TransactionList({ transactions }: { transactions: WalletTransactionResp
               </div>
               <div className="min-w-0">
                 <p className="text-sm font-semibold text-slate-950">{formatTxnType(txn.txnType)}</p>
-                <p className="mt-1 truncate text-xs font-medium text-slate-500">{txn.note || txn.referenceType || 'Giao dịch ví'}</p>
+                <p className="mt-1 truncate text-xs font-medium text-slate-500">{formatTxnNote(txn.note, txn.referenceType)}</p>
               </div>
             </div>
             <p className="text-xs font-medium text-slate-500 md:text-sm">{formatDateTime(txn.createdAt)}</p>
@@ -451,6 +545,37 @@ function TransactionList({ transactions }: { transactions: WalletTransactionResp
             </div>
           </div>
         ))}
+      </div>
+      {pagination ? <TransactionPaginationControls pagination={pagination} /> : null}
+    </div>
+  )
+}
+
+function TransactionPaginationControls({ pagination }: { pagination: TransactionPagination }) {
+  return (
+    <div className="flex flex-col gap-3 border-t border-slate-100 bg-slate-50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+      <p className="text-xs font-semibold text-slate-500">
+        Trang {pagination.page + 1} / {pagination.totalPages} · {pagination.totalElements} giao dịch
+      </p>
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={pagination.onPrevious}
+          disabled={pagination.previousDisabled}
+          className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <ChevronLeft className="h-4 w-4" />
+          Trước
+        </button>
+        <button
+          type="button"
+          onClick={pagination.onNext}
+          disabled={pagination.nextDisabled}
+          className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          Sau
+          <ChevronRight className="h-4 w-4" />
+        </button>
       </div>
     </div>
   )
@@ -502,6 +627,49 @@ function formatTxnType(type: string) {
     ADJUSTMENT: 'Điều chỉnh',
   }
   return labels[type] || type.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase())
+}
+
+function formatTxnNote(note?: string, referenceType?: string) {
+  if (!note && referenceType) return formatReferenceType(referenceType)
+  if (!note) return 'Giao dịch ví'
+
+  const trimmed = note.trim()
+  const normalized = trimmed.toLowerCase()
+  const exactLabels: Record<string, string> = {
+    'instructor net amount': 'Doanh thu khóa học sau phí nền tảng',
+    'course instructor net amount': 'Doanh thu khóa học sau phí nền tảng',
+    'course purchase instructor net amount': 'Doanh thu khóa học sau phí nền tảng',
+    'platform fee': 'Phí nền tảng',
+    'deposit credited to user wallet': 'Tiền nạp đã cộng vào ví',
+  }
+  if (exactLabels[normalized]) return exactLabels[normalized]
+
+  const replacements: Array<[string, string]> = [
+    ['Refund mentor session payment', 'Hoàn tiền thanh toán buổi mentoring'],
+    ['Mentor session payment', 'Thanh toán buổi mentoring'],
+    ['Mentor session release', 'Giải ngân buổi mentoring'],
+    ['Job payment', 'Thanh toán công việc'],
+    ['Job release', 'Giải ngân công việc'],
+    ['Job refund', 'Hoàn tiền công việc'],
+    ['Course purchase', 'Thanh toán khóa học'],
+    ['Course refund', 'Hoàn tiền khóa học'],
+    ['Instructor net amount', 'Doanh thu khóa học sau phí nền tảng'],
+  ]
+
+  return replacements.reduce((text, [source, target]) => text.replace(source, target), trimmed)
+}
+
+function formatReferenceType(referenceType: string) {
+  const labels: Record<string, string> = {
+    COURSE: 'Khóa học',
+    COURSE_ENROLLMENT: 'Ghi danh khóa học',
+    JOB: 'Công việc',
+    CONTRACT: 'Hợp đồng',
+    APPOINTMENT: 'Lịch mentoring',
+    WITHDRAWAL: 'Yêu cầu rút tiền',
+    DEPOSIT: 'Lệnh nạp tiền',
+  }
+  return labels[referenceType] || referenceType.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase())
 }
 
 function formatTxnStatus(status: string) {

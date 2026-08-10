@@ -75,6 +75,8 @@ export default function ChatListPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const targetUserId = searchParams.get('userId')
   const targetRoomId = searchParams.get('conversationId') || searchParams.get('roomId')
+  const targetJobId = searchParams.get('jobId')
+  const contextMsg = searchParams.get('contextMsg')
   const navigationState = location.state as ChatNavigationState | null
   const draftRecipientFromState = navigationState?.draftRecipient
 
@@ -200,6 +202,48 @@ export default function ChatListPage() {
     }
 
     if (targetUserId) {
+      if (targetJobId) {
+        if (isCreatingRef.current) return
+        isCreatingRef.current = true
+        chatApi
+          .resolveConversation({
+            recipientId: targetUserId,
+            contextType: 'JOB',
+            contextId: targetJobId,
+          })
+          .then(async (room) => {
+            queryClient.setQueryData<PaginatedResponse<ChatRoomResponse> | undefined>(
+              ['chatRooms', user.userId],
+              (current) => upsertRoomInPage(current, room)
+            )
+            localStorage.setItem(`chat_job_${room.id}`, targetJobId)
+            setSelectedRoomId(room.id)
+            setDraftRecipientId(null)
+            setShowConversationMobile(true)
+
+            if (contextMsg) {
+              try {
+                await chatApi.sendMessage({
+                  chatRoomId: room.id,
+                  senderId: user.userId,
+                  content: contextMsg,
+                  messageType: 'TEXT',
+                })
+              } catch (error) {
+                console.error('Failed to send context message', error)
+              }
+            }
+
+            setSearchParams({})
+            void refetchRooms()
+          })
+          .catch(console.error)
+          .finally(() => {
+            isCreatingRef.current = false
+          })
+        return
+      }
+
       const existingRoom = roomList.find(
         (r) => r.roomType === 'DIRECT_MESSAGE' && r.members?.some((m) => m.userId === targetUserId)
       )
@@ -297,7 +341,7 @@ export default function ChatListPage() {
     if (!selectedRoomId || !filteredRooms.some((room) => room.id === selectedRoomId)) {
       setSelectedRoomId(filteredRooms[0].id)
     }
-  }, [filteredRooms, roomList, selectedRoomId, targetRoomId, targetUserId, roomsLoading, user?.userId, setSearchParams, refetchRooms])
+  }, [contextMsg, filteredRooms, queryClient, refetchRooms, roomList, roomsLoading, selectedRoomId, setSearchParams, targetJobId, targetRoomId, targetUserId, user?.userId])
 
   const selectedRoom = useMemo(
     () => roomList.find((room) => room.id === selectedRoomId) || null,

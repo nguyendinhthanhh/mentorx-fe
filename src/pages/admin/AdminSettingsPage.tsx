@@ -72,7 +72,7 @@ export default function AdminSettingsPage() {
       void queryClient.invalidateQueries(['platform-settings'])
     },
     onError: (error: any) => {
-      toast.error(error?.response?.data?.message || 'Could not create setting')
+      toast.error(error?.response?.data?.message || 'Không thể tạo cài đặt')
     },
   })
 
@@ -84,7 +84,7 @@ export default function AdminSettingsPage() {
       void queryClient.invalidateQueries(['platform-settings'])
     },
     onError: (error: any) => {
-      toast.error(error?.response?.data?.message || 'Could not update mentor badge rules')
+      toast.error(error?.response?.data?.message || 'Không thể cập nhật quy tắc huy hiệu mentor')
     },
   })
 
@@ -97,7 +97,7 @@ export default function AdminSettingsPage() {
         void queryClient.invalidateQueries(['platform-settings'])
       },
       onError: (error: any) => {
-        toast.error(error?.response?.data?.message || 'Could not update setting')
+        toast.error(error?.response?.data?.message || 'Không thể cập nhật cài đặt')
       },
     }
   )
@@ -110,7 +110,7 @@ export default function AdminSettingsPage() {
       void queryClient.invalidateQueries(['platform-settings'])
     },
     onError: (error: any) => {
-      toast.error(error?.response?.data?.message || 'Could not delete setting')
+      toast.error(error?.response?.data?.message || 'Không thể xóa cài đặt')
     },
   })
 
@@ -157,9 +157,9 @@ export default function AdminSettingsPage() {
     <div className="space-y-6 pb-16">
       <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-950 dark:text-slate-50">Platform Settings</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-950 dark:text-slate-50">Cài đặt nền tảng</h1>
           <p className="mt-1 max-w-2xl text-sm text-slate-600 dark:text-slate-400">
-            Manage operational key-value settings used by the platform. Keep secrets in environment variables, not here.
+            Quản lý các cài đặt vận hành dạng khóa và giá trị. Thông tin bí mật phải nằm trong biến môi trường, không lưu tại đây.
           </p>
         </div>
         <div className="flex gap-2">
@@ -169,7 +169,7 @@ export default function AdminSettingsPage() {
             className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
           >
             <RefreshCw className={`h-4 w-4 ${settingsQuery.isFetching ? 'animate-spin' : ''}`} />
-            Refresh
+            Làm mới
           </button>
           <button
             type="button"
@@ -177,7 +177,7 @@ export default function AdminSettingsPage() {
             className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-emerald-700 px-4 text-sm font-semibold text-white transition hover:bg-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-500"
           >
             <Plus className="h-4 w-4" />
-            New setting
+            Tạo cài đặt
           </button>
         </div>
       </header>
@@ -185,9 +185,9 @@ export default function AdminSettingsPage() {
       <section className={`${panelClass} overflow-hidden`}>
         <div className="flex flex-col gap-3 border-b border-slate-200 p-4 sm:flex-row sm:items-center sm:justify-between dark:border-slate-800">
           <div>
-            <h2 className="font-semibold text-slate-950 dark:text-slate-50">Mentor badge rules</h2>
+            <h2 className="font-semibold text-slate-950 dark:text-slate-50">Quy tắc huy hiệu mentor</h2>
             <p className="mt-0.5 max-w-3xl text-sm text-slate-600 dark:text-slate-400">
-              Configure which mentor badges appear on public cards and profile headers, plus the thresholds that unlock them.
+              Cấu hình huy hiệu mentor hiển thị trên thẻ công khai, hồ sơ công khai và các ngưỡng để mở khóa huy hiệu.
             </p>
           </div>
           <div className="flex gap-2">
@@ -197,7 +197,7 @@ export default function AdminSettingsPage() {
               className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
             >
               <RefreshCw className={`h-4 w-4 ${mentorBadgeSettingsQuery.isFetching ? 'animate-spin' : ''}`} />
-              Refresh rules
+              Làm mới quy tắc
             </button>
             <button
               type="button"
@@ -206,7 +206,7 @@ export default function AdminSettingsPage() {
               className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-emerald-700 px-4 text-sm font-semibold text-white transition hover:bg-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:cursor-not-allowed disabled:opacity-60"
             >
               <Save className="h-4 w-4" />
-              Save badge rules
+              Lưu quy tắc huy hiệu
             </button>
           </div>
         </div>
@@ -219,57 +219,57 @@ export default function AdminSettingsPage() {
           <div className="grid gap-6 p-4 xl:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)]">
             <div className="space-y-5">
               <div>
-                <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Visible badges</h3>
+                <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Huy hiệu hiển thị</h3>
                 <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                  Turn individual badge types on or off without redeploying the mentor marketplace.
+                  Bật hoặc tắt từng loại huy hiệu mà không cần triển khai lại marketplace mentor.
                 </p>
               </div>
               <div className="grid gap-3 sm:grid-cols-2">
                 <ToggleCard
-                  title="Approved"
-                  description="Show the approval trust marker on public mentor surfaces."
+                  title="Đã duyệt"
+                  description="Hiển thị dấu xác thực tin cậy trên các bề mặt mentor công khai."
                   checked={badgeDraft.showApprovedBadge}
                   onChange={(checked) => setBadgeDraft((value) => value ? { ...value, showApprovedBadge: checked } : value)}
                 />
                 <ToggleCard
-                  title="Featured"
-                  description="Show the featured badge when a mentor has featured status."
+                  title="Nổi bật"
+                  description="Hiển thị huy hiệu nổi bật khi mentor được đánh dấu nổi bật."
                   checked={badgeDraft.showFeaturedBadge}
                   onChange={(checked) => setBadgeDraft((value) => value ? { ...value, showFeaturedBadge: checked } : value)}
                 />
                 <ToggleCard
-                  title="Top rated"
-                  description="Award the rating-based badge when score and review thresholds are met."
+                  title="Đánh giá cao"
+                  description="Trao huy hiệu dựa trên đánh giá khi đạt ngưỡng điểm và số lượt đánh giá."
                   checked={badgeDraft.showTopRatedBadge}
                   onChange={(checked) => setBadgeDraft((value) => value ? { ...value, showTopRatedBadge: checked } : value)}
                 />
                 <ToggleCard
-                  title="Fast response"
-                  description="Show a badge for mentors who respond within the configured hour limit."
+                  title="Phản hồi nhanh"
+                  description="Hiển thị huy hiệu cho mentor phản hồi trong giới hạn giờ đã cấu hình."
                   checked={badgeDraft.showFastResponseBadge}
                   onChange={(checked) => setBadgeDraft((value) => value ? { ...value, showFastResponseBadge: checked } : value)}
                 />
                 <ToggleCard
-                  title="Experience"
-                  description="Show the years-of-experience badge when the minimum threshold is met."
+                  title="Kinh nghiệm"
+                  description="Hiển thị huy hiệu số năm kinh nghiệm khi đạt ngưỡng tối thiểu."
                   checked={badgeDraft.showExperienceBadge}
                   onChange={(checked) => setBadgeDraft((value) => value ? { ...value, showExperienceBadge: checked } : value)}
                 />
                 <ToggleCard
-                  title="Direct booking"
-                  description="Show when the mentor has an active single-session booking package."
+                  title="Đặt lịch trực tiếp"
+                  description="Hiển thị khi mentor có gói đặt một buổi đang hoạt động."
                   checked={badgeDraft.showDirectBookingBadge}
                   onChange={(checked) => setBadgeDraft((value) => value ? { ...value, showDirectBookingBadge: checked } : value)}
                 />
                 <ToggleCard
-                  title="Public proof"
-                  description="Show when the mentor exposes portfolio, certificate, or public proof links."
+                  title="Minh chứng công khai"
+                  description="Hiển thị khi mentor công khai portfolio, chứng chỉ hoặc liên kết minh chứng."
                   checked={badgeDraft.showPublicProofBadge}
                   onChange={(checked) => setBadgeDraft((value) => value ? { ...value, showPublicProofBadge: checked } : value)}
                 />
                 <ToggleCard
-                  title="Multilingual"
-                  description="Show when the mentor supports enough public languages."
+                  title="Đa ngôn ngữ"
+                  description="Hiển thị khi mentor hỗ trợ đủ số ngôn ngữ công khai."
                   checked={badgeDraft.showMultilingualBadge}
                   onChange={(checked) => setBadgeDraft((value) => value ? { ...value, showMultilingualBadge: checked } : value)}
                 />
@@ -278,15 +278,15 @@ export default function AdminSettingsPage() {
 
             <div className="space-y-5">
               <div>
-                <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Thresholds and limits</h3>
+                <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Ngưỡng và giới hạn</h3>
                 <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                  These values control when a badge appears and how many badges are shown in each layout.
+                  Các giá trị này kiểm soát khi nào huy hiệu xuất hiện và số huy hiệu hiển thị trong từng layout.
                 </p>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <NumberField
-                  label="Top-rated min rating"
-                  hint="0.0 to 5.0"
+                  label="Điểm tối thiểu cho đánh giá cao"
+                  hint="Từ 0.0 đến 5.0"
                   step="0.1"
                   value={badgeDraft.topRatedMinRating}
                   onChange={(value) =>
@@ -294,48 +294,48 @@ export default function AdminSettingsPage() {
                   }
                 />
                 <NumberField
-                  label="Top-rated min reviews"
-                  hint="Minimum count of published reviews"
+                  label="Số đánh giá tối thiểu"
+                  hint="Số lượng đánh giá công khai tối thiểu"
                   value={badgeDraft.topRatedMinReviews}
                   onChange={(value) =>
                     setBadgeDraft((current) => current ? { ...current, topRatedMinReviews: value } : current)
                   }
                 />
                 <NumberField
-                  label="Fast response max hours"
-                  hint="Mentor must respond within this many hours"
+                  label="Giờ tối đa để tính phản hồi nhanh"
+                  hint="Mentor phải phản hồi trong số giờ này"
                   value={badgeDraft.fastResponseMaxHours}
                   onChange={(value) =>
                     setBadgeDraft((current) => current ? { ...current, fastResponseMaxHours: value } : current)
                   }
                 />
                 <NumberField
-                  label="Experience min years"
-                  hint="Minimum years before the experience badge appears"
+                  label="Số năm kinh nghiệm tối thiểu"
+                  hint="Số năm tối thiểu để hiện huy hiệu kinh nghiệm"
                   value={badgeDraft.experienceMinYears}
                   onChange={(value) =>
                     setBadgeDraft((current) => current ? { ...current, experienceMinYears: value } : current)
                   }
                 />
                 <NumberField
-                  label="Multilingual min languages"
-                  hint="Minimum number of public languages"
+                  label="Số ngôn ngữ tối thiểu"
+                  hint="Số ngôn ngữ công khai tối thiểu"
                   value={badgeDraft.multilingualMinLanguages}
                   onChange={(value) =>
                     setBadgeDraft((current) => current ? { ...current, multilingualMinLanguages: value } : current)
                   }
                 />
                 <NumberField
-                  label="Profile max badges"
-                  hint="Maximum chips shown on the public profile hero"
+                  label="Số huy hiệu tối đa trên hồ sơ"
+                  hint="Số chip tối đa hiển thị ở hero hồ sơ công khai"
                   value={badgeDraft.profileMaxBadges}
                   onChange={(value) =>
                     setBadgeDraft((current) => current ? { ...current, profileMaxBadges: value } : current)
                   }
                 />
                 <NumberField
-                  label="List max badges"
-                  hint="Maximum chips shown on mentor list cards"
+                  label="Số huy hiệu tối đa trên danh sách"
+                  hint="Số chip tối đa hiển thị trên thẻ mentor trong danh sách"
                   value={badgeDraft.listMaxBadges}
                   onChange={(value) =>
                     setBadgeDraft((current) => current ? { ...current, listMaxBadges: value } : current)
@@ -343,9 +343,9 @@ export default function AdminSettingsPage() {
                 />
               </div>
               <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300">
-                <p className="font-semibold text-slate-900 dark:text-slate-100">Current rollout behavior</p>
+                <p className="font-semibold text-slate-900 dark:text-slate-100">Cách áp dụng hiện tại</p>
                 <p className="mt-1">
-                  Public mentor pages now read these rules live from the backend. A save here updates both mentor cards and mentor profile headers.
+                  Các trang mentor công khai đọc trực tiếp những quy tắc này từ backend. Lưu tại đây sẽ cập nhật cả thẻ mentor và header hồ sơ mentor.
                 </p>
               </div>
             </div>
@@ -357,16 +357,16 @@ export default function AdminSettingsPage() {
         <section className={panelClass}>
           <div className="flex flex-col gap-3 border-b border-slate-200 p-4 sm:flex-row sm:items-center sm:justify-between dark:border-slate-800">
             <div>
-              <h2 className="font-semibold text-slate-950 dark:text-slate-50">Settings registry</h2>
-              <p className="mt-0.5 text-xs text-slate-500">{visibleSettings.length} settings</p>
+              <h2 className="font-semibold text-slate-950 dark:text-slate-50">Danh sách cài đặt</h2>
+              <p className="mt-0.5 text-xs text-slate-500">{visibleSettings.length} cài đặt</p>
             </div>
             <label className="relative block">
-              <span className="sr-only">Search settings</span>
+              <span className="sr-only">Tìm cài đặt</span>
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
               <input
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                placeholder="Search key, value, description"
+                placeholder="Tìm theo khóa, giá trị, mô tả"
                 className="h-10 w-full rounded-lg border border-slate-300 bg-white pl-9 pr-3 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 dark:border-slate-700 dark:bg-slate-950 sm:w-72"
               />
             </label>
@@ -383,11 +383,11 @@ export default function AdminSettingsPage() {
               <table className="w-full min-w-[760px] text-left text-sm">
                 <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500 dark:bg-slate-950/50">
                   <tr>
-                    <th className="px-4 py-3">Key</th>
-                    <th className="px-4 py-3">Value</th>
-                    <th className="px-4 py-3">Description</th>
-                    <th className="px-4 py-3">Updated</th>
-                    <th className="px-4 py-3 text-right">Action</th>
+                    <th className="px-4 py-3">Khóa</th>
+                    <th className="px-4 py-3">Giá trị</th>
+                    <th className="px-4 py-3">Mô tả</th>
+                    <th className="px-4 py-3">Cập nhật</th>
+                    <th className="px-4 py-3 text-right">Thao tác</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
@@ -416,7 +416,7 @@ export default function AdminSettingsPage() {
                           onClick={() => selectSetting(setting)}
                           className="rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:border-slate-700 dark:hover:bg-slate-800"
                         >
-                          Edit
+                          Sửa
                         </button>
                       </td>
                     </tr>
@@ -431,11 +431,11 @@ export default function AdminSettingsPage() {
           <div className="flex items-center gap-2 border-b border-slate-200 p-4 dark:border-slate-800">
             <Settings className="h-5 w-5 text-emerald-600" />
             <h2 className="font-semibold text-slate-950 dark:text-slate-50">
-              {selectedSetting ? 'Edit setting' : 'Create setting'}
+              {selectedSetting ? 'Sửa cài đặt' : 'Tạo cài đặt'}
             </h2>
           </div>
           <div className="space-y-4 p-4">
-            <Field label="Key">
+            <Field label="Khóa">
               <input
                 value={draft.key}
                 onChange={(event) => setDraft((value) => ({ ...value, key: event.target.value }))}
@@ -445,7 +445,7 @@ export default function AdminSettingsPage() {
                 placeholder="wallet.cooling_off_hours"
               />
             </Field>
-            <Field label="Value">
+            <Field label="Giá trị">
               <textarea
                 value={draft.value}
                 onChange={(event) => setDraft((value) => ({ ...value, value: event.target.value }))}
@@ -453,12 +453,12 @@ export default function AdminSettingsPage() {
                 placeholder="72"
               />
             </Field>
-            <Field label="Description">
+            <Field label="Mô tả">
               <textarea
                 value={draft.description || ''}
                 onChange={(event) => setDraft((value) => ({ ...value, description: event.target.value }))}
                 className="min-h-24 w-full rounded-lg border border-slate-300 bg-white p-3 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 dark:border-slate-700 dark:bg-slate-950"
-                placeholder="Explain what this controls and who should change it."
+                placeholder="Giải thích cài đặt này kiểm soát điều gì và ai nên thay đổi."
               />
             </Field>
             <div className="flex flex-col gap-2 sm:flex-row">
@@ -469,13 +469,13 @@ export default function AdminSettingsPage() {
                 className="inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-lg bg-emerald-700 px-4 text-sm font-semibold text-white transition hover:bg-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 <Save className="h-4 w-4" />
-                {selectedKey ? 'Save changes' : 'Create setting'}
+                {selectedKey ? 'Lưu thay đổi' : 'Tạo cài đặt'}
               </button>
               {selectedKey ? (
                 <button
                   type="button"
                   onClick={() => {
-                    if (window.confirm(`Delete setting "${selectedKey}"?`)) {
+                    if (window.confirm(`Xóa cài đặt "${selectedKey}"?`)) {
                       deleteMutation.mutate(selectedKey)
                     }
                   }}
@@ -483,7 +483,7 @@ export default function AdminSettingsPage() {
                   className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-rose-300 px-4 text-sm font-semibold text-rose-700 transition hover:bg-rose-50 focus:outline-none focus:ring-2 focus:ring-rose-500 disabled:cursor-not-allowed disabled:opacity-60 dark:border-rose-900 dark:text-rose-300 dark:hover:bg-rose-950/30"
                 >
                   <Trash2 className="h-4 w-4" />
-                  Delete
+                  Xóa
                 </button>
               ) : null}
             </div>
@@ -562,9 +562,9 @@ function ErrorState({ onRetry }: { onRetry: () => void }) {
   return (
     <div className="flex min-h-40 flex-col items-center justify-center gap-3 p-6 text-center text-sm text-rose-700 dark:text-rose-300">
       <AlertCircle className="h-6 w-6" />
-      <p className="font-semibold">Could not load platform settings.</p>
+      <p className="font-semibold">Không thể tải cài đặt nền tảng.</p>
       <button type="button" onClick={onRetry} className="underline underline-offset-4">
-        Retry
+        Thử lại
       </button>
     </div>
   )
@@ -583,7 +583,7 @@ function LoadingRows() {
 function EmptyState() {
   return (
     <div className="flex min-h-40 items-center justify-center p-6 text-center text-sm text-slate-500">
-      No platform settings match this view.
+      Không có cài đặt nền tảng nào khớp với bộ lọc hiện tại.
     </div>
   )
 }

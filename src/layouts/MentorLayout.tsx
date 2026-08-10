@@ -27,23 +27,24 @@ import NotificationDropdown from '@/components/notification/NotificationDropdown
 import ModeSwitcher from '@/components/ModeSwitcher'
 import { courseApi } from '@/api/courseApi'
 import { chatApi } from '@/api/chatApi'
+import { useI18n } from '@/i18n/I18nProvider'
 
 const navigationItems = [
-  { to: '/mentor/dashboard', label: 'Overview', icon: LayoutDashboard },
-  { to: '/mentor/messages', label: 'Messages', icon: MessageCircle },
-  { to: '/mentor/projects', label: 'My Projects', icon: FolderKanban },
-  { to: '/mentor/courses', label: 'My Courses', icon: BookOpen },
-  { to: '/mentor/schedule', label: 'Schedule', icon: Calendar },
-  { to: '/mentor/earnings', label: 'Earnings', icon: Wallet },
-  { to: '/mentor/reviews', label: 'Reviews', icon: Star },
-]
+  { to: '/mentor/dashboard', labelKey: 'mentorHub.nav.overview', icon: LayoutDashboard },
+  { to: '/mentor/messages', labelKey: 'mentorHub.nav.messages', icon: MessageCircle },
+  { to: '/mentor/projects', labelKey: 'mentorHub.nav.projects', icon: FolderKanban },
+  { to: '/mentor/courses', labelKey: 'mentorHub.nav.courses', icon: BookOpen },
+  { to: '/mentor/schedule', labelKey: 'mentorHub.nav.schedule', icon: Calendar },
+  { to: '/mentor/earnings', labelKey: 'mentorHub.nav.earnings', icon: Wallet },
+  { to: '/mentor/reviews', labelKey: 'mentorHub.nav.reviews', icon: Star },
+] as const
 
 export default function MentorLayout() {
+  const { t } = useI18n()
   const navigate = useNavigate()
   const location = useLocation()
   const { user, logout } = useAuthStore()
   const { isDarkMode, toggleTheme } = useThemeStore()
-  const [availability] = useState('Available')
   const [userDropdownOpen, setUserDropdownOpen] = useState(false)
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
@@ -111,7 +112,7 @@ export default function MentorLayout() {
               {!isSidebarCollapsed && (
                 <div className="min-w-0 flex flex-col opacity-100 transition-opacity duration-300 delay-100">
                   <p className="text-[19px] font-bold leading-none tracking-tight text-slate-900 dark:text-white">MentorX</p>
-                  <p className="mt-1 text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Workspace</p>
+                  <p className="mt-1 text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{t('mentorHub.workspace')}</p>
                 </div>
               )}
             </Link>
@@ -120,6 +121,7 @@ export default function MentorLayout() {
           <nav className="flex-1 px-4 py-5 space-y-2 overflow-y-auto custom-scrollbar">
             {navigationItems.map((item) => {
               const active = isActive(item.to)
+              const label = t(item.labelKey)
               const badge = item.to === '/mentor/courses'
                 ? unansweredCourseQaCount
                 : item.to === '/mentor/messages'
@@ -129,7 +131,7 @@ export default function MentorLayout() {
                 <Link
                   key={item.to}
                   to={item.to}
-                  title={isSidebarCollapsed ? item.label : undefined}
+                  title={isSidebarCollapsed ? label : undefined}
                   className={`group flex items-center gap-3.5 px-3.5 py-3 rounded-2xl font-semibold transition-all duration-300 ${
                     active
                       ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-200/50 dark:bg-emerald-500/20 dark:text-emerald-400 dark:shadow-none translate-x-1'
@@ -139,7 +141,7 @@ export default function MentorLayout() {
                   <item.icon className={`w-5 h-5 flex-shrink-0 transition-transform duration-300 ${
                     active ? 'scale-110' : 'group-hover:scale-110'
                   }`} />
-                  {!isSidebarCollapsed && <span className="truncate">{item.label}</span>}
+                  {!isSidebarCollapsed && <span className="truncate">{label}</span>}
                   {!isSidebarCollapsed && badge ? (
                     <span className={`ml-auto flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-[11px] font-bold ${
                       active 
@@ -175,7 +177,7 @@ export default function MentorLayout() {
                     type="button"
                     onClick={handleLogout}
                     className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-400 transition hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-500/10"
-                    title="Logout"
+                    title={t('nav.logout')}
                   >
                     <LogOut className="h-4 w-4" />
                   </button>
@@ -196,7 +198,7 @@ export default function MentorLayout() {
           <div className="fixed inset-0 z-50 xl:hidden">
             <button
               type="button"
-              aria-label="Close navigation"
+              aria-label={t('mentorHub.closeNavigation')}
               className="absolute inset-0 bg-slate-950/40"
               onClick={() => setMobileNavOpen(false)}
             />
@@ -206,14 +208,14 @@ export default function MentorLayout() {
                   <img src="/logo.png" alt="MentorX Logo" className="h-8 w-auto object-contain" />
                   <div className="min-w-0 flex flex-col">
                     <p className="text-[19px] font-bold leading-none tracking-tight text-slate-900 dark:text-white">MentorX</p>
-                    <p className="mt-1 text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Workspace</p>
+                  <p className="mt-1 text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{t('mentorHub.workspace')}</p>
                   </div>
                 </Link>
                 <button
                   type="button"
                   onClick={() => setMobileNavOpen(false)}
                   className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400"
-                  aria-label="Close navigation"
+                  aria-label={t('mentorHub.closeNavigation')}
                 >
                   <X className="h-5 w-5" />
                 </button>
@@ -222,6 +224,7 @@ export default function MentorLayout() {
               <nav className="flex-1 overflow-y-auto space-y-2 px-4 py-5">
                 {navigationItems.map((item) => {
                   const active = isActive(item.to)
+                  const label = t(item.labelKey)
                   const badge = item.to === '/mentor/courses'
                     ? unansweredCourseQaCount
                     : item.to === '/mentor/messages'
@@ -241,7 +244,7 @@ export default function MentorLayout() {
                       <item.icon className={`w-5 h-5 transition-transform duration-300 ${
                         active ? 'scale-110' : 'group-hover:scale-110'
                       }`} />
-                      <span className="truncate">{item.label}</span>
+                      <span className="truncate">{label}</span>
                       {badge ? (
                         <span className={`ml-auto flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-[11px] font-bold ${
                           active 
@@ -282,7 +285,7 @@ export default function MentorLayout() {
                       handleLogout()
                     }}
                     className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-400 transition hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-500/10"
-                    title="Logout"
+                    title={t('nav.logout')}
                   >
                     <LogOut className="h-4 w-4" />
                   </button>
@@ -300,7 +303,7 @@ export default function MentorLayout() {
                   type="button"
                   onClick={() => setMobileNavOpen(true)}
                   className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50 xl:hidden"
-                  aria-label="Open navigation"
+                  aria-label={t('mentorHub.openNavigation')}
                   aria-expanded={mobileNavOpen}
                 >
                   <Menu className="h-4 w-4" />
@@ -310,7 +313,7 @@ export default function MentorLayout() {
                   <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                   <input
                     type="text"
-                    placeholder="Search jobs, clients, skills..."
+                    placeholder={t('mentorHub.searchPlaceholder')}
                     className="h-11 w-full rounded-2xl border border-slate-200 bg-slate-50 pl-11 pr-14 text-sm text-slate-700 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10"
                   />
                   <span className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg border border-slate-200 bg-white px-2 py-1 text-[11px] font-bold text-slate-400">
@@ -324,7 +327,7 @@ export default function MentorLayout() {
                   type="button"
                   onClick={toggleTheme}
                   className="flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-500 transition hover:bg-slate-50 hover:text-slate-900"
-                  aria-label="Toggle theme"
+                  aria-label={t('mentorHub.toggleTheme')}
                 >
                   {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
                 </button>
@@ -334,7 +337,7 @@ export default function MentorLayout() {
                   className="hidden h-11 items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-700 2xl:inline-flex"
                 >
                   <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
-                  {availability}
+                  {t('mentorHub.availability.available')}
                   <ChevronDown className="h-4 w-4 text-slate-400" />
                 </button>
 
@@ -343,7 +346,7 @@ export default function MentorLayout() {
                 <Link
                   to="/mentor/messages"
                   className="relative hidden h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-500 transition hover:bg-slate-50 hover:text-slate-900 sm:flex"
-                  aria-label="Open messages"
+                  aria-label={t('mentorHub.openMessages')}
                 >
                   <MessageCircle className="h-4 w-4" />
                   {unreadMessagesCount > 0 && (
@@ -371,7 +374,7 @@ export default function MentorLayout() {
                     </div>
                     <div className="hidden text-left 2xl:block">
                       <p className="text-sm font-black text-slate-950">{user?.fullName || 'Mentor'}</p>
-                      <p className="mt-0.5 text-xs font-medium text-slate-500">Expert Mentor</p>
+                      <p className="mt-0.5 text-xs font-medium text-slate-500">{t('mentorHub.role.expertMentor')}</p>
                     </div>
                     <ChevronDown className={`h-4 w-4 text-slate-400 transition-transform duration-300 ${userDropdownOpen ? 'rotate-180 text-emerald-600' : ''}`} />
                   </button>
@@ -381,9 +384,9 @@ export default function MentorLayout() {
                       <div className="fixed inset-0 z-10" onClick={() => setUserDropdownOpen(false)} />
                       <div className="absolute right-0 z-20 mt-2 w-64 origin-top-right rounded-2xl border border-slate-200 bg-white p-2 shadow-xl ring-1 ring-black ring-opacity-5 focus:outline-none">
                         <div className="mb-1 border-b border-slate-100 px-3 py-2">
-                          <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Account</p>
+                          <p className="text-xs font-bold uppercase tracking-wider text-slate-400">{t('common.account')}</p>
                           <p className="truncate text-sm font-black text-slate-950">{user?.fullName || 'Mentor'}</p>
-                          <p className="truncate text-[11px] font-medium text-slate-500">Expert Mentor</p>
+                          <p className="truncate text-[11px] font-medium text-slate-500">{t('mentorHub.role.expertMentor')}</p>
                         </div>
 
                         <Link
@@ -392,7 +395,7 @@ export default function MentorLayout() {
                           className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50 hover:text-blue-600"
                         >
                           <User className="h-4 w-4" />
-                          View Profile
+                          {t('common.viewProfile')}
                         </Link>
                         <Link
                           to="/mentor/profile-setup"
@@ -400,7 +403,7 @@ export default function MentorLayout() {
                           className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50 hover:text-blue-600"
                         >
                           <Star className="h-4 w-4" />
-                          View Mentor Profile
+                          {t('nav.editMentorProfile')}
                         </Link>
 
                         <div className="my-1 border-t border-slate-100" />
@@ -413,7 +416,7 @@ export default function MentorLayout() {
                           className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-red-600 transition hover:bg-red-50"
                         >
                           <LogOut className="h-4 w-4" />
-                          Sign out
+                          {t('nav.logout')}
                         </button>
                       </div>
                     </>

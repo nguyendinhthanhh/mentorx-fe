@@ -184,18 +184,25 @@ export default function HomePage() {
 
           </div>
 
-          <div className="relative min-h-[440px] hidden lg:flex items-center justify-center">
-            {/* Background Blob */}
-            <div className="absolute right-4 top-4 w-[380px] h-[400px] rounded-[40px] bg-gradient-to-br from-[#eceeff] to-[#d7dbfc] rotate-6 opacity-60"></div>
-            <div className="absolute right-8 top-8 w-[380px] h-[400px] rounded-[40px] bg-[#4f46e5] -rotate-3 shadow-2xl overflow-hidden">
-               <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+          <div className="relative hidden min-h-[430px] lg:block">
+            <div className="absolute right-1 top-7 h-[388px] w-[388px] rotate-2 rounded-[34px] bg-slate-100 shadow-[0_28px_70px_rgba(15,23,42,0.10)] dark:bg-slate-900"></div>
+            <div className="absolute right-7 top-10 h-[372px] w-[372px] -rotate-2 overflow-hidden rounded-[34px] border border-slate-200 bg-slate-50 shadow-[0_24px_60px_rgba(15,23,42,0.12)] dark:border-slate-800 dark:bg-slate-900">
+              <img
+                src="/images/auth_hero.jpg"
+                alt=""
+                aria-hidden="true"
+                loading="eager"
+                decoding="async"
+                className="h-full w-full scale-105 object-cover"
+              />
+              <div className="absolute inset-0 bg-slate-950/10 dark:bg-slate-950/30" />
             </div>
 
             {heroJob && (
-              <Link to={`/jobs/${heroJob.jobId}`} className="absolute -left-6 top-16 w-[280px] rounded-2xl border border-white/40 bg-white/95 p-4 shadow-xl backdrop-blur-md animate-[bounce_6s_ease-in-out_infinite] dark:border-slate-700 dark:bg-slate-900/95">
+              <Link to={`/jobs/${heroJob.jobId}`} className="hero-float-job group absolute -left-5 top-16 z-20 block w-[286px] rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_22px_55px_rgba(15,23,42,0.12)] transition-[border-color,box-shadow] duration-200 hover:border-slate-300 hover:shadow-[0_26px_65px_rgba(15,23,42,0.16)] dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700">
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex min-w-0 items-center gap-2">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded bg-white text-[10px] font-bold text-slate-700 shadow-sm dark:bg-slate-800 dark:text-slate-200">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-slate-100 bg-white text-[10px] font-bold text-slate-700 shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
                       <img src={heroJobAvatarUrl} alt={heroJobClientName} loading="lazy" decoding="async" className="h-full w-full object-contain" />
                     </div>
                     <span className="truncate text-xs font-bold text-gray-800 dark:text-slate-200">{heroJobClientName}</span>
@@ -216,14 +223,14 @@ export default function HomePage() {
                   </div>
                 )}
                 <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3 dark:border-slate-800">
-                  <span className="text-[11px] font-bold text-[#4f46e5]">{t('common.viewDetails')}</span>
+                  <span className="text-[11px] font-bold text-[#4f46e5] group-hover:text-[#4338ca] dark:text-emerald-300 dark:group-hover:text-emerald-200">{t('common.viewDetails')}</span>
                   <Bookmark className="h-4 w-4 text-gray-400" />
                 </div>
               </Link>
             )}
 
             {heroMentor && (
-              <Link to={`/mentors/${heroMentor.userId || heroMentor.mentorId}`} className="absolute -right-2 bottom-12 w-[240px] rounded-2xl border border-white/40 bg-white/95 p-4 shadow-xl backdrop-blur-md animate-[bounce_5s_ease-in-out_infinite_reverse] dark:border-slate-700 dark:bg-slate-900/95">
+              <Link to={`/mentors/${heroMentor.userId || heroMentor.mentorId}`} className="hero-float-mentor group absolute -right-2 top-[112px] z-30 block w-[248px] rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_22px_55px_rgba(15,23,42,0.12)] transition-[border-color,box-shadow] duration-200 hover:border-slate-300 hover:shadow-[0_26px_65px_rgba(15,23,42,0.16)] dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700">
                 <div className="flex justify-end mb-2">
                   <span className="rounded bg-emerald-100 px-2 py-0.5 text-[9px] font-bold text-emerald-600 uppercase tracking-wide">{t('home.hero.mentorCard.featured')}</span>
                 </div>
@@ -245,7 +252,7 @@ export default function HomePage() {
                     ))}
                   </div>
                 )}
-                <span className="mt-4 block w-full rounded-xl bg-[#4f46e5] py-2 text-center text-xs font-bold text-white transition hover:bg-[#4338ca] shadow-sm">{t('home.hero.mentorCard.book')}</span>
+                <span className="mt-4 block w-full rounded-xl bg-[#4f46e5] py-2 text-center text-xs font-bold text-white transition group-hover:bg-[#4338ca] shadow-sm">{t('home.hero.mentorCard.book')}</span>
               </Link>
             )}
           </div>
@@ -262,14 +269,23 @@ export default function HomePage() {
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-8">
-            {categories.slice(0, 8).map((cat) => (
-              <Link to={`/jobs?category=${cat.slug}`} key={cat.categoryId} className="group flex flex-col items-center justify-center rounded-2xl bg-white p-5 transition duration-300 transform hover:-translate-y-1 hover:shadow-lg dark:border dark:border-slate-800 dark:bg-slate-900 dark:hover:border-emerald-500/40">
-                 <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-50 group-hover:bg-emerald-50 transition mb-3 dark:bg-slate-800 dark:group-hover:bg-emerald-500/10">
+            {categories.slice(0, 8).map((cat) => {
+              const categoryParam = cat.slug || String(cat.categoryId ?? cat.id)
+              const categoryKey = cat.categoryId ?? cat.id ?? cat.slug
+
+              return (
+                <Link
+                  to={`/jobs?category=${encodeURIComponent(categoryParam)}`}
+                  key={categoryKey}
+                  className="group flex flex-col items-center justify-center rounded-2xl bg-white p-5 transition duration-300 transform hover:-translate-y-1 hover:shadow-lg dark:border dark:border-slate-800 dark:bg-slate-900 dark:hover:border-emerald-500/40"
+                >
+                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-50 group-hover:bg-emerald-50 transition mb-3 dark:bg-slate-800 dark:group-hover:bg-emerald-500/10">
                     {CATEGORY_ICONS[cat.slug] || <LayoutGrid className="h-7 w-7 text-emerald-500" />}
-                 </div>
-                 <span className="text-[13px] font-bold text-gray-900 text-center whitespace-pre-line dark:text-white">{cat.name}</span>
-              </Link>
-            ))}
+                  </div>
+                  <span className="text-[13px] font-bold text-gray-900 text-center whitespace-pre-line dark:text-white">{cat.name}</span>
+                </Link>
+              )
+            })}
           </div>
         )}
       </section>

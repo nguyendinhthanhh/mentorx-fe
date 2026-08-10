@@ -946,5 +946,5 @@ function buildMiniTimeline(contract: ContractResponse, dispute: DisputeResponse 
 }
 
 function buildWorkspaceLink(contract: ContractResponse): string {
-  return `/chat?userId=${contract.clientId}&jobId=${contract.jobId}`
+  return `/mentor/messages?targetUserId=${encodeURIComponent(contract.clientId)}&jobId=${encodeURIComponent(contract.jobId)}`
 }
