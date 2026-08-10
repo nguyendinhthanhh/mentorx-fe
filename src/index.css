@@ -528,6 +528,32 @@ input[type="range"].onb-range::-webkit-slider-thumb:hover {
     radial-gradient(circle at 50% 80%, rgba(8,145,178,0.03) 0%, transparent 40%);
 }
 
+@keyframes heroFloatJob {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) rotate(-1deg);
+  }
+  50% {
+    transform: translate3d(0, -8px, 0) rotate(-1deg);
+  }
+}
+
+@keyframes heroFloatMentor {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) rotate(1deg);
+  }
+  50% {
+    transform: translate3d(0, 7px, 0) rotate(1deg);
+  }
+}
+
+.hero-float-job {
+  animation: heroFloatJob 7s ease-in-out infinite;
+}
+
+.hero-float-mentor {
+  animation: heroFloatMentor 7.5s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

@@ -420,7 +420,7 @@ export default function MentorProposalsPage() {
                     <div className="flex w-full items-center gap-3 sm:w-auto">
                       {job?.clientId && (
                         <Link
-                          to={`/mentor/messages?targetUserId=${job.clientId}`}
+                          to={`/mentor/messages?targetUserId=${encodeURIComponent(job.clientId)}&jobId=${encodeURIComponent(job.jobId)}`}
                           className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 text-sm font-bold text-slate-700 shadow-sm transition-all hover:bg-slate-50 hover:text-emerald-600 sm:flex-none"
                         >
                           <MessageCircleMore className="w-4 h-4" />

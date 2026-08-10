@@ -199,14 +199,14 @@ export default function JobDetailPage() {
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50">
             <Briefcase className="h-8 w-8 text-emerald-600" />
           </div>
-          <h1 className="mt-4 text-2xl font-black">Job not found</h1>
-          <p className="mt-2 text-sm text-slate-500">This job may have been removed or is no longer available.</p>
+          <h1 className="mt-4 text-2xl font-black">Không tìm thấy công việc</h1>
+          <p className="mt-2 text-sm text-slate-500">Công việc này có thể đã bị gỡ hoặc không còn khả dụng.</p>
           <Link
             to="/jobs"
             className="mt-6 inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 text-sm font-bold text-white transition hover:bg-emerald-700"
           >
             <ArrowLeft className="h-4 w-4" />
-            Back to jobs
+            Quay lại danh sách việc làm
           </Link>
         </div>
       </div>
@@ -278,13 +278,13 @@ export default function JobDetailPage() {
       await proposalApi.withdraw(existingProposal.id, normalizedReason)
       setShowWithdrawConfirm(false)
       setWithdrawReason('')
-      toast.success('Đã thu hồi proposal.')
+      toast.success('Đã thu hồi ứng tuyển.')
       await Promise.all([
         queryClient.invalidateQueries(['proposal', jobId, user?.userId]),
         queryClient.invalidateQueries(['negotiation-latest', existingProposal.id]),
       ])
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Không thể thu hồi proposal. Vui lòng thử lại.')
+      alert(err.response?.data?.message || 'Không thể thu hồi ứng tuyển. Vui lòng thử lại.')
     } finally {
       setWithdrawing(false)
     }
@@ -472,7 +472,7 @@ export default function JobDetailPage() {
 
                   <div className="grid gap-4 xl:grid-cols-2">
                     {job.experienceLevel && <BriefItem icon={GraduationCap} label="Cấp độ yêu cầu" value={formatExperienceLevel(job.experienceLevel)} />}
-                    {job.currentLevel && <BriefItem icon={Gauge} label="Trình độ hiện tại của client" value={job.currentLevel} />}
+                    {job.currentLevel && <BriefItem icon={Gauge} label="Trình độ hiện tại của khách" value={job.currentLevel} />}
                     {job.learningGoals && <BriefItem icon={Target} label="Mục tiêu học tập" value={job.learningGoals} wide />}
                     {job.successCriteria && <BriefItem icon={CheckCircle2} label="Tiêu chí thành công" value={job.successCriteria} wide />}
                     {job.availabilityExpectation && <BriefItem icon={CalendarDays} label="Thời gian rảnh" value={job.availabilityExpectation} />}
@@ -500,7 +500,7 @@ export default function JobDetailPage() {
                              <div className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 transition-all hover:border-emerald-300 dark:border-slate-800 dark:bg-slate-950">
                                <img 
                                  src={url} 
-                                 alt={`Attachment ${index + 1}`} 
+                                 alt={`Tệp đính kèm ${index + 1}`} 
                                  className="aspect-video w-full object-cover transition-transform duration-500 group-hover:scale-105"
                                />
                                <div className="absolute inset-0 flex items-center justify-center bg-slate-900/0 opacity-0 transition-all group-hover:bg-slate-900/30 group-hover:opacity-100">
@@ -544,7 +544,7 @@ export default function JobDetailPage() {
             {isOwner && (
               <section className="p-6 sm:p-10">
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">Proposals đã nhận</h2>
+                  <h2 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">Ứng tuyển đã nhận</h2>
                   {proposalCount > 0 && (
                     <span className="flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 text-sm font-bold text-slate-700 dark:bg-slate-800 dark:text-slate-300">
                       {proposalCount}
@@ -585,11 +585,11 @@ export default function JobDetailPage() {
                         </div>
                       )}
                       <div className="rounded-xl border border-emerald-100 bg-emerald-50 p-4 text-[13px] leading-relaxed text-emerald-800">
-                        Bạn đã đăng công việc này. Hãy xem xét các ứng viên và chọn Mentor phù hợp nhất.
+                        Bạn đã đăng công việc này. Hãy xem xét các ứng viên và chọn mentor phù hợp nhất.
                       </div>
                       {jobContract?.fundsInEscrow && (
                         <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-[13px] leading-relaxed text-emerald-900">
-                          <p className="font-black">Escrow secured</p>
+                          <p className="font-black">Quỹ đảm bảo đã khóa</p>
                           <p className="mt-1">
                             {formatCurrency(jobContract.amountInEscrow || 0)} đang được giữ bởi MentorX cho tới khi bạn xác nhận hoàn thành.
                           </p>
@@ -601,12 +601,12 @@ export default function JobDetailPage() {
                           className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 text-sm font-black text-emerald-700 shadow-sm hover:bg-emerald-100 transition"
                         >
                           <MessageSquare className="h-4 w-4" />
-                          Mở Chat
+                          Mở trao đổi
                         </Link>
                       )}
                       {jobContract?.status === 'UNDER_REVIEW' && (
                         <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-[13px] leading-relaxed text-amber-900">
-                          Mentor đã đánh dấu công việc hoàn thành. Hãy kiểm tra sản phẩm trước khi giải ngân; nếu chưa đạt, hãy yêu cầu chỉnh sửa. Escrow vẫn được khóa trong thời gian chờ bạn xử lý.
+                          Mentor đã đánh dấu công việc hoàn thành. Hãy kiểm tra sản phẩm trước khi giải ngân; nếu chưa đạt, hãy yêu cầu chỉnh sửa. Quỹ đảm bảo vẫn được khóa trong thời gian chờ bạn xử lý.
                           {jobContract.mentorSubmittedLate && <p className="mt-2 font-bold">Bàn giao này được gửi sau deadline đã cam kết.</p>}
                           <Link
                             to={`/my-jobs/${job.jobId}`}
@@ -662,7 +662,7 @@ export default function JobDetailPage() {
                       <div className={`mb-4 rounded-xl border p-4 ${visibleProposal.status === 'ACCEPTED' ? 'border-emerald-200 bg-emerald-50' : 'border-emerald-100 bg-emerald-50'}`}>
                         <div className="flex items-center justify-between mb-3">
                           <div className={`flex items-center gap-2 text-sm font-bold ${visibleProposal.status === 'ACCEPTED' ? 'text-emerald-700' : 'text-emerald-700'}`}>
-                            <CheckCircle2 className="w-4 h-4" /> Đã gửi proposal
+                            <CheckCircle2 className="w-4 h-4" /> Đã gửi ứng tuyển
                           </div>
                           <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${getProposalStatusColor(visibleProposal.status)}`}>
                             {getProposalStatusLabel(visibleProposal.status)}
@@ -685,7 +685,7 @@ export default function JobDetailPage() {
                       {visibleProposal.status === 'ACCEPTED' && (
                         <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 mb-4 text-xs font-medium text-amber-800 flex items-start gap-2">
                           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-amber-600" />
-                          <span>Không thể chỉnh sửa proposal đã được chấp nhận</span>
+                          <span>Không thể chỉnh sửa ứng tuyển đã được chấp nhận</span>
                         </div>
                       )}
 
@@ -734,7 +734,7 @@ export default function JobDetailPage() {
                           onClick={() => setShowWithdrawConfirm(true)}
                           className="flex h-11 w-full items-center justify-center gap-2 rounded-xl text-rose-600 text-[14px] font-bold hover:bg-rose-50 transition mt-2"
                         >
-                          Thu hồi proposal
+                          Thu hồi ứng tuyển
                         </button>
                       )}
                     </>
@@ -888,8 +888,8 @@ export default function JobDetailPage() {
               <X className="h-4 w-4" />
             </button>
             <div className="mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">Chi tiết Proposal</h2>
-              <p className="mt-1 text-sm text-gray-600">Proposal bạn đã gửi cho công việc này</p>
+              <h2 className="text-2xl font-bold text-gray-900">Chi tiết ứng tuyển</h2>
+              <p className="mt-1 text-sm text-gray-600">Ứng tuyển bạn đã gửi cho công việc này</p>
             </div>
             
             <ProposalCreateForm
@@ -927,7 +927,7 @@ export default function JobDetailPage() {
             </div>
             <h3 className="text-center text-xl font-bold text-gray-900 mb-2">Xác nhận thu hồi</h3>
             <p className="text-center text-sm text-gray-600 mb-6 leading-relaxed">
-              Bạn có chắc chắn muốn thu hồi proposal này không? Hành động này không thể hoàn tác và client sẽ không thể thấy proposal của bạn nữa.
+              Bạn có chắc chắn muốn thu hồi ứng tuyển này không? Hành động này không thể hoàn tác và khách sẽ không thể thấy ứng tuyển của bạn nữa.
             </p>
             <label className="mb-2 block text-sm font-bold text-slate-700">
               {t('jobs.proposalForm.withdraw.reasonLabel')}
@@ -971,7 +971,7 @@ export default function JobDetailPage() {
             </div>
             <h3 className="text-center text-xl font-bold text-gray-900 mb-2">Hoàn thành công việc</h3>
             <p className="text-center text-sm text-gray-600 mb-6 leading-relaxed">
-              Bạn xác nhận công việc này đã hoàn thành? Số tiền <strong className="text-emerald-600">{formatCurrency(jobContract?.amountInEscrow || 0)}</strong> trong Escrow sẽ được chuyển cho Mentor ngay lập tức. Hành động này không thể hoàn tác.
+              Bạn xác nhận công việc này đã hoàn thành? Số tiền <strong className="text-emerald-600">{formatCurrency(jobContract?.amountInEscrow || 0)}</strong> trong quỹ đảm bảo sẽ được chuyển cho mentor ngay lập tức. Hành động này không thể hoàn tác.
             </p>
             <div className="flex gap-3">
               <button
@@ -1234,21 +1234,21 @@ function getPrepItems(jobType: JobType) {
 
   if (jobType === JobType.LONG_TERM_MENTORING) {
     return [
-      { title: 'Learning goal', description: 'Describe the skill, decision, or milestone you want support with.' },
-      { title: 'Current level', description: 'Mention your background so mentors can tailor the plan.' },
-      { title: 'Cadence', description: 'Confirm preferred session frequency and communication style.' },
+    { title: 'Mục tiêu học tập', description: 'Mô tả kỹ năng, quyết định hoặc cột mốc bạn muốn được hỗ trợ.' },
+    { title: 'Trình độ hiện tại', description: 'Nêu bối cảnh của bạn để mentor điều chỉnh kế hoạch phù hợp.' },
+    { title: 'Nhịp làm việc', description: 'Xác nhận tần suất buổi hỗ trợ và cách trao đổi mong muốn.' },
     ]
   }
 
   return [
-    { title: 'Scope', description: 'List the deliverables and any constraints that matter.' },
-    { title: 'Assets', description: 'Prepare links, repos, designs, docs, or access notes needed for work.' },
-    { title: 'Acceptance', description: 'Define what complete means before accepting a proposal.' },
+    { title: 'Phạm vi', description: 'Liệt kê sản phẩm bàn giao và các ràng buộc quan trọng.' },
+    { title: 'Tài liệu', description: 'Chuẩn bị liên kết, repo, thiết kế, tài liệu hoặc quyền truy cập cần thiết.' },
+    { title: 'Tiêu chí nghiệm thu', description: 'Làm rõ thế nào là hoàn thành trước khi chấp nhận ứng tuyển.' },
   ]
 }
 
 function getClientName(job: JobResponse) {
-  return job.clientName || job.client?.displayName || job.client?.fullName || 'Client'
+  return job.clientName || job.client?.displayName || job.client?.fullName || 'Khách hàng'
 }
 
 function getProposalCount(job: JobResponse) {
@@ -1290,14 +1290,14 @@ function getProposalStatusColor(status: string): string {
 }
 
 function getAttachmentMeta(url: string, index: number) {
-  const fileName = decodeURIComponent(url.split('/').pop() || `Attachment ${index + 1}`)
+  const fileName = decodeURIComponent(url.split('/').pop() || `Tệp đính kèm ${index + 1}`)
   const extension = (fileName.split('.').pop() || '').toLowerCase()
 
   if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(extension)) {
     return {
       name: fileName,
-      badge: 'Image',
-      description: 'Preview and open full size',
+      badge: 'Hình ảnh',
+      description: 'Xem trước và mở kích thước đầy đủ',
       Icon: FileImage,
       iconClassName: 'bg-emerald-50 text-emerald-600',
     }
@@ -1306,8 +1306,8 @@ function getAttachmentMeta(url: string, index: number) {
   if (['zip', 'rar', '7z'].includes(extension)) {
     return {
       name: fileName,
-      badge: 'Archive',
-      description: 'Compressed attachment',
+      badge: 'Tệp nén',
+      description: 'Tệp đính kèm dạng nén',
       Icon: FileArchive,
       iconClassName: 'bg-amber-50 text-amber-600',
     }
@@ -1316,8 +1316,8 @@ function getAttachmentMeta(url: string, index: number) {
   if (['json', 'xml', 'yml', 'yaml', 'sql', 'js', 'ts', 'java', 'kt', 'py'].includes(extension)) {
     return {
       name: fileName,
-      badge: 'Code',
-      description: 'Source or config file',
+      badge: 'Mã nguồn',
+      description: 'Tệp mã nguồn hoặc cấu hình',
       Icon: FileCode2,
       iconClassName: 'bg-[#FFF7E6] text-[#D97706]',
     }
@@ -1325,8 +1325,8 @@ function getAttachmentMeta(url: string, index: number) {
 
   return {
     name: fileName,
-    badge: extension ? extension.toUpperCase() : 'Document',
-    description: 'Open attachment',
+    badge: extension ? extension.toUpperCase() : 'Tài liệu',
+    description: 'Mở tệp đính kèm',
     Icon: FileText,
     iconClassName: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400',
   }
