@@ -15,7 +15,9 @@ import {
 } from 'lucide-react'
 import { adminMentorVerificationApi } from '@/api/adminMentorVerificationApi'
 import { useAuthStore } from '@/store/authStore'
+import { useI18n } from '@/i18n/I18nProvider'
 import { MentorProfileResponse, PaginatedResponse, VerificationStatus } from '@/types'
+import { TranslationKey } from '@/i18n/translations'
 import { formatDateTime } from '@/utils/formatters'
 import { hasRole } from '@/utils/roleRedirect'
 import MentorStatusChip from '@/components/admin/MentorStatusChip'
@@ -44,6 +46,7 @@ import {
 
 export default function AdminMentorApplicationsPage() {
   const { user } = useAuthStore()
+  const { t } = useI18n()
   const isAdmin = hasRole(user, 'ADMIN')
   const [searchParams, setSearchParams] = useSearchParams()
   const initialTab: QueueTab = searchParams.get('tab') === 'payout' ? 'payout' : 'expertise'
@@ -132,8 +135,8 @@ export default function AdminMentorApplicationsPage() {
 
   return (
     <div className="relative min-h-screen max-w-[1600px] mx-auto w-full space-y-6">
-      <section className="relative overflow-hidden rounded-[2.5rem] border border-white/40 bg-white/60 backdrop-blur-2xl shadow-xl shadow-slate-200/40 dark:border-slate-800/60 dark:bg-slate-900/40 dark:shadow-none transition-all">
-        <div className="absolute inset-0 bg-gradient-to-b from-white/40 to-transparent pointer-events-none dark:from-white/5" />
+      <section className="relative overflow-hidden rounded-[2.5rem] border border-white/40 bg-white dark:bg-slate-950/60 backdrop-blur-2xl shadow-xl shadow-slate-200/40 dark:border-slate-800/60 dark:bg-slate-900/40 dark:shadow-none transition-all">
+        <div className="absolute inset-0 bg-gradient-to-b from-white dark:from-slate-950/40 to-transparent pointer-events-none dark:from-white/5" />
         <div className="relative z-10 px-6 py-6 lg:px-8">
           {/* ── Queue Tabs ── */}
           <div className="grid gap-3 sm:grid-cols-3">
@@ -155,27 +158,27 @@ export default function AdminMentorApplicationsPage() {
                   onClick={() => changeTab(tab.key)}
                   className={`group relative flex items-center gap-4 rounded-2xl border px-5 py-4 text-left transition-all duration-300 ${
                     isActive
-                      ? 'border-emerald-200 bg-emerald-50/80 shadow-sm dark:border-emerald-500/30 dark:bg-emerald-500/10'
-                      : 'border-slate-200/60 bg-white/50 hover:border-slate-300 hover:bg-white hover:shadow-sm dark:border-slate-800/60 dark:bg-slate-900/30 dark:hover:border-slate-700 dark:hover:bg-slate-900/60'
+                      ? 'border-emerald-200 dark:border-emerald-800/50 bg-emerald-50  shadow-sm dark:border-emerald-500/30 dark:bg-emerald-500/10'
+                      : 'border-slate-200 dark:border-slate-800/60 bg-white dark:bg-slate-950/50 hover:border-slate-300 dark:border-slate-700 hover:bg-white dark:bg-slate-950 hover:shadow-sm dark:border-slate-800/60 dark:bg-slate-900/30 dark:hover:border-slate-700 dark:hover:bg-slate-900/60'
                   }`}
                 >
                   <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-colors ${
                     isActive
                       ? 'bg-emerald-600 text-white shadow-md shadow-emerald-500/30'
-                      : 'bg-slate-100 text-slate-500 group-hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:group-hover:bg-slate-700'
+                      : 'bg-slate-100 text-slate-500 dark:text-slate-400 group-hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:group-hover:bg-slate-700'
                   }`}>
                     <TabIcon className="h-5 w-5" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <span className={`block text-sm font-bold ${isActive ? 'text-emerald-900 dark:text-emerald-200' : 'text-slate-700 dark:text-slate-300'}`}>{tab.label}</span>
-                    <span className={`mt-0.5 block text-[11px] leading-snug ${isActive ? 'text-emerald-600/70 dark:text-emerald-300/60' : 'text-slate-400 dark:text-slate-500'}`}>
-                      {tab.description}
+                    <span className={`block text-sm font-bold ${isActive ? 'text-emerald-900 dark:text-emerald-100 dark:text-emerald-200' : 'text-slate-700 dark:text-slate-300 dark:text-slate-300'}`}>{t(`admin.mentorVerif.queue.${tab.key}.label` as TranslationKey)}</span>
+                    <span className={`mt-0.5 block text-[11px] leading-snug ${isActive ? 'text-emerald-600 dark:text-emerald-500/70 dark:text-emerald-300/60' : 'text-slate-400 dark:text-slate-500'}`}>
+                      {t(`admin.mentorVerif.queue.${tab.key}.desc` as TranslationKey)}
                     </span>
                   </div>
                   <span className={`shrink-0 rounded-lg px-2.5 py-1 text-xs font-black tabular-nums transition-colors ${
                     isActive
                       ? 'bg-emerald-600 text-white'
-                      : 'bg-slate-100 text-slate-600 group-hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:group-hover:bg-slate-700'
+                      : 'bg-slate-100 text-slate-600 dark:text-slate-400 group-hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:group-hover:bg-slate-700'
                   }`}>
                     {total}
                   </span>
@@ -194,47 +197,56 @@ export default function AdminMentorApplicationsPage() {
                   setSearchQuery(event.target.value)
                   setPage(0)
                 }}
-                placeholder="Search by name, email, skill, domain, or company…"
-                className="h-11 w-full rounded-xl border border-slate-200/60 bg-white pl-11 pr-4 text-sm font-medium text-slate-900 outline-none transition-all hover:border-slate-300 focus:border-emerald-400 focus:ring-4 focus:ring-emerald-500/10 dark:border-slate-800/60 dark:bg-slate-900/60 dark:text-white dark:hover:border-slate-700 dark:focus:border-emerald-500/50"
+                placeholder="{t('admin.mentorVerif.searchPlaceholder')}"
+                className="h-11 w-full rounded-xl border border-slate-200 dark:border-slate-800/60 bg-white dark:bg-slate-950 pl-11 pr-4 text-sm font-medium text-slate-900 dark:text-slate-100 outline-none transition-all hover:border-slate-300 dark:border-slate-700 focus:border-emerald-400 focus:ring-4 focus:ring-emerald-500/10 dark:border-slate-800/60 dark:bg-slate-900/60 dark:text-white dark:hover:border-slate-700 dark:focus:border-emerald-500/50"
               />
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
               <ToolbarSelect
-                label="Status"
+                label={t('admin.mentorVerif.status')}
                 value={statusFilter}
                 onChange={(value) => {
                   setStatusFilter(value as QueueStatusFilter)
                   setPage(0)
                 }}
-                options={statusFilterOptions}
+                options={statusFilterOptions.map(opt => ({
+                  ...opt,
+                  label: t(`admin.mentorVerif.filter.status.${opt.value === 'all' ? 'all' : opt.value === 'PENDING' ? 'pending' : opt.value === 'NEEDS_MORE_INFO' ? 'needsMoreInfo' : opt.value.toLowerCase()}` as TranslationKey)
+                }))}
               />
               <ToolbarSelect
-                label="Domain"
+                label={t('admin.mentorVerif.domain')}
                 value={domainFilter}
                 onChange={(value) => {
                   setDomainFilter(value)
                   setPage(0)
                 }}
                 options={[
-                  { label: 'All domains', value: 'all' },
+                  { label: t('admin.mentorVerif.filter.domain.all' as TranslationKey), value: 'all' },
                   ...DOMAIN_OPTIONS.map((domain) => ({ label: domain, value: domain })),
                 ]}
               />
               <ToolbarSelect
-                label="Proof"
+                label={t('admin.mentorVerif.proof')}
                 value={proofFilter}
                 onChange={(value) => {
                   setProofFilter(value as ProofFilter)
                   setPage(0)
                 }}
-                options={proofFilterOptions}
+                options={proofFilterOptions.map(opt => ({
+                  ...opt,
+                  label: t(`admin.mentorVerif.filter.proof.${opt.value}` as TranslationKey)
+                }))}
               />
               <ToolbarSelect
-                label="Sort"
+                label={t('admin.mentorVerif.sort')}
                 value={sortOption}
                 onChange={(value) => setSortOption(value as SortOption)}
-                options={sortOptions}
+                options={sortOptions.map(opt => ({
+                  ...opt,
+                  label: t(`admin.mentorVerif.sort.${opt.value.replace(/-([a-z])/g, function (g) { return g[1].toUpperCase(); })}` as TranslationKey)
+                }))}
               />
 
               {hasCustomFilters && (
@@ -251,34 +263,34 @@ export default function AdminMentorApplicationsPage() {
                   className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-rose-200/80 bg-rose-50/60 px-3 text-xs font-bold text-rose-600 transition hover:bg-rose-100 dark:border-rose-500/20 dark:bg-rose-500/10 dark:text-rose-400 dark:hover:bg-rose-500/20"
                 >
                   <XCircle className="h-3.5 w-3.5" />
-                  Clear filters
+                  {t('admin.mentorVerif.clearFilters')}
                 </button>
               )}
 
               <span className="w-full text-xs font-medium text-slate-400 dark:text-slate-500 sm:ml-auto sm:w-auto">
-                {activeItems.length} of {activeQueue?.totalElements ?? 0} · Page {page + 1}/{Math.max(activeQueue?.totalPages ?? 1, 1)}
+                {activeItems.length} of {activeQueue?.totalElements ?? 0} · {t('admin.mentorVerif.page')} {page + 1}/{Math.max(activeQueue?.totalPages ?? 1, 1)}
               </span>
             </div>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-900/40 overflow-hidden">
+        <div className="bg-white dark:bg-slate-950 dark:bg-slate-900/40 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800/50">
-                  <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Applicant</th>
+                <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800/50">
+                  <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-wider">{t('admin.mentorVerif.table.applicant')}</th>
                   {activeTab === 'expertise' ? (
                     <>
-                      <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Domain & skills</th>
-                      <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Evidence</th>
+                      <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-wider">{t('admin.mentorVerif.table.domainAndSkills')}</th>
+                      <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-wider">{t('admin.mentorVerif.table.evidence')}</th>
                     </>
                   ) : (
-                    <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Payout destination</th>
+                    <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-wider">{t('admin.mentorVerif.table.payoutDestination')}</th>
                   )}
-                  <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Submitted</th>
-                  <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-right">Actions</th>
+                  <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-wider">{t('admin.mentorVerif.table.status')}</th>
+                  <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-wider">{t('admin.mentorVerif.table.submitted')}</th>
+                  <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-wider text-right">{t('admin.mentorVerif.table.actions')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100/50 dark:divide-slate-800/50">
@@ -294,8 +306,8 @@ export default function AdminMentorApplicationsPage() {
                   <tr>
                     <td colSpan={6}>
                       <QueueEmptyState
-                        title="No applications match this filter."
-                        description="Try adjusting the search query or clearing one of the active filters."
+                        title={t('admin.mentorVerif.empty.title')}
+                        description={t('admin.mentorVerif.empty.desc')}
                       />
                     </td>
                   </tr>
@@ -309,16 +321,16 @@ export default function AdminMentorApplicationsPage() {
           </div>
 
           {activeQueue && activeQueue.totalPages > 1 && (
-            <div className="flex items-center justify-between border-t border-slate-200/80 px-6 py-4 dark:border-slate-800">
-              <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
-                Page {page + 1} of {activeQueue.totalPages}
+            <div className="flex items-center justify-between border-t border-slate-200 dark:border-slate-800/80 px-6 py-4 dark:border-slate-800">
+              <p className="text-sm font-medium text-slate-500 dark:text-slate-400 dark:text-slate-400">
+                {t('admin.mentorVerif.page')} {page + 1} {t('admin.mentorVerif.of')} {activeQueue.totalPages}
               </p>
               <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={() => setPage((current) => Math.max(0, current - 1))}
                   disabled={page === 0}
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-500 transition hover:border-slate-300 hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:text-slate-300 dark:hover:text-white"
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 transition hover:border-slate-300 dark:border-slate-700 hover:text-slate-900 dark:text-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:text-slate-300 dark:hover:text-white"
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </button>
@@ -326,7 +338,7 @@ export default function AdminMentorApplicationsPage() {
                   type="button"
                   onClick={() => setPage((current) => Math.min(activeQueue.totalPages - 1, current + 1))}
                   disabled={page >= activeQueue.totalPages - 1}
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-500 transition hover:border-slate-300 hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:text-slate-300 dark:hover:text-white"
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 transition hover:border-slate-300 dark:border-slate-700 hover:text-slate-900 dark:text-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:text-slate-300 dark:hover:text-white"
                 >
                   <ChevronRight className="h-4 w-4" />
                 </button>
@@ -340,6 +352,7 @@ export default function AdminMentorApplicationsPage() {
 }
 
 function QueueRow({ activeTab, profile }: { activeTab: QueueTab; profile: MentorProfileResponse }) {
+  const { t } = useI18n()
   const user = profile.user
   const queueStatus = getQueueStatus(profile, activeTab)
   const skillsPreview = profile.skills?.slice(0, 2) ?? []
@@ -351,7 +364,7 @@ function QueueRow({ activeTab, profile }: { activeTab: QueueTab; profile: Mentor
   const proofSummary = getProofSummary(profile)
 
   return (
-    <tr className="group cursor-pointer hover:bg-slate-50/80 dark:hover:bg-slate-800/80 transition-colors">
+    <tr className="group cursor-pointer hover:bg-slate-50 dark:bg-slate-900/30 dark:hover:bg-slate-800/80 transition-colors">
       <td className="px-6 py-4">
         <Link to={detailHref} className="flex items-center gap-3 min-w-0">
           <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-950 text-sm font-black text-white overflow-hidden dark:bg-white dark:text-slate-950">
@@ -362,7 +375,7 @@ function QueueRow({ activeTab, profile }: { activeTab: QueueTab; profile: Mentor
             )}
           </div>
           <div className="min-w-0">
-            <p className="truncate text-sm font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+            <p className="truncate text-sm font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 dark:text-emerald-500 dark:group-hover:text-emerald-400 transition-colors">
               {user?.fullName || 'Mentor applicant'}
             </p>
             <p className="mt-0.5 flex items-center gap-1.5 truncate text-xs font-semibold text-slate-400 dark:text-slate-500">
@@ -381,20 +394,20 @@ function QueueRow({ activeTab, profile }: { activeTab: QueueTab; profile: Mentor
           <td className="px-6 py-4">
             <div className="flex flex-wrap gap-1.5 max-w-xs">
               {profile.primaryDomain && (
-                <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-700 dark:bg-slate-900 dark:text-slate-300">
+                <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-700 dark:text-slate-300 dark:bg-slate-900 dark:text-slate-300">
                   {profile.primaryDomain}
                 </span>
               )}
               {skillsPreview.map((skill) => (
                 <span
                   key={skill}
-                  className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-700 dark:bg-slate-900 dark:text-slate-300"
+                  className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-700 dark:text-slate-300 dark:bg-slate-900 dark:text-slate-300"
                 >
                   {skill}
                 </span>
               ))}
               {hasMoreSkills && (
-                <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-500 dark:bg-slate-900 dark:text-slate-400">
+                <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-500 dark:text-slate-400 dark:bg-slate-900 dark:text-slate-400">
                   +{(profile.skills?.length ?? 0) - skillsPreview.length}
                 </span>
               )}
@@ -402,16 +415,16 @@ function QueueRow({ activeTab, profile }: { activeTab: QueueTab; profile: Mentor
           </td>
           <td className="px-6 py-4">
             {proofSummary.length > 0 ? (
-              <p className="text-xs font-semibold text-slate-600 dark:text-slate-300">{proofSummary.join(', ')}</p>
+              <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 dark:text-slate-300">{proofSummary.join(', ')}</p>
             ) : (
-              <span className="text-xs font-semibold text-slate-400 dark:text-slate-600 italic">No proof</span>
+              <span className="text-xs font-semibold text-slate-400 dark:text-slate-600 italic">{t('admin.mentorVerif.filter.proof.missing')}</span>
             )}
           </td>
         </>
       ) : (
         <td className="px-6 py-4">
-          <p className="text-xs font-semibold text-slate-600 dark:text-slate-300">
-            {getPayoutMethodLabel(profile.payoutMethod)}
+          <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 dark:text-slate-300">
+            {t(`admin.mentorVerif.payoutMethod.${profile.payoutMethod === 'LOCAL_BANK' ? 'localBank' : profile.payoutMethod === 'INTERNATIONAL_BANK' ? 'intlBank' : profile.payoutMethod === 'PAYPAL' ? 'paypal' : profile.payoutMethod === 'WISE' ? 'wise' : profile.payoutMethod === 'STRIPE_CONNECT' ? 'stripe' : 'default'}` as TranslationKey)}
           </p>
           {(profile.payoutAccountNumberMasked || profile.payoutCountry) && (
             <p className="mt-0.5 text-[11px] text-slate-400 dark:text-slate-500">
@@ -425,16 +438,14 @@ function QueueRow({ activeTab, profile }: { activeTab: QueueTab; profile: Mentor
         <MentorStatusChip status={queueStatus} />
       </td>
       <td className="px-6 py-4">
-        <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">{submittedLabel}</span>
+        <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 dark:text-slate-400">{submittedLabel}</span>
       </td>
       <td className="px-6 py-4 text-right">
         <Link
           to={detailHref}
-          className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-600 opacity-100 transition-all hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 lg:opacity-0 lg:group-hover:opacity-100 dark:hover:bg-emerald-900/20"
+          className="inline-flex items-center gap-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3 py-2 text-xs font-bold text-slate-600 dark:text-slate-400 opacity-100 transition-all hover:border-emerald-200 dark:border-emerald-800/50 hover:bg-emerald-50 dark:bg-emerald-900/30 hover:text-emerald-700 dark:text-emerald-400 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 lg:opacity-0 lg:group-hover:opacity-100 dark:hover:bg-emerald-900/20"
         >
-          <Eye className="h-3.5 w-3.5" />
-          View
-        </Link>
+          <Eye className="h-3.5 w-3.5" />{t('admin.mentorVerif.action.view')}</Link>
       </td>
     </tr>
   )
@@ -470,7 +481,7 @@ function QueueEmptyState({
 }) {
   return (
     <div className="flex min-h-[420px] flex-col items-center justify-center gap-4 px-8 py-10 text-center">
-      <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-300">
+      <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gray-100 dark:bg-gray-800 text-gray-500 dark:bg-gray-800 dark:text-gray-300">
         <CheckCircle2 className="h-6 w-6" />
       </div>
       <div className="space-y-2">
@@ -482,16 +493,15 @@ function QueueEmptyState({
 }
 
 function QueueError({ tab }: { tab: QueueTab }) {
+  const { t } = useI18n()
   return (
     <div className="flex min-h-[420px] flex-col items-center justify-center gap-4 px-8 py-10 text-center">
       <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-rose-100 text-rose-600 dark:bg-rose-500/10 dark:text-rose-300">
         <AlertCircle className="h-6 w-6" />
       </div>
       <div className="space-y-2">
-        <h3 className="text-lg font-black text-gray-950 dark:text-white">Unable to load this queue</h3>
-        <p className="max-w-sm text-sm text-gray-500 dark:text-gray-400">
-          The {queueTabs.find((item) => item.key === tab)?.label.toLowerCase()} data could not be loaded. Retry after the backend is available.
-        </p>
+        <h3 className="text-lg font-black text-gray-950 dark:text-white">{t('admin.mentorVerif.error.title')}</h3>
+        <p className="max-w-sm text-sm text-gray-500 dark:text-gray-400">{t('admin.mentorVerif.error.desc')}</p>
       </div>
     </div>
   )
@@ -509,14 +519,14 @@ function ToolbarSelect({
   options: Array<{ label: string; value: string }>
 }) {
   return (
-    <label className="inline-flex h-9 cursor-pointer items-center gap-2 rounded-lg border border-slate-200/60 bg-white px-3 transition-colors hover:border-slate-300 dark:border-slate-800/60 dark:bg-slate-900/60 dark:hover:border-slate-700">
+    <label className="inline-flex h-9 cursor-pointer items-center gap-2 rounded-lg border border-slate-200 dark:border-slate-800/60 bg-white dark:bg-slate-950 px-3 transition-colors hover:border-slate-300 dark:border-slate-700 dark:border-slate-800/60 dark:bg-slate-900/60 dark:hover:border-slate-700">
       <span className="shrink-0 text-[10px] font-black uppercase tracking-[0.14em] text-slate-400 dark:text-slate-500">
         {label}
       </span>
       <select
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="min-w-0 cursor-pointer bg-transparent text-xs font-semibold text-slate-700 outline-none dark:text-slate-300"
+        className="min-w-0 cursor-pointer bg-transparent text-xs font-semibold text-slate-700 dark:text-slate-300 outline-none dark:text-slate-300"
       >
         {options.map((option) => (
           <option key={option.value} value={option.value}>

@@ -72,7 +72,7 @@ export default function AdminDashboardPage() {
     <div className="space-y-4">
       {/* Page Header — Gentelella style */}
       <div className="mb-5">
-        <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+        <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 dark:text-slate-400">
           {t('admin.dashboard.role.admin')}
         </div>
         <div className="flex flex-wrap items-end justify-between gap-3">
@@ -80,7 +80,7 @@ export default function AdminDashboardPage() {
           <div className="flex flex-wrap gap-2">
             <a
               href="/admin/complaints"
-              className="inline-flex h-8 items-center gap-1.5 rounded border border-slate-200 bg-white px-3 text-[12px] font-medium text-slate-600 shadow-sm transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
+              className="inline-flex h-8 items-center gap-1.5 rounded border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3 text-[12px] font-medium text-slate-600 dark:text-slate-400 shadow-sm transition hover:bg-slate-50 dark:bg-slate-900/50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
             >
               <MessageSquare className="h-3.5 w-3.5" />
               {t('nav.messages')}
@@ -228,9 +228,9 @@ export default function AdminDashboardPage() {
         {financeAdmin ? (
           <DashboardPanel title={t('admin.dashboard.finance.title')}>
             {financialSummary.isError ? (
-              <p className="px-4 py-8 text-sm text-slate-500 dark:text-slate-400">{t('admin.dashboard.unavailable')}</p>
+              <p className="px-4 py-8 text-sm text-slate-500 dark:text-slate-400 dark:text-slate-400">{t('admin.dashboard.unavailable')}</p>
             ) : financialSummary.isLoading ? (
-              <div className="h-40 animate-pulse bg-slate-50 dark:bg-slate-800/30" />
+              <div className="h-40 animate-pulse bg-slate-50 dark:bg-slate-900/50 dark:bg-slate-800/30" />
             ) : (
               <dl className="divide-y divide-slate-100 dark:divide-slate-800">
                 <FinanceRow label={t('admin.dashboard.finance.totalCirculation')} value={formatMxc(financialData?.totalCirculation ?? 0)} />
@@ -275,7 +275,7 @@ export default function AdminDashboardPage() {
 
         {/* Sidebar panel */}
         <DashboardPanel title={t('admin.dashboard.reportStats.title')} subtitle={t('admin.dashboard.workflows.reports.description')}>
-          <ReportStatsList items={builtinReportStats(financeAdmin, expertiseCount, complaintsCount, escalatedCount)} />
+          <ReportStatsList items={builtinReportStats(financeAdmin, expertiseCount, complaintsCount, escalatedCount, t)} />
         </DashboardPanel>
       </div>
 
@@ -283,14 +283,14 @@ export default function AdminDashboardPage() {
       <div className="grid gap-4 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
         <DashboardActivityFeed
           title={t('admin.dashboard.recent.reports')}
-          items={buildRecentReportItems(recentReports.data?.content ?? [])}
+          items={buildRecentReportItems(recentReports.data?.content ?? [], t)}
           isLoading={recentReports.isLoading}
           emptyLabel={t('admin.dashboard.queue.emptyTitle')}
         />
         {financeAdmin ? (
           <DashboardActivityFeed
             title={t('admin.dashboard.recent.transactions')}
-            items={buildRecentTransactionItems(recentTransactions.data?.content ?? [])}
+            items={buildRecentTransactionItems(recentTransactions.data?.content ?? [], t)}
             isLoading={recentTransactions.isLoading}
             emptyLabel={t('admin.dashboard.queue.emptyTitle')}
           />
@@ -298,7 +298,7 @@ export default function AdminDashboardPage() {
           <DashboardActivityFeed
             title={t('admin.dashboard.recent.transactions')}
             items={[]}
-            emptyLabel="Finance access only"
+            emptyLabel={t('admin.dashboard.queue.financeAccessOnly')}
           />
         )}
       </div>
@@ -311,7 +311,7 @@ export default function AdminDashboardPage() {
 function FinanceRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-center justify-between gap-4 px-4 py-3">
-      <dt className="text-[13px] text-slate-600 dark:text-slate-400">{label}</dt>
+      <dt className="text-[13px] text-slate-600 dark:text-slate-400 dark:text-slate-400">{label}</dt>
       <dd className="text-[13px] font-semibold tabular-nums text-slate-900 dark:text-white">{value}</dd>
     </div>
   )
@@ -321,13 +321,13 @@ function WorkflowCell({ to, icon, title, description }: { to: string; icon: Reac
   return (
     <a
       href={to}
-      className="group block border border-slate-100 bg-white p-4 transition hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:hover:bg-slate-800"
+      className="group block border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 p-4 transition hover:bg-slate-50 dark:bg-slate-900/50 dark:border-slate-800 dark:bg-slate-900 dark:hover:bg-slate-800"
     >
-      <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
+      <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 dark:text-slate-400">
         {icon}
         <h3 className="text-[13px] font-semibold text-slate-900 dark:text-white">{title}</h3>
       </div>
-      <p className="mt-1.5 text-[11px] leading-relaxed text-slate-500 dark:text-slate-400">{description}</p>
+      <p className="mt-1.5 text-[11px] leading-relaxed text-slate-500 dark:text-slate-400 dark:text-slate-400">{description}</p>
     </a>
   )
 }
@@ -337,7 +337,7 @@ function ReportStatsList({ items }: { items: { label: string; value: string | nu
     <div className="divide-y divide-slate-100 dark:divide-slate-800">
       {items.map((item) => (
         <div key={item.label} className="flex items-center justify-between gap-3 px-4 py-2.5">
-          <span className="flex items-center gap-2 text-[12px] text-slate-600 dark:text-slate-400">
+          <span className="flex items-center gap-2 text-[12px] text-slate-600 dark:text-slate-400 dark:text-slate-400">
             <span className="h-2 w-2 rounded-full" style={{ background: item.color }} />
             {item.label}
           </span>
@@ -348,36 +348,36 @@ function ReportStatsList({ items }: { items: { label: string; value: string | nu
   )
 }
 
-function builtinReportStats(financeAdmin: boolean, mentors: number, complaints: number, escalated: number) {
+function builtinReportStats(financeAdmin: boolean, mentors: number, complaints: number, escalated: number, t: any) {
   if (financeAdmin) {
     return [
-      { label: 'Open', value: complaints, color: '#f59f00' },
-      { label: 'Escalated', value: escalated, color: '#d63939' },
-      { label: 'Resolved', value: '-', color: '#2fb344' },
+      { label: t('admin.dashboard.status.open'), value: complaints, color: '#f59f00' },
+      { label: t('admin.dashboard.status.escalated'), value: escalated, color: '#d63939' },
+      { label: t('admin.dashboard.status.resolved'), value: '-', color: '#2fb344' },
     ]
   }
   return [
-    { label: 'Pending Mentors', value: mentors, color: '#f59f00' },
-    { label: 'Reports', value: escalated, color: '#d63939' },
+    { label: t('admin.dashboard.pending.mentors'), value: mentors, color: '#f59f00' },
+    { label: t('admin.dashboard.recent.reports'), value: escalated, color: '#d63939' },
   ]
 }
 
-function buildRecentReportItems(reports: any[]) {
+function buildRecentReportItems(reports: any[], t: any) {
   return reports.map((r) => ({
     id: r.id,
     avatar: (r.reporter?.fullName || 'U').charAt(0).toUpperCase(),
     avatarColor: '#d63939',
     body: (
       <>
-        <strong className="font-medium text-slate-900 dark:text-white">{r.reporter?.fullName || 'User'}</strong>{' '}
-        reported — {r.reason || r.category || 'Policy violation'}
+        <strong className="font-medium text-slate-900 dark:text-white">{r.reporter?.fullName || t('admin.dashboard.user')}</strong>{' '}
+        {t('admin.dashboard.reported')} — {r.reason || r.category || t('admin.dashboard.policyViolation')}
       </>
     ),
     time: r.createdAt ? new Date(r.createdAt).toLocaleDateString() : '',
   }))
 }
 
-function buildRecentTransactionItems(transactions: any[]) {
+function buildRecentTransactionItems(transactions: any[], t: any) {
   const colors = ['#1ABB9C', '#066fd1', '#ae3ec9', '#f59f00', '#d63939']
   return transactions.map((tx, i) => ({
     id: tx.id || tx.transactionId || String(i),
@@ -385,8 +385,8 @@ function buildRecentTransactionItems(transactions: any[]) {
     avatarColor: colors[i % colors.length],
     body: (
       <>
-        <strong className="font-medium text-slate-900 dark:text-white">{tx.type || 'Transaction'}</strong>{' '}
-        {tx.amount != null ? `${new Intl.NumberFormat().format(tx.amount)} MXC` : ''} — {tx.wallet?.user?.fullName || 'System'}
+        <strong className="font-medium text-slate-900 dark:text-white">{tx.type || t('admin.dashboard.transaction')}</strong>{' '}
+        {tx.amount != null ? `${new Intl.NumberFormat().format(tx.amount)} MXC` : ''} — {tx.wallet?.user?.fullName || t('admin.dashboard.system')}
       </>
     ),
     time: tx.createdAt ? new Date(tx.createdAt).toLocaleDateString() : '',
