@@ -153,6 +153,7 @@ export default function MentorMessagesPage() {
   const [showContextPanel, setShowContextPanel] = useState(false)
   const selectedRoomId = searchParams.get('conversationId') || searchParams.get('roomId')
   const isCreatingTargetRoomRef = useRef(false)
+  const lastReadMessageIdRef = useRef<string | null>(null)
 
   const roomsQuery = useQuery(
     ['mentor-messages-rooms', user?.userId],
@@ -374,13 +375,15 @@ export default function MentorMessagesPage() {
 
   useEffect(() => {
     if (!user?.userId || !effectiveRoom || !latestMessage) return
-    if (!effectiveRoom.unreadCount || latestMessage.senderId === user.userId) return
+    if (latestMessage.senderId === user.userId) return
+    if (!effectiveRoom.unreadCount && lastReadMessageIdRef.current === latestMessage.id) return
 
     let cancelled = false
     chatApi
       .markAsRead(latestMessage.id, user.userId)
       .then(() => {
         if (!cancelled) {
+          lastReadMessageIdRef.current = latestMessage.id
           void roomsQuery.refetch()
           void queryClient.invalidateQueries(['chatRooms', user.userId])
           void queryClient.invalidateQueries(['unreadCount', user.userId])
