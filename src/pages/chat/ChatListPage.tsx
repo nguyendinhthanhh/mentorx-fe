@@ -559,9 +559,12 @@ export default function ChatListPage() {
     }
   }, [selectedMessages.length, selectedRoomId])
 
+  const lastReadMessageIdRef = useRef<string | null>(null)
+
   useEffect(() => {
     if (!user?.userId || !selectedRoom || !latestMessage) return
-    if (!selectedRoom.unreadCount || latestMessage.senderId === user.userId) return
+    if (latestMessage.senderId === user.userId) return
+    if (!selectedRoom.unreadCount && lastReadMessageIdRef.current === latestMessage.id) return
 
     let cancelled = false
 
@@ -569,6 +572,7 @@ export default function ChatListPage() {
       .markAsRead(latestMessage.id, user.userId)
       .then(() => {
         if (!cancelled) {
+          lastReadMessageIdRef.current = latestMessage.id
           refetchRooms()
         }
       })

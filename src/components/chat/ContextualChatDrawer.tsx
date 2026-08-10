@@ -52,6 +52,7 @@ export default function ContextualChatDrawer({
   const queryClient = useQueryClient()
   const { user } = useAuthStore()
   const scrollRef = useRef<HTMLDivElement>(null)
+  const lastReadMessageIdRef = useRef<string | null>(null)
   const [composerError, setComposerError] = useState<string | null>(null)
   const [isSending, setIsSending] = useState(false)
 
@@ -112,13 +113,15 @@ export default function ContextualChatDrawer({
 
   useEffect(() => {
     if (!open || !user?.userId || !resolvedRoom || !latestMessage) return
-    if (!resolvedRoom.unreadCount || latestMessage.senderId === user.userId) return
+    if (latestMessage.senderId === user.userId) return
+    if (!resolvedRoom.unreadCount && lastReadMessageIdRef.current === latestMessage.id) return
 
     let cancelled = false
     chatApi
       .markAsRead(latestMessage.id, user.userId)
       .then(() => {
         if (!cancelled) {
+          lastReadMessageIdRef.current = latestMessage.id
           void queryClient.invalidateQueries(['chatRooms', user.userId])
         }
       })
