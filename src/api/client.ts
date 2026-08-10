@@ -55,6 +55,15 @@ const apiClient: AxiosInstance = axios.create({
   withCredentials: true,
 })
 
+export const publicApiClient: AxiosInstance = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  timeout: 120000,
+  withCredentials: false,
+})
+
 // Request interceptor - Add auth token
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
@@ -158,5 +167,12 @@ apiClient.interceptors.response.use(
     return Promise.reject(error)
   }
 )
+
+publicApiClient.interceptors.response.use((response) => {
+  if (response.data && response.data.data) {
+    response.data.data = normalizeData(response.data.data)
+  }
+  return response
+})
 
 export default apiClient

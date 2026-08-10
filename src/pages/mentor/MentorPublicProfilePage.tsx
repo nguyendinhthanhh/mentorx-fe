@@ -99,7 +99,7 @@ export default function MentorPublicProfilePage() {
 
   const mentorQuery = useQuery(
     ['mentor', userId],
-    () => mentorApi.getMentorProfile(userId!),
+    () => mentorApi.getPublicMentorProfile(userId!),
     { enabled: Boolean(userId), retry: false }
   )
   const packagesQuery = useQuery(

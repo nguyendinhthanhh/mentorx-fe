@@ -1,4 +1,4 @@
-import apiClient from './client'
+import apiClient, { publicApiClient } from './client'
 import {
   ApiResponse,
   PaginatedResponse,
@@ -38,6 +38,11 @@ export const mentorApi = {
 
   getMentorProfile: async (userId: string): Promise<MentorProfileResponse> => {
     const response = await apiClient.get<ApiResponse<MentorProfileResponse>>(`/mentors/${userId}/profile`)
+    return response.data.data
+  },
+
+  getPublicMentorProfile: async (userId: string): Promise<MentorProfileResponse> => {
+    const response = await publicApiClient.get<ApiResponse<MentorProfileResponse>>(`/mentors/${userId}/profile`)
     return response.data.data
   },
 
