@@ -94,8 +94,8 @@ export default function CourseDetailPage() {
   )
 
   const { data: lessons = [], isLoading: isLessonsLoading } = useQuery(
-    ['course-preview-lessons', courseId],
-    () => courseApi.getFreePreviewLessonsByCourse(courseId!),
+    ['course-outline', courseId],
+    () => courseApi.getCourseOutline(courseId!),
     { enabled: !!courseId }
   )
 
