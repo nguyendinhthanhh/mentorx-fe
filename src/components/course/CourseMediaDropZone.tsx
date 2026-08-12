@@ -20,35 +20,35 @@ export function CourseMediaDropZone({ label, kind, file, mediaUrl, onFile, onCle
 
   return (
     <div>
-      <p className="mb-1.5 text-sm font-bold text-slate-700">{label}</p>
+      <p className="mb-1.5 text-sm font-bold text-slate-700 dark:text-slate-300">{label}</p>
       <div
         onDragOver={(event) => event.preventDefault()}
         onDrop={(event) => {
           event.preventDefault()
           handleFiles(event.dataTransfer.files)
         }}
-        className="rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 p-3 transition hover:border-emerald-300"
+        className="rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 p-3 transition hover:border-emerald-300"
       >
         {mediaUrl ? (
           <div className="space-y-3">
             {kind === 'image' ? (
-              <img key={mediaUrl} src={mediaUrl} alt="" className="aspect-video w-full rounded-lg bg-white object-cover" />
+              <img key={mediaUrl} src={mediaUrl} alt="" className="aspect-video w-full rounded-lg bg-white dark:bg-slate-950 object-cover" />
             ) : (
               <video key={mediaUrl} src={mediaUrl} controls preload="metadata" playsInline className="aspect-video w-full rounded-lg bg-black object-contain" />
             )}
             <div className="flex items-center justify-between gap-3">
-              <p className="min-w-0 truncate text-sm font-semibold text-slate-700">{file?.name || label}</p>
+              <p className="min-w-0 truncate text-sm font-semibold text-slate-700 dark:text-slate-300">{file?.name || label}</p>
               <button type="button" onClick={onClear} className="rounded-lg p-2 text-slate-400 hover:bg-rose-50 hover:text-rose-600" title="Remove file">
                 <Trash2 className="h-4 w-4" />
               </button>
             </div>
           </div>
         ) : (
-          <label htmlFor={inputId} className="flex min-h-40 cursor-pointer flex-col items-center justify-center rounded-lg bg-white px-4 py-6 text-center">
+          <label htmlFor={inputId} className="flex min-h-40 cursor-pointer flex-col items-center justify-center rounded-lg bg-white dark:bg-slate-950 px-4 py-6 text-center">
             {kind === 'image' ? <Image className="mb-3 h-8 w-8 text-emerald-500" /> : <Video className="mb-3 h-8 w-8 text-emerald-500" />}
-            <span className="text-sm font-semibold text-slate-900">Drop a file here or click to browse</span>
-            <span className="mt-1 text-xs text-slate-500">{kind === 'image' ? 'Image up to 5 MB' : 'Video up to 200 MB'}</span>
-            <span className="mt-3 inline-flex items-center gap-2 rounded-lg bg-emerald-50 px-3 py-2 text-xs font-bold text-emerald-700">
+            <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">Drop a file here or click to browse</span>
+            <span className="mt-1 text-xs text-slate-500 dark:text-slate-400">{kind === 'image' ? 'Image up to 5 MB' : 'Video up to 200 MB'}</span>
+            <span className="mt-3 inline-flex items-center gap-2 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 px-3 py-2 text-xs font-bold text-emerald-700 dark:text-emerald-400">
               <Upload className="h-3.5 w-3.5" />
               Choose file
             </span>

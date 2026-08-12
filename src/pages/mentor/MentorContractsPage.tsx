@@ -72,17 +72,17 @@ const contractStatusLabel: Record<ContractStatus, string> = {
 }
 
 const contractStatusTone: Record<ContractStatus, string> = {
-  DRAFT: 'border-slate-200 bg-slate-100 text-slate-600',
-  PENDING_SIGNATURE: 'border-emerald-200 bg-emerald-50 text-emerald-700',
-  ACTIVE: 'border-emerald-200 bg-emerald-50 text-emerald-700',
-  PAUSED: 'border-amber-200 bg-amber-50 text-amber-700',
-  COMPLETED: 'border-emerald-200 bg-emerald-50 text-emerald-700',
+  DRAFT: 'border-slate-200 dark:border-slate-800 bg-slate-100 text-slate-600 dark:text-slate-400',
+  PENDING_SIGNATURE: 'border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400',
+  ACTIVE: 'border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400',
+  PAUSED: 'border-amber-200 dark:border-amber-800/50 bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400',
+  COMPLETED: 'border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400',
   CANCELLED: 'border-rose-200 bg-rose-50 text-rose-700',
   TERMINATED: 'border-rose-200 bg-rose-50 text-rose-700',
-  IN_DISPUTE: 'border-orange-200 bg-orange-50 text-orange-700',
-  EXPIRED: 'border-slate-200 bg-slate-100 text-slate-600',
+  IN_DISPUTE: 'border-orange-200 bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400',
+  EXPIRED: 'border-slate-200 dark:border-slate-800 bg-slate-100 text-slate-600 dark:text-slate-400',
   PENDING_PAYMENT: 'border-sky-200 bg-sky-50 text-sky-700',
-  UNDER_REVIEW: 'border-emerald-200 bg-emerald-50 text-emerald-700',
+  UNDER_REVIEW: 'border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400',
 }
 
 interface MentorContractsDashboardData {
@@ -293,25 +293,25 @@ export default function MentorContractsPage() {
         {/* Compact Header */}
         <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between mb-8">
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-[11px] uppercase tracking-widest font-black text-emerald-600 mb-3 border border-emerald-100 shadow-sm">
+            <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 dark:bg-emerald-900/30 px-3 py-1 text-[11px] uppercase tracking-widest font-black text-emerald-600 dark:text-emerald-500 mb-3 border border-emerald-100 dark:border-emerald-900/50 shadow-sm">
               <Sparkles className="w-3.5 h-3.5 text-amber-500" />
               Pipeline Overview
             </div>
-            <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Hợp đồng & Mentee</h1>
-            <p className="mt-2 text-sm font-medium text-slate-500">
-              Bạn đang có <span className="font-bold text-slate-700">{summary.activeContracts}</span> hợp đồng đang diễn ra. 
+            <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100">Hợp đồng & Mentee</h1>
+            <p className="mt-2 text-sm font-medium text-slate-500 dark:text-slate-400">
+              Bạn đang có <span className="font-bold text-slate-700 dark:text-slate-300">{summary.activeContracts}</span> hợp đồng đang diễn ra. 
             </p>
           </div>
           
           <div className="flex items-center gap-4">
-            <div className="hidden lg:flex items-center gap-4 rounded-2xl border border-slate-200/60 bg-white/50 py-2.5 shadow-sm backdrop-blur-md">
-              <div className="flex flex-col px-5 border-r border-slate-200/60">
-                 <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600/70">Đang diễn ra</span>
-                 <span className="text-xl font-black text-emerald-600">{summary.activeContracts}</span>
+            <div className="hidden lg:flex items-center gap-4 rounded-2xl border border-slate-200 dark:border-slate-800/60 bg-white dark:bg-slate-950/50 py-2.5 shadow-sm backdrop-blur-md">
+              <div className="flex flex-col px-5 border-r border-slate-200 dark:border-slate-800/60">
+                 <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-500/70">Đang diễn ra</span>
+                 <span className="text-xl font-black text-emerald-600 dark:text-emerald-500">{summary.activeContracts}</span>
               </div>
-              <div className="flex flex-col px-5 border-r border-slate-200/60">
-                 <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600/70">Hoàn thành (Tháng này)</span>
-                 <span className="text-xl font-black text-emerald-600">{summary.completedThisMonth}</span>
+              <div className="flex flex-col px-5 border-r border-slate-200 dark:border-slate-800/60">
+                 <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-500/70">Hoàn thành (Tháng này)</span>
+                 <span className="text-xl font-black text-emerald-600 dark:text-emerald-500">{summary.completedThisMonth}</span>
               </div>
               <div className="flex flex-col px-5">
                  <span className="text-[10px] font-black uppercase tracking-widest text-rose-600/70">Đã hủy</span>
@@ -326,9 +326,9 @@ export default function MentorContractsPage() {
           </div>
         </div>
 
-        <div className="rounded-[2.5rem] border border-slate-200/60 bg-white/50 p-6 sm:p-8 shadow-xl shadow-slate-200/40 backdrop-blur-2xl">
-          <section className="flex flex-col overflow-hidden rounded-3xl border border-white/60 bg-white/40 shadow-xl shadow-slate-200/40 backdrop-blur-xl">
-            <div className="border-b border-slate-100/60 px-5 py-3 bg-white/40 backdrop-blur-md">
+        <div className="rounded-[2.5rem] border border-slate-200 dark:border-slate-800/60 bg-white dark:bg-slate-950/50 p-6 sm:p-8 shadow-xl shadow-slate-200/40 backdrop-blur-2xl">
+          <section className="flex flex-col overflow-hidden rounded-3xl border border-white/60 bg-white dark:bg-slate-950/40 shadow-xl shadow-slate-200/40 backdrop-blur-xl">
+            <div className="border-b border-slate-100 dark:border-slate-800/60 px-5 py-3 bg-white dark:bg-slate-950/40 backdrop-blur-md">
               <div className="flex w-full overflow-x-auto scrollbar-hide">
                 <div className="flex items-center gap-2 rounded-2xl bg-slate-200/30 p-1.5 backdrop-blur-sm">
                   {contractTabs.map((tab) => {
@@ -340,16 +340,16 @@ export default function MentorContractsPage() {
                         onClick={() => setActiveTab(tab.key)}
                         className={`group relative flex h-10 shrink-0 items-center gap-2.5 rounded-xl px-4 text-sm font-bold transition-all duration-300 ${
                           isActive
-                            ? 'bg-white text-emerald-600 shadow-md shadow-slate-200/50 ring-1 ring-slate-200/50'
-                            : 'text-slate-500 hover:bg-slate-200/50 hover:text-slate-700'
+                            ? 'bg-white dark:bg-slate-950 text-emerald-600 dark:text-emerald-500 shadow-md shadow-slate-200/50 ring-1 ring-slate-200/50'
+                            : 'text-slate-500 dark:text-slate-400 hover:bg-slate-200/50 hover:text-slate-700 dark:text-slate-300'
                         }`}
                       >
                         {tab.label}
                         <span
                           className={`flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-[11px] font-black transition-colors duration-300 ${
                             isActive
-                              ? 'bg-emerald-100 text-emerald-700'
-                              : 'bg-slate-200/80 text-slate-500 group-hover:bg-slate-300/80'
+                              ? 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-400'
+                              : 'bg-slate-200/80 text-slate-500 dark:text-slate-400 group-hover:bg-slate-300/80'
                           }`}
                         >
                           {tabCounts[tab.key]}
@@ -361,7 +361,7 @@ export default function MentorContractsPage() {
               </div>
             </div>
 
-            <div className="flex flex-col gap-3 border-b border-slate-100 px-5 py-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex flex-col gap-3 border-b border-slate-100 dark:border-slate-800 px-5 py-4 lg:flex-row lg:items-center lg:justify-between">
               <div className="relative w-full lg:max-w-[360px]">
                 <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                 <input
@@ -369,7 +369,7 @@ export default function MentorContractsPage() {
                   value={searchQuery}
                   onChange={(event) => setSearchQuery(event.target.value)}
                   placeholder="Tìm kiếm theo công việc, khách hàng, kỹ năng, ..."
-                  className="h-11 w-full rounded-2xl border border-slate-200 bg-slate-50 pl-10 pr-3 text-sm text-slate-700 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10"
+                  className="h-11 w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 pl-10 pr-3 text-sm text-slate-700 dark:text-slate-300 outline-none transition focus:border-emerald-500 focus:bg-white dark:bg-slate-950 focus:ring-4 focus:ring-emerald-500/10"
                 />
               </div>
 
@@ -387,19 +387,19 @@ export default function MentorContractsPage() {
               </div>
             </div>
 
-            <div className="flex flex-col gap-1 border-b border-slate-100 px-5 py-3 text-xs font-medium text-slate-500 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-1 border-b border-slate-100 dark:border-slate-800 px-5 py-3 text-xs font-medium text-slate-500 dark:text-slate-400 sm:flex-row sm:items-center sm:justify-between">
               <p>{filteredContracts.length} hợp đồng</p>
               <p>Hợp đồng sẽ được chuyển vào lịch sử sau khi hoàn thành hoặc bị hủy.</p>
             </div>
 
             <div className="space-y-3 p-4">
               {filteredContracts.length === 0 ? (
-                <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-6 py-12 text-center">
-                  <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-slate-400 shadow-sm">
+                <div className="rounded-xl border border-dashed border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 px-6 py-12 text-center">
+                  <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-2xl bg-white dark:bg-slate-950 text-slate-400 shadow-sm">
                     <FolderKanban className="h-5 w-5" />
                   </div>
-                  <h2 className="mt-4 text-lg font-bold text-slate-900">Không có hợp đồng nào phù hợp.</h2>
-                  <p className="mt-2 text-sm leading-6 text-slate-500">
+                  <h2 className="mt-4 text-lg font-bold text-slate-900 dark:text-slate-100">Không có hợp đồng nào phù hợp.</h2>
+                  <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">
                     Thử thay đổi bộ lọc hoặc xem các đề xuất của bạn để nhận việc mới.
                   </p>
                   <Link
@@ -418,7 +418,7 @@ export default function MentorContractsPage() {
                   return (
                     <article
                       key={contract.id}
-                      className="group relative overflow-hidden rounded-3xl border border-white/60 bg-white/60 px-6 py-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-emerald-200 hover:bg-white hover:shadow-xl hover:shadow-slate-200/50"
+                      className="group relative overflow-hidden rounded-3xl border border-white/60 bg-white dark:bg-slate-950/60 px-6 py-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-emerald-200 dark:border-emerald-800/50 hover:bg-white dark:bg-slate-950 hover:shadow-xl hover:shadow-slate-200/50"
                     >
                       <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
                         <div className="min-w-0 flex-1">
@@ -430,29 +430,29 @@ export default function MentorContractsPage() {
                               {getEscrowLabel(contract, primaryDispute)}
                             </span>
                             {contract.cancellationRequestStatus === 'PENDING' ? (
-                              <span className="inline-flex h-7 items-center rounded-full border border-amber-200 bg-amber-50 px-2.5 text-[11px] font-bold text-amber-700">
+                              <span className="inline-flex h-7 items-center rounded-full border border-amber-200 dark:border-amber-800/50 bg-amber-50 dark:bg-amber-900/30 px-2.5 text-[11px] font-bold text-amber-700 dark:text-amber-400">
                                 Khách hàng yêu cầu hủy
                               </span>
                             ) : null}
                           </div>
 
                           <div className="mt-3 flex flex-wrap items-start gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-100 text-slate-500">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-100 text-slate-500 dark:text-slate-400">
                               <FileText className="h-5 w-5" />
                             </div>
                             <div className="min-w-0 flex-1">
                               <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-                                <h2 className="truncate text-lg font-bold tracking-tight text-slate-950">{contract.jobTitle}</h2>
+                                <h2 className="truncate text-lg font-bold tracking-tight text-slate-950 dark:text-slate-100">{contract.jobTitle}</h2>
                                 <Link
                                   to={contract.proposalId ? `/mentor/proposals/${contract.proposalId}` : '#'}
-                                  className="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 transition hover:text-emerald-700"
+                                  className="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 dark:text-emerald-500 transition hover:text-emerald-700 dark:text-emerald-400"
                                 >
                                   Xem chi tiết
                                   <ChevronRight className="h-4 w-4" />
                                 </Link>
                               </div>
-                              <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-slate-500">
-                                <span>Khách hàng: <span className="font-semibold text-slate-700">{contract.clientName}</span></span>
+                              <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-slate-500 dark:text-slate-400">
+                                <span>Khách hàng: <span className="font-semibold text-slate-700 dark:text-slate-300">{contract.clientName}</span></span>
                                 <span>{getCategoryLabel(job, categoryMap)}</span>
                                 <span>Bắt đầu {formatRelativeTime(contract.activatedAt || contract.createdAt)}</span>
                               </div>
@@ -467,7 +467,7 @@ export default function MentorContractsPage() {
                           </div>
 
                           <div className="mt-4">
-                            <div className="flex items-center justify-between text-xs font-semibold text-slate-500">
+                            <div className="flex items-center justify-between text-xs font-semibold text-slate-500 dark:text-slate-400">
                               <span>Tiến độ</span>
                               <span>{getProgressLabel(contract)}</span>
                             </div>
@@ -490,7 +490,7 @@ export default function MentorContractsPage() {
                           </Link>
                           <Link
                             to={contract.proposalId ? `/mentor/proposals/${contract.proposalId}` : '#'}
-                            className="inline-flex h-12 items-center justify-center rounded-2xl border border-slate-200 bg-white px-5 text-sm font-bold text-slate-700 transition-all duration-300 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md"
+                            className="inline-flex h-12 items-center justify-center rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-5 text-sm font-bold text-slate-700 dark:text-slate-300 transition-all duration-300 hover:-translate-y-0.5 hover:border-slate-300 dark:border-slate-700 hover:shadow-md"
                           >
                             Chi tiết
                           </Link>
@@ -540,20 +540,20 @@ function SummaryCard({
   caption: string
 }) {
   const toneMap = {
-    indigo: 'bg-emerald-50 text-emerald-600',
-    emerald: 'bg-emerald-50 text-emerald-600',
-    amber: 'bg-amber-50 text-amber-600',
-    slate: 'bg-slate-100 text-slate-600',
+    indigo: 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-500',
+    emerald: 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-500',
+    amber: 'bg-amber-50 dark:bg-amber-900/30 text-amber-600',
+    slate: 'bg-slate-100 text-slate-600 dark:text-slate-400',
   }
 
   return (
-    <article className="flex items-start gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+    <article className="flex items-start gap-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-4 shadow-sm">
       <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-[14px] ${toneMap[tone]}`}>
         {icon}
       </div>
       <div>
-        <p className="text-xs font-bold uppercase tracking-wider text-slate-500">{label}</p>
-        <p className="mt-0.5 text-2xl font-bold tracking-tight text-slate-950">{value}</p>
+        <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">{label}</p>
+        <p className="mt-0.5 text-2xl font-bold tracking-tight text-slate-950 dark:text-slate-100">{value}</p>
         <p className="mt-1 text-[11px] leading-tight text-slate-400">{caption}</p>
       </div>
     </article>
@@ -562,12 +562,12 @@ function SummaryCard({
 
 function DataFact({ label, value, icon }: { label: string; value: string; icon: ReactNode }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+    <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 px-4 py-3">
       <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-slate-400">
         <span className="text-slate-400">{icon}</span>
         {label}
       </div>
-      <p className="mt-2 text-sm font-bold text-slate-800">{value}</p>
+      <p className="mt-2 text-sm font-bold text-slate-800 dark:text-slate-200">{value}</p>
     </div>
   )
 }
@@ -583,9 +583,9 @@ function PanelSection({ title, children }: { title: string; children: ReactNode 
 
 function PanelFact({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+    <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 px-4 py-3">
       <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">{label}</p>
-      <p className="mt-1 text-sm font-bold text-slate-800">{value}</p>
+      <p className="mt-1 text-sm font-bold text-slate-800 dark:text-slate-200">{value}</p>
     </div>
   )
 }
@@ -594,16 +594,16 @@ function LongField({ label, value }: { label: string; value?: string | null }) {
   return (
     <div>
       <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">{label}</p>
-      <p className="mt-1 text-sm leading-6 text-slate-600">{value?.trim() ? value : 'Không xác định'}</p>
+      <p className="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-400">{value?.trim() ? value : 'Không xác định'}</p>
     </div>
   )
 }
 
 function StatusLine({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex flex-col gap-1 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+    <div className="flex flex-col gap-1 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 px-4 py-3">
       <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">{label}</p>
-      <p className="text-sm leading-6 text-slate-600">{value}</p>
+      <p className="text-sm leading-6 text-slate-600 dark:text-slate-400">{value}</p>
     </div>
   )
 }
@@ -621,7 +621,7 @@ function MiniSelect({
     <select
       value={value}
       onChange={(event) => onChange(event.target.value)}
-      className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm font-medium text-slate-600 outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+      className="h-10 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3 text-sm font-medium text-slate-600 dark:text-slate-400 outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
     >
       {options.map(([optionValue, label]) => (
         <option key={optionValue} value={optionValue}>
@@ -648,7 +648,7 @@ function MentorContractsLoadingState() {
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {Array.from({ length: 4 }).map((_, index) => (
-          <div key={index} className="rounded-xl border border-slate-200 bg-white px-5 py-5 shadow-sm">
+          <div key={index} className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-5 py-5 shadow-sm">
             <Skeleton className="h-11 w-11 rounded-2xl" />
             <Skeleton className="mt-4 h-3 w-28" />
             <Skeleton className="mt-2 h-8 w-16" />
@@ -658,20 +658,20 @@ function MentorContractsLoadingState() {
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_420px]">
-        <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-          <div className="border-b border-slate-100 px-5 py-4">
+        <section className="overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 shadow-sm">
+          <div className="border-b border-slate-100 dark:border-slate-800 px-5 py-4">
             <div className="flex gap-2">
               {Array.from({ length: 5 }).map((_, index) => (
                 <Skeleton key={index} className="h-10 w-24 rounded-xl" />
               ))}
             </div>
           </div>
-          <div className="border-b border-slate-100 px-5 py-4">
+          <div className="border-b border-slate-100 dark:border-slate-800 px-5 py-4">
             <Skeleton className="h-11 w-full rounded-2xl lg:w-[360px]" />
           </div>
           <div className="space-y-3 p-4">
             {Array.from({ length: 3 }).map((_, index) => (
-              <div key={index} className="rounded-xl border border-slate-200 bg-white px-5 py-5 shadow-sm">
+              <div key={index} className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-5 py-5 shadow-sm">
                 <div className="flex gap-4">
                   <Skeleton className="h-10 w-10 rounded-2xl" />
                   <div className="min-w-0 flex-1 space-y-3">
@@ -690,7 +690,7 @@ function MentorContractsLoadingState() {
         </section>
 
         <aside className="hidden xl:block">
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-6 shadow-sm">
             <div className="flex items-start gap-4">
               <SkeletonCircle size="h-10 w-10" />
               <div className="flex-1 space-y-2">
@@ -899,18 +899,18 @@ function getEscrowDescription(contract: ContractResponse, dispute: DisputeRespon
 
 function getEscrowTone(contract: ContractResponse, dispute: DisputeResponse | null): string {
   if (dispute || contract.status === ContractStatus.IN_DISPUTE) {
-    return 'border-orange-200 bg-orange-50 text-orange-700'
+    return 'border-orange-200 bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400'
   }
   if (contract.fundsInEscrow && contract.amountInEscrow > 0) {
     return 'border-sky-200 bg-sky-50 text-sky-700'
   }
   if (contract.status === ContractStatus.COMPLETED || contract.amountPaid > 0) {
-    return 'border-emerald-200 bg-emerald-50 text-emerald-700'
+    return 'border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'
   }
   if (contract.status === ContractStatus.CANCELLED) {
     return 'border-rose-200 bg-rose-50 text-rose-700'
   }
-  return 'border-slate-200 bg-slate-100 text-slate-600'
+  return 'border-slate-200 dark:border-slate-800 bg-slate-100 text-slate-600 dark:text-slate-400'
 }
 
 function buildMiniTimeline(contract: ContractResponse, dispute: DisputeResponse | null) {

@@ -69,27 +69,27 @@ export default function RegisterForm() {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label htmlFor="firstName" className="block text-sm font-bold text-slate-700 mb-1.5">
+          <label htmlFor="firstName" className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1.5">
             First name
           </label>
           <input
             id="firstName"
             type="text"
             {...register('firstName')}
-            className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all text-sm text-slate-900 placeholder-slate-400 shadow-sm hover:border-slate-300"
+            className="w-full px-4 py-3 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 shadow-sm hover:border-slate-300 dark:border-slate-700"
             placeholder="John"
           />
           {errors.firstName && <p className="text-xs font-medium text-red-500 mt-2">{errors.firstName.message}</p>}
         </div>
         <div>
-          <label htmlFor="lastName" className="block text-sm font-bold text-slate-700 mb-1.5">
+          <label htmlFor="lastName" className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1.5">
             Last name
           </label>
           <input
             id="lastName"
             type="text"
             {...register('lastName')}
-            className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all text-sm text-slate-900 placeholder-slate-400 shadow-sm hover:border-slate-300"
+            className="w-full px-4 py-3 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 shadow-sm hover:border-slate-300 dark:border-slate-700"
             placeholder="Doe"
           />
           {errors.lastName && <p className="text-xs font-medium text-red-500 mt-2">{errors.lastName.message}</p>}
@@ -97,21 +97,21 @@ export default function RegisterForm() {
       </div>
 
       <div>
-        <label htmlFor="email" className="block text-sm font-bold text-slate-700 mb-1.5">
+        <label htmlFor="email" className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1.5">
           Email address
         </label>
         <input
           id="email"
           type="email"
           {...register('email')}
-          className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all text-sm text-slate-900 placeholder-slate-400 shadow-sm hover:border-slate-300"
+          className="w-full px-4 py-3 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 shadow-sm hover:border-slate-300 dark:border-slate-700"
           placeholder="you@example.com"
         />
         {errors.email && <p className="text-xs font-medium text-red-500 mt-2">{errors.email.message}</p>}
       </div>
 
       <div>
-        <label htmlFor="password" className="block text-sm font-bold text-slate-700 mb-1.5">
+        <label htmlFor="password" className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1.5">
           Password
         </label>
         <div className="relative">
@@ -119,13 +119,13 @@ export default function RegisterForm() {
             id="password"
             type={showPassword ? 'text' : 'password'}
             {...register('password')}
-            className="w-full px-4 py-3 pr-11 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all text-sm text-slate-900 placeholder-slate-400 shadow-sm hover:border-slate-300"
+            className="w-full px-4 py-3 pr-11 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 shadow-sm hover:border-slate-300 dark:border-slate-700"
             placeholder="Create a password"
           />
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 transition-colors"
+            className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 dark:text-slate-400 transition-colors"
           >
             {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
           </button>
@@ -149,10 +149,10 @@ export default function RegisterForm() {
 
       <div className="relative mt-8 mb-6">
         <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-slate-200"></div>
+          <div className="w-full border-t border-slate-200 dark:border-slate-800"></div>
         </div>
         <div className="relative flex justify-center text-sm">
-          <span className="px-3 bg-white text-slate-500 font-medium">Or continue with</span>
+          <span className="px-3 bg-white dark:bg-slate-950 text-slate-500 dark:text-slate-400 font-medium">Or continue with</span>
         </div>
       </div>
 

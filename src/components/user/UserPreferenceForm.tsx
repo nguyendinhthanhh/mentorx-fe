@@ -54,12 +54,12 @@ function SectionCard({
   const [open, setOpen] = useState(defaultOpen)
 
   return (
-    <div className="overflow-hidden rounded-[22px] border border-slate-200/60 bg-white shadow-[0_8px_30px_rgba(15,23,42,0.04)] dark:border-slate-800 dark:bg-slate-900">
+    <div className="overflow-hidden rounded-[22px] border border-slate-200 dark:border-slate-800/60 bg-white dark:bg-slate-950 shadow-[0_8px_30px_rgba(15,23,42,0.04)] dark:border-slate-800 dark:bg-slate-900">
       {/* Header — clickable to collapse */}
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center gap-4 px-6 py-5 text-left transition-colors hover:bg-slate-50/50 dark:hover:bg-slate-800/50"
+        className="flex w-full items-center gap-4 px-6 py-5 text-left transition-colors hover:bg-slate-50 dark:bg-slate-900/30 dark:hover:bg-slate-800/50"
       >
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#059669] to-[#10B981] text-white shadow-[0_4px_12px_rgba(5,150,105,0.2)]">
           <Icon className="h-5 w-5" />
@@ -75,7 +75,7 @@ function SectionCard({
               {count || 0} đã chọn
             </span>
           </div>
-          <p className="mt-0.5 text-[13px] font-medium text-slate-500 dark:text-slate-400">
+          <p className="mt-0.5 text-[13px] font-medium text-slate-500 dark:text-slate-400 dark:text-slate-400">
             {description}
           </p>
         </div>
@@ -88,7 +88,7 @@ function SectionCard({
 
       {/* Collapsible content */}
       {open && (
-        <div className="border-t border-slate-100 px-6 pb-6 pt-5 dark:border-slate-800">
+        <div className="border-t border-slate-100 dark:border-slate-800 px-6 pb-6 pt-5 dark:border-slate-800">
           {children}
         </div>
       )}
@@ -119,7 +119,7 @@ function ToggleChip({
       } ${
         active
           ? 'border-[#059669] bg-[#059669]/10 text-[#059669] dark:border-[#10B981] dark:bg-[#10B981]/15 dark:text-[#10B981]'
-          : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:border-slate-600'
+          : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-600 dark:text-slate-400 hover:border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:bg-slate-900/50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:border-slate-600'
       }`}
       style={{ contain: 'layout' }}
     >
@@ -236,7 +236,7 @@ export default function UserPreferenceForm() {
         <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#059669] to-[#10B981] shadow-[0_8px_20px_rgba(5,150,105,0.25)]">
           <Loader2 className="h-7 w-7 animate-spin text-white" />
         </div>
-        <p className="text-sm font-medium text-slate-500">Đang tải sở thích của bạn...</p>
+        <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Đang tải sở thích của bạn...</p>
       </div>
     )
   }
@@ -301,7 +301,7 @@ export default function UserPreferenceForm() {
               value={skillSearch}
               onChange={(e) => setSkillSearch(e.target.value)}
               placeholder="Tìm kỹ năng..."
-              className="block w-full rounded-[14px] border-0 bg-slate-50/80 py-2.5 pl-10 pr-4 text-sm text-slate-900 ring-1 ring-inset ring-slate-200/60 transition-all placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-[#059669] hover:bg-slate-50 dark:bg-slate-800/50 dark:text-white dark:ring-slate-700"
+              className="block w-full rounded-[14px] border-0 bg-slate-50 py-2.5 pl-10 pr-4 text-sm text-slate-900 dark:text-slate-100 ring-1 ring-inset ring-slate-200/60 transition-all placeholder:text-slate-400 focus:bg-white dark:bg-slate-950 focus:ring-2 focus:ring-[#059669] hover:bg-slate-50 dark:bg-slate-900/50 dark:bg-slate-800/50 dark:text-white dark:ring-slate-700"
             />
           </div>
 
@@ -319,7 +319,7 @@ export default function UserPreferenceForm() {
                     <button
                       type="button"
                       onClick={() => toggleSkill(skill.id)}
-                      className="rounded-full p-0.5 transition-colors hover:bg-white/20"
+                      className="rounded-full p-0.5 transition-colors hover:bg-white dark:bg-slate-950/20"
                     >
                       <X className="h-3 w-3" />
                     </button>
@@ -329,7 +329,7 @@ export default function UserPreferenceForm() {
           )}
 
           {/* Skill grid */}
-          <div className="max-h-72 overflow-y-auto rounded-[16px] border border-slate-100 bg-slate-50/30 p-3 dark:border-slate-800 dark:bg-slate-800/20">
+          <div className="max-h-72 overflow-y-auto rounded-[16px] border border-slate-100 dark:border-slate-800 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-800/20">
             <div className="flex flex-wrap gap-2">
               {filteredSkills.length > 0 ? (
                 filteredSkills.map((skill) => (
@@ -342,7 +342,7 @@ export default function UserPreferenceForm() {
                   />
                 ))
               ) : (
-                <div className="w-full py-8 text-center text-sm text-slate-500">
+                <div className="w-full py-8 text-center text-sm text-slate-500 dark:text-slate-400">
                   Không tìm thấy kỹ năng "{skillSearch}"
                 </div>
               )}
@@ -391,7 +391,7 @@ export default function UserPreferenceForm() {
                     addLearningGoal()
                   }
                 }}
-                className="block w-full rounded-[14px] border-0 bg-slate-50/80 px-4 py-2.5 text-sm text-slate-900 ring-1 ring-inset ring-slate-200/60 transition-all placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-[#059669] hover:bg-slate-50 dark:bg-slate-800/50 dark:text-white dark:ring-slate-700"
+                className="block w-full rounded-[14px] border-0 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 dark:text-slate-100 ring-1 ring-inset ring-slate-200/60 transition-all placeholder:text-slate-400 focus:bg-white dark:bg-slate-950 focus:ring-2 focus:ring-[#059669] hover:bg-slate-50 dark:bg-slate-900/50 dark:bg-slate-800/50 dark:text-white dark:ring-slate-700"
                 placeholder="Nhập mục tiêu của bạn..."
               />
             </div>
@@ -421,7 +421,7 @@ export default function UserPreferenceForm() {
                         setLearningGoals((prev) => [...prev, suggestion])
                       }
                     }}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-dashed border-slate-300 bg-white px-3 py-1.5 text-[13px] font-medium text-slate-500 transition-all hover:border-[#059669] hover:text-[#059669] dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-dashed border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-1.5 text-[13px] font-medium text-slate-500 dark:text-slate-400 transition-all hover:border-[#059669] hover:text-[#059669] dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400"
                   >
                     <Plus className="h-3 w-3" />
                     {suggestion}
@@ -437,7 +437,7 @@ export default function UserPreferenceForm() {
               {learningGoals.map((goal, index) => (
                 <span
                   key={index}
-                  className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3.5 py-1.5 text-[13px] font-semibold text-slate-700 shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
+                  className="inline-flex items-center gap-2 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3.5 py-1.5 text-[13px] font-semibold text-slate-700 dark:text-slate-300 shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
                 >
                   {goal}
                   <button

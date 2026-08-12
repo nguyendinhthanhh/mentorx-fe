@@ -97,11 +97,11 @@ export default function ReviewForm({ targetType, targetId, initialReview, onClos
   const displayRating = hoverRating || overallRating
 
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-3xl border border-gray-100 dark:border-gray-800 p-6 md:p-8 shadow-sm onb-fade-in-up">
+    <div className="bg-white dark:bg-slate-950 dark:bg-gray-900 rounded-3xl border border-gray-100 dark:border-gray-800 p-6 md:p-8 shadow-sm onb-fade-in-up">
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-xl font-black text-gray-900 dark:text-white">{editing ? 'Edit Review' : 'Write a Review'}</h3>
+        <h3 className="text-xl font-black text-gray-900 dark:text-gray-100 dark:text-white">{editing ? 'Edit Review' : 'Write a Review'}</h3>
         {onClose && (
-          <button onClick={onClose} className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+          <button onClick={onClose} className="p-2 rounded-xl hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-800 transition-colors">
             <X className="w-5 h-5 text-gray-400" />
           </button>
         )}
@@ -139,11 +139,11 @@ export default function ReviewForm({ targetType, targetId, initialReview, onClos
         </div>
 
         {/* Sub Ratings */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 p-5 bg-gray-50 dark:bg-gray-800/50 rounded-2xl">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 p-5 bg-gray-50 dark:bg-gray-900/50 dark:bg-gray-800/50 rounded-2xl">
           <p className="col-span-full text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Detailed Ratings (Optional)</p>
           {SUB_RATINGS.map(({ key, label }) => (
             <div key={key} className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-600 dark:text-gray-400">{label}</span>
+              <span className="text-sm font-medium text-gray-600 dark:text-gray-400 dark:text-gray-400">{label}</span>
               <div className="flex gap-0.5">
                 {[1, 2, 3, 4, 5].map((s) => (
                   <button
@@ -177,7 +177,7 @@ export default function ReviewForm({ targetType, targetId, initialReview, onClos
             onChange={(e) => setReviewTitle(e.target.value)}
             placeholder="Summarize your experience..."
             maxLength={200}
-            className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-medium text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-300 transition-all"
+            className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900/50 dark:bg-gray-800 border border-gray-200 dark:border-gray-800 dark:border-gray-700 rounded-xl text-sm font-medium text-gray-900 dark:text-gray-100 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-300 transition-all"
           />
         </div>
 
@@ -192,7 +192,7 @@ export default function ReviewForm({ targetType, targetId, initialReview, onClos
             placeholder="Share your experience with this course..."
             rows={4}
             maxLength={2000}
-            className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-medium text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-300 transition-all resize-none"
+            className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900/50 dark:bg-gray-800 border border-gray-200 dark:border-gray-800 dark:border-gray-700 rounded-xl text-sm font-medium text-gray-900 dark:text-gray-100 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-300 transition-all resize-none"
           />
           <p className="text-right text-xs text-gray-400 mt-1">{reviewText.length}/2000</p>
         </div>
@@ -209,7 +209,7 @@ export default function ReviewForm({ targetType, targetId, initialReview, onClos
               placeholder="What did you like?"
               rows={2}
               maxLength={1000}
-              className="w-full px-4 py-3 bg-green-50/50 dark:bg-green-900/10 border border-green-100 dark:border-green-900/30 rounded-xl text-sm font-medium text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500/20 transition-all resize-none"
+              className="w-full px-4 py-3 bg-green-50/50 dark:bg-green-900/10 border border-green-100 dark:border-green-900/30 rounded-xl text-sm font-medium text-gray-900 dark:text-gray-100 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500/20 transition-all resize-none"
             />
           </div>
           <div>
@@ -222,7 +222,7 @@ export default function ReviewForm({ targetType, targetId, initialReview, onClos
               placeholder="What could be better?"
               rows={2}
               maxLength={1000}
-              className="w-full px-4 py-3 bg-red-50/50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/30 rounded-xl text-sm font-medium text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-red-500/20 transition-all resize-none"
+              className="w-full px-4 py-3 bg-red-50/50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/30 rounded-xl text-sm font-medium text-gray-900 dark:text-gray-100 dark:text-white focus:outline-none focus:ring-2 focus:ring-red-500/20 transition-all resize-none"
             />
           </div>
         </div>
@@ -234,8 +234,8 @@ export default function ReviewForm({ targetType, targetId, initialReview, onClos
             onClick={() => setIsAnonymous(!isAnonymous)}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all border ${
               isAnonymous
-                ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800 text-emerald-600 dark:text-emerald-400'
-                : 'border-gray-200 dark:border-gray-700 text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800'
+                ? 'bg-emerald-50 dark:bg-emerald-900/30 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800/50 dark:border-emerald-800 text-emerald-600 dark:text-emerald-500 dark:text-emerald-400'
+                : 'border-gray-200 dark:border-gray-800 dark:border-gray-700 text-gray-500 hover:bg-gray-50 dark:bg-gray-900/50 dark:hover:bg-gray-800'
             }`}
           >
             {isAnonymous ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
@@ -248,7 +248,7 @@ export default function ReviewForm({ targetType, targetId, initialReview, onClos
             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all border ${
               wouldRecommend
                 ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800 text-green-600 dark:text-green-400'
-                : 'border-gray-200 dark:border-gray-700 text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800'
+                : 'border-gray-200 dark:border-gray-800 dark:border-gray-700 text-gray-500 hover:bg-gray-50 dark:bg-gray-900/50 dark:hover:bg-gray-800'
             }`}
           >
             <ThumbsUp className="w-3.5 h-3.5" />

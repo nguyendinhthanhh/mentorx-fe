@@ -131,22 +131,22 @@ export default function AdminUserModal({ isOpen, onClose, user }: AdminUserModal
     mutation.mutate(data)
   }
 
-  const inputClass = "w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-800 border border-transparent focus:bg-white dark:focus:bg-gray-900 focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500/30 transition-all text-sm font-medium text-gray-900 dark:text-white"
-  const labelClass = "block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5"
+  const inputClass = "w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-900/50 dark:bg-gray-800 border border-transparent focus:bg-white dark:bg-slate-950 dark:focus:bg-gray-900 focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500/30 transition-all text-sm font-medium text-gray-900 dark:text-gray-100 dark:text-white"
+  const labelClass = "block text-sm font-bold text-gray-700 dark:text-gray-300 dark:text-gray-300 mb-1.5"
 
   return createPortal((
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/40 p-2 backdrop-blur-sm dark:bg-black/60 sm:p-6">
       <div 
-        className="max-h-[calc(100dvh-1rem)] w-full max-w-2xl overflow-hidden rounded-2xl bg-white shadow-2xl animate-in fade-in zoom-in-95 duration-200 dark:bg-gray-900 sm:max-h-[calc(100dvh-3rem)] sm:rounded-[2.5rem]"
+        className="max-h-[calc(100dvh-1rem)] w-full max-w-2xl overflow-hidden rounded-2xl bg-white dark:bg-slate-950 shadow-2xl animate-in fade-in zoom-in-95 duration-200 dark:bg-gray-900 sm:max-h-[calc(100dvh-3rem)] sm:rounded-[2.5rem]"
         onClick={e => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-gray-100 p-4 dark:border-gray-800 sm:p-8">
-          <h2 className="text-xl font-black tracking-tight text-gray-900 dark:text-white sm:text-2xl">
+          <h2 className="text-xl font-black tracking-tight text-gray-900 dark:text-gray-100 dark:text-white sm:text-2xl">
             {user ? 'Edit User' : 'Create New User'}
           </h2>
           <button 
             onClick={onClose}
-            className="p-2.5 rounded-2xl bg-gray-50 dark:bg-gray-800 text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition-all"
+            className="p-2.5 rounded-2xl bg-gray-50 dark:bg-gray-900/50 dark:bg-gray-800 text-gray-400 hover:text-gray-900 dark:text-gray-100 dark:hover:text-white hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 transition-all"
           >
             <X className="w-5 h-5" />
           </button>
@@ -224,7 +224,7 @@ export default function AdminUserModal({ isOpen, onClose, user }: AdminUserModal
                     <input 
                       type="checkbox" 
                       {...register('profileIsPublic')} 
-                      className="peer w-6 h-6 rounded-lg border-2 border-gray-200 dark:border-gray-700 text-primary-600 bg-gray-50 dark:bg-gray-800 focus:ring-primary-500/20 focus:ring-offset-0 transition-all checked:border-primary-600 dark:checked:border-primary-500 cursor-pointer appearance-none" 
+                      className="peer w-6 h-6 rounded-lg border-2 border-gray-200 dark:border-gray-800 dark:border-gray-700 text-primary-600 bg-gray-50 dark:bg-gray-900/50 dark:bg-gray-800 focus:ring-primary-500/20 focus:ring-offset-0 transition-all checked:border-primary-600 dark:checked:border-primary-500 cursor-pointer appearance-none" 
                     />
                     <div className="absolute opacity-0 peer-checked:opacity-100 text-white pointer-events-none transition-opacity">
                       <svg className="w-3.5 h-3.5" viewBox="0 0 14 10" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -232,7 +232,7 @@ export default function AdminUserModal({ isOpen, onClose, user }: AdminUserModal
                       </svg>
                     </div>
                   </div>
-                  <span className="text-sm font-bold text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
+                  <span className="text-sm font-bold text-gray-700 dark:text-gray-300 dark:text-gray-300 group-hover:text-gray-900 dark:text-gray-100 dark:group-hover:text-white transition-colors">
                     Public Profile
                   </span>
                 </label>
@@ -244,7 +244,7 @@ export default function AdminUserModal({ isOpen, onClose, user }: AdminUserModal
             <button
               type="button"
               onClick={onClose}
-              className="px-6 py-3 rounded-2xl font-bold text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all"
+              className="px-6 py-3 rounded-2xl font-bold text-gray-600 dark:text-gray-400 dark:text-gray-400 bg-gray-50 dark:bg-gray-900/50 dark:bg-gray-800 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 transition-all"
             >
               Cancel
             </button>

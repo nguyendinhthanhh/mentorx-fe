@@ -23,19 +23,19 @@ export const reportApi = {
     page?: number
     size?: number
   }): Promise<PaginatedResponse<ReportResponse>> => {
-    const response = await apiClient.get<ApiResponse<PaginatedResponse<ReportResponse>>>('/reports', {
+    const response = await apiClient.get<ApiResponse<PaginatedResponse<ReportResponse>>>('/admin/reports', {
       params,
     })
     return response.data.data
   },
 
   assignReport: async (reportId: string, adminId: string): Promise<ReportResponse> => {
-    const response = await apiClient.post<ApiResponse<ReportResponse>>(`/reports/${reportId}/assign?adminId=${adminId}`)
+    const response = await apiClient.post<ApiResponse<ReportResponse>>(`/admin/reports/${reportId}/assign?adminId=${adminId}`)
     return response.data.data
   },
 
   resolveReport: async (reportId: string, data: { actionTaken: string; moderatorNotes?: string; isUpheld: boolean }): Promise<ReportResponse> => {
-    const response = await apiClient.post<ApiResponse<ReportResponse>>(`/reports/${reportId}/resolve`, data)
+    const response = await apiClient.post<ApiResponse<ReportResponse>>(`/admin/reports/${reportId}/resolve`, data)
     return response.data.data
   },
 

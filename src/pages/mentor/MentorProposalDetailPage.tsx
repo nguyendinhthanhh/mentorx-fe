@@ -353,7 +353,7 @@ export default function MentorProposalDetailPage() {
         <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
           <div className="space-y-6">
             <Skeleton className="h-14 w-full rounded-2xl" />
-            <div className="rounded-2xl border border-slate-200 bg-white p-6 space-y-6">
+            <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-6 space-y-6">
               <div className="flex items-center justify-between">
                 <Skeleton className="h-6 w-48" />
                 <Skeleton className="h-6 w-24" />
@@ -394,14 +394,14 @@ export default function MentorProposalDetailPage() {
           </div>
         )}
 
-        <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <div className="flex flex-col gap-3 border-b border-slate-100 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5 dark:border-slate-800">
+        <section className="overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <div className="flex flex-col gap-3 border-b border-slate-100 dark:border-slate-800 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5 dark:border-slate-800">
             <div className="flex min-w-0 items-center gap-3">
               <button
                 type="button"
                 onClick={() => navigate('/mentor/projects?tab=proposals')}
                 aria-label="Back to proposals"
-                className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 transition hover:bg-slate-50 hover:text-slate-900 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-white"
+                className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-500 dark:text-slate-400 transition hover:bg-slate-50 dark:bg-slate-900/50 hover:text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-white"
               >
                 <ArrowLeft className="h-5 w-5" />
               </button>
@@ -409,14 +409,14 @@ export default function MentorProposalDetailPage() {
                 <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-400">{t('mentorProposalDetail.hero.dealBrief')}</p>
                 <div className="mt-1 flex min-w-0 flex-wrap items-center gap-2">
                   <StatusBadge label={agreementStatus} tone={getStatusTone(currentStatus, isClientOffer)} />
-                  <span className="text-xs font-semibold text-slate-500">{t('mentorProposalDetail.hero.proposalId')} #{proposal.id.slice(0, 8)}</span>
+                  <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">{t('mentorProposalDetail.hero.proposalId')} #{proposal.id.slice(0, 8)}</span>
                 </div>
               </div>
             </div>
             <div className="flex flex-wrap gap-2">
               <Link
                 to={`/jobs/${job.jobId}`}
-                className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3 text-sm font-semibold text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:bg-slate-900/50 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
               >
                 <ArrowUpRight className="h-4 w-4" />
                 {t('mentorProposalDetail.hero.viewOriginalJob')}
@@ -424,7 +424,7 @@ export default function MentorProposalDetailPage() {
               <button
                 type="button"
                 onClick={() => setShowAiExplain(true)}
-                className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-3 text-sm font-semibold text-emerald-700 transition hover:border-emerald-300 hover:bg-emerald-100 focus:outline-none focus:ring-4 focus:ring-emerald-500/10"
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-900/30 px-3 text-sm font-semibold text-emerald-700 dark:text-emerald-400 transition hover:border-emerald-300 hover:bg-emerald-100 dark:bg-emerald-900/50 focus:outline-none focus:ring-4 focus:ring-emerald-500/10"
               >
                 <Sparkles className="h-4 w-4" />
                 {t('mentorProposalDetail.hero.askAi')}
@@ -435,26 +435,26 @@ export default function MentorProposalDetailPage() {
           <div className="grid gap-0 lg:grid-cols-[minmax(0,1fr)_390px]">
             <div className="min-w-0 px-4 py-5 sm:px-6">
               <div className="flex flex-wrap gap-2">
-                <span className="inline-flex items-center rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600 dark:bg-slate-800 dark:text-slate-400">{categoryName}</span>
+                <span className="inline-flex items-center rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600 dark:text-slate-400 dark:bg-slate-800 dark:text-slate-400">{categoryName}</span>
               </div>
-              <h1 className="mt-3 max-w-[68ch] text-2xl font-bold leading-tight tracking-tight text-slate-950 sm:text-3xl dark:text-white">{job.title}</h1>
-              <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-slate-500 dark:text-slate-400">
+              <h1 className="mt-3 max-w-[68ch] text-2xl font-bold leading-tight tracking-tight text-slate-950 dark:text-slate-100 sm:text-3xl dark:text-white">{job.title}</h1>
+              <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-slate-500 dark:text-slate-400 dark:text-slate-400">
                 <span className="inline-flex items-center gap-2">
                   <Avatar avatarUrl={clientAvatar} initials={clientInitials} size="sm" />
-                  <span className="font-semibold text-slate-700 dark:text-slate-300">{t('mentorProposalDetail.hero.postedBy')}: {clientName}</span>
+                  <span className="font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300">{t('mentorProposalDetail.hero.postedBy')}: {clientName}</span>
                 </span>
                 <span>{t('mentorProposalDetail.hero.started', { date: formatDate(proposal.createdAt) })}</span>
                 {proposal.viewCount !== undefined ? (
-                  <span className="inline-flex items-center gap-1 font-semibold text-slate-700 dark:text-slate-300">
-                    <Eye className="h-4 w-4 text-emerald-600" />
+                  <span className="inline-flex items-center gap-1 font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300">
+                    <Eye className="h-4 w-4 text-emerald-600 dark:text-emerald-500" />
                     {t('mentorProposalDetail.hero.views', { count: proposal.viewCount })}
                   </span>
                 ) : null}
               </div>
             </div>
 
-            <div className="border-t border-slate-100 bg-slate-50 px-4 py-5 sm:px-6 lg:border-l lg:border-t-0 dark:border-slate-800 dark:bg-slate-800/40">
-              <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">{latestTermsSource}</p>
+            <div className="border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 px-4 py-5 sm:px-6 lg:border-l lg:border-t-0 dark:border-slate-800 dark:bg-slate-800/40">
+              <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400 dark:text-slate-400">{latestTermsSource}</p>
               <div className="mt-3 grid gap-3">
                 <DealTerm icon={<Wallet className="h-4 w-4" />} label={t('mentorProposalDetail.offer.price')} value={currentBudgetLabel} />
                 <DealTerm icon={<Clock3 className="h-4 w-4" />} label={t('mentorProposalDetail.offer.deadline')} value={currentDeadlineLabel} />
@@ -463,10 +463,10 @@ export default function MentorProposalDetailPage() {
             </div>
           </div>
 
-          <div className="border-t border-slate-100 bg-white px-4 py-4 sm:px-6 dark:border-slate-800 dark:bg-slate-900">
+          <div className="border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 py-4 sm:px-6 dark:border-slate-800 dark:bg-slate-900">
             <div className="mb-3 flex items-center justify-between gap-3">
               <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400">{t('mentorProposalDetail.hero.currentStep')}</p>
-              <p className="text-xs font-semibold text-slate-500">{decisionTitle}</p>
+              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">{decisionTitle}</p>
             </div>
             <div className="scrollbar-hide overflow-x-auto pb-1">
               <div className="relative flex min-w-[520px] justify-between">
@@ -486,21 +486,21 @@ export default function MentorProposalDetailPage() {
 
         <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_360px]">
           <div className="min-w-0 space-y-5">
-            <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-              <div className="flex flex-col gap-3 border-b border-slate-100 pb-4 sm:flex-row sm:items-center sm:justify-between dark:border-slate-800">
+            <section className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+              <div className="flex flex-col gap-3 border-b border-slate-100 dark:border-slate-800 pb-4 sm:flex-row sm:items-center sm:justify-between dark:border-slate-800">
                 <div className="flex items-center gap-3">
                   <div>
                     <h2 className="text-base font-bold tracking-tight text-slate-950 dark:text-white">{t('mentorProposalDetail.timeline.title')}</h2>
-                    <p className="mt-1 text-sm text-slate-500">{t('mentorProposalDetail.timeline.updates', { count: threadItems.length })}</p>
+                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{t('mentorProposalDetail.timeline.updates', { count: threadItems.length })}</p>
                   </div>
                 </div>
                 {isClientOffer ? (
-                  <span className="inline-flex h-8 items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-3 text-xs font-bold text-amber-700">
+                  <span className="inline-flex h-8 items-center gap-2 rounded-full border border-amber-200 dark:border-amber-800/50 bg-amber-50 dark:bg-amber-900/30 px-3 text-xs font-bold text-amber-700 dark:text-amber-400">
                     <span className="h-2 w-2 rounded-full bg-amber-500" />
                     {t('mentorProposalDetail.timeline.actionNeeded')}
                   </span>
                 ) : (
-                  <span className="inline-flex h-8 items-center rounded-full border border-slate-200 bg-slate-50 px-3 text-xs font-semibold text-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">{t('mentorProposalDetail.timeline.clientReviewing')}</span>
+                  <span className="inline-flex h-8 items-center rounded-full border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 px-3 text-xs font-semibold text-slate-500 dark:text-slate-400 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">{t('mentorProposalDetail.timeline.clientReviewing')}</span>
                 )}
               </div>
               <div className="mt-5 space-y-5">
@@ -517,58 +517,58 @@ export default function MentorProposalDetailPage() {
             </section>
             
             {canRespond && showRespondForm ? (
-              <section id="mentor-proposal-response" className="rounded-2xl border border-emerald-200 bg-emerald-50/50 p-5 shadow-sm dark:border-emerald-500/30 dark:bg-emerald-500/5">
-                <div className="flex flex-col gap-2 border-b border-emerald-100 pb-3 lg:flex-row lg:items-center lg:justify-between dark:border-emerald-500/20">
+              <section id="mentor-proposal-response" className="rounded-2xl border border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 p-5 shadow-sm dark:border-emerald-500/30 dark:bg-emerald-500/5">
+                <div className="flex flex-col gap-2 border-b border-emerald-100 dark:border-emerald-900/50 pb-3 lg:flex-row lg:items-center lg:justify-between dark:border-emerald-500/20">
                   <div>
                     <div className="flex items-center gap-2">
                       <h2 className="text-base font-bold tracking-tight text-slate-900 dark:text-white">Shape the next offer</h2>
                     </div>
-                    <p className="mt-0.5 text-[13px] text-slate-500 dark:text-slate-400">Update price, deadline, and work details before sending.</p>
+                    <p className="mt-0.5 text-[13px] text-slate-500 dark:text-slate-400 dark:text-slate-400">Update price, deadline, and work details before sending.</p>
                   </div>
-                  <span className="rounded-full bg-white px-2.5 py-1 text-[10px] font-bold text-slate-600 ring-1 ring-slate-200">
+                  <span className="rounded-full bg-white dark:bg-slate-950 px-2.5 py-1 text-[10px] font-bold text-slate-600 dark:text-slate-400 ring-1 ring-slate-200">
                     Last message {formatShortInboxTime(latestNegotiation?.createdAt)}
                   </span>
                 </div>
                 <div className="mt-4 grid gap-3 lg:grid-cols-2">
                   <label className="space-y-1.5">
-                    <span className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-500">Price (MXC)</span>
+                    <span className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-500 dark:text-slate-400">Price (MXC)</span>
                     <input
                       type="number"
                       min="1"
                       value={counterAmount}
                       onChange={(event) => setCounterAmount(event.target.value)}
-                      className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-800 outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+                      className="h-10 w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3 text-sm font-semibold text-slate-800 dark:text-slate-200 outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
                     />
                   </label>
                   <label className="space-y-1.5">
-                    <span className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-500">Deadline date/time</span>
+                    <span className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-500 dark:text-slate-400">Deadline date/time</span>
                     <input
                       type="datetime-local"
                       step={1}
                       value={counterDeadline}
                       onChange={(event) => setCounterDeadline(event.target.value)}
-                      className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-800 outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+                      className="h-10 w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3 text-sm font-semibold text-slate-800 dark:text-slate-200 outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
                     />
-                    <p className="text-[11px] font-medium text-slate-500">
+                    <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
                       Choose the latest time this offer should be completed by.
                     </p>
                     {counterDeadline ? (
-                      <p className={`text-[11px] font-bold ${new Date(counterDeadline).getTime() <= Date.now() ? 'text-rose-500' : 'text-emerald-600'}`}>
+                      <p className={`text-[11px] font-bold ${new Date(counterDeadline).getTime() <= Date.now() ? 'text-rose-500' : 'text-emerald-600 dark:text-emerald-500'}`}>
                         {formatTimeRemaining(counterDeadline)}
                       </p>
                     ) : null}
                   </label>
                 </div>
                 <label className="mt-3 block space-y-1.5">
-                  <span className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-500">Message / Work details</span>
+                  <span className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-500 dark:text-slate-400">Message / Work details</span>
                   <textarea
                     id="mentor-proposal-message"
                     value={message}
                     onChange={(event) => setMessage(event.target.value)}
                     placeholder="Describe what you will do, what is included, and what you need from the client."
-                    className="min-h-[80px] w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm leading-5 text-slate-700 outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+                    className="min-h-[80px] w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3 py-2 text-sm leading-5 text-slate-700 dark:text-slate-300 outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
                   />
-                  <p className="text-[11px] font-medium text-slate-500">{message.trim().length}/1000 characters, minimum 20</p>
+                  <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400">{message.trim().length}/1000 characters, minimum 20</p>
                 </label>
                 <div className="mt-2.5 flex flex-wrap gap-2">
                   {quickReplies.map((reply) => (
@@ -576,7 +576,7 @@ export default function MentorProposalDetailPage() {
                       key={reply}
                       type="button"
                       onClick={() => setMessage(reply)}
-                      className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-bold text-slate-500 transition hover:border-emerald-200 hover:text-emerald-700"
+                      className="rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-2.5 py-1 text-[11px] font-bold text-slate-500 dark:text-slate-400 transition hover:border-emerald-200 dark:border-emerald-800/50 hover:text-emerald-700 dark:text-emerald-400"
                     >
                       {reply}
                     </button>
@@ -596,7 +596,7 @@ export default function MentorProposalDetailPage() {
                     type="button"
                     disabled={submitting}
                     onClick={() => setShowRespondForm(false)}
-                    className="inline-flex h-10 items-center justify-center rounded-lg border border-slate-200 bg-white px-4 text-sm font-medium text-slate-600 transition hover:bg-slate-50 disabled:opacity-60 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+                    className="inline-flex h-10 items-center justify-center rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 text-sm font-medium text-slate-600 dark:text-slate-400 transition hover:bg-slate-50 dark:bg-slate-900/50 disabled:opacity-60 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
                   >
                     Cancel
                   </button>
@@ -605,16 +605,16 @@ export default function MentorProposalDetailPage() {
             ) : canRespond && !showRespondForm ? (
               null
             ) : !isFinalized ? (
-              <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+              <section className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                   <div>
                     <h2 className="text-base font-bold tracking-tight text-slate-900 dark:text-white">Your latest offer is with the client</h2>
-                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">No edits here, until the client replies or accepts. This keeps the negotiation history consistent.</p>
+                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400 dark:text-slate-400">No edits here, until the client replies or accepts. This keeps the negotiation history consistent.</p>
                   </div>
                   <button
                     type="button"
                     onClick={() => setIsChatDrawerOpen(true)}
-                    className="inline-flex h-10 items-center justify-center rounded-lg border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+                    className="inline-flex h-10 items-center justify-center rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 text-sm font-medium text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:bg-slate-900/50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
                   >
                     Open discussion
                   </button>
@@ -623,7 +623,7 @@ export default function MentorProposalDetailPage() {
             ) : null}
           </div>
           <aside className="min-w-0">
-            <section className="sticky top-[104px] rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <section className="sticky top-[104px] rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-400">{t('mentorProposalDetail.decision.title')}</p>
@@ -631,9 +631,9 @@ export default function MentorProposalDetailPage() {
                 </div>
                 <StatusBadge label={agreementStatus} tone={getStatusTone(currentStatus, isClientOffer)} />
               </div>
-              <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">{decisionBody}</p>
+              <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-400 dark:text-slate-300">{decisionBody}</p>
               {currentFlowNotice ? (
-                <p className="mt-4 rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-xs font-semibold leading-5 text-emerald-700">
+                <p className="mt-4 rounded-xl border border-emerald-100 dark:border-emerald-900/50 bg-emerald-50 dark:bg-emerald-900/30 px-4 py-3 text-xs font-semibold leading-5 text-emerald-700 dark:text-emerald-400">
                   {currentFlowNotice}
                 </p>
               ) : null}
@@ -653,7 +653,7 @@ export default function MentorProposalDetailPage() {
                       type="button"
                       disabled={submitting}
                       onClick={() => handleOpenCounter('COUNTER')}
-                      className="inline-flex h-11 w-full items-center justify-center rounded-xl border border-slate-200 bg-white text-sm font-bold text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 disabled:opacity-60 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+                      className="inline-flex h-11 w-full items-center justify-center rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-sm font-bold text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:bg-slate-900/50 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 disabled:opacity-60 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
                     >
                       {t('mentorProposalDetail.sidebar.prepareCounter')}
                     </button>
@@ -665,7 +665,7 @@ export default function MentorProposalDetailPage() {
                         setRejectReason('')
                         setShowRejectModal(true)
                       }}
-                      className="inline-flex h-11 w-full items-center justify-center rounded-xl border border-rose-200 bg-white text-sm font-bold text-rose-600 transition hover:bg-rose-50 focus:outline-none focus:ring-4 focus:ring-rose-500/10 disabled:opacity-60 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-400 dark:hover:bg-rose-500/20"
+                      className="inline-flex h-11 w-full items-center justify-center rounded-xl border border-rose-200 bg-white dark:bg-slate-950 text-sm font-bold text-rose-600 transition hover:bg-rose-50 focus:outline-none focus:ring-4 focus:ring-rose-500/10 disabled:opacity-60 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-400 dark:hover:bg-rose-500/20"
                     >
                       {t('mentorProposalDetail.sidebar.rejectProposal')}
                     </button>
@@ -674,28 +674,28 @@ export default function MentorProposalDetailPage() {
                   <button
                     type="button"
                     onClick={() => setIsChatDrawerOpen(true)}
-                    className="inline-flex h-11 w-full items-center justify-center rounded-xl border border-emerald-200 bg-emerald-50 text-sm font-bold text-emerald-700 transition hover:bg-emerald-100 focus:outline-none focus:ring-4 focus:ring-emerald-500/10"
+                    className="inline-flex h-11 w-full items-center justify-center rounded-xl border border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-900/30 text-sm font-bold text-emerald-700 dark:text-emerald-400 transition hover:bg-emerald-100 dark:bg-emerald-900/50 focus:outline-none focus:ring-4 focus:ring-emerald-500/10"
                   >
                     {t('mentorProposalDetail.sidebar.openProjectChat')}
                   </button>
                 ) : (
-                  <p className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                  <p className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 px-4 py-3 text-sm font-semibold text-slate-500 dark:text-slate-400 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
                     {t('mentorProposalDetail.decision.noAction')}
                   </p>
                 )}
               </div>
 
-              <div className="mt-6 border-t border-slate-100 pt-5 dark:border-slate-800">
+              <div className="mt-6 border-t border-slate-100 dark:border-slate-800 pt-5 dark:border-slate-800">
                 <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-400">{t('mentorProposalDetail.decision.currentMessage')}</p>
-                <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">{truncateText(currentOfferMessage, 220)}</p>
+                <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400 dark:text-slate-300">{truncateText(currentOfferMessage, 220)}</p>
               </div>
 
-              <div className="mt-5 border-t border-slate-100 pt-5 dark:border-slate-800">
+              <div className="mt-5 border-t border-slate-100 dark:border-slate-800 pt-5 dark:border-slate-800">
                 <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-400">{t('mentorProposalDetail.decision.supportingLinks')}</p>
                 <div className="mt-3 grid gap-2">
                   <Link
                     to={`/jobs/${job.jobId}`}
-                    className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+                    className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3 text-sm font-semibold text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:bg-slate-900/50 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
                   >
                     <ArrowUpRight className="h-4 w-4" />
                     {t('mentorProposalDetail.hero.viewOriginalJob')}
@@ -703,7 +703,7 @@ export default function MentorProposalDetailPage() {
                   <button
                     type="button"
                     onClick={() => setIsChatDrawerOpen(true)}
-                    className="inline-flex h-10 items-center justify-center rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+                    className="inline-flex h-10 items-center justify-center rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3 text-sm font-semibold text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:bg-slate-900/50 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
                   >
                     {t('mentorProposalDetail.decision.openDiscussion')}
                   </button>
@@ -720,20 +720,20 @@ export default function MentorProposalDetailPage() {
 
       {showAcceptModal ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-[420px] rounded-[28px] bg-white p-6 shadow-2xl">
+          <div className="w-full max-w-[420px] rounded-[28px] bg-white dark:bg-slate-950 p-6 shadow-2xl">
             <div className="flex flex-col items-center text-center">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-50 text-emerald-600 mb-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-500 mb-4">
                 <Check className="h-6 w-6" />
               </div>
-              <h3 className="text-xl font-black tracking-tight text-slate-950">{t('mentorProposalDetail.acceptModal.title')}</h3>
-              <p className="mt-2 text-sm leading-6 text-slate-500">
+              <h3 className="text-xl font-black tracking-tight text-slate-950 dark:text-slate-100">{t('mentorProposalDetail.acceptModal.title')}</h3>
+              <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">
                 {t('mentorProposalDetail.acceptModal.body')}
               </p>
             </div>
-            <div className="mt-5 space-y-2 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-left">
+            <div className="mt-5 space-y-2 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 p-4 text-left">
               {[t('mentorProposalDetail.acceptModal.pointTerms'), t('mentorProposalDetail.acceptModal.pointClientSelects'), t('mentorProposalDetail.acceptModal.pointEscrow')].map((item) => (
-                <div key={item} className="flex gap-2 text-sm font-medium leading-5 text-slate-600">
-                  <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
+                <div key={item} className="flex gap-2 text-sm font-medium leading-5 text-slate-600 dark:text-slate-400">
+                  <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-500" />
                   <span>{item}</span>
                 </div>
               ))}
@@ -743,7 +743,7 @@ export default function MentorProposalDetailPage() {
                 type="button"
                 disabled={submitting}
                 onClick={() => setShowAcceptModal(false)}
-                className="flex-1 rounded-2xl border border-slate-200 bg-white py-3 text-sm font-bold text-slate-600 transition hover:bg-slate-50"
+                className="flex-1 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 py-3 text-sm font-bold text-slate-600 dark:text-slate-400 transition hover:bg-slate-50 dark:bg-slate-900/50"
               >
                 {t('mentorProposalDetail.acceptModal.cancel')}
               </button>
@@ -762,11 +762,11 @@ export default function MentorProposalDetailPage() {
 
       {showRejectModal ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-[520px] rounded-[28px] bg-white p-6 shadow-2xl">
+          <div className="w-full max-w-[520px] rounded-[28px] bg-white dark:bg-slate-950 p-6 shadow-2xl">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <h3 className="text-xl font-black tracking-tight text-slate-950">Reject proposal</h3>
-                <p className="mt-2 text-sm leading-6 text-slate-500">
+                <h3 className="text-xl font-black tracking-tight text-slate-950 dark:text-slate-100">Reject proposal</h3>
+                <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">
                   Explain clearly why you are declining this proposal. A reason with at least 10 words is required.
                 </p>
               </div>
@@ -777,24 +777,24 @@ export default function MentorProposalDetailPage() {
                   setShowRejectModal(false)
                   setRejectReason('')
                 }}
-                className="flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-200 text-slate-500 transition hover:bg-slate-50 disabled:opacity-60"
+                className="flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 transition hover:bg-slate-50 dark:bg-slate-900/50 disabled:opacity-60"
               >
                 <X className="h-4 w-4" />
               </button>
             </div>
 
             <label className="mt-5 block space-y-2">
-              <span className="text-sm font-bold text-slate-700">Reason for rejection</span>
+              <span className="text-sm font-bold text-slate-700 dark:text-slate-300">Reason for rejection</span>
               <textarea
                 value={rejectReason}
                 onChange={(event) => setRejectReason(event.target.value)}
                 placeholder="Example: I cannot take this project because the requested timeline, scope, and support expectations do not match my current capacity."
-                className="min-h-[160px] w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm leading-6 outline-none transition focus:border-rose-400 focus:ring-4 focus:ring-rose-500/10"
+                className="min-h-[160px] w-full rounded-2xl border border-slate-200 dark:border-slate-800 px-4 py-3 text-sm leading-6 outline-none transition focus:border-rose-400 focus:ring-4 focus:ring-rose-500/10"
               />
             </label>
 
             <div className="mt-3 flex items-center justify-between gap-3 text-xs">
-              <p className={`${rejectReasonWordCount >= 10 ? 'text-emerald-600' : 'text-amber-600'}`}>
+              <p className={`${rejectReasonWordCount >= 10 ? 'text-emerald-600 dark:text-emerald-500' : 'text-amber-600'}`}>
                 {rejectReasonWordCount}/10 words minimum
               </p>
               <p className="text-slate-400">This reason will be saved with the proposal.</p>
@@ -808,7 +808,7 @@ export default function MentorProposalDetailPage() {
                   setShowRejectModal(false)
                   setRejectReason('')
                 }}
-                className="flex-1 rounded-2xl border border-slate-200 bg-white py-3 text-sm font-bold text-slate-600 transition hover:bg-slate-50 disabled:opacity-60"
+                className="flex-1 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 py-3 text-sm font-bold text-slate-600 dark:text-slate-400 transition hover:bg-slate-50 dark:bg-slate-900/50 disabled:opacity-60"
               >
                 Cancel
               </button>
@@ -827,13 +827,13 @@ export default function MentorProposalDetailPage() {
 
       {showCancellationDecisionModal && contract ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-[560px] rounded-[28px] bg-white p-6 shadow-2xl">
+          <div className="w-full max-w-[560px] rounded-[28px] bg-white dark:bg-slate-950 p-6 shadow-2xl">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <h3 className="text-2xl font-black tracking-tight text-slate-950">
+                <h3 className="text-2xl font-black tracking-tight text-slate-950 dark:text-slate-100">
                   {cancellationDecisionMode === 'APPROVE' ? 'Approve cancellation request' : 'Reject cancellation request'}
                 </h3>
-                <p className="mt-2 text-sm leading-6 text-slate-500">
+                <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">
                   {cancellationDecisionMode === 'APPROVE'
                     ? 'If you approve, the contract will be cancelled and any escrow will be refunded to the client.'
                     : 'If you reject, the contract will remain active and the client will see your response note.'}
@@ -842,18 +842,18 @@ export default function MentorProposalDetailPage() {
               <button
                 type="button"
                 onClick={() => setShowCancellationDecisionModal(false)}
-                className="flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-200 text-slate-500 transition hover:bg-slate-50"
+                className="flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 transition hover:bg-slate-50 dark:bg-slate-900/50"
               >
                 <X className="h-4 w-4" />
               </button>
             </div>
 
-            <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-700">
+            <div className="mt-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 px-4 py-3 text-sm leading-6 text-slate-700 dark:text-slate-300">
               Client reason: {contract.cancellationRequestReason || 'No reason provided.'}
             </div>
 
             <label className="mt-4 block space-y-2">
-              <span className="text-sm font-bold text-slate-700">Your note</span>
+              <span className="text-sm font-bold text-slate-700 dark:text-slate-300">Your note</span>
               <textarea
                 value={cancellationDecisionNote}
                 onChange={(event) => setCancellationDecisionNote(event.target.value)}
@@ -862,7 +862,7 @@ export default function MentorProposalDetailPage() {
                     ? 'Add a short note for the client before the contract is cancelled...'
                     : 'Explain why you want to continue the contract...'
                 }
-                className="min-h-[140px] w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm leading-6 outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+                className="min-h-[140px] w-full rounded-2xl border border-slate-200 dark:border-slate-800 px-4 py-3 text-sm leading-6 outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
               />
             </label>
 
@@ -870,7 +870,7 @@ export default function MentorProposalDetailPage() {
               <button
                 type="button"
                 onClick={() => setShowCancellationDecisionModal(false)}
-                className="inline-flex h-11 items-center justify-center rounded-2xl border border-slate-200 px-4 text-sm font-bold text-slate-600 transition hover:bg-slate-50"
+                className="inline-flex h-11 items-center justify-center rounded-2xl border border-slate-200 dark:border-slate-800 px-4 text-sm font-bold text-slate-600 dark:text-slate-400 transition hover:bg-slate-50 dark:bg-slate-900/50"
               >
                 Cancel
               </button>
@@ -935,15 +935,15 @@ function ConversationCard({ item, isLast, onCounter, onAccept }: { item: Convers
   const isClientOffer = !isMentor && item.type === 'offer'
   const bubbleTone =
     item.tone === 'amber'
-      ? 'border-amber-200 bg-amber-50/50 dark:border-amber-500/20 dark:bg-amber-500/5'
+      ? 'border-amber-200 dark:border-amber-800/50 bg-amber-50  dark:border-amber-500/20 dark:bg-amber-500/5'
       : item.tone === 'violet'
-        ? 'border-emerald-200 bg-emerald-50/50 dark:border-emerald-500/20 dark:bg-emerald-500/5'
+        ? 'border-emerald-200 dark:border-emerald-800/50 bg-emerald-50  dark:border-emerald-500/20 dark:bg-emerald-500/5'
         : item.tone === 'indigo'
-          ? 'border-emerald-200 bg-emerald-50/50 dark:border-emerald-500/20 dark:bg-emerald-500/5'
-          : 'border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800'
+          ? 'border-emerald-200 dark:border-emerald-800/50 bg-emerald-50  dark:border-emerald-500/20 dark:bg-emerald-500/5'
+          : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 dark:border-slate-700 dark:bg-slate-800'
 
   const accentText =
-    item.tone === 'amber' ? 'text-amber-600' : item.tone === 'violet' ? 'text-emerald-600' : 'text-emerald-600'
+    item.tone === 'amber' ? 'text-amber-600' : item.tone === 'violet' ? 'text-emerald-600 dark:text-emerald-500' : 'text-emerald-600 dark:text-emerald-500'
 
   return (
     <div className={`flex gap-3 ${isMentor ? 'flex-row-reverse' : 'flex-row'}`}>
@@ -957,17 +957,17 @@ function ConversationCard({ item, isLast, onCounter, onAccept }: { item: Convers
               <p className={`text-[11px] font-black uppercase tracking-[0.16em] ${accentText}`}>
                 {item.type === 'offer' ? (isClientOffer ? t('mentorProposalDetail.offer.clientCounter') : t('mentorProposalDetail.offer.mentorOffer')) : item.title}
               </p>
-              <p className="mt-1 text-xs font-medium text-slate-500 dark:text-slate-400">{formatDateTime(item.createdAt)}</p>
+              <p className="mt-1 text-xs font-medium text-slate-500 dark:text-slate-400 dark:text-slate-400">{formatDateTime(item.createdAt)}</p>
             </div>
           </div>
 
           {item.type === 'offer' ? (
-            <div className="mt-4 rounded-xl border border-slate-200/70 bg-white/80 p-3 dark:border-slate-700 dark:bg-slate-900/50">
+            <div className="mt-4 rounded-xl border border-slate-200 dark:border-slate-800/70 bg-white dark:bg-slate-950/80 p-3 dark:border-slate-700 dark:bg-slate-900/50">
               <div className="grid gap-3 sm:grid-cols-2">
                 <OfferFact icon={<Wallet className="h-3.5 w-3.5" />} value={item.amount ? formatCurrency(item.amount) : 'To discuss'} label={t('mentorProposalDetail.offer.price')} />
                 <OfferFact icon={<Clock3 className="h-3.5 w-3.5" />} value={formatDeadlineWithSeconds(item.deadlineAt)} label={t('mentorProposalDetail.offer.deadline')} />
               </div>
-              <div className="mt-3 inline-flex items-center gap-2 rounded-lg bg-slate-100 px-2.5 py-1.5 text-[11px] font-bold text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+              <div className="mt-3 inline-flex items-center gap-2 rounded-lg bg-slate-100 px-2.5 py-1.5 text-[11px] font-bold text-slate-600 dark:text-slate-400 dark:bg-slate-800 dark:text-slate-300">
                 <CircleDashed className="h-3.5 w-3.5 text-emerald-500" />
                 <span>{t('mentorProposalDetail.offer.timeUntilDeadline')}: {formatTimeRemaining(item.deadlineAt)}</span>
               </div>
@@ -975,14 +975,14 @@ function ConversationCard({ item, isLast, onCounter, onAccept }: { item: Convers
           ) : null}
 
           {item.note ? (
-            <p className={`mt-4 text-sm leading-6 ${item.type === 'offer' ? 'text-slate-600 dark:text-slate-300' : 'text-slate-700 dark:text-slate-200'}`}>
+            <p className={`mt-4 text-sm leading-6 ${item.type === 'offer' ? 'text-slate-600 dark:text-slate-400 dark:text-slate-300' : 'text-slate-700 dark:text-slate-300 dark:text-slate-200'}`}>
               {item.note}
             </p>
           ) : null}
 
           {isLast && isClientOffer && onCounter && onAccept ? (
-            <div className="mt-4 border-t border-slate-200/60 pt-4 dark:border-slate-700">
-              <p className="mb-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-semibold leading-5 text-amber-800">
+            <div className="mt-4 border-t border-slate-200 dark:border-slate-800/60 pt-4 dark:border-slate-700">
+              <p className="mb-3 rounded-xl border border-amber-200 dark:border-amber-800/50 bg-amber-50 dark:bg-amber-900/30 px-3 py-2 text-xs font-semibold leading-5 text-amber-800 dark:text-amber-200">
                 {t('mentorProposalDetail.offer.termsOnlyNotice')}
               </p>
               <div className="flex flex-wrap items-center gap-2">
@@ -990,7 +990,7 @@ function ConversationCard({ item, isLast, onCounter, onAccept }: { item: Convers
                 <Check className="h-3.5 w-3.5" />
                 {t('mentorProposalDetail.offer.acceptTerms')}
               </button>
-              <button type="button" onClick={onCounter} className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700">
+              <button type="button" onClick={onCounter} className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3 text-xs font-semibold text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:bg-slate-900/50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700">
                 <PencilLine className="h-3.5 w-3.5" />
                 {t('mentorProposalDetail.offer.counterOffer')}
               </button>
@@ -1005,11 +1005,11 @@ function ConversationCard({ item, isLast, onCounter, onAccept }: { item: Convers
 
 function StatusBadge({ label, tone }: { label: string; tone: 'indigo' | 'amber' | 'emerald' | 'rose' | 'slate' }) {
   const toneClass = {
-    indigo: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400',
-    amber: 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400',
-    emerald: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400',
+    indigo: 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-400 dark:bg-emerald-500/20 dark:text-emerald-400',
+    amber: 'bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-400 dark:bg-amber-500/20 dark:text-amber-400',
+    emerald: 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-400 dark:bg-emerald-500/20 dark:text-emerald-400',
     rose: 'bg-rose-100 text-rose-700 dark:bg-rose-500/20 dark:text-rose-400',
-    slate: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300',
+    slate: 'bg-slate-100 text-slate-700 dark:text-slate-300 dark:bg-slate-800 dark:text-slate-300',
   }[tone]
 
   return (
@@ -1033,7 +1033,7 @@ function JourneyStep({
 
   return (
     <div className="relative z-10 flex w-20 flex-col items-center sm:w-24">
-      <div className="bg-white px-2 dark:bg-slate-900">
+      <div className="bg-white dark:bg-slate-950 px-2 dark:bg-slate-900">
         <div
           className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold transition-colors ${
             isDone || isActive ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500'
@@ -1044,7 +1044,7 @@ function JourneyStep({
       </div>
       <p
         className={`mt-2 text-center text-[11px] font-semibold ${
-          isActive ? 'text-emerald-600 dark:text-emerald-400' : isDone ? 'text-slate-900 dark:text-white' : 'text-slate-400 dark:text-slate-500'
+          isActive ? 'text-emerald-600 dark:text-emerald-500 dark:text-emerald-400' : isDone ? 'text-slate-900 dark:text-white' : 'text-slate-400 dark:text-slate-500'
         }`}
       >
         {label}
@@ -1055,8 +1055,8 @@ function JourneyStep({
 
 function DealTerm({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
-    <div className="flex items-start gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 dark:border-slate-700 dark:bg-slate-900">
-      <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400">
+    <div className="flex items-start gap-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 py-3 dark:border-slate-700 dark:bg-slate-900">
+      <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-500 dark:bg-emerald-500/10 dark:text-emerald-400">
         {icon}
       </div>
       <div className="min-w-0">
@@ -1072,7 +1072,7 @@ function OfferFact({ icon, value, label }: { icon: React.ReactNode; value: strin
     <div className="flex items-center gap-2">
       <div className="text-emerald-500">{icon}</div>
       <div>
-        <p className="text-sm font-black tracking-tight text-slate-950">{value}</p>
+        <p className="text-sm font-black tracking-tight text-slate-950 dark:text-slate-100">{value}</p>
         <p className="text-[10px] font-medium text-slate-400">{label}</p>
       </div>
     </div>
@@ -1092,7 +1092,7 @@ function Avatar({
   return avatarUrl ? (
     <img src={avatarUrl} alt={initials} className={`${classes} object-cover`} />
   ) : (
-    <div className={`flex items-center justify-center bg-emerald-100 font-black text-emerald-600 ${classes}`}>{initials}</div>
+    <div className={`flex items-center justify-center bg-emerald-100 dark:bg-emerald-900/50 font-black text-emerald-600 dark:text-emerald-500 ${classes}`}>{initials}</div>
   )
 }
 
@@ -1230,7 +1230,7 @@ function ChatBubbleSkeleton({ align }: { align: 'left' | 'right' }) {
   return (
     <div className={`flex gap-3 ${align === 'right' ? 'flex-row-reverse' : 'flex-row'}`}>
       <SkeletonCircle size="h-9 w-9" />
-      <div className={`w-2/3 space-y-2 rounded-2xl p-4 ${align === 'right' ? 'bg-emerald-50/50' : 'bg-slate-50'}`}>
+      <div className={`w-2/3 space-y-2 rounded-2xl p-4 ${align === 'right' ? 'bg-emerald-50 ' : 'bg-slate-50 dark:bg-slate-900/50'}`}>
         <Skeleton className="h-4 w-1/4" />
         <Skeleton className="h-3 w-full" />
         <Skeleton className="h-3 w-2/3" />

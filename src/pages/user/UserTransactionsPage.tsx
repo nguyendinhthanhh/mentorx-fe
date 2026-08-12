@@ -58,7 +58,7 @@ export default function UserTransactionsPage() {
       case TxnType.APPOINTMENT_REFUND:
       case TxnType.BONUS_CREDIT:
       case TxnType.WITHDRAWAL_REFUND:
-        return 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400'
+        return 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-500 dark:bg-emerald-900/30 dark:text-emerald-400'
       case TxnType.WITHDRAWAL:
       case TxnType.JOB_PAYMENT:
       case TxnType.COURSE_PURCHASE:
@@ -68,7 +68,7 @@ export default function UserTransactionsPage() {
       case TxnType.PENALTY_DEDUCTION:
         return 'bg-rose-100 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400'
       default:
-        return 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
+        return 'bg-slate-100 text-slate-600 dark:text-slate-400 dark:bg-slate-800 dark:text-slate-400'
     }
   }
 
@@ -106,7 +106,7 @@ export default function UserTransactionsPage() {
       case TxnType.APPOINTMENT_REFUND:
       case TxnType.BONUS_CREDIT:
       case TxnType.WITHDRAWAL_REFUND:
-        return 'text-emerald-600 dark:text-emerald-400'
+        return 'text-emerald-600 dark:text-emerald-500 dark:text-emerald-400'
       case TxnType.WITHDRAWAL:
       case TxnType.JOB_PAYMENT:
       case TxnType.COURSE_PURCHASE:
@@ -232,18 +232,18 @@ export default function UserTransactionsPage() {
   const getStatusColor = (status: TxnStatus) => {
     switch (status) {
       case TxnStatus.COMPLETED:
-        return 'bg-emerald-50 text-emerald-700'
+        return 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'
       case TxnStatus.PENDING:
-        return 'bg-amber-50 text-amber-700'
+        return 'bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'
       case TxnStatus.FAILED:
       case TxnStatus.CANCELLED:
         return 'bg-rose-50 text-rose-700'
       case TxnStatus.FLAGGED:
-        return 'bg-emerald-50 text-emerald-700'
+        return 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'
       case TxnStatus.REVERSED:
-        return 'bg-slate-100 text-slate-700'
+        return 'bg-slate-100 text-slate-700 dark:text-slate-300'
       default:
-        return 'bg-slate-100 text-slate-700'
+        return 'bg-slate-100 text-slate-700 dark:text-slate-300'
     }
   }
 
@@ -257,12 +257,12 @@ export default function UserTransactionsPage() {
         <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white">
           Lịch sử giao dịch
         </h1>
-        <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+        <p className="text-sm font-medium text-slate-500 dark:text-slate-400 dark:text-slate-400">
           Xem lại toàn bộ các khoản nạp, trừ, tạm giữ, giải ngân và hoàn tiền trong ví của bạn.
         </p>
       </div>
 
-      <div className="overflow-hidden rounded-[24px] border border-slate-200/60 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <div className="overflow-hidden rounded-[24px] border border-slate-200 dark:border-slate-800/60 bg-white dark:bg-slate-950 shadow-sm dark:border-slate-800 dark:bg-slate-900">
         {isLoading ? (
           <div className="space-y-4 p-6">
             {[1, 2, 3, 4, 5].map((i) => (
@@ -278,11 +278,11 @@ export default function UserTransactionsPage() {
           </div>
         ) : transactions.length === 0 ? (
           <div className="flex flex-col items-center justify-center p-12 text-center">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-slate-50 dark:bg-slate-800">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-slate-50 dark:bg-slate-900/50 dark:bg-slate-800">
               <ReceiptText className="h-8 w-8 text-slate-400" />
             </div>
             <h3 className="mt-4 text-lg font-bold text-slate-900 dark:text-white">Chưa có giao dịch</h3>
-            <p className="mt-2 text-sm text-slate-500">
+            <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
               Các biến động số dư sẽ hiển thị tại đây khi ví của bạn phát sinh giao dịch.
             </p>
           </div>
@@ -294,7 +294,7 @@ export default function UserTransactionsPage() {
               return (
                 <div
                   key={txn.id}
-                  className="flex items-center gap-4 p-4 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50 md:p-6"
+                  className="flex items-center gap-4 p-4 transition-colors hover:bg-slate-50 dark:bg-slate-900/50 dark:hover:bg-slate-800/50 md:p-6"
                 >
                   <div className={cn('flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl', getTransactionColor(txn))}>
                     {getTransactionIcon(txn)}
@@ -304,10 +304,10 @@ export default function UserTransactionsPage() {
                     <h4 className="truncate text-base font-bold text-slate-900 dark:text-white">
                       {copy.title}
                     </h4>
-                    <p className="mt-1 truncate text-sm text-slate-500 dark:text-slate-400">
+                    <p className="mt-1 truncate text-sm text-slate-500 dark:text-slate-400 dark:text-slate-400">
                       {copy.description}
                     </p>
-                    <div className="mt-2 flex items-center gap-2 text-xs font-medium text-slate-500">
+                    <div className="mt-2 flex items-center gap-2 text-xs font-medium text-slate-500 dark:text-slate-400">
                       <Clock className="h-3.5 w-3.5" />
                       {new Date(txn.createdAt).toLocaleString('vi-VN')}
                     </div>
@@ -329,21 +329,21 @@ export default function UserTransactionsPage() {
         )}
 
         {totalPages > 1 && (
-          <div className="flex items-center justify-between border-t border-slate-100 px-6 py-4 dark:border-slate-800">
+          <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-800 px-6 py-4 dark:border-slate-800">
             <button
               onClick={() => setPage(Math.max(0, page - 1))}
               disabled={page === 0}
-              className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+              className="rounded-lg border border-slate-200 dark:border-slate-800 px-4 py-2 text-sm font-semibold text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:bg-slate-900/50 disabled:opacity-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
             >
               Trang trước
             </button>
-            <span className="text-sm font-medium text-slate-500">
+            <span className="text-sm font-medium text-slate-500 dark:text-slate-400">
               Trang {page + 1} / {totalPages}
             </span>
             <button
               onClick={() => setPage(Math.min(totalPages - 1, page + 1))}
               disabled={page === totalPages - 1}
-              className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+              className="rounded-lg border border-slate-200 dark:border-slate-800 px-4 py-2 text-sm font-semibold text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:bg-slate-900/50 disabled:opacity-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
             >
               Trang tiếp
             </button>

@@ -128,15 +128,15 @@ export default function CourseListPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f6f7fb] text-slate-950">
-      <section className="border-b border-slate-200 bg-white">
+    <div className="min-h-screen bg-[#f6f7fb] dark:bg-slate-950 text-slate-950 dark:text-slate-100">
+      <section className="border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950">
         <div className="mx-auto max-w-[1440px] px-4 py-8 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-2xl">
-              <h1 className="text-3xl font-black tracking-tight text-slate-950 md:text-4xl">
+              <h1 className="text-3xl font-black tracking-tight text-slate-950 dark:text-slate-100 md:text-4xl">
                 {t('courses.title')}
               </h1>
-              <p className="mt-2 text-sm leading-6 text-slate-600 md:text-base">
+              <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400 dark:text-slate-400 md:text-base">
                 {t('courses.subtitle')}
               </p>
             </div>
@@ -162,10 +162,10 @@ export default function CourseListPage() {
                 onFocus={() => setIsSearchMenuOpen(true)}
                 onBlur={() => window.setTimeout(() => setIsSearchMenuOpen(false), 120)}
                 placeholder={t('courses.searchPlaceholder')}
-                className="h-12 w-full rounded-xl border border-slate-300 bg-white pl-12 pr-4 text-sm font-medium text-slate-950 outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
+                className="h-12 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 pl-12 pr-4 text-sm font-medium text-slate-950 dark:text-slate-100 outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
               />
               {isSearchMenuOpen && courseSearchSuggestions.length > 0 && (
-                <div className="absolute z-20 mt-2 max-h-72 w-full overflow-auto rounded-xl border border-slate-200 bg-white p-2 shadow-lg">
+                <div className="absolute z-20 mt-2 max-h-72 w-full overflow-auto rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-2 shadow-lg">
                   {courseSearchSuggestions.map((suggestion) => (
                     <button
                       key={suggestion}
@@ -175,7 +175,7 @@ export default function CourseListPage() {
                         setSearch(suggestion)
                         setIsSearchMenuOpen(false)
                       }}
-                      className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-semibold text-slate-800 hover:bg-emerald-50"
+                      className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-semibold text-slate-800 dark:text-slate-200 dark:text-slate-200 hover:bg-emerald-50 dark:bg-emerald-900/30"
                     >
                       <Search className="h-4 w-4 text-slate-400" />
                       {suggestion}
@@ -199,7 +199,7 @@ export default function CourseListPage() {
                 className={`rounded-full px-4 py-2 text-xs font-bold transition ${
                   typeFilter === item.key
                     ? 'bg-emerald-600 text-white'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 dark:text-slate-400 hover:bg-slate-200'
                 }`}
               >
                 {item.label}
@@ -216,11 +216,11 @@ export default function CourseListPage() {
                 onFocus={() => setIsCategoryMenuOpen(true)}
                 onBlur={() => window.setTimeout(() => setIsCategoryMenuOpen(false), 120)}
                 placeholder="All domains"
-                className="w-full rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-700 outline-none transition hover:border-emerald-300 focus:border-emerald-500"
+                className="w-full rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 py-2 text-xs font-bold text-slate-700 dark:text-slate-300 dark:text-slate-300 outline-none transition hover:border-emerald-300 focus:border-emerald-500"
                 autoComplete="off"
               />
               {isCategoryMenuOpen && (
-                <div className="absolute z-20 mt-2 max-h-72 w-64 overflow-auto rounded-xl border border-slate-200 bg-white p-2 shadow-lg">
+                <div className="absolute z-20 mt-2 max-h-72 w-64 overflow-auto rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-2 shadow-lg">
                   <button
                     type="button"
                     onMouseDown={(event) => event.preventDefault()}
@@ -229,9 +229,9 @@ export default function CourseListPage() {
                       setCategorySearch('')
                       setIsCategoryMenuOpen(false)
                     }}
-                    className="flex w-full flex-col rounded-lg px-3 py-2 text-left hover:bg-emerald-50"
+                    className="flex w-full flex-col rounded-lg px-3 py-2 text-left hover:bg-emerald-50 dark:bg-emerald-900/30"
                   >
-                    <span className="text-sm font-semibold text-slate-900">All domains</span>
+                    <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">All domains</span>
                   </button>
                   {categorySuggestions.map((category) => (
                     <button
@@ -239,10 +239,10 @@ export default function CourseListPage() {
                       type="button"
                       onMouseDown={(event) => event.preventDefault()}
                       onClick={() => selectCategory(category)}
-                      className="flex w-full flex-col rounded-lg px-3 py-2 text-left hover:bg-emerald-50"
+                      className="flex w-full flex-col rounded-lg px-3 py-2 text-left hover:bg-emerald-50 dark:bg-emerald-900/30"
                     >
-                      <span className="text-sm font-semibold text-slate-900">{categoryLabel(category)}</span>
-                      <span className="text-xs text-slate-500">{category.slug}</span>
+                      <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">{categoryLabel(category)}</span>
+                      <span className="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-400">{category.slug}</span>
                     </button>
                   ))}
                 </div>
@@ -258,11 +258,11 @@ export default function CourseListPage() {
                 onFocus={() => setIsSkillMenuOpen(true)}
                 onBlur={() => window.setTimeout(() => setIsSkillMenuOpen(false), 120)}
                 placeholder="All skills"
-                className="w-full rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-700 outline-none transition hover:border-emerald-300 focus:border-emerald-500"
+                className="w-full rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 py-2 text-xs font-bold text-slate-700 dark:text-slate-300 dark:text-slate-300 outline-none transition hover:border-emerald-300 focus:border-emerald-500"
                 autoComplete="off"
               />
               {isSkillMenuOpen && (
-                <div className="absolute z-20 mt-2 max-h-72 w-64 overflow-auto rounded-xl border border-slate-200 bg-white p-2 shadow-lg">
+                <div className="absolute z-20 mt-2 max-h-72 w-64 overflow-auto rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-2 shadow-lg">
                   <button
                     type="button"
                     onMouseDown={(event) => event.preventDefault()}
@@ -270,9 +270,9 @@ export default function CourseListPage() {
                       setSkillFilter('')
                       setIsSkillMenuOpen(false)
                     }}
-                    className="flex w-full flex-col rounded-lg px-3 py-2 text-left hover:bg-emerald-50"
+                    className="flex w-full flex-col rounded-lg px-3 py-2 text-left hover:bg-emerald-50 dark:bg-emerald-900/30"
                   >
-                    <span className="text-sm font-semibold text-slate-900">All skills</span>
+                    <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">All skills</span>
                   </button>
                   {skillSuggestions.map((skill) => (
                     <button
@@ -280,10 +280,10 @@ export default function CourseListPage() {
                       type="button"
                       onMouseDown={(event) => event.preventDefault()}
                       onClick={() => selectSkill(skill)}
-                      className="flex w-full flex-col rounded-lg px-3 py-2 text-left hover:bg-emerald-50"
+                      className="flex w-full flex-col rounded-lg px-3 py-2 text-left hover:bg-emerald-50 dark:bg-emerald-900/30"
                     >
-                      <span className="text-sm font-semibold text-slate-900">{skillLabel(skill)}</span>
-                      <span className="text-xs text-slate-500">{skill.slug}</span>
+                      <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">{skillLabel(skill)}</span>
+                      <span className="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-400">{skill.slug}</span>
                     </button>
                   ))}
                 </div>
@@ -292,7 +292,7 @@ export default function CourseListPage() {
             <select
               value={languageFilter}
               onChange={(event) => setLanguageFilter(event.target.value as '' | SupportedLanguage)}
-              className="rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-700 outline-none transition hover:border-emerald-300 focus:border-emerald-500"
+              className="rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 py-2 text-xs font-bold text-slate-700 dark:text-slate-300 dark:text-slate-300 outline-none transition hover:border-emerald-300 focus:border-emerald-500"
             >
               <option value="">All languages</option>
               <option value={SupportedLanguage.VI}>Vietnamese</option>
@@ -303,7 +303,7 @@ export default function CourseListPage() {
             <select
               value={levelFilter}
               onChange={(event) => setLevelFilter(event.target.value)}
-              className="rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-700 outline-none transition hover:border-emerald-300 focus:border-emerald-500"
+              className="rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 py-2 text-xs font-bold text-slate-700 dark:text-slate-300 dark:text-slate-300 outline-none transition hover:border-emerald-300 focus:border-emerald-500"
             >
               <option value="">All levels</option>
               <option value="beginner">Beginner</option>
@@ -318,15 +318,15 @@ export default function CourseListPage() {
         {isLoading ? (
           <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
             {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-                <div className="h-48 animate-pulse bg-slate-100" />
+              <div key={i} className="overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 shadow-sm">
+                <div className="h-48 animate-pulse bg-slate-100 dark:bg-slate-800" />
                 <div className="p-5">
-                  <div className="mb-3 h-5 w-3/4 animate-pulse rounded-lg bg-slate-100" />
-                  <div className="mb-2 h-3 w-full animate-pulse rounded bg-slate-100" />
-                  <div className="mb-4 h-3 w-2/3 animate-pulse rounded bg-slate-100" />
+                  <div className="mb-3 h-5 w-3/4 animate-pulse rounded-lg bg-slate-100 dark:bg-slate-800" />
+                  <div className="mb-2 h-3 w-full animate-pulse rounded bg-slate-100 dark:bg-slate-800" />
+                  <div className="mb-4 h-3 w-2/3 animate-pulse rounded bg-slate-100 dark:bg-slate-800" />
                   <div className="flex justify-between">
-                    <div className="h-4 w-20 animate-pulse rounded bg-slate-100" />
-                    <div className="h-4 w-16 animate-pulse rounded bg-slate-100" />
+                    <div className="h-4 w-20 animate-pulse rounded bg-slate-100 dark:bg-slate-800" />
+                    <div className="h-4 w-16 animate-pulse rounded bg-slate-100 dark:bg-slate-800" />
                   </div>
                 </div>
               </div>
@@ -350,12 +350,12 @@ export default function CourseListPage() {
             )}
           </>
         ) : (
-          <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center">
+          <div className="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-6 py-16 text-center">
             <BookOpen className="mx-auto h-14 w-14 text-slate-300" />
-            <h3 className="mt-4 text-xl font-black text-slate-950">
+            <h3 className="mt-4 text-xl font-black text-slate-950 dark:text-slate-100">
               {t('courses.noCoursesFound')}
             </h3>
-            <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-600">
+            <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-600 dark:text-slate-400 dark:text-slate-400">
               {search ? t('courses.emptyWithSearch') : t('courses.emptyNoCourses')}
             </p>
             <Link
@@ -377,7 +377,7 @@ function CourseMetadata({ domainName, skills }: { domainName?: string; skills: s
   return (
     <div className="mt-3 space-y-2">
       {domainName && (
-        <div className="inline-flex max-w-full items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-600">
+        <div className="inline-flex max-w-full items-center gap-1.5 rounded-full bg-slate-100 dark:bg-slate-800 px-2.5 py-1 text-xs font-bold text-slate-600 dark:text-slate-400 dark:text-slate-400">
           <Tag className="h-3.5 w-3.5 shrink-0 text-slate-400" />
           <span className="truncate">{domainName}</span>
         </div>
@@ -385,12 +385,12 @@ function CourseMetadata({ domainName, skills }: { domainName?: string; skills: s
       {skills.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
           {skills.slice(0, 3).map((skill) => (
-            <span key={skill} className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700">
+            <span key={skill} className="rounded-full bg-emerald-50 dark:bg-emerald-900/30 px-2.5 py-1 text-xs font-bold text-emerald-700 dark:text-emerald-400">
               {skill}
             </span>
           ))}
           {skills.length > 3 && (
-            <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-500">
+            <span className="rounded-full bg-slate-100 dark:bg-slate-800 px-2.5 py-1 text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400">
               +{skills.length - 3}
             </span>
           )}
@@ -408,9 +408,9 @@ function CourseCard({ course, categoryName }: { course: any; categoryName: strin
   return (
     <Link
       to={`/courses/${course.courseId}`}
-      className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg hover:border-emerald-200 hover:shadow-emerald-500/10 flex flex-col h-full"
+      className="group overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg hover:border-emerald-200 dark:border-emerald-800/50 hover:shadow-emerald-500/10 flex flex-col h-full"
     >
-      <div className="relative h-48 overflow-hidden bg-emerald-50 shrink-0">
+      <div className="relative h-48 overflow-hidden bg-emerald-50 dark:bg-emerald-900/30 shrink-0">
         {course.thumbnailUrl ? (
           <img
             src={course.thumbnailUrl}
@@ -424,26 +424,26 @@ function CourseCard({ course, categoryName }: { course: any; categoryName: strin
             <BookOpen className="h-12 w-12 text-emerald-300" />
           </div>
         )}
-        <span className="absolute left-3 top-3 rounded-lg bg-white/90 px-2.5 py-1 text-xs font-black text-slate-700 backdrop-blur">
+        <span className="absolute left-3 top-3 rounded-lg bg-white dark:bg-slate-950/90 px-2.5 py-1 text-xs font-black text-slate-700 dark:text-slate-300 dark:text-slate-300 backdrop-blur">
           {course.level || t('courses.resourceType')}
         </span>
-        <span className="absolute right-3 top-3 rounded-lg px-2.5 py-1 text-xs font-black bg-emerald-50 text-emerald-700">
+        <span className="absolute right-3 top-3 rounded-lg px-2.5 py-1 text-xs font-black bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400">
           {t('courses.typeCourse')}
         </span>
       </div>
 
       <div className="p-5 flex flex-col flex-grow">
-        <h3 className="line-clamp-1 font-black text-slate-950 transition group-hover:text-emerald-700">
+        <h3 className="line-clamp-1 font-black text-slate-950 dark:text-slate-100 transition group-hover:text-emerald-700 dark:text-emerald-400">
           {course.title}
         </h3>
-        <p className="mt-2 line-clamp-2 text-sm leading-6 text-slate-600 flex-grow">
+        <p className="mt-2 line-clamp-2 text-sm leading-6 text-slate-600 dark:text-slate-400 dark:text-slate-400 flex-grow">
           {course.description || t('courses.noDescription')}
         </p>
         <CourseMetadata domainName={categoryName} skills={courseSkills} />
 
         {course.totalLessons ? (
-          <div className="mt-3 flex flex-wrap items-center gap-2 text-xs font-semibold text-slate-500">
-            <span className="rounded-full bg-slate-100 px-2.5 py-1 text-slate-600">
+          <div className="mt-3 flex flex-wrap items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400 dark:text-slate-400">
+            <span className="rounded-full bg-slate-100 dark:bg-slate-800 px-2.5 py-1 text-slate-600 dark:text-slate-400 dark:text-slate-400">
               {course.totalLessons} Lessons
             </span>
           </div>
@@ -451,22 +451,22 @@ function CourseCard({ course, categoryName }: { course: any; categoryName: strin
 
         <div className="mt-4 flex items-center justify-between text-sm">
           {(course.instructor?.fullName || course.instructorName) ? (
-            <span className="mr-2 truncate font-bold text-slate-500">
+            <span className="mr-2 truncate font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400">
               {course.instructor?.fullName || course.instructorName}
             </span>
           ) : <span />}
           {course.averageRating && (
             <div className="flex items-center gap-1">
               <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-              <span className="font-bold text-slate-700">
+              <span className="font-bold text-slate-700 dark:text-slate-300 dark:text-slate-300">
                 {course.averageRating.toFixed(1)}
               </span>
             </div>
           )}
         </div>
 
-        <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-4">
-          <span className="text-lg font-black text-emerald-700">
+        <div className="mt-4 flex items-center justify-between border-t border-slate-100 dark:border-slate-800 pt-4">
+          <span className="text-lg font-black text-emerald-700 dark:text-emerald-400">
             {displayPrice > 0 ? formatCurrency(displayPrice) : t('courses.free')}
           </span>
           <span className="flex items-center gap-1 text-xs font-bold text-slate-400">
@@ -487,14 +487,14 @@ function DocumentCard({ course, categoryName }: { course: any; categoryName: str
   return (
     <Link
       to={`/courses/${course.courseId}`}
-      className="group relative overflow-hidden rounded-[24px] bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-indigo-500/10 border border-slate-200 hover:border-indigo-200 flex flex-col h-full"
+      className="group relative overflow-hidden rounded-[24px] bg-white dark:bg-slate-950 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-indigo-500/10 border border-slate-200 dark:border-slate-800 hover:border-indigo-200 flex flex-col h-full"
     >
-      <div className="relative flex h-52 items-center justify-center bg-gradient-to-br from-indigo-50 to-blue-50 shrink-0 p-4">
+      <div className="relative flex h-52 items-center justify-center bg-gradient-to-br from-indigo-50 dark:from-indigo-900/30 to-blue-50 dark:to-blue-900/30 shrink-0 p-4">
         {/* Abstract Background pattern */}
         <div className="absolute inset-0 opacity-[0.03] mix-blend-multiply" style={{ backgroundImage: 'radial-gradient(#4f46e5 1px, transparent 1px)', backgroundSize: '16px 16px' }} />
         
         {course.thumbnailUrl ? (
-          <div className="relative z-10 flex h-full w-[130px] items-center justify-center rounded-r-md rounded-l-sm bg-white p-1 shadow-[4px_0_15px_rgba(0,0,0,0.1),-1px_0_1px_rgba(0,0,0,0.05)] transition-transform duration-500 group-hover:scale-105 group-hover:-rotate-2">
+          <div className="relative z-10 flex h-full w-[130px] items-center justify-center rounded-r-md rounded-l-sm bg-white dark:bg-slate-950 p-1 shadow-[4px_0_15px_rgba(0,0,0,0.1),-1px_0_1px_rgba(0,0,0,0.05)] transition-transform duration-500 group-hover:scale-105 group-hover:-rotate-2">
             <img
               src={course.thumbnailUrl}
               alt={course.title}
@@ -514,18 +514,18 @@ function DocumentCard({ course, categoryName }: { course: any; categoryName: str
         
         {/* Badges */}
         <div className="absolute left-4 top-4 z-20 flex gap-2">
-          <span className="rounded-xl bg-white/70 px-3 py-1 text-xs font-black text-indigo-700 shadow-sm backdrop-blur-md">
+          <span className="rounded-xl bg-white dark:bg-slate-950/70 px-3 py-1 text-xs font-black text-indigo-700 dark:text-indigo-400 shadow-sm backdrop-blur-md">
             {t('courses.typeDocument')}
           </span>
         </div>
       </div>
 
-      <div className="p-5 flex flex-col flex-grow bg-white">
-        <h3 className="line-clamp-2 font-black text-slate-900 text-lg leading-tight transition group-hover:text-indigo-600">
+      <div className="p-5 flex flex-col flex-grow bg-white dark:bg-slate-950">
+        <h3 className="line-clamp-2 font-black text-slate-900 dark:text-slate-100 text-lg leading-tight transition group-hover:text-indigo-600 dark:text-indigo-500">
           {course.title}
         </h3>
         
-        <p className="mt-3 line-clamp-2 text-sm leading-relaxed text-slate-500 flex-grow">
+        <p className="mt-3 line-clamp-2 text-sm leading-relaxed text-slate-500 dark:text-slate-400 dark:text-slate-400 flex-grow">
           {course.description || t('courses.noDescription')}
         </p>
 
@@ -533,15 +533,15 @@ function DocumentCard({ course, categoryName }: { course: any; categoryName: str
           <CourseMetadata domainName={categoryName} skills={courseSkills} />
         </div>
 
-        <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-5">
+        <div className="mt-5 flex items-center justify-between border-t border-slate-100 dark:border-slate-800 pt-5">
           <div className="flex flex-col">
-            <span className="text-sm font-semibold text-slate-500">Price</span>
-            <span className="text-xl font-black text-indigo-700">
+            <span className="text-sm font-semibold text-slate-500 dark:text-slate-400 dark:text-slate-400">Price</span>
+            <span className="text-xl font-black text-indigo-700 dark:text-indigo-400">
               {displayPrice > 0 ? formatCurrency(displayPrice) : t('courses.free')}
             </span>
           </div>
           
-          <div className="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-50 text-indigo-600 transition-colors group-hover:bg-indigo-600 group-hover:text-white">
+          <div className="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-500 transition-colors group-hover:bg-indigo-600 group-hover:text-white">
             <Download className="h-4 w-4 stroke-[2.5]" />
           </div>
         </div>
@@ -572,14 +572,14 @@ function Pagination({
 
   return (
     <nav
-      className="inline-flex items-center gap-1 rounded-2xl border border-slate-200 bg-white p-1.5 shadow-sm"
+      className="inline-flex items-center gap-1 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-1.5 shadow-sm"
       aria-label="Pagination"
     >
       <button
         type="button"
         onClick={() => onPageChange(Math.max(0, page - 1))}
         disabled={page === 0}
-        className="flex h-11 w-11 items-center justify-center rounded-xl text-slate-600 transition-colors hover:bg-slate-100 active:translate-y-px disabled:pointer-events-none disabled:opacity-35"
+        className="flex h-11 w-11 items-center justify-center rounded-xl text-slate-600 dark:text-slate-400 dark:text-slate-400 transition-colors hover:bg-slate-100 dark:bg-slate-800 active:translate-y-px disabled:pointer-events-none disabled:opacity-35"
         aria-label="Previous page"
       >
         <ChevronLeft className="h-5 w-5" aria-hidden="true" />
@@ -594,8 +594,8 @@ function Pagination({
           aria-label={`Page ${pageNumber + 1}`}
           className={`h-11 min-w-11 rounded-xl px-3 text-sm font-bold transition-colors active:translate-y-px ${
             page === pageNumber
-              ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-sm'
-              : 'text-slate-600 hover:bg-slate-100'
+              ? 'bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-700 dark:to-teal-700 text-white shadow-sm'
+              : 'text-slate-600 dark:text-slate-400 dark:text-slate-400 hover:bg-slate-100 dark:bg-slate-800'
           }`}
         >
           {pageNumber + 1}
@@ -606,7 +606,7 @@ function Pagination({
         type="button"
         onClick={() => onPageChange(Math.min(totalPages - 1, page + 1))}
         disabled={page >= totalPages - 1}
-        className="flex h-11 w-11 items-center justify-center rounded-xl text-slate-600 transition-colors hover:bg-slate-100 active:translate-y-px disabled:pointer-events-none disabled:opacity-35"
+        className="flex h-11 w-11 items-center justify-center rounded-xl text-slate-600 dark:text-slate-400 dark:text-slate-400 transition-colors hover:bg-slate-100 dark:bg-slate-800 active:translate-y-px disabled:pointer-events-none disabled:opacity-35"
         aria-label="Next page"
       >
         <ChevronRight className="h-5 w-5" aria-hidden="true" />

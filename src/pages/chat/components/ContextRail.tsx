@@ -107,9 +107,9 @@ export default function ContextRail({
       ].filter(Boolean) as string[]
 
   return (
-    <aside className="flex h-full min-h-0 flex-col bg-[#f7f8fe]">
+    <aside className="flex h-full min-h-0 flex-col bg-[#f7f8fe] dark:bg-slate-950">
       <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-3 py-3">
-        <section className="rounded-lg border border-[#dce2f2] bg-white p-4">
+        <section className="rounded-lg border border-[#dce2f2] bg-white dark:bg-slate-950 p-4">
           <div className="flex items-center justify-between gap-3">
             <h2 className="text-[15px] font-bold text-[#10164a]">
               {linkedContract ? 'Job Progress' : (mentorProfile || userProfile ? 'Profile' : 'Room details')}
@@ -118,7 +118,7 @@ export default function ContextRail({
               <button
                 type="button"
                 onClick={onClose}
-                className="inline-flex h-8 w-8 items-center justify-center rounded-full text-[#52608b] hover:bg-emerald-50 hover:text-emerald-700"
+                className="inline-flex h-8 w-8 items-center justify-center rounded-full text-[#52608b] hover:bg-emerald-50 dark:bg-emerald-900/30 hover:text-emerald-700 dark:text-emerald-400"
                 title="Đóng chi tiết"
               >
                 <X className="h-4 w-4" />
@@ -132,7 +132,7 @@ export default function ContextRail({
             {/* Avatar Section */}
             <div className="relative mx-auto h-[92px] w-[92px]">
               <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-emerald-100 to-teal-100 blur-sm" />
-              <div className="relative h-full w-full rounded-full border-[3px] border-white bg-white shadow-sm">
+              <div className="relative h-full w-full rounded-full border-[3px] border-white bg-white dark:bg-slate-950 shadow-sm">
                 {avatarUrl ? (
                   <img src={avatarUrl} alt={displayName} className="h-full w-full rounded-full object-cover" />
                 ) : (
@@ -149,14 +149,14 @@ export default function ContextRail({
             {/* Name and Role Section */}
             <div className="mt-4">
               <div className="flex items-center justify-center gap-2">
-                <h3 className="truncate text-[18px] font-black text-slate-900">{displayName}</h3>
+                <h3 className="truncate text-[18px] font-black text-slate-900 dark:text-slate-100">{displayName}</h3>
                 {mentorProfile?.isFeatured && (
-                  <span className="rounded-md bg-emerald-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-600 ring-1 ring-emerald-200">
+                  <span className="rounded-md bg-emerald-50 dark:bg-emerald-900/30 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-500 ring-1 ring-emerald-200">
                     Top
                   </span>
                 )}
               </div>
-              <p className="mt-1 text-[13px] font-semibold text-slate-500">
+              <p className="mt-1 text-[13px] font-semibold text-slate-500 dark:text-slate-400">
                 {mentorProfile?.headline || userProfile?.bio || formattedRole || formatRoomType(selectedRoom.roomType)}
               </p>
             </div>
@@ -165,19 +165,19 @@ export default function ContextRail({
             {isProfileLoading ? (
               <div className="mx-auto mt-6 h-4 w-40 animate-pulse rounded-full bg-slate-100" />
             ) : mentorProfile ? (
-              <div className="mt-5 space-y-5 border-t border-slate-100 pt-5">
+              <div className="mt-5 space-y-5 border-t border-slate-100 dark:border-slate-800 pt-5">
                 <div className="flex items-center justify-center gap-1.5 text-[13px]">
-                  <div className="flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 font-bold text-amber-700 ring-1 ring-amber-200">
+                  <div className="flex items-center gap-1 rounded-full bg-amber-50 dark:bg-amber-900/30 px-2 py-0.5 font-bold text-amber-700 dark:text-amber-400 ring-1 ring-amber-200">
                     <Star className="h-3.5 w-3.5 fill-amber-500 text-amber-500" />
                     {mentorProfile.averageRating?.toFixed(1) || 'N/A'}
                   </div>
-                  <span className="font-medium text-slate-500">({mentorProfile.totalReviews} reviews)</span>
+                  <span className="font-medium text-slate-500 dark:text-slate-400">({mentorProfile.totalReviews} reviews)</span>
                 </div>
 
                 {skillChips.length > 0 && (
                   <div className="flex flex-wrap justify-center gap-1.5">
                     {skillChips.map((chip) => (
-                      <span key={chip} className="rounded-md bg-slate-50 px-2 py-1 text-[11px] font-semibold text-slate-600 ring-1 ring-slate-200">
+                      <span key={chip} className="rounded-md bg-slate-50 dark:bg-slate-900/50 px-2 py-1 text-[11px] font-semibold text-slate-600 dark:text-slate-400 ring-1 ring-slate-200">
                         {chip}
                       </span>
                     ))}
@@ -194,36 +194,36 @@ export default function ContextRail({
                   </Link>
                   <Link
                     to={`/mentors/${mentorProfile.userId}`}
-                    className="inline-flex h-10 w-full items-center justify-center rounded-xl border border-slate-200 bg-white px-4 text-[13px] font-semibold text-slate-700 transition-colors hover:bg-slate-50"
+                    className="inline-flex h-10 w-full items-center justify-center rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 text-[13px] font-semibold text-slate-700 dark:text-slate-300 transition-colors hover:bg-slate-50 dark:bg-slate-900/50"
                   >
                     View profile
                   </Link>
                 </div>
               </div>
             ) : userProfile ? (
-              <div className="mt-5 space-y-4 border-t border-slate-100 pt-5 text-left">
+              <div className="mt-5 space-y-4 border-t border-slate-100 dark:border-slate-800 pt-5 text-left">
                 <div className="flex flex-wrap gap-2">
                   {profileMeta.slice(0, compact ? 2 : 3).map((item) => (
-                    <span key={item} className="rounded-md bg-slate-50 px-2.5 py-1 text-[11px] font-semibold text-slate-600 ring-1 ring-slate-200">
+                    <span key={item} className="rounded-md bg-slate-50 dark:bg-slate-900/50 px-2.5 py-1 text-[11px] font-semibold text-slate-600 dark:text-slate-400 ring-1 ring-slate-200">
                       {item}
                     </span>
                   ))}
                 </div>
                 {userProfile.bio && (
-                  <p className="text-[13px] leading-relaxed text-slate-600">
+                  <p className="text-[13px] leading-relaxed text-slate-600 dark:text-slate-400">
                     {userProfile.bio}
                   </p>
                 )}
               </div>
             ) : (
-              <div className="mt-5 rounded-xl bg-slate-50 px-4 py-3 text-[13px] text-slate-500">
+              <div className="mt-5 rounded-xl bg-slate-50 dark:bg-slate-900/50 px-4 py-3 text-[13px] text-slate-500 dark:text-slate-400">
                 This conversation is using room-level context.
               </div>
             )}
             
             {/* Active Contract Actions - Make it stand out and stick to the bottom of the profile block */}
             {linkedContract && currentUserId && (
-              <div className="mt-6 border-t border-slate-100 pt-6 text-left">
+              <div className="mt-6 border-t border-slate-100 dark:border-slate-800 pt-6 text-left">
                 <ActiveContractActions 
                   contract={linkedContract}
                   currentUserId={currentUserId}
@@ -234,11 +234,11 @@ export default function ContextRail({
         </section>
 
         {(mentorProfile || userProfile) && (
-          <section className="rounded-lg border border-[#dce2f2] bg-white p-4">
+          <section className="rounded-lg border border-[#dce2f2] bg-white dark:bg-slate-950 p-4">
             <div className="flex items-center justify-between gap-3">
               <h3 className="text-[14px] font-bold text-[#10164a]">Profile snapshot</h3>
               {mentorProfile && (
-                <Link to={`/mentors/${mentorProfile.userId}`} className="text-[12px] font-semibold text-emerald-600">
+                <Link to={`/mentors/${mentorProfile.userId}`} className="text-[12px] font-semibold text-emerald-600 dark:text-emerald-500">
                   Open profile
                 </Link>
               )}
@@ -263,7 +263,7 @@ export default function ContextRail({
                 <MetaRow label="Thành viên từ" value={new Date(userProfile.createdAt).toLocaleDateString('vi-VN')} />
               )}
               {profileSummary && (
-                <div className="rounded-xl bg-[#f7f8fe] px-3 py-3">
+                <div className="rounded-xl bg-[#f7f8fe] dark:bg-slate-950 px-3 py-3">
                   <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.16em] text-[#52608b]">
                     <MessageSquareText className="h-3.5 w-3.5" />
                     About
@@ -281,7 +281,7 @@ export default function ContextRail({
                   </div>
                   <div className="mt-2 flex flex-wrap gap-2">
                     {skillChips.slice(0, compact ? 4 : 6).map((chip) => (
-                      <span key={chip} className="rounded-lg bg-[#f0f2ff] px-2.5 py-1 text-[11px] font-medium text-[#25305f]">
+                      <span key={chip} className="rounded-lg bg-[#f0f2ff] dark:bg-slate-950 px-2.5 py-1 text-[11px] font-medium text-[#25305f]">
                         {chip}
                       </span>
                     ))}
@@ -294,18 +294,18 @@ export default function ContextRail({
 
         {/* Job Details Section */}
         {(linkedJob || isLinkedJobLoading) && (
-          <section className="rounded-lg border border-emerald-200 bg-gradient-to-b from-emerald-50 to-white p-4 shadow-sm">
+          <section className="rounded-lg border border-emerald-200 dark:border-emerald-800/50 bg-gradient-to-b from-emerald-50 to-white p-4 shadow-sm">
             <div className="flex items-center justify-between gap-3 mb-3">
-              <h3 className="text-[14px] font-bold text-emerald-900 flex items-center gap-1.5">
-                <span className="w-5 h-5 rounded-md bg-emerald-100 flex items-center justify-center">
-                  <BookOpen className="w-3 h-3 text-emerald-600" />
+              <h3 className="text-[14px] font-bold text-emerald-900 dark:text-emerald-100 flex items-center gap-1.5">
+                <span className="w-5 h-5 rounded-md bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center">
+                  <BookOpen className="w-3 h-3 text-emerald-600 dark:text-emerald-500" />
                 </span>
                 Thông tin Job
               </h3>
               {linkedJob && (
                 <button 
                   onClick={() => setIsJobModalOpen(true)}
-                  className="text-[12px] font-semibold text-emerald-600 hover:text-emerald-700"
+                  className="text-[12px] font-semibold text-emerald-600 dark:text-emerald-500 hover:text-emerald-700 dark:text-emerald-400"
                 >
                   Xem chi tiết
                 </button>
@@ -314,30 +314,30 @@ export default function ContextRail({
 
             {isLinkedJobLoading ? (
               <div className="space-y-2 animate-pulse">
-                <div className="h-4 w-3/4 bg-emerald-100/50 rounded-full" />
-                <div className="h-3 w-1/2 bg-emerald-100/50 rounded-full" />
-                <div className="h-8 w-full bg-emerald-100/50 rounded-lg mt-3" />
+                <div className="h-4 w-3/4 bg-emerald-100 dark:bg-emerald-900/50 rounded-full" />
+                <div className="h-3 w-1/2 bg-emerald-100 dark:bg-emerald-900/50 rounded-full" />
+                <div className="h-8 w-full bg-emerald-100 dark:bg-emerald-900/50 rounded-lg mt-3" />
               </div>
             ) : linkedJob ? (
               <div>
-                <h4 className="text-[13px] font-bold text-slate-900 leading-snug line-clamp-2" title={linkedJob.title}>
+                <h4 className="text-[13px] font-bold text-slate-900 dark:text-slate-100 leading-snug line-clamp-2" title={linkedJob.title}>
                   {linkedJob.title}
                 </h4>
-                <p className="mt-1.5 text-[12px] text-slate-500 line-clamp-2">
+                <p className="mt-1.5 text-[12px] text-slate-500 dark:text-slate-400 line-clamp-2">
                   {linkedJob.description}
                 </p>
                 <div className="mt-3 grid grid-cols-2 gap-2">
-                  <div className="bg-white rounded-md p-2 border border-emerald-100 shadow-sm">
-                    <p className="text-[10px] font-bold text-emerald-600 uppercase mb-0.5">Budget</p>
-                    <p className="text-[12px] font-black text-slate-900">
+                  <div className="bg-white dark:bg-slate-950 rounded-md p-2 border border-emerald-100 dark:border-emerald-900/50 shadow-sm">
+                    <p className="text-[10px] font-bold text-emerald-600 dark:text-emerald-500 uppercase mb-0.5">Budget</p>
+                    <p className="text-[12px] font-black text-slate-900 dark:text-slate-100">
                       {linkedJob.budgetType === 'FIXED' 
                         ? formatCurrency(linkedJob.budgetMaxMxc || 0)
                         : formatCurrency(linkedJob.hourlyRateMxc || 0).replace(' MXC', ' MXC/hr')}
                     </p>
                   </div>
-                  <div className="bg-white rounded-md p-2 border border-emerald-100 shadow-sm">
-                    <p className="text-[10px] font-bold text-emerald-600 uppercase mb-0.5">Deadline</p>
-                    <p className="text-[12px] font-black text-slate-900 truncate">
+                  <div className="bg-white dark:bg-slate-950 rounded-md p-2 border border-emerald-100 dark:border-emerald-900/50 shadow-sm">
+                    <p className="text-[10px] font-bold text-emerald-600 dark:text-emerald-500 uppercase mb-0.5">Deadline</p>
+                    <p className="text-[12px] font-black text-slate-900 dark:text-slate-100 truncate">
                       {linkedJob.deadlineAt ? new Date(linkedJob.deadlineAt).toLocaleDateString('vi-VN') : 'N/A'}
                     </p>
                   </div>
@@ -348,11 +348,11 @@ export default function ContextRail({
         )}
 
         {(linkedContract || isLinkedContractLoading) && (
-          <section className="rounded-lg border border-emerald-200 bg-white p-4 shadow-sm">
+          <section className="rounded-lg border border-emerald-200 dark:border-emerald-800/50 bg-white dark:bg-slate-950 p-4 shadow-sm">
             <div className="flex items-center justify-between gap-3 mb-3">
               <h3 className="text-[14px] font-bold text-[#10164a] flex items-center gap-1.5">
-                <span className="w-5 h-5 rounded-md bg-emerald-100 flex items-center justify-center">
-                  <Lock className="w-3 h-3 text-emerald-600" />
+                <span className="w-5 h-5 rounded-md bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center">
+                  <Lock className="w-3 h-3 text-emerald-600 dark:text-emerald-500" />
                 </span>
                 Work status
               </h3>
@@ -365,17 +365,17 @@ export default function ContextRail({
               </div>
             ) : linkedContract ? (
               <div className="space-y-3">
-                <div className="rounded-xl bg-emerald-50 px-3 py-3 border border-emerald-100">
+                <div className="rounded-xl bg-emerald-50 dark:bg-emerald-900/30 px-3 py-3 border border-emerald-100 dark:border-emerald-900/50">
                   <div className="flex items-center justify-between gap-3">
                     <div>
                       <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-emerald-500">Progress</p>
-                      <p className="mt-1 text-[18px] font-black text-slate-900">{Math.max(0, Math.min(100, linkedContract.progressPercentage || 0))}%</p>
+                      <p className="mt-1 text-[18px] font-black text-slate-900 dark:text-slate-100">{Math.max(0, Math.min(100, linkedContract.progressPercentage || 0))}%</p>
                     </div>
-                    <span className="rounded-full bg-white px-2.5 py-1 text-[10px] font-bold text-emerald-700 border border-emerald-100">
+                    <span className="rounded-full bg-white dark:bg-slate-950 px-2.5 py-1 text-[10px] font-bold text-emerald-700 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/50">
                       {formatContractStatus(linkedContract.status)}
                     </span>
                   </div>
-                  <div className="mt-3 h-2 overflow-hidden rounded-full bg-emerald-100">
+                  <div className="mt-3 h-2 overflow-hidden rounded-full bg-emerald-100 dark:bg-emerald-900/50">
                     <div
                       className="h-full rounded-full bg-emerald-600"
                       style={{ width: `${Math.max(0, Math.min(100, linkedContract.progressPercentage || 0))}%` }}
@@ -384,24 +384,24 @@ export default function ContextRail({
                 </div>
 
                 <div className="grid grid-cols-2 gap-2">
-                  <div className="bg-slate-50 rounded-md p-2 border border-slate-100 shadow-sm">
-                    <p className="text-[10px] font-bold text-slate-500 uppercase mb-0.5">Deadline</p>
-                    <p className="text-[12px] font-black text-slate-900 truncate">
+                  <div className="bg-slate-50 dark:bg-slate-900/50 rounded-md p-2 border border-slate-100 dark:border-slate-800 shadow-sm">
+                    <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-0.5">Deadline</p>
+                    <p className="text-[12px] font-black text-slate-900 dark:text-slate-100 truncate">
                       {linkedContract.endDate ? new Date(linkedContract.endDate).toLocaleDateString('vi-VN') : linkedJob?.deadlineAt ? new Date(linkedJob.deadlineAt).toLocaleDateString('vi-VN') : 'N/A'}
                     </p>
                   </div>
-                  <div className="bg-slate-50 rounded-md p-2 border border-slate-100 shadow-sm">
-                    <p className="text-[10px] font-bold text-slate-500 uppercase mb-0.5">Escrow</p>
-                    <p className="text-[12px] font-black text-slate-900 truncate">
+                  <div className="bg-slate-50 dark:bg-slate-900/50 rounded-md p-2 border border-slate-100 dark:border-slate-800 shadow-sm">
+                    <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-0.5">Escrow</p>
+                    <p className="text-[12px] font-black text-slate-900 dark:text-slate-100 truncate">
                       {linkedContract.fundsInEscrow ? formatCurrency(linkedContract.amountInEscrow || 0) : 'Released'}
                     </p>
                   </div>
                 </div>
 
-                <div className="rounded-xl bg-slate-50 px-3 py-3 border border-slate-100">
+                <div className="rounded-xl bg-slate-50 dark:bg-slate-900/50 px-3 py-3 border border-slate-100 dark:border-slate-800">
                   <div className="flex items-start gap-2">
                     <CheckCircle2 className="h-4 w-4 mt-0.5 text-emerald-500" />
-                    <p className="text-[12px] leading-5 text-slate-600">
+                    <p className="text-[12px] leading-5 text-slate-600 dark:text-slate-400">
                       {buildDeadlineHelper(linkedContract, linkedJob)}
                     </p>
                   </div>
@@ -412,11 +412,11 @@ export default function ContextRail({
         )}
 
         {(availabilitySummary.length > 0 || isAvailabilityLoading) && (
-          <section className="rounded-lg border border-[#dce2f2] bg-white p-4">
+          <section className="rounded-lg border border-[#dce2f2] bg-white dark:bg-slate-950 p-4">
             <div className="flex items-center justify-between gap-3">
               <h3 className="text-[14px] font-bold text-[#10164a]">Next availability</h3>
               {mentorProfile && (
-                <Link to={`/mentors/${mentorProfile.userId}`} className="text-[12px] font-semibold text-emerald-600">
+                <Link to={`/mentors/${mentorProfile.userId}`} className="text-[12px] font-semibold text-emerald-600 dark:text-emerald-500">
                   Reschedule
                 </Link>
               )}
@@ -431,8 +431,8 @@ export default function ContextRail({
             ) : (
               <div className="mt-3 space-y-2">
                 {availabilitySummary.slice(0, compact ? 2 : 3).map((entry) => (
-                  <div key={entry} className="flex items-start gap-3 rounded-lg bg-[#f7f8fe] px-3 py-3">
-                    <CalendarDays className="mt-0.5 h-4 w-4 text-emerald-600" />
+                  <div key={entry} className="flex items-start gap-3 rounded-lg bg-[#f7f8fe] dark:bg-slate-950 px-3 py-3">
+                    <CalendarDays className="mt-0.5 h-4 w-4 text-emerald-600 dark:text-emerald-500" />
                     <div>
                       <p className="text-[13px] font-bold text-[#10164a]">Mentoring slot</p>
                       <p className="mt-1 text-[12px] text-[#52608b]">{entry}</p>
@@ -445,10 +445,10 @@ export default function ContextRail({
         )}
 
         {/* Shared Images Section */}
-        <section className="rounded-lg border border-[#dce2f2] bg-white p-4">
+        <section className="rounded-lg border border-[#dce2f2] bg-white dark:bg-slate-950 p-4">
           <div className="flex items-center justify-between gap-3 mb-3">
             <h3 className="text-[14px] font-bold text-[#10164a]">Ảnh & Video</h3>
-            {sharedImages.length > 0 && <span className="text-[12px] font-semibold text-emerald-600 hover:text-emerald-700 cursor-pointer">Xem tất cả</span>}
+            {sharedImages.length > 0 && <span className="text-[12px] font-semibold text-emerald-600 dark:text-emerald-500 hover:text-emerald-700 dark:text-emerald-400 cursor-pointer">Xem tất cả</span>}
           </div>
 
           {sharedImages.length > 0 ? (
@@ -465,16 +465,16 @@ export default function ContextRail({
         </section>
 
         {/* Shared Files Section */}
-        <section className="rounded-lg border border-[#dce2f2] bg-white p-4">
+        <section className="rounded-lg border border-[#dce2f2] bg-white dark:bg-slate-950 p-4">
           <div className="flex items-center justify-between gap-3 mb-3">
             <h3 className="text-[14px] font-bold text-[#10164a]">Tài liệu</h3>
-            {sharedFiles.length > 0 && <span className="text-[12px] font-semibold text-emerald-600 hover:text-emerald-700 cursor-pointer">Xem tất cả</span>}
+            {sharedFiles.length > 0 && <span className="text-[12px] font-semibold text-emerald-600 dark:text-emerald-500 hover:text-emerald-700 dark:text-emerald-400 cursor-pointer">Xem tất cả</span>}
           </div>
 
           {sharedFiles.length > 0 ? (
             <div className="space-y-3">
               {sharedFiles.slice(0, compact ? 3 : 4).map((file) => (
-                <a key={file.id} href={file.url} target="_blank" rel="noreferrer" className="flex items-center gap-3 hover:bg-slate-50 p-1.5 -mx-1.5 rounded-lg transition-colors">
+                <a key={file.id} href={file.url} target="_blank" rel="noreferrer" className="flex items-center gap-3 hover:bg-slate-50 dark:bg-slate-900/50 p-1.5 -mx-1.5 rounded-lg transition-colors">
                   <FileBadge image={false} />
                   <span className="min-w-0 flex-1">
                     <span className="block truncate text-[13px] font-semibold text-[#10164a]">{file.name}</span>
@@ -491,17 +491,17 @@ export default function ContextRail({
         </section>
 
         {/* Shared Links Section */}
-        <section className="rounded-lg border border-[#dce2f2] bg-white p-4">
+        <section className="rounded-lg border border-[#dce2f2] bg-white dark:bg-slate-950 p-4">
           <div className="flex items-center justify-between gap-3 mb-3">
             <h3 className="text-[14px] font-bold text-[#10164a]">Link chia sẻ</h3>
-            {sharedLinks.length > 0 && <span className="text-[12px] font-semibold text-emerald-600 hover:text-emerald-700 cursor-pointer">Xem tất cả</span>}
+            {sharedLinks.length > 0 && <span className="text-[12px] font-semibold text-emerald-600 dark:text-emerald-500 hover:text-emerald-700 dark:text-emerald-400 cursor-pointer">Xem tất cả</span>}
           </div>
           
           {sharedLinks.length > 0 ? (
             <div className="space-y-3">
               {sharedLinks.slice(0, compact ? 3 : 4).map((link) => (
-                <a key={link.id} href={link.url} target="_blank" rel="noreferrer" className="flex items-center gap-3 hover:bg-slate-50 p-1.5 -mx-1.5 rounded-lg transition-colors">
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
+                <a key={link.id} href={link.url} target="_blank" rel="noreferrer" className="flex items-center gap-3 hover:bg-slate-50 dark:bg-slate-900/50 p-1.5 -mx-1.5 rounded-lg transition-colors">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-500">
                     <LinkIcon className="h-4 w-4" />
                   </span>
                   <span className="min-w-0 flex-1">
@@ -518,10 +518,10 @@ export default function ContextRail({
           )}
         </section>
 
-        <section className="rounded-lg border border-[#dce2f2] bg-white p-4">
+        <section className="rounded-lg border border-[#dce2f2] bg-white dark:bg-slate-950 p-4">
           <div className="flex items-center justify-between gap-3">
             <h3 className="text-[14px] font-bold text-[#10164a]">Recommended resources</h3>
-            {mentorCourses.length > 0 && <span className="text-[12px] font-semibold text-emerald-600">View all</span>}
+            {mentorCourses.length > 0 && <span className="text-[12px] font-semibold text-emerald-600 dark:text-emerald-500">View all</span>}
           </div>
 
           {isCoursesLoading ? (
@@ -579,12 +579,12 @@ function JobDetailsModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-      <div className="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-hidden shadow-2xl flex flex-col">
+      <div className="bg-white dark:bg-slate-950 rounded-2xl w-full max-w-lg max-h-[90vh] overflow-hidden shadow-2xl flex flex-col">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-          <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-            <span className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
-              <BookOpen className="w-4 h-4 text-emerald-600" />
+        <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50 ">
+          <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+            <span className="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center">
+              <BookOpen className="w-4 h-4 text-emerald-600 dark:text-emerald-500" />
             </span>
             Chi tiết yêu cầu
           </h2>
@@ -596,34 +596,34 @@ function JobDetailsModal({
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
           <div>
-            <h3 className="text-xl font-black text-slate-900 mb-2">{job.title}</h3>
-            <p className="text-sm text-slate-600 whitespace-pre-wrap">{job.description}</p>
+            <h3 className="text-xl font-black text-slate-900 dark:text-slate-100 mb-2">{job.title}</h3>
+            <p className="text-sm text-slate-600 dark:text-slate-400 whitespace-pre-wrap">{job.description}</p>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
+            <div className="bg-slate-50 dark:bg-slate-900/50 rounded-xl p-4 border border-slate-100 dark:border-slate-800">
               <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Ngân sách</p>
-              <p className="text-base font-black text-emerald-600">
+              <p className="text-base font-black text-emerald-600 dark:text-emerald-500">
                 {job.budgetType === 'FIXED' 
                   ? formatCurrency(job.budgetMaxMxc || 0)
                   : formatCurrency(job.hourlyRateMxc || 0).replace(' MXC', ' MXC/hr')}
               </p>
             </div>
-            <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
+            <div className="bg-slate-50 dark:bg-slate-900/50 rounded-xl p-4 border border-slate-100 dark:border-slate-800">
               <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Thời hạn</p>
-              <p className="text-base font-black text-slate-900">
+              <p className="text-base font-black text-slate-900 dark:text-slate-100">
                 {job.deadlineAt ? new Date(job.deadlineAt).toLocaleDateString('vi-VN') : 'Thỏa thuận'}
               </p>
             </div>
-            <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
+            <div className="bg-slate-50 dark:bg-slate-900/50 rounded-xl p-4 border border-slate-100 dark:border-slate-800">
               <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Kinh nghiệm</p>
-              <p className="text-base font-black text-slate-900 capitalize">
+              <p className="text-base font-black text-slate-900 dark:text-slate-100 capitalize">
                 {job.experienceLevel?.toLowerCase().replace('_', ' ') || 'Không yêu cầu'}
               </p>
             </div>
-            <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
+            <div className="bg-slate-50 dark:bg-slate-900/50 rounded-xl p-4 border border-slate-100 dark:border-slate-800">
               <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Hình thức</p>
-              <p className="text-base font-black text-slate-900 capitalize">
+              <p className="text-base font-black text-slate-900 dark:text-slate-100 capitalize">
                 {job.jobType?.toLowerCase().replace('_', ' ') || 'Không rõ'}
               </p>
             </div>
@@ -634,7 +634,7 @@ function JobDetailsModal({
               <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Kỹ năng yêu cầu</p>
               <div className="flex flex-wrap gap-2">
                 {job.requiredSkills.map((skill: string, idx: number) => (
-                  <span key={idx} className="px-2.5 py-1 bg-emerald-50 text-emerald-600 rounded-md text-xs font-semibold">
+                  <span key={idx} className="px-2.5 py-1 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-500 rounded-md text-xs font-semibold">
                     {skill}
                   </span>
                 ))}
@@ -644,10 +644,10 @@ function JobDetailsModal({
         </div>
 
         {/* Footer */}
-        <div className="p-6 border-t border-slate-100 bg-slate-50/50 flex items-center justify-end gap-3">
+        <div className="p-6 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/30 flex items-center justify-end gap-3">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors"
+            className="px-4 py-2 text-sm font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 rounded-xl transition-colors"
           >
             Đóng
           </button>
@@ -665,7 +665,7 @@ function JobDetailsModal({
 
 function MetaRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-start justify-between gap-3 rounded-xl bg-[#f7f8fe] px-3 py-2.5">
+    <div className="flex items-start justify-between gap-3 rounded-xl bg-[#f7f8fe] dark:bg-slate-950 px-3 py-2.5">
       <span className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#52608b]">{label}</span>
       <span className="text-right text-[12px] font-semibold text-[#10164a]">{value}</span>
     </div>

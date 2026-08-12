@@ -50,11 +50,11 @@ export default function ChatDemoPage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900/50">
         <div className="text-center">
           <MessageSquare className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Vui lòng đăng nhập</h2>
-          <p className="text-gray-600 mb-4">Bạn cần đăng nhập để sử dụng tính năng chat</p>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Vui lòng đăng nhập</h2>
+          <p className="text-gray-600 dark:text-gray-400 mb-4">Bạn cần đăng nhập để sử dụng tính năng chat</p>
           <button
             onClick={() => navigate('/login')}
             className="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700"
@@ -74,10 +74,10 @@ export default function ChatDemoPage() {
           <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-primary-500 to-emerald-600 mb-6 shadow-lg">
             <MessageSquare className="w-10 h-10 text-white" />
           </div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
             Tính Năng Chat - MentorX
           </h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
             Kết nối và trò chuyện với mentor, admin hoặc người dùng khác một cách dễ dàng
           </p>
         </div>
@@ -97,12 +97,12 @@ export default function ChatDemoPage() {
         {/* Quick Actions */}
         <div className="grid md:grid-cols-3 gap-6 mb-12">
           {/* Chat with Mentor */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow">
+          <div className="bg-white dark:bg-slate-950 rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow">
             <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mb-4">
               <Users className="w-6 h-6 text-blue-600" />
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">Chat với Mentor</h3>
-            <p className="text-sm text-gray-600 mb-4">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">Chat với Mentor</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
               Trao đổi trực tiếp với mentor để được tư vấn và hướng dẫn
             </p>
             <button
@@ -120,12 +120,12 @@ export default function ChatDemoPage() {
           </div>
 
           {/* Chat with Admin */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow">
-            <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center mb-4">
-              <MessageSquare className="w-6 h-6 text-emerald-600" />
+          <div className="bg-white dark:bg-slate-950 rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow">
+            <div className="w-12 h-12 rounded-full bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center mb-4">
+              <MessageSquare className="w-6 h-6 text-emerald-600 dark:text-emerald-500" />
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">Chat với Admin</h3>
-            <p className="text-sm text-gray-600 mb-4">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">Chat với Admin</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
               Liên hệ với admin để được hỗ trợ và giải đáp thắc mắc
             </p>
             <button
@@ -143,12 +143,12 @@ export default function ChatDemoPage() {
           </div>
 
           {/* Chat with User */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow">
+          <div className="bg-white dark:bg-slate-950 rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow">
             <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mb-4">
               <Users className="w-6 h-6 text-green-600" />
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">Chat với User</h3>
-            <p className="text-sm text-gray-600 mb-4">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">Chat với User</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
               Kết nối với người dùng khác để trao đổi và học hỏi
             </p>
             <button
@@ -178,8 +178,8 @@ export default function ChatDemoPage() {
         </div>
 
         {/* Features List */}
-        <div className="mt-16 bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Tính Năng Chính</h2>
+        <div className="mt-16 bg-white dark:bg-slate-950 rounded-2xl shadow-sm border border-gray-100 p-8">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">Tính Năng Chính</h2>
           <div className="grid md:grid-cols-2 gap-4">
             {[
               'Nhắn tin real-time',
@@ -193,7 +193,7 @@ export default function ChatDemoPage() {
             ].map((feature, index) => (
               <div key={index} className="flex items-center gap-3">
                 <div className="w-2 h-2 rounded-full bg-primary-500" />
-                <span className="text-gray-700">{feature}</span>
+                <span className="text-gray-700 dark:text-gray-300">{feature}</span>
               </div>
             ))}
           </div>

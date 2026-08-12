@@ -17,22 +17,22 @@ export default function CompletionConfirmModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden relative">
+      <div className="w-full max-w-md bg-white dark:bg-slate-950 rounded-2xl shadow-xl overflow-hidden relative">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition"
+          className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:text-slate-400 transition"
           disabled={isLoading}
         >
           <X className="w-5 h-5" />
         </button>
         
         <div className="p-6 pt-8 text-center">
-          <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <CheckCircle2 className="w-8 h-8 text-emerald-600" />
+          <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/50 rounded-full flex items-center justify-center mx-auto mb-4">
+            <CheckCircle2 className="w-8 h-8 text-emerald-600 dark:text-emerald-500" />
           </div>
           
-          <h2 className="text-xl font-bold text-slate-900 mb-2">Báo cáo hoàn thành</h2>
-          <p className="text-sm text-slate-500 mb-6 leading-relaxed">
+          <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-2">Báo cáo hoàn thành</h2>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 leading-relaxed">
             Bạn có chắc chắn đã bàn giao đầy đủ sản phẩm cho người dùng trong đoạn chat? 
             Sau khi xác nhận, người dùng sẽ được thông báo để nghiệm thu và thanh toán.
           </p>
@@ -41,7 +41,7 @@ export default function CompletionConfirmModal({
             <button
               onClick={onClose}
               disabled={isLoading}
-              className="flex-1 py-2.5 rounded-xl border border-slate-200 text-slate-700 font-semibold hover:bg-slate-50 transition"
+              className="flex-1 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 font-semibold hover:bg-slate-50 dark:bg-slate-900/50 transition"
             >
               Hủy
             </button>

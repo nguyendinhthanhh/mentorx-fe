@@ -116,31 +116,31 @@ export default function BankAccountSettings({ userId }: BankAccountSettingsProps
 
   return (
     <div className="space-y-6">
-      <div className="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+      <div className="rounded-[1.75rem] border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-6 shadow-sm">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div className="max-w-2xl">
             <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-500">
                 <Landmark className="h-5 w-5" />
               </div>
               <div>
-                <p className="text-sm font-black text-slate-950">Thiết lập nhận tiền</p>
-                <p className="mt-1 text-sm leading-6 text-slate-500">
+                <p className="text-sm font-black text-slate-950 dark:text-slate-100">Thiết lập nhận tiền</p>
+                <p className="mt-1 text-sm leading-6 text-slate-500 dark:text-slate-400">
                   Thêm thông tin nhận tiền khi bạn đã sẵn sàng rút thu nhập từ việc mentor. Thông tin này tách biệt với việc phê duyệt mentor.
                 </p>
               </div>
             </div>
           </div>
-          <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600 lg:max-w-xs">
-            <p className="font-semibold text-slate-900">Đang chờ duyệt nhận tiền</p>
+          <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 px-4 py-3 text-sm text-slate-600 dark:text-slate-400 lg:max-w-xs">
+            <p className="font-semibold text-slate-900 dark:text-slate-100">Đang chờ duyệt nhận tiền</p>
             <p className="mt-1">{currentPolicyNote}</p>
           </div>
         </div>
       </div>
 
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700">
-          <BadgeCheck className="h-4 w-4 text-emerald-600" />
+        <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 py-2 text-sm font-semibold text-slate-700 dark:text-slate-300">
+          <BadgeCheck className="h-4 w-4 text-emerald-600 dark:text-emerald-500" />
           Trạng thái: {formatVerificationStatus(payoutStatus)}
         </div>
 
@@ -156,11 +156,11 @@ export default function BankAccountSettings({ userId }: BankAccountSettingsProps
       </div>
 
       {showAddForm && (
-        <div className="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="rounded-[1.75rem] border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-6 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-lg font-black text-slate-950">Thêm thông tin nhận tiền</h3>
-              <p className="mt-1 text-sm text-slate-500">
+              <h3 className="text-lg font-black text-slate-950 dark:text-slate-100">Thêm thông tin nhận tiền</h3>
+              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                 Chọn phương thức bạn muốn chúng tôi xét duyệt trước khi cho phép rút tiền.
               </p>
             </div>
@@ -169,7 +169,7 @@ export default function BankAccountSettings({ userId }: BankAccountSettingsProps
                 setShowAddForm(false)
                 setError('')
               }}
-              className="text-sm font-semibold text-slate-500 hover:text-slate-900"
+              className="text-sm font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:text-slate-100"
             >
               Hủy
             </button>
@@ -187,7 +187,7 @@ export default function BankAccountSettings({ userId }: BankAccountSettingsProps
               <Field label="Quốc gia">
                 <select
                   {...register('payoutCountry', { required: 'Payout country is required' })}
-                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 cursor-not-allowed text-slate-500"
+                  className="w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 cursor-not-allowed text-slate-500 dark:text-slate-400"
                 >
                   <option value="VN">Việt Nam</option>
                 </select>
@@ -196,7 +196,7 @@ export default function BankAccountSettings({ userId }: BankAccountSettingsProps
               <Field label="Phương thức thanh toán">
                 <select
                   {...register('payoutMethod')}
-                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 cursor-not-allowed text-slate-500"
+                  className="w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 cursor-not-allowed text-slate-500 dark:text-slate-400"
                 >
                   <option value={PayoutMethod.LOCAL_BANK}>Ngân hàng nội địa</option>
                 </select>
@@ -217,7 +217,7 @@ export default function BankAccountSettings({ userId }: BankAccountSettingsProps
                     }
                   })}
                   placeholder="NGUYEN VAN A"
-                  className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
+                  className="w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
                 />
               </Field>
 
@@ -225,7 +225,7 @@ export default function BankAccountSettings({ userId }: BankAccountSettingsProps
                 <Field label="Tên ngân hàng" error={errors.bankName?.message}>
                   <select
                     {...register('bankName', { required: 'Bank name is required' })}
-                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
+                    className="w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
                   >
                     <option value="">Chọn ngân hàng</option>
                     <option value="Vietcombank">Vietcombank</option>
@@ -259,14 +259,14 @@ export default function BankAccountSettings({ userId }: BankAccountSettingsProps
                         }
                       })}
                       placeholder="e.g. 1907123456789"
-                      className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
+                      className="w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
                     />
                   </Field>
                   <Field label="Tên chi nhánh (Tùy chọn)">
                     <input
                       {...register('branchName')}
                       placeholder="e.g. HCM Branch"
-                      className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
+                      className="w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
                     />
                   </Field>
                 </>
@@ -278,21 +278,21 @@ export default function BankAccountSettings({ userId }: BankAccountSettingsProps
                     <input
                       {...register('accountNumber', { required: 'Account number or IBAN is required' })}
                       placeholder="Account number or IBAN"
-                      className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
+                      className="w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
                     />
                   </Field>
                   <Field label="Mã SWIFT" error={errors.swiftCode?.message}>
                     <input
                       {...register('swiftCode', { required: 'SWIFT code is required' })}
                       placeholder="SWIFT / BIC"
-                      className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
+                      className="w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
                     />
                   </Field>
                   <Field label="IBAN (Tùy chọn)">
                     <input
                       {...register('iban')}
                       placeholder="IBAN"
-                      className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
+                      className="w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
                     />
                   </Field>
                 </>
@@ -303,7 +303,7 @@ export default function BankAccountSettings({ userId }: BankAccountSettingsProps
                   <input
                     {...register('paypalEmail', { required: 'PayPal email is required' })}
                     placeholder="mentor@example.com"
-                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
+                    className="w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
                   />
                 </Field>
               )}
@@ -313,7 +313,7 @@ export default function BankAccountSettings({ userId }: BankAccountSettingsProps
                   <input
                     {...register('wiseEmail', { required: 'Wise email is required' })}
                     placeholder="mentor@example.com"
-                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
+                    className="w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
                   />
                 </Field>
               )}
@@ -323,13 +323,13 @@ export default function BankAccountSettings({ userId }: BankAccountSettingsProps
                   <input
                     {...register('stripeConnectAccountId', { required: 'Stripe Connect account ID is required' })}
                     placeholder="acct_..."
-                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
+                    className="w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
                   />
                 </Field>
               )}
             </div>
 
-            <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900">
+            <div className="rounded-2xl border border-amber-200 dark:border-amber-800/50 bg-amber-50 dark:bg-amber-900/30 px-4 py-3 text-sm leading-6 text-amber-900 dark:text-amber-100">
               Chúng tôi duyệt thông tin nhận tiền độc lập với việc phê duyệt mentor. Bước này chỉ yêu cầu trước lần rút tiền đầu tiên của bạn.
             </div>
 
@@ -351,7 +351,7 @@ export default function BankAccountSettings({ userId }: BankAccountSettingsProps
             <div
               key={account.id}
               className={`rounded-[1.5rem] border p-5 shadow-sm ${
-                account.isDefault ? 'border-emerald-200 bg-emerald-50/40' : 'border-slate-200 bg-white'
+                account.isDefault ? 'border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 ' : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950'
               }`}
             >
               <div className="flex items-start justify-between gap-4">
@@ -360,8 +360,8 @@ export default function BankAccountSettings({ userId }: BankAccountSettingsProps
                     {renderMethodIcon(account.payoutMethod)}
                   </div>
                   <div>
-                    <p className="text-sm font-black text-slate-950">{formatPayoutMethod(account.payoutMethod)}</p>
-                    <p className="text-xs text-slate-500">{account.payoutCountry || 'Không rõ quốc gia'}</p>
+                    <p className="text-sm font-black text-slate-950 dark:text-slate-100">{formatPayoutMethod(account.payoutMethod)}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">{account.payoutCountry || 'Không rõ quốc gia'}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -379,11 +379,11 @@ export default function BankAccountSettings({ userId }: BankAccountSettingsProps
                 </div>
               </div>
 
-              <div className="mt-4 space-y-1 text-sm text-slate-600">
-                <p className="font-semibold text-slate-900">{account.accountHolderName}</p>
+              <div className="mt-4 space-y-1 text-sm text-slate-600 dark:text-slate-400">
+                <p className="font-semibold text-slate-900 dark:text-slate-100">{account.accountHolderName}</p>
                 <p>{getAccountDescriptor(account)}</p>
                 {account.isVerified ? (
-                  <p className="text-xs font-semibold text-emerald-600">Đã được duyệt</p>
+                  <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-500">Đã được duyệt</p>
                 ) : (
                   <p className="text-xs font-semibold text-amber-600">Đang chờ duyệt</p>
                 )}
@@ -392,7 +392,7 @@ export default function BankAccountSettings({ userId }: BankAccountSettingsProps
               {!account.isDefault && (
                 <button
                   onClick={() => setDefaultMutation.mutate(account.id)}
-                  className="mt-4 inline-flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
+                  className="mt-4 inline-flex items-center gap-2 rounded-xl border border-slate-200 dark:border-slate-800 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:bg-slate-900/50"
                 >
                   <RefreshCcw className="h-3.5 w-3.5" />
                   Đặt làm mặc định
@@ -403,10 +403,10 @@ export default function BankAccountSettings({ userId }: BankAccountSettingsProps
         </div>
       ) : (
         !showAddForm && (
-          <div className="rounded-[1.75rem] border border-dashed border-slate-300 bg-white px-6 py-12 text-center">
+          <div className="rounded-[1.75rem] border border-dashed border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-6 py-12 text-center">
             <Globe2 className="mx-auto h-10 w-10 text-slate-300" />
-            <p className="mt-4 text-sm font-semibold text-slate-700">Chưa có phương thức nhận tiền nào</p>
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-4 text-sm font-semibold text-slate-700 dark:text-slate-300">Chưa có phương thức nhận tiền nào</p>
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
               Thêm phương thức nhận tiền khi bạn đã sẵn sàng yêu cầu rút tiền lần đầu.
             </p>
           </div>
@@ -427,7 +427,7 @@ function Field({
 }) {
   return (
     <div>
-      <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+      <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
         {label}
       </label>
       {children}

@@ -126,8 +126,8 @@ export default function NotificationListPage() {
 
   return (
     <div className="mx-auto max-w-[1080px] space-y-5">
-      <section className="overflow-hidden rounded-[2rem] border border-slate-200/80 bg-white shadow-[0_28px_80px_rgba(15,23,42,0.06)] dark:border-slate-800 dark:bg-slate-950 dark:shadow-none">
-        <div className="border-b border-slate-100 bg-[linear-gradient(135deg,rgba(99,102,241,0.08),rgba(255,255,255,0.94)_42%,rgba(255,255,255,1)_100%)] px-5 py-5 dark:border-slate-800 dark:bg-[linear-gradient(135deg,rgba(99,102,241,0.18),rgba(15,23,42,0.96)_45%,rgba(15,23,42,1)_100%)] sm:px-6">
+      <section className="overflow-hidden rounded-[2rem] border border-slate-200 dark:border-slate-800/80 bg-white dark:bg-slate-950 shadow-[0_28px_80px_rgba(15,23,42,0.06)] dark:border-slate-800 dark:bg-slate-950 dark:shadow-none">
+        <div className="border-b border-slate-100 dark:border-slate-800 bg-[linear-gradient(135deg,rgba(99,102,241,0.08),rgba(255,255,255,0.94)_42%,rgba(255,255,255,1)_100%)] px-5 py-5 dark:border-slate-800 dark:bg-[linear-gradient(135deg,rgba(99,102,241,0.18),rgba(15,23,42,0.96)_45%,rgba(15,23,42,1)_100%)] sm:px-6">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
             <div className="min-w-0">
               <div className="flex items-center gap-3">
@@ -136,7 +136,7 @@ export default function NotificationListPage() {
                 </div>
                 <div>
                   <h1 className="text-2xl font-black tracking-tight text-slate-950 dark:text-white">Thông báo</h1>
-                  <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                  <p className="mt-1 text-sm text-slate-500 dark:text-slate-400 dark:text-slate-400">
                     Theo dõi cập nhật mới, hành động cần xử lý và các thay đổi quan trọng của tài khoản.
                   </p>
                 </div>
@@ -153,7 +153,7 @@ export default function NotificationListPage() {
               type="button"
               onClick={handleMarkAllRead}
               disabled={counts.unread === 0}
-              className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-2xl bg-slate-950 px-4 text-sm font-bold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200 dark:disabled:bg-slate-800 dark:disabled:text-slate-500"
+              className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-2xl bg-slate-950 px-4 text-sm font-bold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200 dark:disabled:bg-slate-800 dark:disabled:text-slate-500 dark:text-slate-400"
             >
               <CheckCheck className="h-4 w-4" />
               Đánh dấu tất cả đã đọc
@@ -174,7 +174,7 @@ export default function NotificationListPage() {
         </div>
       </section>
 
-      <section className="overflow-hidden rounded-[2rem] border border-slate-200/80 bg-white shadow-[0_24px_70px_rgba(15,23,42,0.05)] dark:border-slate-800 dark:bg-slate-950 dark:shadow-none">
+      <section className="overflow-hidden rounded-[2rem] border border-slate-200 dark:border-slate-800/80 bg-white dark:bg-slate-950 shadow-[0_24px_70px_rgba(15,23,42,0.05)] dark:border-slate-800 dark:bg-slate-950 dark:shadow-none">
         {isLoading ? (
           <NotificationSkeleton />
         ) : visibleNotifications.length > 0 ? (
@@ -190,7 +190,7 @@ export default function NotificationListPage() {
                       <h2 className="text-sm font-black uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500">
                         {timeGroupLabels[groupKey]}
                       </h2>
-                      <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                      <p className="mt-1 text-sm text-slate-500 dark:text-slate-400 dark:text-slate-400">
                         {items.length} thông báo trong mục này
                       </p>
                     </div>
@@ -252,10 +252,10 @@ function NotificationCard({
               <div className="flex flex-wrap items-center gap-2">
                 <NotificationBadge label={getNotificationCategoryLabel(notification)} className={tone.badge} />
                 {notification.requiresAction && !notification.actionTaken ? (
-                  <NotificationBadge label="Cần xử lý" className="bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300" />
+                  <NotificationBadge label="Cần xử lý" className="bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-200 dark:bg-amber-950/40 dark:text-amber-300" />
                 ) : null}
                 {notification.isExpired ? (
-                  <NotificationBadge label="Đã hết hạn" className="bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-300" />
+                  <NotificationBadge label="Đã hết hạn" className="bg-slate-200 text-slate-600 dark:text-slate-400 dark:bg-slate-800 dark:text-slate-300" />
                 ) : null}
               </div>
 
@@ -273,7 +273,7 @@ function NotificationCard({
                 ) : null}
               </div>
 
-              <p className="mt-1.5 text-sm leading-6 text-slate-600 dark:text-slate-300">{notification.message}</p>
+              <p className="mt-1.5 text-sm leading-6 text-slate-600 dark:text-slate-400 dark:text-slate-300">{notification.message}</p>
             </div>
 
             <div className="shrink-0 space-y-1 text-left sm:text-right">
@@ -281,7 +281,7 @@ function NotificationCard({
                 <Clock3 className="h-3.5 w-3.5" />
                 {formatRelativeTime(notification.createdAt)}
               </p>
-              <p className="text-xs text-slate-500 dark:text-slate-400">{formatDateTime(notification.createdAt)}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-400">{formatDateTime(notification.createdAt)}</p>
             </div>
           </div>
 
@@ -307,7 +307,7 @@ function NotificationCard({
                   event.stopPropagation()
                   onMarkRead()
                 }}
-                className="inline-flex h-10 items-center gap-2 rounded-full border border-slate-200 bg-white px-4 text-sm font-bold text-slate-700 transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-600 dark:hover:bg-slate-800"
+                className="inline-flex h-10 items-center gap-2 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 text-sm font-bold text-slate-700 dark:text-slate-300 transition hover:border-emerald-200 dark:border-emerald-800/50 hover:bg-emerald-50 dark:bg-emerald-900/30 hover:text-emerald-700 dark:text-emerald-400 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-600 dark:hover:bg-slate-800"
               >
                 <Check className="h-4 w-4" />
                 Đánh dấu đã đọc
@@ -321,7 +321,7 @@ function NotificationCard({
                   event.stopPropagation()
                   onDismiss()
                 }}
-                className="inline-flex h-10 items-center gap-2 rounded-full border border-transparent px-3.5 text-sm font-bold text-slate-500 transition hover:bg-rose-50 hover:text-rose-600 dark:text-slate-400 dark:hover:bg-rose-950/20 dark:hover:text-rose-300"
+                className="inline-flex h-10 items-center gap-2 rounded-full border border-transparent px-3.5 text-sm font-bold text-slate-500 dark:text-slate-400 transition hover:bg-rose-50 hover:text-rose-600 dark:text-slate-400 dark:hover:bg-rose-950/20 dark:hover:text-rose-300"
               >
                 <Trash2 className="h-4 w-4" />
                 Ẩn
@@ -384,14 +384,14 @@ function FilterChip({
         'inline-flex h-11 items-center gap-2 rounded-full border px-4 text-sm font-bold transition-all',
         active
           ? 'border-emerald-600 bg-emerald-600 text-white shadow-lg shadow-emerald-200 dark:shadow-emerald-950/25'
-          : 'border-slate-200 bg-white text-slate-600 hover:border-emerald-200 hover:text-emerald-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-slate-600'
+          : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-600 dark:text-slate-400 hover:border-emerald-200 dark:border-emerald-800/50 hover:text-emerald-700 dark:text-emerald-400 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-slate-600'
       )}
     >
       <span>{label}</span>
       <span
         className={cn(
           'rounded-full px-2 py-1 text-[11px] leading-none',
-          active ? 'bg-white/18 text-white' : 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-300'
+          active ? 'bg-white dark:bg-slate-950/18 text-white' : 'bg-slate-100 text-slate-500 dark:text-slate-400 dark:bg-slate-800 dark:text-slate-300'
         )}
       >
         {count}
@@ -411,10 +411,10 @@ function TopStat({
 }) {
   const toneClasses =
     tone === 'primary'
-      ? 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-300'
+      ? 'border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 dark:border-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-300'
       : tone === 'warning'
-        ? 'border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-300'
-        : 'border-slate-200 bg-white text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200'
+        ? 'border-amber-200 dark:border-amber-800/50 bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-300'
+        : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200'
 
   return (
     <div className={cn('min-w-[120px] rounded-2xl border px-4 py-3', toneClasses)}>
@@ -452,7 +452,7 @@ function EmptyState({
         {hasAnyNotifications ? <Inbox className="h-9 w-9" /> : <Bell className="h-9 w-9" />}
       </div>
       <h3 className="mt-5 text-2xl font-black tracking-tight text-slate-950 dark:text-white">{title}</h3>
-      <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-slate-500 dark:text-slate-400">{description}</p>
+      <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-slate-500 dark:text-slate-400 dark:text-slate-400">{description}</p>
 
       {!hasAnyNotifications ? (
         <div className="mt-6 flex flex-wrap justify-center gap-3">
@@ -465,7 +465,7 @@ function EmptyState({
           </Link>
           <Link
             to="/profile"
-            className="inline-flex h-11 items-center rounded-full border border-slate-200 px-5 text-sm font-bold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-900"
+            className="inline-flex h-11 items-center rounded-full border border-slate-200 dark:border-slate-800 px-5 text-sm font-bold text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:bg-slate-900/50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-900"
           >
             Cập nhật hồ sơ
           </Link>
@@ -481,7 +481,7 @@ function NotificationSkeleton() {
       {Array.from({ length: 6 }).map((_, index) => (
         <div
           key={index}
-          className="flex gap-4 rounded-[1.6rem] border border-slate-200/80 bg-white px-4 py-4 dark:border-slate-800 dark:bg-slate-950"
+          className="flex gap-4 rounded-[1.6rem] border border-slate-200 dark:border-slate-800/80 bg-white dark:bg-slate-950 px-4 py-4 dark:border-slate-800 dark:bg-slate-950"
         >
           <div className="h-14 w-14 animate-pulse rounded-2xl bg-slate-100 dark:bg-slate-800" />
           <div className="min-w-0 flex-1 space-y-2.5">
@@ -542,9 +542,9 @@ function getNotificationTone(notification: NotificationResponse) {
   if (notification.notificationType === NotificationType.WARNING) {
     return {
       surface:
-        'border-amber-200/80 bg-amber-50/70 hover:border-amber-300 hover:bg-amber-50 dark:border-amber-900/40 dark:bg-amber-950/15 dark:hover:border-amber-800/50 dark:hover:bg-amber-950/25',
-      iconWrap: 'bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300',
-      badge: 'bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300',
+        'border-amber-200  bg-amber-50  hover:border-amber-300 hover:bg-amber-50 dark:bg-amber-900/30 dark:border-amber-900/40 dark:bg-amber-950/15 dark:hover:border-amber-800/50 dark:hover:bg-amber-950/25',
+      iconWrap: 'bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-400 dark:bg-amber-950/40 dark:text-amber-300',
+      badge: 'bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-200 dark:bg-amber-950/40 dark:text-amber-300',
     }
   }
 
@@ -563,9 +563,9 @@ function getNotificationTone(notification: NotificationResponse) {
   if (isMessageNotification(notification)) {
     return {
       surface:
-        'border-emerald-200/80 bg-emerald-50/55 hover:border-emerald-300 hover:bg-emerald-50 dark:border-emerald-900/40 dark:bg-emerald-950/15 dark:hover:border-emerald-800/50 dark:hover:bg-emerald-950/25',
-      iconWrap: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300',
-      badge: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300',
+        'border-emerald-200  bg-emerald-50  hover:border-emerald-300 hover:bg-emerald-50 dark:bg-emerald-900/30 dark:border-emerald-900/40 dark:bg-emerald-950/15 dark:hover:border-emerald-800/50 dark:hover:bg-emerald-950/25',
+      iconWrap: 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-400 dark:bg-emerald-950/40 dark:text-emerald-300',
+      badge: 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300',
     }
   }
 
@@ -585,17 +585,17 @@ function getNotificationTone(notification: NotificationResponse) {
   ) {
     return {
       surface:
-        'border-emerald-200/80 bg-emerald-50/55 hover:border-emerald-300 hover:bg-emerald-50 dark:border-emerald-900/40 dark:bg-emerald-950/15 dark:hover:border-emerald-800/50 dark:hover:bg-emerald-950/25',
-      iconWrap: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300',
-      badge: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300',
+        'border-emerald-200  bg-emerald-50  hover:border-emerald-300 hover:bg-emerald-50 dark:bg-emerald-900/30 dark:border-emerald-900/40 dark:bg-emerald-950/15 dark:hover:border-emerald-800/50 dark:hover:bg-emerald-950/25',
+      iconWrap: 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-400 dark:bg-emerald-950/40 dark:text-emerald-300',
+      badge: 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300',
     }
   }
 
   return {
     surface:
-      'border-slate-200/80 bg-white hover:border-slate-300 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-950 dark:hover:border-slate-700 dark:hover:bg-slate-900',
-    iconWrap: 'bg-slate-100 text-slate-600 dark:bg-slate-900 dark:text-slate-300',
-    badge: 'bg-slate-100 text-slate-700 dark:bg-slate-900 dark:text-slate-300',
+      'border-slate-200 dark:border-slate-800/80 bg-white dark:bg-slate-950 hover:border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:bg-slate-900/50 dark:border-slate-800 dark:bg-slate-950 dark:hover:border-slate-700 dark:hover:bg-slate-900',
+    iconWrap: 'bg-slate-100 text-slate-600 dark:text-slate-400 dark:bg-slate-900 dark:text-slate-300',
+    badge: 'bg-slate-100 text-slate-700 dark:text-slate-300 dark:bg-slate-900 dark:text-slate-300',
   }
 }
 

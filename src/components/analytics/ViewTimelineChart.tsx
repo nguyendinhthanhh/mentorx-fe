@@ -21,9 +21,9 @@ export default function ViewTimelineChart({ targetType, targetId }: ViewTimeline
   if (!targetId) return null
 
   return (
-    <section className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm">
+    <section className="rounded-[28px] border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-5 shadow-sm">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="text-lg font-black text-slate-950">Views over time</h2>
+        <h2 className="text-lg font-black text-slate-950 dark:text-slate-100">Views over time</h2>
         <div className="flex gap-1 rounded-xl bg-slate-100 p-1">
           {GRANULARITY_OPTIONS.map((opt) => (
             <button
@@ -32,8 +32,8 @@ export default function ViewTimelineChart({ targetType, targetId }: ViewTimeline
               onClick={() => setGranularity(opt.value)}
               className={`rounded-lg px-3 py-1.5 text-xs font-bold transition ${
                 granularity === opt.value
-                  ? 'bg-white text-emerald-700 shadow-sm'
-                  : 'text-slate-500 hover:text-slate-900'
+                  ? 'bg-white dark:bg-slate-950 text-emerald-700 dark:text-emerald-400 shadow-sm'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:text-slate-100'
               }`}
             >
               {opt.label}
@@ -47,10 +47,10 @@ export default function ViewTimelineChart({ targetType, targetId }: ViewTimeline
       ) : timeline && timeline.timeline.length > 0 ? (
         <div className="mt-4">
           <div className="mb-3 flex items-baseline gap-4">
-            <span className="text-2xl font-black text-slate-950">{timeline.totalViews.toLocaleString()}</span>
-            <span className="text-sm font-medium text-slate-500">total views</span>
-            <span className="text-sm font-medium text-slate-500">·</span>
-            <span className="text-sm font-medium text-slate-500">{timeline.uniqueViewers.toLocaleString()} unique</span>
+            <span className="text-2xl font-black text-slate-950 dark:text-slate-100">{timeline.totalViews.toLocaleString()}</span>
+            <span className="text-sm font-medium text-slate-500 dark:text-slate-400">total views</span>
+            <span className="text-sm font-medium text-slate-500 dark:text-slate-400">·</span>
+            <span className="text-sm font-medium text-slate-500 dark:text-slate-400">{timeline.uniqueViewers.toLocaleString()} unique</span>
           </div>
           <ResponsiveContainer width="100%" height={200}>
             <BarChart

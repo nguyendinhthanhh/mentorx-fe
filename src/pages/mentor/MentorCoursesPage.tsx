@@ -175,8 +175,8 @@ export default function MentorCoursesPage() {
     <div className="mx-auto max-w-[1500px] space-y-5 pb-12">
       <header className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div className="min-w-0">
-          <h1 className="text-2xl font-bold tracking-tight text-slate-950 md:text-3xl">{t('mentorCourses.title')}</h1>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">{t('mentorCourses.subtitle')}</p>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-950 dark:text-slate-100 md:text-3xl">{t('mentorCourses.title')}</h1>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500 dark:text-slate-400">{t('mentorCourses.subtitle')}</p>
         </div>
         <Link
           to="/courses/create"
@@ -187,7 +187,7 @@ export default function MentorCoursesPage() {
         </Link>
       </header>
 
-      <section className="rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
+      <section className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 py-3 shadow-sm">
         <div className="grid gap-3 text-sm sm:grid-cols-2 xl:grid-cols-4">
           <InventoryMetric label={t('mentorCourses.metric.total')} value={formatNumber(courses.length, language)} />
           <InventoryMetric label={t('mentorCourses.metric.published')} value={formatNumber(publishedCount, language)} tone="emerald" />
@@ -321,11 +321,11 @@ function ResourceList({
   }
 
   return (
-    <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-      <div className="flex flex-col gap-3 border-b border-slate-100 px-4 py-4 md:flex-row md:items-center md:justify-between">
+    <section className="overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 shadow-sm">
+      <div className="flex flex-col gap-3 border-b border-slate-100 dark:border-slate-800 px-4 py-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h2 className="text-sm font-semibold text-slate-950">{t('mentorCourses.list.title')}</h2>
-          <p className="mt-1 text-xs text-slate-500">
+          <h2 className="text-sm font-semibold text-slate-950 dark:text-slate-100">{t('mentorCourses.list.title')}</h2>
+          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
             {t('mentorCourses.list.visible', {
               visible: formatNumber(courses.length, language),
               total: formatNumber(totalCourseCount, language),
@@ -333,10 +333,10 @@ function ResourceList({
             })}
           </p>
         </div>
-        <p className="text-xs font-medium text-slate-500">{t('mentorCourses.list.selectHint')}</p>
+        <p className="text-xs font-medium text-slate-500 dark:text-slate-400">{t('mentorCourses.list.selectHint')}</p>
       </div>
 
-      <div className="border-b border-slate-100 p-3">
+      <div className="border-b border-slate-100 dark:border-slate-800 p-3">
         <Toolbar>
           <div className="relative flex-1">
             <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
@@ -375,8 +375,8 @@ function ResourceList({
       <div className="divide-y divide-slate-100">
         {pageCourses.length === 0 ? (
           <div className="px-4 py-10 text-center">
-            <p className="text-sm font-semibold text-slate-900">{t('mentorCourses.filterEmptyTitle')}</p>
-            <p className="mt-1 text-sm text-slate-500">{t('mentorCourses.filterEmptyMessage')}</p>
+            <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{t('mentorCourses.filterEmptyTitle')}</p>
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{t('mentorCourses.filterEmptyMessage')}</p>
           </div>
         ) : pageCourses.map((course) => {
           const courseId = getCourseId(course)
@@ -427,7 +427,7 @@ function CourseListItem({
       type="button"
       onClick={onSelect}
       className={`block w-full px-4 py-4 text-left transition focus:outline-none focus:ring-4 focus:ring-inset focus:ring-emerald-500/15 ${
-        isSelected ? 'bg-emerald-50/80' : 'bg-white hover:bg-slate-50'
+        isSelected ? 'bg-emerald-50 ' : 'bg-white dark:bg-slate-950 hover:bg-slate-50 dark:bg-slate-900/50'
       }`}
     >
       <div className="flex min-w-0 flex-col gap-4 lg:flex-row lg:items-center">
@@ -444,10 +444,10 @@ function CourseListItem({
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
               <StatusPill label={getStatusLabel(course.status, t)} tone={course.status === CourseStatus.PUBLISHED ? 'emerald' : 'slate'} />
-              <span className="rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-600">{productTypeLabel}</span>
+              <span className="rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-600 dark:text-slate-400">{productTypeLabel}</span>
             </div>
-            <h3 className="mt-2 line-clamp-2 text-sm font-semibold leading-5 text-slate-950">{course.title}</h3>
-            <p className="mt-1 line-clamp-1 text-xs text-slate-500">{categoryName}</p>
+            <h3 className="mt-2 line-clamp-2 text-sm font-semibold leading-5 text-slate-950 dark:text-slate-100">{course.title}</h3>
+            <p className="mt-1 line-clamp-1 text-xs text-slate-500 dark:text-slate-400">{categoryName}</p>
           </div>
         </div>
 
@@ -505,8 +505,8 @@ function CourseWorkPanel({
 
   if (!course) {
     return (
-      <aside className="rounded-xl border border-dashed border-slate-200 bg-white p-6 text-sm text-slate-500">
-        <p className="font-semibold text-slate-900">{t('mentorCourses.detail.placeholderTitle')}</p>
+      <aside className="rounded-xl border border-dashed border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-6 text-sm text-slate-500 dark:text-slate-400">
+        <p className="font-semibold text-slate-900 dark:text-slate-100">{t('mentorCourses.detail.placeholderTitle')}</p>
         <p className="mt-2 leading-6">{t('mentorCourses.detail.placeholderMessage')}</p>
       </aside>
     )
@@ -521,14 +521,14 @@ function CourseWorkPanel({
 
   return (
     <aside className="space-y-4 xl:sticky xl:top-4 xl:self-start">
-      <section className="rounded-xl border border-slate-200 bg-white shadow-sm">
-        <div className="border-b border-slate-100 p-4">
-          <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">{t('mentorCourses.detail.eyebrow')}</p>
-          <h2 className="mt-1 line-clamp-2 text-base font-semibold leading-6 text-slate-950">{course.title}</h2>
+      <section className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 shadow-sm">
+        <div className="border-b border-slate-100 dark:border-slate-800 p-4">
+          <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">{t('mentorCourses.detail.eyebrow')}</p>
+          <h2 className="mt-1 line-clamp-2 text-base font-semibold leading-6 text-slate-950 dark:text-slate-100">{course.title}</h2>
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <StatusPill label={getStatusLabel(course.status, t)} tone={course.status === CourseStatus.PUBLISHED ? 'emerald' : 'slate'} />
-            <span className="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-600">{productTypeLabel}</span>
-            <span className="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-600">{categoryName}</span>
+            <span className="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-600 dark:text-slate-400">{productTypeLabel}</span>
+            <span className="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-600 dark:text-slate-400">{categoryName}</span>
           </div>
         </div>
 
@@ -571,13 +571,13 @@ function CourseWorkPanel({
                 type="button"
                 onClick={() => onArchive(course)}
                 disabled={archiveLoading}
-                className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-slate-200 px-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-60 focus:outline-none focus:ring-4 focus:ring-slate-500/10"
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-slate-200 dark:border-slate-800 px-3 text-sm font-semibold text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:bg-slate-900/50 disabled:opacity-60 focus:outline-none focus:ring-4 focus:ring-slate-500/10"
               >
                 <Archive className="h-4 w-4" />
                 {t('mentorCourses.archive')}
               </button>
             ) : (
-              <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs leading-5 text-slate-500">
+              <div className="rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 px-3 py-2 text-xs leading-5 text-slate-500 dark:text-slate-400">
                 {t('mentorCourses.detail.archivedHint')}
               </div>
             )}
@@ -586,13 +586,13 @@ function CourseWorkPanel({
               onClick={() => onDelete(course)}
               disabled={hasEnrollments || deleteLoading}
               title={hasEnrollments ? t('mentorCourses.deleteDisabled') : t('mentorCourses.delete')}
-              className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-rose-200 px-3 text-sm font-semibold text-rose-600 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:border-slate-200 disabled:text-slate-300 focus:outline-none focus:ring-4 focus:ring-rose-500/10"
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-rose-200 px-3 text-sm font-semibold text-rose-600 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:border-slate-200 dark:border-slate-800 disabled:text-slate-300 focus:outline-none focus:ring-4 focus:ring-rose-500/10"
             >
               <Trash2 className="h-4 w-4" />
               {t('mentorCourses.delete')}
             </button>
           </div>
-          {hasEnrollments ? <p className="text-xs leading-5 text-slate-500">{t('mentorCourses.deleteDisabled')}</p> : null}
+          {hasEnrollments ? <p className="text-xs leading-5 text-slate-500 dark:text-slate-400">{t('mentorCourses.deleteDisabled')}</p> : null}
         </div>
       </section>
 
@@ -683,18 +683,18 @@ function LearnerPanel({
   }
 
   return (
-    <section className="rounded-xl border border-slate-200 bg-white shadow-sm">
-      <div className="flex items-start justify-between gap-3 border-b border-slate-100 p-4">
+    <section className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 shadow-sm">
+      <div className="flex items-start justify-between gap-3 border-b border-slate-100 dark:border-slate-800 p-4">
         <div>
-          <h2 className="text-sm font-semibold text-slate-950">{t('mentorCourses.learners.title')}</h2>
-          <p className="mt-1 text-xs text-slate-500">
+          <h2 className="text-sm font-semibold text-slate-950 dark:text-slate-100">{t('mentorCourses.learners.title')}</h2>
+          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
             {t('mentorCourses.learners.count', { count: formatNumber(learnerTotal, language) })}
           </p>
         </div>
         <Users className="mt-0.5 h-4 w-4 text-slate-400" />
       </div>
 
-      <div className="space-y-3 border-b border-slate-100 p-3">
+      <div className="space-y-3 border-b border-slate-100 dark:border-slate-800 p-3">
         <div className="relative">
           <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
           <TextInput
@@ -722,23 +722,23 @@ function LearnerPanel({
         ) : error ? (
           <StateCard tone="error" title={t('mentorCourses.learners.errorTitle')} message={getErrorMessage(error, t('mentorCourses.learners.errorMessage'))} />
         ) : enrollments.length === 0 ? (
-          <div className="rounded-lg border border-dashed border-slate-200 px-4 py-8 text-center">
-            <p className="text-sm font-semibold text-slate-900">{t('mentorCourses.learners.emptyTitle')}</p>
-            <p className="mt-1 text-sm leading-6 text-slate-500">{t('mentorCourses.learners.emptyMessage')}</p>
+          <div className="rounded-lg border border-dashed border-slate-200 dark:border-slate-800 px-4 py-8 text-center">
+            <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{t('mentorCourses.learners.emptyTitle')}</p>
+            <p className="mt-1 text-sm leading-6 text-slate-500 dark:text-slate-400">{t('mentorCourses.learners.emptyMessage')}</p>
           </div>
         ) : filteredEnrollments.length === 0 ? (
-          <div className="rounded-lg border border-dashed border-slate-200 px-4 py-8 text-center">
-            <p className="text-sm font-semibold text-slate-900">{t('mentorCourses.learners.filterEmptyTitle')}</p>
-            <p className="mt-1 text-sm leading-6 text-slate-500">{t('mentorCourses.learners.filterEmptyMessage')}</p>
+          <div className="rounded-lg border border-dashed border-slate-200 dark:border-slate-800 px-4 py-8 text-center">
+            <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{t('mentorCourses.learners.filterEmptyTitle')}</p>
+            <p className="mt-1 text-sm leading-6 text-slate-500 dark:text-slate-400">{t('mentorCourses.learners.filterEmptyMessage')}</p>
           </div>
         ) : (
           <div className="space-y-2">
             {pageEnrollments.map((enrollment) => (
-              <article key={enrollment.id} className="rounded-lg border border-slate-200 p-3">
+              <article key={enrollment.id} className="rounded-lg border border-slate-200 dark:border-slate-800 p-3">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold text-slate-950">{enrollment.studentName || t('mentorCourses.learners.unknownLearner')}</p>
-                    <p className="mt-1 text-xs text-slate-500">{formatDateTime(enrollment.enrolledAt, language)}</p>
+                    <p className="truncate text-sm font-semibold text-slate-950 dark:text-slate-100">{enrollment.studentName || t('mentorCourses.learners.unknownLearner')}</p>
+                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{formatDateTime(enrollment.enrolledAt, language)}</p>
                   </div>
                   <StatusPill
                     label={enrollment.isCompleted ? t('mentorCourses.learners.completed') : t('mentorCourses.learners.learning')}
@@ -747,16 +747,16 @@ function LearnerPanel({
                 </div>
                 <dl className="mt-3 grid grid-cols-2 gap-3 text-xs">
                   <div>
-                    <dt className="text-slate-500">{t('mentorCourses.learners.paid')}</dt>
-                    <dd className="mt-1 font-semibold text-slate-900">{formatCurrency(enrollment.amountPaidMxc || 0, 'MXC', language)}</dd>
+                    <dt className="text-slate-500 dark:text-slate-400">{t('mentorCourses.learners.paid')}</dt>
+                    <dd className="mt-1 font-semibold text-slate-900 dark:text-slate-100">{formatCurrency(enrollment.amountPaidMxc || 0, 'MXC', language)}</dd>
                   </div>
                   <div>
-                    <dt className="text-slate-500">{t('mentorCourses.learners.progress')}</dt>
-                    <dd className="mt-1 font-semibold text-slate-900">{Number(enrollment.progressPercent || 0).toFixed(0)}%</dd>
+                    <dt className="text-slate-500 dark:text-slate-400">{t('mentorCourses.learners.progress')}</dt>
+                    <dd className="mt-1 font-semibold text-slate-900 dark:text-slate-100">{Number(enrollment.progressPercent || 0).toFixed(0)}%</dd>
                   </div>
                   <div className="col-span-2">
-                    <dt className="text-slate-500">{t('mentorCourses.learners.lastAccessed')}</dt>
-                    <dd className="mt-1 font-semibold text-slate-900">
+                    <dt className="text-slate-500 dark:text-slate-400">{t('mentorCourses.learners.lastAccessed')}</dt>
+                    <dd className="mt-1 font-semibold text-slate-900 dark:text-slate-100">
                       {enrollment.lastAccessedAt ? formatDateTime(enrollment.lastAccessedAt, language) : t('mentorCourses.learners.notAccessed')}
                     </dd>
                   </div>
@@ -764,14 +764,14 @@ function LearnerPanel({
                 <div className="mt-3 grid grid-cols-2 gap-2">
                   <Link
                     to={`/users/${enrollment.studentId}`}
-                    className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-slate-200 px-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-4 focus:ring-slate-500/10"
+                    className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-slate-200 dark:border-slate-800 px-2 text-xs font-semibold text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:bg-slate-900/50 focus:outline-none focus:ring-4 focus:ring-slate-500/10"
                   >
                     <UserRound className="h-3.5 w-3.5" />
                     {t('mentorCourses.learners.actions.profile')}
                   </Link>
                   <Link
                     to={`/mentor/messages?targetUserId=${enrollment.studentId}`}
-                    className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-slate-200 px-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-60 focus:outline-none focus:ring-4 focus:ring-slate-500/10"
+                    className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-slate-200 dark:border-slate-800 px-2 text-xs font-semibold text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:bg-slate-900/50 disabled:opacity-60 focus:outline-none focus:ring-4 focus:ring-slate-500/10"
                   >
                     <MessageSquare className="h-3.5 w-3.5" />
                     {t('mentorCourses.learners.actions.message')}
@@ -779,7 +779,7 @@ function LearnerPanel({
                   <button
                     type="button"
                     onClick={() => setExpandedEnrollmentId(expandedEnrollmentId === enrollment.id ? null : enrollment.id)}
-                    className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-slate-200 px-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-4 focus:ring-slate-500/10"
+                    className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-slate-200 dark:border-slate-800 px-2 text-xs font-semibold text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:bg-slate-900/50 focus:outline-none focus:ring-4 focus:ring-slate-500/10"
                   >
                     {expandedEnrollmentId === enrollment.id ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
                     {expandedEnrollmentId === enrollment.id ? t('mentorCourses.learners.actions.hideProgress') : t('mentorCourses.learners.actions.viewProgress')}
@@ -789,7 +789,7 @@ function LearnerPanel({
                     onClick={() => void downloadCertificate(enrollment)}
                     disabled={!canDownloadCertificate(enrollment) || certificateDownloadId === enrollment.id}
                     title={canDownloadCertificate(enrollment) ? t('mentorCourses.learners.actions.downloadCertificate') : t('mentorCourses.learners.certificateUnavailable')}
-                    className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-slate-200 px-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:text-slate-300 focus:outline-none focus:ring-4 focus:ring-slate-500/10"
+                    className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-slate-200 dark:border-slate-800 px-2 text-xs font-semibold text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:bg-slate-900/50 disabled:cursor-not-allowed disabled:text-slate-300 focus:outline-none focus:ring-4 focus:ring-slate-500/10"
                   >
                     {certificateDownloadId === enrollment.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
                     {t('mentorCourses.learners.actions.downloadCertificate')}
@@ -836,11 +836,11 @@ function LearnerProgressDetail({
   const completedCount = progressRows.filter((row) => row.isCompleted).length
 
   return (
-    <div className="mt-3 rounded-lg border border-slate-200 bg-slate-50 p-3">
+    <div className="mt-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 p-3">
       <div className="flex items-center justify-between gap-3">
-        <p className="text-xs font-semibold text-slate-900">{t('mentorCourses.learners.progressDetailTitle')}</p>
+        <p className="text-xs font-semibold text-slate-900 dark:text-slate-100">{t('mentorCourses.learners.progressDetailTitle')}</p>
         {progressRows.length > 0 ? (
-          <span className="text-[11px] font-semibold text-slate-500">
+          <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
             {t('mentorCourses.learners.progressDetailSummary', {
               completed: formatNumber(completedCount, language),
               total: formatNumber(progressRows.length, language),
@@ -857,17 +857,17 @@ function LearnerProgressDetail({
       ) : error ? (
         <p className="mt-3 rounded-md bg-rose-50 px-3 py-2 text-xs font-medium text-rose-700">{t('mentorCourses.learners.progressDetailError')}</p>
       ) : progressRows.length === 0 ? (
-        <p className="mt-3 rounded-md border border-dashed border-slate-200 bg-white px-3 py-3 text-xs leading-5 text-slate-500">
+        <p className="mt-3 rounded-md border border-dashed border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3 py-3 text-xs leading-5 text-slate-500 dark:text-slate-400">
           {t('mentorCourses.learners.progressDetailEmpty')}
         </p>
       ) : (
         <div className="mt-3 max-h-64 space-y-2 overflow-y-auto pr-1">
           {progressRows.map((row) => (
-            <div key={`${row.enrollmentId}-${row.lessonId}`} className="rounded-md border border-slate-200 bg-white p-3">
+            <div key={`${row.enrollmentId}-${row.lessonId}`} className="rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-3">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="truncate text-xs font-semibold text-slate-950">{row.lessonTitle || t('mentorCourses.learners.untitledLesson')}</p>
-                  <p className="mt-1 text-[11px] text-slate-500">
+                  <p className="truncate text-xs font-semibold text-slate-950 dark:text-slate-100">{row.lessonTitle || t('mentorCourses.learners.untitledLesson')}</p>
+                  <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
                     {t('mentorCourses.learners.activeTime', { time: formatMinutesFromSeconds(row.activeTimeSec, language) })}
                   </p>
                 </div>
@@ -880,7 +880,7 @@ function LearnerProgressDetail({
                 <div className="h-2 overflow-hidden rounded-full bg-slate-100">
                   <div className="h-full rounded-full bg-emerald-500" style={{ width: `${clampPercent(row.progressPercent)}%` }} />
                 </div>
-                <div className="mt-2 flex items-center justify-between text-[11px] font-medium text-slate-500">
+                <div className="mt-2 flex items-center justify-between text-[11px] font-medium text-slate-500 dark:text-slate-400">
                   <span>{Number(row.progressPercent || 0).toFixed(0)}%</span>
                   <span>{row.completedAt ? formatDateTime(row.completedAt, language) : t('mentorCourses.learners.notCompletedYet')}</span>
                 </div>
@@ -910,8 +910,8 @@ function Pagination({
   const end = Math.min(totalItems, (page + 1) * pageSize)
 
   return (
-    <div className="flex flex-col gap-3 border-t border-slate-100 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-      <p className="text-xs font-medium text-slate-500">
+    <div className="flex flex-col gap-3 border-t border-slate-100 dark:border-slate-800 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+      <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
         {t('mentorCourses.pagination.summary', {
           start: formatNumber(start, language),
           end: formatNumber(end, language),
@@ -923,19 +923,19 @@ function Pagination({
           type="button"
           onClick={() => onPageChange(page - 1)}
           disabled={page === 0}
-          className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-200 px-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:text-slate-300 focus:outline-none focus:ring-4 focus:ring-slate-500/10"
+          className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-200 dark:border-slate-800 px-3 text-xs font-semibold text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:bg-slate-900/50 disabled:cursor-not-allowed disabled:text-slate-300 focus:outline-none focus:ring-4 focus:ring-slate-500/10"
         >
           <ChevronLeft className="h-3.5 w-3.5" />
           {t('mentorCourses.pagination.previous')}
         </button>
-        <span className="min-w-12 text-center text-xs font-semibold text-slate-500">
+        <span className="min-w-12 text-center text-xs font-semibold text-slate-500 dark:text-slate-400">
           {formatNumber(page + 1, language)}/{formatNumber(totalPages, language)}
         </span>
         <button
           type="button"
           onClick={() => onPageChange(page + 1)}
           disabled={page >= totalPages - 1}
-          className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-200 px-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:text-slate-300 focus:outline-none focus:ring-4 focus:ring-slate-500/10"
+          className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-200 dark:border-slate-800 px-3 text-xs font-semibold text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:bg-slate-900/50 disabled:cursor-not-allowed disabled:text-slate-300 focus:outline-none focus:ring-4 focus:ring-slate-500/10"
         >
           {t('mentorCourses.pagination.next')}
           <ChevronRight className="h-3.5 w-3.5" />
@@ -961,7 +961,7 @@ function SegmentedFilter<T extends string>({
   return (
     <div className="min-w-0 overflow-x-auto">
       <span className="sr-only">{label}</span>
-      <div className="flex w-max min-w-full rounded-lg border border-slate-200 bg-slate-50 p-1">
+      <div className="flex w-max min-w-full rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 p-1">
         {options.map((option) => {
           const isActive = option === value
           return (
@@ -970,7 +970,7 @@ function SegmentedFilter<T extends string>({
               type="button"
               onClick={() => onChange(option)}
               className={`h-8 whitespace-nowrap rounded-md px-3 text-xs font-semibold transition focus:outline-none focus:ring-2 focus:ring-emerald-500/30 ${
-                isActive ? 'bg-white text-slate-950 shadow-sm' : 'text-slate-500 hover:text-slate-800'
+                isActive ? 'bg-white dark:bg-slate-950 text-slate-950 dark:text-slate-100 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-slate-200'
               }`}
             >
               {getLabel(option)}
@@ -992,14 +992,14 @@ function InventoryMetric({
   tone?: 'slate' | 'emerald' | 'amber'
 }) {
   const toneClass = {
-    slate: 'text-slate-950',
-    emerald: 'text-emerald-700',
-    amber: 'text-amber-700',
+    slate: 'text-slate-950 dark:text-slate-100',
+    emerald: 'text-emerald-700 dark:text-emerald-400',
+    amber: 'text-amber-700 dark:text-amber-400',
   }[tone]
 
   return (
-    <div className="flex items-center justify-between gap-3 rounded-lg bg-slate-50 px-3 py-2">
-      <p className="truncate text-xs font-semibold text-slate-500">{label}</p>
+    <div className="flex items-center justify-between gap-3 rounded-lg bg-slate-50 dark:bg-slate-900/50 px-3 py-2">
+      <p className="truncate text-xs font-semibold text-slate-500 dark:text-slate-400">{label}</p>
       <p className={`text-base font-bold ${toneClass}`}>{value}</p>
     </div>
   )
@@ -1008,8 +1008,8 @@ function InventoryMetric({
 function CompactDatum({ label, value }: { label: string; value: ReactNode }) {
   return (
     <div className="min-w-0">
-      <p className="truncate text-[11px] font-medium text-slate-500">{label}</p>
-      <p className="mt-1 truncate font-semibold text-slate-900">{value}</p>
+      <p className="truncate text-[11px] font-medium text-slate-500 dark:text-slate-400">{label}</p>
+      <p className="mt-1 truncate font-semibold text-slate-900 dark:text-slate-100">{value}</p>
     </div>
   )
 }
@@ -1026,13 +1026,13 @@ function DetailMetric({
   helper?: string
 }) {
   return (
-    <div className="bg-white p-4">
-      <dt className="flex items-center gap-2 text-xs font-medium text-slate-500">
+    <div className="bg-white dark:bg-slate-950 p-4">
+      <dt className="flex items-center gap-2 text-xs font-medium text-slate-500 dark:text-slate-400">
         <span className="text-slate-400">{icon}</span>
         {label}
       </dt>
-      <dd className="mt-2 text-sm font-semibold text-slate-950">{value}</dd>
-      {helper ? <dd className="mt-1 text-xs text-slate-500">{helper}</dd> : null}
+      <dd className="mt-2 text-sm font-semibold text-slate-950 dark:text-slate-100">{value}</dd>
+      {helper ? <dd className="mt-1 text-xs text-slate-500 dark:text-slate-400">{helper}</dd> : null}
     </div>
   )
 }

@@ -95,56 +95,15 @@ export default function ChatListPage() {
   const roomList = rooms?.content || []
 
   const filteredRooms = useMemo(() => {
-    // ── Per-user deduplication ──
-    // For each unique other user, keep only ONE conversation entry.
-    // Priority: CONTRACT > PROPOSAL > JOB > DIRECT_MESSAGE.
-    const typePriority: Record<string, number> = {
-      CONTRACT: 4,
-      PROPOSAL: 3,
-      JOB: 2,
-      DIRECT_MESSAGE: 1,
-    }
-
-    const bestRoomByUser = new Map<string, ChatRoomResponse>()
-    for (const room of roomList) {
+    return roomList.filter((room) => {
       // Skip self-chat rooms
       if (
         room.roomType === 'DIRECT_MESSAGE' &&
         room.members.length > 0 &&
         room.members.every((m) => m.userId === user?.userId)
       ) {
-        continue
+        return false
       }
-
-      const otherMember = room.members.find((m) => m.userId !== user?.userId)
-      if (!otherMember) continue
-
-      const otherUserId = otherMember.userId
-      const existing = bestRoomByUser.get(otherUserId)
-
-      if (!existing) {
-        bestRoomByUser.set(otherUserId, room)
-        continue
-      }
-
-      const roomPriority = typePriority[room.referenceType || room.roomType] || 0
-      const existingPriority = typePriority[existing.referenceType || existing.roomType] || 0
-
-      if (roomPriority > existingPriority) {
-        bestRoomByUser.set(otherUserId, room)
-      } else if (roomPriority === existingPriority) {
-        const roomTime = new Date(room.lastMessageAt || room.updatedAt || 0).getTime()
-        const existingTime = new Date(existing.lastMessageAt || existing.updatedAt || 0).getTime()
-        if (roomTime > existingTime) {
-          bestRoomByUser.set(otherUserId, room)
-        }
-      }
-    }
-
-    const allowedRoomIds = new Set(Array.from(bestRoomByUser.values()).map((r) => r.id))
-
-    return roomList.filter((room) => {
-      if (!allowedRoomIds.has(room.id)) return false
 
       if (activeFilter === 'unread' && (room.unreadCount === 0 || room.isArchived)) return false
       if (activeFilter === 'archived' && !room.isArchived) return false
@@ -338,10 +297,12 @@ export default function ChatListPage() {
       return
     }
 
+    if (draftRecipientId) return
+
     if (!selectedRoomId || !filteredRooms.some((room) => room.id === selectedRoomId)) {
       setSelectedRoomId(filteredRooms[0].id)
     }
-  }, [contextMsg, filteredRooms, queryClient, refetchRooms, roomList, roomsLoading, selectedRoomId, setSearchParams, targetJobId, targetRoomId, targetUserId, user?.userId])
+  }, [contextMsg, filteredRooms, queryClient, refetchRooms, roomList, roomsLoading, selectedRoomId, setSearchParams, targetJobId, targetRoomId, targetUserId, draftRecipientId, user?.userId])
 
   const selectedRoom = useMemo(
     () => roomList.find((room) => room.id === selectedRoomId) || null,
@@ -352,7 +313,7 @@ export default function ChatListPage() {
     [selectedRoom, user?.userId]
   )
   const isDirectRoom = selectedRoom?.roomType === 'DIRECT_MESSAGE' || !!draftRecipientId
-  const otherMemberId = draftRecipientId || (isDirectRoom ? selectedRoomOtherMember?.userId : undefined)
+  const otherMemberId = selectedRoomId ? (isDirectRoom ? selectedRoomOtherMember?.userId : undefined) : draftRecipientId
 
   const { data: mentorProfile, isLoading: mentorProfileLoading } = useQuery(
     ['chat-mentor-profile', otherMemberId],
@@ -679,8 +640,8 @@ export default function ChatListPage() {
   }
 
   return (
-    <div className="bg-[#f7f8fe]">
-      <div className="overflow-hidden bg-white">
+    <div className="bg-[#f7f8fe] dark:bg-slate-950">
+      <div className="overflow-hidden bg-white dark:bg-slate-950">
         <div className="grid h-dvh lg:grid-cols-[340px_minmax(0,1fr)] 2xl:grid-cols-[380px_minmax(0,1fr)_360px]">
           <InboxSidebar
             rooms={filteredRooms}
@@ -722,7 +683,7 @@ export default function ChatListPage() {
             />
           </div>
 
-          <div className="hidden h-dvh border-l border-slate-200 2xl:block">
+          <div className="hidden h-dvh border-l border-slate-200 dark:border-slate-800 2xl:block">
             <ContextRail
               currentUserId={user.userId}
               selectedRoom={effectiveRoom}
@@ -753,7 +714,7 @@ export default function ChatListPage() {
             onClick={() => setIsDetailsOpen(false)}
             aria-hidden="true"
           />
-          <div className="absolute right-0 top-0 h-full w-full max-w-[380px] overflow-y-auto border-l border-slate-200 bg-white shadow-2xl">
+          <div className="absolute right-0 top-0 h-full w-full max-w-[380px] overflow-y-auto border-l border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 shadow-2xl">
             <ContextRail
               currentUserId={user.userId}
               selectedRoom={effectiveRoom}

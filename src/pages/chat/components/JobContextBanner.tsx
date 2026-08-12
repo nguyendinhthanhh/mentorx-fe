@@ -40,17 +40,17 @@ export default function JobContextBanner({ jobId, userId }: JobContextBannerProp
   // Banner variants based on status
   if (job.status === JobStatus.IN_PROGRESS && contract?.status === 'ACTIVE') {
     return (
-      <div className="border-b border-emerald-200 bg-gradient-to-r from-emerald-50 to-blue-50 px-4 py-3 shadow-sm">
+      <div className="border-b border-emerald-200 dark:border-emerald-800/50 bg-gradient-to-r from-emerald-50 to-blue-50 dark:to-blue-900/30 px-4 py-3 shadow-sm">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100">
-              <Briefcase className="h-5 w-5 text-emerald-600" />
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/50">
+              <Briefcase className="h-5 w-5 text-emerald-600 dark:text-emerald-500" />
             </div>
             <div>
-              <p className="text-sm font-bold text-emerald-900">
+              <p className="text-sm font-bold text-emerald-900 dark:text-emerald-100">
                 {isOwner ? 'Công việc đang thực hiện' : 'Đang làm việc cho client'}
               </p>
-              <p className="text-xs text-emerald-700">
+              <p className="text-xs text-emerald-700 dark:text-emerald-400">
                 {contract.amountInEscrow ? (
                   <>Escrow: <span className="font-bold">{formatCurrency(contract.amountInEscrow)}</span></>
                 ) : (
@@ -61,7 +61,7 @@ export default function JobContextBanner({ jobId, userId }: JobContextBannerProp
           </div>
           <Link
             to={isOwner ? `/my-jobs/${jobId}` : `/mentor/contracts/${contract.id}`}
-            className="flex shrink-0 items-center gap-2 rounded-xl border border-emerald-200 bg-white px-4 py-2 text-sm font-bold text-emerald-700 transition hover:bg-emerald-50"
+            className="flex shrink-0 items-center gap-2 rounded-xl border border-emerald-200 dark:border-emerald-800/50 bg-white dark:bg-slate-950 px-4 py-2 text-sm font-bold text-emerald-700 dark:text-emerald-400 transition hover:bg-emerald-50 dark:bg-emerald-900/30"
           >
             {isOwner ? 'Chi tiết & Xác nhận' : 'Xem hợp đồng'}
             <ArrowRight className="h-4 w-4" />
@@ -74,24 +74,24 @@ export default function JobContextBanner({ jobId, userId }: JobContextBannerProp
   // Job is open - show proposal status
   if (job.status === JobStatus.OPEN) {
     return (
-      <div className="border-b border-emerald-200 bg-gradient-to-r from-emerald-50 to-emerald-50 px-4 py-3 shadow-sm">
+      <div className="border-b border-emerald-200 dark:border-emerald-800/50 bg-gradient-to-r from-emerald-50 to-emerald-50 px-4 py-3 shadow-sm">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100">
-              <Clock className="h-5 w-5 text-emerald-600" />
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/50">
+              <Clock className="h-5 w-5 text-emerald-600 dark:text-emerald-500" />
             </div>
             <div>
-              <p className="text-sm font-bold text-emerald-900">
+              <p className="text-sm font-bold text-emerald-900 dark:text-emerald-100">
                 {isOwner ? 'Yêu cầu đang chờ chọn mentor' : 'Đã gửi đề xuất'}
               </p>
-              <p className="text-xs text-emerald-700">
+              <p className="text-xs text-emerald-700 dark:text-emerald-400">
                 {isOwner ? 'Xem và chấp nhận mentor phù hợp' : 'Đang chờ client phản hồi'}
               </p>
             </div>
           </div>
           <Link
             to={isOwner ? `/my-jobs/${jobId}` : `/jobs/${jobId}`}
-            className="flex shrink-0 items-center gap-2 rounded-xl border border-emerald-200 bg-white px-4 py-2 text-sm font-bold text-emerald-700 transition hover:bg-emerald-50"
+            className="flex shrink-0 items-center gap-2 rounded-xl border border-emerald-200 dark:border-emerald-800/50 bg-white dark:bg-slate-950 px-4 py-2 text-sm font-bold text-emerald-700 dark:text-emerald-400 transition hover:bg-emerald-50 dark:bg-emerald-900/30"
           >
             Xem chi tiết
             <ArrowRight className="h-4 w-4" />
@@ -104,20 +104,20 @@ export default function JobContextBanner({ jobId, userId }: JobContextBannerProp
   // Job completed
   if (job.status === JobStatus.COMPLETED) {
     return (
-      <div className="border-b border-slate-200 bg-gradient-to-r from-slate-50 to-slate-100 px-4 py-3 shadow-sm">
+      <div className="border-b border-slate-200 dark:border-slate-800 bg-gradient-to-r from-slate-50 to-slate-100 px-4 py-3 shadow-sm">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-100">
-              <CheckCircle2 className="h-5 w-5 text-slate-600" />
+              <CheckCircle2 className="h-5 w-5 text-slate-600 dark:text-slate-400" />
             </div>
             <div>
-              <p className="text-sm font-bold text-slate-900">Công việc đã hoàn thành</p>
-              <p className="text-xs text-slate-600">Escrow đã được giải ngân</p>
+              <p className="text-sm font-bold text-slate-900 dark:text-slate-100">Công việc đã hoàn thành</p>
+              <p className="text-xs text-slate-600 dark:text-slate-400">Escrow đã được giải ngân</p>
             </div>
           </div>
           <Link
             to={isOwner ? `/my-jobs/${jobId}` : `/mentor/contracts/${contract?.id}`}
-            className="flex shrink-0 items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50"
+            className="flex shrink-0 items-center gap-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 py-2 text-sm font-bold text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:bg-slate-900/50"
           >
             Xem lịch sử
             <ArrowRight className="h-4 w-4" />
@@ -130,17 +130,17 @@ export default function JobContextBanner({ jobId, userId }: JobContextBannerProp
   // Job cancelled/closed
   if (job.status === JobStatus.CANCELLED || job.status === JobStatus.CLOSED) {
     return (
-      <div className="border-b border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50 px-4 py-3 shadow-sm">
+      <div className="border-b border-amber-200 dark:border-amber-800/50 bg-gradient-to-r from-amber-50 to-orange-50 px-4 py-3 shadow-sm">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-100">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-100 dark:bg-amber-900/50">
               <AlertCircle className="h-5 w-5 text-amber-600" />
             </div>
             <div>
-              <p className="text-sm font-bold text-amber-900">
+              <p className="text-sm font-bold text-amber-900 dark:text-amber-100">
                 Công việc đã {job.status === JobStatus.CANCELLED ? 'hủy' : 'đóng'}
               </p>
-              <p className="text-xs text-amber-700">
+              <p className="text-xs text-amber-700 dark:text-amber-400">
                 {job.statusReason || 'Không còn hoạt động'}
               </p>
             </div>

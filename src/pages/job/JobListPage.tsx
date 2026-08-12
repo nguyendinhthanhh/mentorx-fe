@@ -257,29 +257,29 @@ export default function JobListPage() {
   }
 
   return (
-    <div className="job-discovery-page min-h-screen bg-[#f7f8fc] pb-12 text-slate-900 selection:bg-emerald-100 selection:text-emerald-950 dark:bg-slate-950 dark:text-slate-100">
-      <section className="border-b border-[#e2e6f5] bg-white dark:border-slate-800 dark:bg-slate-950">
+    <div className="job-discovery-page min-h-screen bg-[#f7f8fc] dark:bg-slate-950 pb-12 text-slate-900 dark:text-slate-100 selection:bg-emerald-100 dark:bg-emerald-900/50 selection:text-emerald-950 dark:bg-slate-950 dark:text-slate-100">
+      <section className="border-b border-[#e2e6f5] dark:border-slate-800 bg-white dark:bg-slate-950 dark:border-slate-800 dark:bg-slate-950">
         <div className="mx-auto max-w-[1600px] px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
           <div className="mx-auto flex max-w-3xl flex-col items-center text-center">
-            <h1 className="text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl dark:text-white">
+            <h1 className="text-3xl font-bold tracking-tight text-slate-950 dark:text-slate-100 sm:text-4xl dark:text-white">
               {t('jobs.discovery.title')}
             </h1>
-            <p className="mt-3 text-sm font-medium text-slate-600 sm:text-base dark:text-slate-300">
+            <p className="mt-3 text-sm font-medium text-slate-600 dark:text-slate-400 dark:text-slate-400 sm:text-base dark:text-slate-300">
               {t('jobs.discovery.subtitle')}
             </p>
           </div>
 
           <form
-            className="mx-auto mt-8 grid max-w-4xl w-full shrink-0 gap-2 rounded-2xl border border-[#e2e6f5] bg-white p-2 shadow-sm sm:grid-cols-[minmax(210px,auto)_minmax(0,1fr)_auto] dark:border-slate-700 dark:bg-slate-900 dark:shadow-none"
+            className="mx-auto mt-8 grid max-w-4xl w-full shrink-0 gap-2 rounded-2xl border border-[#e2e6f5] dark:border-slate-800 bg-white dark:bg-slate-950 p-2 shadow-sm sm:grid-cols-[minmax(210px,auto)_minmax(0,1fr)_auto] dark:border-slate-700 dark:bg-slate-900 dark:shadow-none"
             onSubmit={handleSearch}
           >
-            <label className="relative min-w-0 border-b border-slate-200 sm:border-b-0 sm:border-r dark:border-slate-700">
+            <label className="relative min-w-0 border-b border-slate-200 dark:border-slate-800 sm:border-b-0 sm:border-r dark:border-slate-700">
               <span className="sr-only">{t('jobs.filter.category')}</span>
               <Briefcase className="pointer-events-none absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
               <select
                 value={categoryId}
                 onChange={(event) => setCategoryFilter(event.target.value)}
-                className="h-12 w-full appearance-none bg-transparent pl-10 pr-8 text-sm font-semibold text-slate-800 outline-none dark:text-slate-100"
+                className="h-12 w-full appearance-none bg-transparent pl-10 pr-8 text-sm font-semibold text-slate-800 dark:text-slate-200 dark:text-slate-200 outline-none dark:text-slate-100"
               >
                 <option value="">{t('jobs.filter.categoryAll')}</option>
                 {categories.map((category) => (
@@ -298,13 +298,13 @@ export default function JobListPage() {
                 value={keywordInput}
                 onChange={(event) => setKeywordInput(event.target.value)}
                 placeholder={t('jobs.searchPlaceholder')}
-                className="h-12 w-full bg-transparent pl-11 pr-11 text-sm font-medium text-slate-900 outline-none placeholder:text-slate-400 dark:text-slate-100 dark:placeholder:text-slate-500"
+                className="h-12 w-full bg-transparent pl-11 pr-11 text-sm font-medium text-slate-900 dark:text-slate-100 outline-none placeholder:text-slate-400 dark:text-slate-100 dark:placeholder:text-slate-500 dark:text-slate-400 dark:text-slate-400"
               />
               {keywordInput ? (
                 <button
                   type="button"
                   onClick={clearKeyword}
-                  className="absolute right-1.5 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-lg text-slate-400 transition-colors duration-150 hover:bg-slate-100 hover:text-slate-700 active:scale-[0.97] dark:hover:bg-slate-800 dark:hover:text-slate-200"
+                  className="absolute right-1.5 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-lg text-slate-400 transition-colors duration-150 hover:bg-slate-100 dark:bg-slate-800 hover:text-slate-700 dark:text-slate-300 dark:text-slate-300 active:scale-[0.97] dark:hover:bg-slate-800 dark:hover:text-slate-200"
                   aria-label={t('jobs.search.clear')}
                 >
                   <X className="h-4 w-4" />
@@ -330,12 +330,12 @@ export default function JobListPage() {
               <button
                 type="button"
                 onClick={() => setMobileFiltersOpen((open) => !open)}
-                className="flex min-h-12 min-w-0 items-center justify-between rounded-xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-800 shadow-sm transition-colors duration-150 hover:border-slate-300 active:scale-[0.99] dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100"
+                className="flex min-h-12 min-w-0 items-center justify-between rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 text-sm font-bold text-slate-800 dark:text-slate-200 dark:text-slate-200 shadow-sm transition-colors duration-150 hover:border-slate-300 dark:border-slate-700 active:scale-[0.99] dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100"
                 aria-expanded={mobileFiltersOpen}
                 aria-controls="job-filter-panel"
               >
                 <span className="flex min-w-0 items-center gap-2">
-                  <SlidersHorizontal className="h-4 w-4 shrink-0 text-emerald-700 dark:text-emerald-300" />
+                  <SlidersHorizontal className="h-4 w-4 shrink-0 text-emerald-700 dark:text-emerald-400 dark:text-emerald-300" />
                   <span className="truncate">
                     {mobileFiltersOpen ? t('jobs.filter.lessFilters') : t('jobs.filter.moreFilters')}
                   </span>
@@ -365,17 +365,17 @@ export default function JobListPage() {
               id="job-filter-panel"
               className={`${mobileFiltersOpen ? 'mt-3 block' : 'hidden'} lg:sticky lg:top-24 lg:block`}
             >
-              <div className="overflow-hidden rounded-2xl border border-[#e2e6f5] bg-white dark:border-slate-800 dark:bg-slate-900">
-                <div className="flex items-center justify-between border-b border-slate-200 px-6 py-5 dark:border-slate-800">
-                  <h2 className="flex items-center gap-2 text-sm font-bold text-slate-950 dark:text-slate-50">
-                    <Filter className="h-4 w-4 text-emerald-700 dark:text-emerald-300" />
+              <div className="overflow-hidden rounded-2xl border border-[#e2e6f5] dark:border-slate-800 bg-white dark:bg-slate-950 dark:border-slate-800 dark:bg-slate-900">
+                <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 px-6 py-5 dark:border-slate-800">
+                  <h2 className="flex items-center gap-2 text-sm font-bold text-slate-950 dark:text-slate-100 dark:text-slate-50">
+                    <Filter className="h-4 w-4 text-emerald-700 dark:text-emerald-400 dark:text-emerald-300" />
                     {t('jobs.filters.title')}
                   </h2>
                   {hasActiveFilters ? (
                     <button
                       type="button"
                       onClick={clearAllFilters}
-                      className="inline-flex min-h-9 items-center gap-1.5 rounded-lg px-2 text-xs font-semibold text-slate-500 transition-colors duration-150 hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-slate-800 dark:hover:text-slate-100"
+                      className="inline-flex min-h-9 items-center gap-1.5 rounded-lg px-2 text-xs font-semibold text-slate-500 dark:text-slate-400 dark:text-slate-400 transition-colors duration-150 hover:bg-slate-100 dark:bg-slate-800 hover:text-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 dark:hover:text-slate-100"
                     >
                       <RotateCcw className="h-3.5 w-3.5" />
                       {t('jobs.filter.clearAll')}
@@ -424,7 +424,7 @@ export default function JobListPage() {
                               className={`rounded-lg px-2.5 py-1 text-xs font-semibold transition-all duration-150 ${
                                 isSelected
                                   ? 'bg-emerald-600 text-white shadow-sm'
-                                  : 'bg-slate-100 text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-emerald-950/40 dark:hover:text-emerald-400'
+                                  : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 dark:text-slate-300 hover:bg-emerald-50 dark:bg-emerald-900/30 hover:text-emerald-700 dark:text-emerald-400 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-emerald-950/40 dark:hover:text-emerald-400'
                               }`}
                             >
                               {displayName}
@@ -438,7 +438,7 @@ export default function JobListPage() {
                       <select
                         value={skillFilter}
                         onChange={(event) => setFilter(setSkillFilter)(event.target.value)}
-                        className="h-10 w-full appearance-none rounded-xl border border-slate-200 bg-white pl-3 pr-9 text-xs font-medium text-slate-700 outline-none transition-colors focus:border-emerald-600 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200"
+                        className="h-10 w-full appearance-none rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 pl-3 pr-9 text-xs font-medium text-slate-700 dark:text-slate-300 dark:text-slate-300 outline-none transition-colors focus:border-emerald-600 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200"
                       >
                         <option value="">{t('jobs.filter.skillsAll')}</option>
                         {skills.slice(0, 80).map((skill) => (
@@ -465,7 +465,7 @@ export default function JobListPage() {
                     {budgetType === BudgetType.FIXED || budgetType === BudgetType.HOURLY ? (
                       <div className="grid grid-cols-2 gap-2 pt-2">
                         <label>
-                          <span className="mb-1.5 block text-xs font-medium text-slate-500">
+                          <span className="mb-1.5 block text-xs font-medium text-slate-500 dark:text-slate-400 dark:text-slate-400">
                             {t('jobs.filter.budgetMin')}
                           </span>
                           <input
@@ -473,11 +473,11 @@ export default function JobListPage() {
                             min="0"
                             value={budgetMin}
                             onChange={(event) => setFilter(setBudgetMin)(event.target.value)}
-                            className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-800 outline-none focus:border-emerald-600 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+                            className="h-10 w-full rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3 text-sm font-medium text-slate-800 dark:text-slate-200 dark:text-slate-200 outline-none focus:border-emerald-600 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
                           />
                         </label>
                         <label>
-                          <span className="mb-1.5 block text-xs font-medium text-slate-500">
+                          <span className="mb-1.5 block text-xs font-medium text-slate-500 dark:text-slate-400 dark:text-slate-400">
                             {t('jobs.filter.budgetMax')}
                           </span>
                           <input
@@ -485,7 +485,7 @@ export default function JobListPage() {
                             min="0"
                             value={budgetMax}
                             onChange={(event) => setFilter(setBudgetMax)(event.target.value)}
-                            className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-800 outline-none focus:border-emerald-600 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+                            className="h-10 w-full rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3 text-sm font-medium text-slate-800 dark:text-slate-200 dark:text-slate-200 outline-none focus:border-emerald-600 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
                           />
                         </label>
                       </div>
@@ -514,19 +514,19 @@ export default function JobListPage() {
           </aside>
 
           <section className="min-w-0" aria-busy={isFetching}>
-            <div className="mb-4 flex flex-col gap-3 border-b border-slate-200 pb-4 sm:flex-row sm:items-center sm:justify-between dark:border-slate-800">
+            <div className="mb-4 flex flex-col gap-3 border-b border-slate-200 dark:border-slate-800 pb-4 sm:flex-row sm:items-center sm:justify-between dark:border-slate-800">
               <div>
-                <h2 className="text-base font-bold text-slate-950 dark:text-slate-50">
+                <h2 className="text-base font-bold text-slate-950 dark:text-slate-100 dark:text-slate-50">
                   {t('jobs.results.count', { count: totalJobs })}
                 </h2>
-                <p className="mt-1 min-h-5 text-xs text-slate-500 dark:text-slate-400">
+                <p className="mt-1 min-h-5 text-xs text-slate-500 dark:text-slate-400 dark:text-slate-400 dark:text-slate-400">
                   {isFetching && !showInitialLoading ? t('jobs.results.updating') : t('jobs.results.hint')}
                 </p>
               </div>
 
               <div className="flex min-w-0 items-center gap-2">
                 <div
-                  className="hidden items-center rounded-xl border border-slate-200 bg-white p-1 sm:flex dark:border-slate-800 dark:bg-slate-900"
+                  className="hidden items-center rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-1 sm:flex dark:border-slate-800 dark:bg-slate-900"
                   aria-label={t('jobs.view.label')}
                 >
                   <ViewModeButton
@@ -553,7 +553,7 @@ export default function JobListPage() {
                       setSort(event.target.value as JobSort)
                       setPage(0)
                     }}
-                    className="h-11 w-full appearance-none rounded-xl border border-slate-200 bg-white pl-3 pr-9 text-sm font-semibold text-slate-700 outline-none transition-colors focus:border-emerald-600 sm:w-[190px] dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200"
+                    className="h-11 w-full appearance-none rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 pl-3 pr-9 text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300 outline-none transition-colors focus:border-emerald-600 sm:w-[190px] dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200"
                   >
                     {SORT_OPTIONS.map((option) => (
                       <option key={option.value} value={option.value}>
@@ -614,7 +614,7 @@ export default function JobListPage() {
 function FilterGroup({ children, title }: { children: React.ReactNode; title: string }) {
   return (
     <div className="py-6">
-      <h3 className="mb-4 text-xs font-bold uppercase tracking-[0.08em] text-slate-500 dark:text-slate-400">
+      <h3 className="mb-4 text-xs font-bold uppercase tracking-[0.08em] text-slate-500 dark:text-slate-400 dark:text-slate-400 dark:text-slate-400">
         {title}
       </h3>
       <div className="space-y-3">{children}</div>
@@ -636,7 +636,7 @@ function RadioOption({
   value: string
 }) {
   return (
-    <label className="group flex min-h-9 cursor-pointer items-center gap-3 text-sm text-slate-600 dark:text-slate-300">
+    <label className="group flex min-h-9 cursor-pointer items-center gap-3 text-sm text-slate-600 dark:text-slate-400 dark:text-slate-400 dark:text-slate-300">
       <input
         type="radio"
         name={name}
@@ -649,12 +649,12 @@ function RadioOption({
         className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition-colors duration-150 peer-focus-visible:ring-2 peer-focus-visible:ring-emerald-600 peer-focus-visible:ring-offset-2 dark:peer-focus-visible:ring-emerald-300 dark:peer-focus-visible:ring-offset-slate-900 ${
           checked
             ? 'border-emerald-700 bg-emerald-700 text-white dark:border-emerald-400 dark:bg-emerald-400 dark:text-slate-950'
-            : 'border-slate-300 bg-white group-hover:border-slate-400 dark:border-slate-600 dark:bg-slate-950'
+            : 'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 group-hover:border-slate-400 dark:border-slate-600 dark:bg-slate-950'
         }`}
       >
         {checked ? <span className="h-2 w-2 rounded-full bg-white dark:bg-slate-950" /> : null}
       </span>
-      <span className={checked ? 'font-semibold text-slate-950 dark:text-slate-50' : ''}>{label}</span>
+      <span className={checked ? 'font-semibold text-slate-950 dark:text-slate-100 dark:text-slate-50' : ''}>{label}</span>
     </label>
   )
 }
@@ -680,7 +680,7 @@ function ViewModeButton({
       className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors duration-150 ${
         active
           ? 'bg-emerald-600 text-white shadow-sm dark:bg-emerald-500 dark:text-white'
-          : 'text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200'
+          : 'text-slate-400 hover:bg-slate-100 dark:bg-slate-800 hover:text-slate-700 dark:text-slate-300 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-200'
       }`}
     >
       {children}
@@ -707,7 +707,7 @@ function JobCard({
   const initial = clientName.trim().charAt(0).toUpperCase() || 'M'
 
   return (
-    <article className="group h-full overflow-hidden rounded-2xl border border-[#e2e6f5] bg-white transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-[0_14px_34px_rgba(51,65,85,0.09)] dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700 dark:hover:shadow-none">
+    <article className="group h-full overflow-hidden rounded-2xl border border-[#e2e6f5] dark:border-slate-800 bg-white dark:bg-slate-950 transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-slate-300 dark:border-slate-700 hover:shadow-[0_14px_34px_rgba(51,65,85,0.09)] dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700 dark:hover:shadow-none">
       <Link
         to={`/jobs/${job.jobId}`}
         className={`flex h-full min-w-0 flex-col p-5 sm:p-6 ${
@@ -716,7 +716,7 @@ function JobCard({
       >
         <div className="min-w-0">
           <div className="flex min-w-0 items-start gap-4">
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-slate-100 text-lg font-extrabold text-slate-500 dark:bg-slate-800 dark:text-slate-400">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-slate-100 dark:bg-slate-800 text-lg font-extrabold text-slate-500 dark:text-slate-400 dark:text-slate-400 dark:bg-slate-800 dark:text-slate-400">
               {job.clientAvatarUrl || job.client?.avatarUrl ? (
                 <img src={job.clientAvatarUrl || job.client?.avatarUrl} alt={clientName} className="h-full w-full object-cover" />
               ) : (
@@ -724,11 +724,11 @@ function JobCard({
               )}
             </div>
             <div className="min-w-0 flex-1">
-              <h3 className="line-clamp-2 text-[17px] font-bold leading-6 tracking-[-0.015em] text-slate-950 transition-colors duration-150 group-hover:text-emerald-800 sm:text-lg dark:text-slate-50 dark:group-hover:text-emerald-300">
+              <h3 className="line-clamp-2 text-[17px] font-bold leading-6 tracking-[-0.015em] text-slate-950 dark:text-slate-100 transition-colors duration-150 group-hover:text-emerald-800 dark:text-emerald-200 sm:text-lg dark:text-slate-50 dark:group-hover:text-emerald-300">
                 {job.title}
               </h3>
               <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1">
-                <span className="truncate text-sm font-medium text-slate-500 dark:text-slate-400">
+                <span className="truncate text-sm font-medium text-slate-500 dark:text-slate-400 dark:text-slate-400 dark:text-slate-400">
                   {clientName}
                 </span>
                 <span className="text-xs text-slate-400">
@@ -738,18 +738,18 @@ function JobCard({
             </div>
           </div>
 
-          <p className="mt-4 line-clamp-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
+          <p className="mt-4 line-clamp-2 text-sm leading-6 text-slate-600 dark:text-slate-400 dark:text-slate-400 dark:text-slate-300">
             {job.description}
           </p>
 
           <div className="mt-4 flex flex-wrap items-center gap-2">
-            <span className="rounded-md bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700 dark:bg-slate-800 dark:text-slate-200">
+            <span className="rounded-md bg-slate-100 dark:bg-slate-800 px-2.5 py-1 text-xs font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300 dark:bg-slate-800 dark:text-slate-200">
               {getJobTypeLabel(job.jobType, t)}
             </span>
             {job.requiredSkills?.slice(0, 3).map((skill) => (
               <span
                 key={skill}
-                className="rounded-md border border-slate-200 px-2.5 py-1 text-xs font-medium text-slate-600 dark:border-slate-700 dark:text-slate-300"
+                className="rounded-md border border-slate-200 dark:border-slate-800 px-2.5 py-1 text-xs font-medium text-slate-600 dark:text-slate-400 dark:text-slate-400 dark:border-slate-700 dark:text-slate-300"
               >
                 {skill}
               </span>
@@ -764,7 +764,7 @@ function JobCard({
         </div>
 
         <div
-          className={`mt-5 flex min-w-0 items-end justify-between gap-4 border-t border-slate-100 pt-4 dark:border-slate-800 ${
+          className={`mt-5 flex min-w-0 items-end justify-between gap-4 border-t border-slate-100 dark:border-slate-800 pt-4 dark:border-slate-800 ${
             viewMode === 'list'
               ? 'lg:mt-0 lg:flex-col lg:items-end lg:justify-between lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0'
               : ''
@@ -773,18 +773,18 @@ function JobCard({
           <div className={viewMode === 'list' ? 'lg:text-right' : ''}>
             <div className="flex flex-wrap items-center gap-2 lg:justify-end">
               {job.isFeatured ? (
-                <span className="inline-flex items-center gap-1 rounded-md bg-amber-50 px-2 py-1 text-[11px] font-bold text-amber-800 dark:bg-amber-950/40 dark:text-amber-300">
+                <span className="inline-flex items-center gap-1 rounded-md bg-amber-50 dark:bg-amber-900/30 px-2 py-1 text-[11px] font-bold text-amber-800 dark:text-amber-200 dark:bg-amber-950/40 dark:text-amber-300">
                   <Sparkles className="h-3 w-3" />
                   {t('jobs.featured')}
                 </span>
               ) : null}
               {showRelevance && relevancePercent != null ? (
-                <span className="rounded-md bg-emerald-50 px-2 py-1 text-[11px] font-bold text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
+                <span className="rounded-md bg-emerald-50 dark:bg-emerald-900/30 px-2 py-1 text-[11px] font-bold text-emerald-700 dark:text-emerald-400 dark:bg-emerald-950/40 dark:text-emerald-300">
                   {t('jobs.relevance', { score: relevancePercent })}
                 </span>
               ) : null}
             </div>
-            <p className="mt-2 text-base font-extrabold text-amber-700 dark:text-amber-300">{budget}</p>
+            <p className="mt-2 text-base font-extrabold text-amber-700 dark:text-amber-400 dark:text-amber-300">{budget}</p>
           </div>
 
           <div className="text-right">
@@ -792,7 +792,7 @@ function JobCard({
               className={`flex items-center justify-end gap-1.5 text-xs font-semibold ${
                 deadline.isOverdue
                   ? 'text-rose-700 dark:text-rose-300'
-                  : 'text-slate-500 dark:text-slate-400'
+                  : 'text-slate-500 dark:text-slate-400 dark:text-slate-400 dark:text-slate-400'
               }`}
             >
               <Clock3 className="h-3.5 w-3.5" />
@@ -802,7 +802,7 @@ function JobCard({
               <Users className="h-3.5 w-3.5" />
               {t('jobs.proposalCount', { count: job.proposalCount || 0 })}
             </p>
-            <span className="mt-3 inline-flex items-center gap-1 text-xs font-bold text-slate-700 transition-colors duration-150 group-hover:text-emerald-800 dark:text-slate-200 dark:group-hover:text-emerald-300">
+            <span className="mt-3 inline-flex items-center gap-1 text-xs font-bold text-slate-700 dark:text-slate-300 dark:text-slate-300 transition-colors duration-150 group-hover:text-emerald-800 dark:text-emerald-200 dark:text-slate-200 dark:group-hover:text-emerald-300">
               {t('jobs.card.viewDetails')}
               <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
             </span>
@@ -819,7 +819,7 @@ function JobListSkeleton({ viewMode }: { viewMode: ViewMode }) {
       {Array.from({ length: 6 }).map((_, index) => (
         <div
           key={index}
-          className={`rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 dark:border-slate-800 dark:bg-slate-900 ${
+          className={`rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-5 sm:p-6 dark:border-slate-800 dark:bg-slate-900 ${
             viewMode === 'list' ? 'lg:grid lg:grid-cols-[minmax(0,1fr)_220px] lg:gap-8' : ''
           }`}
         >
@@ -831,20 +831,20 @@ function JobListSkeleton({ viewMode }: { viewMode: ViewMode }) {
                 <div className="h-5 w-3/4 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
               </div>
             </div>
-            <div className="mt-5 h-4 w-full animate-pulse rounded bg-slate-100 dark:bg-slate-800" />
-            <div className="mt-2 h-4 w-2/3 animate-pulse rounded bg-slate-100 dark:bg-slate-800" />
+            <div className="mt-5 h-4 w-full animate-pulse rounded bg-slate-100 dark:bg-slate-800 dark:bg-slate-800" />
+            <div className="mt-2 h-4 w-2/3 animate-pulse rounded bg-slate-100 dark:bg-slate-800 dark:bg-slate-800" />
             <div className="mt-5 flex gap-2">
-              <div className="h-6 w-20 animate-pulse rounded-md bg-slate-100 dark:bg-slate-800" />
-              <div className="h-6 w-24 animate-pulse rounded-md bg-slate-100 dark:bg-slate-800" />
+              <div className="h-6 w-20 animate-pulse rounded-md bg-slate-100 dark:bg-slate-800 dark:bg-slate-800" />
+              <div className="h-6 w-24 animate-pulse rounded-md bg-slate-100 dark:bg-slate-800 dark:bg-slate-800" />
             </div>
           </div>
           <div
-            className={`mt-5 border-t border-slate-100 pt-4 dark:border-slate-800 ${
+            className={`mt-5 border-t border-slate-100 dark:border-slate-800 pt-4 dark:border-slate-800 ${
               viewMode === 'list' ? 'lg:mt-0 lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0' : ''
             }`}
           >
             <div className="ml-auto h-5 w-28 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
-            <div className="ml-auto mt-4 h-3 w-20 animate-pulse rounded bg-slate-100 dark:bg-slate-800" />
+            <div className="ml-auto mt-4 h-3 w-20 animate-pulse rounded bg-slate-100 dark:bg-slate-800 dark:bg-slate-800" />
           </div>
         </div>
       ))}
@@ -875,21 +875,21 @@ function ErrorState({ onRetry }: { onRetry: () => void }) {
 function EmptyState({ hasSearch, onClear }: { hasSearch: boolean; onClear: () => void }) {
   const { t } = useI18n()
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white px-6 py-14 text-center dark:border-slate-800 dark:bg-slate-900">
-      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800">
+    <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-6 py-14 text-center dark:border-slate-800 dark:bg-slate-900">
+      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 dark:bg-slate-800">
         <Search className="h-5 w-5 text-slate-400" />
       </div>
-      <h3 className="mt-4 text-base font-bold text-slate-950 dark:text-slate-50">
+      <h3 className="mt-4 text-base font-bold text-slate-950 dark:text-slate-100 dark:text-slate-50">
         {t('jobs.noJobsFound')}
       </h3>
-      <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-slate-500 dark:text-slate-400">
+      <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-slate-500 dark:text-slate-400 dark:text-slate-400 dark:text-slate-400">
         {hasSearch ? t('jobs.emptyWithFilters') : t('jobs.emptyNoJobs')}
       </p>
       {hasSearch ? (
         <button
           type="button"
           onClick={onClear}
-          className="mt-5 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-5 text-sm font-bold text-slate-800 transition-colors duration-150 hover:bg-slate-50 active:scale-[0.98] dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+          className="mt-5 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-5 text-sm font-bold text-slate-800 dark:text-slate-200 dark:text-slate-200 transition-colors duration-150 hover:bg-slate-50 dark:bg-slate-900/50 dark:bg-slate-900 active:scale-[0.98] dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
         >
           <RotateCcw className="h-4 w-4" />
           {t('jobs.clearFilters')}
@@ -910,8 +910,8 @@ function Pagination({
 }) {
   const { t } = useI18n()
   return (
-    <nav className="flex items-center justify-between border-t border-slate-200 pt-5 dark:border-slate-800">
-      <p className="text-sm text-slate-500 dark:text-slate-400">
+    <nav className="flex items-center justify-between border-t border-slate-200 dark:border-slate-800 pt-5 dark:border-slate-800">
+      <p className="text-sm text-slate-500 dark:text-slate-400 dark:text-slate-400 dark:text-slate-400">
         {t('jobs.pagination.label', { current: page + 1, total: totalPages })}
       </p>
       <div className="flex items-center gap-2">
@@ -919,7 +919,7 @@ function Pagination({
           type="button"
           onClick={() => onPageChange(Math.max(0, page - 1))}
           disabled={page === 0}
-          className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition-colors duration-150 hover:bg-slate-100 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
+          className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-600 dark:text-slate-400 dark:text-slate-400 transition-colors duration-150 hover:bg-slate-100 dark:bg-slate-800 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
           aria-label={t('jobs.pagination.previous')}
         >
           <ChevronLeft className="h-4 w-4" />
@@ -928,7 +928,7 @@ function Pagination({
           type="button"
           onClick={() => onPageChange(Math.min(totalPages - 1, page + 1))}
           disabled={page >= totalPages - 1}
-          className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition-colors duration-150 hover:bg-slate-100 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
+          className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-600 dark:text-slate-400 dark:text-slate-400 transition-colors duration-150 hover:bg-slate-100 dark:bg-slate-800 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
           aria-label={t('jobs.pagination.next')}
         >
           <ChevronRight className="h-4 w-4" />

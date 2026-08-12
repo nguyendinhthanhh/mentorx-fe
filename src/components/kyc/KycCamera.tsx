@@ -112,7 +112,7 @@ export default function KycCamera({ onCapture, onCancel }: Props) {
             <button
               type="button"
               onClick={() => void startCamera()}
-              className="rounded-lg bg-white/10 px-4 py-2 text-xs font-medium hover:bg-white/20"
+              className="rounded-lg bg-white dark:bg-slate-950/10 px-4 py-2 text-xs font-medium hover:bg-white dark:bg-slate-950/20"
             >
               Thử lại
             </button>
@@ -132,7 +132,7 @@ export default function KycCamera({ onCapture, onCancel }: Props) {
 
         {recording && (
           <div className="absolute left-1/2 top-4 z-20 flex -translate-x-1/2 items-center gap-2 rounded-full bg-rose-600 px-3 py-1.5 text-xs font-medium text-white shadow-md">
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" />
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white dark:bg-slate-950" />
             Đang ghi
           </div>
         )}
@@ -171,7 +171,7 @@ export default function KycCamera({ onCapture, onCancel }: Props) {
                 setVideoBlob(null)
                 void startCamera()
               }}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white py-3 text-sm font-medium text-slate-800 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 py-3 text-sm font-medium text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:bg-slate-900/50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
             >
               <RefreshCcw className="h-4 w-4" />
               Quay lại
@@ -187,14 +187,14 @@ export default function KycCamera({ onCapture, onCancel }: Props) {
           </div>
         )}
 
-        <div className="flex items-center justify-between gap-3 text-xs text-slate-500 dark:text-slate-400">
+        <div className="flex items-center justify-between gap-3 text-xs text-slate-500 dark:text-slate-400 dark:text-slate-400">
           <p className="flex-1 leading-relaxed">
             Video chỉ dùng để kiểm tra có chuyển động thật; không thay thế xác minh thủ công khi cần.
           </p>
           <button
             type="button"
             onClick={onCancel}
-            className="inline-flex shrink-0 items-center gap-1 rounded-lg px-2 py-1.5 font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+            className="inline-flex shrink-0 items-center gap-1 rounded-lg px-2 py-1.5 font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
           >
             <X className="h-3.5 w-3.5" />
             Hủy

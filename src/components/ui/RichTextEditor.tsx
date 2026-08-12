@@ -73,15 +73,15 @@ export function RichTextEditor({ label, value, onChange, onImageChange, minHeigh
 
   return (
     <div>
-      {label && <span className="mb-1.5 block text-sm font-bold text-slate-700">{label}</span>}
-      <div className="overflow-hidden rounded-xl border border-slate-200">
-        <div className="flex flex-wrap gap-1 border-b border-slate-200 bg-slate-50 p-2">
+      {label && <span className="mb-1.5 block text-sm font-bold text-slate-700 dark:text-slate-300">{label}</span>}
+      <div className="overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800">
+        <div className="flex flex-wrap gap-1 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 p-2">
           <ToolbarButton title="Bold" onClick={() => runCommand('bold')}><Bold className="h-4 w-4" /></ToolbarButton>
           <ToolbarButton title="Italic" onClick={() => runCommand('italic')}><Italic className="h-4 w-4" /></ToolbarButton>
           <ToolbarButton title="Bulleted list" onClick={() => runCommand('insertUnorderedList')}><List className="h-4 w-4" /></ToolbarButton>
           <ToolbarButton title="Numbered list" onClick={() => runCommand('insertOrderedList')}><ListOrdered className="h-4 w-4" /></ToolbarButton>
           {onImageChange && (
-            <label className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg text-slate-600 hover:bg-white hover:text-emerald-600" title="Upload image">
+            <label className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg text-slate-600 dark:text-slate-400 hover:bg-white dark:bg-slate-950 hover:text-emerald-600 dark:text-emerald-500" title="Upload image">
               <Image className="h-4 w-4" />
               <input
                 type="file"
@@ -99,7 +99,7 @@ export function RichTextEditor({ label, value, onChange, onImageChange, minHeigh
         <div
           ref={(node) => { editorRef.current = node }}
           contentEditable
-          className={`${minHeightClass} px-4 py-3 text-sm leading-6 text-slate-900 outline-none [&_img]:max-w-full [&_ol]:list-decimal [&_ol]:pl-6 [&_ul]:list-disc [&_ul]:pl-6`}
+          className={`${minHeightClass} px-4 py-3 text-sm leading-6 text-slate-900 dark:text-slate-100 outline-none [&_img]:max-w-full [&_ol]:list-decimal [&_ol]:pl-6 [&_ul]:list-disc [&_ul]:pl-6`}
           onInput={(event) => {
             saveSelection()
             onChange(event.currentTarget.innerHTML)
@@ -120,7 +120,7 @@ function ToolbarButton({ title, onClick, children }: {
   children: React.ReactNode
 }) {
   return (
-    <button type="button" onMouseDown={(event) => event.preventDefault()} onClick={onClick} className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-slate-600 hover:bg-white hover:text-emerald-600" title={title}>
+    <button type="button" onMouseDown={(event) => event.preventDefault()} onClick={onClick} className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-slate-600 dark:text-slate-400 hover:bg-white dark:bg-slate-950 hover:text-emerald-600 dark:text-emerald-500" title={title}>
       {children}
     </button>
   )

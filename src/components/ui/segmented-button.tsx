@@ -97,7 +97,7 @@ export default function SegmentedButton({
       />
 
       <motion.div
-        className="absolute top-0 h-7 rounded-[999px] bg-white shadow-[0_2px_8px_rgba(0,0,0,0.08),0_1px_2px_rgba(0,0,0,0.04)] border border-slate-200/50"
+        className="absolute top-0 h-7 rounded-[999px] bg-white dark:bg-slate-950 shadow-[0_2px_8px_rgba(0,0,0,0.08),0_1px_2px_rgba(0,0,0,0.04)] border border-slate-200 dark:border-slate-800/50"
         animate={{
           left: indicatorStyle.left,
           width: indicatorStyle.width,
@@ -149,8 +149,8 @@ export default function SegmentedButton({
             <span
               className={`text-center font-normal font-sans text-sm leading-tight transition-colors ${
                 activeButton === button.id
-                  ? "text-slate-800 font-medium"
-                  : "text-slate-500 hover:text-slate-700"
+                  ? "text-slate-800 dark:text-slate-200 font-medium"
+                  : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-300"
               }`}
             >
               {button.label}

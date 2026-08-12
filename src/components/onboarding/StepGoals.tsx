@@ -41,7 +41,7 @@ export default function StepGoals({ roleChoice, selectedGoals, setSelectedGoals,
         <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-primary-50 dark:bg-primary-950/40 text-primary-700 dark:text-primary-300 rounded-full text-sm font-bold mb-5 onb-fade-in-scale">
           <Sparkles className="w-4 h-4" /> Step 5 of 6
         </div>
-        <h2 className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white tracking-tight mb-2">
+        <h2 className="text-3xl md:text-4xl font-black text-gray-900 dark:text-gray-100 dark:text-white tracking-tight mb-2">
           {roleChoice === 'MENTOR' ? 'Your Mentoring Goals' : 'Your Learning Goals'}
         </h2>
         <p className="text-gray-500 dark:text-gray-400 text-base md:text-lg">
@@ -61,7 +61,7 @@ export default function StepGoals({ roleChoice, selectedGoals, setSelectedGoals,
               className={`onb-fade-in-up onb-stagger-${Math.min(i + 1, 6)} flex items-center gap-3 px-4 py-3.5 rounded-xl text-left transition-all duration-200 border-2 ${
                 selected
                   ? 'bg-primary-50 dark:bg-primary-900/20 border-primary-500 text-primary-700 dark:text-primary-300 shadow-sm'
-                  : 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-700'
+                  : 'bg-white dark:bg-slate-950 dark:bg-gray-900 border-gray-200 dark:border-gray-800 dark:border-gray-800 text-gray-700 dark:text-gray-300 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-700'
               }`}
             >
               <goal.icon className="w-5 h-5 flex-shrink-0 opacity-70" />
@@ -73,11 +73,11 @@ export default function StepGoals({ roleChoice, selectedGoals, setSelectedGoals,
       </div>
 
       <div>
-        <label className="block text-sm font-bold text-gray-600 dark:text-gray-400 mb-2 uppercase tracking-wider">
+        <label className="block text-sm font-bold text-gray-600 dark:text-gray-400 dark:text-gray-400 mb-2 uppercase tracking-wider">
           Other Goals <span className="text-gray-400 font-normal normal-case">(optional)</span>
         </label>
         <textarea
-          className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-800 rounded-xl focus:border-primary-500 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/30 transition-all outline-none text-gray-900 dark:text-white resize-none text-sm placeholder:text-gray-400"
+          className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900/50 dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-800 dark:border-gray-800 rounded-xl focus:border-primary-500 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/30 transition-all outline-none text-gray-900 dark:text-gray-100 dark:text-white resize-none text-sm placeholder:text-gray-400"
           placeholder="Describe any other goals you have..."
           rows={2}
           value={customGoal}

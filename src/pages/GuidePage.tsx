@@ -236,7 +236,7 @@ export default function GuidePage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 pb-20">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900/50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 pb-20">
       <BlogHero
         query={query}
         quickTopics={quickTopics}
@@ -279,17 +279,17 @@ export default function GuidePage() {
             </section>
 
             <section>
-              <div className="mb-8 flex items-end justify-between border-b border-slate-200 pb-4">
+              <div className="mb-8 flex items-end justify-between border-b border-slate-200 dark:border-slate-800 pb-4">
                 <div>
-                  <h2 className="text-3xl font-black tracking-tight text-slate-900">
+                  <h2 className="text-3xl font-black tracking-tight text-slate-900 dark:text-slate-100">
                     Latest from the Handbook
                   </h2>
-                  <p className="mt-2 text-slate-600">
+                  <p className="mt-2 text-slate-600 dark:text-slate-400 dark:text-slate-400">
                     Insights and guides to help you grow.
                   </p>
                 </div>
                 {latestPosts.length > 0 && (
-                  <p className="hidden text-sm font-medium text-slate-500 sm:block">
+                  <p className="hidden text-sm font-medium text-slate-500 dark:text-slate-400 dark:text-slate-400 sm:block">
                     Showing {latestStart}-{latestEnd} of {latestPosts.length}
                   </p>
                 )}
@@ -341,9 +341,9 @@ function BlogPagination({
   })
 
   return (
-    <div className="mt-8 flex flex-col gap-4 border-t border-slate-200 pt-5 sm:flex-row sm:items-center sm:justify-between">
-      <p className="text-sm text-slate-500">
-        Page <span className="font-semibold text-slate-700">{page + 1}</span> of {totalPages}
+    <div className="mt-8 flex flex-col gap-4 border-t border-slate-200 dark:border-slate-800 pt-5 sm:flex-row sm:items-center sm:justify-between">
+      <p className="text-sm text-slate-500 dark:text-slate-400 dark:text-slate-400">
+        Page <span className="font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300">{page + 1}</span> of {totalPages}
       </p>
 
       <div className="flex flex-wrap items-center gap-2">
@@ -351,7 +351,7 @@ function BlogPagination({
           type="button"
           onClick={() => onPageChange(Math.max(0, page - 1))}
           disabled={page === 0}
-          className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-45"
+          className="rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 py-2 text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300 transition hover:border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-45"
         >
           Previous
         </button>
@@ -365,7 +365,7 @@ function BlogPagination({
             className={
               page === pageNumber
                 ? 'rounded-full bg-emerald-600 shadow-md hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 hover:bg-emerald-700 px-4 py-2 text-sm font-semibold text-white shadow-sm'
-                : 'rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-100'
+                : 'rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 py-2 text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300 transition hover:border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:bg-slate-800'
             }
           >
             {pageNumber + 1}
@@ -376,7 +376,7 @@ function BlogPagination({
           type="button"
           onClick={() => onPageChange(Math.min(totalPages - 1, page + 1))}
           disabled={page >= totalPages - 1}
-          className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-45"
+          className="rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 py-2 text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300 transition hover:border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-45"
         >
           Next
         </button>

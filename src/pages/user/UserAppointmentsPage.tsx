@@ -54,18 +54,18 @@ export default function UserAppointmentsPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-2">
         <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white">Lịch hẹn của tôi</h1>
-        <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+        <p className="text-sm font-medium text-slate-500 dark:text-slate-400 dark:text-slate-400">
           Quản lý các buổi hẹn mentor 1:1 và theo dõi trạng thái hoàn tiền khi cần hủy lịch.
         </p>
       </div>
 
-      <div className="scrollbar-hide flex w-full overflow-x-auto rounded-2xl border border-slate-200/60 bg-white p-1 shadow-sm dark:border-slate-800 dark:bg-slate-900 lg:w-fit">
+      <div className="scrollbar-hide flex w-full overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-800/60 bg-white dark:bg-slate-950 p-1 shadow-sm dark:border-slate-800 dark:bg-slate-900 lg:w-fit">
         <button
           onClick={() => setActiveTab('upcoming')}
           className={`h-11 rounded-xl px-6 text-sm font-bold transition-all ${
             activeTab === 'upcoming'
-              ? 'bg-emerald-50 text-emerald-700 shadow-sm dark:bg-emerald-500/20 dark:text-emerald-400'
-              : 'text-slate-500 hover:text-slate-900 dark:text-slate-400'
+              ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 shadow-sm dark:bg-emerald-500/20 dark:text-emerald-400'
+              : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:text-slate-100 dark:text-slate-400'
           }`}
         >
           Sắp tới ({upcoming.length})
@@ -74,15 +74,15 @@ export default function UserAppointmentsPage() {
           onClick={() => setActiveTab('past')}
           className={`h-11 rounded-xl px-6 text-sm font-bold transition-all ${
             activeTab === 'past'
-              ? 'bg-emerald-50 text-emerald-700 shadow-sm dark:bg-emerald-500/20 dark:text-emerald-400'
-              : 'text-slate-500 hover:text-slate-900 dark:text-slate-400'
+              ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 shadow-sm dark:bg-emerald-500/20 dark:text-emerald-400'
+              : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:text-slate-100 dark:text-slate-400'
           }`}
         >
           Đã qua
         </button>
       </div>
 
-      <div className="min-h-[400px] rounded-[24px] border border-slate-200/60 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <div className="min-h-[400px] rounded-[24px] border border-slate-200 dark:border-slate-800/60 bg-white dark:bg-slate-950 shadow-sm dark:border-slate-800 dark:bg-slate-900">
         {isLoading ? (
           <div className="space-y-6 p-6">
             {[1, 2, 3].map((item) => (
@@ -98,11 +98,11 @@ export default function UserAppointmentsPage() {
           </div>
         ) : displayList.length === 0 ? (
           <div className="flex h-64 flex-col items-center justify-center p-6 text-center">
-            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-slate-50 dark:bg-slate-800">
+            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-slate-50 dark:bg-slate-900/50 dark:bg-slate-800">
               <CalendarDays className="h-8 w-8 text-slate-400" />
             </div>
             <h3 className="mb-2 text-lg font-black text-slate-900 dark:text-white">Không có lịch hẹn nào</h3>
-            <p className="max-w-sm text-sm font-medium text-slate-500">
+            <p className="max-w-sm text-sm font-medium text-slate-500 dark:text-slate-400">
               Bạn chưa có lịch hẹn {activeTab === 'upcoming' ? 'sắp tới' : 'nào trong quá khứ'}. Đặt lịch với mentor để bắt đầu.
             </p>
             {activeTab === 'upcoming' ? (
@@ -120,10 +120,10 @@ export default function UserAppointmentsPage() {
             {displayList.map((appointment) => (
               <div
                 key={appointment.id}
-                className="flex flex-col items-start justify-between gap-6 p-6 transition-colors hover:bg-slate-50/50 dark:hover:bg-slate-800/30 md:flex-row md:items-center"
+                className="flex flex-col items-start justify-between gap-6 p-6 transition-colors hover:bg-slate-50 dark:bg-slate-900/30 dark:hover:bg-slate-800/30 md:flex-row md:items-center"
               >
                 <div className="flex gap-4">
-                  <div className="hidden h-14 w-14 flex-shrink-0 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400 sm:flex">
+                  <div className="hidden h-14 w-14 flex-shrink-0 items-center justify-center rounded-2xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-500 dark:bg-emerald-500/20 dark:text-emerald-400 sm:flex">
                     <CalendarDays className="h-6 w-6" />
                   </div>
 
@@ -133,13 +133,13 @@ export default function UserAppointmentsPage() {
                     </h3>
 
                     {appointment.packageTitle ? (
-                      <p className="mb-2 text-sm font-semibold text-emerald-600">
+                      <p className="mb-2 text-sm font-semibold text-emerald-600 dark:text-emerald-500">
                         {appointment.packageTitle}
                         {appointment.priceMxc != null ? ` • ${formatMxc(appointment.priceMxc, 'vi')}` : ''}
                       </p>
                     ) : null}
 
-                    <div className="flex flex-wrap items-center gap-3 text-sm font-medium text-slate-500 dark:text-slate-400">
+                    <div className="flex flex-wrap items-center gap-3 text-sm font-medium text-slate-500 dark:text-slate-400 dark:text-slate-400">
                       <span className="flex items-center gap-1.5">
                         <Clock className="h-4 w-4" />
                         {new Date(appointment.startTime).toLocaleString('vi-VN')}
@@ -149,7 +149,7 @@ export default function UserAppointmentsPage() {
                     </div>
 
                     {appointment.notes ? (
-                      <p className="mt-2 rounded-xl border border-slate-100 bg-slate-50 p-3 text-sm text-slate-600 dark:border-slate-800 dark:bg-slate-800/50">
+                      <p className="mt-2 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 p-3 text-sm text-slate-600 dark:text-slate-400 dark:border-slate-800 dark:bg-slate-800/50">
                         "{appointment.notes}"
                       </p>
                     ) : null}
@@ -168,7 +168,7 @@ export default function UserAppointmentsPage() {
                       href={appointment.meetingUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-xl bg-emerald-50 px-4 text-sm font-bold text-emerald-600 transition hover:bg-emerald-100 dark:bg-emerald-500/20 dark:text-emerald-400 md:flex-none"
+                      className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 px-4 text-sm font-bold text-emerald-600 dark:text-emerald-500 transition hover:bg-emerald-100 dark:bg-emerald-900/50 dark:bg-emerald-500/20 dark:text-emerald-400 md:flex-none"
                     >
                       <Video className="h-4 w-4" />
                       Vào Meet
@@ -176,7 +176,7 @@ export default function UserAppointmentsPage() {
                   ) : null}
 
                   {appointment.status === 'SCHEDULED' && !appointment.meetingUrl ? (
-                    <span className="inline-flex h-10 flex-1 items-center justify-center rounded-xl bg-slate-50 px-4 text-sm font-semibold text-slate-400 md:flex-none">
+                    <span className="inline-flex h-10 flex-1 items-center justify-center rounded-xl bg-slate-50 dark:bg-slate-900/50 px-4 text-sm font-semibold text-slate-400 md:flex-none">
                       Đang đợi link
                     </span>
                   ) : null}
@@ -184,7 +184,7 @@ export default function UserAppointmentsPage() {
                   {appointment.status === 'SCHEDULED' ? (
                     <button
                       onClick={() => setAppointmentToCancel(appointment)}
-                      className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-rose-200 bg-white px-4 text-sm font-bold text-rose-600 transition hover:bg-rose-50"
+                      className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-rose-200 bg-white dark:bg-slate-950 px-4 text-sm font-bold text-rose-600 transition hover:bg-rose-50"
                     >
                       <XCircle className="h-4 w-4" />
                       <span className="hidden sm:inline">Hủy</span>
@@ -192,9 +192,9 @@ export default function UserAppointmentsPage() {
                   ) : (
                     <span
                       className={`rounded-lg px-3 py-1.5 text-xs font-black uppercase tracking-wider ${
-                        appointment.status === 'COMPLETED' ? 'bg-emerald-100 text-emerald-700' : ''
+                        appointment.status === 'COMPLETED' ? 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-400' : ''
                       } ${
-                        appointment.status === 'CANCELLED' ? 'bg-slate-100 text-slate-600' : ''
+                        appointment.status === 'CANCELLED' ? 'bg-slate-100 text-slate-600 dark:text-slate-400' : ''
                       } ${
                         appointment.status === 'NO_SHOW' ? 'bg-rose-100 text-rose-700' : ''
                       }`}

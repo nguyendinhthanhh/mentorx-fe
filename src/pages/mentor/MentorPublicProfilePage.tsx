@@ -315,7 +315,7 @@ export default function MentorPublicProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f6f8f7] pb-20 text-slate-950 dark:bg-slate-950 dark:text-slate-100">
+    <div className="min-h-screen bg-[#f6f8f7] dark:bg-slate-950 pb-20 text-slate-950 dark:text-slate-100 dark:bg-slate-950 dark:text-slate-100">
       <div className="mx-auto w-full max-w-[1320px] px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
         <Breadcrumbs
           items={[
@@ -323,7 +323,7 @@ export default function MentorPublicProfilePage() {
             { label: t('nav.mentors'), to: '/mentors' },
             { label: name },
           ]}
-          className="text-slate-600 dark:text-slate-300"
+          className="text-slate-600 dark:text-slate-400 dark:text-slate-400 dark:text-slate-300"
         />
 
         <div className="mt-4 grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start">
@@ -467,9 +467,9 @@ function ProfileHero({
     : undefined
 
   return (
-    <section className="overflow-hidden rounded-[22px] border border-slate-200 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04),0_18px_50px_rgba(15,23,42,0.045)] dark:border-slate-800 dark:bg-slate-900 dark:shadow-none">
+    <section className="overflow-hidden rounded-[22px] border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_18px_50px_rgba(15,23,42,0.045)] dark:border-slate-800 dark:bg-slate-900 dark:shadow-none">
       {coverUrl ? (
-        <div className="h-24 overflow-hidden bg-emerald-50 sm:h-32 dark:bg-emerald-500/10">
+        <div className="h-24 overflow-hidden bg-emerald-50 dark:bg-emerald-900/30 sm:h-32 dark:bg-emerald-500/10">
           <img
             src={coverUrl}
             alt=""
@@ -487,7 +487,7 @@ function ProfileHero({
       <div className="p-5 sm:p-7">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
           <div className="relative w-28 shrink-0 self-start sm:w-32">
-            <div className="relative flex h-28 w-28 items-center justify-center overflow-hidden rounded-[24px] bg-emerald-100 text-3xl font-bold text-emerald-900 ring-1 ring-inset ring-emerald-200 sm:h-32 sm:w-32 dark:bg-emerald-500/15 dark:text-emerald-200 dark:ring-emerald-500/25">
+            <div className="relative flex h-28 w-28 items-center justify-center overflow-hidden rounded-[24px] bg-emerald-100 dark:bg-emerald-900/50 text-3xl font-bold text-emerald-900 dark:text-emerald-100 ring-1 ring-inset ring-emerald-200 sm:h-32 sm:w-32 dark:bg-emerald-500/15 dark:text-emerald-200 dark:ring-emerald-500/25">
               <span aria-hidden="true">{getInitials(name)}</span>
               {avatarUrl ? (
                 <img
@@ -512,18 +512,18 @@ function ProfileHero({
 
           <div className="min-w-0 flex-1">
             {distinctDomain ? (
-              <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-emerald-700 dark:text-emerald-300">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-emerald-700 dark:text-emerald-400 dark:text-emerald-300">
                 {distinctDomain}
               </p>
             ) : null}
-            <h1 className={`${distinctDomain ? 'mt-2' : ''} text-3xl font-semibold tracking-[-0.025em] text-slate-950 sm:text-4xl sm:leading-tight dark:text-slate-50`}>
+            <h1 className={`${distinctDomain ? 'mt-2' : ''} text-3xl font-semibold tracking-[-0.025em] text-slate-950 dark:text-slate-100 sm:text-4xl sm:leading-tight dark:text-slate-50`}>
               {name}
             </h1>
-            <p className="mt-1.5 max-w-2xl text-[17px] font-normal leading-7 text-slate-600 dark:text-slate-300">
+            <p className="mt-1.5 max-w-2xl text-[17px] font-normal leading-7 text-slate-600 dark:text-slate-400 dark:text-slate-400 dark:text-slate-300">
               {title}
             </p>
 
-            <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-sm text-slate-600 dark:text-slate-300">
+            <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-sm text-slate-600 dark:text-slate-400 dark:text-slate-400 dark:text-slate-300">
               <span className="inline-flex items-center gap-1.5">
                 <Star
                   className={`h-4 w-4 ${hasReviews ? 'fill-amber-400 text-amber-500' : 'text-slate-400'}`}
@@ -555,16 +555,16 @@ function ProfileHero({
         </div>
 
         {skills.length > 0 ? (
-          <div className="mt-6 border-t border-slate-200 pt-5 dark:border-slate-800">
-            <div className="rounded-[18px] bg-slate-50/80 p-4 ring-1 ring-inset ring-slate-200/80 dark:bg-slate-800/55 dark:ring-slate-700">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-500 dark:text-slate-400">
+          <div className="mt-6 border-t border-slate-200 dark:border-slate-800 pt-5 dark:border-slate-800">
+            <div className="rounded-[18px] bg-slate-50 dark:bg-slate-900/50 dark:bg-slate-900/80 p-4 ring-1 ring-inset ring-slate-200/80 dark:bg-slate-800/55 dark:ring-slate-700">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-500 dark:text-slate-400 dark:text-slate-400 dark:text-slate-400">
                 {t('mentorProfile.focusLabel')}
               </p>
               <div className="mt-3 flex flex-wrap gap-2">
                 {skills.map((skill) => (
                   <span
                     key={skill}
-                    className="rounded-lg bg-white px-3 py-1.5 text-sm font-semibold text-slate-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-inset ring-slate-200/70 dark:bg-slate-900 dark:text-slate-200 dark:ring-slate-700"
+                    className="rounded-lg bg-white dark:bg-slate-950 px-3 py-1.5 text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300 shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-inset ring-slate-200/70 dark:bg-slate-900 dark:text-slate-200 dark:ring-slate-700"
                   >
                     {skill}
                   </span>
@@ -574,12 +574,12 @@ function ProfileHero({
           </div>
         ) : null}
 
-        <div className="mt-6 border-t border-slate-200 pt-5 dark:border-slate-800">
-          <div className="rounded-[20px] bg-slate-50/80 p-5 ring-1 ring-inset ring-slate-200/80 dark:bg-slate-800/55 dark:ring-slate-700">
+        <div className="mt-6 border-t border-slate-200 dark:border-slate-800 pt-5 dark:border-slate-800">
+          <div className="rounded-[20px] bg-slate-50 dark:bg-slate-900/50 dark:bg-slate-900/80 p-5 ring-1 ring-inset ring-slate-200/80 dark:bg-slate-800/55 dark:ring-slate-700">
             <h2 className="text-lg font-semibold text-slate-950 dark:text-slate-100">
               {t('mentorProfile.helpTitle')}
             </h2>
-            <p className="mt-2 max-w-[70ch] whitespace-pre-line text-base leading-7 text-slate-600 dark:text-slate-300">
+            <p className="mt-2 max-w-[70ch] whitespace-pre-line text-base leading-7 text-slate-600 dark:text-slate-400 dark:text-slate-400 dark:text-slate-300">
               {helpText || t('mentorProfile.helpFallback')}
             </p>
           </div>
@@ -619,14 +619,14 @@ function ActionCard({
   const { t, language } = useI18n()
 
   return (
-    <div className="overflow-hidden rounded-[22px] border border-slate-200 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04),0_18px_50px_rgba(5,150,105,0.08)] dark:border-slate-800 dark:bg-slate-900 dark:shadow-none">
-      <div className="border-b border-slate-200 p-6 dark:border-slate-800">
+    <div className="overflow-hidden rounded-[22px] border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_18px_50px_rgba(5,150,105,0.08)] dark:border-slate-800 dark:bg-slate-900 dark:shadow-none">
+      <div className="border-b border-slate-200 dark:border-slate-800 p-6 dark:border-slate-800">
         <div className="flex items-start gap-3">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-300 dark:ring-emerald-500/20">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 ring-1 ring-inset ring-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-300 dark:ring-emerald-500/20">
             <CalendarDays className="h-4 w-4" aria-hidden="true" />
           </span>
           <div className="min-w-0">
-            <p className="text-xs font-medium leading-5 text-slate-500 dark:text-slate-400">
+            <p className="text-xs font-medium leading-5 text-slate-500 dark:text-slate-400 dark:text-slate-400 dark:text-slate-400">
               {isOwnProfile ? t('mentorProfile.ownerActionLabel') : t('mentorProfile.actionLabel')}
             </p>
             <h2 className="mt-0.5 text-lg font-semibold leading-7 text-slate-950 dark:text-slate-100">
@@ -636,7 +636,7 @@ function ActionCard({
             </h2>
           </div>
         </div>
-        <p className="mt-4 text-sm font-normal leading-6 text-slate-600 dark:text-slate-300">
+        <p className="mt-4 text-sm font-normal leading-6 text-slate-600 dark:text-slate-400 dark:text-slate-400 dark:text-slate-300">
           {isOwnProfile
             ? t('mentorProfile.ownerActionDescription')
             : directPackage
@@ -647,12 +647,12 @@ function ActionCard({
 
       <div className="p-6">
         {directPackage && !isOwnProfile ? (
-          <div className="mb-5 rounded-[18px] bg-slate-50/80 p-4 ring-1 ring-inset ring-slate-200/80 dark:bg-slate-800/55 dark:ring-slate-700">
+          <div className="mb-5 rounded-[18px] bg-slate-50 dark:bg-slate-900/50 dark:bg-slate-900/80 p-4 ring-1 ring-inset ring-slate-200/80 dark:bg-slate-800/55 dark:ring-slate-700">
             <p className="text-base font-semibold leading-6 text-slate-950 dark:text-slate-100">
               {directPackage.title}
             </p>
             <div className="mt-2 flex items-end justify-between gap-3">
-              <span className="inline-flex min-w-0 items-center gap-1.5 text-[13px] font-medium leading-5 text-slate-500 dark:text-slate-400">
+              <span className="inline-flex min-w-0 items-center gap-1.5 text-[13px] font-medium leading-5 text-slate-500 dark:text-slate-400 dark:text-slate-400 dark:text-slate-400">
                 <Clock3 className="h-4 w-4" aria-hidden="true" />
                 {formatDuration(directPackage.durationHours, language, t)}
               </span>
@@ -690,7 +690,7 @@ function ActionCard({
               disabled={Boolean(pendingAction)}
               className={`inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl px-5 text-[15px] font-semibold leading-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 disabled:cursor-not-allowed disabled:opacity-60 ${
                 directPackage
-                  ? 'border border-slate-300 bg-white text-slate-700 hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-800 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-emerald-600 dark:hover:bg-emerald-500/10 dark:hover:text-emerald-200'
+                  ? 'border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 dark:text-slate-300 hover:border-emerald-300 hover:bg-emerald-50 dark:bg-emerald-900/30 hover:text-emerald-800 dark:text-emerald-200 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-emerald-600 dark:hover:bg-emerald-500/10 dark:hover:text-emerald-200'
                   : 'bg-emerald-600 text-white hover:bg-emerald-700 dark:bg-emerald-400 dark:text-slate-950 dark:hover:bg-emerald-300'
               }`}
             >
@@ -708,7 +708,7 @@ function ActionCard({
               type="button"
               onClick={onToggleSaved}
               disabled={isSaving}
-              className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl px-4 text-[14px] font-semibold leading-none text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 disabled:cursor-not-allowed disabled:opacity-60 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-100"
+              className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl px-4 text-[14px] font-semibold leading-none text-slate-600 dark:text-slate-400 dark:text-slate-400 transition-colors hover:bg-slate-50 dark:bg-slate-900/50 dark:bg-slate-900 hover:text-slate-950 dark:text-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 disabled:cursor-not-allowed disabled:opacity-60 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-100"
             >
               <Heart
                 className={`h-4 w-4 ${isSaved ? 'fill-rose-500 text-rose-500' : ''}`}
@@ -729,7 +729,7 @@ function ActionCard({
           </p>
         ) : null}
 
-        <div className="mt-5 divide-y divide-slate-200 border-t border-slate-200 text-[13px] leading-5 dark:divide-slate-800 dark:border-slate-800">
+        <div className="mt-5 divide-y divide-slate-200 border-t border-slate-200 dark:border-slate-800 text-[13px] leading-5 dark:divide-slate-800 dark:border-slate-800">
           {mentor.responseTimeHours != null ? (
             <ActionFact
               icon={<Clock3 className="h-4 w-4" />}
@@ -768,11 +768,11 @@ function ActionFact({
 }) {
   return (
     <div className="flex items-start justify-between gap-4 py-3">
-      <span className="inline-flex min-w-0 items-center gap-2 text-sm font-medium text-slate-500 dark:text-slate-400">
+      <span className="inline-flex min-w-0 items-center gap-2 text-sm font-medium text-slate-500 dark:text-slate-400 dark:text-slate-400 dark:text-slate-400">
         {icon}
         {label}
       </span>
-      <span className="shrink-0 text-right text-sm font-medium text-slate-800 dark:text-slate-200">{value}</span>
+      <span className="shrink-0 text-right text-sm font-medium text-slate-800 dark:text-slate-200 dark:text-slate-200 dark:text-slate-200">{value}</span>
     </div>
   )
 }
@@ -843,12 +843,12 @@ function PackageCard({
   const features = (item.features || []).filter(Boolean).slice(0, 4)
 
   return (
-    <article className="flex min-w-0 flex-col rounded-[18px] border border-slate-200 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.03)] transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-emerald-300 hover:shadow-[0_12px_30px_rgba(5,150,105,0.07)] dark:border-slate-800 dark:bg-slate-900 dark:hover:border-emerald-700 dark:hover:shadow-none">
+    <article className="flex min-w-0 flex-col rounded-[18px] border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-5 shadow-[0_1px_2px_rgba(15,23,42,0.03)] transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-emerald-300 hover:shadow-[0_12px_30px_rgba(5,150,105,0.07)] dark:border-slate-800 dark:bg-slate-900 dark:hover:border-emerald-700 dark:hover:shadow-none">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-800 ring-1 ring-inset ring-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-200 dark:ring-emerald-500/20">
+        <span className="rounded-full bg-emerald-50 dark:bg-emerald-900/30 px-2.5 py-1 text-xs font-semibold text-emerald-800 dark:text-emerald-200 ring-1 ring-inset ring-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-200 dark:ring-emerald-500/20">
           {getPackageTypeLabel(item.packageType, t)}
         </span>
-        <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400">
+        <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400 dark:text-slate-400 dark:text-slate-400">
           <Clock3 className="h-3.5 w-3.5" aria-hidden="true" />
           {formatDuration(item.durationHours, language, t)}
         </span>
@@ -857,7 +857,7 @@ function PackageCard({
       <h3 className="mt-4 text-lg font-semibold leading-6 text-slate-950 dark:text-slate-100">
         {item.title}
       </h3>
-      <p className="mt-2 text-[15px] leading-6 text-slate-600 dark:text-slate-300">
+      <p className="mt-2 text-[15px] leading-6 text-slate-600 dark:text-slate-400 dark:text-slate-400 dark:text-slate-300">
         {item.description}
       </p>
 
@@ -866,18 +866,18 @@ function PackageCard({
           {features.map((feature) => (
             <li
               key={feature}
-              className="flex items-start gap-2 text-sm leading-5 text-slate-600 dark:text-slate-300"
+              className="flex items-start gap-2 text-sm leading-5 text-slate-600 dark:text-slate-400 dark:text-slate-400 dark:text-slate-300"
             >
-              <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
+              <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-500 dark:text-emerald-400" aria-hidden="true" />
               <span>{feature}</span>
             </li>
           ))}
         </ul>
       ) : null}
 
-      <div className="mt-auto flex items-end justify-between gap-4 border-t border-slate-200 pt-5 dark:border-slate-800">
+      <div className="mt-auto flex items-end justify-between gap-4 border-t border-slate-200 dark:border-slate-800 pt-5 dark:border-slate-800">
         <div>
-          <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
+          <p className="text-xs font-medium text-slate-500 dark:text-slate-400 dark:text-slate-400 dark:text-slate-400">
             {t('mentorProfile.packagePrice')}
           </p>
           <p className="mt-1 text-lg font-semibold text-slate-950 dark:text-slate-100">
@@ -922,7 +922,7 @@ function AvailabilitySection({
   const { t } = useI18n()
 
   return (
-    <section className="border-t border-slate-200 pt-9 dark:border-slate-800" aria-labelledby="mentor-schedule-title">
+    <section className="border-t border-slate-200 dark:border-slate-800 pt-9 dark:border-slate-800" aria-labelledby="mentor-schedule-title">
       <SectionHeading
         icon={<CalendarDays className="h-5 w-5" />}
         title={t('mentorProfile.scheduleTitle')}
@@ -938,17 +938,17 @@ function AvailabilitySection({
             {schedule.map((day) => (
               <div
                 key={day.key}
-                className="rounded-[16px] border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900"
+                className="rounded-[16px] border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-4 dark:border-slate-800 dark:bg-slate-900"
               >
                 <div className="flex items-baseline justify-between gap-3">
                   <p className="text-[15px] font-semibold text-slate-950 dark:text-slate-100">{day.dayLabel}</p>
-                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400">{day.dateLabel}</p>
+                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400 dark:text-slate-400 dark:text-slate-400">{day.dateLabel}</p>
                 </div>
                 <div className="mt-3 flex flex-wrap gap-2">
                   {day.slots.slice(0, 4).map((slot) => (
                     <span
                       key={`${day.key}-${slot.id}-${slot.startTime}`}
-                      className="rounded-lg bg-emerald-50 px-2.5 py-1.5 text-xs font-semibold text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-200"
+                      className="rounded-lg bg-emerald-50 dark:bg-emerald-900/30 px-2.5 py-1.5 text-xs font-semibold text-emerald-800 dark:text-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-200"
                     >
                       {slot.startTime.slice(0, 5)}-{slot.endTime.slice(0, 5)}
                     </span>
@@ -975,7 +975,7 @@ function AvailabilitySection({
             <button
               type="button"
               onClick={onMessage}
-              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-white px-4 text-sm font-semibold text-emerald-800 transition-colors hover:bg-emerald-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 dark:border-emerald-500/25 dark:bg-slate-900 dark:text-emerald-200 dark:hover:bg-emerald-500/10"
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-emerald-200 dark:border-emerald-800/50 bg-white dark:bg-slate-950 px-4 text-sm font-semibold text-emerald-800 dark:text-emerald-200 transition-colors hover:bg-emerald-50 dark:bg-emerald-900/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 dark:border-emerald-500/25 dark:bg-slate-900 dark:text-emerald-200 dark:hover:bg-emerald-500/10"
             >
               <MessageCircle className="h-4 w-4" aria-hidden="true" />
               {t('mentorProfile.askAboutSchedule')}
@@ -1059,31 +1059,31 @@ function AboutSection({
   ].filter(Boolean) as Array<{ label: string; value: string }>
 
   return (
-    <section className="border-t border-slate-200 pt-9 dark:border-slate-800" aria-labelledby="mentor-about-title">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-emerald-700 dark:text-emerald-300">
+    <section className="border-t border-slate-200 dark:border-slate-800 pt-9 dark:border-slate-800" aria-labelledby="mentor-about-title">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-emerald-700 dark:text-emerald-400 dark:text-emerald-300">
         {t('mentorProfile.aboutEyebrow', { name: mentorName })}
       </p>
       <h2
         id="mentor-about-title"
-        className="mt-3 max-w-2xl text-[28px] font-semibold tracking-[-0.02em] text-slate-950 sm:text-[30px] dark:text-slate-100"
+        className="mt-3 max-w-2xl text-[28px] font-semibold tracking-[-0.02em] text-slate-950 dark:text-slate-100 sm:text-[30px] dark:text-slate-100"
       >
         {t('mentorProfile.aboutEditorialTitle')}
       </h2>
-      <p className="mt-3 max-w-[68ch] text-base leading-7 text-slate-600 dark:text-slate-300">
+      <p className="mt-3 max-w-[68ch] text-base leading-7 text-slate-600 dark:text-slate-400 dark:text-slate-400 dark:text-slate-300">
         {t('mentorProfile.aboutEditorialDescription', { name: mentorName })}
       </p>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.8fr)] lg:items-start">
         <div className="min-w-0 space-y-5">
-          <div className="rounded-[22px] border border-slate-200 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.03),0_16px_40px_rgba(15,23,42,0.04)] dark:border-slate-800 dark:bg-slate-900 dark:shadow-none sm:p-6">
+          <div className="rounded-[22px] border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-5 shadow-[0_1px_2px_rgba(15,23,42,0.03),0_16px_40px_rgba(15,23,42,0.04)] dark:border-slate-800 dark:bg-slate-900 dark:shadow-none sm:p-6">
             {summaryStats.length > 0 ? (
               <div className="mb-5 grid gap-3 sm:grid-cols-3">
                 {summaryStats.map((item) => (
                   <div
                     key={item.label}
-                    className="rounded-[16px] bg-slate-50 px-4 py-3 ring-1 ring-inset ring-slate-200/80 dark:bg-slate-800/70 dark:ring-slate-700"
+                    className="rounded-[16px] bg-slate-50 dark:bg-slate-900/50 dark:bg-slate-900 px-4 py-3 ring-1 ring-inset ring-slate-200/80 dark:bg-slate-800/70 dark:ring-slate-700"
                   >
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-500 dark:text-slate-400">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-500 dark:text-slate-400 dark:text-slate-400 dark:text-slate-400">
                       {item.label}
                     </p>
                     <p className="mt-2 text-lg font-semibold text-slate-950 dark:text-slate-100">
@@ -1094,15 +1094,15 @@ function AboutSection({
               </div>
             ) : null}
 
-            <p className="max-w-[64ch] whitespace-pre-line text-[17px] leading-8 text-slate-700 dark:text-slate-200">
+            <p className="max-w-[64ch] whitespace-pre-line text-[17px] leading-8 text-slate-700 dark:text-slate-300 dark:text-slate-300 dark:text-slate-200">
               {bio || t('mentorProfile.aboutLeadFallback')}
             </p>
           </div>
 
           {videoUrl || resources.length > 0 ? (
-            <div className="rounded-[22px] border border-slate-200 bg-slate-50/80 p-5 ring-1 ring-inset ring-slate-200/80 dark:border-slate-800 dark:bg-slate-800/45 dark:ring-slate-700 sm:p-6">
+            <div className="rounded-[22px] border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 dark:bg-slate-900/80 p-5 ring-1 ring-inset ring-slate-200/80 dark:border-slate-800 dark:bg-slate-800/45 dark:ring-slate-700 sm:p-6">
               <div className="flex items-center justify-between gap-3">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-500 dark:text-slate-400">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-500 dark:text-slate-400 dark:text-slate-400 dark:text-slate-400">
                   {t('mentorProfile.evidenceTitle')}
                 </p>
                 {videoUrl ? (
@@ -1110,7 +1110,7 @@ function AboutSection({
                     href={videoUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-emerald-200 bg-white px-3 text-sm font-semibold text-emerald-800 transition-colors hover:bg-emerald-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 dark:border-emerald-500/25 dark:bg-slate-900 dark:text-emerald-200 dark:hover:bg-emerald-500/10"
+                    className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-emerald-200 dark:border-emerald-800/50 bg-white dark:bg-slate-950 px-3 text-sm font-semibold text-emerald-800 dark:text-emerald-200 transition-colors hover:bg-emerald-50 dark:bg-emerald-900/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 dark:border-emerald-500/25 dark:bg-slate-900 dark:text-emerald-200 dark:hover:bg-emerald-500/10"
                   >
                     <PlayCircle className="h-4 w-4" aria-hidden="true" />
                     {t('mentorProfile.videoIntro')}
@@ -1126,18 +1126,18 @@ function AboutSection({
                       href={resource.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="group rounded-[18px] border border-slate-200 bg-white p-4 transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-emerald-300 hover:shadow-[0_10px_24px_rgba(15,23,42,0.06)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 dark:border-slate-700 dark:bg-slate-900 dark:hover:border-emerald-600 dark:hover:shadow-none"
+                      className="group rounded-[18px] border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-4 transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-emerald-300 hover:shadow-[0_10px_24px_rgba(15,23,42,0.06)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 dark:border-slate-700 dark:bg-slate-900 dark:hover:border-emerald-600 dark:hover:shadow-none"
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
-                          <p className="text-sm font-semibold text-slate-950 transition-colors group-hover:text-emerald-700 dark:text-slate-100 dark:group-hover:text-emerald-300">
+                          <p className="text-sm font-semibold text-slate-950 dark:text-slate-100 transition-colors group-hover:text-emerald-700 dark:text-emerald-400 dark:text-slate-100 dark:group-hover:text-emerald-300">
                             {resource.title}
                           </p>
-                          <p className="mt-1 text-sm leading-6 text-slate-500 dark:text-slate-400">
+                          <p className="mt-1 text-sm leading-6 text-slate-500 dark:text-slate-400 dark:text-slate-400 dark:text-slate-400">
                             {resource.description}
                           </p>
                         </div>
-                        <ArrowUpRight className="mt-0.5 h-4 w-4 shrink-0 text-slate-400 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-emerald-600 dark:group-hover:text-emerald-300" aria-hidden="true" />
+                        <ArrowUpRight className="mt-0.5 h-4 w-4 shrink-0 text-slate-400 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-emerald-600 dark:text-emerald-500 dark:group-hover:text-emerald-300" aria-hidden="true" />
                       </div>
                     </a>
                   ))}
@@ -1152,7 +1152,7 @@ function AboutSection({
             {quickFacts.map((fact) => (
               <div
                 key={fact.label}
-                className="rounded-[18px] border border-slate-200 bg-white px-4 py-4 shadow-[0_1px_2px_rgba(15,23,42,0.03)] dark:border-slate-800 dark:bg-slate-900 dark:shadow-none"
+                className="rounded-[18px] border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 py-4 shadow-[0_1px_2px_rgba(15,23,42,0.03)] dark:border-slate-800 dark:bg-slate-900 dark:shadow-none"
               >
                 <dt className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-400 dark:text-slate-500">
                   {fact.icon}
@@ -1170,7 +1170,7 @@ function AboutSection({
       {isLoading ? (
         <div className="mt-8 h-20 animate-pulse rounded-[16px] bg-slate-200/70 dark:bg-slate-800" />
       ) : publicEvidence.length > 0 ? (
-        <div className="mt-9 border-t border-slate-200 pt-6 dark:border-slate-800">
+        <div className="mt-9 border-t border-slate-200 dark:border-slate-800 pt-6 dark:border-slate-800">
           <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-400 dark:text-slate-500">
             {t('mentorProfile.evidenceTitle')}
           </p>
@@ -1178,10 +1178,10 @@ function AboutSection({
             {publicEvidence.map((asset) => (
               <div
                 key={asset.id}
-                className="rounded-[18px] border border-slate-200 bg-white p-4 shadow-[0_1px_2px_rgba(15,23,42,0.03)] dark:border-slate-800 dark:bg-slate-900 dark:shadow-none"
+                className="rounded-[18px] border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-4 shadow-[0_1px_2px_rgba(15,23,42,0.03)] dark:border-slate-800 dark:bg-slate-900 dark:shadow-none"
               >
-                <p className="font-semibold text-slate-800 dark:text-slate-200">{asset.title}</p>
-                <p className="mt-1 text-sm leading-5 text-slate-500 dark:text-slate-400">
+                <p className="font-semibold text-slate-800 dark:text-slate-200 dark:text-slate-200 dark:text-slate-200">{asset.title}</p>
+                <p className="mt-1 text-sm leading-5 text-slate-500 dark:text-slate-400 dark:text-slate-400 dark:text-slate-400">
                   {[getEvidenceTypeLabel(asset.type, t), asset.issuer || asset.description]
                     .filter(Boolean)
                     .join(' · ')}
@@ -1215,24 +1215,24 @@ function LearningProductsSection({
   const secondary = courses.slice(1, 3)
 
   return (
-    <section className="border-t border-slate-200 pt-9 dark:border-slate-800" aria-labelledby="mentor-products-title">
+    <section className="border-t border-slate-200 dark:border-slate-800 pt-9 dark:border-slate-800" aria-labelledby="mentor-products-title">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-emerald-700 dark:text-emerald-300">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-emerald-700 dark:text-emerald-400 dark:text-emerald-300">
             {t('mentorProfile.productsEyebrow')}
           </p>
           <h2
             id="mentor-products-title"
-            className="mt-3 text-[28px] font-semibold tracking-[-0.02em] text-slate-950 sm:text-[30px] dark:text-slate-100"
+            className="mt-3 text-[28px] font-semibold tracking-[-0.02em] text-slate-950 dark:text-slate-100 sm:text-[30px] dark:text-slate-100"
           >
             {t('mentorProfile.productsTitle')}
           </h2>
-          <p className="mt-2 max-w-[62ch] text-[15px] leading-6 text-slate-600 dark:text-slate-300">
+          <p className="mt-2 max-w-[62ch] text-[15px] leading-6 text-slate-600 dark:text-slate-400 dark:text-slate-400 dark:text-slate-300">
             {t('mentorProfile.productsDescription')}
           </p>
         </div>
         {!isLoading && !isError ? (
-          <span className="shrink-0 text-sm font-semibold text-slate-500 dark:text-slate-400">
+          <span className="shrink-0 text-sm font-semibold text-slate-500 dark:text-slate-400 dark:text-slate-400 dark:text-slate-400">
             {t('mentorProfile.productCount', { count: courses.length })}
           </span>
         ) : null}
@@ -1249,7 +1249,7 @@ function LearningProductsSection({
             <button
               type="button"
               onClick={onRetry}
-              className="inline-flex min-h-11 items-center justify-center rounded-xl border border-emerald-200 bg-white px-4 text-sm font-semibold text-emerald-800 transition-colors hover:bg-emerald-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 dark:border-emerald-500/25 dark:bg-slate-900 dark:text-emerald-200 dark:hover:bg-emerald-500/10"
+              className="inline-flex min-h-11 items-center justify-center rounded-xl border border-emerald-200 dark:border-emerald-800/50 bg-white dark:bg-slate-950 px-4 text-sm font-semibold text-emerald-800 dark:text-emerald-200 transition-colors hover:bg-emerald-50 dark:bg-emerald-900/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 dark:border-emerald-500/25 dark:bg-slate-900 dark:text-emerald-200 dark:hover:bg-emerald-500/10"
             >
               {t('mentorProfile.retry')}
             </button>
@@ -1304,9 +1304,9 @@ function FeaturedLearningProduct({
     <Link
       to={`/courses/${courseId}`}
       state={mentorLinkState}
-      className="group overflow-hidden rounded-[20px] border border-slate-200 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.03)] transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-emerald-300 hover:shadow-[0_16px_36px_rgba(15,23,42,0.08)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-emerald-600"
+      className="group overflow-hidden rounded-[20px] border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 shadow-[0_1px_2px_rgba(15,23,42,0.03)] transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-emerald-300 hover:shadow-[0_16px_36px_rgba(15,23,42,0.08)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-emerald-600"
     >
-      <div className="relative aspect-[16/8] overflow-hidden bg-slate-100 dark:bg-slate-800">
+      <div className="relative aspect-[16/8] overflow-hidden bg-slate-100 dark:bg-slate-800 dark:bg-slate-800">
         {thumbnailUrl ? (
           <img
             src={thumbnailUrl}
@@ -1318,29 +1318,29 @@ function FeaturedLearningProduct({
             }}
           />
         ) : (
-          <span className="flex h-full items-center justify-center text-emerald-700 dark:text-emerald-300">
+          <span className="flex h-full items-center justify-center text-emerald-700 dark:text-emerald-400 dark:text-emerald-300">
             {isDocument ? <FileText className="h-10 w-10" /> : <BookOpen className="h-10 w-10" />}
           </span>
         )}
-        <span className="absolute left-4 top-4 rounded-full bg-white/95 px-3 py-1 text-xs font-semibold text-slate-800 shadow-sm backdrop-blur dark:bg-slate-950/90 dark:text-slate-100">
+        <span className="absolute left-4 top-4 rounded-full bg-white dark:bg-slate-950/95 px-3 py-1 text-xs font-semibold text-slate-800 dark:text-slate-200 dark:text-slate-200 shadow-sm backdrop-blur dark:bg-slate-950/90 dark:text-slate-100">
           {getProductTypeLabel(course.productType, t)}
         </span>
       </div>
       <div className="p-5 sm:p-6">
-        <h3 className="text-xl font-semibold leading-7 tracking-[-0.015em] text-slate-950 transition-colors group-hover:text-emerald-700 dark:text-slate-100 dark:group-hover:text-emerald-300">
+        <h3 className="text-xl font-semibold leading-7 tracking-[-0.015em] text-slate-950 dark:text-slate-100 transition-colors group-hover:text-emerald-700 dark:text-emerald-400 dark:text-slate-100 dark:group-hover:text-emerald-300">
           {course.title}
         </h3>
         {course.description ? (
-          <p className="mt-2 line-clamp-2 text-[15px] leading-6 text-slate-600 dark:text-slate-300">
+          <p className="mt-2 line-clamp-2 text-[15px] leading-6 text-slate-600 dark:text-slate-400 dark:text-slate-400 dark:text-slate-300">
             {course.description}
           </p>
         ) : null}
         <ProductMeta course={course} />
-        <div className="mt-5 flex items-center justify-between gap-4 border-t border-slate-200 pt-4 dark:border-slate-800">
+        <div className="mt-5 flex items-center justify-between gap-4 border-t border-slate-200 dark:border-slate-800 pt-4 dark:border-slate-800">
           <span className="text-lg font-semibold text-slate-950 dark:text-slate-100">
             {formatMxc(getProductPrice(course), language)}
           </span>
-          <span className="inline-flex items-center gap-2 text-sm font-semibold text-emerald-700 dark:text-emerald-300">
+          <span className="inline-flex items-center gap-2 text-sm font-semibold text-emerald-700 dark:text-emerald-400 dark:text-emerald-300">
             {isDocument ? t('mentorProfile.viewDocument') : t('mentorProfile.viewCourse')}
             <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" aria-hidden="true" />
           </span>
@@ -1366,9 +1366,9 @@ function CompactLearningProduct({
     <Link
       to={`/courses/${courseId}`}
       state={mentorLinkState}
-      className="group grid min-h-[190px] grid-cols-[108px_minmax(0,1fr)] overflow-hidden rounded-[20px] border border-slate-200 bg-white transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-emerald-300 hover:shadow-[0_12px_28px_rgba(15,23,42,0.07)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 sm:grid-cols-[150px_minmax(0,1fr)] dark:border-slate-800 dark:bg-slate-900 dark:hover:border-emerald-600"
+      className="group grid min-h-[190px] grid-cols-[108px_minmax(0,1fr)] overflow-hidden rounded-[20px] border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-emerald-300 hover:shadow-[0_12px_28px_rgba(15,23,42,0.07)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 sm:grid-cols-[150px_minmax(0,1fr)] dark:border-slate-800 dark:bg-slate-900 dark:hover:border-emerald-600"
     >
-      <div className="overflow-hidden bg-slate-100 dark:bg-slate-800">
+      <div className="overflow-hidden bg-slate-100 dark:bg-slate-800 dark:bg-slate-800">
         {thumbnailUrl ? (
           <img
             src={thumbnailUrl}
@@ -1380,16 +1380,16 @@ function CompactLearningProduct({
             }}
           />
         ) : (
-          <span className="flex h-full items-center justify-center text-emerald-700 dark:text-emerald-300">
+          <span className="flex h-full items-center justify-center text-emerald-700 dark:text-emerald-400 dark:text-emerald-300">
             {isDocument ? <FileText className="h-8 w-8" /> : <BookOpen className="h-8 w-8" />}
           </span>
         )}
       </div>
       <div className="flex min-w-0 flex-col p-4">
-        <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-emerald-700 dark:text-emerald-300">
+        <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-emerald-700 dark:text-emerald-400 dark:text-emerald-300">
           {getProductTypeLabel(course.productType, t)}
         </span>
-        <h3 className="mt-2 line-clamp-2 text-[17px] font-semibold leading-6 text-slate-950 transition-colors group-hover:text-emerald-700 dark:text-slate-100 dark:group-hover:text-emerald-300">
+        <h3 className="mt-2 line-clamp-2 text-[17px] font-semibold leading-6 text-slate-950 dark:text-slate-100 transition-colors group-hover:text-emerald-700 dark:text-emerald-400 dark:text-slate-100 dark:group-hover:text-emerald-300">
           {course.title}
         </h3>
         <ProductMeta course={course} compact />
@@ -1397,7 +1397,7 @@ function CompactLearningProduct({
           <span className="font-semibold text-slate-950 dark:text-slate-100">
             {formatMxc(getProductPrice(course), language)}
           </span>
-          <ArrowUpRight className="h-4 w-4 text-emerald-700 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 dark:text-emerald-300" aria-hidden="true" />
+          <ArrowUpRight className="h-4 w-4 text-emerald-700 dark:text-emerald-400 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 dark:text-emerald-300" aria-hidden="true" />
         </div>
       </div>
     </Link>
@@ -1419,7 +1419,7 @@ function ProductMeta({ course, compact = false }: { course: CourseResponse; comp
   ].filter(Boolean) as string[]
 
   return (
-    <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-medium text-slate-500 dark:text-slate-400">
+    <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-medium text-slate-500 dark:text-slate-400 dark:text-slate-400 dark:text-slate-400">
       {items.map((item) => (
         <span key={item}>{item}</span>
       ))}
@@ -1468,7 +1468,7 @@ function ReviewsSection({
   const reviewCount = reviewSummary?.totalReviews ?? mentor.totalReviews
 
   return (
-    <section className="border-t border-slate-200 pt-9 dark:border-slate-800" aria-labelledby="mentor-reviews-title">
+    <section className="border-t border-slate-200 dark:border-slate-800 pt-9 dark:border-slate-800" aria-labelledby="mentor-reviews-title">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <SectionHeading
           icon={<Star className="h-5 w-5" />}
@@ -1483,7 +1483,7 @@ function ReviewsSection({
           <button
             type="button"
             onClick={onShowReviewForm}
-            className="inline-flex min-h-11 items-center justify-center rounded-xl border border-emerald-200 bg-white px-4 text-sm font-semibold text-emerald-800 transition-colors hover:bg-emerald-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 dark:border-emerald-500/25 dark:bg-slate-900 dark:text-emerald-200 dark:hover:bg-emerald-500/10"
+            className="inline-flex min-h-11 items-center justify-center rounded-xl border border-emerald-200 dark:border-emerald-800/50 bg-white dark:bg-slate-950 px-4 text-sm font-semibold text-emerald-800 dark:text-emerald-200 transition-colors hover:bg-emerald-50 dark:bg-emerald-900/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 dark:border-emerald-500/25 dark:bg-slate-900 dark:text-emerald-200 dark:hover:bg-emerald-500/10"
           >
             {currentUserReview ? t('reviews.edit') : t('mentor.public.writeReview')}
           </button>
@@ -1491,7 +1491,7 @@ function ReviewsSection({
       </div>
 
       {isAuthenticated && !isOwnProfile && !canReview ? (
-        <p className="mt-5 rounded-[14px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300">
+        <p className="mt-5 rounded-[14px] border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 py-3 text-sm text-slate-600 dark:text-slate-400 dark:text-slate-400 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300">
           {t('mentor.public.reviewLocked')}
         </p>
       ) : null}
@@ -1533,17 +1533,17 @@ function SectionHeading({
   return (
     <div>
       <div className="flex items-center gap-3">
-        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-300 dark:ring-emerald-500/15">
+        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 ring-1 ring-inset ring-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-300 dark:ring-emerald-500/15">
           {icon}
         </span>
         <div>
-          <h2 id={id} className="text-[28px] font-semibold tracking-[-0.02em] text-slate-950 sm:text-[30px] dark:text-slate-100">
+          <h2 id={id} className="text-[28px] font-semibold tracking-[-0.02em] text-slate-950 dark:text-slate-100 sm:text-[30px] dark:text-slate-100">
             {title}
           </h2>
           <div className="mt-2 h-px w-16 bg-emerald-200 dark:bg-emerald-500/35" aria-hidden="true" />
         </div>
       </div>
-      <p className="mt-2 max-w-[65ch] text-[15px] leading-6 text-slate-600 dark:text-slate-300">
+      <p className="mt-2 max-w-[65ch] text-[15px] leading-6 text-slate-600 dark:text-slate-400 dark:text-slate-400 dark:text-slate-300">
         {description}
       </p>
     </div>
@@ -1562,14 +1562,14 @@ function InlineEmpty({
   action?: ReactNode
 }) {
   return (
-    <div className="mt-5 flex flex-col items-start gap-4 rounded-[18px] border border-dashed border-slate-300 bg-white p-5 sm:flex-row sm:items-center sm:justify-between dark:border-slate-700 dark:bg-slate-900">
+    <div className="mt-5 flex flex-col items-start gap-4 rounded-[18px] border border-dashed border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 p-5 sm:flex-row sm:items-center sm:justify-between dark:border-slate-700 dark:bg-slate-900">
       <div className="flex items-start gap-3">
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-300">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 dark:text-slate-400 dark:bg-slate-800 dark:text-slate-300">
           {icon}
         </span>
         <div>
           <h3 className="font-semibold text-slate-950 dark:text-slate-100">{title}</h3>
-          <p className="mt-1 max-w-xl text-sm leading-6 text-slate-600 dark:text-slate-300">
+          <p className="mt-1 max-w-xl text-sm leading-6 text-slate-600 dark:text-slate-400 dark:text-slate-400 dark:text-slate-300">
             {description}
           </p>
         </div>
@@ -1591,7 +1591,7 @@ function OfferingSkeleton() {
 
 function ProfileSkeleton() {
   return (
-    <div className="min-h-screen bg-[#f6f8f7] px-4 py-8 dark:bg-slate-950" aria-hidden="true">
+    <div className="min-h-screen bg-[#f6f8f7] dark:bg-slate-950 px-4 py-8 dark:bg-slate-950" aria-hidden="true">
       <div className="mx-auto grid w-full max-w-[1320px] gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
         <div className="h-[430px] animate-pulse rounded-[22px] bg-slate-200/70 dark:bg-slate-800" />
         <div className="h-[420px] animate-pulse rounded-[22px] bg-slate-200/70 dark:bg-slate-800" />
@@ -1605,13 +1605,13 @@ function ProfileError({ onRetry }: { onRetry: () => void }) {
   const { t } = useI18n()
 
   return (
-    <div className="min-h-[60vh] bg-[#f6f8f7] px-4 py-20 dark:bg-slate-950">
-      <div className="mx-auto max-w-lg rounded-[22px] border border-rose-200 bg-white p-8 text-center dark:border-rose-500/25 dark:bg-slate-900">
+    <div className="min-h-[60vh] bg-[#f6f8f7] dark:bg-slate-950 px-4 py-20 dark:bg-slate-950">
+      <div className="mx-auto max-w-lg rounded-[22px] border border-rose-200 bg-white dark:bg-slate-950 p-8 text-center dark:border-rose-500/25 dark:bg-slate-900">
         <UsersRound className="mx-auto h-8 w-8 text-rose-500" aria-hidden="true" />
         <h1 className="mt-4 text-xl font-bold text-slate-950 dark:text-slate-100">
           {t('mentorProfile.profileUnavailableTitle')}
         </h1>
-        <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
+        <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400 dark:text-slate-400 dark:text-slate-300">
           {t('mentorProfile.profileUnavailableDescription')}
         </p>
         <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
@@ -1624,7 +1624,7 @@ function ProfileError({ onRetry }: { onRetry: () => void }) {
           </button>
           <Link
             to="/mentors"
-            className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 bg-white px-5 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+            className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-5 text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300 transition-colors hover:bg-slate-50 dark:bg-slate-900/50 dark:bg-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
           >
             {t('mentorProfile.backToMentors')}
           </Link>
@@ -1906,16 +1906,16 @@ function BlogPostsSection({
   mentorName: string
 }) {
   return (
-    <section className="border-t border-slate-200 pt-9 dark:border-slate-800" aria-labelledby="mentor-blogs-title">
+    <section className="border-t border-slate-200 dark:border-slate-800 pt-9 dark:border-slate-800" aria-labelledby="mentor-blogs-title">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between mb-8">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-emerald-700 dark:text-emerald-300">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-emerald-700 dark:text-emerald-400 dark:text-emerald-300">
             Cẩm nang & Kiến thức
           </p>
-          <h2 id="mentor-blogs-title" className="mt-3 text-[28px] font-semibold tracking-[-0.02em] text-slate-950 sm:text-[30px] dark:text-slate-100">
+          <h2 id="mentor-blogs-title" className="mt-3 text-[28px] font-semibold tracking-[-0.02em] text-slate-950 dark:text-slate-100 sm:text-[30px] dark:text-slate-100">
             Bài viết của {mentorName}
           </h2>
-          <p className="mt-2 max-w-[62ch] text-[15px] leading-6 text-slate-600 dark:text-slate-300">
+          <p className="mt-2 max-w-[62ch] text-[15px] leading-6 text-slate-600 dark:text-slate-400 dark:text-slate-400 dark:text-slate-300">
             Khám phá các bài viết, chia sẻ kinh nghiệm và kiến thức chuyên môn.
           </p>
         </div>
@@ -1926,9 +1926,9 @@ function BlogPostsSection({
           <Link
             key={post.id}
             to={/blog/ + post.slug}
-            className="group flex flex-col overflow-hidden rounded-[20px] bg-white ring-1 ring-inset ring-slate-200 transition-all hover:-translate-y-1 hover:shadow-lg dark:bg-slate-900 dark:ring-slate-800"
+            className="group flex flex-col overflow-hidden rounded-[20px] bg-white dark:bg-slate-950 ring-1 ring-inset ring-slate-200 transition-all hover:-translate-y-1 hover:shadow-lg dark:bg-slate-900 dark:ring-slate-800"
           >
-            <div className="aspect-[16/9] w-full overflow-hidden bg-slate-100 dark:bg-slate-800">
+            <div className="aspect-[16/9] w-full overflow-hidden bg-slate-100 dark:bg-slate-800 dark:bg-slate-800">
               {post.coverImage ? (
                 <img src={post.coverImage} alt="" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
               ) : (
@@ -1938,15 +1938,15 @@ function BlogPostsSection({
               )}
             </div>
             <div className="flex flex-1 flex-col p-5">
-              <h3 className="line-clamp-2 text-lg font-bold leading-snug text-slate-900 dark:text-white group-hover:text-emerald-600 transition-colors">
+              <h3 className="line-clamp-2 text-lg font-bold leading-snug text-slate-900 dark:text-white group-hover:text-emerald-600 dark:text-emerald-500 transition-colors">
                 {post.title}
               </h3>
-              <p className="mt-3 line-clamp-2 text-sm text-slate-500 dark:text-slate-400 flex-1">
+              <p className="mt-3 line-clamp-2 text-sm text-slate-500 dark:text-slate-400 dark:text-slate-400 dark:text-slate-400 flex-1">
                 {post.excerpt}
               </p>
-              <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-4 dark:border-slate-800">
-                <span className="text-xs font-semibold text-slate-500">{post.readTime}</span>
-                <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-600">
+              <div className="mt-5 flex items-center justify-between border-t border-slate-100 dark:border-slate-800 pt-4 dark:border-slate-800">
+                <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 dark:text-slate-400">{post.readTime}</span>
+                <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 dark:text-emerald-500">
                   Đọc tiếp <ArrowUpRight className="h-3.5 w-3.5" />
                 </span>
               </div>

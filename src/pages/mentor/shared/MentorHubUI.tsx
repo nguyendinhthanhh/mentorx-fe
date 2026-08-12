@@ -18,8 +18,8 @@ export function PageShell({
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900 md:text-3xl">{title}</h1>
-          {description ? <p className="mt-1 text-sm text-slate-500">{description}</p> : null}
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100 md:text-3xl">{title}</h1>
+          {description ? <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{description}</p> : null}
         </div>
         {actions ? <div className="flex shrink-0 items-center gap-3">{actions}</div> : null}
       </div>
@@ -42,21 +42,21 @@ export function MetricCard({
   tone?: 'indigo' | 'emerald' | 'amber' | 'rose' | 'slate'
 }) {
   const toneClasses = {
-    indigo: 'text-emerald-600',
-    emerald: 'text-emerald-600',
+    indigo: 'text-emerald-600 dark:text-emerald-500',
+    emerald: 'text-emerald-600 dark:text-emerald-500',
     amber: 'text-amber-600',
     rose: 'text-rose-600',
-    slate: 'text-slate-500',
+    slate: 'text-slate-500 dark:text-slate-400',
   }[tone]
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-5 shadow-sm">
       <div className="flex items-center gap-2">
         {icon ? <div className={`flex h-5 w-5 items-center justify-center ${toneClasses}`}>{icon}</div> : null}
-        <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">{label}</p>
+        <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">{label}</p>
       </div>
-      <div className="mt-3 text-2xl font-bold tracking-tight text-slate-900">{value}</div>
-      {helper ? <p className="mt-2 text-xs leading-5 text-slate-500">{helper}</p> : null}
+      <div className="mt-3 text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">{value}</div>
+      {helper ? <p className="mt-2 text-xs leading-5 text-slate-500 dark:text-slate-400">{helper}</p> : null}
     </div>
   )
 }
@@ -74,12 +74,12 @@ export function StateCard({
 }) {
   const isError = tone === 'error'
   return (
-    <div className="rounded-xl border border-dashed border-slate-200 bg-white px-6 py-10 text-center shadow-sm">
-      <div className={`mx-auto flex h-10 w-10 items-center justify-center rounded-lg ${isError ? 'bg-rose-50 text-rose-600' : 'bg-slate-50 text-slate-400'}`}>
+    <div className="rounded-xl border border-dashed border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-6 py-10 text-center shadow-sm">
+      <div className={`mx-auto flex h-10 w-10 items-center justify-center rounded-lg ${isError ? 'bg-rose-50 text-rose-600' : 'bg-slate-50 dark:bg-slate-900/50 text-slate-400'}`}>
         {isError ? <AlertCircle className="h-5 w-5" /> : <Inbox className="h-5 w-5" />}
       </div>
-      <h2 className="mt-4 text-base font-bold text-slate-900">{title}</h2>
-      <p className="mx-auto mt-1 max-w-md text-sm leading-6 text-slate-500">{message}</p>
+      <h2 className="mt-4 text-base font-bold text-slate-900 dark:text-slate-100">{title}</h2>
+      <p className="mx-auto mt-1 max-w-md text-sm leading-6 text-slate-500 dark:text-slate-400">{message}</p>
       {action ? <div className="mt-5 flex justify-center">{action}</div> : null}
     </div>
   )
@@ -89,10 +89,10 @@ export function LoadingRows({ rows = 4 }: { rows?: number }) {
   return (
     <div className="space-y-3">
       {Array.from({ length: rows }).map((_, index) => (
-        <div key={index} className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div key={index} className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-5 shadow-sm">
           <div className="h-4 w-1/3 animate-pulse rounded bg-slate-100" />
-          <div className="mt-4 h-3 w-2/3 animate-pulse rounded bg-slate-50" />
-          <div className="mt-3 h-3 w-1/2 animate-pulse rounded bg-slate-50" />
+          <div className="mt-4 h-3 w-2/3 animate-pulse rounded bg-slate-50 dark:bg-slate-900/50" />
+          <div className="mt-3 h-3 w-1/2 animate-pulse rounded bg-slate-50 dark:bg-slate-900/50" />
         </div>
       ))}
     </div>
@@ -101,11 +101,11 @@ export function LoadingRows({ rows = 4 }: { rows?: number }) {
 
 export function StatusPill({ label, tone = 'slate' }: { label: string; tone?: 'indigo' | 'emerald' | 'amber' | 'rose' | 'slate' }) {
   const toneClasses = {
-    indigo: 'bg-emerald-50 text-emerald-700 ring-emerald-100',
-    emerald: 'bg-emerald-50 text-emerald-700 ring-emerald-100',
-    amber: 'bg-amber-50 text-amber-700 ring-amber-100',
+    indigo: 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 ring-emerald-100',
+    emerald: 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 ring-emerald-100',
+    amber: 'bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 ring-amber-100',
     rose: 'bg-rose-50 text-rose-700 ring-rose-100',
-    slate: 'bg-slate-100 text-slate-700 ring-slate-200',
+    slate: 'bg-slate-100 text-slate-700 dark:text-slate-300 ring-slate-200',
   }[tone]
 
   return (
@@ -117,7 +117,7 @@ export function StatusPill({ label, tone = 'slate' }: { label: string; tone?: 'i
 
 export function Toolbar({ children }: { children: ReactNode }) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
+    <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-3 shadow-sm">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center">{children}</div>
     </div>
   )
@@ -127,7 +127,7 @@ export function TextInput(props: InputHTMLAttributes<HTMLInputElement>) {
   return (
     <input
       {...props}
-      className={`h-10 rounded-lg border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 shadow-sm ${props.className || ''}`}
+      className={`h-10 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 text-sm text-slate-900 dark:text-slate-100 outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 shadow-sm ${props.className || ''}`}
     />
   )
 }
@@ -136,7 +136,7 @@ export function SelectInput(props: SelectHTMLAttributes<HTMLSelectElement>) {
   return (
     <select
       {...props}
-      className={`h-10 rounded-lg border border-slate-200 bg-white px-4 text-sm font-medium text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 shadow-sm ${props.className || ''}`}
+      className={`h-10 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 text-sm font-medium text-slate-900 dark:text-slate-100 outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 shadow-sm ${props.className || ''}`}
     />
   )
 }

@@ -33,7 +33,7 @@ export default function SavedMentorsPage() {
 
   return (
     <section className="space-y-6">
-      <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-slate-950">
+      <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-slate-950 p-6 dark:border-gray-800 dark:bg-slate-950">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full bg-rose-50 px-3 py-1 text-xs font-black uppercase tracking-wide text-rose-700 dark:bg-rose-950/30 dark:text-rose-300">
@@ -47,7 +47,7 @@ export default function SavedMentorsPage() {
           </div>
           <Link
             to="/mentors"
-            className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 text-sm font-black text-emerald-700 transition hover:bg-emerald-100 dark:border-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-300"
+            className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-900/30 px-4 text-sm font-black text-emerald-700 dark:text-emerald-400 transition hover:bg-emerald-100 dark:bg-emerald-900/50 dark:border-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-300"
           >
             Tìm thêm mentor
             <ArrowRight className="h-4 w-4" />
@@ -95,9 +95,9 @@ function SavedMentorCard({
   const rate = mentor.hourlyRateMxc ? formatCurrency(mentor.hourlyRateMxc) : 'Linh hoạt'
 
   return (
-    <article className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-emerald-200 hover:shadow-lg dark:border-gray-800 dark:bg-slate-950">
+    <article className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-slate-950 p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-emerald-200 dark:border-emerald-800/50 hover:shadow-lg dark:border-gray-800 dark:bg-slate-950">
       <div className="flex gap-4">
-        <div className="h-20 w-20 shrink-0 overflow-hidden rounded-2xl bg-gray-100 dark:bg-gray-900">
+        <div className="h-20 w-20 shrink-0 overflow-hidden rounded-2xl bg-gray-100 dark:bg-gray-800 dark:bg-gray-900">
           <img src={image} alt={name} loading="lazy" decoding="async" className="h-full w-full object-cover" />
         </div>
 
@@ -105,13 +105,13 @@ function SavedMentorCard({
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
               <h2 className="truncate text-lg font-black text-gray-950 dark:text-white">{name}</h2>
-              <p className="mt-1 line-clamp-2 text-sm leading-5 text-gray-600 dark:text-gray-400">{headline}</p>
+              <p className="mt-1 line-clamp-2 text-sm leading-5 text-gray-600 dark:text-gray-400 dark:text-gray-400">{headline}</p>
             </div>
             <button
               type="button"
               onClick={onRemove}
               disabled={removing}
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-gray-200 text-gray-400 transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-800 dark:hover:border-rose-900 dark:hover:bg-rose-950/30"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-gray-200 dark:border-gray-800 text-gray-400 transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-800 dark:hover:border-rose-900 dark:hover:bg-rose-950/30"
               aria-label={`Bỏ lưu ${name}`}
               title="Bỏ lưu mentor"
             >
@@ -127,7 +127,7 @@ function SavedMentorCard({
         </div>
       </div>
 
-      <div className="mt-5 grid grid-cols-1 gap-3 rounded-2xl bg-gray-50 p-3 dark:bg-slate-900 sm:grid-cols-3">
+      <div className="mt-5 grid grid-cols-1 gap-3 rounded-2xl bg-gray-50 dark:bg-gray-900/50 p-3 dark:bg-slate-900 sm:grid-cols-3">
         <MiniStat label="Rate" value={rate} />
         <MiniStat label="Success" value={mentor.successRate ? `${Math.round(mentor.successRate)}%` : '98%'} />
         <MiniStat label="Done" value={(mentor.totalJobsDone || 0).toString()} />
@@ -143,7 +143,7 @@ function SavedMentorCard({
         </Link>
         <Link
           to="/chat"
-          className="flex h-11 w-11 items-center justify-center rounded-xl border border-gray-300 bg-white text-gray-600 transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700 dark:border-gray-800 dark:bg-slate-950 dark:text-gray-400"
+          className="flex h-11 w-11 items-center justify-center rounded-xl border border-gray-300 bg-white dark:bg-slate-950 text-gray-600 dark:text-gray-400 transition hover:border-emerald-200 dark:border-emerald-800/50 hover:bg-emerald-50 dark:bg-emerald-900/30 hover:text-emerald-700 dark:text-emerald-400 dark:border-gray-800 dark:bg-slate-950 dark:text-gray-400"
           aria-label={`Nhắn tin ${name}`}
           title="Tin nhắn"
         >
@@ -156,7 +156,7 @@ function SavedMentorCard({
 
 function MiniBadge({ icon: Icon, label }: { icon: React.ComponentType<{ className?: string }>; label: string }) {
   return (
-    <span className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-gray-200 bg-gray-50 px-2.5 py-1 text-xs font-bold text-gray-600 dark:border-gray-800 dark:bg-slate-900 dark:text-gray-300">
+    <span className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50 px-2.5 py-1 text-xs font-bold text-gray-600 dark:text-gray-400 dark:border-gray-800 dark:bg-slate-900 dark:text-gray-300">
       <Icon className="h-3.5 w-3.5" />
       <span className="truncate">{label}</span>
     </span>
@@ -176,7 +176,7 @@ function SavedMentorSkeleton() {
   return (
     <div className="grid gap-4 xl:grid-cols-2">
       {Array.from({ length: 4 }).map((_, index) => (
-        <div key={index} className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-slate-950">
+        <div key={index} className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-slate-950 p-5 shadow-sm dark:border-gray-800 dark:bg-slate-950">
           <div className="flex gap-4">
             <div className="h-20 w-20 animate-pulse rounded-2xl bg-gray-200 dark:bg-slate-800" />
             <div className="flex-1 space-y-3">
@@ -185,7 +185,7 @@ function SavedMentorSkeleton() {
               <div className="h-4 w-3/4 animate-pulse rounded bg-gray-200 dark:bg-slate-800" />
             </div>
           </div>
-          <div className="mt-5 h-20 animate-pulse rounded-2xl bg-gray-100 dark:bg-slate-900" />
+          <div className="mt-5 h-20 animate-pulse rounded-2xl bg-gray-100 dark:bg-gray-800 dark:bg-slate-900" />
           <div className="mt-4 h-11 animate-pulse rounded-xl bg-gray-200 dark:bg-slate-800" />
         </div>
       ))}
@@ -195,7 +195,7 @@ function SavedMentorSkeleton() {
 
 function EmptySavedMentors() {
   return (
-    <div className="rounded-2xl border border-dashed border-gray-300 bg-white px-6 py-16 text-center dark:border-gray-800 dark:bg-slate-950">
+    <div className="rounded-2xl border border-dashed border-gray-300 bg-white dark:bg-slate-950 px-6 py-16 text-center dark:border-gray-800 dark:bg-slate-950">
       <Heart className="mx-auto h-14 w-14 text-gray-300 dark:text-gray-700" />
       <h2 className="mt-4 text-xl font-black text-gray-950 dark:text-white">Bạn chưa lưu mentor nào</h2>
       <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-gray-500 dark:text-gray-400">

@@ -80,7 +80,7 @@ export default function MentorBlogEditPage() {
     if (slug) fetchPost()
   }, [slug])
 
-  if (fetching) return <div className="p-8 text-center"><Loader2 className="h-8 w-8 animate-spin mx-auto text-emerald-600" /></div>
+  if (fetching) return <div className="p-8 text-center"><Loader2 className="h-8 w-8 animate-spin mx-auto text-emerald-600 dark:text-emerald-500" /></div>
 
   const handleCoverImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -168,38 +168,38 @@ export default function MentorBlogEditPage() {
       <div className="mb-6 flex items-center gap-4">
         <button
           onClick={() => navigate(-1)}
-          className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white text-slate-500 shadow-sm transition hover:bg-slate-50 hover:text-slate-900"
+          className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white dark:bg-slate-950 text-slate-500 dark:text-slate-400 shadow-sm transition hover:bg-slate-50 dark:bg-slate-900/50 hover:text-slate-900 dark:text-slate-100"
         >
           <ArrowLeft className="h-5 w-5" />
         </button>
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Viết bài mới</h1>
-          <p className="text-sm text-slate-500">Chia sẻ kiến thức với cộng đồng</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Viết bài mới</h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Chia sẻ kiến thức với cộng đồng</p>
         </div>
       </div>
 
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-6 shadow-sm sm:p-8">
         <form onSubmit={handleSubmit} className="space-y-8">
           
           {/* Cover Image */}
           <div>
-            <span className="mb-2 block text-sm font-semibold text-slate-700">Ảnh bìa</span>
+            <span className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">Ảnh bìa</span>
             {coverImagePreview ? (
-              <div className="relative h-64 w-full overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
+              <div className="relative h-64 w-full overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50">
                 <img src={coverImagePreview} alt="Cover preview" className="h-full w-full object-cover" />
                 <button
                   type="button"
                   onClick={() => { setCoverImageFile(null); setCoverImagePreview('') }}
-                  className="absolute right-3 top-3 rounded-lg bg-white/90 px-3 py-1.5 text-sm font-semibold text-slate-700 shadow-sm backdrop-blur transition hover:bg-white"
+                  className="absolute right-3 top-3 rounded-lg bg-white dark:bg-slate-950/90 px-3 py-1.5 text-sm font-semibold text-slate-700 dark:text-slate-300 shadow-sm backdrop-blur transition hover:bg-white dark:bg-slate-950"
                 >
                   Thay đổi
                 </button>
               </div>
             ) : (
-              <label className="flex h-64 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 transition hover:border-emerald-500 hover:bg-emerald-50">
+              <label className="flex h-64 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 transition hover:border-emerald-500 hover:bg-emerald-50 dark:bg-emerald-900/30">
                 <ImageIcon className="mb-3 h-10 w-10 text-slate-400" />
-                <span className="text-sm font-medium text-slate-600">Nhấn để tải lên ảnh bìa</span>
-                <span className="mt-1 text-xs text-slate-500">Kích thước khuyến nghị: 1200x630px</span>
+                <span className="text-sm font-medium text-slate-600 dark:text-slate-400">Nhấn để tải lên ảnh bìa</span>
+                <span className="mt-1 text-xs text-slate-500 dark:text-slate-400">Kích thước khuyến nghị: 1200x630px</span>
                 <input type="file" accept="image/*" className="hidden" onChange={handleCoverImageChange} />
               </label>
             )}
@@ -207,28 +207,28 @@ export default function MentorBlogEditPage() {
 
           {/* Title */}
           <div>
-            <label htmlFor="title" className="mb-2 block text-sm font-semibold text-slate-700">Tiêu đề <span className="text-red-500">*</span></label>
+            <label htmlFor="title" className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">Tiêu đề <span className="text-red-500">*</span></label>
             <input
               type="text"
               id="title"
               name="title"
               value={formData.title}
               onChange={handleInputChange}
-              className="block w-full rounded-xl border border-slate-300 px-4 py-3 text-sm transition focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              className="block w-full rounded-xl border border-slate-300 dark:border-slate-700 px-4 py-3 text-sm transition focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
               placeholder="vd: Cách vượt qua buổi mentoring đầu tiên"
             />
           </div>
 
           {/* Excerpt */}
           <div>
-            <label htmlFor="excerpt" className="mb-2 block text-sm font-semibold text-slate-700">Đoạn trích ngắn <span className="text-red-500">*</span></label>
+            <label htmlFor="excerpt" className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">Đoạn trích ngắn <span className="text-red-500">*</span></label>
             <textarea
               id="excerpt"
               name="excerpt"
               rows={3}
               value={formData.excerpt}
               onChange={handleInputChange}
-              className="block w-full rounded-xl border border-slate-300 px-4 py-3 text-sm transition focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              className="block w-full rounded-xl border border-slate-300 dark:border-slate-700 px-4 py-3 text-sm transition focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
               placeholder="Tóm tắt ngắn gọn bài viết của bạn..."
             />
           </div>
@@ -236,13 +236,13 @@ export default function MentorBlogEditPage() {
           {/* Category & Audience */}
           <div className="grid gap-6 sm:grid-cols-2">
             <div>
-              <label htmlFor="category" className="mb-2 block text-sm font-semibold text-slate-700">Danh mục <span className="text-red-500">*</span></label>
+              <label htmlFor="category" className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">Danh mục <span className="text-red-500">*</span></label>
               <select
                 id="category"
                 name="category"
                 value={formData.category}
                 onChange={handleInputChange}
-                className="block w-full rounded-xl border border-slate-300 px-4 py-3 text-sm transition focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                className="block w-full rounded-xl border border-slate-300 dark:border-slate-700 px-4 py-3 text-sm transition focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
               >
                 {CATEGORIES.map(c => (
                   <option key={c.value} value={c.value}>{c.label}</option>
@@ -250,13 +250,13 @@ export default function MentorBlogEditPage() {
               </select>
             </div>
             <div>
-              <label htmlFor="audience" className="mb-2 block text-sm font-semibold text-slate-700">Đối tượng mục tiêu <span className="text-red-500">*</span></label>
+              <label htmlFor="audience" className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">Đối tượng mục tiêu <span className="text-red-500">*</span></label>
               <select
                 id="audience"
                 name="audience"
                 value={formData.audience}
                 onChange={handleInputChange}
-                className="block w-full rounded-xl border border-slate-300 px-4 py-3 text-sm transition focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                className="block w-full rounded-xl border border-slate-300 dark:border-slate-700 px-4 py-3 text-sm transition focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
               >
                 {AUDIENCES.map(a => (
                   <option key={a.value} value={a.value}>{a.label}</option>
@@ -278,20 +278,20 @@ export default function MentorBlogEditPage() {
 
           {/* Tags */}
           <div>
-            <label htmlFor="tags" className="mb-2 block text-sm font-semibold text-slate-700">Thẻ (Tags)</label>
+            <label htmlFor="tags" className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">Thẻ (Tags)</label>
             <input
               type="text"
               id="tags"
               name="tags"
               value={formData.tags}
               onChange={handleInputChange}
-              className="block w-full rounded-xl border border-slate-300 px-4 py-3 text-sm transition focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              className="block w-full rounded-xl border border-slate-300 dark:border-slate-700 px-4 py-3 text-sm transition focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
               placeholder="vd: mentoring, career, tips (ngăn cách bằng dấu phẩy)"
             />
           </div>
 
           {/* Submit */}
-          <div className="flex justify-end border-t border-slate-200 pt-6">
+          <div className="flex justify-end border-t border-slate-200 dark:border-slate-800 pt-6">
             <button
               type="submit"
               disabled={loading}

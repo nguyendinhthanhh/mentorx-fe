@@ -19,10 +19,10 @@ interface DashboardPendingCardProps {
 }
 
 const toneMap: Record<string, { bg: string; text: string }> = {
-  amber:   { bg: 'bg-amber-50 dark:bg-amber-500/10', text: 'text-amber-700 dark:text-amber-300' },
+  amber:   { bg: 'bg-amber-50 dark:bg-amber-900/30 dark:bg-amber-500/10', text: 'text-amber-700 dark:text-amber-400 dark:text-amber-300' },
   rose:    { bg: 'bg-rose-50 dark:bg-rose-500/10', text: 'text-rose-700 dark:text-rose-300' },
   blue:    { bg: 'bg-blue-50 dark:bg-blue-500/10', text: 'text-blue-700 dark:text-blue-300' },
-  emerald: { bg: 'bg-emerald-50 dark:bg-emerald-500/10', text: 'text-emerald-700 dark:text-emerald-300' },
+  emerald: { bg: 'bg-emerald-50 dark:bg-emerald-900/30 dark:bg-emerald-500/10', text: 'text-emerald-700 dark:text-emerald-400 dark:text-emerald-300' },
 }
 
 export default function DashboardPendingCard({
@@ -33,10 +33,10 @@ export default function DashboardPendingCard({
   emptyLabel,
 }: DashboardPendingCardProps) {
   return (
-    <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-      <div className="border-b border-slate-100 px-4 py-3 dark:border-slate-800">
+    <section className="overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <div className="border-b border-slate-100 dark:border-slate-800 px-4 py-3 dark:border-slate-800">
         <h2 className="text-[13px] font-bold text-slate-900 dark:text-white">{title}</h2>
-        {subtitle && <p className="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400">{subtitle}</p>}
+        {subtitle && <p className="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400 dark:text-slate-400">{subtitle}</p>}
       </div>
 
       {isLoading ? (
@@ -50,7 +50,7 @@ export default function DashboardPendingCard({
           ))}
         </div>
       ) : items.length === 0 ? (
-        <div className="px-4 py-8 text-center text-sm text-slate-500 dark:text-slate-400">
+        <div className="px-4 py-8 text-center text-sm text-slate-500 dark:text-slate-400 dark:text-slate-400">
           {emptyLabel || 'No items'}
         </div>
       ) : (
@@ -61,14 +61,14 @@ export default function DashboardPendingCard({
               <Link
                 key={`${item.href}-${i}`}
                 to={item.href}
-                className="group flex items-center gap-3 px-4 py-3 transition hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                className="group flex items-center gap-3 px-4 py-3 transition hover:bg-slate-50 dark:bg-slate-900/50 dark:hover:bg-slate-800/50"
               >
                 <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${t.bg} ${t.text}`}>
                   {item.icon}
                 </span>
-                <span className="min-w-0 flex-1 text-[13px] font-medium text-slate-700 dark:text-slate-200">{item.label}</span>
+                <span className="min-w-0 flex-1 text-[13px] font-medium text-slate-700 dark:text-slate-300 dark:text-slate-200">{item.label}</span>
                 <span className="text-sm font-semibold tabular-nums text-slate-900 dark:text-white">{item.count}</span>
-                <ChevronRight className="h-4 w-4 shrink-0 text-slate-300 transition group-hover:translate-x-0.5 group-hover:text-slate-500 dark:text-slate-600 dark:group-hover:text-slate-400" />
+                <ChevronRight className="h-4 w-4 shrink-0 text-slate-300 transition group-hover:translate-x-0.5 group-hover:text-slate-500 dark:text-slate-400 dark:text-slate-600 dark:group-hover:text-slate-400" />
               </Link>
             )
           })}

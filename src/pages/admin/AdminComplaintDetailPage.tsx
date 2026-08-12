@@ -1,8 +1,10 @@
-import { useQuery } from 'react-query'
+import { useState } from 'react'
+import { useQuery, useMutation } from 'react-query'
 import { Link, useParams } from 'react-router-dom'
-import { ArrowLeft, Flag, Inbox } from 'lucide-react'
+import { ArrowLeft, Flag, Inbox, UserPlus, CheckCircle } from 'lucide-react'
 
 import { complaintsApi } from '@/api/complaintsApi'
+import { useAuthStore } from '@/store/authStore'
 import { useI18n } from '@/i18n/I18nProvider'
 import { complaintPriorityKeys, complaintStatusKeys } from '@/i18n/status'
 import { complaintPriorityBucket } from '@/types'
@@ -11,6 +13,10 @@ import { formatDateTime } from '@/utils/formatters'
 export default function AdminComplaintDetailPage() {
   const { id: complaintId } = useParams<{ id: string }>()
   const { t } = useI18n()
+  const { user } = useAuthStore()
+
+  const [resolveOutcome, setResolveOutcome] = useState('REFUND')
+  const [resolveDetails, setResolveDetails] = useState('')
 
   const { data, isLoading, isError, refetch } = useQuery(
     ['admin-complaint-detail', complaintId],
@@ -18,18 +24,33 @@ export default function AdminComplaintDetailPage() {
     { enabled: Boolean(complaintId) },
   )
 
+  const assignMutation = useMutation(
+    (mediatorId: string) => complaintsApi.assignComplaint(complaintId!, mediatorId),
+    {
+      onSuccess: () => refetch(),
+    }
+  )
+
+  const resolveMutation = useMutation(
+    (payload: { outcome: string; resolutionDetails: string }) => 
+      complaintsApi.resolveComplaint(complaintId!, payload),
+    {
+      onSuccess: () => refetch(),
+    }
+  )
+
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <div className="h-8 w-48 animate-pulse rounded bg-gray-100 dark:bg-gray-800" />
-        <div className="h-64 animate-pulse rounded-3xl bg-gray-100 dark:bg-gray-800" />
+        <div className="h-8 w-48 animate-pulse rounded bg-gray-100 dark:bg-gray-800 dark:bg-gray-800" />
+        <div className="h-64 animate-pulse rounded-3xl bg-gray-100 dark:bg-gray-800 dark:bg-gray-800" />
       </div>
     )
   }
 
   if (isError || !data) {
     return (
-      <div className="flex flex-col items-center gap-4 px-6 py-24 text-center bg-white/70 dark:bg-slate-900/70 rounded-[2.5rem] border border-white/50 dark:border-slate-800 backdrop-blur-xl shadow-xl shadow-slate-200/40 dark:shadow-none animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="flex flex-col items-center gap-4 px-6 py-24 text-center bg-white dark:bg-slate-950/70 dark:bg-slate-900/70 rounded-[2.5rem] border border-white/50 dark:border-slate-800 backdrop-blur-xl shadow-xl shadow-slate-200/40 dark:shadow-none animate-in fade-in slide-in-from-bottom-4 duration-700">
         <div className="flex h-16 w-16 items-center justify-center rounded-[2rem] bg-rose-50 text-rose-500 dark:bg-rose-950/40 shadow-sm border border-rose-100 dark:border-rose-900/30">
           <Flag className="w-7 h-7" />
         </div>
@@ -39,7 +60,7 @@ export default function AdminComplaintDetailPage() {
         <div className="flex gap-3 mt-2">
           <Link
             to="/admin/complaints"
-            className="rounded-2xl border border-slate-200/60 bg-white/50 px-6 py-3 text-[10px] font-black uppercase tracking-widest text-slate-700 dark:border-slate-700/60 dark:bg-slate-800/50 dark:text-slate-200 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-all hover:-translate-y-0.5"
+            className="rounded-2xl border border-slate-200 dark:border-slate-800/60 bg-white dark:bg-slate-950/50 px-6 py-3 text-[10px] font-black uppercase tracking-widest text-slate-700 dark:text-slate-300 dark:border-slate-700/60 dark:bg-slate-800/50 dark:text-slate-200 shadow-sm hover:bg-slate-50 dark:bg-slate-900/50 dark:hover:bg-slate-800 transition-all hover:-translate-y-0.5"
           >
             {t('admin.complaints.detail.back')}
           </Link>
@@ -62,15 +83,15 @@ export default function AdminComplaintDetailPage() {
       <div className="flex items-center gap-3">
         <Link
           to="/admin/complaints"
-          className="inline-flex items-center gap-2 rounded-xl bg-white/70 dark:bg-slate-900/70 border border-white/50 dark:border-slate-800 shadow-sm px-4 py-2 text-xs font-bold text-slate-500 hover:text-emerald-600 hover:border-emerald-200 dark:hover:border-emerald-800/50 dark:hover:text-emerald-400 hover:shadow-md transition-all hover:-translate-x-1"
+          className="inline-flex items-center gap-2 rounded-xl bg-white dark:bg-slate-950/70 dark:bg-slate-900/70 border border-white/50 dark:border-slate-800 shadow-sm px-4 py-2 text-xs font-bold text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:text-emerald-500 hover:border-emerald-200 dark:border-emerald-800/50 dark:hover:border-emerald-800/50 dark:hover:text-emerald-400 hover:shadow-md transition-all hover:-translate-x-1"
         >
           <ArrowLeft className="w-4 h-4" />
           {t('admin.complaints.detail.back')}
         </Link>
       </div>
 
-      <div className="rounded-2xl border border-white/50 bg-white/70 p-4 shadow-xl shadow-slate-200/40 backdrop-blur-xl transition-all dark:border-slate-800 dark:bg-slate-900/70 dark:shadow-none sm:rounded-[2.5rem] sm:p-8">
-        <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between border-b border-slate-100/50 dark:border-slate-800/50 pb-8">
+      <div className="rounded-2xl border border-white/50 bg-white dark:bg-slate-950/70 p-4 shadow-xl shadow-slate-200/40 backdrop-blur-xl transition-all dark:border-slate-800 dark:bg-slate-900/70 dark:shadow-none sm:rounded-[2.5rem] sm:p-8">
+        <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between border-b border-slate-100 dark:border-slate-800/50 dark:border-slate-800/50 pb-8">
           <div>
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
               {t('admin.complaints.detail.idLabel', { id: data.id })}
@@ -78,20 +99,20 @@ export default function AdminComplaintDetailPage() {
             <h1 className="mt-2 break-words text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white sm:text-3xl">
               {data.title}
             </h1>
-            <p className="mt-1 text-xs font-bold text-slate-500">
+            <p className="mt-1 text-xs font-bold text-slate-500 dark:text-slate-400">
               {t('admin.complaints.detail.createdAt', {
                 date: formatDateTime(data.createdAt),
               })}
             </p>
           </div>
           <div className="flex flex-wrap gap-2 pt-2 md:pt-0">
-            <span className="inline-flex rounded-xl bg-slate-50/80 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-slate-600 dark:bg-slate-800/50 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700/60 shadow-sm">
+            <span className="inline-flex rounded-xl bg-slate-50 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-slate-600 dark:text-slate-400 dark:bg-slate-800/50 dark:text-slate-300 border border-slate-200 dark:border-slate-800/60 dark:border-slate-700/60 shadow-sm">
               {data.complaintCategory || '—'}
             </span>
-            <span className="inline-flex rounded-xl bg-slate-50/80 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-slate-600 dark:bg-slate-800/50 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700/60 shadow-sm">
+            <span className="inline-flex rounded-xl bg-slate-50 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-slate-600 dark:text-slate-400 dark:bg-slate-800/50 dark:text-slate-300 border border-slate-200 dark:border-slate-800/60 dark:border-slate-700/60 shadow-sm">
               {t(complaintPriorityKeys[bucket])}
             </span>
-            <span className="inline-flex rounded-xl bg-slate-50/80 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-slate-600 dark:bg-slate-800/50 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700/60 shadow-sm">
+            <span className="inline-flex rounded-xl bg-slate-50 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-slate-600 dark:text-slate-400 dark:bg-slate-800/50 dark:text-slate-300 border border-slate-200 dark:border-slate-800/60 dark:border-slate-700/60 shadow-sm">
               {t(complaintStatusKeys[data.status])}
             </span>
           </div>
@@ -101,14 +122,14 @@ export default function AdminComplaintDetailPage() {
           <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
             {t('admin.complaints.detail.description')}
           </p>
-          <div className="mt-3 rounded-2xl border border-slate-100/50 bg-slate-50/50 p-4 dark:border-slate-800/50 dark:bg-slate-800/30 sm:p-6">
-            <p className="whitespace-pre-line text-sm font-medium leading-loose text-slate-700 dark:text-slate-300">
+          <div className="mt-3 rounded-2xl border border-slate-100 dark:border-slate-800/50 bg-slate-50 p-4 dark:border-slate-800/50 dark:bg-slate-800/30 sm:p-6">
+            <p className="whitespace-pre-line text-sm font-medium leading-loose text-slate-700 dark:text-slate-300 dark:text-slate-300">
               {data.description}
             </p>
           </div>
         </div>
 
-        <div className="mt-8 grid gap-6 border-t border-slate-100/50 pt-8 dark:border-slate-800/50 md:grid-cols-3">
+        <div className="mt-8 grid gap-6 border-t border-slate-100 dark:border-slate-800/50 pt-8 dark:border-slate-800/50 md:grid-cols-3">
           <DetailField label={t('admin.complaints.detail.complainant')} value={data.complainantId} />
           <DetailField label={t('admin.complaints.detail.respondent')} value={data.respondentId} />
           <DetailField label={t('admin.complaints.detail.createdAtField')} value={formatDateTime(data.createdAt)} />
@@ -125,7 +146,7 @@ export default function AdminComplaintDetailPage() {
         </div>
 
         {data.evidence && data.evidence.length > 0 && (
-          <div className="mt-8 border-t border-slate-100/50 pt-8 dark:border-slate-800/50">
+          <div className="mt-8 border-t border-slate-100 dark:border-slate-800/50 pt-8 dark:border-slate-800/50">
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-4">
               {t('admin.complaints.detail.evidence')}
             </p>
@@ -133,13 +154,13 @@ export default function AdminComplaintDetailPage() {
               {data.evidence.map((evidence) => (
                 <li
                   key={evidence.id}
-                  className="flex items-center gap-4 rounded-2xl border border-slate-200/60 bg-white/50 p-4 text-xs font-bold text-slate-700 dark:border-slate-700/60 dark:bg-slate-800/50 dark:text-slate-300 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md hover:border-emerald-200 dark:hover:border-emerald-800/50 cursor-pointer group"
+                  className="flex items-center gap-4 rounded-2xl border border-slate-200 dark:border-slate-800/60 bg-white dark:bg-slate-950/50 p-4 text-xs font-bold text-slate-700 dark:text-slate-300 dark:border-slate-700/60 dark:bg-slate-800/50 dark:text-slate-300 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md hover:border-emerald-200 dark:border-emerald-800/50 dark:hover:border-emerald-800/50 cursor-pointer group"
                 >
-                  <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center group-hover:bg-emerald-50 dark:group-hover:bg-emerald-900/20 transition-colors">
+                  <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center group-hover:bg-emerald-50 dark:bg-emerald-900/30 dark:group-hover:bg-emerald-900/20 transition-colors">
                     <Inbox className="w-5 h-5 text-slate-400 group-hover:text-emerald-500" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="truncate text-sm font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">{evidence.title}</p>
+                    <p className="truncate text-sm font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 dark:text-emerald-500 dark:group-hover:text-emerald-400 transition-colors">{evidence.title}</p>
                     <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 mt-0.5 block">
                       {evidence.evidenceType}
                     </span>
@@ -149,6 +170,75 @@ export default function AdminComplaintDetailPage() {
             </ul>
           </div>
         )}
+
+        {/* Action Panel */}
+        {data.status !== 'RESOLVED' && data.status !== 'WITHDRAWN' && data.status !== 'EXPIRED' && (
+          <div className="mt-8 rounded-2xl border border-emerald-100 dark:border-emerald-900/30 bg-emerald-50/50 dark:bg-emerald-950/20 p-6 sm:p-8">
+            <h3 className="text-sm font-black uppercase tracking-widest text-emerald-800 dark:text-emerald-400 mb-6 flex items-center gap-2">
+              <CheckCircle className="w-5 h-5" />
+              Xử lý khiếu nại
+            </h3>
+
+            {!data.mediatorId ? (
+              <div className="flex flex-col items-center justify-center py-6 text-center">
+                <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                  Khiếu nại này chưa được giao cho ai xử lý.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => assignMutation.mutate(user?.userId!)}
+                  disabled={assignMutation.isLoading}
+                  className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-6 py-3 text-[10px] font-black uppercase tracking-widest text-white shadow-md shadow-emerald-500/20 transition-all hover:-translate-y-0.5 hover:bg-emerald-700 hover:shadow-lg hover:shadow-emerald-500/30 disabled:opacity-50"
+                >
+                  <UserPlus className="w-4 h-4" />
+                  {assignMutation.isLoading ? 'Đang giao...' : 'Giao cho tôi xử lý'}
+                </button>
+              </div>
+            ) : data.mediatorId === user?.userId ? (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-2">
+                    Quyết định
+                  </label>
+                  <select
+                    value={resolveOutcome}
+                    onChange={(e) => setResolveOutcome(e.target.value)}
+                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 py-3 text-sm font-medium focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 dark:text-white"
+                  >
+                    <option value="REFUND">Hoàn tiền</option>
+                    <option value="NO_REFUND">Không hoàn tiền</option>
+                    <option value="WARNING">Cảnh cáo</option>
+                    <option value="BAN">Khóa tài khoản</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-2">
+                    Chi tiết quyết định
+                  </label>
+                  <textarea
+                    value={resolveDetails}
+                    onChange={(e) => setResolveDetails(e.target.value)}
+                    rows={4}
+                    placeholder="Nhập lý do và chi tiết quyết định..."
+                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 py-3 text-sm font-medium focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 dark:text-white"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => resolveMutation.mutate({ outcome: resolveOutcome, resolutionDetails: resolveDetails })}
+                  disabled={resolveMutation.isLoading || !resolveDetails.trim()}
+                  className="w-full rounded-xl bg-emerald-600 px-6 py-4 text-xs font-black uppercase tracking-widest text-white shadow-md shadow-emerald-500/20 transition-all hover:-translate-y-0.5 hover:bg-emerald-700 hover:shadow-lg hover:shadow-emerald-500/30 disabled:opacity-50 disabled:hover:translate-y-0 disabled:cursor-not-allowed"
+                >
+                  {resolveMutation.isLoading ? 'Đang xử lý...' : 'Đóng khiếu nại'}
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center justify-center py-6 text-center text-sm font-bold text-slate-500">
+                Khiếu nại này đang được xử lý bởi Admin khác (ID: {data.mediatorId})
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   )
@@ -156,9 +246,9 @@ export default function AdminComplaintDetailPage() {
 
 function DetailField({ label, value }: { label: string; value: string }) {
   return (
-    <div className="bg-slate-50/50 dark:bg-slate-800/30 p-4 rounded-2xl border border-slate-100/50 dark:border-slate-800/50">
+    <div className="bg-slate-50 dark:bg-slate-800/30 p-4 rounded-2xl border border-slate-100 dark:border-slate-800/50 dark:border-slate-800/50">
       <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">{label}</p>
-      <p className="mt-1.5 break-all text-sm font-bold text-slate-800 dark:text-slate-200">{value}</p>
+      <p className="mt-1.5 break-all text-sm font-bold text-slate-800 dark:text-slate-200 dark:text-slate-200">{value}</p>
     </div>
   )
 }

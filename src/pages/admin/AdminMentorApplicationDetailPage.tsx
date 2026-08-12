@@ -100,7 +100,7 @@ export default function AdminMentorApplicationDetailPage() {
       <div className="flex items-center gap-3">
         <Link
           to={`/admin/mentor-applications?tab=${activeTab}`}
-          className="inline-flex items-center gap-2 rounded-xl bg-white/70 dark:bg-slate-900/70 border border-white/50 dark:border-slate-800 shadow-sm px-4 py-2 text-xs font-bold text-slate-500 hover:text-emerald-600 hover:border-emerald-200 dark:hover:border-emerald-800/50 dark:hover:text-emerald-400 hover:shadow-md transition-all hover:-translate-x-1"
+          className="inline-flex items-center gap-2 rounded-xl bg-white dark:bg-slate-950/70 dark:bg-slate-900/70 border border-white/50 dark:border-slate-800 shadow-sm px-4 py-2 text-xs font-bold text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:text-emerald-500 hover:border-emerald-200 dark:border-emerald-800/50 dark:hover:border-emerald-800/50 dark:hover:text-emerald-400 hover:shadow-md transition-all hover:-translate-x-1"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to queue
@@ -135,7 +135,7 @@ export default function AdminMentorApplicationDetailPage() {
 
 function MissingApplicationState() {
   return (
-    <div className="flex flex-col items-center gap-4 px-6 py-24 text-center bg-white/70 dark:bg-slate-900/70 rounded-[2.5rem] border border-white/50 dark:border-slate-800 backdrop-blur-xl shadow-xl shadow-slate-200/40 dark:shadow-none">
+    <div className="flex flex-col items-center gap-4 px-6 py-24 text-center bg-white dark:bg-slate-950/70 dark:bg-slate-900/70 rounded-[2.5rem] border border-white/50 dark:border-slate-800 backdrop-blur-xl shadow-xl shadow-slate-200/40 dark:shadow-none">
       <div className="flex h-16 w-16 items-center justify-center rounded-[2rem] bg-rose-50 text-rose-500 dark:bg-rose-950/40 shadow-sm border border-rose-100 dark:border-rose-900/30">
         <XCircle className="w-7 h-7" />
       </div>

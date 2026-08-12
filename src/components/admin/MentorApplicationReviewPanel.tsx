@@ -62,13 +62,13 @@ export default function MentorApplicationReviewPanel({
   canReviewExpertise: boolean
   canReviewPayout: boolean
 }) {
-  const shellClass = 'rounded-[2.5rem] border border-white/40 bg-white/70 backdrop-blur-2xl shadow-xl shadow-slate-200/50 dark:border-slate-700/50 dark:bg-slate-900/60 dark:shadow-none transition-all duration-500 ease-out'
+  const shellClass = 'rounded-[2.5rem] border border-white/40 bg-white dark:bg-slate-950/70 backdrop-blur-2xl shadow-xl shadow-slate-200/50 dark:border-slate-700/50 dark:bg-slate-900/60 dark:shadow-none transition-all duration-500 ease-out'
 
   if (loading) {
     return (
       <div className={shellClass}>
-        <div className="border-b border-slate-200/80 px-6 py-5 dark:border-slate-800">
-          <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">Loading application details...</p>
+        <div className="border-b border-slate-200 dark:border-slate-800/80 px-6 py-5 dark:border-slate-800">
+          <p className="text-sm font-semibold text-slate-500 dark:text-slate-400 dark:text-slate-400">Loading application details...</p>
         </div>
         <div className="space-y-4 px-6 py-8">
           {Array.from({ length: 3 }).map((_, index) => (
@@ -102,7 +102,7 @@ export default function MentorApplicationReviewPanel({
     return (
       <div className={shellClass}>
         <div className="flex min-h-[320px] flex-col items-center justify-center gap-4 px-8 py-10 text-center">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-300">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gray-100 dark:bg-gray-800 text-gray-500 dark:bg-gray-800 dark:text-gray-300">
             <CheckCircle2 className="h-6 w-6" />
           </div>
           <div className="space-y-2">
@@ -168,7 +168,7 @@ export default function MentorApplicationReviewPanel({
 
   return (
     <div className={shellClass}>
-      <div className="border-b border-white/20 bg-white/60 px-6 py-5 backdrop-blur-xl dark:border-slate-700/50 dark:bg-slate-900/60">
+      <div className="border-b border-white/20 bg-white dark:bg-slate-950/60 px-6 py-5 backdrop-blur-xl dark:border-slate-700/50 dark:bg-slate-900/60">
         <div className="flex items-start gap-4">
           <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[1.25rem] bg-gradient-to-br from-emerald-600 to-emerald-600 text-lg font-black text-white shadow-lg shadow-emerald-500/20 overflow-hidden">
             {profile.user?.avatarUrl ? (
@@ -182,8 +182,8 @@ export default function MentorApplicationReviewPanel({
               <h2 className="truncate text-base font-black text-slate-950 dark:text-white">{profile.user?.fullName || 'Mentor applicant'}</h2>
               <MentorStatusChip status={queueStatus} />
             </div>
-            <p className="mt-1 truncate text-sm text-slate-500 dark:text-slate-400">{profile.user?.email}</p>
-            <div className="mt-2 flex flex-wrap items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400">
+            <p className="mt-1 truncate text-sm text-slate-500 dark:text-slate-400 dark:text-slate-400">{profile.user?.email}</p>
+            <div className="mt-2 flex flex-wrap items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400 dark:text-slate-400">
               <span>Application status: {getStatusLabel(queueStatus)}</span>
               <span className="h-1 w-1 rounded-full bg-slate-300 dark:bg-slate-600" />
               <span>Review type: {reviewType}</span>
@@ -206,7 +206,7 @@ export default function MentorApplicationReviewPanel({
               className={`rounded-full px-3 py-2 text-sm font-semibold transition ${
                 reviewTab === tab.key
                   ? 'bg-slate-950 text-white dark:bg-white dark:text-slate-950'
-                  : 'text-slate-500 hover:bg-slate-100 hover:text-slate-950 dark:text-slate-300 dark:hover:bg-emerald-600 shadow-md hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 hover:bg-emerald-700 dark:hover:text-white'
+                  : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 hover:text-slate-950 dark:text-slate-100 dark:text-slate-300 dark:hover:bg-emerald-600 shadow-md hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 hover:bg-emerald-700 dark:hover:text-white'
               }`}
             >
               {tab.label}
@@ -245,20 +245,20 @@ export default function MentorApplicationReviewPanel({
                 <FieldItem label="Review focus" value={getQueueFieldValue(profile, activeTab)} />
               </FieldGrid>
               <div className="mt-4">
-                <p className="text-[11px] font-black uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">Skills</p>
+                <p className="text-[11px] font-black uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400 dark:text-slate-400">Skills</p>
                 {profile.skills?.length ? (
                   <div className="mt-3 flex flex-wrap gap-2">
                     {profile.skills.map((skill) => (
                       <span
                         key={skill}
-                        className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700 dark:bg-slate-900 dark:text-slate-300"
+                        className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300 dark:bg-slate-900 dark:text-slate-300"
                       >
                         {skill}
                       </span>
                     ))}
                   </div>
                 ) : (
-                  <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">Not provided</p>
+                  <p className="mt-3 text-sm text-slate-500 dark:text-slate-400 dark:text-slate-400">Not provided</p>
                 )}
               </div>
             </PanelSection>
@@ -281,7 +281,7 @@ export default function MentorApplicationReviewPanel({
                 ))}
               </div>
               {evidenceRows.every((item) => !item.value) && (
-                <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-200">
+                <div className="mt-4 rounded-2xl border border-amber-200 dark:border-amber-800/50 bg-amber-50 dark:bg-amber-900/30 px-4 py-3 text-sm font-medium text-amber-800 dark:text-amber-200 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-200">
                   No proof items provided.
                 </div>
               )}
@@ -298,7 +298,7 @@ export default function MentorApplicationReviewPanel({
                   value={internalNote}
                   onChange={(event) => onInternalNoteChange(event.target.value.slice(0, 1000))}
                   placeholder="Draft an internal note for other reviewers..."
-                  className="w-full rounded-[1.25rem] border border-slate-200/60 bg-white/70 backdrop-blur-md px-5 py-4 text-sm font-medium text-slate-900 outline-none transition-all hover:bg-white hover:border-emerald-200 focus:bg-white focus:border-emerald-400 focus:ring-4 focus:ring-emerald-500/10 dark:border-slate-800/60 dark:bg-slate-950/50 dark:text-white dark:hover:bg-emerald-600 shadow-md hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 hover:bg-emerald-700 dark:focus:bg-slate-950 dark:focus:border-emerald-500/50"
+                  className="w-full rounded-[1.25rem] border border-slate-200 dark:border-slate-800/60 bg-white dark:bg-slate-950/70 backdrop-blur-md px-5 py-4 text-sm font-medium text-slate-900 dark:text-slate-100 outline-none transition-all hover:bg-white dark:bg-slate-950 hover:border-emerald-200 dark:border-emerald-800/50 focus:bg-white dark:bg-slate-950 focus:border-emerald-400 focus:ring-4 focus:ring-emerald-500/10 dark:border-slate-800/60 dark:bg-slate-950/50 dark:text-white dark:hover:bg-emerald-600 shadow-md hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 hover:bg-emerald-700 dark:focus:bg-slate-950 dark:focus:border-emerald-500/50"
                 />
                 <div className="mt-2 flex items-center justify-between text-[11px] font-semibold text-slate-400 dark:text-slate-500">
                   <span>Internal only, not visible to the applicant.</span>
@@ -310,9 +310,9 @@ export default function MentorApplicationReviewPanel({
             <PanelSection title="Moderator Notes" description="Existing notes and rejection reasons already attached to this application.">
               <div className="space-y-3">
                 {currentModeratorNote ? (
-                  <div className="rounded-2xl border border-emerald-200/60 bg-emerald-50/50 p-5 dark:border-emerald-500/20 dark:bg-emerald-500/10">
+                  <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5 dark:border-emerald-500/20 dark:bg-emerald-500/10">
                     <p className="text-[11px] font-black uppercase tracking-[0.16em] text-emerald-500 dark:text-emerald-400">Moderator Note</p>
-                    <p className="mt-2 text-sm leading-relaxed text-slate-700 dark:text-slate-300">{currentModeratorNote}</p>
+                    <p className="mt-2 text-sm leading-relaxed text-slate-700 dark:text-slate-300 dark:text-slate-300">{currentModeratorNote}</p>
                   </div>
                 ) : null}
 
@@ -326,8 +326,8 @@ export default function MentorApplicationReviewPanel({
                 ) : null}
 
                 {!currentModeratorNote && !(profile.expertiseRejectionReason || profile.payoutRejectionReason) && (
-                  <div className="rounded-2xl border border-dashed border-slate-200/80 bg-slate-50/50 px-4 py-4 text-center dark:border-slate-800 dark:bg-slate-900/30">
-                    <p className="text-sm font-medium text-slate-500 dark:text-slate-400">No moderator notes attached yet.</p>
+                  <div className="rounded-2xl border border-dashed border-slate-200 dark:border-slate-800/80 bg-slate-50 px-4 py-4 text-center dark:border-slate-800 dark:bg-slate-900/30">
+                    <p className="text-sm font-medium text-slate-500 dark:text-slate-400 dark:text-slate-400">No moderator notes attached yet.</p>
                   </div>
                 )}
               </div>
@@ -341,7 +341,7 @@ export default function MentorApplicationReviewPanel({
                       <span className="absolute -left-[1.3125rem] top-1.5 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-4 ring-white dark:bg-emerald-400 dark:ring-slate-900" />
                       <div className="pl-3">
                         <p className="text-sm font-bold text-slate-900 dark:text-white">{entry.label}</p>
-                        <div className="mt-1 flex items-center gap-2 text-xs font-medium text-slate-500 dark:text-slate-400">
+                        <div className="mt-1 flex items-center gap-2 text-xs font-medium text-slate-500 dark:text-slate-400 dark:text-slate-400">
                           <span>{entry.actor}</span>
                           <span className="h-1 w-1 rounded-full bg-slate-300 dark:bg-slate-600" />
                           <span>{formatDateTime(entry.timestamp)}</span>
@@ -351,8 +351,8 @@ export default function MentorApplicationReviewPanel({
                   ))}
                 </div>
               ) : (
-                <div className="rounded-2xl border border-dashed border-slate-200/80 bg-slate-50/50 px-4 py-4 text-center dark:border-slate-800 dark:bg-slate-900/30">
-                  <p className="text-sm font-medium text-slate-500 dark:text-slate-400">No review history available.</p>
+                <div className="rounded-2xl border border-dashed border-slate-200 dark:border-slate-800/80 bg-slate-50 px-4 py-4 text-center dark:border-slate-800 dark:bg-slate-900/30">
+                  <p className="text-sm font-medium text-slate-500 dark:text-slate-400 dark:text-slate-400">No review history available.</p>
                 </div>
               )}
             </PanelSection>
@@ -360,14 +360,14 @@ export default function MentorApplicationReviewPanel({
         )}
       </div>
 
-      <div className="border-t border-slate-200/80 bg-white/95 px-6 py-5 backdrop-blur dark:border-slate-800 dark:bg-slate-950/95">
+      <div className="border-t border-slate-200 dark:border-slate-800/80 bg-white dark:bg-slate-950/95 px-6 py-5 backdrop-blur dark:border-slate-800 dark:bg-slate-950/95">
         {draftAction && (
-          <div className="mb-4 rounded-[1.25rem] border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900">
+          <div className="mb-4 rounded-[1.25rem] border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 p-4 dark:border-slate-800 dark:bg-slate-900">
             <p className="text-sm font-semibold text-slate-900 dark:text-white">{getActionTitle(draftAction)}</p>
-            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{getActionDescription(draftAction)}</p>
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400 dark:text-slate-400">{getActionDescription(draftAction)}</p>
 
             <div className="mt-4 space-y-2">
-              <label className="text-[11px] font-black uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
+              <label className="text-[11px] font-black uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400 dark:text-slate-400">
                 {actionInputLabel}
               </label>
               <textarea
@@ -375,7 +375,7 @@ export default function MentorApplicationReviewPanel({
                 value={actionReason}
                 onChange={(event) => onActionReasonChange(event.target.value)}
                 placeholder={actionPlaceholder}
-                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:ring-4 focus:ring-slate-900/5 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:focus:border-slate-600 dark:focus:ring-white/5"
+                className="w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 py-3 text-sm text-slate-900 dark:text-slate-100 outline-none transition focus:border-slate-400 focus:ring-4 focus:ring-slate-900/5 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:focus:border-slate-600 dark:focus:ring-white/5"
               />
             </div>
 
@@ -386,7 +386,7 @@ export default function MentorApplicationReviewPanel({
                   onDraftActionChange(null)
                   onActionReasonChange('')
                 }}
-                className="inline-flex h-10 items-center justify-center rounded-xl border border-slate-200 px-4 text-sm font-semibold text-slate-600 dark:border-slate-700 dark:text-slate-300"
+                className="inline-flex h-10 items-center justify-center rounded-xl border border-slate-200 dark:border-slate-800 px-4 text-sm font-semibold text-slate-600 dark:text-slate-400 dark:border-slate-700 dark:text-slate-300"
               >
                 Cancel
               </button>
@@ -418,7 +418,7 @@ export default function MentorApplicationReviewPanel({
                     ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-lg shadow-emerald-500/25 hover:shadow-xl hover:shadow-emerald-500/40 hover:-translate-y-0.5 border-none'
                     : button.tone === 'danger'
                       ? 'border border-rose-200/80 bg-rose-50/50 text-rose-700 hover:bg-rose-100 hover:border-rose-300 hover:shadow-md hover:-translate-y-0.5 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300 dark:hover:bg-rose-500/20'
-                      : 'border border-amber-200/80 bg-amber-50/50 text-amber-800 hover:bg-amber-100 hover:border-amber-300 hover:shadow-md hover:-translate-y-0.5 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-300 dark:hover:bg-amber-500/20'
+                      : 'border border-amber-200  bg-amber-50  text-amber-800 dark:text-amber-200 hover:bg-amber-100 dark:bg-amber-900/50 hover:border-amber-300 hover:shadow-md hover:-translate-y-0.5 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-300 dark:hover:bg-amber-500/20'
                 }`}
               >
                 {button.label}
@@ -428,7 +428,7 @@ export default function MentorApplicationReviewPanel({
         )}
 
         {!draftAction && actionButtons.length === 0 && (
-          <p className="text-sm text-slate-500 dark:text-slate-400">
+          <p className="text-sm text-slate-500 dark:text-slate-400 dark:text-slate-400">
             {!canAct
               ? `No further actions can be taken. The application is ${getStatusLabel(queueStatus).toLowerCase()}.`
               : 'You do not have permission to take actions in this review lane.'}
@@ -462,9 +462,9 @@ function EvidenceRow({
           : Link2
 
   return (
-    <div className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200/80 bg-slate-50/70 px-4 py-3 dark:border-slate-800 dark:bg-slate-900/60">
+    <div className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 dark:border-slate-800/80 bg-slate-50 px-4 py-3 dark:border-slate-800 dark:bg-slate-900/60">
       <div className="min-w-0 flex items-start gap-3">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-slate-500 dark:bg-slate-950 dark:text-slate-300">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white dark:bg-slate-950 text-slate-500 dark:text-slate-400 dark:bg-slate-950 dark:text-slate-300">
           <Icon className="h-4 w-4" />
         </div>
         <div className="min-w-0">
@@ -477,10 +477,10 @@ function EvidenceRow({
         <span
           className={`rounded-full px-2.5 py-1 text-[11px] font-black uppercase tracking-[0.14em] ${
             status === 'Available'
-              ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300'
+              ? 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-400 dark:bg-emerald-500/15 dark:text-emerald-300'
               : status === 'Needs review'
-                ? 'bg-amber-100 text-amber-700 dark:bg-amber-400/15 dark:text-amber-200'
-                : 'bg-slate-200 text-slate-500 dark:bg-slate-800 dark:text-slate-400'
+                ? 'bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-400 dark:bg-amber-400/15 dark:text-amber-200'
+                : 'bg-slate-200 text-slate-500 dark:text-slate-400 dark:bg-slate-800 dark:text-slate-400'
           }`}
         >
           {status}
@@ -490,13 +490,13 @@ function EvidenceRow({
             href={value}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex h-10 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:text-slate-950 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300 dark:hover:text-white"
+            className="inline-flex h-10 items-center gap-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3 text-sm font-semibold text-slate-700 dark:text-slate-300 transition hover:border-slate-300 dark:border-slate-700 hover:text-slate-950 dark:text-slate-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300 dark:hover:text-white"
           >
             {kind === 'file' ? <Download className="h-4 w-4" /> : <ExternalLink className="h-4 w-4" />}
             {kind === 'file' ? 'Download' : 'Open link'}
           </a>
         ) : (
-          <span className="inline-flex h-10 items-center rounded-xl border border-dashed border-slate-200 px-3 text-sm text-slate-400 dark:border-slate-700 dark:text-slate-500">
+          <span className="inline-flex h-10 items-center rounded-xl border border-dashed border-slate-200 dark:border-slate-800 px-3 text-sm text-slate-400 dark:border-slate-700 dark:text-slate-500">
             Missing
           </span>
         )}
@@ -515,11 +515,11 @@ function PanelSection({
   children: React.ReactNode
 }) {
   return (
-    <section className="rounded-[1.5rem] border border-slate-200/80 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+    <section className="rounded-[1.5rem] border border-slate-200 dark:border-slate-800/80 bg-white dark:bg-slate-950 p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950">
       <div className="flex flex-col gap-1">
-        <p className="text-[11px] font-black uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">{title}</p>
+        <p className="text-[11px] font-black uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400 dark:text-slate-400">{title}</p>
         {description && (
-          <p className="text-sm leading-6 text-slate-500 dark:text-slate-400">{description}</p>
+          <p className="text-sm leading-6 text-slate-500 dark:text-slate-400 dark:text-slate-400">{description}</p>
         )}
       </div>
       <div className="mt-4">{children}</div>
@@ -543,8 +543,8 @@ function FieldItem({
   spanFull?: boolean
 }) {
   return (
-    <div className={`border-b border-slate-200/80 pb-4 last:border-b-0 dark:border-slate-800 ${spanFull ? 'md:col-span-2' : ''}`}>
-      <p className="text-[11px] font-black uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">{label}</p>
+    <div className={`border-b border-slate-200 dark:border-slate-800/80 pb-4 last:border-b-0 dark:border-slate-800 ${spanFull ? 'md:col-span-2' : ''}`}>
+      <p className="text-[11px] font-black uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400 dark:text-slate-400">{label}</p>
       <p className={`mt-2 text-sm font-medium leading-6 text-slate-950 dark:text-slate-100 ${mono ? 'break-all font-mono text-xs' : ''}`}>
         {value}
       </p>

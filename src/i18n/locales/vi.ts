@@ -1662,7 +1662,7 @@ const vi = {
   "onboarding.summary.field": "Lĩnh vực",
   "onboarding.summary.language": "Ngôn ngữ",
   "onboarding.summary.style": "Phong cách mentor",
-  "onboarding.multiSelectHint": "C� th? ch?n nhi?u",
+  "onboarding.multiSelectHint": "C� th? ch?n nhi?u",
 
 
   "home.mentorWorkspace.kicker": "Ch\u1ebf \u0111\u1ed9 mentor",
@@ -1741,6 +1741,10 @@ const vi = {
   "admin.mentorVerif.status.needsMoreInfo": "Cần thêm thông tin",
   "admin.mentorVerif.status.notSubmitted": "Chưa gửi",
   "admin.mentorVerif.filter.status.all": "Tất cả trạng thái",
+  "admin.mentorVerif.filter.status.pending": "Đang chờ duyệt",
+  "admin.mentorVerif.filter.status.approved": "Đã phê duyệt",
+  "admin.mentorVerif.filter.status.rejected": "Đã từ chối",
+  "admin.mentorVerif.filter.status.needsMoreInfo": "Cần thêm thông tin",
   "admin.mentorVerif.filter.proof.any": "Tất cả bằng chứng",
   "admin.mentorVerif.filter.proof.linkedin": "Có LinkedIn",
   "admin.mentorVerif.filter.proof.cv": "Có CV",

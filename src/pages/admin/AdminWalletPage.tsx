@@ -43,9 +43,9 @@ import { resolveBankBin, buildVietQRData } from "@/utils/vietqr";
 type ActiveTab = "overview" | "withdrawals" | "reconciliation" | "audit";
 
 const panelClass =
-  "rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900";
+  "rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 shadow-sm dark:border-slate-800 dark:bg-slate-900";
 const labelClass =
-  "text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400";
+  "text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 dark:text-slate-400";
 
 export default function AdminWalletPage() {
   const { t } = useI18n();
@@ -236,17 +236,17 @@ export default function AdminWalletPage() {
     <div className="space-y-6 pb-16">
       <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-950 dark:text-slate-50">
+          <h1 className="text-2xl font-bold tracking-tight text-slate-950 dark:text-slate-100 dark:text-slate-50">
             {t("admin.wallet.title")}
           </h1>
-          <p className="mt-1 max-w-2xl text-sm text-slate-600 dark:text-slate-400">
+          <p className="mt-1 max-w-2xl text-sm text-slate-600 dark:text-slate-400 dark:text-slate-400">
             {t("admin.wallet.subtitle")}
           </p>
         </div>
         <button
           type="button"
           onClick={refresh}
-          className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+          className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-4 text-sm font-semibold text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:bg-slate-900/50 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
         >
           <RefreshCw
             className={`h-4 w-4 ${summaryQuery.isFetching ? "animate-spin" : ""}`}
@@ -284,8 +284,8 @@ export default function AdminWalletPage() {
             type="button"
             onClick={() => setActiveTab(id)}
             className={`inline-flex min-h-11 items-center gap-2 border-b-2 px-4 text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-inset focus:ring-emerald-500 ${activeTab === id
-                ? "border-emerald-600 text-emerald-700 dark:text-emerald-300"
-                : "border-transparent text-slate-500 hover:text-slate-900 dark:hover:text-slate-100"
+                ? "border-emerald-600 text-emerald-700 dark:text-emerald-400 dark:text-emerald-300"
+                : "border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:text-slate-100 dark:hover:text-slate-100"
               }`}
           >
             <Icon className="h-4 w-4" />
@@ -316,12 +316,12 @@ export default function AdminWalletPage() {
       {activeTab === "withdrawals" && (
         <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
           <section className={panelClass}>
-            <div className="flex flex-col gap-3 border-b border-slate-200 p-4 sm:flex-row sm:items-center sm:justify-between dark:border-slate-800">
+            <div className="flex flex-col gap-3 border-b border-slate-200 dark:border-slate-800 p-4 sm:flex-row sm:items-center sm:justify-between dark:border-slate-800">
               <div>
-                <h2 className="font-semibold text-slate-950 dark:text-slate-50">
+                <h2 className="font-semibold text-slate-950 dark:text-slate-100 dark:text-slate-50">
                   {t("admin.wallet.withdrawalQueue")}
                 </h2>
-                <p className="mt-0.5 text-xs text-slate-500">
+                <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
                   {t("admin.wallet.withdrawalHint")}
                 </p>
               </div>
@@ -332,7 +332,7 @@ export default function AdminWalletPage() {
                   value={search}
                   onChange={(event) => setSearch(event.target.value)}
                   placeholder={t("admin.wallet.search")}
-                  className="h-10 w-full rounded-lg border border-slate-300 bg-white pl-9 pr-3 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 dark:border-slate-700 dark:bg-slate-950 sm:w-64"
+                  className="h-10 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 pl-9 pr-3 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 dark:border-slate-700 dark:bg-slate-950 sm:w-64"
                 />
               </label>
             </div>
@@ -405,11 +405,11 @@ export default function AdminWalletPage() {
 
       {activeTab === "audit" && (
         <section className={panelClass}>
-          <div className="border-b border-slate-200 p-4 dark:border-slate-800">
-            <h2 className="font-semibold text-slate-950 dark:text-slate-50">
+          <div className="border-b border-slate-200 dark:border-slate-800 p-4 dark:border-slate-800">
+            <h2 className="font-semibold text-slate-950 dark:text-slate-100 dark:text-slate-50">
               {t("admin.wallet.balanceAudit")}
             </h2>
-            <p className="mt-0.5 text-xs text-slate-500">
+            <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
               {t("admin.wallet.auditHint")}
             </p>
           </div>
@@ -470,19 +470,19 @@ function SummaryStrip({
   return (
     <section
       aria-label={t("admin.wallet.financialSummary")}
-      className="grid overflow-hidden rounded-2xl border border-slate-200 bg-white sm:grid-cols-2 xl:grid-cols-5 dark:border-slate-800 dark:bg-slate-900"
+      className="grid overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 sm:grid-cols-2 xl:grid-cols-5 dark:border-slate-800 dark:bg-slate-900"
     >
       {items.map(([label, value, Icon], index) => (
         <div
           key={label}
           className={`p-4 ${index > 0 ? "border-t sm:border-l sm:border-t-0 border-slate-200 dark:border-slate-800" : ""}`}
         >
-          <div className="flex items-center gap-2 text-slate-500">
+          <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
             <Icon className="h-4 w-4" />
             <span className={labelClass}>{label}</span>
           </div>
           <p
-            className={`mt-2 text-lg font-bold tabular-nums text-slate-950 dark:text-slate-50 ${loading ? "animate-pulse" : ""}`}
+            className={`mt-2 text-lg font-bold tabular-nums text-slate-950 dark:text-slate-100 dark:text-slate-50 ${loading ? "animate-pulse" : ""}`}
           >
             {value}
           </p>
@@ -510,11 +510,11 @@ function LedgerTable({
   const { t } = useI18n();
   return (
     <section className={panelClass}>
-      <div className="border-b border-slate-200 p-4 dark:border-slate-800">
-        <h2 className="font-semibold text-slate-950 dark:text-slate-50">
+      <div className="border-b border-slate-200 dark:border-slate-800 p-4 dark:border-slate-800">
+        <h2 className="font-semibold text-slate-950 dark:text-slate-100 dark:text-slate-50">
           {t("admin.wallet.recentTransactions")}
         </h2>
-        <p className="mt-0.5 text-xs text-slate-500">
+        <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
           {t("admin.wallet.recentHint")}
         </p>
       </div>
@@ -530,7 +530,7 @@ function LedgerTable({
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full min-w-[720px] text-left text-sm">
-            <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500 dark:bg-slate-950/50">
+            <thead className="bg-slate-50 dark:bg-slate-900/50 text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400 dark:bg-slate-950/50">
               <tr>
                 <th className="px-4 py-3">{t("admin.wallet.transaction")}</th>
                 <th className="px-4 py-3">{t("admin.wallet.owner")}</th>
@@ -547,29 +547,29 @@ function LedgerTable({
                   key={transaction.id}
                   className={
                     selectedId === transaction.id
-                      ? "bg-emerald-50/70 dark:bg-emerald-950/20"
-                      : "hover:bg-slate-50 dark:hover:bg-slate-800/40"
+                      ? "bg-emerald-50  dark:bg-emerald-950/20"
+                      : "hover:bg-slate-50 dark:bg-slate-900/50 dark:hover:bg-slate-800/40"
                   }
                 >
                   <td className="px-4 py-3">
                     <p className="font-semibold text-slate-900 dark:text-slate-100">
                       {humanize(transaction.txnType)}
                     </p>
-                    <p className="mt-0.5 font-mono text-xs text-slate-500">
+                    <p className="mt-0.5 font-mono text-xs text-slate-500 dark:text-slate-400">
                       {shortId(transaction.id)}
                     </p>
                   </td>
                   <td className="px-4 py-3">
-                    <p className="text-slate-800 dark:text-slate-200">
+                    <p className="text-slate-800 dark:text-slate-200 dark:text-slate-200">
                       {transaction.walletOwnerName ||
                         t("admin.wallet.systemWallet")}
                     </p>
-                    <p className="mt-0.5 font-mono text-xs text-slate-500">
+                    <p className="mt-0.5 font-mono text-xs text-slate-500 dark:text-slate-400">
                       {shortId(transaction.walletId)}
                     </p>
                   </td>
                   <td
-                    className={`px-4 py-3 font-semibold tabular-nums ${transaction.direction === "CREDIT" ? "text-emerald-700 dark:text-emerald-400" : "text-rose-700 dark:text-rose-400"}`}
+                    className={`px-4 py-3 font-semibold tabular-nums ${transaction.direction === "CREDIT" ? "text-emerald-700 dark:text-emerald-400 dark:text-emerald-400" : "text-rose-700 dark:text-rose-400"}`}
                   >
                     {transaction.direction === "CREDIT" ? "+" : "-"}
                     {formatCurrency(Number(transaction.amountMxc))}
@@ -581,7 +581,7 @@ function LedgerTable({
                     <button
                       type="button"
                       onClick={() => onSelect(transaction)}
-                      className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-slate-300 px-3 text-xs font-semibold text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+                      className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-slate-300 dark:border-slate-700 px-3 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:bg-slate-900/50 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
                     >
                       <Eye className="h-4 w-4" />
                       {t("common.viewDetails")}
@@ -608,8 +608,8 @@ function TransactionDetails({
       className={`${panelClass} h-fit xl:sticky xl:top-6`}
       aria-live="polite"
     >
-      <div className="border-b border-slate-200 p-4 dark:border-slate-800">
-        <h2 className="font-semibold text-slate-950 dark:text-slate-50">
+      <div className="border-b border-slate-200 dark:border-slate-800 p-4 dark:border-slate-800">
+        <h2 className="font-semibold text-slate-950 dark:text-slate-100 dark:text-slate-50">
           {t("admin.wallet.transactionDetails")}
         </h2>
       </div>
@@ -710,7 +710,7 @@ function WithdrawalTable({
   return (
     <div className="overflow-x-auto">
       <table className="w-full min-w-[760px] text-left text-sm">
-        <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500 dark:bg-slate-950/50">
+        <thead className="bg-slate-50 dark:bg-slate-900/50 text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400 dark:bg-slate-950/50">
           <tr>
             <th className="px-4 py-3">{t("admin.wallet.requester")}</th>
             <th className="px-4 py-3">{t("admin.wallet.amount")}</th>
@@ -725,15 +725,15 @@ function WithdrawalTable({
               key={item.id}
               className={
                 selectedId === item.id
-                  ? "bg-emerald-50/70 dark:bg-emerald-950/20"
-                  : "hover:bg-slate-50 dark:hover:bg-slate-800/40"
+                  ? "bg-emerald-50  dark:bg-emerald-950/20"
+                  : "hover:bg-slate-50 dark:bg-slate-900/50 dark:hover:bg-slate-800/40"
               }
             >
               <td className="px-4 py-3">
                 <p className="font-semibold text-slate-900 dark:text-slate-100">
                   {item.userFullName || shortId(item.userId)}
                 </p>
-                <p className="mt-0.5 text-xs text-slate-500">
+                <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
                   {formatDateTime(item.createdAt)}
                 </p>
               </td>
@@ -741,13 +741,13 @@ function WithdrawalTable({
                 <p className="font-semibold tabular-nums">
                   {formatCurrency(item.mxcAmount)}
                 </p>
-                <p className="mt-0.5 text-xs text-slate-500">
+                <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
                   {t("admin.wallet.net")}: {formatCurrency(item.netMxc)}
                 </p>
               </td>
               <td className="px-4 py-3">
                 <p>{item.bankName || "—"}</p>
-                <p className="mt-0.5 text-xs text-slate-500">
+                <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
                   {maskAccount(item.bankAccountNo)}
                 </p>
               </td>
@@ -758,7 +758,7 @@ function WithdrawalTable({
                 <button
                   type="button"
                   onClick={() => onSelect(item)}
-                  className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-slate-300 px-3 text-xs font-semibold hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:border-slate-700 dark:hover:bg-slate-800"
+                  className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-slate-300 dark:border-slate-700 px-3 text-xs font-semibold hover:bg-slate-50 dark:bg-slate-900/50 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:border-slate-700 dark:hover:bg-slate-800"
                 >
                   <Eye className="h-4 w-4" />
                   {t("common.viewDetails")}
@@ -798,7 +798,7 @@ function WithdrawalDetails(props: {
       className={`${panelClass} h-fit xl:sticky xl:top-6`}
       aria-live="polite"
     >
-      <div className="border-b border-slate-200 p-4 dark:border-slate-800">
+      <div className="border-b border-slate-200 dark:border-slate-800 p-4 dark:border-slate-800">
         <h2 className="font-semibold">{t("admin.wallet.withdrawalDetails")}</h2>
       </div>
       {!item ? (
@@ -863,7 +863,7 @@ function WithdrawalDetails(props: {
                     <img
                       src={item.payoutProofUrl}
                       alt="Payment proof"
-                      className="h-32 w-full rounded-lg border border-slate-200 object-cover transition hover:opacity-80 dark:border-slate-700"
+                      className="h-32 w-full rounded-lg border border-slate-200 dark:border-slate-800 object-cover transition hover:opacity-80 dark:border-slate-700"
                     />
                   </a>
                 </dd>
@@ -871,7 +871,7 @@ function WithdrawalDetails(props: {
             )}
           </dl>
           {(item.status === WithdrawalStatus.PENDING || item.status === WithdrawalStatus.PROCESSING) && (
-            <div className="border-t border-slate-200 pt-4 dark:border-slate-800">
+            <div className="border-t border-slate-200 dark:border-slate-800 pt-4 dark:border-slate-800">
               {props.rejectingId === item.id ? (
                 <div className="space-y-3">
                   <label className="block text-sm font-semibold">
@@ -882,7 +882,7 @@ function WithdrawalDetails(props: {
                         props.onReasonChange(event.target.value)
                       }
                       maxLength={500}
-                      className="mt-2 min-h-24 w-full rounded-lg border border-slate-300 bg-white p-3 text-sm focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-500/20 dark:border-slate-700 dark:bg-slate-950"
+                      className="mt-2 min-h-24 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 p-3 text-sm focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-500/20 dark:border-slate-700 dark:bg-slate-950"
                     />
                   </label>
                   <div className="flex gap-2">
@@ -905,8 +905,8 @@ function WithdrawalDetails(props: {
                 </div>
               ) : item.status === WithdrawalStatus.PENDING ? (
                 props.confirmingApprovalId === item.id ? (
-                  <div className="rounded-xl bg-amber-50 p-3 dark:bg-amber-950/20">
-                    <p className="text-sm text-amber-900 dark:text-amber-200">
+                  <div className="rounded-xl bg-amber-50 dark:bg-amber-900/30 p-3 dark:bg-amber-950/20">
+                    <p className="text-sm text-amber-900 dark:text-amber-100 dark:text-amber-200">
                       {t("admin.wallet.approveConfirm")}
                     </p>
                     <div className="mt-3 flex gap-2">
@@ -967,12 +967,12 @@ function WithdrawalDetails(props: {
           {item.status === WithdrawalStatus.PROCESSING && isPayoutModalOpen && createPortal(
             <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/40 p-2 backdrop-blur-sm sm:p-4">
               <div 
-                className="max-h-[calc(100dvh-1rem)] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200 dark:bg-slate-900"
+                className="max-h-[calc(100dvh-1rem)] w-full max-w-lg overflow-y-auto rounded-2xl bg-white dark:bg-slate-950 p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200 dark:bg-slate-900"
                 onClick={e => e.stopPropagation()}
               >
                  <div className="mb-4 flex items-center justify-between">
                    <h3 className="text-lg font-semibold dark:text-slate-100">Chi tiết chi trả</h3>
-                   <button onClick={() => setIsPayoutModalOpen(false)} className="rounded-full p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800 dark:hover:text-slate-200">
+                   <button onClick={() => setIsPayoutModalOpen(false)} className="rounded-full p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200">
                      <X className="h-5 w-5" />
                    </button>
                  </div>
@@ -1060,8 +1060,8 @@ function ProcessingPayoutSection({
 
   if (item.reviewedByUserId === currentAdminId) {
     return (
-      <div className="border-t border-slate-200 pt-4 dark:border-slate-800">
-        <div className="rounded-xl bg-amber-50 p-3 text-sm text-amber-900 dark:bg-amber-950/20 dark:text-amber-200">
+      <div className="border-t border-slate-200 dark:border-slate-800 pt-4 dark:border-slate-800">
+        <div className="rounded-xl bg-amber-50 dark:bg-amber-900/30 p-3 text-sm text-amber-900 dark:text-amber-100 dark:bg-amber-950/20 dark:text-amber-200">
           {t("admin.wallet.secondAdminRequired")}
         </div>
       </div>
@@ -1071,16 +1071,16 @@ function ProcessingPayoutSection({
   const canComplete = proofUrl && payoutReference.trim().length >= 3 && !busy;
 
   return (
-    <div className="space-y-4 border-t border-slate-200 pt-4 dark:border-slate-800">
+    <div className="space-y-4 border-t border-slate-200 dark:border-slate-800 pt-4 dark:border-slate-800">
       {/* Step 1: QR Code for bank transfer */}
-      <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800/50">
+      <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 p-4 dark:border-slate-700 dark:bg-slate-800/50">
         <button
           type="button"
           onClick={() => setShowQR(!showQR)}
           className="flex w-full items-center justify-between text-sm font-semibold text-slate-900 dark:text-slate-100"
         >
           <span className="flex items-center gap-2">
-            <QrCode className="h-4 w-4 text-emerald-600" />
+            <QrCode className="h-4 w-4 text-emerald-600 dark:text-emerald-500" />
             Bước 1 — Chuyển khoản qua QR
           </span>
           <span className="text-xs text-slate-400">{showQR ? '▲' : '▼'}</span>
@@ -1090,7 +1090,7 @@ function ProcessingPayoutSection({
           <div className="mt-3 space-y-3">
             {qrUrl ? (
               <div className="flex flex-col items-center gap-3">
-                <div className="rounded-xl bg-white p-3 shadow-sm">
+                <div className="rounded-xl bg-white dark:bg-slate-950 p-3 shadow-sm">
                   <img
                     src={qrUrl}
                     alt="VietQR"
@@ -1103,27 +1103,27 @@ function ProcessingPayoutSection({
                 </div>
                 <div className="w-full space-y-1.5 text-xs">
                   <div className="flex justify-between">
-                    <span className="text-slate-500">Ngân hàng</span>
+                    <span className="text-slate-500 dark:text-slate-400">Ngân hàng</span>
                     <span className="font-semibold text-slate-900 dark:text-slate-100">{item.bankName}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-500">Số tài khoản</span>
+                    <span className="text-slate-500 dark:text-slate-400">Số tài khoản</span>
                     <span className="font-mono font-semibold text-slate-900 dark:text-slate-100">{item.bankAccountNo}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-500">Chủ tài khoản</span>
+                    <span className="text-slate-500 dark:text-slate-400">Chủ tài khoản</span>
                     <span className="font-semibold text-slate-900 dark:text-slate-100">{item.bankAccountName}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-500">Số tiền</span>
-                    <span className="font-bold text-emerald-700 dark:text-emerald-400">
+                    <span className="text-slate-500 dark:text-slate-400">Số tiền</span>
+                    <span className="font-bold text-emerald-700 dark:text-emerald-400 dark:text-emerald-400">
                       {new Intl.NumberFormat('vi-VN').format(vndAmount)} VND
                     </span>
                   </div>
                 </div>
               </div>
             ) : (
-              <div className="rounded-lg bg-amber-50 p-3 text-xs text-amber-800 dark:bg-amber-950/30 dark:text-amber-300">
+              <div className="rounded-lg bg-amber-50 dark:bg-amber-900/30 p-3 text-xs text-amber-800 dark:text-amber-200 dark:bg-amber-950/30 dark:text-amber-300">
                 <p className="font-semibold">Không thể tạo mã QR</p>
                 <p className="mt-1">Không nhận diện được ngân hàng "{item.bankName}". Vui lòng chuyển khoản thủ công.</p>
                 <div className="mt-2 space-y-1">
@@ -1138,12 +1138,12 @@ function ProcessingPayoutSection({
       </div>
 
       {/* Step 2: Upload proof */}
-      <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800/50">
+      <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 p-4 dark:border-slate-700 dark:bg-slate-800/50">
         <div className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-slate-100">
-          <Camera className="h-4 w-4 text-emerald-600" />
+          <Camera className="h-4 w-4 text-emerald-600 dark:text-emerald-500" />
           Bước 2 — Chụp bằng chứng chuyển khoản
         </div>
-        <p className="mt-1 text-xs text-slate-500">
+        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
           Tải lên ảnh chụp màn hình giao dịch chuyển khoản thành công. Mentor sẽ nhận được bằng chứng này.
         </p>
 
@@ -1158,7 +1158,7 @@ function ProcessingPayoutSection({
         {proofPreview ? (
           <div className="mt-3 space-y-2">
             <div
-              className="relative cursor-pointer overflow-hidden rounded-lg border border-slate-200 dark:border-slate-600"
+              className="relative cursor-pointer overflow-hidden rounded-lg border border-slate-200 dark:border-slate-800 dark:border-slate-600"
               onClick={() => setShowProofModal(true)}
             >
               <img
@@ -1171,14 +1171,14 @@ function ProcessingPayoutSection({
               </div>
             </div>
             <div className="flex items-center justify-between">
-              <span className="flex items-center gap-1 text-xs text-emerald-700 dark:text-emerald-400">
+              <span className="flex items-center gap-1 text-xs text-emerald-700 dark:text-emerald-400 dark:text-emerald-400">
                 <CheckCircle2 className="h-3.5 w-3.5" />
                 Đã tải lên
               </span>
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="text-xs font-semibold text-emerald-700 hover:underline dark:text-emerald-400"
+                className="text-xs font-semibold text-emerald-700 dark:text-emerald-400 hover:underline dark:text-emerald-400"
                 disabled={uploadMutation.isLoading}
               >
                 Thay đổi
@@ -1190,7 +1190,7 @@ function ProcessingPayoutSection({
             type="button"
             onClick={() => fileInputRef.current?.click()}
             disabled={uploadMutation.isLoading}
-            className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg border-2 border-dashed border-slate-300 bg-white px-4 py-6 text-sm font-semibold text-slate-500 transition hover:border-emerald-400 hover:text-emerald-600 disabled:opacity-50 dark:border-slate-600 dark:bg-slate-900 dark:hover:border-emerald-500"
+            className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg border-2 border-dashed border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-4 py-6 text-sm font-semibold text-slate-500 dark:text-slate-400 transition hover:border-emerald-400 hover:text-emerald-600 dark:text-emerald-500 disabled:opacity-50 dark:border-slate-600 dark:bg-slate-900 dark:hover:border-emerald-500"
           >
             {uploadMutation.isLoading ? (
               <>
@@ -1208,13 +1208,13 @@ function ProcessingPayoutSection({
       </div>
 
       {/* Step 3: Reference + Complete */}
-      <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800/50">
+      <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 p-4 dark:border-slate-700 dark:bg-slate-800/50">
         <div className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-slate-100">
-          <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+          <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-500" />
           Bước 3 — Xác nhận hoàn tất
         </div>
         <label className="mt-3 block">
-          <span className="text-xs font-semibold text-slate-600 dark:text-slate-300">
+          <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 dark:text-slate-300">
             Mã giao dịch ngân hàng
           </span>
           <input
@@ -1222,7 +1222,7 @@ function ProcessingPayoutSection({
             onChange={(e) => onPayoutReferenceChange(e.target.value)}
             maxLength={255}
             placeholder="VD: FT24123456789"
-            className="mt-1.5 h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 dark:border-slate-700 dark:bg-slate-950"
+            className="mt-1.5 h-10 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 dark:border-slate-700 dark:bg-slate-950"
           />
         </label>
 
@@ -1248,7 +1248,7 @@ function ProcessingPayoutSection({
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
           onClick={() => setShowProofModal(false)}
         >
-          <div className="max-h-[90vh] max-w-2xl overflow-auto rounded-2xl bg-white p-2 shadow-2xl dark:bg-slate-900">
+          <div className="max-h-[90vh] max-w-2xl overflow-auto rounded-2xl bg-white dark:bg-slate-950 p-2 shadow-2xl dark:bg-slate-900">
             <img src={proofPreview} alt="Payment proof" className="w-full rounded-xl" />
           </div>
         </div>
@@ -1284,11 +1284,11 @@ function ReconciliationTable({
     );
   return (
     <section className={panelClass}>
-      <div className="border-b border-slate-200 p-4 dark:border-slate-800">
-        <h2 className="font-semibold text-slate-950 dark:text-slate-50">
+      <div className="border-b border-slate-200 dark:border-slate-800 p-4 dark:border-slate-800">
+        <h2 className="font-semibold text-slate-950 dark:text-slate-100 dark:text-slate-50">
           {t("admin.wallet.reconciliationQueue")}
         </h2>
-        <p className="mt-1 text-xs text-slate-500">
+        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
           {t("admin.wallet.reconciliationHint")}
         </p>
       </div>
@@ -1299,7 +1299,7 @@ function ReconciliationTable({
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full min-w-[760px] text-left text-sm">
-            <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500 dark:bg-slate-950/50">
+            <thead className="bg-slate-50 dark:bg-slate-900/50 text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400 dark:bg-slate-950/50">
               <tr>
                 <th className="px-4 py-3">{t("admin.wallet.owner")}</th>
                 <th className="px-4 py-3">{t("admin.wallet.wallet")}</th>
@@ -1362,7 +1362,7 @@ function AuditTable({
   return (
     <div className="overflow-x-auto">
       <table className="w-full min-w-[760px] text-left text-sm">
-        <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500 dark:bg-slate-950/50">
+        <thead className="bg-slate-50 dark:bg-slate-900/50 text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400 dark:bg-slate-950/50">
           <tr>
             <th className="px-4 py-3">{t("admin.wallet.createdAt")}</th>
             <th className="px-4 py-3">{t("admin.wallet.wallet")}</th>
@@ -1383,7 +1383,7 @@ function AuditTable({
                 {formatCurrency(log.oldBalanceMxc)}
               </td>
               <td
-                className={`px-4 py-3 font-semibold tabular-nums ${log.deltaMxc >= 0 ? "text-emerald-700" : "text-rose-700"}`}
+                className={`px-4 py-3 font-semibold tabular-nums ${log.deltaMxc >= 0 ? "text-emerald-700 dark:text-emerald-400" : "text-rose-700"}`}
               >
                 {log.deltaMxc >= 0 ? "+" : ""}
                 {formatCurrency(log.deltaMxc)}
@@ -1427,7 +1427,7 @@ function StatusBadge({ status }: { status: string }) {
   const success = status === "COMPLETED" || status === "APPROVED";
   return (
     <span
-      className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${success ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300" : warning ? "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300" : "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300"}`}
+      className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${success ? "bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-200 dark:bg-emerald-950 dark:text-emerald-300" : warning ? "bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-200 dark:bg-amber-950 dark:text-amber-300" : "bg-slate-100 text-slate-700 dark:text-slate-300 dark:bg-slate-800 dark:text-slate-300"}`}
     >
       {humanize(status)}
     </span>
@@ -1448,7 +1448,7 @@ function ActionButton({
 }) {
   const tones = {
     neutral:
-      "border-slate-300 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200",
+      "border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:bg-slate-900/50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200",
     success:
       "border-emerald-700 bg-emerald-700 text-white hover:bg-emerald-800",
     danger: "border-rose-700 bg-rose-700 text-white hover:bg-rose-800",
@@ -1483,11 +1483,11 @@ function Pagination({
         aria-label={t("common.previous")}
         disabled={page === 0}
         onClick={() => onChange(page - 1)}
-        className="rounded-lg border border-slate-300 p-2 disabled:opacity-40 dark:border-slate-700"
+        className="rounded-lg border border-slate-300 dark:border-slate-700 p-2 disabled:opacity-40 dark:border-slate-700"
       >
         <ChevronLeft className="h-4 w-4" />
       </button>
-      <span className="text-sm text-slate-500">
+      <span className="text-sm text-slate-500 dark:text-slate-400">
         {page + 1} / {totalPages}
       </span>
       <button
@@ -1495,7 +1495,7 @@ function Pagination({
         aria-label={t("common.next")}
         disabled={page >= totalPages - 1}
         onClick={() => onChange(page + 1)}
-        className="rounded-lg border border-slate-300 p-2 disabled:opacity-40 dark:border-slate-700"
+        className="rounded-lg border border-slate-300 dark:border-slate-700 p-2 disabled:opacity-40 dark:border-slate-700"
       >
         <ChevronRight className="h-4 w-4" />
       </button>
@@ -1516,7 +1516,7 @@ function LoadingRows() {
 }
 function EmptyState({ message }: { message: string }) {
   return (
-    <div className="flex min-h-40 items-center justify-center p-6 text-center text-sm text-slate-500">
+    <div className="flex min-h-40 items-center justify-center p-6 text-center text-sm text-slate-500 dark:text-slate-400">
       {message}
     </div>
   );

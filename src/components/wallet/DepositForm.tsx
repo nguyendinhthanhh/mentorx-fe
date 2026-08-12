@@ -144,14 +144,14 @@ export default function DepositForm({ userId: _userId, onSuccess }: DepositFormP
 
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
+      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 px-4 py-4">
         <div className="flex items-start gap-3">
-          <div className="mt-0.5 rounded-xl bg-white p-2 shadow-sm">
-            <Info className="h-4 w-4 text-slate-600" />
+          <div className="mt-0.5 rounded-xl bg-white dark:bg-slate-950 p-2 shadow-sm">
+            <Info className="h-4 w-4 text-slate-600 dark:text-slate-400" />
           </div>
           <div className="space-y-1">
-            <p className="text-sm font-semibold text-slate-900">Quy trình nạp tiền tự động</p>
-              <p className="text-sm text-slate-600">Bạn nhập số lượng MXC mong muốn. Hệ thống sẽ tự động tính toán số tiền VND tương ứng để nạp.
+            <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">Quy trình nạp tiền tự động</p>
+              <p className="text-sm text-slate-600 dark:text-slate-400">Bạn nhập số lượng MXC mong muốn. Hệ thống sẽ tự động tính toán số tiền VND tương ứng để nạp.
             </p>
           </div>
         </div>
@@ -160,7 +160,7 @@ export default function DepositForm({ userId: _userId, onSuccess }: DepositFormP
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <div className="grid gap-4 md:grid-cols-[1.35fr_0.65fr]">
           <div>
-            <label htmlFor="originalAmount" className="mb-2 block text-sm font-semibold text-slate-700">
+            <label htmlFor="originalAmount" className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
               Số lượng (MXC)
             </label>
             <div className="relative">
@@ -172,7 +172,7 @@ export default function DepositForm({ userId: _userId, onSuccess }: DepositFormP
                 inputMode="decimal"
                 autoComplete="off"
                 {...register('originalAmount')}
-                className="block w-full rounded-2xl border border-slate-200 bg-white py-3 pl-12 pr-4 text-base font-semibold text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
+                className="block w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 py-3 pl-12 pr-4 text-base font-semibold text-slate-900 dark:text-slate-100 outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
                 placeholder="100"
               />
             </div>
@@ -182,13 +182,13 @@ export default function DepositForm({ userId: _userId, onSuccess }: DepositFormP
           </div>
 
           <div>
-            <label htmlFor="originalCurrency" className="mb-2 block text-sm font-semibold text-slate-700">
+            <label htmlFor="originalCurrency" className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
               Đơn vị tiền tệ
             </label>
             <select
               id="originalCurrency"
               {...register('originalCurrency')}
-              disabled className="block w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-base font-semibold text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
+              disabled className="block w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 px-4 py-3 text-base font-semibold text-slate-900 dark:text-slate-100 outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
             >
               {CURRENCY_OPTIONS.map((currency) => (
                 <option key={currency} value={currency}>
@@ -204,7 +204,7 @@ export default function DepositForm({ userId: _userId, onSuccess }: DepositFormP
 
         {originalCurrency === 'VND' && (
           <div>
-            <label className="mb-2 block text-sm font-semibold text-slate-700">Số tiền nhanh</label>
+            <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">Số tiền nhanh</label>
             <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
               {quickAmounts.map((amount) => (
                 <button
@@ -214,7 +214,7 @@ export default function DepositForm({ userId: _userId, onSuccess }: DepositFormP
                   className={`rounded-xl border px-3 py-2 text-sm font-semibold transition ${
                     originalAmount === amount
                       ? 'border-emerald-600 bg-emerald-600 text-white shadow-sm'
-                      : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50'
+                      : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:bg-slate-900/50'
                   }`}
                 >
                   {formatMxc(Number(amount))} MXC
@@ -224,13 +224,13 @@ export default function DepositForm({ userId: _userId, onSuccess }: DepositFormP
           </div>
         )}
 
-        <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-5 shadow-sm">
           <div className="flex items-center justify-between gap-3">
             <div>
               <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">Xem trước chuyển đổi</p>
-              <h3 className="mt-1 text-lg font-bold text-slate-900">Giao dịch được xử lý tự động</h3>
+              <h3 className="mt-1 text-lg font-bold text-slate-900 dark:text-slate-100">Giao dịch được xử lý tự động</h3>
             </div>
-            {previewLoading && <Loader2 className="h-5 w-5 animate-spin text-emerald-600" />}
+            {previewLoading && <Loader2 className="h-5 w-5 animate-spin text-emerald-600 dark:text-emerald-500" />}
           </div>
 
           <div className="mt-4">
@@ -252,7 +252,7 @@ export default function DepositForm({ userId: _userId, onSuccess }: DepositFormP
                 {previewError}
               </div>
             ) : (
-              <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-500">
+              <div className="rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 px-4 py-4 text-sm text-slate-500 dark:text-slate-400">
                 Nhập số lượng và chọn đơn vị tiền tệ để xem trước số tiền chuyển đổi.
               </div>
             )}
@@ -260,12 +260,12 @@ export default function DepositForm({ userId: _userId, onSuccess }: DepositFormP
         </div>
 
         {isForeignCurrency ? (
-          <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-4 text-sm text-amber-800">
+          <div className="rounded-2xl border border-amber-200 dark:border-amber-800/50 bg-amber-50 dark:bg-amber-900/30 px-4 py-4 text-sm text-amber-800 dark:text-amber-200">
             <div className="flex items-start gap-2">
               <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
               <div>
                 <p className="font-semibold">Current PayOS top-up flow supports VND only</p>
-                <p className="mt-1 text-amber-700">
+                <p className="mt-1 text-amber-700 dark:text-amber-400">
                   Mentor X now keeps only the real PayOS checkout on web. Foreign-currency deposits still need a separate supported gateway before this flow can complete end-to-end.
                 </p>
               </div>
@@ -274,8 +274,8 @@ export default function DepositForm({ userId: _userId, onSuccess }: DepositFormP
         ) : (
           <div className="space-y-4">
             <div className="rounded-2xl border border-cyan-200 bg-cyan-50 px-4 py-4">
-              <p className="text-sm font-semibold text-slate-900">Phương thức thanh toán</p>
-              <p className="mt-1 text-sm text-slate-600">
+              <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">Phương thức thanh toán</p>
+              <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
                 Bạn sẽ được chuyển hướng đến cổng thanh toán PayOS sau khi xác nhận.
               </p>
             </div>
@@ -306,7 +306,7 @@ export default function DepositForm({ userId: _userId, onSuccess }: DepositFormP
           )}
         </button>
 
-        <p className="text-center text-xs text-slate-500">
+        <p className="text-center text-xs text-slate-500 dark:text-slate-400">
           Số dư ví sẽ được cập nhật tự động sau khi thanh toán thành công.
         </p>
       </form>
@@ -324,9 +324,9 @@ function PreviewRow({
   highlight?: boolean
 }) {
   return (
-    <div className={`flex items-center justify-between rounded-2xl px-4 py-3 ${highlight ? 'bg-emerald-50' : 'bg-slate-50'}`}>
-      <span className="text-sm font-medium text-slate-600">{label}</span>
-      <span className={`text-sm font-semibold ${highlight ? 'text-emerald-700' : 'text-slate-900'}`}>{value}</span>
+    <div className={`flex items-center justify-between rounded-2xl px-4 py-3 ${highlight ? 'bg-emerald-50 dark:bg-emerald-900/30' : 'bg-slate-50 dark:bg-slate-900/50'}`}>
+      <span className="text-sm font-medium text-slate-600 dark:text-slate-400">{label}</span>
+      <span className={`text-sm font-semibold ${highlight ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-900 dark:text-slate-100'}`}>{value}</span>
     </div>
   )
 }

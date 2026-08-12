@@ -104,6 +104,24 @@ export const complaintsApi = {
     )
     return response.data.data
   },
+
+  assignComplaint: async (id: string, mediatorId: string): Promise<ComplaintResponse> => {
+    const response = await apiClient.post<ApiResponse<ComplaintResponse>>(
+      `/admin/complaints/${id}/assign?mediatorId=${mediatorId}`,
+    )
+    return response.data.data
+  },
+
+  resolveComplaint: async (
+    id: string,
+    data: { outcome: string; resolutionDetails: string },
+  ): Promise<ComplaintResponse> => {
+    const response = await apiClient.post<ApiResponse<ComplaintResponse>>(
+      `/admin/complaints/${id}/resolve`,
+      data,
+    )
+    return response.data.data
+  },
 }
 
 function paginate(

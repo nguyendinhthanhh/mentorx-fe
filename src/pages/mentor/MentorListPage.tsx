@@ -161,45 +161,45 @@ export default function MentorListPage() {
   }
 
   return (
-    <div className="mentor-discovery-page min-h-screen bg-[#f6f7fb] text-slate-950 dark:bg-slate-950 dark:text-slate-100">
+    <div className="mentor-discovery-page min-h-screen bg-[#f6f7fb] dark:bg-slate-950 text-slate-950 dark:text-slate-100 dark:bg-slate-950 dark:text-slate-100">
       {/* Discovery header */}
-      <section className="border-b border-emerald-200/80 bg-[oklch(0.935_0.055_175)] dark:border-emerald-500/20 dark:bg-[oklch(0.16_0.03_175)]">
+      <section className="border-b border-emerald-200 bg-[oklch(0.935_0.055_175)] dark:border-emerald-500/20 dark:bg-[oklch(0.16_0.03_175)]">
         <div className="mx-auto grid w-full max-w-[1440px] gap-8 px-4 py-10 sm:px-6 sm:py-12 lg:grid-cols-[minmax(0,0.9fr)_minmax(520px,1.1fr)] lg:items-center lg:gap-16 lg:px-8 lg:py-14">
           <div className="min-w-0">
-            <p className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.08em] text-emerald-700 dark:text-emerald-300">
-              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-300 dark:ring-emerald-500/20">
+            <p className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.08em] text-emerald-700 dark:text-emerald-400 dark:text-emerald-300">
+              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 ring-1 ring-inset ring-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-300 dark:ring-emerald-500/20">
                 <BadgeCheck className="h-4 w-4" aria-hidden="true" />
               </span>
               {t('mentorMarketplace.eyebrow')}
             </p>
-            <h1 className="mt-4 max-w-2xl text-3xl font-bold leading-[1.12] tracking-[-0.035em] text-slate-950 sm:text-[40px] dark:text-slate-50">
+            <h1 className="mt-4 max-w-2xl text-3xl font-bold leading-[1.12] tracking-[-0.035em] text-slate-950 dark:text-slate-100 sm:text-[40px] dark:text-slate-50">
               {t('mentorMarketplace.title')}
             </h1>
-            <p className="mt-4 max-w-2xl text-sm leading-6 text-slate-600 sm:text-[15px] dark:text-slate-300">
+            <p className="mt-4 max-w-2xl text-sm leading-6 text-slate-600 dark:text-slate-400 dark:text-slate-400 sm:text-[15px] dark:text-slate-300">
               {t('mentorMarketplace.description')}
             </p>
           </div>
 
-          <div className="rounded-2xl border border-emerald-200/90 bg-[oklch(0.995_0.003_160)] p-3 shadow-[0_18px_45px_rgba(5,150,105,0.13)] sm:p-4 dark:border-emerald-500/20 dark:bg-slate-900/90 dark:shadow-[0_18px_45px_rgba(0,0,0,0.18)]">
+          <div className="rounded-2xl border border-emerald-200 bg-[oklch(0.995_0.003_160)] p-3 shadow-[0_18px_45px_rgba(5,150,105,0.13)] sm:p-4 dark:border-emerald-500/20 dark:bg-slate-900/90 dark:shadow-[0_18px_45px_rgba(0,0,0,0.18)]">
             <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_210px]">
               <label className="min-w-0">
-                <span className="mb-2 block px-1 text-xs font-semibold text-slate-700 dark:text-slate-200">
+                <span className="mb-2 block px-1 text-xs font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300 dark:text-slate-200">
                   {t('mentorMarketplace.searchLabel')}
                 </span>
-                <span className="relative flex min-h-12 items-center rounded-xl border border-slate-300 bg-white shadow-sm transition-[border-color,box-shadow] focus-within:border-emerald-600 focus-within:ring-4 focus-within:ring-emerald-100 dark:border-slate-700 dark:bg-slate-950 dark:focus-within:border-emerald-400 dark:focus-within:ring-emerald-500/10">
+                <span className="relative flex min-h-12 items-center rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 shadow-sm transition-[border-color,box-shadow] focus-within:border-emerald-600 focus-within:ring-4 focus-within:ring-emerald-100 dark:border-slate-700 dark:bg-slate-950 dark:focus-within:border-emerald-400 dark:focus-within:ring-emerald-500/10">
                   <Search className="ml-4 h-[18px] w-[18px] shrink-0 text-slate-400" aria-hidden="true" />
                   <input
                     value={searchText}
                     onChange={(event) => setSearchText(event.target.value)}
                     placeholder={t('mentorMarketplace.searchPlaceholder')}
-                    className="min-h-12 w-full min-w-0 bg-transparent px-3 pr-10 text-sm font-medium text-slate-950 outline-none placeholder:font-normal placeholder:text-slate-400 dark:text-slate-100 dark:placeholder:text-slate-500"
+                    className="min-h-12 w-full min-w-0 bg-transparent px-3 pr-10 text-sm font-medium text-slate-950 dark:text-slate-100 outline-none placeholder:font-normal placeholder:text-slate-400 dark:text-slate-100 dark:placeholder:text-slate-500 dark:text-slate-400 dark:text-slate-400"
                     type="search"
                   />
                   {searchText ? (
                     <button
                       type="button"
                       onClick={() => setSearchText('')}
-                      className="absolute right-2 flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 active:translate-y-px dark:hover:bg-slate-800 dark:hover:text-slate-100"
+                      className="absolute right-2 flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 dark:bg-slate-800 hover:text-slate-700 dark:text-slate-300 dark:text-slate-300 active:translate-y-px dark:hover:bg-slate-800 dark:hover:text-slate-100"
                       aria-label={t('mentorMarketplace.clearSearch')}
                     >
                       <X className="h-4 w-4" aria-hidden="true" />
@@ -209,7 +209,7 @@ export default function MentorListPage() {
               </label>
 
               <label className="min-w-0">
-                <span className="mb-2 block px-1 text-xs font-semibold text-slate-700 dark:text-slate-200">
+                <span className="mb-2 block px-1 text-xs font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300 dark:text-slate-200">
                   {t('mentorMarketplace.domainLabel')}
                 </span>
                 <span className="relative block">
@@ -219,7 +219,7 @@ export default function MentorListPage() {
                       setPrimaryDomain(event.target.value || undefined)
                       setPage(0)
                     }}
-                    className="min-h-12 w-full appearance-none rounded-xl border border-slate-300 bg-white px-3 pr-9 text-sm font-medium text-slate-800 shadow-sm outline-none transition-[border-color,box-shadow] hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:hover:border-slate-600 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/10"
+                    className="min-h-12 w-full appearance-none rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 pr-9 text-sm font-medium text-slate-800 dark:text-slate-200 dark:text-slate-200 shadow-sm outline-none transition-[border-color,box-shadow] hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:hover:border-slate-600 dark:focus:border-emerald-400 dark:focus:ring-emerald-500/10"
                   >
                     <option value="">{t('mentorMarketplace.allDomains')}</option>
                     {categories.map((category) => (
@@ -238,14 +238,14 @@ export default function MentorListPage() {
 
       {/* Results toolbar */}
       <main id="mentor-results" className="scroll-mt-20">
-        <div className="sticky top-16 z-30 border-b border-slate-200/60 bg-white/98 backdrop-blur-xl dark:border-slate-800/80 dark:bg-slate-950/98">
+        <div className="sticky top-16 z-30 border-b border-slate-200 dark:border-slate-800/60 bg-white dark:bg-slate-950/90 backdrop-blur-xl dark:border-slate-800/80">
           <div className="mx-auto flex min-h-14 w-full max-w-[1520px] items-center justify-between gap-3 px-4 py-2.5 sm:px-6 lg:px-8">
             <div className="flex min-w-0 items-center gap-3">
               <h2 className="truncate text-sm font-bold text-slate-950 dark:text-slate-100">
                 {isSearchMode ? t('mentorMarketplace.searchResultsTitle') : t('mentorMarketplace.resultsTitle')}
               </h2>
               {!activeQuery.isLoading && !activeQuery.isError ? (
-                <span className="shrink-0 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-bold tabular-nums text-emerald-700 ring-1 ring-inset ring-emerald-200/60 dark:bg-emerald-500/10 dark:text-emerald-300 dark:ring-emerald-500/20">
+                <span className="shrink-0 rounded-full bg-emerald-50 dark:bg-emerald-900/30 px-2.5 py-0.5 text-xs font-bold tabular-nums text-emerald-700 dark:text-emerald-400 ring-1 ring-inset ring-emerald-200/60 dark:bg-emerald-500/10 dark:text-emerald-300 dark:ring-emerald-500/20">
                   {t('mentorMarketplace.resultSummary', { count: totalMentors })}
                 </span>
               ) : null}
@@ -255,7 +255,7 @@ export default function MentorListPage() {
               <button
                 type="button"
                 onClick={() => setFilterOpen((current) => !current)}
-                className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 transition-colors hover:border-slate-300 hover:bg-slate-50 active:translate-y-px lg:hidden dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+                className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3 text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300 transition-colors hover:border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:bg-slate-900/50 dark:bg-slate-900 active:translate-y-px lg:hidden dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
                 aria-expanded={filterOpen}
                 aria-controls="mentor-filters"
               >
@@ -270,7 +270,7 @@ export default function MentorListPage() {
                 <select
                   value={sortBy}
                   onChange={(event) => applySort(event.target.value)}
-                  className="min-h-10 appearance-none rounded-xl border border-slate-200 bg-white py-2 pl-3 pr-9 text-sm font-semibold text-slate-700 outline-none transition-colors hover:border-slate-300 focus:border-emerald-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-600 dark:focus:border-emerald-400"
+                  className="min-h-10 appearance-none rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 py-2 pl-3 pr-9 text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300 outline-none transition-colors hover:border-slate-300 dark:border-slate-700 focus:border-emerald-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-600 dark:focus:border-emerald-400"
                 >
                   {SORT_OPTIONS.map((option) => (
                     <option key={option.value} value={option.value}>
@@ -290,7 +290,7 @@ export default function MentorListPage() {
           <div className={filterOpen ? 'block' : 'hidden lg:block'}>
             <aside
               id="mentor-filters"
-              className="rounded-2xl border border-slate-200/80 bg-white/90 p-5 shadow-[0_1px_3px_rgba(15,23,42,0.04),0_12px_30px_rgba(15,23,42,0.03)] backdrop-blur-sm lg:sticky lg:top-36 dark:border-slate-800 dark:bg-slate-900/90 dark:shadow-none"
+              className="rounded-2xl border border-slate-200 dark:border-slate-800/80 bg-white dark:bg-slate-950/90 p-5 shadow-[0_1px_3px_rgba(15,23,42,0.04),0_12px_30px_rgba(15,23,42,0.03)] backdrop-blur-sm lg:sticky lg:top-36 dark:border-slate-800 dark:bg-slate-900/90 dark:shadow-none"
             >
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2.5 text-sm font-bold text-slate-950 dark:text-slate-100">
@@ -303,7 +303,7 @@ export default function MentorListPage() {
                   <button
                     type="button"
                     onClick={clearFilters}
-                    className="min-h-9 rounded-lg px-2 text-xs font-semibold text-emerald-700 transition-colors hover:bg-emerald-50 active:translate-y-px dark:text-emerald-300 dark:hover:bg-emerald-500/10"
+                    className="min-h-9 rounded-lg px-2 text-xs font-semibold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-50 dark:bg-emerald-900/30 active:translate-y-px dark:text-emerald-300 dark:hover:bg-emerald-500/10"
                   >
                     {t('mentorMarketplace.clearFilters')}
                   </button>
@@ -380,7 +380,7 @@ export default function MentorListPage() {
                 <button
                   type="button"
                   onClick={clearSearchAndFilters}
-                  className="mt-6 inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 transition-colors hover:border-slate-400 hover:bg-slate-50 active:translate-y-px dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 dark:hover:bg-slate-800"
+                  className="mt-6 inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-4 text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300 transition-colors hover:border-slate-400 hover:bg-slate-50 dark:bg-slate-900/50 dark:bg-slate-900 active:translate-y-px dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 dark:hover:bg-slate-800"
                 >
                   {t('mentorMarketplace.resetSearch')}
                 </button>
@@ -395,7 +395,7 @@ export default function MentorListPage() {
               <select
                 value={sortBy}
                 onChange={(event) => applySort(event.target.value)}
-                className="min-h-11 w-full appearance-none rounded-xl border border-slate-300 bg-white py-2 pl-3 pr-9 text-sm font-semibold text-slate-700 outline-none focus:border-emerald-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400"
+                className="min-h-11 w-full appearance-none rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 py-2 pl-3 pr-9 text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300 outline-none focus:border-emerald-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-emerald-400"
               >
                 {SORT_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -457,12 +457,12 @@ function FilterSelect({
 }) {
   return (
     <label className="block min-w-0">
-      <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.06em] text-slate-500 dark:text-slate-400">{label}</span>
+      <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.06em] text-slate-500 dark:text-slate-400 dark:text-slate-400 dark:text-slate-400">{label}</span>
       <span className="relative block">
         <select
           value={value}
           onChange={(event) => onChange(event.target.value)}
-          className="min-h-10 w-full appearance-none rounded-xl border border-slate-200 bg-white px-3 pr-9 text-sm font-medium text-slate-800 outline-none transition-colors hover:border-slate-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/15 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:hover:border-slate-600 dark:focus:border-emerald-400"
+          className="min-h-10 w-full appearance-none rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3 pr-9 text-sm font-medium text-slate-800 dark:text-slate-200 dark:text-slate-200 outline-none transition-colors hover:border-slate-300 dark:border-slate-700 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/15 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:hover:border-slate-600 dark:focus:border-emerald-400"
         >
           {options.map((option) => (
             <option key={`${option.value}-${option.label}`} value={option.value}>
@@ -504,7 +504,7 @@ function MentorCard({
 
   return (
     <article
-      className={`mentor-card-enter ${delayClass} mentor-card-glow group relative flex h-full min-w-0 flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-white dark:border-slate-800 dark:bg-slate-900`}
+      className={`mentor-card-enter ${delayClass} mentor-card-glow group relative flex h-full min-w-0 flex-col overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800/80 bg-white dark:bg-slate-950 dark:border-slate-800 dark:bg-slate-900`}
     >
       {/* Gradient top accent */}
       <div className="h-1 w-full bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500" aria-hidden="true" />
@@ -515,7 +515,7 @@ function MentorCard({
         <div className="flex flex-col items-center text-center">
           {/* Avatar */}
           <div className="relative">
-            <div className="relative flex h-[88px] w-[88px] items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-emerald-100 to-teal-50 text-2xl font-bold text-emerald-800 ring-[3px] ring-emerald-500/20 dark:from-emerald-500/15 dark:to-teal-500/10 dark:text-emerald-200 dark:ring-emerald-500/25">
+            <div className="relative flex h-[88px] w-[88px] items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-emerald-100 to-teal-50 text-2xl font-bold text-emerald-800 dark:text-emerald-200 ring-[3px] ring-emerald-500/20 dark:from-emerald-500/15 dark:to-teal-500/10 dark:text-emerald-200 dark:ring-emerald-500/25">
               <span aria-hidden="true">{getInitials(name)}</span>
               {avatarUrl ? (
                 <img
@@ -547,21 +547,21 @@ function MentorCard({
           {/* Name */}
           <Link
             to={`/mentors/${mentor.userId}`}
-            className="mt-4 rounded-md text-lg font-bold leading-6 text-slate-950 transition-colors hover:text-emerald-700 dark:text-slate-100 dark:hover:text-emerald-300"
+            className="mt-4 rounded-md text-lg font-bold leading-6 text-slate-950 dark:text-slate-100 transition-colors hover:text-emerald-700 dark:text-emerald-400 dark:text-slate-100 dark:hover:text-emerald-300"
           >
             <span className="line-clamp-1">{name}</span>
           </Link>
 
           {/* Featured badge */}
           {showFeaturedSignal ? (
-            <span className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-[0.06em] text-amber-700 ring-1 ring-inset ring-amber-200/60 dark:bg-amber-500/10 dark:text-amber-300 dark:ring-amber-500/20">
+            <span className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-amber-50 dark:bg-amber-900/30 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-[0.06em] text-amber-700 dark:text-amber-400 ring-1 ring-inset ring-amber-200/60 dark:bg-amber-500/10 dark:text-amber-300 dark:ring-amber-500/20">
               <Sparkles className="h-3 w-3" aria-hidden="true" />
               {t('mentorBadge.featured')}
             </span>
           ) : null}
 
           {/* Profile summary */}
-          <p className="mt-2 line-clamp-2 max-w-[260px] text-[13px] leading-5 text-slate-500 dark:text-slate-400">
+          <p className="mt-2 line-clamp-2 max-w-[260px] text-[13px] leading-5 text-slate-500 dark:text-slate-400 dark:text-slate-400 dark:text-slate-400">
             {profileSummary}
           </p>
         </div>
@@ -572,7 +572,7 @@ function MentorCard({
             {skills.map((skill) => (
               <span
                 key={skill}
-                className="rounded-md bg-emerald-50 px-2 py-1 text-[11px] font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-300 dark:ring-emerald-500/15"
+                className="rounded-md bg-emerald-50 dark:bg-emerald-900/30 px-2 py-1 text-[11px] font-semibold text-emerald-700 dark:text-emerald-400 ring-1 ring-inset ring-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-300 dark:ring-emerald-500/15"
               >
                 {skill}
               </span>
@@ -617,7 +617,7 @@ function MentorCard({
 
         {/* ─── Response time / Availability ─── */}
         {(mentor.responseTimeHours != null || mentor.availability) ? (
-          <div className="mt-4 flex items-center justify-center gap-1.5 text-xs font-medium text-slate-500 dark:text-slate-400">
+          <div className="mt-4 flex items-center justify-center gap-1.5 text-xs font-medium text-slate-500 dark:text-slate-400 dark:text-slate-400 dark:text-slate-400">
             <Clock3 className="h-3.5 w-3.5" aria-hidden="true" />
             {mentor.responseTimeHours != null
               ? t('mentorMarketplace.respondsWithin', { hours: mentor.responseTimeHours })
@@ -630,7 +630,7 @@ function MentorCard({
           <Link
             to={`/mentors/${mentor.userId}`}
             aria-label={`${t('mentorMarketplace.viewProfile')}: ${name}`}
-            className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-4 text-sm font-semibold text-white shadow-[0_4px_14px_rgba(5,150,105,0.25)] transition-all duration-300 hover:from-emerald-700 hover:to-teal-700 hover:shadow-[0_8px_22px_rgba(5,150,105,0.3)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 active:translate-y-px dark:from-emerald-400 dark:to-teal-400 dark:text-slate-950 dark:shadow-none dark:hover:from-emerald-300 dark:hover:to-teal-300 dark:focus-visible:ring-offset-slate-900"
+            className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-700 dark:to-teal-700 px-4 text-sm font-semibold text-white shadow-[0_4px_14px_rgba(5,150,105,0.25)] transition-all duration-300 hover:from-emerald-700 hover:to-teal-700 hover:shadow-[0_8px_22px_rgba(5,150,105,0.3)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 active:translate-y-px dark:from-emerald-400 dark:to-teal-400 dark:text-slate-950 dark:shadow-none dark:hover:from-emerald-300 dark:hover:to-teal-300 dark:focus-visible:ring-offset-slate-900"
           >
             {t('mentorMarketplace.viewProfile')}
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
@@ -657,14 +657,14 @@ function StatCell({
   accent?: boolean
 }) {
   return (
-    <div className="rounded-xl bg-slate-50/80 px-3 py-2.5 ring-1 ring-inset ring-slate-100 dark:bg-slate-800/50 dark:ring-slate-700/60">
+    <div className="rounded-xl bg-slate-50 dark:bg-slate-900/50 dark:bg-slate-900/80 px-3 py-2.5 ring-1 ring-inset ring-slate-100 dark:bg-slate-800/50 dark:ring-slate-700/60">
       <div className="flex items-center gap-1.5">
         {icon ? <span className="shrink-0">{icon}</span> : null}
         <span className="truncate text-[10px] font-semibold uppercase tracking-[0.06em] text-slate-400 dark:text-slate-500">
           {label}
         </span>
       </div>
-      <p className={`mt-1 truncate text-sm font-bold leading-5 ${accent ? 'text-emerald-700 dark:text-emerald-300' : 'text-slate-900 dark:text-slate-100'}`}>
+      <p className={`mt-1 truncate text-sm font-bold leading-5 ${accent ? 'text-emerald-700 dark:text-emerald-400 dark:text-emerald-300' : 'text-slate-900 dark:text-slate-100'}`}>
         {value}
       </p>
     </div>
@@ -679,7 +679,7 @@ function MentorGridSkeleton() {
   return (
     <div className="grid gap-5 sm:grid-cols-2 2xl:grid-cols-3" aria-hidden="true">
       {Array.from({ length: 6 }).map((_, index) => (
-        <div key={index} className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white dark:border-slate-800 dark:bg-slate-900">
+        <div key={index} className="overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800/80 bg-white dark:bg-slate-950 dark:border-slate-800 dark:bg-slate-900">
           {/* Top accent */}
           <div className="h-1 w-full mentor-shimmer-bg bg-slate-200 dark:bg-slate-800" />
           <div className="flex flex-col items-center p-6">
@@ -688,16 +688,16 @@ function MentorGridSkeleton() {
             {/* Name */}
             <div className="mt-4 h-5 w-32 animate-pulse rounded-md bg-slate-200 dark:bg-slate-800" />
             {/* Summary */}
-            <div className="mt-2 h-4 w-44 animate-pulse rounded bg-slate-100 dark:bg-slate-800/70" />
+            <div className="mt-2 h-4 w-44 animate-pulse rounded bg-slate-100 dark:bg-slate-800 dark:bg-slate-800/70" />
             {/* Skills */}
             <div className="mt-4 flex gap-2">
-              <div className="h-6 w-16 animate-pulse rounded-md bg-slate-100 dark:bg-slate-800/70" />
-              <div className="h-6 w-20 animate-pulse rounded-md bg-slate-100 dark:bg-slate-800/70" />
+              <div className="h-6 w-16 animate-pulse rounded-md bg-slate-100 dark:bg-slate-800 dark:bg-slate-800/70" />
+              <div className="h-6 w-20 animate-pulse rounded-md bg-slate-100 dark:bg-slate-800 dark:bg-slate-800/70" />
             </div>
             {/* Stats grid */}
             <div className="mt-5 grid w-full grid-cols-2 gap-2.5">
               {[0, 1, 2, 3].map((item) => (
-                <div key={item} className="h-[52px] animate-pulse rounded-xl bg-slate-100 dark:bg-slate-800/70" />
+                <div key={item} className="h-[52px] animate-pulse rounded-xl bg-slate-100 dark:bg-slate-800 dark:bg-slate-800/70" />
               ))}
             </div>
             {/* CTA */}
@@ -717,21 +717,21 @@ function EmptyState({ isFiltered, onClear }: { isFiltered: boolean; onClear: () 
   const { t } = useI18n()
 
   return (
-    <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center dark:border-slate-700 dark:bg-slate-900">
-      <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-slate-100 to-slate-50 text-slate-500 shadow-sm ring-1 ring-inset ring-slate-200/60 dark:from-slate-800 dark:to-slate-800/60 dark:text-slate-300 dark:ring-slate-700">
+    <div className="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-6 py-16 text-center dark:border-slate-700 dark:bg-slate-900">
+      <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-slate-100 to-slate-50 dark:to-slate-900/50 text-slate-500 dark:text-slate-400 dark:text-slate-400 shadow-sm ring-1 ring-inset ring-slate-200/60 dark:from-slate-800 dark:to-slate-800/60 dark:text-slate-300 dark:ring-slate-700">
         <Search className="h-6 w-6" aria-hidden="true" />
       </div>
       <h3 className="mt-5 text-lg font-bold text-slate-950 dark:text-slate-100">
         {isFiltered ? t('mentorMarketplace.filteredEmptyTitle') : t('mentorMarketplace.emptyTitle')}
       </h3>
-      <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-600 dark:text-slate-300">
+      <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-600 dark:text-slate-400 dark:text-slate-400 dark:text-slate-300">
         {isFiltered ? t('mentorMarketplace.filteredEmptyDescription') : t('mentorMarketplace.emptyDescription')}
       </p>
       {isFiltered ? (
         <button
           type="button"
           onClick={onClear}
-          className="mt-6 min-h-11 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-5 text-sm font-semibold text-white shadow-[0_6px_18px_rgba(5,150,105,0.2)] transition-all hover:from-emerald-700 hover:to-teal-700 hover:shadow-[0_8px_22px_rgba(5,150,105,0.28)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 active:translate-y-px dark:from-emerald-400 dark:to-teal-400 dark:text-slate-950 dark:hover:from-emerald-300 dark:hover:to-teal-300 dark:focus-visible:ring-offset-slate-900"
+          className="mt-6 min-h-11 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-700 dark:to-teal-700 px-5 text-sm font-semibold text-white shadow-[0_6px_18px_rgba(5,150,105,0.2)] transition-all hover:from-emerald-700 hover:to-teal-700 hover:shadow-[0_8px_22px_rgba(5,150,105,0.28)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 active:translate-y-px dark:from-emerald-400 dark:to-teal-400 dark:text-slate-950 dark:hover:from-emerald-300 dark:hover:to-teal-300 dark:focus-visible:ring-offset-slate-900"
         >
           {t('mentorMarketplace.resetSearch')}
         </button>
@@ -748,13 +748,13 @@ function ErrorState({ onRetry }: { onRetry: () => void }) {
       <h3 className="text-lg font-bold text-slate-950 dark:text-slate-100">
         {t('mentorMarketplace.errorTitle')}
       </h3>
-      <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-600 dark:text-slate-300">
+      <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-600 dark:text-slate-400 dark:text-slate-400 dark:text-slate-300">
         {t('mentorMarketplace.errorDescription')}
       </p>
       <button
         type="button"
         onClick={onRetry}
-        className="mt-6 min-h-11 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-5 text-sm font-semibold text-white shadow-[0_6px_18px_rgba(5,150,105,0.2)] transition-all hover:from-emerald-700 hover:to-teal-700 hover:shadow-[0_8px_22px_rgba(5,150,105,0.28)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 active:translate-y-px dark:from-emerald-400 dark:to-teal-400 dark:text-slate-950 dark:hover:from-emerald-300 dark:hover:to-teal-300 dark:focus-visible:ring-offset-slate-900"
+        className="mt-6 min-h-11 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-700 dark:to-teal-700 px-5 text-sm font-semibold text-white shadow-[0_6px_18px_rgba(5,150,105,0.2)] transition-all hover:from-emerald-700 hover:to-teal-700 hover:shadow-[0_8px_22px_rgba(5,150,105,0.28)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 active:translate-y-px dark:from-emerald-400 dark:to-teal-400 dark:text-slate-950 dark:hover:from-emerald-300 dark:hover:to-teal-300 dark:focus-visible:ring-offset-slate-900"
       >
         {t('mentorMarketplace.retry')}
       </button>
@@ -784,14 +784,14 @@ function Pagination({
 
   return (
     <nav
-      className="inline-flex items-center gap-1 rounded-2xl border border-slate-200 bg-white p-1.5 shadow-sm dark:border-slate-800 dark:bg-slate-900"
+      className="inline-flex items-center gap-1 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-1.5 shadow-sm dark:border-slate-800 dark:bg-slate-900"
       aria-label={t('mentorMarketplace.paginationLabel')}
     >
       <button
         type="button"
         onClick={() => onPageChange(Math.max(0, page - 1))}
         disabled={page === 0}
-        className="flex h-11 w-11 items-center justify-center rounded-xl text-slate-600 transition-colors hover:bg-slate-100 active:translate-y-px disabled:pointer-events-none disabled:opacity-35 dark:text-slate-300 dark:hover:bg-slate-800"
+        className="flex h-11 w-11 items-center justify-center rounded-xl text-slate-600 dark:text-slate-400 dark:text-slate-400 transition-colors hover:bg-slate-100 dark:bg-slate-800 active:translate-y-px disabled:pointer-events-none disabled:opacity-35 dark:text-slate-300 dark:hover:bg-slate-800"
         aria-label={t('mentorMarketplace.previousPage')}
       >
         <ChevronLeft className="h-5 w-5" aria-hidden="true" />
@@ -806,8 +806,8 @@ function Pagination({
           aria-label={t('mentorMarketplace.pageNumber', { page: pageNumber + 1 })}
           className={`h-11 min-w-11 rounded-xl px-3 text-sm font-bold transition-colors active:translate-y-px ${
             page === pageNumber
-              ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-sm dark:from-emerald-400 dark:to-teal-400 dark:text-slate-950'
-              : 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
+              ? 'bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-700 dark:to-teal-700 text-white shadow-sm dark:from-emerald-400 dark:to-teal-400 dark:text-slate-950'
+              : 'text-slate-600 dark:text-slate-400 dark:text-slate-400 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-800'
           }`}
         >
           {pageNumber + 1}
@@ -818,7 +818,7 @@ function Pagination({
         type="button"
         onClick={() => onPageChange(Math.min(totalPages - 1, page + 1))}
         disabled={page >= totalPages - 1}
-        className="flex h-11 w-11 items-center justify-center rounded-xl text-slate-600 transition-colors hover:bg-slate-100 active:translate-y-px disabled:pointer-events-none disabled:opacity-35 dark:text-slate-300 dark:hover:bg-slate-800"
+        className="flex h-11 w-11 items-center justify-center rounded-xl text-slate-600 dark:text-slate-400 dark:text-slate-400 transition-colors hover:bg-slate-100 dark:bg-slate-800 active:translate-y-px disabled:pointer-events-none disabled:opacity-35 dark:text-slate-300 dark:hover:bg-slate-800"
         aria-label={t('mentorMarketplace.nextPage')}
       >
         <ChevronRight className="h-5 w-5" aria-hidden="true" />

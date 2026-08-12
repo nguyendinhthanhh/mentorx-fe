@@ -99,15 +99,15 @@ export default function AppHeader() {
   }
 
   return (
-    <header className="sticky top-0 z-50 border-b border-[#E2E8F0] bg-white/95 backdrop-blur-md dark:border-slate-800 dark:bg-slate-950/95">
+    <header className="sticky top-0 z-50 border-b border-[#E2E8F0] bg-white dark:bg-slate-950/95 backdrop-blur-md dark:border-slate-800 dark:bg-slate-950/95">
       <div className="mx-auto flex h-16 max-w-[1600px] items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link to="/" className="group flex items-center gap-3">
           <img src="/logo.png" alt="MentorX Logo" className="h-10 w-auto object-contain transition-transform group-hover:scale-105" />
           <div className="flex flex-col leading-none">
             <span className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
-              Mentor<span className="text-indigo-600">X</span>
+              Mentor<span className="text-indigo-600 dark:text-indigo-500">X</span>
             </span>
-            <span className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">Academy</span>
+            <span className="mt-1 text-[11px] text-slate-500 dark:text-slate-400 dark:text-slate-400">Academy</span>
           </div>
         </Link>
 
@@ -120,8 +120,8 @@ export default function AppHeader() {
                 to={item.to}
                 className={`rounded-lg px-4 py-2 text-[15px] font-semibold transition-colors ${
                   active
-                    ? 'bg-indigo-50 text-indigo-600 dark:bg-indigo-500/15 dark:text-indigo-300'
-                    : 'text-slate-600 hover:bg-slate-50 hover:text-indigo-600 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-white'
+                    ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-500 dark:bg-indigo-500/15 dark:text-indigo-300'
+                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:bg-slate-900/50 hover:text-indigo-600 dark:text-indigo-500 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-white'
                 }`}
               >
                 {item.label}
@@ -136,7 +136,7 @@ export default function AppHeader() {
           <button
             type="button"
             onClick={toggleTheme}
-            className="flex h-10 w-10 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
+            className="flex h-10 w-10 items-center justify-center rounded-lg text-slate-500 dark:text-slate-400 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
             aria-label="Toggle theme"
           >
             {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
@@ -157,20 +157,20 @@ export default function AppHeader() {
               {canAccessAdminWorkspace(user) && (
                 <Link
                   to="/admin/dashboard"
-                  className="inline-flex h-10 items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+                  className="inline-flex h-10 items-center gap-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 text-xs font-semibold text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:bg-slate-900/50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
                 >
                   <UserCog className="h-4 w-4" />
                   <span className="hidden 2xl:inline">{isAdmin(user) ? t('nav.adminConsole') : t('nav.moderatorConsole')}</span>
                 </Link>
               )}
 
-              <div className="flex items-center gap-1 rounded-xl border border-slate-200 bg-slate-50 p-1 dark:border-slate-700 dark:bg-slate-900">
+              <div className="flex items-center gap-1 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 p-1 dark:border-slate-700 dark:bg-slate-900">
                 <Link
                   to="/wallet"
-                  className="flex h-8 items-center gap-2 rounded-lg bg-white px-2.5 transition hover:bg-slate-50 dark:bg-slate-800 dark:hover:bg-slate-700 xl:px-3"
+                  className="flex h-8 items-center gap-2 rounded-lg bg-white dark:bg-slate-950 px-2.5 transition hover:bg-slate-50 dark:bg-slate-900/50 dark:bg-slate-800 dark:hover:bg-slate-700 xl:px-3"
                 >
                   <Wallet className="h-3.5 w-3.5 text-amber-500" />
-                  <span className="hidden text-[11px] font-semibold text-slate-700 dark:text-slate-200 xl:inline">
+                  <span className="hidden text-[11px] font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-200 xl:inline">
                     {formatMxc(balance?.available || 0, language)}
                   </span>
                 </Link>
@@ -181,7 +181,7 @@ export default function AppHeader() {
                     className={`relative flex h-8 w-8 items-center justify-center rounded-xl transition-colors ${
                       location.pathname.startsWith('/chat') || location.pathname.startsWith('/mentor/messages')
                         ? 'bg-indigo-600 text-white'
-                        : 'text-slate-500 hover:bg-white hover:text-indigo-600 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white'
+                        : 'text-slate-500 dark:text-slate-400 hover:bg-white dark:bg-slate-950 hover:text-indigo-600 dark:text-indigo-500 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white'
                     }`}
                   >
                     <MessageSquare className="h-4 w-4" />
@@ -200,7 +200,7 @@ export default function AppHeader() {
               <div className="relative">
                 <button
                   onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                  className="group flex items-center gap-2 rounded-xl border border-slate-200 bg-white p-1.5 transition hover:border-indigo-200 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:hover:border-indigo-500/40 dark:hover:bg-slate-800"
+                  className="group flex items-center gap-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-1.5 transition hover:border-indigo-200 hover:bg-slate-50 dark:bg-slate-900/50 dark:border-slate-700 dark:bg-slate-900 dark:hover:border-indigo-500/40 dark:hover:bg-slate-800"
                 >
                   <div className="h-7 w-7 overflow-hidden rounded-lg bg-indigo-100">
                     {user.avatarUrl ? (
@@ -211,18 +211,18 @@ export default function AppHeader() {
                       </div>
                     )}
                   </div>
-                  <ChevronDown className={`h-3 w-3 text-slate-400 transition-transform duration-300 ${userDropdownOpen ? 'rotate-180 text-indigo-600' : ''}`} />
+                  <ChevronDown className={`h-3 w-3 text-slate-400 transition-transform duration-300 ${userDropdownOpen ? 'rotate-180 text-indigo-600 dark:text-indigo-500' : ''}`} />
                 </button>
 
                 {userDropdownOpen && (
                   <>
                     <div className="fixed inset-0 z-10" onClick={() => setUserDropdownOpen(false)} />
-                    <div className="absolute right-0 z-20 mt-2 w-60 origin-top-right rounded-2xl border border-slate-200 bg-white p-2 shadow-xl ring-1 ring-black ring-opacity-5 focus:outline-none dark:border-slate-700 dark:bg-slate-900 dark:ring-white/10">
-                      <div className="mb-1 border-b border-slate-100 px-3 py-2 dark:border-slate-800">
+                    <div className="absolute right-0 z-20 mt-2 w-60 origin-top-right rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-2 shadow-xl ring-1 ring-black ring-opacity-5 focus:outline-none dark:border-slate-700 dark:bg-slate-900 dark:ring-white/10">
+                      <div className="mb-1 border-b border-slate-100 dark:border-slate-800 px-3 py-2 dark:border-slate-800">
                         <p className="text-xs font-medium text-slate-400">{t('common.account')}</p>
                         <p className="truncate text-sm font-semibold text-slate-900 dark:text-white">{user.fullName}</p>
-                        <div className="mt-2 flex items-center justify-between rounded-lg bg-slate-50 p-2 dark:bg-slate-800">
-                          <div className="flex items-center gap-1.5 text-[10px] font-medium text-slate-500">
+                        <div className="mt-2 flex items-center justify-between rounded-lg bg-slate-50 dark:bg-slate-900/50 p-2 dark:bg-slate-800">
+                          <div className="flex items-center gap-1.5 text-[10px] font-medium text-slate-500 dark:text-slate-400">
                             <Wallet className="h-3 w-3" />
                             {t('common.balance')}
                           </div>
@@ -233,7 +233,7 @@ export default function AppHeader() {
                       <Link
                         to="/profile"
                         onClick={() => setUserDropdownOpen(false)}
-                        className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 hover:text-blue-600 dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-indigo-300"
+                        className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:bg-slate-900/50 hover:text-blue-600 dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-indigo-300"
                       >
                         <User className="h-4 w-4" />
                         {t('common.viewProfile')}
@@ -242,7 +242,7 @@ export default function AppHeader() {
                         <Link
                           to="/mentor/profile"
                           onClick={() => setUserDropdownOpen(false)}
-                          className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 hover:text-blue-600 dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-indigo-300"
+                          className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:bg-slate-900/50 hover:text-blue-600 dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-indigo-300"
                         >
                           <Star className="h-4 w-4" />
                           {t('nav.editMentorProfile')}
@@ -251,7 +251,7 @@ export default function AppHeader() {
                       <Link
                         to="/wallet"
                         onClick={() => setUserDropdownOpen(false)}
-                        className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 hover:text-blue-600 dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-indigo-300"
+                        className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:bg-slate-900/50 hover:text-blue-600 dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-indigo-300"
                       >
                         <Wallet className="h-4 w-4" />
                         {t('nav.wallet')}
@@ -259,7 +259,7 @@ export default function AppHeader() {
                       <Link
                         to="/my-jobs"
                         onClick={() => setUserDropdownOpen(false)}
-                        className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 hover:text-blue-600 dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-indigo-300"
+                        className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:bg-slate-900/50 hover:text-blue-600 dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-indigo-300"
                       >
                         <Briefcase className="h-4 w-4" />
                         {t('nav.myJobs')}
@@ -267,7 +267,7 @@ export default function AppHeader() {
                       {/* <Link
                         to="/quick-support"
                         onClick={() => setUserDropdownOpen(false)}
-                        className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50 hover:text-blue-600"
+                        className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:bg-slate-900/50 hover:text-blue-600"
                       >
                         <Zap className="h-4 w-4" />
                         Quick Support
@@ -275,7 +275,7 @@ export default function AppHeader() {
                       <Link
                         to="/profile/courses"
                         onClick={() => setUserDropdownOpen(false)}
-                        className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 hover:text-blue-600 dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-indigo-300"
+                        className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:bg-slate-900/50 hover:text-blue-600 dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-indigo-300"
                       >
                         <ShoppingBag className="h-4 w-4" />
                         {t('nav.courses')}
@@ -283,7 +283,7 @@ export default function AppHeader() {
                       <Link
                         to="/profile/settings"
                         onClick={() => setUserDropdownOpen(false)}
-                        className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 hover:text-blue-600 dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-indigo-300"
+                        className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:bg-slate-900/50 hover:text-blue-600 dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-indigo-300"
                       >
                         <UserCog className="h-4 w-4" />
                         {t('nav.settings')}
@@ -307,7 +307,7 @@ export default function AppHeader() {
             </div>
           ) : (
             <>
-              <Link to="/login" className="text-sm font-medium text-slate-600 hover:text-emerald-600 dark:text-slate-300 dark:hover:text-emerald-300">
+              <Link to="/login" className="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:text-emerald-500 dark:text-slate-300 dark:hover:text-emerald-300">
                 {t('nav.login')}
               </Link>
               <Link
@@ -323,7 +323,7 @@ export default function AppHeader() {
         <button
           type="button"
           onClick={() => setMobileOpen((prev) => !prev)}
-          className="flex h-11 w-11 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 lg:hidden"
+          className="flex h-11 w-11 items-center justify-center rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 lg:hidden"
           aria-label="Toggle navigation"
           aria-expanded={mobileOpen}
           aria-controls="mobile-site-navigation"
@@ -335,7 +335,7 @@ export default function AppHeader() {
       {mobileOpen && (
         <div
           id="mobile-site-navigation"
-          className="max-h-[calc(100dvh-4rem)] overflow-y-auto overscroll-contain border-t border-[#E2E8F0] bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-950 lg:hidden"
+          className="max-h-[calc(100dvh-4rem)] overflow-y-auto overscroll-contain border-t border-[#E2E8F0] bg-white dark:bg-slate-950 px-4 py-3 dark:border-slate-800 dark:bg-slate-950 lg:hidden"
         >
           <div className="grid gap-2">
             {navLinks.map((item) => (
@@ -343,7 +343,7 @@ export default function AppHeader() {
                 key={item.to}
                 to={item.to}
                 onClick={() => setMobileOpen(false)}
-                className="flex min-h-11 items-center rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-900"
+                className="flex min-h-11 items-center rounded-lg px-3 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:bg-slate-900/50 dark:text-slate-200 dark:hover:bg-slate-900"
               >
                 {item.label}
               </Link>
@@ -355,7 +355,7 @@ export default function AppHeader() {
             </div>
             {user ? (
               <div className="grid gap-2">
-                <div className="mb-1 flex items-center gap-3 rounded-xl border border-slate-200 px-3 py-3 dark:border-slate-700 dark:bg-slate-900">
+                <div className="mb-1 flex items-center gap-3 rounded-xl border border-slate-200 dark:border-slate-800 px-3 py-3 dark:border-slate-700 dark:bg-slate-900">
                   <div className="h-10 w-10 overflow-hidden rounded-xl bg-indigo-100">
                     {user.avatarUrl ? (
                       <img src={user.avatarUrl} alt={user.fullName} className="h-full w-full object-cover" />
@@ -367,10 +367,10 @@ export default function AppHeader() {
                   </div>
                   <div className="min-w-0">
                     <p className="truncate text-sm font-black text-slate-900 dark:text-white">{user.fullName}</p>
-                    <p className="truncate text-xs font-medium text-slate-500">{user.email}</p>
+                    <p className="truncate text-xs font-medium text-slate-500 dark:text-slate-400">{user.email}</p>
                   </div>
                 </div>
-                <div className="mb-2 flex items-center justify-between rounded-lg bg-amber-50 px-3 py-3 text-amber-700 dark:bg-amber-500/10 dark:text-amber-300">
+                <div className="mb-2 flex items-center justify-between rounded-lg bg-amber-50 dark:bg-amber-900/30 px-3 py-3 text-amber-700 dark:text-amber-400 dark:bg-amber-500/10 dark:text-amber-300">
                   <div className="flex items-center gap-2 text-sm font-bold">
                     <Wallet className="h-4 w-4" />
                     {t('common.balance')}
@@ -386,7 +386,7 @@ export default function AppHeader() {
                   <Link
                     to="/become-a-mentor"
                     onClick={() => setMobileOpen(false)}
-                    className="rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-900"
+                    className="rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:bg-slate-900/50 dark:text-slate-200 dark:hover:bg-slate-900"
                   >
                     {mentorCtaLabel}
                   </Link>
@@ -394,14 +394,14 @@ export default function AppHeader() {
                 <Link
                   to="/profile"
                   onClick={() => setMobileOpen(false)}
-                  className="rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-900"
+                  className="rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:bg-slate-900/50 dark:text-slate-200 dark:hover:bg-slate-900"
                 >
                   {t('common.viewProfile')}
                 </Link>
                 <Link
                   to="/chat"
                   onClick={() => setMobileOpen(false)}
-                  className="flex items-center justify-between rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-900"
+                  className="flex items-center justify-between rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:bg-slate-900/50 dark:text-slate-200 dark:hover:bg-slate-900"
                 >
                   <span>{t('nav.messages')}</span>
                   {unreadCount > 0 && (
@@ -413,7 +413,7 @@ export default function AppHeader() {
                 <Link
                   to="/profile/notifications"
                   onClick={() => setMobileOpen(false)}
-                  className="rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-900"
+                  className="rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:bg-slate-900/50 dark:text-slate-200 dark:hover:bg-slate-900"
                 >
                   {t('common.notifications')}
                 </Link>
@@ -423,7 +423,7 @@ export default function AppHeader() {
                     setMobileOpen(false)
                     handleLogout()
                   }}
-                  className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 dark:border-slate-700 dark:text-slate-200"
+                  className="rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm font-semibold text-slate-700 dark:text-slate-300 dark:border-slate-700 dark:text-slate-200"
                 >
                   {t('nav.logout')}
                 </button>
@@ -433,7 +433,7 @@ export default function AppHeader() {
                 <Link
                   to="/login"
                   onClick={() => setMobileOpen(false)}
-                  className="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-center text-sm font-semibold text-slate-700 dark:border-slate-700 dark:text-slate-200"
+                  className="flex-1 rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-2 text-center text-sm font-semibold text-slate-700 dark:text-slate-300 dark:border-slate-700 dark:text-slate-200"
                 >
                   {t('nav.login')}
                 </Link>

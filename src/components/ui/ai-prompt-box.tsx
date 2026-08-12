@@ -62,7 +62,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
   ({ className, ...props }, ref) => (
     <textarea
       className={cn(
-        "scrollbar-thin scrollbar-thumb-[#444444] scrollbar-track-transparent hover:scrollbar-thumb-[#555555] flex min-h-[44px] w-full resize-none rounded-md border-none bg-transparent px-3 py-2.5 text-base text-slate-800 placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-0 disabled:cursor-not-allowed disabled:opacity-50",
+        "scrollbar-thin scrollbar-thumb-[#444444] scrollbar-track-transparent hover:scrollbar-thumb-[#555555] flex min-h-[44px] w-full resize-none rounded-md border-none bg-transparent px-3 py-2.5 text-base text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-0 disabled:cursor-not-allowed disabled:opacity-50",
         className,
       )}
       ref={ref}
@@ -85,7 +85,7 @@ const TooltipContent = React.forwardRef<
     ref={ref}
     sideOffset={sideOffset}
     className={cn(
-      "fade-in-0 zoom-in-95 data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 animate-in overflow-hidden rounded-md border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-900 shadow-md data-[state=closed]:animate-out",
+      "fade-in-0 zoom-in-95 data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 animate-in overflow-hidden rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3 py-1.5 text-sm text-slate-900 dark:text-slate-100 shadow-md data-[state=closed]:animate-out",
       className,
     )}
     {...props}
@@ -120,14 +120,14 @@ const DialogContent = React.forwardRef<
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-50 grid w-full max-w-[90vw] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-2xl border border-slate-200 bg-white p-0 shadow-xl duration-300 data-[state=closed]:animate-out data-[state=open]:animate-in md:max-w-[800px]",
+        "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-50 grid w-full max-w-[90vw] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-0 shadow-xl duration-300 data-[state=closed]:animate-out data-[state=open]:animate-in md:max-w-[800px]",
         className,
       )}
       {...props}
     >
       {children}
       <DialogPrimitive.Close className="absolute top-4 right-4 z-10 rounded-full bg-slate-100/80 p-2 transition-all hover:bg-slate-100">
-        <X className="h-5 w-5 text-slate-700 hover:text-slate-900" />
+        <X className="h-5 w-5 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:text-slate-100" />
         <span className="sr-only">Close</span>
       </DialogPrimitive.Close>
     </DialogPrimitive.Content>
@@ -142,7 +142,7 @@ const DialogTitle = React.forwardRef<
   <DialogPrimitive.Title
     ref={ref}
     className={cn(
-      "font-semibold text-slate-800 text-lg leading-none tracking-tight",
+      "font-semibold text-slate-800 dark:text-slate-200 text-lg leading-none tracking-tight",
       className,
     )}
     {...props}
@@ -158,8 +158,8 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = "default", size = "default", ...props }, ref) => {
     const variantClasses = {
-      default: "bg-white hover:bg-emerald-700 text-black",
-      outline: "border border-slate-200 bg-transparent hover:bg-slate-100",
+      default: "bg-white dark:bg-slate-950 hover:bg-emerald-700 text-black",
+      outline: "border border-slate-200 dark:border-slate-800 bg-transparent hover:bg-slate-100",
       ghost: "bg-transparent hover:bg-slate-100",
     };
     const sizeClasses = {
@@ -232,7 +232,7 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
     >
       <div className="mb-3 flex items-center gap-2">
         <div className="h-2 w-2 animate-pulse rounded-full bg-red-500" />
-        <span className="font-mono text-sm text-slate-900/80">
+        <span className="font-mono text-sm text-slate-900 dark:text-slate-100/80">
           {formatTime(time)}
         </span>
       </div>
@@ -272,7 +272,7 @@ const ImageViewDialog: React.FC<ImageViewDialogProps> = ({
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.95 }}
           transition={{ duration: 0.2, ease: "easeOut" }}
-          className="relative overflow-hidden rounded-2xl bg-white shadow-2xl"
+          className="relative overflow-hidden rounded-2xl bg-white dark:bg-slate-950 shadow-2xl"
         >
           <div className="relative max-h-[80vh] w-full">
             <img
@@ -364,7 +364,7 @@ const PromptInput = React.forwardRef<HTMLDivElement, PromptInputProps>(
           <div
             ref={ref}
             className={cn(
-              "rounded-3xl border border-slate-200 bg-white p-2 shadow-[0_8px_30px_rgba(0,0,0,0.24)] transition-all duration-300",
+              "rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-2 shadow-[0_8px_30px_rgba(0,0,0,0.24)] transition-all duration-300",
               isLoading && "border-red-500/70",
               className,
             )}
@@ -635,7 +635,7 @@ export const PromptInputBox = React.forwardRef(
           isLoading={isLoading}
           onSubmit={handleSubmit}
           className={cn(
-            "w-full border-slate-200 bg-white shadow-[0_8px_30px_rgba(0,0,0,0.24)] transition-all duration-300 ease-in-out",
+            "w-full border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 shadow-[0_8px_30px_rgba(0,0,0,0.24)] transition-all duration-300 ease-in-out",
             isRecording && "border-red-500/70",
             className,
           )}
@@ -683,18 +683,18 @@ export const PromptInputBox = React.forwardRef(
                           }}
                           className="absolute top-1 right-1 rounded-full bg-slate-900/70 p-0.5 opacity-100 transition-opacity"
                         >
-                          <X className="h-3 w-3 text-slate-900" />
+                          <X className="h-3 w-3 text-slate-900 dark:text-slate-100" />
                         </button>
                       </div>
                     )}
                   {!file.type.startsWith("image/") && (
-                    <div className="flex h-16 min-w-44 items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 text-slate-700">
-                      <Paperclip className="h-4 w-4 shrink-0 text-slate-500" />
+                    <div className="flex h-16 min-w-44 items-center gap-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 px-3 text-slate-700 dark:text-slate-300">
+                      <Paperclip className="h-4 w-4 shrink-0 text-slate-500 dark:text-slate-400" />
                       <span className="min-w-0 flex-1 truncate text-sm font-medium">{file.name}</span>
                       <button
                         type="button"
                         onClick={() => handleRemoveFile(index)}
-                        className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-slate-500 hover:bg-slate-200 hover:text-slate-900"
+                        className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-200 hover:text-slate-900 dark:text-slate-100"
                         aria-label={`Remove ${file.name}`}
                       >
                         <X className="h-3.5 w-3.5" />
@@ -883,7 +883,7 @@ export const PromptInputBox = React.forwardRef(
                   className={cn(
                     "flex h-8 items-center gap-1 rounded-full border px-2 py-1 transition-all",
                     showCanvas
-                      ? "border-[#F97316] bg-[#F97316]/15 text-[#F97316]"
+                      ? "border-[#F97316] bg-[#F97316] dark:bg-slate-950/15 text-[#F97316]"
                       : "border-transparent bg-transparent text-[#9CA3AF] hover:text-[#D1D5DB]",
                   )}
                 >
@@ -969,7 +969,7 @@ export const PromptInputBox = React.forwardRef(
                 ) : hasContent ? (
                   <ArrowUp className="h-4 w-4 text-white" />
                 ) : (
-                  <Mic className="h-5 w-5 text-white transition-colors" />
+                  <Mic className="h-5 w-5 transition-colors" />
                 )}
               </Button>
             </PromptInputAction>

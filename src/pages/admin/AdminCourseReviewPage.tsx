@@ -49,14 +49,14 @@ export default function AdminCourseReviewPage() {
   }, [lessons, sections])
 
   if (courseLoading || lessonsLoading) {
-    return <div className="rounded-2xl border border-slate-200 bg-white p-6 text-sm font-bold text-slate-500">Loading product material...</div>
+    return <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-6 text-sm font-bold text-slate-500 dark:text-slate-400">Loading product material...</div>
   }
 
   if (!course) {
     return (
-      <div className="rounded-2xl border border-slate-200 bg-white p-6">
-        <p className="text-sm font-bold text-slate-600">Product not found.</p>
-        <Link to="/admin/courses" className="mt-4 inline-flex text-sm font-black text-emerald-600">Back to courses</Link>
+      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-6">
+        <p className="text-sm font-bold text-slate-600 dark:text-slate-400">Product not found.</p>
+        <Link to="/admin/courses" className="mt-4 inline-flex text-sm font-black text-emerald-600 dark:text-emerald-500">Back to courses</Link>
       </div>
     )
   }
@@ -67,9 +67,9 @@ export default function AdminCourseReviewPage() {
   return (
     <div className="space-y-6 pb-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
       {/* Header Card */}
-      <div className="flex flex-wrap items-start justify-between gap-6 rounded-[2.5rem] border border-white/50 dark:border-slate-800 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl p-6 sm:p-8 shadow-xl shadow-slate-200/40 dark:shadow-none transition-all">
+      <div className="flex flex-wrap items-start justify-between gap-6 rounded-[2.5rem] border border-white/50 dark:border-slate-800 bg-white dark:bg-slate-950/70 dark:bg-slate-900/70 backdrop-blur-xl p-6 sm:p-8 shadow-xl shadow-slate-200/40 dark:shadow-none transition-all">
         <div>
-          <button onClick={() => navigate('/admin/courses')} className="mb-4 inline-flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-emerald-600 transition-colors">
+          <button onClick={() => navigate('/admin/courses')} className="mb-4 inline-flex items-center gap-2 text-sm font-bold text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:text-emerald-500 transition-colors">
             <ArrowLeft className="h-4 w-4" />
             Back to courses
           </button>
@@ -77,16 +77,16 @@ export default function AdminCourseReviewPage() {
             <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-400">
               {course.title}
             </h1>
-            <span className={`inline-flex items-center rounded-full px-4 py-1.5 text-xs font-black uppercase tracking-widest shadow-sm ${course.status === CourseStatus.PUBLISHED ? 'bg-emerald-50 text-emerald-600 border border-emerald-100 dark:bg-emerald-900/20 dark:border-emerald-800/30 dark:text-emerald-400' : 'bg-slate-50 text-slate-600 border border-slate-200 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-400'}`}>
+            <span className={`inline-flex items-center rounded-full px-4 py-1.5 text-xs font-black uppercase tracking-widest shadow-sm ${course.status === CourseStatus.PUBLISHED ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-500 border border-emerald-100 dark:border-emerald-900/50 dark:bg-emerald-900/20 dark:border-emerald-800/30 dark:text-emerald-400' : 'bg-slate-50 dark:bg-slate-900/50 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-400'}`}>
               {course.status}
             </span>
           </div>
-          <p className="mt-2 text-sm font-bold text-slate-500 dark:text-slate-400">
-            {isDocument ? 'Document' : 'Course'} by <span className="text-emerald-600 dark:text-emerald-400">{course.instructorName || course.instructor?.fullName || 'Instructor'}</span>
+          <p className="mt-2 text-sm font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400">
+            {isDocument ? 'Document' : 'Course'} by <span className="text-emerald-600 dark:text-emerald-500 dark:text-emerald-400">{course.instructorName || course.instructor?.fullName || 'Instructor'}</span>
           </p>
         </div>
         <div className="flex flex-wrap gap-3 w-full sm:w-auto">
-          <Link to={`/courses/${course.courseId}`} className="inline-flex flex-1 sm:flex-none items-center justify-center gap-2 rounded-xl border border-slate-200/60 bg-white/50 dark:bg-slate-800/50 dark:border-slate-700 px-5 py-2.5 text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 hover:border-slate-300 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5">
+          <Link to={`/courses/${course.courseId}`} className="inline-flex flex-1 sm:flex-none items-center justify-center gap-2 rounded-xl border border-slate-200 dark:border-slate-800/60 bg-white dark:bg-slate-950/50 dark:bg-slate-800/50 dark:border-slate-700 px-5 py-2.5 text-sm font-bold text-slate-700 dark:text-slate-300 dark:text-slate-300 hover:bg-white dark:bg-slate-950 dark:hover:bg-slate-800 hover:border-slate-300 dark:border-slate-700 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5">
             View public page
           </Link>
           {course.status === CourseStatus.PUBLISHED && (
@@ -105,7 +105,7 @@ export default function AdminCourseReviewPage() {
       <section className="grid gap-6 lg:grid-cols-[400px_1fr]">
         <div className="flex flex-col gap-6">
           {/* Media & Meta */}
-          <div className="overflow-hidden rounded-[2.5rem] border border-white/50 dark:border-slate-800 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl shadow-xl shadow-slate-200/40 dark:shadow-none transition-all">
+          <div className="overflow-hidden rounded-[2.5rem] border border-white/50 dark:border-slate-800 bg-white dark:bg-slate-950/70 dark:bg-slate-900/70 backdrop-blur-xl shadow-xl shadow-slate-200/40 dark:shadow-none transition-all">
             <div className="aspect-video bg-slate-100 dark:bg-slate-800 relative group">
               {course.previewVideoUrl ? (
                 <video src={course.previewVideoUrl} poster={course.thumbnailUrl || undefined} controls className="h-full w-full bg-black object-cover" />
@@ -129,9 +129,9 @@ export default function AdminCourseReviewPage() {
 
         <div className="space-y-6 flex flex-col">
           {/* Summary */}
-          <div className="rounded-[2.5rem] border border-white/50 dark:border-slate-800 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl p-6 sm:p-8 shadow-xl shadow-slate-200/40 dark:shadow-none transition-all">
+          <div className="rounded-[2.5rem] border border-white/50 dark:border-slate-800 bg-white dark:bg-slate-950/70 dark:bg-slate-900/70 backdrop-blur-xl p-6 sm:p-8 shadow-xl shadow-slate-200/40 dark:shadow-none transition-all">
             <h2 className="text-xl font-extrabold text-slate-900 dark:text-white">Product Summary</h2>
-            <p className="mt-4 whitespace-pre-wrap text-sm font-medium leading-relaxed text-slate-600 dark:text-slate-400 bg-white/50 dark:bg-slate-800/50 p-5 rounded-2xl border border-slate-100 dark:border-slate-700/50">
+            <p className="mt-4 whitespace-pre-wrap text-sm font-medium leading-relaxed text-slate-600 dark:text-slate-400 dark:text-slate-400 bg-white dark:bg-slate-950/50 dark:bg-slate-800/50 p-5 rounded-2xl border border-slate-100 dark:border-slate-800 dark:border-slate-700/50">
               {course.description || 'No description provided.'}
             </p>
             <div className="mt-6 grid gap-4 sm:grid-cols-3">
@@ -142,19 +142,19 @@ export default function AdminCourseReviewPage() {
           </div>
 
           {/* Content */}
-          <div className="rounded-[2.5rem] border border-white/50 dark:border-slate-800 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl p-6 sm:p-8 shadow-xl shadow-slate-200/40 dark:shadow-none transition-all flex-1">
+          <div className="rounded-[2.5rem] border border-white/50 dark:border-slate-800 bg-white dark:bg-slate-950/70 dark:bg-slate-900/70 backdrop-blur-xl p-6 sm:p-8 shadow-xl shadow-slate-200/40 dark:shadow-none transition-all flex-1">
             <h2 className="text-xl font-extrabold text-slate-900 dark:text-white mb-6">{isDocument ? 'Document file' : 'Content Structure'}</h2>
             <div className="space-y-4">
               {(groupedSections.length ? groupedSections : [{ section: null, lessons }]).map((group, index) => (
-                <div key={group.section?.id || `group-${index}`} className="rounded-2xl border border-slate-200/60 dark:border-slate-700/60 bg-white/50 dark:bg-slate-800/30 p-5">
+                <div key={group.section?.id || `group-${index}`} className="rounded-2xl border border-slate-200 dark:border-slate-800/60 dark:border-slate-700/60 bg-white dark:bg-slate-950/50 dark:bg-slate-800/30 p-5">
                   <p className="text-sm font-extrabold text-slate-900 dark:text-white">{group.section?.title || `Section ${index + 1}`}</p>
                   <div className="mt-4 space-y-2">
                     {group.lessons.map((lesson) => (
-                      <div key={lesson.id} className="group/lesson flex items-center gap-4 rounded-xl bg-white dark:bg-slate-800 px-4 py-3 text-sm font-bold text-slate-700 dark:text-slate-300 border border-slate-100 dark:border-slate-700 shadow-sm transition-all hover:border-emerald-200 dark:hover:border-emerald-800 hover:shadow-md">
-                        <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center text-emerald-500 flex-shrink-0 group-hover/lesson:scale-110 transition-transform">
+                      <div key={lesson.id} className="group/lesson flex items-center gap-4 rounded-xl bg-white dark:bg-slate-950 dark:bg-slate-800 px-4 py-3 text-sm font-bold text-slate-700 dark:text-slate-300 dark:text-slate-300 border border-slate-100 dark:border-slate-800 dark:border-slate-700 shadow-sm transition-all hover:border-emerald-200 dark:border-emerald-800/50 dark:hover:border-emerald-800 hover:shadow-md">
+                        <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 dark:bg-emerald-900/20 flex items-center justify-center text-emerald-500 flex-shrink-0 group-hover/lesson:scale-110 transition-transform">
                           {lesson.lessonType === LessonType.DOCUMENT ? <Download className="h-4 w-4" /> : lesson.lessonType === LessonType.QUIZ ? <FileText className="h-4 w-4" /> : <PlayCircle className="h-4 w-4" />}
                         </div>
-                        <span className="truncate group-hover/lesson:text-emerald-600 dark:group-hover/lesson:text-emerald-400 transition-colors">{lesson.title}</span>
+                        <span className="truncate group-hover/lesson:text-emerald-600 dark:text-emerald-500 dark:group-hover/lesson:text-emerald-400 transition-colors">{lesson.title}</span>
                       </div>
                     ))}
                     {group.lessons.length === 0 && <p className="text-sm font-bold text-slate-400 dark:text-slate-500 py-2">No lessons in this section.</p>}
@@ -186,7 +186,7 @@ export default function AdminCourseReviewPage() {
 function Metric({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-center justify-between gap-4 py-1 border-b border-slate-100 dark:border-slate-800/50 last:border-0">
-      <span className="text-sm font-bold text-slate-500 dark:text-slate-400">{label}</span>
+      <span className="text-sm font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400">{label}</span>
       <span className="text-sm font-extrabold text-slate-900 dark:text-white text-right">{value}</span>
     </div>
   )
@@ -194,9 +194,9 @@ function Metric({ label, value }: { label: string; value: string }) {
 
 function Summary({ icon, label, value }: { icon: ReactNode; label: string; value: string }) {
   return (
-    <div className="rounded-2xl bg-white/60 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60 p-5 shadow-sm transition-all hover:shadow-md">
+    <div className="rounded-2xl bg-white dark:bg-slate-950/60 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800/60 dark:border-slate-700/60 p-5 shadow-sm transition-all hover:shadow-md">
       <div className="flex items-center gap-2.5 text-emerald-500 dark:text-emerald-400">
-        <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center">
+        <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 dark:bg-emerald-900/30 flex items-center justify-center">
           {icon}
         </div>
         <span className="text-[10px] font-black uppercase tracking-[0.2em]">{label}</span>

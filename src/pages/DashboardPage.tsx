@@ -78,8 +78,8 @@ export default function DashboardPage() {
       value: stats.enrolledCourses,
       icon: BookOpen,
       color: 'from-emerald-500 to-emerald-600',
-      bgLight: 'bg-emerald-50 dark:bg-emerald-900/20',
-      textColor: 'text-emerald-600 dark:text-emerald-400',
+      bgLight: 'bg-emerald-50 dark:bg-emerald-900/30 dark:bg-emerald-900/20',
+      textColor: 'text-emerald-600 dark:text-emerald-500 dark:text-emerald-400',
       link: '/courses',
     },
     {
@@ -87,8 +87,8 @@ export default function DashboardPage() {
       value: formatMxc(stats.walletBalance),
       icon: Wallet,
       color: 'from-emerald-500 to-emerald-600',
-      bgLight: 'bg-emerald-50 dark:bg-emerald-900/20',
-      textColor: 'text-emerald-600 dark:text-emerald-400',
+      bgLight: 'bg-emerald-50 dark:bg-emerald-900/30 dark:bg-emerald-900/20',
+      textColor: 'text-emerald-600 dark:text-emerald-500 dark:text-emerald-400',
       link: '/wallet',
       isString: true,
     },
@@ -97,7 +97,7 @@ export default function DashboardPage() {
       value: stats.unreadNotifications,
       icon: Bell,
       color: 'from-amber-500 to-amber-600',
-      bgLight: 'bg-amber-50 dark:bg-amber-900/20',
+      bgLight: 'bg-amber-50 dark:bg-amber-900/30 dark:bg-amber-900/20',
       textColor: 'text-amber-600 dark:text-amber-400',
       link: '/dashboard',
     },
@@ -108,7 +108,7 @@ export default function DashboardPage() {
       {/* Welcome Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
         <div>
-          <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">
+          <h1 className="text-3xl font-black text-gray-900 dark:text-gray-100 dark:text-white tracking-tight">
             {getGreeting()}, {user?.displayName || user?.fullName?.split(' ')[0] || 'there'}!
           </h1>
           <p className="text-gray-500 dark:text-gray-400 mt-1 font-medium flex items-center gap-1.5 italic">
@@ -133,7 +133,7 @@ export default function DashboardPage() {
           <Link
             key={card.label}
             to={card.link}
-            className="group bg-white dark:bg-gray-900 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 p-8 hover:shadow-2xl hover:-translate-y-1 transition-all duration-500"
+            className="group bg-white dark:bg-slate-950 dark:bg-gray-900 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 p-8 hover:shadow-2xl hover:-translate-y-1 transition-all duration-500"
           >
             <div className="flex items-start justify-between mb-6">
               <div className={`w-14 h-14 rounded-2xl ${card.bgLight} flex items-center justify-center group-hover:rotate-12 transition-transform`}>
@@ -146,7 +146,7 @@ export default function DashboardPage() {
               {loading ? (
                 <Skeleton className="h-10 w-32" />
               ) : (
-                <p className="text-3xl font-black text-gray-900 dark:text-white tracking-tighter">
+                <p className="text-3xl font-black text-gray-900 dark:text-gray-100 dark:text-white tracking-tighter">
                   {card.isString ? card.value : Number(card.value).toLocaleString()}
                 </p>
               )}
@@ -158,25 +158,25 @@ export default function DashboardPage() {
       {/* Bottom Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
         {/* Quick Actions */}
-        <div className="bg-white dark:bg-gray-900 rounded-[3rem] border border-gray-100 dark:border-gray-800 p-10 shadow-sm">
-          <h2 className="text-xl font-black text-gray-900 dark:text-white mb-8 tracking-tight">Quick Actions</h2>
+        <div className="bg-white dark:bg-slate-950 dark:bg-gray-900 rounded-[3rem] border border-gray-100 dark:border-gray-800 p-10 shadow-sm">
+          <h2 className="text-xl font-black text-gray-900 dark:text-gray-100 dark:text-white mb-8 tracking-tight">Quick Actions</h2>
           <div className="space-y-4">
             {[
               { to: '/jobs/create', label: 'Post a New Job', sub: 'Find the perfect mentor', icon: Briefcase, color: 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' },
-              { to: '/become-a-mentor', label: 'Become a Mentor', sub: 'Share your expertise', icon: Users, color: 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400' },
-              { to: '/courses', label: 'Browse Courses', sub: 'Learn something new', icon: BookOpen, color: 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400' },
-              { to: '/wallet', label: 'Manage Wallet', sub: 'Deposit, withdraw, transfer', icon: TrendingUp, color: 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400' },
+              { to: '/become-a-mentor', label: 'Become a Mentor', sub: 'Share your expertise', icon: Users, color: 'bg-emerald-50 dark:bg-emerald-900/30 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-500 dark:text-emerald-400' },
+              { to: '/courses', label: 'Browse Courses', sub: 'Learn something new', icon: BookOpen, color: 'bg-emerald-50 dark:bg-emerald-900/30 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-500 dark:text-emerald-400' },
+              { to: '/wallet', label: 'Manage Wallet', sub: 'Deposit, withdraw, transfer', icon: TrendingUp, color: 'bg-amber-50 dark:bg-amber-900/30 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400' },
             ].map((action) => (
               <Link
                 key={action.label}
                 to={action.to}
-                className="flex items-center gap-5 px-5 py-4 rounded-2xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-all group"
+                className="flex items-center gap-5 px-5 py-4 rounded-2xl hover:bg-gray-50 dark:bg-gray-900/50 dark:hover:bg-gray-800 transition-all group"
               >
                 <div className={`w-12 h-12 rounded-xl ${action.color} flex items-center justify-center group-hover:scale-110 transition-transform`}>
                   <action.icon className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className="text-sm font-black text-gray-900 dark:text-white">{action.label}</p>
+                  <p className="text-sm font-black text-gray-900 dark:text-gray-100 dark:text-white">{action.label}</p>
                   <p className="text-xs font-bold text-gray-400 dark:text-gray-500 mt-0.5">{action.sub}</p>
                 </div>
               </Link>
@@ -185,19 +185,19 @@ export default function DashboardPage() {
         </div>
 
         {/* Recent Activity */}
-        <div className="lg:col-span-2 bg-white dark:bg-gray-900 rounded-[3rem] border border-gray-100 dark:border-gray-800 p-10 shadow-sm">
-          <h2 className="text-xl font-black text-gray-900 dark:text-white mb-8 tracking-tight">Recent Activity</h2>
+        <div className="lg:col-span-2 bg-white dark:bg-slate-950 dark:bg-gray-900 rounded-[3rem] border border-gray-100 dark:border-gray-800 p-10 shadow-sm">
+          <h2 className="text-xl font-black text-gray-900 dark:text-gray-100 dark:text-white mb-8 tracking-tight">Recent Activity</h2>
           <div className="flex flex-col items-center justify-center py-20 text-center">
-            <div className="w-24 h-24 rounded-full bg-gray-50 dark:bg-gray-800 flex items-center justify-center mb-8 border border-gray-100 dark:border-gray-700">
+            <div className="w-24 h-24 rounded-full bg-gray-50 dark:bg-gray-900/50 dark:bg-gray-800 flex items-center justify-center mb-8 border border-gray-100 dark:border-gray-700">
               <Clock className="w-10 h-10 text-gray-200 dark:text-gray-700" />
             </div>
-            <p className="text-lg font-black text-gray-900 dark:text-white tracking-tight">No recent activity found</p>
+            <p className="text-lg font-black text-gray-900 dark:text-gray-100 dark:text-white tracking-tight">No recent activity found</p>
             <p className="text-sm font-bold text-gray-400 dark:text-gray-500 mt-2 max-w-xs mx-auto italic">
               Your activity feed will appear here as you interact with the platform.
             </p>
             <Link
               to="/mentors"
-              className="mt-10 px-8 py-3 bg-gray-50 dark:bg-gray-800 text-gray-400 dark:text-gray-500 font-black text-[10px] uppercase tracking-[0.2em] rounded-2xl hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all"
+              className="mt-10 px-8 py-3 bg-gray-50 dark:bg-gray-900/50 dark:bg-gray-800 text-gray-400 dark:text-gray-500 font-black text-[10px] uppercase tracking-[0.2em] rounded-2xl hover:bg-emerald-50 dark:bg-emerald-900/30 dark:hover:bg-emerald-900/20 hover:text-emerald-600 dark:text-emerald-500 dark:hover:text-emerald-400 transition-all"
             >
               Start by browsing mentors
             </Link>
@@ -218,10 +218,10 @@ function AnalyticsDashboardSection() {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-xl font-black text-gray-900 dark:text-white tracking-tight">Analytics</h2>
+      <h2 className="text-xl font-black text-gray-900 dark:text-gray-100 dark:text-white tracking-tight">Analytics</h2>
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {dashboard.sections.map((section) => (
-          <div key={section.section} className="rounded-[28px] border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-5 shadow-sm">
+          <div key={section.section} className="rounded-[28px] border border-gray-100 dark:border-gray-800 bg-white dark:bg-slate-950 dark:bg-gray-900 p-5 shadow-sm">
             <h3 className="text-xs font-black uppercase tracking-[0.16em] text-emerald-500 dark:text-emerald-400">
               {formatSectionLabel(section.section)}
             </h3>
@@ -229,7 +229,7 @@ function AnalyticsDashboardSection() {
               {section.tiles.map((tile) => (
                 <div key={tile.label} className="flex items-center justify-between">
                   <span className="text-sm font-medium text-gray-500 dark:text-gray-400">{tile.label}</span>
-                  <span className="text-sm font-black text-gray-900 dark:text-white">{tile.value}</span>
+                  <span className="text-sm font-black text-gray-900 dark:text-gray-100 dark:text-white">{tile.value}</span>
                 </div>
               ))}
             </div>

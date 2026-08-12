@@ -84,7 +84,7 @@ export default function DiscoveryFeedPage() {
         <div className="flex items-center justify-center py-20">
           <div className="text-center">
             <Loader2 className="w-12 h-12 text-primary-600 animate-spin mx-auto mb-4" />
-            <p className="text-gray-600 dark:text-gray-400">Loading your personalized feed...</p>
+            <p className="text-gray-600 dark:text-gray-400 dark:text-gray-400">Loading your personalized feed...</p>
           </div>
         </div>
       )}
@@ -119,7 +119,7 @@ export default function DiscoveryFeedPage() {
                 </p>
               </div>
               <div className="hidden lg:block">
-                <div className="w-32 h-32 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm">
+                <div className="w-32 h-32 bg-white dark:bg-slate-950/10 rounded-full flex items-center justify-center backdrop-blur-sm">
                   <TrendingUp className="w-16 h-16" />
                 </div>
               </div>
@@ -131,7 +131,7 @@ export default function DiscoveryFeedPage() {
         <div>
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="text-2xl font-black text-gray-900 dark:text-white">
+              <h2 className="text-2xl font-black text-gray-900 dark:text-gray-100 dark:text-white">
                 Top Mentors For You
               </h2>
               <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
@@ -150,14 +150,14 @@ export default function DiscoveryFeedPage() {
                 <button
                   onClick={prevMentorSlide}
                   disabled={mentorSlideIndex === 0}
-                  className="p-2 rounded-xl bg-white dark:bg-slate-950 border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  className="p-2 rounded-xl bg-white dark:bg-slate-950 border border-gray-200 dark:border-gray-800 dark:border-gray-800 hover:bg-gray-50 dark:bg-gray-900/50 dark:hover:bg-gray-900 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                 >
                   <ChevronLeft className="w-5 h-5" />
                 </button>
                 <button
                   onClick={nextMentorSlide}
                   disabled={mentorSlideIndex >= maxSlideIndex}
-                  className="p-2 rounded-xl bg-white dark:bg-slate-950 border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  className="p-2 rounded-xl bg-white dark:bg-slate-950 border border-gray-200 dark:border-gray-800 dark:border-gray-800 hover:bg-gray-50 dark:bg-gray-900/50 dark:hover:bg-gray-900 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                 >
                   <ChevronRight className="w-5 h-5" />
                 </button>
@@ -173,7 +173,7 @@ export default function DiscoveryFeedPage() {
               {mentors.map((mentor) => (
                 <div
                   key={mentor.mentorId}
-                  className="flex-shrink-0 w-[calc(33.333%-16px)] bg-white dark:bg-slate-950 rounded-2xl border border-gray-200 dark:border-gray-800 p-6 hover:border-primary-300 dark:hover:border-primary-700 transition-all group"
+                  className="flex-shrink-0 w-[calc(33.333%-16px)] bg-white dark:bg-slate-950 rounded-2xl border border-gray-200 dark:border-gray-800 dark:border-gray-800 p-6 hover:border-primary-300 dark:hover:border-primary-700 transition-all group"
                 >
                   {/* Match Score Badge */}
                   <div className="flex items-center justify-between mb-4">
@@ -181,7 +181,7 @@ export default function DiscoveryFeedPage() {
                       <Zap className="w-3 h-3" />
                       {Math.round(mentor.matchScore)}% Match
                     </div>
-                    <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                    <button className="p-2 rounded-full hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-800 transition-colors">
                       <Heart className="w-5 h-5 text-gray-400" />
                     </button>
                   </div>
@@ -200,10 +200,10 @@ export default function DiscoveryFeedPage() {
                       </div>
                     )}
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-black text-gray-900 dark:text-white truncate">
+                      <h3 className="font-black text-gray-900 dark:text-gray-100 dark:text-white truncate">
                         {mentor.displayName || mentor.fullName}
                       </h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 truncate">
+                      <p className="text-sm text-gray-600 dark:text-gray-400 dark:text-gray-400 truncate">
                         {mentor.headline || 'Mentor'}
                       </p>
                     </div>
@@ -213,7 +213,7 @@ export default function DiscoveryFeedPage() {
                   <div className="flex items-center gap-4 mb-4 text-sm">
                     <div className="flex items-center gap-1">
                       <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                      <span className="font-bold text-gray-900 dark:text-white">
+                      <span className="font-bold text-gray-900 dark:text-gray-100 dark:text-white">
                         {mentor.averageRating?.toFixed(1) || 'N/A'}
                       </span>
                       <span className="text-gray-500 dark:text-gray-400">
@@ -221,7 +221,7 @@ export default function DiscoveryFeedPage() {
                       </span>
                     </div>
                     {mentor.hourlyRateMxc && (
-                      <div className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
+                      <div className="flex items-center gap-1 text-gray-600 dark:text-gray-400 dark:text-gray-400">
                         <DollarSign className="w-4 h-4" />
                         <span className="font-bold">{mentor.hourlyRateMxc} MXC/hr</span>
                       </div>
@@ -233,7 +233,7 @@ export default function DiscoveryFeedPage() {
                     {mentor.skills.slice(0, 3).map((skill) => (
                       <span
                         key={skill}
-                        className="px-2 py-1 rounded-lg bg-gray-100 dark:bg-gray-800 text-xs font-semibold text-gray-700 dark:text-gray-300"
+                        className="px-2 py-1 rounded-lg bg-gray-100 dark:bg-gray-800 dark:bg-gray-800 text-xs font-semibold text-gray-700 dark:text-gray-300 dark:text-gray-300"
                       >
                         {skill}
                       </span>
@@ -267,7 +267,7 @@ export default function DiscoveryFeedPage() {
         <div>
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="text-2xl font-black text-gray-900 dark:text-white">
+              <h2 className="text-2xl font-black text-gray-900 dark:text-gray-100 dark:text-white">
                 Knowledge Feed
               </h2>
               <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
@@ -287,7 +287,7 @@ export default function DiscoveryFeedPage() {
             {knowledge.slice(0, 3).map((post) => (
               <div
                 key={post.id}
-                className="bg-white dark:bg-slate-950 rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden hover:border-primary-300 dark:hover:border-primary-700 transition-all group cursor-pointer"
+                className="bg-white dark:bg-slate-950 rounded-2xl border border-gray-200 dark:border-gray-800 dark:border-gray-800 overflow-hidden hover:border-primary-300 dark:hover:border-primary-700 transition-all group cursor-pointer"
               >
                 {/* Thumbnail */}
                 {post.thumbnailUrl ? (
@@ -321,12 +321,12 @@ export default function DiscoveryFeedPage() {
                   </div>
 
                   {/* Title */}
-                  <h3 className="font-black text-gray-900 dark:text-white mb-2 line-clamp-2 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                  <h3 className="font-black text-gray-900 dark:text-gray-100 dark:text-white mb-2 line-clamp-2 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
                     {post.title}
                   </h3>
 
                   {/* Excerpt */}
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">
+                  <p className="text-sm text-gray-600 dark:text-gray-400 dark:text-gray-400 mb-4 line-clamp-2">
                     {post.excerpt}
                   </p>
 
@@ -335,7 +335,7 @@ export default function DiscoveryFeedPage() {
                     {post.tags.slice(0, 3).map((tag) => (
                       <span
                         key={tag}
-                        className="px-2 py-1 rounded-lg bg-gray-100 dark:bg-gray-800 text-xs font-semibold text-gray-700 dark:text-gray-300"
+                        className="px-2 py-1 rounded-lg bg-gray-100 dark:bg-gray-800 dark:bg-gray-800 text-xs font-semibold text-gray-700 dark:text-gray-300 dark:text-gray-300"
                       >
                         {tag}
                       </span>
@@ -357,7 +357,7 @@ export default function DiscoveryFeedPage() {
                         </div>
                       )}
                       <div>
-                        <p className="text-xs font-bold text-gray-900 dark:text-white">
+                        <p className="text-xs font-bold text-gray-900 dark:text-gray-100 dark:text-white">
                           {post.authorName}
                         </p>
                         <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -388,7 +388,7 @@ export default function DiscoveryFeedPage() {
         <div>
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="text-2xl font-black text-gray-900 dark:text-white">
+              <h2 className="text-2xl font-black text-gray-900 dark:text-gray-100 dark:text-white">
                 Courses You'll Love
               </h2>
               <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
@@ -409,7 +409,7 @@ export default function DiscoveryFeedPage() {
               <Link
                 key={course.courseId}
                 to={`/courses/${course.courseId}`}
-                className="bg-white dark:bg-slate-950 rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden hover:border-primary-300 dark:hover:border-primary-700 transition-all group"
+                className="bg-white dark:bg-slate-950 rounded-2xl border border-gray-200 dark:border-gray-800 dark:border-gray-800 overflow-hidden hover:border-primary-300 dark:hover:border-primary-700 transition-all group"
               >
                 {/* Thumbnail */}
                 {course.thumbnailUrl ? (
@@ -440,12 +440,12 @@ export default function DiscoveryFeedPage() {
                   </div>
 
                   {/* Title */}
-                  <h3 className="font-black text-gray-900 dark:text-white mb-2 line-clamp-2 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                  <h3 className="font-black text-gray-900 dark:text-gray-100 dark:text-white mb-2 line-clamp-2 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
                     {course.title}
                   </h3>
 
                   {/* Instructor */}
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                  <p className="text-sm text-gray-600 dark:text-gray-400 dark:text-gray-400 mb-3">
                     by {course.instructorName}
                   </p>
 
@@ -454,17 +454,17 @@ export default function DiscoveryFeedPage() {
                     {course.averageRating && (
                       <div className="flex items-center gap-1">
                         <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                        <span className="font-bold text-gray-900 dark:text-white">
+                        <span className="font-bold text-gray-900 dark:text-gray-100 dark:text-white">
                           {course.averageRating.toFixed(1)}
                         </span>
                       </div>
                     )}
-                    <div className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
+                    <div className="flex items-center gap-1 text-gray-600 dark:text-gray-400 dark:text-gray-400">
                       <Users className="w-4 h-4" />
                       <span>{course.totalEnrollments.toLocaleString()}</span>
                     </div>
                     {course.totalDurationMinutes && (
-                      <div className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
+                      <div className="flex items-center gap-1 text-gray-600 dark:text-gray-400 dark:text-gray-400">
                         <Clock className="w-4 h-4" />
                         <span>{Math.round(course.totalDurationMinutes / 60)}h</span>
                       </div>
@@ -498,7 +498,7 @@ export default function DiscoveryFeedPage() {
         <div>
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="text-2xl font-black text-gray-900 dark:text-white">
+              <h2 className="text-2xl font-black text-gray-900 dark:text-gray-100 dark:text-white">
                 Quick Support Requests
               </h2>
               <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
@@ -519,12 +519,12 @@ export default function DiscoveryFeedPage() {
               <Link
                 key={job.jobId}
                 to={`/jobs/${job.jobId}`}
-                className="bg-white dark:bg-slate-950 rounded-2xl border border-gray-200 dark:border-gray-800 p-6 hover:border-primary-300 dark:hover:border-primary-700 transition-all group"
+                className="bg-white dark:bg-slate-950 rounded-2xl border border-gray-200 dark:border-gray-800 dark:border-gray-800 p-6 hover:border-primary-300 dark:hover:border-primary-700 transition-all group"
               >
                 {/* Header */}
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-2">
-                    <div className="w-10 h-10 rounded-xl bg-orange-50 dark:bg-orange-500/10 flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-xl bg-orange-50 dark:bg-orange-900/30 dark:bg-orange-500/10 flex items-center justify-center">
                       <Briefcase className="w-5 h-5 text-orange-600 dark:text-orange-400" />
                     </div>
                     <div>
@@ -557,19 +557,19 @@ export default function DiscoveryFeedPage() {
                 </div>
 
                 {/* Title */}
-                <h3 className="font-black text-gray-900 dark:text-white mb-2 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                <h3 className="font-black text-gray-900 dark:text-gray-100 dark:text-white mb-2 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
                   {job.title}
                 </h3>
 
                 {/* Description */}
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">
+                <p className="text-sm text-gray-600 dark:text-gray-400 dark:text-gray-400 mb-4 line-clamp-2">
                   {job.description}
                 </p>
 
                 {/* Category */}
                 {job.categoryName && (
                   <div className="flex flex-wrap gap-2 mb-4">
-                    <span className="px-2 py-1 rounded-lg bg-gray-100 dark:bg-gray-800 text-xs font-semibold text-gray-700 dark:text-gray-300">
+                    <span className="px-2 py-1 rounded-lg bg-gray-100 dark:bg-gray-800 dark:bg-gray-800 text-xs font-semibold text-gray-700 dark:text-gray-300 dark:text-gray-300">
                       {job.categoryName}
                     </span>
                   </div>

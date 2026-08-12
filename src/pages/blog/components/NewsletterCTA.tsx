@@ -20,7 +20,7 @@ export function NewsletterCTA({
 
       <div className="relative grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,420px)] lg:items-center">
         <div>
-          <p className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[11px] font-black uppercase tracking-[0.15em] text-emerald-100">
+          <p className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white dark:bg-slate-950/10 px-3 py-1 text-[11px] font-black uppercase tracking-[0.15em] text-emerald-100">
             <Mail className="h-3.5 w-3.5" />
             Bản tin hàng tuần
           </p>
@@ -31,19 +31,19 @@ export function NewsletterCTA({
         </div>
 
         <div>
-          <div className="rounded-2xl border border-white/20 bg-white/10 p-3 backdrop-blur">
+          <div className="rounded-2xl border border-white/20 bg-white dark:bg-slate-950/10 p-3 backdrop-blur">
             <div className="flex flex-col gap-2 sm:flex-row">
               <input
                 type="email"
                 value={email}
                 onChange={(event) => onEmailChange(event.target.value)}
                 placeholder="you@company.com"
-                className="h-11 w-full rounded-xl border border-white/20 bg-white/95 px-3 text-sm font-medium text-slate-800 outline-none transition focus:border-emerald-300 focus:ring-4 focus:ring-emerald-200/40"
+                className="h-11 w-full rounded-xl border border-white/20 bg-white dark:bg-slate-950/95 px-3 text-sm font-medium text-slate-800 dark:text-slate-200 outline-none transition focus:border-emerald-300 focus:ring-4 focus:ring-emerald-200/40"
               />
               <button
                 type="button"
                 onClick={onSubmit}
-                className="inline-flex h-11 items-center justify-center gap-1 rounded-xl bg-white px-4 text-sm font-black text-emerald-700 transition hover:bg-emerald-50"
+                className="inline-flex h-11 items-center justify-center gap-1 rounded-xl bg-white dark:bg-slate-950 px-4 text-sm font-black text-emerald-700 dark:text-emerald-400 transition hover:bg-emerald-50 dark:bg-emerald-900/30"
               >
                 Subscribe
                 <Send className="h-4 w-4" />

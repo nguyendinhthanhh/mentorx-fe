@@ -565,14 +565,14 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="relative space-y-6 overflow-hidden rounded-[24px] border border-white/60 bg-white/70 p-4 shadow-[0_8px_30px_rgb(0,0,0,0.04)] backdrop-blur-xl sm:space-y-8 sm:p-8 lg:p-10">
+    <form onSubmit={handleSubmit(onSubmit)} className="relative space-y-6 overflow-hidden rounded-[24px] border border-white/60 bg-white dark:bg-slate-950/70 p-4 shadow-[0_8px_30px_rgb(0,0,0,0.04)] backdrop-blur-xl sm:space-y-8 sm:p-8 lg:p-10">
       {/* Decorative gradient corner inside form */}
       <div className="absolute -top-24 -right-24 w-48 h-48 bg-gradient-to-br from-[#4f46e5]/10 to-emerald-500/10 rounded-full blur-2xl pointer-events-none"></div>
       <div>
-        <label className="mb-2 block text-sm font-bold text-[#1b2252]">Tiêu đề công việc</label>
+        <label className="mb-2 block text-sm font-bold text-[#1b2252] dark:text-slate-100">Tiêu đề công việc</label>
         <input
           {...register('title')}
-          className="w-full rounded-xl border border-slate-200 bg-white/80 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300 transition"
+          className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950/80 px-4 py-3 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300 dark:border-slate-700 transition"
           placeholder="Ví dụ: Cần một mentor React Native để đánh giá kiến trúc ứng dụng đặt chỗ"
         />
         {errors.title && <p className="mt-1.5 text-xs font-medium text-rose-500">{errors.title.message}</p>}
@@ -580,11 +580,11 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label className="mb-2 block text-sm font-bold text-[#1b2252]">Danh mục</label>
+          <label className="mb-2 block text-sm font-bold text-[#1b2252] dark:text-slate-100">Danh mục</label>
           <div className="relative">
             <select
               {...register('categoryId')}
-              className="w-full appearance-none rounded-xl border border-slate-200 bg-white/80 px-4 py-3 text-sm text-slate-900 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300 transition"
+              className="w-full appearance-none rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950/80 px-4 py-3 text-sm text-slate-900 dark:text-slate-100 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300 dark:border-slate-700 transition"
             >
               <option value="">Chọn một danh mục</option>
               {categories.map((category) => (
@@ -599,7 +599,7 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
             <div className="mt-3">
               <input
                 {...register('customCategoryName')}
-                className="w-full rounded-xl border border-slate-200 bg-white/80 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300 transition"
+                className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950/80 px-4 py-3 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300 dark:border-slate-700 transition"
                 placeholder="Nhập danh mục của riêng bạn"
               />
               {errors.customCategoryName && <p className="mt-1.5 text-xs font-medium text-rose-500">{errors.customCategoryName.message}</p>}
@@ -608,18 +608,18 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-bold text-[#1b2252]">Ngày và giờ kết thúc</label>
+          <label className="mb-2 block text-sm font-bold text-[#1b2252] dark:text-slate-100">Ngày và giờ kết thúc</label>
           <input
             type="datetime-local"
             step={1}
             {...register('deadlineDate')}
-            className="w-full rounded-xl border border-slate-200 bg-white/80 px-3 py-3 text-sm text-slate-900 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300 transition"
+            className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950/80 px-3 py-3 text-sm text-slate-900 dark:text-slate-100 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300 dark:border-slate-700 transition"
           />
-          <div className="mt-2 space-y-1 rounded-xl border border-slate-100 bg-slate-50 px-3 py-2">
-            <p className="text-xs font-semibold text-[#1b2252]/80">
-              Đã chọn: <span className="font-bold text-slate-900">{selectedDeadlinePreview}</span>
+          <div className="mt-2 space-y-1 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 px-3 py-2">
+            <p className="text-xs font-semibold text-[#1b2252] dark:text-slate-100/80">
+              Đã chọn: <span className="font-bold text-slate-900 dark:text-slate-100">{selectedDeadlinePreview}</span>
             </p>
-            <p className={`text-xs font-semibold ${selectedDeadline && new Date(selectedDeadline).getTime() > Date.now() ? 'text-emerald-700' : 'text-slate-500'}`}>
+            <p className={`text-xs font-semibold ${selectedDeadline && new Date(selectedDeadline).getTime() > Date.now() ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-500 dark:text-slate-400'}`}>
               {selectedDeadlineRemaining}
             </p>
           </div>
@@ -628,11 +628,11 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
       </div>
 
       <div>
-        <label className="mb-2 block text-sm font-bold text-[#1b2252]">Mô tả</label>
+        <label className="mb-2 block text-sm font-bold text-[#1b2252] dark:text-slate-100">Mô tả</label>
         <textarea
           {...register('description')}
           rows={5}
-          className="w-full resize-none rounded-xl border border-slate-200 bg-white/80 px-4 py-3 text-sm leading-6 text-slate-900 placeholder:text-slate-400 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300 transition"
+          className="w-full resize-none rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950/80 px-4 py-3 text-sm leading-6 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300 dark:border-slate-700 transition"
           placeholder="Mô tả vấn đề, mục tiêu, phạm vi và loại hỗ trợ của mentor mà bạn cần."
         />
         {errors.description && <p className="mt-1.5 text-xs font-medium text-rose-500">{errors.description.message}</p>}
@@ -640,42 +640,42 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
 
       <div>
         <div className="mb-2 flex items-baseline justify-between">
-          <label className="block text-sm font-bold text-[#1b2252]">Kỹ năng hoặc chủ đề <span className="text-slate-400 font-normal">(không bắt buộc)</span></label>
+          <label className="block text-sm font-bold text-[#1b2252] dark:text-slate-100">Kỹ năng hoặc chủ đề <span className="text-slate-400 font-normal">(không bắt buộc)</span></label>
         </div>
         <input
           {...register('requiredSkillsInput')}
-          className="w-full rounded-xl border border-slate-200 bg-white/80 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300 transition"
+          className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950/80 px-4 py-3 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300 dark:border-slate-700 transition"
           placeholder="VD: React Native, Thiết kế UI, AWS (phân cách bằng dấu phẩy)"
         />
         {errors.requiredSkillsInput && <p className="mt-1.5 text-xs font-medium text-rose-500">{errors.requiredSkillsInput.message}</p>}
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-slate-100 bg-slate-50/80 transition-all">
+      <div className="overflow-hidden rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/30 transition-all">
         <button
           type="button"
           onClick={() => setShowAdvanced((value) => !value)}
-          className="flex w-full items-center justify-between px-5 py-4 text-left text-sm font-bold text-[#1b2252]/80 hover:bg-slate-100/50"
+          className="flex w-full items-center justify-between px-5 py-4 text-left text-sm font-bold text-[#1b2252] dark:text-slate-100/80 hover:bg-slate-100/50"
         >
           <span>Chi tiết nâng cao</span>
           <ChevronDown className={`h-4 w-4 text-slate-400 transition-transform ${showAdvanced ? 'rotate-180' : ''}`} />
         </button>
 
         {showAdvanced && (
-          <div className="grid gap-4 border-t border-slate-100 p-5 pt-4 sm:grid-cols-2">
+          <div className="grid gap-4 border-t border-slate-100 dark:border-slate-800 p-5 pt-4 sm:grid-cols-2">
             <div>
-              <label className="mb-2 block text-xs font-bold text-[#1b2252]/80">Trình độ hiện tại của bạn</label>
+              <label className="mb-2 block text-xs font-bold text-[#1b2252] dark:text-slate-100/80">Trình độ hiện tại của bạn</label>
               <input
                 {...register('currentLevel')}
-                className="w-full rounded-lg border border-slate-200 bg-white/80 px-3 py-2.5 text-sm text-slate-900 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300"
+                className="w-full rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950/80 px-3 py-2.5 text-sm text-slate-900 dark:text-slate-100 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300 dark:border-slate-700"
                 placeholder="Ví dụ: Tôi có thể xây dựng giao diện nhưng cần trợ giúp về kiến trúc"
               />
             </div>
 
             <div>
-              <label className="mb-2 block text-xs font-bold text-[#1b2252]/80">Cấp độ mentor mong muốn</label>
+              <label className="mb-2 block text-xs font-bold text-[#1b2252] dark:text-slate-100/80">Cấp độ mentor mong muốn</label>
               <select
                 {...register('experiencePreset')}
-                className="w-full rounded-lg border border-slate-200 bg-white/80 px-3 py-2.5 text-sm text-slate-900 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300"
+                className="w-full rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950/80 px-3 py-2.5 text-sm text-slate-900 dark:text-slate-100 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300 dark:border-slate-700"
               >
                 {experienceOptions.map((option) => (
                   <option key={option.value || 'default'} value={option.value}>{option.label}</option>
@@ -684,7 +684,7 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
               {experiencePreset === EXPERIENCE_CUSTOM && (
                 <input
                   {...register('customExperienceLevel')}
-                  className="mt-3 w-full rounded-lg border border-slate-200 bg-white/80 px-3 py-2.5 text-sm text-slate-900 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300"
+                  className="mt-3 w-full rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950/80 px-3 py-2.5 text-sm text-slate-900 dark:text-slate-100 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300 dark:border-slate-700"
                   placeholder="Nhập cấp độ mentor mong muốn của riêng bạn"
                 />
               )}
@@ -692,30 +692,30 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
             </div>
 
             <div className="sm:col-span-2">
-              <label className="mb-2 block text-xs font-bold text-[#1b2252]/80">Mục tiêu học tập</label>
+              <label className="mb-2 block text-xs font-bold text-[#1b2252] dark:text-slate-100/80">Mục tiêu học tập</label>
               <textarea
                 {...register('learningGoals')}
                 rows={2}
-                className="w-full resize-none rounded-lg border border-slate-200 bg-white/80 px-3 py-2 text-sm text-slate-900 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300"
+                className="w-full resize-none rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950/80 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300 dark:border-slate-700"
                 placeholder="Điều gì sẽ thay đổi sau khi làm việc với mentor?"
               />
             </div>
 
             <div className="sm:col-span-2">
-              <label className="mb-2 block text-xs font-bold text-[#1b2252]/80">Tiêu chí thành công</label>
+              <label className="mb-2 block text-xs font-bold text-[#1b2252] dark:text-slate-100/80">Tiêu chí thành công</label>
               <textarea
                 {...register('successCriteria')}
                 rows={2}
-                className="w-full resize-none rounded-lg border border-slate-200 bg-white/80 px-3 py-2 text-sm text-slate-900 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300"
+                className="w-full resize-none rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950/80 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300 dark:border-slate-700"
                 placeholder="Làm thế nào để biết công việc này hoàn thành tốt?"
               />
             </div>
 
             <div>
-              <label className="mb-2 block text-xs font-bold text-[#1b2252]/80">Hình thức giao tiếp mong muốn</label>
+              <label className="mb-2 block text-xs font-bold text-[#1b2252] dark:text-slate-100/80">Hình thức giao tiếp mong muốn</label>
               <select
                 {...register('communicationPreset')}
-                className="w-full rounded-lg border border-slate-200 bg-white/80 px-3 py-2.5 text-sm text-slate-900 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300"
+                className="w-full rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950/80 px-3 py-2.5 text-sm text-slate-900 dark:text-slate-100 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300 dark:border-slate-700"
               >
                 {communicationOptions.map((option) => (
                   <option key={option.value || 'default'} value={option.value}>{option.label}</option>
@@ -724,7 +724,7 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
               {communicationPreset === COMMUNICATION_CUSTOM && (
                 <input
                   {...register('customCommunicationPreference')}
-                  className="mt-3 w-full rounded-lg border border-slate-200 bg-white/80 px-3 py-2.5 text-sm text-slate-900 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300"
+                  className="mt-3 w-full rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950/80 px-3 py-2.5 text-sm text-slate-900 dark:text-slate-100 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300 dark:border-slate-700"
                   placeholder="Nhập sở thích giao tiếp của riêng bạn"
                 />
               )}
@@ -732,10 +732,10 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
             </div>
 
             <div>
-              <label className="mb-2 block text-xs font-bold text-[#1b2252]/80">Ghi chú thời gian</label>
+              <label className="mb-2 block text-xs font-bold text-[#1b2252] dark:text-slate-100/80">Ghi chú thời gian</label>
               <input
                 {...register('availabilityExpectation')}
-                className="w-full rounded-lg border border-slate-200 bg-white/80 px-3 py-2.5 text-sm text-slate-900 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300"
+                className="w-full rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950/80 px-3 py-2.5 text-sm text-slate-900 dark:text-slate-100 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300 dark:border-slate-700"
                 placeholder="Ví dụ: Buổi tối trong tuần hoặc cuối tuần"
               />
             </div>
@@ -746,19 +746,19 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
 
       <div>
         <div className="mb-4 flex items-center justify-between">
-          <label className="block text-sm font-bold text-[#1b2252]">Ngân sách</label>
-          <div className="flex items-center rounded-lg border border-slate-200 bg-slate-50 p-1">
+          <label className="block text-sm font-bold text-[#1b2252] dark:text-slate-100">Ngân sách</label>
+          <div className="flex items-center rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 p-1">
             <button
               type="button"
               onClick={() => setValue('budgetType', 'FIXED')}
-              className={`rounded-md px-3 py-1.5 text-xs font-bold transition ${budgetType === 'FIXED' ? 'bg-white/80 text-blue-600 shadow-sm' : 'text-slate-500 hover:text-[#1b2252]/80'}`}
+              className={`rounded-md px-3 py-1.5 text-xs font-bold transition ${budgetType === 'FIXED' ? 'bg-white dark:bg-slate-950/80 text-blue-600 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-[#1b2252] dark:text-slate-100/80'}`}
             >
               Cố định
             </button>
             <button
               type="button"
               onClick={() => setValue('budgetType', 'HOURLY')}
-              className={`rounded-md px-3 py-1.5 text-xs font-bold transition ${budgetType === 'HOURLY' ? 'bg-white/80 text-blue-600 shadow-sm' : 'text-slate-500 hover:text-[#1b2252]/80'}`}
+              className={`rounded-md px-3 py-1.5 text-xs font-bold transition ${budgetType === 'HOURLY' ? 'bg-white dark:bg-slate-950/80 text-blue-600 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-[#1b2252] dark:text-slate-100/80'}`}
             >
               Theo giờ
             </button>
@@ -770,10 +770,10 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
             <input
               type="number"
               {...register('budgetAmount')}
-              className="w-full rounded-xl border border-slate-200 bg-white/80 pl-4 pr-16 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300 transition [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950/80 pl-4 pr-16 py-3 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300 dark:border-slate-700 transition [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               placeholder="Tổng ngân sách"
             />
-            <div className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-bold text-[#1b2252]/80">
+            <div className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-bold text-[#1b2252] dark:text-slate-100/80">
               MXC
             </div>
             {errors.budgetAmount && <p className="mt-1.5 text-xs font-medium text-rose-500">{errors.budgetAmount.message}</p>}
@@ -784,10 +784,10 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
               <input
                 type="number"
                 {...register('hourlyRate')}
-                className="w-full rounded-xl border border-slate-200 bg-white/80 pl-4 pr-20 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300 transition [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950/80 pl-4 pr-20 py-3 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300 dark:border-slate-700 transition [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 placeholder="Mức lương theo giờ"
               />
-              <div className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-bold text-[#1b2252]/80">
+              <div className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-bold text-[#1b2252] dark:text-slate-100/80">
                 MXC/h
               </div>
               {errors.hourlyRate && <p className="mt-1.5 text-xs font-medium text-rose-500">{errors.hourlyRate.message}</p>}
@@ -797,10 +797,10 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
               <input
                 type="number"
                 {...register('estimatedHours')}
-                className="w-full rounded-xl border border-slate-200 bg-white/80 pl-4 pr-16 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300 transition [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950/80 pl-4 pr-16 py-3 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#4f46e5]/15 shadow-sm hover:border-slate-300 dark:border-slate-700 transition [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 placeholder="Số giờ ước tính"
               />
-              <div className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-bold text-[#1b2252]/80">
+              <div className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-bold text-[#1b2252] dark:text-slate-100/80">
                 hrs
               </div>
               {errors.estimatedHours && <p className="mt-1.5 text-xs font-medium text-rose-500">{errors.estimatedHours.message}</p>}
@@ -809,7 +809,7 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
         )}
       </div>
 
-      <div className="flex items-start gap-3 rounded-xl border border-[#e5eeff] bg-[#f4f8ff] px-4 py-3 text-[13px] leading-relaxed text-blue-900">
+      <div className="flex items-start gap-3 rounded-xl border border-[#e5eeff] dark:border-indigo-900/50 bg-[#f4f8ff] dark:bg-blue-900/30 dark:bg-slate-950 px-4 py-3 text-[13px] leading-relaxed text-blue-900">
         <Info className="mt-[3px] h-4 w-4 shrink-0 text-[#4f46e5]" />
         <p>
           {SKIP_JOB_FUNDING_FOR_DEMO
@@ -819,19 +819,19 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
       </div>
 
       <div>
-        <label className="mb-2 block text-sm font-bold text-[#1b2252]">Tệp đính kèm (hỗ trợ nhiều file)</label>
-        <p className="mb-3 text-xs font-medium text-slate-500">{attachmentSummary}</p>
+        <label className="mb-2 block text-sm font-bold text-[#1b2252] dark:text-slate-100">Tệp đính kèm (hỗ trợ nhiều file)</label>
+        <p className="mb-3 text-xs font-medium text-slate-500 dark:text-slate-400">{attachmentSummary}</p>
 
-        <label className="group flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 bg-[#fafafa] px-6 py-8 transition hover:border-[#4f46e5]/50 hover:bg-[#4f46e5]/5">
+        <label className="group flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-800 bg-[#fafafa] dark:bg-slate-900/50 dark:bg-slate-950 px-6 py-8 transition hover:border-[#4f46e5]/50 hover:bg-[#4f46e5]/5">
           <input type="file" multiple onChange={handleFilesUpload} className="hidden" disabled={uploading} />
           {uploading ? (
             <Loader2 className="h-8 w-8 animate-spin text-[#4f46e5]" />
           ) : (
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f1f5f9] text-[#94a3b8] transition-all group-hover:scale-110 group-hover:text-[#4f46e5] group-hover:bg-indigo-50">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f1f5f9] dark:bg-slate-800 dark:bg-slate-950 text-[#94a3b8] transition-all group-hover:scale-110 group-hover:text-[#4f46e5] group-hover:bg-indigo-50 dark:bg-indigo-900/30">
               <Upload className="h-6 w-6" />
             </div>
           )}
-          <p className="mt-4 text-[13px] font-medium text-slate-500">
+          <p className="mt-4 text-[13px] font-medium text-slate-500 dark:text-slate-400">
             {uploading ? 'Đang tải file lên...' : 'Thả file vào đây hoặc duyệt từ thiết bị của bạn'}
           </p>
           <p className="mt-1 text-[11px] font-medium uppercase tracking-wide text-slate-400">PDF, DOCX, JPG, PNG, hoặc ZIP</p>
@@ -844,15 +844,15 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
                 key={attachment.fileUrl}
                 type="button"
                 onClick={() => setPreviewFile({ url: attachment.fileUrl, name: attachment.fileName, type: attachment.fileType })}
-                className="group/file flex w-full items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition hover:border-[#4f46e5]/40 hover:bg-[#4f46e5]/5 hover:shadow text-left"
+                className="group/file flex w-full items-center justify-between gap-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-4 shadow-sm transition hover:border-[#4f46e5]/40 hover:bg-[#4f46e5]/5 hover:shadow text-left"
               >
                 <div className="flex min-w-0 items-center gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-slate-100 bg-slate-50 text-slate-500 shadow-sm transition group-hover/file:bg-white group-hover/file:border-[#4f46e5]/20 group-hover/file:text-[#4f46e5]">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 shadow-sm transition group-hover/file:bg-white dark:bg-slate-950 group-hover/file:border-[#4f46e5]/20 group-hover/file:text-[#4f46e5]">
                     <FileIcon className="h-5 w-5" />
                   </div>
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-bold text-slate-800 transition group-hover/file:text-[#4f46e5]">{attachment.fileName}</p>
-                    <p className="mt-1 text-xs font-medium text-slate-500">
+                    <p className="truncate text-sm font-bold text-slate-800 dark:text-slate-200 transition group-hover/file:text-[#4f46e5]">{attachment.fileName}</p>
+                    <p className="mt-1 text-xs font-medium text-slate-500 dark:text-slate-400">
                       {attachment.fileType} {attachment.size ? `- ${Math.max(1, Math.round(attachment.size / 1024))} KB` : ''}
                     </p>
                   </div>
@@ -878,7 +878,7 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
         <div className="relative flex h-5 w-5 shrink-0 items-center justify-center">
           <input
             type="checkbox"
-            className="peer h-5 w-5 cursor-pointer appearance-none rounded border border-slate-300 bg-white/80 transition checked:border-[#4f46e5] checked:bg-[#4f46e5] hover:border-[#4f46e5] focus:outline-none focus:ring-2 focus:ring-[#4f46e5]/20"
+            className="peer h-5 w-5 cursor-pointer appearance-none rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950/80 transition checked:border-[#4f46e5] checked:bg-[#4f46e5] hover:border-[#4f46e5] focus:outline-none focus:ring-2 focus:ring-[#4f46e5]/20"
             checked={agreeTerms}
             onChange={(event) => setAgreeTerms(event.target.checked)}
           />
@@ -886,7 +886,7 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
           </svg>
         </div>
-        <span className="text-[13px] leading-relaxed text-slate-600">
+        <span className="text-[13px] leading-relaxed text-slate-600 dark:text-slate-400">
           Tôi đồng ý với{' '}
           <button type="button" onClick={() => setShowTermsModal(true)} className="font-bold text-[#4f46e5] hover:underline">
             Điều khoản Dịch vụ và Chính sách Bảo mật
@@ -901,12 +901,12 @@ export default function JobCreateForm({ clientId, initialJob, mode = 'create' }:
         </div>
       )}
 
-      <div className="flex flex-col-reverse gap-3 border-t border-slate-100 pt-6 sm:flex-row sm:justify-end">
+      <div className="flex flex-col-reverse gap-3 border-t border-slate-100 dark:border-slate-800 pt-6 sm:flex-row sm:justify-end">
         <button
           type="button"
           disabled={loading || uploading}
           onClick={handleSaveDraft}
-          className="flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white/80 px-6 py-3.5 text-[15px] font-bold text-[#1b2252] shadow-sm transition-all hover:bg-slate-50 hover:shadow-md hover:-translate-y-0.5 focus:outline-none focus:ring-4 focus:ring-slate-500/10 disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0"
+          className="flex items-center justify-center gap-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950/80 px-6 py-3.5 text-[15px] font-bold text-[#1b2252] dark:text-slate-100 shadow-sm transition-all hover:bg-slate-50 dark:bg-slate-900/50 hover:shadow-md hover:-translate-y-0.5 focus:outline-none focus:ring-4 focus:ring-slate-500/10 disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0"
         >
           {loading && submitStatus === 'DRAFT' ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4 text-slate-400" />}
           {isEditing ? 'Cập nhật bản nháp' : 'Lưu bản nháp'}

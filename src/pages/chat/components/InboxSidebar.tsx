@@ -93,27 +93,27 @@ export default function InboxSidebar({
 
   return (
     <aside
-      className={`flex h-dvh min-w-0 flex-col border-r border-slate-200 bg-white ${
+      className={`flex h-dvh min-w-0 flex-col border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 ${
         hiddenOnMobile ? 'hidden lg:flex' : 'flex'
       }`}
     >
       {/* ── Mini Navigation Header ── */}
-      <div className="flex items-center justify-between gap-2 border-b border-slate-100 px-4 py-3 sm:px-5">
-        <Link to="/" className="group flex items-center gap-2">
-          <div className="relative flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg bg-slate-950 shadow transition-transform group-hover:scale-105 group-active:scale-95">
-            <div className="absolute inset-0 bg-gradient-to-br from-emerald-600 via-emerald-600 to-pink-500 opacity-90 transition-opacity group-hover:opacity-100" />
-            <Sparkles className="relative h-4 w-4 text-white mix-blend-overlay" />
+      <div className="flex items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 px-4 py-3 sm:px-5">
+        <Link to="/" className="group flex items-center gap-3">
+          <img src="/logo.png" alt="MentorX Logo" className="h-8 w-auto object-contain transition-transform group-hover:scale-105" />
+          <div className="flex flex-col leading-none">
+            <span className="text-[15px] font-bold tracking-tight text-slate-900 dark:text-white">
+              Mentor<span className="text-indigo-600 dark:text-indigo-500">X</span>
+            </span>
+            <span className="mt-1 text-[10px] text-slate-500 dark:text-slate-400 dark:text-slate-400">Academy</span>
           </div>
-          <span className="text-[15px] font-black tracking-tight text-slate-900">
-            Mentor<span className="text-emerald-600">X</span>
-          </span>
         </Link>
 
         <div className="flex items-center gap-1">
           {/* Wallet Balance */}
           <Link
             to="/wallet"
-            className="hidden min-h-11 items-center gap-1.5 rounded-lg bg-amber-50 px-2 py-1.5 text-[11px] font-bold text-amber-700 transition-colors hover:bg-amber-100 sm:flex"
+            className="hidden min-h-11 items-center gap-1.5 rounded-lg bg-amber-50 dark:bg-amber-900/30 px-2 py-1.5 text-[11px] font-bold text-amber-700 dark:text-amber-400 transition-colors hover:bg-amber-100 dark:bg-amber-900/50 sm:flex"
           >
             <Wallet className="h-3 w-3" />
             {formatMxc(balance?.available || 0, language)}
@@ -144,15 +144,15 @@ export default function InboxSidebar({
               {userDropdownOpen && (
                 <>
                   <div className="fixed inset-0 z-30" onClick={() => setUserDropdownOpen(false)} />
-                  <div className="absolute left-0 z-40 mt-2 w-56 origin-top-left rounded-2xl border border-slate-200 bg-white p-2 shadow-xl">
-                    <div className="mb-1 border-b border-slate-100 px-3 py-2">
-                      <p className="truncate text-sm font-black text-slate-900">{user.fullName}</p>
-                      <p className="truncate text-[11px] text-slate-500">{user.email}</p>
+                  <div className="absolute left-0 z-40 mt-2 w-56 origin-top-left rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-2 shadow-xl">
+                    <div className="mb-1 border-b border-slate-100 dark:border-slate-800 px-3 py-2">
+                      <p className="truncate text-sm font-black text-slate-900 dark:text-slate-100">{user.fullName}</p>
+                      <p className="truncate text-[11px] text-slate-500 dark:text-slate-400">{user.email}</p>
                     </div>
                     <Link
                       to="/profile"
                       onClick={() => setUserDropdownOpen(false)}
-                      className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50 hover:text-emerald-600"
+                      className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:bg-slate-900/50 hover:text-emerald-600 dark:text-emerald-500"
                     >
                       <User className="h-4 w-4" />
                       Hồ sơ
@@ -160,12 +160,12 @@ export default function InboxSidebar({
                     <Link
                       to="/wallet"
                       onClick={() => setUserDropdownOpen(false)}
-                      className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50 hover:text-emerald-600"
+                      className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:bg-slate-900/50 hover:text-emerald-600 dark:text-emerald-500"
                     >
                       <Wallet className="h-4 w-4" />
                       Ví MXC
                     </Link>
-                    <div className="my-1 border-t border-slate-100" />
+                    <div className="my-1 border-t border-slate-100 dark:border-slate-800" />
                     <button
                       type="button"
                       onClick={() => {
@@ -191,14 +191,14 @@ export default function InboxSidebar({
           <h1 className="text-[28px] font-bold tracking-tight text-[#10164a]">Messages</h1>
           <button
             type="button"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-transparent text-[#10164a] transition-colors hover:border-emerald-100 hover:bg-emerald-50"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-transparent text-[#10164a] transition-colors hover:border-emerald-100 dark:border-emerald-900/50 hover:bg-emerald-50 dark:bg-emerald-900/30"
             title="Tin nhắn mới"
           >
             <Edit3 className="h-5 w-5" />
           </button>
         </div>
 
-        <label className="mt-5 flex h-11 items-center gap-3 rounded-xl border border-[#dce2f2] bg-white px-4 text-slate-400 transition-colors focus-within:border-emerald-300 focus-within:text-emerald-500">
+        <label className="mt-5 flex h-11 items-center gap-3 rounded-xl border border-[#dce2f2] bg-white dark:bg-slate-950 px-4 text-slate-400 transition-colors focus-within:border-emerald-300 focus-within:text-emerald-500">
           <Search className="h-[18px] w-[18px]" />
           <input
             value={searchTerm}
@@ -226,8 +226,8 @@ export default function InboxSidebar({
                           counts[filter] > 0
                             ? 'bg-emerald-600 text-white'
                             : active
-                              ? 'bg-emerald-100 text-emerald-700'
-                              : 'bg-slate-200 text-slate-500'
+                              ? 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-400'
+                              : 'bg-slate-200 text-slate-500 dark:text-slate-400'
                         }`}
                       >
                         {counts[filter]}
@@ -257,7 +257,7 @@ export default function InboxSidebar({
           </div>
         ) : rooms.length === 0 ? (
           <div className="px-4 py-12 text-center">
-            <p className="text-sm font-medium text-slate-500">No conversations match this view.</p>
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">No conversations match this view.</p>
           </div>
         ) : (
           <div className="space-y-5">
@@ -309,8 +309,8 @@ function RoomListItem({
       onClick={() => onSelectRoom(room.id)}
       className={`flex w-full items-center gap-3 rounded-xl border px-3 py-3 text-left transition-all ${
         active
-          ? 'border-emerald-200 bg-emerald-50 shadow-sm shadow-emerald-100/70'
-          : 'border-transparent bg-white hover:border-slate-200 hover:bg-slate-50'
+          ? 'border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-900/30 shadow-sm shadow-emerald-100/70'
+          : 'border-transparent bg-white dark:bg-slate-950 hover:border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:bg-slate-900/50'
       }`}
     >
       <div className="relative shrink-0">

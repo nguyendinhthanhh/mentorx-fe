@@ -35,19 +35,19 @@ export default function ProfileDashboardPage() {
         <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white">
           {'Ch\u00e0o m\u1eebng tr\u1edf l\u1ea1i, '}{displayName}! {'\uD83D\uDC4B'}
         </h1>
-        <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+        <p className="text-sm font-medium text-slate-500 dark:text-slate-400 dark:text-slate-400">
           {'\u0110\u00e2y l\u00e0 kh\u00f4ng gian qu\u1ea3n l\u00fd c\u00e1 nh\u00e2n c\u1ee7a b\u1ea1n. Theo d\u00f5i ti\u1ebfn \u0111\u1ed9 v\u00e0 b\u1eaft \u0111\u1ea7u d\u1ef1 \u00e1n m\u1edbi.'}
         </p>
       </div>
 
       <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
-        <div className="group relative overflow-hidden rounded-[1.5rem] border border-slate-200/60 bg-white p-6 shadow-sm transition-all hover:shadow-md dark:border-slate-800 dark:bg-slate-900">
-          <div className="absolute right-0 top-0 -mr-6 -mt-6 h-24 w-24 rounded-full bg-emerald-50 transition-transform group-hover:scale-150 dark:bg-emerald-900/10" />
+        <div className="group relative overflow-hidden rounded-[1.5rem] border border-slate-200 dark:border-slate-800/60 bg-white dark:bg-slate-950 p-6 shadow-sm transition-all hover:shadow-md dark:border-slate-800 dark:bg-slate-900">
+          <div className="absolute right-0 top-0 -mr-6 -mt-6 h-24 w-24 rounded-full bg-emerald-50 dark:bg-emerald-900/30 transition-transform group-hover:scale-150 dark:bg-emerald-900/10" />
           <div className="relative flex items-center justify-between">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-500 dark:bg-emerald-900/30 dark:text-emerald-400">
               <Wallet className="h-6 w-6" />
             </div>
-            <Link to="/wallet" className="flex items-center text-xs font-bold text-emerald-600 hover:text-emerald-700">
+            <Link to="/wallet" className="flex items-center text-xs font-bold text-emerald-600 dark:text-emerald-500 hover:text-emerald-700 dark:text-emerald-400">
               {'Xem v\u00ed'} <ChevronRight className="ml-0.5 h-3 w-3" />
             </Link>
           </div>
@@ -65,13 +65,13 @@ export default function ProfileDashboardPage() {
           </div>
         </div>
 
-        <div className="group relative overflow-hidden rounded-[1.5rem] border border-slate-200/60 bg-white p-6 shadow-sm transition-all hover:shadow-md dark:border-slate-800 dark:bg-slate-900">
-          <div className="absolute right-0 top-0 -mr-6 -mt-6 h-24 w-24 rounded-full bg-emerald-50 transition-transform group-hover:scale-150 dark:bg-emerald-900/10" />
+        <div className="group relative overflow-hidden rounded-[1.5rem] border border-slate-200 dark:border-slate-800/60 bg-white dark:bg-slate-950 p-6 shadow-sm transition-all hover:shadow-md dark:border-slate-800 dark:bg-slate-900">
+          <div className="absolute right-0 top-0 -mr-6 -mt-6 h-24 w-24 rounded-full bg-emerald-50 dark:bg-emerald-900/30 transition-transform group-hover:scale-150 dark:bg-emerald-900/10" />
           <div className="relative flex items-center justify-between">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-500 dark:bg-emerald-900/30 dark:text-emerald-400">
               <Briefcase className="h-6 w-6" />
             </div>
-            <Link to="/users/requests" className="flex items-center text-xs font-bold text-emerald-600 hover:text-emerald-700">
+            <Link to="/users/requests" className="flex items-center text-xs font-bold text-emerald-600 dark:text-emerald-500 hover:text-emerald-700 dark:text-emerald-400">
               {'Qu\u1ea3n l\u00fd'} <ChevronRight className="ml-0.5 h-3 w-3" />
             </Link>
           </div>
@@ -81,13 +81,13 @@ export default function ProfileDashboardPage() {
           </div>
         </div>
 
-        <div className="group relative overflow-hidden rounded-[1.5rem] border border-slate-200/60 bg-white p-6 shadow-sm transition-all hover:shadow-md dark:border-slate-800 dark:bg-slate-900">
-          <div className="absolute right-0 top-0 -mr-6 -mt-6 h-24 w-24 rounded-full bg-emerald-50 transition-transform group-hover:scale-150 dark:bg-emerald-900/10" />
+        <div className="group relative overflow-hidden rounded-[1.5rem] border border-slate-200 dark:border-slate-800/60 bg-white dark:bg-slate-950 p-6 shadow-sm transition-all hover:shadow-md dark:border-slate-800 dark:bg-slate-900">
+          <div className="absolute right-0 top-0 -mr-6 -mt-6 h-24 w-24 rounded-full bg-emerald-50 dark:bg-emerald-900/30 transition-transform group-hover:scale-150 dark:bg-emerald-900/10" />
           <div className="relative flex items-center justify-between">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-500 dark:bg-emerald-900/30 dark:text-emerald-400">
               <ShoppingBag className="h-6 w-6" />
             </div>
-            <Link to="/profile/courses" className="flex items-center text-xs font-bold text-emerald-600 hover:text-emerald-700">
+            <Link to="/profile/courses" className="flex items-center text-xs font-bold text-emerald-600 dark:text-emerald-500 hover:text-emerald-700 dark:text-emerald-400">
               {'V\u00e0o h\u1ecdc'} <ChevronRight className="ml-0.5 h-3 w-3" />
             </Link>
           </div>
@@ -100,7 +100,7 @@ export default function ProfileDashboardPage() {
 
       {!mentorApproved && (
         <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-[#6C4DFF] to-[#8C6DFD] p-8 text-white shadow-xl shadow-emerald-500/20">
-          <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+          <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white dark:bg-slate-950/10 blur-3xl" />
           <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-emerald-500/20 blur-3xl" />
 
           <div className="relative flex flex-col items-start gap-6 md:flex-row md:items-center md:justify-between">
@@ -118,7 +118,7 @@ export default function ProfileDashboardPage() {
             </div>
             <Link
               to="/become-a-mentor"
-              className="inline-flex h-12 shrink-0 items-center justify-center rounded-2xl bg-white px-8 text-sm font-bold text-emerald-600 transition-all hover:scale-105 hover:bg-slate-50 hover:shadow-lg"
+              className="inline-flex h-12 shrink-0 items-center justify-center rounded-2xl bg-white dark:bg-slate-950 px-8 text-sm font-bold text-emerald-600 dark:text-emerald-500 transition-all hover:scale-105 hover:bg-slate-50 dark:bg-slate-900/50 hover:shadow-lg"
             >
               {'\u0110\u0103ng k\u00fd ngay'}
             </Link>
@@ -126,14 +126,14 @@ export default function ProfileDashboardPage() {
         </div>
       )}
 
-      <div className="rounded-[2rem] border border-slate-200/60 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <div className="rounded-[2rem] border border-slate-200 dark:border-slate-800/60 bg-white dark:bg-slate-950 p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
         <h3 className="mb-4 text-lg font-black text-slate-900 dark:text-white">{'Ho\u1ea1t \u0111\u1ed9ng g\u1ea7n \u0111\u00e2y'}</h3>
         <div className="flex flex-col items-center justify-center py-12 text-center">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-slate-50 dark:bg-slate-800">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-slate-50 dark:bg-slate-900/50 dark:bg-slate-800">
             <Clock className="h-6 w-6 text-slate-400" />
           </div>
           <p className="mt-4 text-sm font-bold text-slate-900 dark:text-slate-100">{'Ch\u01b0a c\u00f3 ho\u1ea1t \u0111\u1ed9ng n\u00e0o'}</p>
-          <p className="mt-1 text-xs text-slate-500">
+          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
             {'C\u00e1c ho\u1ea1t \u0111\u1ed9ng thanh to\u00e1n, \u0111\u1eb7t l\u1ecbch s\u1ebd hi\u1ec3n th\u1ecb t\u1ea1i \u0111\u00e2y.'}
           </p>
         </div>

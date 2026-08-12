@@ -30,7 +30,7 @@ export default function StepPreferences({ preferences, setPreferences }: Props) 
         <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-primary-50 dark:bg-primary-950/40 text-primary-700 dark:text-primary-300 rounded-full text-sm font-bold mb-5 onb-fade-in-scale">
           <Sparkles className="w-4 h-4" /> Step 4 of 6
         </div>
-        <h2 className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white tracking-tight mb-2">
+        <h2 className="text-3xl md:text-4xl font-black text-gray-900 dark:text-gray-100 dark:text-white tracking-tight mb-2">
           Notification Preferences
         </h2>
         <p className="text-gray-500 dark:text-gray-400 text-base md:text-lg">
@@ -47,26 +47,26 @@ export default function StepPreferences({ preferences, setPreferences }: Props) 
               onClick={() => toggle(opt.id)}
               className={`onb-fade-in-up onb-stagger-${i + 1} w-full flex items-center gap-4 p-5 rounded-xl transition-all duration-200 border-2 ${
                 enabled
-                  ? 'bg-white dark:bg-gray-900 border-primary-500 shadow-lg shadow-primary-500/10'
-                  : 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700 hover:shadow-md'
+                  ? 'bg-white dark:bg-slate-950 dark:bg-gray-900 border-primary-500 shadow-lg shadow-primary-500/10'
+                  : 'bg-white dark:bg-slate-950 dark:bg-gray-900 border-gray-200 dark:border-gray-800 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700 hover:shadow-md'
               }`}
             >
               <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 ${
                 enabled
                   ? `bg-gradient-to-br ${opt.gradient} text-white shadow-lg`
-                  : 'bg-gray-100 dark:bg-gray-800 text-gray-400'
+                  : 'bg-gray-100 dark:bg-gray-800 dark:bg-gray-800 text-gray-400'
               }`}>
                 <opt.icon className="w-6 h-6" />
               </div>
               <div className="text-left flex-1">
-                <div className="font-bold text-sm text-gray-900 dark:text-white">{opt.label}</div>
+                <div className="font-bold text-sm text-gray-900 dark:text-gray-100 dark:text-white">{opt.label}</div>
                 <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{opt.desc}</div>
               </div>
               {/* Toggle Switch */}
               <div className={`w-12 h-7 rounded-full p-0.5 transition-all duration-200 ${
                 enabled ? 'bg-primary-600' : 'bg-gray-300 dark:bg-gray-700'
               }`}>
-                <div className={`w-6 h-6 rounded-full bg-white shadow-md transition-transform duration-200 ${
+                <div className={`w-6 h-6 rounded-full bg-white dark:bg-slate-950 shadow-md transition-transform duration-200 ${
                   enabled ? 'translate-x-5' : 'translate-x-0'
                 }`} />
               </div>
@@ -76,16 +76,16 @@ export default function StepPreferences({ preferences, setPreferences }: Props) 
       </div>
 
       {!anySelected && (
-        <div className="p-4 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-xl">
-          <p className="text-sm text-amber-700 dark:text-amber-400">
+        <div className="p-4 bg-amber-50 dark:bg-amber-900/30 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/50 dark:border-amber-800 rounded-xl">
+          <p className="text-sm text-amber-700 dark:text-amber-400 dark:text-amber-400">
             ⚠️ Please enable at least one notification channel so you don't miss important updates.
           </p>
         </div>
       )}
 
       {anySelected && (
-        <div className="p-4 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800 rounded-xl onb-fade-in-scale">
-          <p className="text-sm text-emerald-700 dark:text-emerald-400 flex items-center gap-2">
+        <div className="p-4 bg-emerald-50 dark:bg-emerald-900/30 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800/50 dark:border-emerald-800 rounded-xl onb-fade-in-scale">
+          <p className="text-sm text-emerald-700 dark:text-emerald-400 dark:text-emerald-400 flex items-center gap-2">
             <Check className="w-4 h-4" /> You can change these settings anytime from your profile.
           </p>
         </div>

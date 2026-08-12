@@ -78,20 +78,20 @@ export default function AdminNotifyModal({ isOpen, onClose, userId, referenceId,
   return createPortal((
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-gray-900/40 p-2 backdrop-blur-sm sm:p-4">
       <div 
-        className="max-h-[calc(100dvh-1rem)] w-full max-w-lg overflow-y-auto rounded-2xl bg-white shadow-2xl animate-in fade-in zoom-in-95 duration-200 dark:bg-gray-900 sm:rounded-[2.5rem]"
+        className="max-h-[calc(100dvh-1rem)] w-full max-w-lg overflow-y-auto rounded-2xl bg-white dark:bg-slate-950 shadow-2xl animate-in fade-in zoom-in-95 duration-200 dark:bg-gray-900 sm:rounded-[2.5rem]"
         onClick={e => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between border-b border-gray-50 bg-gray-50/50 p-4 dark:border-gray-800 dark:bg-gray-800/20 sm:p-8">
+        <div className="flex items-center justify-between border-b border-gray-50 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-800/20 sm:p-8">
            <div className="flex items-center gap-3">
-              <div className={`p-2.5 rounded-xl ${actionType === 'FREEZE' ? 'bg-rose-50 text-rose-500' : 'bg-amber-50 text-amber-500'}`}>
+              <div className={`p-2.5 rounded-xl ${actionType === 'FREEZE' ? 'bg-rose-50 text-rose-500' : 'bg-amber-50 dark:bg-amber-900/30 text-amber-500'}`}>
                  {actionType === 'FREEZE' ? <ShieldAlert className="w-5 h-5" /> : <AlertTriangle className="w-5 h-5" />}
               </div>
               <div>
-                 <h3 className="text-lg font-black text-gray-900 dark:text-white tracking-tight">Notify User</h3>
+                 <h3 className="text-lg font-black text-gray-900 dark:text-gray-100 dark:text-white tracking-tight">Notify User</h3>
                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-0.5">Action: {actionType}</p>
               </div>
            </div>
-           <button onClick={onClose} className="p-2 rounded-xl hover:bg-white dark:hover:bg-gray-800 transition-all text-gray-400">
+           <button onClick={onClose} className="p-2 rounded-xl hover:bg-white dark:bg-slate-950 dark:hover:bg-gray-800 transition-all text-gray-400">
               <X className="w-5 h-5" />
            </button>
         </div>
@@ -107,9 +107,9 @@ export default function AdminNotifyModal({ isOpen, onClose, userId, referenceId,
                       setSelectedTemplate(i)
                       setCustomMessage('')
                     }}
-                    className={`text-left p-4 rounded-2xl border-2 transition-all ${selectedTemplate === i ? 'border-primary-500 bg-primary-50/30 dark:bg-primary-900/10' : 'border-gray-50 dark:border-gray-800 hover:border-gray-200 dark:hover:border-gray-700'}`}
+                    className={`text-left p-4 rounded-2xl border-2 transition-all ${selectedTemplate === i ? 'border-primary-500 bg-primary-50/30 dark:bg-primary-900/10' : 'border-gray-50 dark:border-gray-800 hover:border-gray-200 dark:border-gray-800 dark:hover:border-gray-700'}`}
                    >
-                      <p className="text-xs font-black text-gray-900 dark:text-white uppercase tracking-tight">{t.title}</p>
+                      <p className="text-xs font-black text-gray-900 dark:text-gray-100 dark:text-white uppercase tracking-tight">{t.title}</p>
                       <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-1 line-clamp-1 italic">"{t.content}"</p>
                    </button>
                  ))}
@@ -125,22 +125,22 @@ export default function AdminNotifyModal({ isOpen, onClose, userId, referenceId,
                   setSelectedTemplate(null)
                 }}
                 placeholder="Type additional context here..."
-                className="w-full p-5 rounded-2xl bg-gray-50 dark:bg-gray-800 border border-transparent focus:bg-white dark:focus:bg-gray-900 focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500/30 transition-all text-sm font-medium resize-none min-h-[100px]"
+                className="w-full p-5 rounded-2xl bg-gray-50 dark:bg-gray-900/50 dark:bg-gray-800 border border-transparent focus:bg-white dark:bg-slate-950 dark:focus:bg-gray-900 focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500/30 transition-all text-sm font-medium resize-none min-h-[100px]"
               />
            </div>
 
            {referenceId && (
-             <div className="p-4 rounded-xl bg-gray-50 dark:bg-gray-800/50 flex items-center gap-3">
+             <div className="p-4 rounded-xl bg-gray-50 dark:bg-gray-900/50 dark:bg-gray-800/50 flex items-center gap-3">
                 <MessageSquare className="w-4 h-4 text-gray-400" />
                 <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Context Linked: {referenceType} #{referenceId}</span>
              </div>
            )}
         </div>
 
-        <div className="flex flex-col-reverse gap-3 border-t border-gray-50 bg-gray-50/50 p-4 dark:border-gray-800 dark:bg-gray-800/20 min-[420px]:flex-row sm:gap-4 sm:p-8">
+        <div className="flex flex-col-reverse gap-3 border-t border-gray-50 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-800/20 min-[420px]:flex-row sm:gap-4 sm:p-8">
            <button 
             onClick={onClose}
-            className="flex-1 py-4 rounded-2xl text-[10px] font-black text-gray-500 uppercase tracking-widest hover:bg-gray-100 transition-all"
+            className="flex-1 py-4 rounded-2xl text-[10px] font-black text-gray-500 uppercase tracking-widest hover:bg-gray-100 dark:bg-gray-800 transition-all"
            >
               Cancel
            </button>

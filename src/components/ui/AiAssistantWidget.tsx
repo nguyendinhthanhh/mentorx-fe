@@ -13,7 +13,7 @@ function MessageBubble({ message }: { message: ChatMessage }) {
         className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
           isUser
             ? "bg-primary-600 text-white rounded-br-sm"
-            : "bg-gray-100 text-gray-800 rounded-bl-sm"
+            : "bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-bl-sm"
         }`}
       >
         <p className="whitespace-pre-wrap break-words">{message.content}</p>
@@ -96,7 +96,7 @@ export function AiAssistantWidget() {
 
       {/* Chat Window */}
       <div
-        className={`fixed bottom-2 right-2 z-50 flex w-[calc(100vw-1rem)] origin-bottom-right flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-2xl transition-all duration-500 sm:bottom-6 sm:right-6 sm:w-[400px] sm:rounded-2xl ${
+        className={`fixed bottom-2 right-2 z-50 flex w-[calc(100vw-1rem)] origin-bottom-right flex-col overflow-hidden rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-slate-950 shadow-2xl transition-all duration-500 sm:bottom-6 sm:right-6 sm:w-[400px] sm:rounded-2xl ${
           isOpen
             ? "scale-100 opacity-100"
             : "scale-0 opacity-0 pointer-events-none"
@@ -106,7 +106,7 @@ export function AiAssistantWidget() {
         {/* Header */}
         <div className="bg-primary-600 px-4 py-3 flex items-center justify-between text-white shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center">
+            <div className="w-9 h-9 rounded-full bg-white dark:bg-slate-950/20 flex items-center justify-center">
               <Bot className="w-5 h-5" />
             </div>
             <div className="min-w-0">
@@ -120,7 +120,7 @@ export function AiAssistantWidget() {
             {messages.length > 1 && (
               <button
                 onClick={handleClear}
-                className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 transition hover:bg-white/20"
+                className="flex h-11 w-11 items-center justify-center rounded-full bg-white dark:bg-slate-950/10 transition hover:bg-white dark:bg-slate-950/20"
                 aria-label="Clear chat"
               >
                 <Trash2 className="w-4 h-4" />
@@ -128,7 +128,7 @@ export function AiAssistantWidget() {
             )}
             <button
               onClick={() => setIsOpen(false)}
-              className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 transition hover:bg-white/20"
+              className="flex h-11 w-11 items-center justify-center rounded-full bg-white dark:bg-slate-950/10 transition hover:bg-white dark:bg-slate-950/20"
               aria-label="Close"
             >
               <X className="w-4 h-4" />
@@ -137,14 +137,14 @@ export function AiAssistantWidget() {
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-3 bg-gray-50">
+        <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-3 bg-gray-50 dark:bg-gray-900/50">
           {messages.map((msg) => (
             <MessageBubble key={msg.id} message={msg} />
           ))}
 
           {isLoading && (
             <div className="flex justify-start animate-in fade-in slide-in-from-bottom-2 duration-300">
-              <div className="bg-gray-100 rounded-2xl rounded-bl-sm px-4 py-3">
+              <div className="bg-gray-100 dark:bg-gray-800 rounded-2xl rounded-bl-sm px-4 py-3">
                 <div className="flex items-center gap-2">
                   <Loader2 className="w-4 h-4 text-primary-600 animate-spin" />
                   <span className="text-sm text-gray-500">
@@ -159,8 +159,8 @@ export function AiAssistantWidget() {
         </div>
 
         {/* Input */}
-        <div className="p-3 bg-white border-t border-gray-200 shrink-0">
-          <div className="flex items-end gap-2 bg-gray-50 rounded-xl border border-gray-200 px-3 py-2 focus-within:border-primary-400 focus-within:ring-1 focus-within:ring-primary-400 transition-all">
+        <div className="p-3 bg-white dark:bg-slate-950 border-t border-gray-200 dark:border-gray-800 shrink-0">
+          <div className="flex items-end gap-2 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-200 dark:border-gray-800 px-3 py-2 focus-within:border-primary-400 focus-within:ring-1 focus-within:ring-primary-400 transition-all">
             <textarea
               ref={inputRef}
               value={input}
@@ -172,7 +172,7 @@ export function AiAssistantWidget() {
               placeholder="Nhập câu hỏi của bạn..."
               rows={1}
               disabled={isLoading}
-              className="flex-1 resize-none bg-transparent text-sm text-gray-800 placeholder:text-gray-400 outline-none max-h-[120px] leading-relaxed"
+              className="flex-1 resize-none bg-transparent text-sm text-gray-800 dark:text-gray-200 placeholder:text-gray-400 outline-none max-h-[120px] leading-relaxed"
             />
             <button
               onClick={handleSend}

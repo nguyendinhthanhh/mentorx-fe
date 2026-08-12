@@ -23,7 +23,7 @@ export default function ReviewMentorModal({
         <div className="absolute right-0 top-0 -translate-y-12 translate-x-0 sm:translate-x-12 sm:translate-y-0">
           <button
             onClick={onClose}
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 text-white transition hover:bg-white/30"
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-white dark:bg-slate-950/20 text-white transition hover:bg-white dark:bg-slate-950/30"
           >
             <X className="h-5 w-5" />
           </button>

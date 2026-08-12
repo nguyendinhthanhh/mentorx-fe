@@ -87,9 +87,9 @@ export default function MentorProfilePage() {
             : 'mentor.application.status.notSubmitted'
 
   const applicationTone = approved
-    ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
+    ? 'border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-200'
     : pending
-      ? 'border-amber-200 bg-amber-50 text-amber-800'
+      ? 'border-amber-200 dark:border-amber-800/50 bg-amber-50 dark:bg-amber-900/30 text-amber-800 dark:text-amber-200'
       : rejected || suspended
         ? 'border-rose-200 bg-rose-50 text-rose-800'
         : 'border-sky-200 bg-sky-50 text-sky-800'
@@ -114,7 +114,7 @@ export default function MentorProfilePage() {
 
   return (
     <div className="mx-auto max-w-[1440px] space-y-5 px-4 py-6 sm:px-6 lg:px-8">
-      <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+      <section className="overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950">
         <div className="grid lg:grid-cols-[minmax(0,1fr)_370px]">
           <div className="p-6 sm:p-8">
             <Breadcrumbs
@@ -122,7 +122,7 @@ export default function MentorProfilePage() {
                 { label: t('mentor.application.breadcrumb.account'), to: '/profile' },
                 { label: t('mentor.application.title') },
               ]}
-              className="text-xs font-semibold text-slate-500"
+              className="text-xs font-semibold text-slate-500 dark:text-slate-400"
             />
 
             <div className="mt-7 max-w-2xl">
@@ -131,31 +131,31 @@ export default function MentorProfilePage() {
                 <span className="h-1 w-1 rounded-full bg-current" />
                 <span>{t(applicationStateKey)}</span>
               </div>
-              <h1 className="mt-5 text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
+              <h1 className="mt-5 text-3xl font-bold tracking-tight text-slate-950 dark:text-slate-100 sm:text-4xl">
                 {t('mentor.application.title')}
               </h1>
-              <p className="mt-4 max-w-xl text-base leading-7 text-slate-600">
+              <p className="mt-4 max-w-xl text-base leading-7 text-slate-600 dark:text-slate-400">
                 {t('mentor.application.subtitle')}
               </p>
             </div>
           </div>
 
-          <div className="border-t border-slate-200 bg-slate-50 p-6 sm:p-8 lg:border-l lg:border-t-0">
-            <h2 className="text-sm font-bold text-slate-950">{t('mentor.application.flow.title')}</h2>
+          <div className="border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 p-6 sm:p-8 lg:border-l lg:border-t-0">
+            <h2 className="text-sm font-bold text-slate-950 dark:text-slate-100">{t('mentor.application.flow.title')}</h2>
             <ol className="mt-5 space-y-5">
               {flowSteps.map((step, index) => {
                 const Icon = step.icon
                 return (
                   <li key={step.title} className="flex gap-3">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-sky-200 bg-white text-sm font-bold text-sky-700">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-sky-200 bg-white dark:bg-slate-950 text-sm font-bold text-sky-700">
                       {index + 1}
                     </div>
                     <div className="min-w-0 pb-1">
                       <div className="flex items-center gap-2">
                         <Icon className="h-4 w-4 text-sky-700" />
-                        <h3 className="text-sm font-semibold text-slate-900">{step.title}</h3>
+                        <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">{step.title}</h3>
                       </div>
-                      <p className="mt-1 text-sm leading-5 text-slate-600">{step.description}</p>
+                      <p className="mt-1 text-sm leading-5 text-slate-600 dark:text-slate-400">{step.description}</p>
                     </div>
                   </li>
                 )
@@ -174,14 +174,14 @@ export default function MentorProfilePage() {
       )}
 
       {(mentorProfile?.expertiseReviewNote || mentorProfile?.expertiseRejectionReason || mentorProfile?.rejectionReason) && (
-        <section className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
+        <section className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-5 sm:p-6">
           <div className="flex gap-3">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-700">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-700 dark:text-slate-300">
               <FileCheck2 className="h-4 w-4" />
             </div>
             <div>
-              <h2 className="text-sm font-bold text-slate-950">{t('mentor.application.reviewerNote')}</h2>
-              <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-slate-600">
+              <h2 className="text-sm font-bold text-slate-950 dark:text-slate-100">{t('mentor.application.reviewerNote')}</h2>
+              <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-slate-600 dark:text-slate-400">
                 {mentorProfile?.expertiseReviewNote || mentorProfile?.expertiseRejectionReason || mentorProfile?.rejectionReason}
               </p>
             </div>
@@ -203,7 +203,7 @@ export default function MentorProfilePage() {
           />
           
           {!canEditProfile && approved && (
-            <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-6 sm:p-8">
+            <section className="mt-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-6 sm:p-8">
               <Link
                 to="/mentor/dashboard"
                 className="inline-flex h-11 items-center gap-2 rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 active:translate-y-px"
@@ -215,12 +215,12 @@ export default function MentorProfilePage() {
           )}
         </div>
 
-        <aside className="rounded-2xl border border-slate-200 bg-white p-5 lg:sticky lg:top-24">
+        <aside className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-5 lg:sticky lg:top-24">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-50 text-sky-700">
             <CircleUserRound className="h-5 w-5" />
           </div>
-          <h2 className="mt-4 text-base font-bold text-slate-950">{t('mentor.application.guidance.title')}</h2>
-          <ul className="mt-4 space-y-4 text-sm leading-6 text-slate-600">
+          <h2 className="mt-4 text-base font-bold text-slate-950 dark:text-slate-100">{t('mentor.application.guidance.title')}</h2>
+          <ul className="mt-4 space-y-4 text-sm leading-6 text-slate-600 dark:text-slate-400">
             {[
               t('mentor.application.guidance.expertise'),
               t('mentor.application.guidance.proof'),
@@ -232,7 +232,7 @@ export default function MentorProfilePage() {
               </li>
             ))}
           </ul>
-          <p className="mt-5 border-t border-slate-200 pt-4 text-xs leading-5 text-slate-500">
+          <p className="mt-5 border-t border-slate-200 dark:border-slate-800 pt-4 text-xs leading-5 text-slate-500 dark:text-slate-400">
             {t('mentor.application.guidance.note')}
           </p>
         </aside>
@@ -257,7 +257,7 @@ function StatusBanner({
       icon: BadgeCheck,
       title: t('mentor.application.banner.approved.title'),
       description: t('mentor.application.banner.approved.description'),
-      tone: 'border-emerald-200 bg-emerald-50 text-emerald-950',
+      tone: 'border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-950',
       iconTone: 'bg-emerald-600 text-white',
     }
     : mentorStatus === MentorStatus.SUSPENDED
@@ -280,7 +280,7 @@ function StatusBanner({
           icon: Clock3,
           title: t('mentor.application.banner.pending.title'),
           description: t('mentor.application.banner.pending.description'),
-          tone: 'border-amber-200 bg-amber-50 text-amber-950',
+          tone: 'border-amber-200 dark:border-amber-800/50 bg-amber-50 dark:bg-amber-900/30 text-amber-950',
           iconTone: 'bg-amber-500 text-white',
         }
 

@@ -197,7 +197,7 @@ export default function AdminMentorApplicationsPage() {
                   setSearchQuery(event.target.value)
                   setPage(0)
                 }}
-                placeholder="{t('admin.mentorVerif.searchPlaceholder')}"
+                placeholder={t('admin.mentorVerif.searchPlaceholder')}
                 className="h-11 w-full rounded-xl border border-slate-200 dark:border-slate-800/60 bg-white dark:bg-slate-950 pl-11 pr-4 text-sm font-medium text-slate-900 dark:text-slate-100 outline-none transition-all hover:border-slate-300 dark:border-slate-700 focus:border-emerald-400 focus:ring-4 focus:ring-emerald-500/10 dark:border-slate-800/60 dark:bg-slate-900/60 dark:text-white dark:hover:border-slate-700 dark:focus:border-emerald-500/50"
               />
             </div>

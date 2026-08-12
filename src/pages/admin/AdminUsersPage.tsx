@@ -281,17 +281,35 @@ export default function AdminUsersPage() {
                       </span>
                     </td>
                     <td className="px-8 py-5">
-                      {user.mentorStatus ? (
-                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm ${
-                          user.mentorStatus === MentorStatus.APPROVED ? 'bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-100 dark:border-emerald-900/50 text-emerald-600 dark:text-emerald-500 dark:bg-emerald-900/20 dark:border-emerald-800/30 dark:text-emerald-400' :
-                          user.mentorStatus === MentorStatus.PENDING ? 'bg-amber-50 dark:bg-amber-900/30 border border-amber-100 text-amber-600 dark:bg-amber-900/20 dark:border-amber-800/30 dark:text-amber-400' :
-                          'bg-rose-50 border border-rose-100 text-rose-600 dark:bg-rose-900/20 dark:border-rose-800/30 dark:text-rose-400'
-                        }`}>
-                          {user.mentorStatus}
-                        </span>
-                      ) : (
-                        <span className="text-xs font-bold text-slate-400 dark:text-slate-600 italic">{t('admin.users.role.user')}</span>
-                      )}
+                      <div className="flex flex-wrap gap-2">
+                        {(() => {
+                          const roleNames = user.roles?.map(r => r.roleName.replace('ROLE_', '')) || [];
+                          let primaryRole = t('admin.users.role.user');
+                          let roleColor = 'bg-slate-50 border border-slate-200 text-slate-600 dark:bg-slate-800/50 dark:border-slate-700 dark:text-slate-400';
+
+                          if (roleNames.includes('SUPER_ADMIN')) {
+                            primaryRole = 'SUPER ADMIN';
+                            roleColor = 'bg-purple-50 border border-purple-100 text-purple-600 dark:bg-purple-900/20 dark:border-purple-800/30 dark:text-purple-400';
+                          } else if (roleNames.includes('ADMIN')) {
+                            primaryRole = 'ADMIN';
+                            roleColor = 'bg-purple-50 border border-purple-100 text-purple-600 dark:bg-purple-900/20 dark:border-purple-800/30 dark:text-purple-400';
+                          } else if (roleNames.includes('MODERATOR')) {
+                            primaryRole = 'MODERATOR';
+                            roleColor = 'bg-blue-50 border border-blue-100 text-blue-600 dark:bg-blue-900/20 dark:border-blue-800/30 dark:text-blue-400';
+                          } else if (roleNames.includes('MENTOR')) {
+                            primaryRole = 'MENTOR';
+                            roleColor = 'bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-100 dark:border-emerald-900/50 text-emerald-600 dark:text-emerald-500';
+                          } else {
+                            primaryRole = 'USER';
+                          }
+
+                          return (
+                            <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm ${roleColor}`}>
+                              {primaryRole}
+                            </span>
+                          );
+                        })()}
+                      </div>
                     </td>
                     <td className="px-8 py-5">
                       <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 dark:text-slate-400">
