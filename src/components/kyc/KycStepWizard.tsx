@@ -74,7 +74,7 @@ export default function KycStepWizard({
                     ? 'bg-emerald-600 text-white'
                     : current
                       ? 'bg-emerald-600 text-white ring-2 ring-emerald-200 dark:ring-emerald-900'
-                      : 'border border-slate-200 bg-white text-slate-400 dark:border-slate-700 dark:bg-slate-900'
+                      : 'border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-400 dark:border-slate-700 dark:bg-slate-900'
                 }`}
               >
                 {done ? <Check className="h-4 w-4" /> : step.id}
@@ -82,12 +82,12 @@ export default function KycStepWizard({
               <div className="min-w-0 flex-1 max-sm:hidden">
                 <p
                   className={`truncate text-xs font-medium ${
-                    current ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-600 dark:text-slate-400'
+                    current ? 'text-emerald-600 dark:text-emerald-500 dark:text-emerald-400' : 'text-slate-600 dark:text-slate-400 dark:text-slate-400'
                   }`}
                 >
                   {step.title}
                 </p>
-                <p className="truncate text-[10px] text-slate-500">{step.hint}</p>
+                <p className="truncate text-[10px] text-slate-500 dark:text-slate-400">{step.hint}</p>
               </div>
               {idx < steps.length - 1 && (
                 <div
@@ -122,7 +122,7 @@ export default function KycStepWizard({
           <div className="space-y-6">
             <div className="text-center">
               <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Record a liveness video</h3>
-              <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+              <p className="mt-1 text-sm text-slate-600 dark:text-slate-400 dark:text-slate-400">
                 Keep your face inside the guide. Turn slightly left and right once so the liveness check can
                 detect natural motion.
               </p>
@@ -137,7 +137,7 @@ export default function KycStepWizard({
           type="button"
           onClick={() => setActiveStep((prev) => prev - 1)}
           disabled={activeStep === 1}
-          className="text-xs font-medium text-slate-500 hover:text-emerald-600 disabled:pointer-events-none disabled:opacity-0 dark:hover:text-emerald-400"
+          className="text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:text-emerald-500 disabled:pointer-events-none disabled:opacity-0 dark:hover:text-emerald-400"
         >
           Back
         </button>
@@ -159,10 +159,10 @@ function UploadStep({
     <div className="mx-auto flex max-w-md flex-col items-center space-y-6 py-4">
       <div className="text-center">
         <h3 className="text-lg font-semibold text-slate-900 dark:text-white">{title}</h3>
-        <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-400">{description}</p>
+        <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-400 dark:text-slate-400">{description}</p>
       </div>
 
-      <label className="group flex w-full cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/50 px-6 py-14 transition hover:border-emerald-300 hover:bg-emerald-50/30 dark:border-slate-700 dark:bg-slate-900/30 dark:hover:border-emerald-800">
+      <label className="group flex w-full cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-800 bg-slate-50 px-6 py-14 transition hover:border-emerald-300 hover:bg-emerald-50 dark:border-slate-700 dark:bg-slate-900/30 dark:hover:border-emerald-800">
         <input
           type="file"
           className="sr-only"
@@ -173,14 +173,14 @@ function UploadStep({
             event.target.value = ''
           }}
         />
-        <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-white text-slate-400 shadow-sm ring-1 ring-slate-200 transition group-hover:text-emerald-600 dark:bg-slate-900 dark:ring-slate-700">
+        <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-white dark:bg-slate-950 text-slate-400 shadow-sm ring-1 ring-slate-200 transition group-hover:text-emerald-600 dark:text-emerald-500 dark:bg-slate-900 dark:ring-slate-700">
           <UploadCloud className="h-6 w-6" />
         </div>
         <span className="text-sm font-medium text-slate-900 dark:text-slate-100">Choose image</span>
-        <span className="mt-1 text-xs text-slate-500">JPEG, PNG, or WebP</span>
+        <span className="mt-1 text-xs text-slate-500 dark:text-slate-400">JPEG, PNG, or WebP</span>
       </label>
 
-      <div className="flex w-full items-start gap-2 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:bg-amber-950/40 dark:text-amber-100/90">
+      <div className="flex w-full items-start gap-2 rounded-lg bg-amber-50 dark:bg-amber-900/30 px-3 py-2 text-xs text-amber-900 dark:text-amber-100 dark:bg-amber-950/40 dark:text-amber-100/90">
         <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
         <span>Screenshots, virtual cards, or heavily edited images can be rejected during manual review.</span>
       </div>

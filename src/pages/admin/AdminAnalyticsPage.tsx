@@ -65,7 +65,7 @@ export default function AdminAnalyticsPage() {
           <p className="mt-2 text-sm font-bold text-slate-400 dark:text-slate-500">Deep insights into MentorX growth and engagement.</p>
         </div>
         <div className="flex items-center gap-3">
-          <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/70 dark:bg-slate-900/70 border border-white/50 dark:border-slate-800 text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-emerald-500 hover:border-emerald-200 dark:hover:border-emerald-800/50 hover:-translate-y-0.5 transition-all shadow-sm hover:shadow-md backdrop-blur-xl">
+          <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-slate-950/70 dark:bg-slate-900/70 border border-white/50 dark:border-slate-800 text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 hover:text-emerald-500 hover:border-emerald-200 dark:border-emerald-800/50 dark:hover:border-emerald-800/50 hover:-translate-y-0.5 transition-all shadow-sm hover:shadow-md backdrop-blur-xl">
             <Calendar className="w-4 h-4" />
             Last 30 Days
           </button>
@@ -79,17 +79,17 @@ export default function AdminAnalyticsPage() {
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {[
-          { label: 'Total Revenue', value: '$124,500', trend: '+12.5%', icon: DollarSign, color: 'text-emerald-500', bg: 'bg-emerald-50 dark:bg-emerald-900/10 border-emerald-100 dark:border-emerald-800/30' },
-          { label: 'Active Mentees', value: '2,840', trend: '+8.2%', icon: Users, color: 'text-emerald-500', bg: 'bg-emerald-50 dark:bg-emerald-900/10 border-emerald-100 dark:border-emerald-800/30' },
+          { label: 'Total Revenue', value: '$124,500', trend: '+12.5%', icon: DollarSign, color: 'text-emerald-500', bg: 'bg-emerald-50 dark:bg-emerald-900/30 dark:bg-emerald-900/10 border-emerald-100 dark:border-emerald-900/50 dark:border-emerald-800/30' },
+          { label: 'Active Mentees', value: '2,840', trend: '+8.2%', icon: Users, color: 'text-emerald-500', bg: 'bg-emerald-50 dark:bg-emerald-900/30 dark:bg-emerald-900/10 border-emerald-100 dark:border-emerald-900/50 dark:border-emerald-800/30' },
           { label: 'Active Jobs', value: '452', trend: '-2.4%', icon: Briefcase, color: 'text-blue-500', bg: 'bg-blue-50 dark:bg-blue-900/10 border-blue-100 dark:border-blue-800/30', down: true },
-          { label: 'Courses Sold', value: '1,205', trend: '+24.0%', icon: BookOpen, color: 'text-emerald-500', bg: 'bg-emerald-50 dark:bg-emerald-900/10 border-emerald-100 dark:border-emerald-800/30' },
+          { label: 'Courses Sold', value: '1,205', trend: '+24.0%', icon: BookOpen, color: 'text-emerald-500', bg: 'bg-emerald-50 dark:bg-emerald-900/30 dark:bg-emerald-900/10 border-emerald-100 dark:border-emerald-900/50 dark:border-emerald-800/30' },
         ].map((stat, i) => (
-          <div key={i} className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl p-8 rounded-[2.5rem] border border-white/50 dark:border-slate-800 shadow-xl shadow-slate-200/40 dark:shadow-none transition-all hover:-translate-y-1">
+          <div key={i} className="bg-white dark:bg-slate-950/70 dark:bg-slate-900/70 backdrop-blur-xl p-8 rounded-[2.5rem] border border-white/50 dark:border-slate-800 shadow-xl shadow-slate-200/40 dark:shadow-none transition-all hover:-translate-y-1">
             <div className="flex items-start justify-between">
               <div className={`p-4 rounded-[1.5rem] ${stat.bg} ${stat.color} border shadow-sm`}>
                 <stat.icon className="w-6 h-6" />
               </div>
-              <div className={`flex items-center gap-1 text-[10px] font-black uppercase tracking-widest bg-white/50 dark:bg-slate-800/50 px-2 py-1 rounded-lg shadow-sm border border-slate-100/50 dark:border-slate-700/50 ${stat.down ? 'text-rose-500' : 'text-emerald-500'}`}>
+              <div className={`flex items-center gap-1 text-[10px] font-black uppercase tracking-widest bg-white dark:bg-slate-950/50 dark:bg-slate-800/50 px-2 py-1 rounded-lg shadow-sm border border-slate-100 dark:border-slate-800/50 dark:border-slate-700/50 ${stat.down ? 'text-rose-500' : 'text-emerald-500'}`}>
                 {stat.down ? <ArrowDownRight className="w-3 h-3" /> : <ArrowUpRight className="w-3 h-3" />}
                 {stat.trend}
               </div>
@@ -105,17 +105,17 @@ export default function AdminAnalyticsPage() {
       {/* Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Revenue Area Chart */}
-        <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl p-8 rounded-[2.5rem] border border-white/50 dark:border-slate-800 shadow-xl shadow-slate-200/40 dark:shadow-none transition-all">
-          <div className="flex items-center justify-between mb-8 border-b border-slate-100/50 dark:border-slate-800/50 pb-6">
+        <div className="bg-white dark:bg-slate-950/70 dark:bg-slate-900/70 backdrop-blur-xl p-8 rounded-[2.5rem] border border-white/50 dark:border-slate-800 shadow-xl shadow-slate-200/40 dark:shadow-none transition-all">
+          <div className="flex items-center justify-between mb-8 border-b border-slate-100 dark:border-slate-800/50 dark:border-slate-800/50 pb-6">
             <h3 className="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-widest">Revenue vs Profit</h3>
-            <div className="flex items-center gap-4 bg-slate-50/50 dark:bg-slate-800/30 px-4 py-2 rounded-xl border border-slate-100/50 dark:border-slate-800/50 shadow-sm">
+            <div className="flex items-center gap-4 bg-slate-50 dark:bg-slate-800/30 px-4 py-2 rounded-xl border border-slate-100 dark:border-slate-800/50 dark:border-slate-800/50 shadow-sm">
               <div className="flex items-center gap-2">
                 <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(99,102,241,0.5)]" />
-                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Revenue</span>
+                <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Revenue</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]" />
-                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Profit</span>
+                <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Profit</span>
               </div>
             </div>
           </div>
@@ -164,8 +164,8 @@ export default function AdminAnalyticsPage() {
         </div>
 
         {/* User Segmentation Pie Chart */}
-        <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl p-8 rounded-[2.5rem] border border-white/50 dark:border-slate-800 shadow-xl shadow-slate-200/40 dark:shadow-none transition-all">
-          <h3 className="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-widest mb-8 border-b border-slate-100/50 dark:border-slate-800/50 pb-6">User Demographics</h3>
+        <div className="bg-white dark:bg-slate-950/70 dark:bg-slate-900/70 backdrop-blur-xl p-8 rounded-[2.5rem] border border-white/50 dark:border-slate-800 shadow-xl shadow-slate-200/40 dark:shadow-none transition-all">
+          <h3 className="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-widest mb-8 border-b border-slate-100 dark:border-slate-800/50 dark:border-slate-800/50 pb-6">User Demographics</h3>
           <div className="h-[300px] w-full flex items-center justify-center mt-4">
             <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
               <PieChart>
@@ -187,7 +187,7 @@ export default function AdminAnalyticsPage() {
                 <Legend 
                   verticalAlign="bottom" 
                   height={36} 
-                  formatter={(value) => <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">{value}</span>}
+                  formatter={(value) => <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">{value}</span>}
                 />
               </PieChart>
             </ResponsiveContainer>
@@ -195,12 +195,12 @@ export default function AdminAnalyticsPage() {
         </div>
 
         {/* Engagement Bar Chart */}
-        <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl p-8 rounded-[2.5rem] border border-white/50 dark:border-slate-800 shadow-xl shadow-slate-200/40 dark:shadow-none transition-all">
-          <div className="flex items-center justify-between mb-8 border-b border-slate-100/50 dark:border-slate-800/50 pb-6">
+        <div className="bg-white dark:bg-slate-950/70 dark:bg-slate-900/70 backdrop-blur-xl p-8 rounded-[2.5rem] border border-white/50 dark:border-slate-800 shadow-xl shadow-slate-200/40 dark:shadow-none transition-all">
+          <div className="flex items-center justify-between mb-8 border-b border-slate-100 dark:border-slate-800/50 dark:border-slate-800/50 pb-6">
             <h3 className="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-widest">Platform Engagement</h3>
-            <div className="flex gap-2 bg-slate-50/50 dark:bg-slate-800/30 px-3 py-1.5 rounded-xl border border-slate-100/50 dark:border-slate-800/50 shadow-sm">
-               <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 text-[10px] font-black uppercase tracking-widest"><div className="w-2 h-2 rounded-full bg-emerald-500" />Jobs</span>
-               <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 text-[10px] font-black uppercase tracking-widest ml-2"><div className="w-2 h-2 rounded-full bg-emerald-500" />Courses</span>
+            <div className="flex gap-2 bg-slate-50 dark:bg-slate-800/30 px-3 py-1.5 rounded-xl border border-slate-100 dark:border-slate-800/50 dark:border-slate-800/50 shadow-sm">
+               <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-500 dark:text-emerald-400 text-[10px] font-black uppercase tracking-widest"><div className="w-2 h-2 rounded-full bg-emerald-500" />Jobs</span>
+               <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-500 dark:text-emerald-400 text-[10px] font-black uppercase tracking-widest ml-2"><div className="w-2 h-2 rounded-full bg-emerald-500" />Courses</span>
             </div>
           </div>
           <div className="h-[300px] w-full mt-4">
@@ -231,8 +231,8 @@ export default function AdminAnalyticsPage() {
         </div>
 
         {/* Recent Events / Top Lists */}
-        <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl p-8 rounded-[2.5rem] border border-white/50 dark:border-slate-800 shadow-xl shadow-slate-200/40 dark:shadow-none transition-all">
-          <h3 className="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-widest mb-8 border-b border-slate-100/50 dark:border-slate-800/50 pb-6">Top Performing Mentors</h3>
+        <div className="bg-white dark:bg-slate-950/70 dark:bg-slate-900/70 backdrop-blur-xl p-8 rounded-[2.5rem] border border-white/50 dark:border-slate-800 shadow-xl shadow-slate-200/40 dark:shadow-none transition-all">
+          <h3 className="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-widest mb-8 border-b border-slate-100 dark:border-slate-800/50 dark:border-slate-800/50 pb-6">Top Performing Mentors</h3>
           <div className="space-y-4">
             {[
               { name: 'Dr. Sarah Wilson', field: 'Software Architecture', students: 124, revenue: '$4,200', rating: 4.9 },
@@ -240,18 +240,18 @@ export default function AdminAnalyticsPage() {
               { name: 'Elena Rodriguez', field: 'Data Science', students: 156, revenue: '$5,100', rating: 5.0 },
               { name: 'Johnathan Lee', field: 'Career Growth', students: 67, revenue: '$1,900', rating: 4.7 },
             ].map((mentor, i) => (
-              <div key={i} className="flex items-center justify-between p-5 rounded-[1.5rem] bg-slate-50/50 dark:bg-slate-800/30 border border-slate-100/50 dark:border-slate-800/50 hover:border-emerald-200 dark:hover:border-emerald-800/50 hover:bg-white dark:hover:bg-slate-800 transition-all group shadow-sm hover:shadow-md hover:-translate-y-0.5">
+              <div key={i} className="flex items-center justify-between p-5 rounded-[1.5rem] bg-slate-50 dark:bg-slate-800/30 border border-slate-100 dark:border-slate-800/50 dark:border-slate-800/50 hover:border-emerald-200 dark:border-emerald-800/50 dark:hover:border-emerald-800/50 hover:bg-white dark:bg-slate-950 dark:hover:bg-slate-800 transition-all group shadow-sm hover:shadow-md hover:-translate-y-0.5">
                 <div className="flex items-center gap-5">
-                  <div className="w-12 h-12 rounded-[1.25rem] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 flex items-center justify-center text-sm font-black text-emerald-600 dark:text-emerald-400 shadow-sm group-hover:scale-110 group-hover:bg-emerald-50 dark:group-hover:bg-emerald-900/20 transition-all">
+                  <div className="w-12 h-12 rounded-[1.25rem] bg-white dark:bg-slate-950 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 flex items-center justify-center text-sm font-black text-emerald-600 dark:text-emerald-500 dark:text-emerald-400 shadow-sm group-hover:scale-110 group-hover:bg-emerald-50 dark:bg-emerald-900/30 dark:group-hover:bg-emerald-900/20 transition-all">
                     {mentor.name.split(' ').map(n => n[0]).join('')}
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">{mentor.name}</p>
+                    <p className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 dark:text-emerald-500 dark:group-hover:text-emerald-400 transition-colors">{mentor.name}</p>
                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">{mentor.field}</p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm font-black text-emerald-600">{mentor.revenue}</p>
+                  <p className="text-sm font-black text-emerald-600 dark:text-emerald-500">{mentor.revenue}</p>
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">{mentor.students} Students</p>
                 </div>
               </div>

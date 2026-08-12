@@ -405,7 +405,7 @@ export default function MentorDashboardPage() {
         
         <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-8">
            <div className="max-w-2xl">
-              <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-[11px] uppercase tracking-widest font-black text-emerald-100 backdrop-blur-md mb-4 border border-white/10 shadow-sm">
+              <div className="inline-flex items-center gap-2 rounded-full bg-white/10 dark:bg-slate-950/10 px-3 py-1 text-[11px] uppercase tracking-widest font-black text-emerald-100 backdrop-blur-md mb-4 border border-white/10 shadow-sm">
                  <Sparkles className="w-3.5 h-3.5 text-amber-300" />
                  Sẵn sàng cho ngày mới
               </div>
@@ -420,15 +420,15 @@ export default function MentorDashboardPage() {
            </div>
            
            <div className="flex shrink-0 gap-3">
-              <Link to="/blogs/create" className="group flex items-center gap-2 rounded-2xl bg-white/10 px-5 py-3 text-sm font-bold text-white backdrop-blur-md transition-all hover:bg-white/20 border border-white/10 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-emerald-500/20">
+              <Link to="/blogs/create" className="group flex items-center gap-2 rounded-2xl bg-white/10 dark:bg-slate-950/10 px-5 py-3 text-sm font-bold text-white backdrop-blur-md transition-all hover:bg-white/20 dark:bg-slate-950/20 border border-white/10 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-emerald-500/20">
                  <Plus className="w-4 h-4 transition-transform group-hover:scale-110" />
                  Viết Blog
               </Link>
-              <Link to="/courses/create" className="group flex items-center gap-2 rounded-2xl bg-white/10 px-5 py-3 text-sm font-bold text-white backdrop-blur-md transition-all hover:bg-white/20 border border-white/10 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-emerald-500/20">
+              <Link to="/courses/create" className="group flex items-center gap-2 rounded-2xl bg-white/10 dark:bg-slate-950/10 px-5 py-3 text-sm font-bold text-white backdrop-blur-md transition-all hover:bg-white/20 dark:bg-slate-950/20 border border-white/10 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-emerald-500/20">
                  <Plus className="w-4 h-4 transition-transform group-hover:scale-110" />
                  Tạo khóa học
               </Link>
-              <Link to="/mentor/messages" className="group flex items-center gap-2 rounded-2xl bg-white px-5 py-3 text-sm font-bold text-emerald-900 transition-all hover:bg-emerald-50 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-white/20">
+              <Link to="/mentor/messages" className="group flex items-center gap-2 rounded-2xl bg-white dark:bg-slate-950 px-5 py-3 text-sm font-bold text-emerald-900 dark:text-emerald-100 transition-all hover:bg-emerald-50 dark:bg-emerald-900/30 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-white/20">
                  <MessageCircleMore className="w-4 h-4 transition-transform group-hover:scale-110" />
                  Mở Inbox
               </Link>

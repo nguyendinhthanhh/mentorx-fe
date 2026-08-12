@@ -169,15 +169,15 @@ export default function UserRequestDetailPageNew() {
 
   const getStatusBadge = (status?: JobStatus) => {
     const statusMap: Record<JobStatus, { label: string; color: string }> = {
-      [JobStatus.DRAFT]: { label: 'Nháp', color: 'bg-slate-50 text-slate-600 border-slate-200' },
-      [JobStatus.PENDING_APPROVAL]: { label: 'Chờ duyệt', color: 'bg-amber-50 text-amber-700 border-amber-200' },
-      [JobStatus.OPEN]: { label: 'Đang mở', color: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+      [JobStatus.DRAFT]: { label: 'Nháp', color: 'bg-slate-50 dark:bg-slate-900/50 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800' },
+      [JobStatus.PENDING_APPROVAL]: { label: 'Chờ duyệt', color: 'bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800/50' },
+      [JobStatus.OPEN]: { label: 'Đang mở', color: 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800/50' },
       [JobStatus.IN_PROGRESS]: { label: 'Đang thực hiện', color: 'bg-blue-50 text-blue-700 border-blue-200' },
-      [JobStatus.ON_HOLD]: { label: 'Tạm dừng', color: 'bg-orange-50 text-orange-700 border-orange-200' },
-      [JobStatus.COMPLETED]: { label: 'Hoàn thành', color: 'bg-slate-100 text-slate-700 border-slate-200' },
-      [JobStatus.CLOSED]: { label: 'Đã đóng', color: 'bg-slate-100 text-slate-600 border-slate-200' },
+      [JobStatus.ON_HOLD]: { label: 'Tạm dừng', color: 'bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 border-orange-200' },
+      [JobStatus.COMPLETED]: { label: 'Hoàn thành', color: 'bg-slate-100 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800' },
+      [JobStatus.CLOSED]: { label: 'Đã đóng', color: 'bg-slate-100 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800' },
       [JobStatus.CANCELLED]: { label: 'Đã hủy', color: 'bg-rose-50 text-rose-600 border-rose-200' },
-      [JobStatus.EXPIRED]: { label: 'Hết hạn', color: 'bg-slate-50 text-slate-500 border-slate-200' },
+      [JobStatus.EXPIRED]: { label: 'Hết hạn', color: 'bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-800' },
     }
     return statusMap[status || JobStatus.OPEN]
   }
@@ -204,7 +204,7 @@ export default function UserRequestDetailPageNew() {
       <div className="flex min-h-[400px] items-center justify-center">
         <div className="text-center">
           <FileText className="mx-auto h-12 w-12 text-slate-300" />
-          <p className="mt-4 text-slate-600">Đang tải...</p>
+          <p className="mt-4 text-slate-600 dark:text-slate-400">Đang tải...</p>
         </div>
       </div>
     )
@@ -215,11 +215,11 @@ export default function UserRequestDetailPageNew() {
   const canOpenContractDispute = Boolean(contract && ['ACTIVE', 'UNDER_REVIEW'].includes(contract.status))
 
   return (
-    <div className="min-h-[100dvh] bg-[#f6f7fb]">
+    <div className="min-h-[100dvh] bg-[#f6f7fb] dark:bg-slate-950">
       <div className="mx-auto max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8">
         {/* Breadcrumb */}
         <div className="mb-6">
-          <Link to="/users/requests" className="inline-flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-emerald-600 transition-colors">
+          <Link to="/users/requests" className="inline-flex items-center gap-2 text-sm font-bold text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:text-emerald-500 transition-colors">
             <ArrowLeft className="h-4 w-4" />
             Quay lại danh sách
           </Link>
@@ -230,14 +230,14 @@ export default function UserRequestDetailPageNew() {
           {/* Left Column - Main Content */}
           <div className="space-y-6">
             {/* Header Card */}
-            <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+            <div className="overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 shadow-sm">
               {/* Status Bar */}
-              <div className="border-b border-slate-100 bg-gradient-to-r from-emerald-50 to-slate-50 px-4 py-4 sm:px-6">
+              <div className="border-b border-slate-100 dark:border-slate-800 bg-gradient-to-r from-emerald-50 to-slate-50 dark:to-slate-900/50 px-4 py-4 sm:px-6">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-bold ${statusBadge.color}`}>
                     {statusBadge.label}
                   </span>
-                  <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700">
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-900/30 px-3 py-1 text-xs font-bold text-emerald-700 dark:text-emerald-400">
                     {job.jobType === JobType.FREELANCE_PROJECT ? 'Dự án freelance' : job.jobType === JobType.LONG_TERM_MENTORING ? 'Mentoring dài hạn' : 'Quick fix'}
                   </span>
                   {categoryName && (
@@ -250,9 +250,9 @@ export default function UserRequestDetailPageNew() {
 
               {/* Title & Meta */}
               <div className="px-4 py-6 sm:px-6">
-                <h1 className="break-words text-2xl font-extrabold tracking-tight text-slate-950 sm:text-3xl">{job.title}</h1>
+                <h1 className="break-words text-2xl font-extrabold tracking-tight text-slate-950 dark:text-slate-100 sm:text-3xl">{job.title}</h1>
                 
-                <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-slate-600">
+                <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-slate-600 dark:text-slate-400">
                   <span className="flex items-center gap-2">
                     <Clock className="h-4 w-4 text-slate-400" />
                     Đã đăng {formatRelativeTime(job.createdAt, language)}
@@ -265,24 +265,24 @@ export default function UserRequestDetailPageNew() {
               </div>
 
               {/* Quick Stats */}
-              <div className="border-t border-slate-100 px-4 py-5 sm:px-6">
+              <div className="border-t border-slate-100 dark:border-slate-800 px-4 py-5 sm:px-6">
                 <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                   {/* Budget */}
-                  <div className="rounded-xl bg-gradient-to-br from-emerald-50 to-white border border-emerald-100 p-4">
-                    <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-600 mb-2">
+                  <div className="rounded-xl bg-gradient-to-br from-emerald-50 to-white border border-emerald-100 dark:border-emerald-900/50 p-4">
+                    <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-500 mb-2">
                       <Coins className="h-4 w-4" />
                       Ngân sách
                     </div>
-                    <p className="text-xl font-bold text-slate-950">{formatBudget(job)}</p>
+                    <p className="text-xl font-bold text-slate-950 dark:text-slate-100">{formatBudget(job)}</p>
                   </div>
 
                   {/* Proposals */}
-                  <div className="rounded-xl bg-gradient-to-br from-emerald-50 to-white border border-emerald-100 p-4">
-                    <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-600 mb-2">
+                  <div className="rounded-xl bg-gradient-to-br from-emerald-50 to-white border border-emerald-100 dark:border-emerald-900/50 p-4">
+                    <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-500 mb-2">
                       <Users className="h-4 w-4" />
                       Ứng tuyển
                     </div>
-                    <p className="text-xl font-bold text-slate-950">{proposals.length} mentor</p>
+                    <p className="text-xl font-bold text-slate-950 dark:text-slate-100">{proposals.length} mentor</p>
                   </div>
 
                   {/* Status */}
@@ -291,7 +291,7 @@ export default function UserRequestDetailPageNew() {
                       <TrendingUp className="h-4 w-4" />
                       Trạng thái
                     </div>
-                    <p className="text-xl font-bold text-slate-950">{statusBadge.label}</p>
+                    <p className="text-xl font-bold text-slate-950 dark:text-slate-100">{statusBadge.label}</p>
                   </div>
                 </div>
               </div>
@@ -304,7 +304,7 @@ export default function UserRequestDetailPageNew() {
                 className={`min-w-0 flex-1 rounded-xl px-4 py-2.5 text-sm font-bold transition sm:flex-none ${
                   activeTab === 'overview'
                     ? 'bg-emerald-600 text-white shadow-lg'
-                    : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
+                    : 'bg-white dark:bg-slate-950 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800'
                 }`}
               >
                 Tổng quan
@@ -314,12 +314,12 @@ export default function UserRequestDetailPageNew() {
                 className={`min-w-0 flex-1 rounded-xl px-4 py-2.5 text-sm font-bold transition sm:flex-none ${
                   activeTab === 'proposals'
                     ? 'bg-emerald-600 text-white shadow-lg'
-                    : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
+                    : 'bg-white dark:bg-slate-950 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800'
                 }`}
               >
                 Mentor ứng tuyển
                 {proposals.length > 0 && (
-                  <span className="ml-2 rounded-full bg-white/20 px-2 py-0.5 text-xs">{proposals.length}</span>
+                  <span className="ml-2 rounded-full bg-white dark:bg-slate-950/20 px-2 py-0.5 text-xs">{proposals.length}</span>
                 )}
               </button>
               <button
@@ -327,7 +327,7 @@ export default function UserRequestDetailPageNew() {
                 className={`min-w-0 flex-1 rounded-xl px-4 py-2.5 text-sm font-bold transition sm:flex-none ${
                   activeTab === 'payment'
                     ? 'bg-emerald-600 text-white shadow-lg'
-                    : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
+                    : 'bg-white dark:bg-slate-950 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800'
                 }`}
               >
                 Thanh toán
@@ -336,15 +336,15 @@ export default function UserRequestDetailPageNew() {
 
             {/* Tab Content */}
             {activeTab === 'overview' && (
-              <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
-                <div className="border-b border-slate-100 px-4 py-5 sm:px-6">
+              <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 shadow-sm">
+                <div className="border-b border-slate-100 dark:border-slate-800 px-4 py-5 sm:px-6">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100">
-                      <FileText className="h-5 w-5 text-emerald-600" />
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/50">
+                      <FileText className="h-5 w-5 text-emerald-600 dark:text-emerald-500" />
                     </div>
                     <div>
-                      <h2 className="text-lg font-bold text-slate-950">Thông tin yêu cầu</h2>
-                      <p className="text-xs text-slate-500">Chi tiết công việc và yêu cầu</p>
+                      <h2 className="text-lg font-bold text-slate-950 dark:text-slate-100">Thông tin yêu cầu</h2>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">Chi tiết công việc và yêu cầu</p>
                     </div>
                   </div>
                 </div>
@@ -352,19 +352,19 @@ export default function UserRequestDetailPageNew() {
                 <div className="space-y-6 px-4 py-6 sm:px-6">
                   {/* Description */}
                   <div>
-                    <h3 className="text-sm font-bold text-slate-700 mb-3">Mô tả công việc</h3>
-                    <div className="rounded-xl bg-slate-50 border border-slate-100 p-5">
-                      <p className="whitespace-pre-wrap text-sm leading-relaxed text-slate-800">{job.description}</p>
+                    <h3 className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-3">Mô tả công việc</h3>
+                    <div className="rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 p-5">
+                      <p className="whitespace-pre-wrap text-sm leading-relaxed text-slate-800 dark:text-slate-200">{job.description}</p>
                     </div>
                   </div>
 
                   {/* Skills */}
                   {job.requiredSkills && job.requiredSkills.length > 0 && (
                     <div>
-                      <h3 className="text-sm font-bold text-slate-700 mb-3">Kỹ năng yêu cầu</h3>
+                      <h3 className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-3">Kỹ năng yêu cầu</h3>
                       <div className="flex flex-wrap gap-2">
                         {job.requiredSkills.map((skill) => (
-                          <span key={skill} className="rounded-full bg-emerald-50 border border-emerald-100 px-3 py-1.5 text-sm font-bold text-emerald-700">
+                          <span key={skill} className="rounded-full bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-100 dark:border-emerald-900/50 px-3 py-1.5 text-sm font-bold text-emerald-700 dark:text-emerald-400">
                             {skill}
                           </span>
                         ))}
@@ -374,31 +374,31 @@ export default function UserRequestDetailPageNew() {
 
                   {/* Requirements Grid */}
                   <div>
-                    <h3 className="text-sm font-bold text-slate-700 mb-3">Yêu cầu khác</h3>
+                    <h3 className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-3">Yêu cầu khác</h3>
                     <div className="grid gap-3 sm:grid-cols-2">
-                      <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                        <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
+                      <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 p-4">
+                        <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">
                           <CalendarDays className="h-4 w-4" />
                           Hạn chót
                         </div>
-                        <p className="text-sm font-medium text-slate-900">{job.deadlineAt ? formatDate(job.deadlineAt) : 'Linh hoạt'}</p>
+                        <p className="text-sm font-medium text-slate-900 dark:text-slate-100">{job.deadlineAt ? formatDate(job.deadlineAt) : 'Linh hoạt'}</p>
                       </div>
-                      <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                        <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
+                      <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 p-4">
+                        <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">
                           <Clock3 className="h-4 w-4" />
                           Khung giờ
                         </div>
-                        <p className="text-sm font-medium text-slate-900">{job.availabilityExpectation || 'Linh hoạt'}</p>
+                        <p className="text-sm font-medium text-slate-900 dark:text-slate-100">{job.availabilityExpectation || 'Linh hoạt'}</p>
                       </div>
                     </div>
                   </div>
 
                   {/* Actions */}
                   {(job.status === JobStatus.DRAFT || job.status === JobStatus.OPEN || job.status === JobStatus.PENDING_APPROVAL) && (
-                    <div className="flex flex-wrap gap-3 border-t border-slate-100 pt-4">
+                    <div className="flex flex-wrap gap-3 border-t border-slate-100 dark:border-slate-800 pt-4">
                       <Link
                         to={`/jobs/${job.jobId}/edit`}
-                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-sm font-bold text-slate-700 hover:bg-slate-50 transition"
+                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:bg-slate-900/50 transition"
                       >
                         <Edit className="h-4 w-4" />
                         Chỉnh sửa
@@ -410,16 +410,16 @@ export default function UserRequestDetailPageNew() {
             )}
 
             {activeTab === 'proposals' && (
-              <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
-                <div className="border-b border-slate-100 px-4 py-5 sm:px-6">
+              <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 shadow-sm">
+                <div className="border-b border-slate-100 dark:border-slate-800 px-4 py-5 sm:px-6">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100">
-                        <Users className="h-5 w-5 text-emerald-600" />
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/50">
+                        <Users className="h-5 w-5 text-emerald-600 dark:text-emerald-500" />
                       </div>
                       <div>
-                        <h2 className="text-lg font-bold text-slate-950">Mentor ứng tuyển</h2>
-                        <p className="text-xs text-slate-500">{proposals.length} đề xuất đã nhận</p>
+                        <h2 className="text-lg font-bold text-slate-950 dark:text-slate-100">Mentor ứng tuyển</h2>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">{proposals.length} đề xuất đã nhận</p>
                       </div>
                     </div>
                   </div>
@@ -429,28 +429,28 @@ export default function UserRequestDetailPageNew() {
             )}
 
             {activeTab === 'payment' && (
-              <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
-                <div className="border-b border-slate-100 px-4 py-5 sm:px-6">
+              <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 shadow-sm">
+                <div className="border-b border-slate-100 dark:border-slate-800 px-4 py-5 sm:px-6">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100">
-                      <Coins className="h-5 w-5 text-emerald-600" />
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/50">
+                      <Coins className="h-5 w-5 text-emerald-600 dark:text-emerald-500" />
                     </div>
                     <div>
-                      <h2 className="text-lg font-bold text-slate-950">Thanh toán</h2>
-                      <p className="text-xs text-slate-500">Lịch sử giao dịch và escrow</p>
+                      <h2 className="text-lg font-bold text-slate-950 dark:text-slate-100">Thanh toán</h2>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">Lịch sử giao dịch và escrow</p>
                     </div>
                   </div>
                 </div>
                 <div className="px-4 py-8 sm:px-6">
                   {contract ? (
                     <div className="space-y-4">
-                      <div className="rounded-xl bg-emerald-50 border border-emerald-200 p-5">
+                      <div className="rounded-xl bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800/50 p-5">
                         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                           <div>
-                            <p className="text-sm font-bold text-emerald-900">Escrow đang giữ</p>
+                            <p className="text-sm font-bold text-emerald-900 dark:text-emerald-100">Escrow đang giữ</p>
                             <p className="mt-1 text-2xl font-bold text-emerald-950">{formatCurrency(contract.amountInEscrow || 0)}</p>
                           </div>
-                          <ShieldAlert className="h-8 w-8 text-emerald-600" />
+                          <ShieldAlert className="h-8 w-8 text-emerald-600 dark:text-emerald-500" />
                         </div>
                       </div>
                       {contract.status === 'ACTIVE' && contract.overdue && (
@@ -460,11 +460,11 @@ export default function UserRequestDetailPageNew() {
                         </div>
                       )}
                       {contract.status === 'UNDER_REVIEW' && (
-                        <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-900">
+                        <div className="rounded-xl border border-amber-200 dark:border-amber-800/50 bg-amber-50 dark:bg-amber-900/30 p-4 text-sm leading-6 text-amber-900 dark:text-amber-100">
                           <p className="font-bold">Mentor đã đánh dấu hoàn thành. Bạn đang là người duyệt cuối.</p>
                           <p className="mt-1">Chỉ bấm giải ngân sau khi đã kiểm tra đủ sản phẩm. Nếu chưa đạt, yêu cầu chỉnh sửa; tiền vẫn nằm trong escrow.</p>
                           {contract.mentorSubmittedLate && (
-                            <p className="mt-2 font-semibold text-amber-800">Lưu ý: mentor đã gửi bàn giao sau deadline đã cam kết.</p>
+                            <p className="mt-2 font-semibold text-amber-800 dark:text-amber-200">Lưu ý: mentor đã gửi bàn giao sau deadline đã cam kết.</p>
                           )}
                         </div>
                       )}
@@ -481,25 +481,25 @@ export default function UserRequestDetailPageNew() {
                         <button
                           type="button"
                           onClick={() => setShowRevisionForm(true)}
-                          className="w-full rounded-xl border border-amber-200 bg-white py-3 font-bold text-amber-700 transition hover:bg-amber-50"
+                          className="w-full rounded-xl border border-amber-200 dark:border-amber-800/50 bg-white dark:bg-slate-950 py-3 font-bold text-amber-700 dark:text-amber-400 transition hover:bg-amber-50 dark:bg-amber-900/30"
                         >
                           Yêu cầu mentor chỉnh sửa
                         </button>
                       )}
                       {canCompleteContract && showRevisionForm && (
-                        <div className="space-y-3 rounded-xl border border-amber-200 bg-amber-50 p-4">
-                          <label className="block text-sm font-bold text-slate-900" htmlFor="completion-revision-note">Nội dung cần chỉnh sửa</label>
+                        <div className="space-y-3 rounded-xl border border-amber-200 dark:border-amber-800/50 bg-amber-50 dark:bg-amber-900/30 p-4">
+                          <label className="block text-sm font-bold text-slate-900 dark:text-slate-100" htmlFor="completion-revision-note">Nội dung cần chỉnh sửa</label>
                           <textarea
                             id="completion-revision-note"
                             value={revisionNote}
                             onChange={(event) => setRevisionNote(event.target.value)}
                             rows={4}
                             maxLength={1000}
-                            className="w-full rounded-xl border border-amber-200 bg-white p-3 text-sm outline-none focus:border-amber-500"
+                            className="w-full rounded-xl border border-amber-200 dark:border-amber-800/50 bg-white dark:bg-slate-950 p-3 text-sm outline-none focus:border-amber-500"
                             placeholder="Nêu rõ phần còn thiếu hoặc chưa đạt..."
                           />
                           <div className="flex gap-2">
-                            <button type="button" onClick={() => setShowRevisionForm(false)} className="flex-1 rounded-xl border border-slate-200 bg-white py-2.5 text-sm font-bold text-slate-700">Hủy</button>
+                            <button type="button" onClick={() => setShowRevisionForm(false)} className="flex-1 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 py-2.5 text-sm font-bold text-slate-700 dark:text-slate-300">Hủy</button>
                             <button
                               type="button"
                               onClick={() => revisionMutation.mutate({ contractId: contract.id, note: revisionNote.trim() })}
@@ -523,7 +523,7 @@ export default function UserRequestDetailPageNew() {
                             }
                           }}
                           disabled={disputeMutation.isLoading}
-                          className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-rose-200 bg-white py-3 font-bold text-rose-700 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-60"
+                          className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-rose-200 bg-white dark:bg-slate-950 py-3 font-bold text-rose-700 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-60"
                         >
                           <AlertTriangle className="h-4 w-4" />
                           {disputeMutation.isLoading ? 'Đang mở dispute...' : 'Mở dispute với admin'}
@@ -533,7 +533,7 @@ export default function UserRequestDetailPageNew() {
                   ) : (
                     <div className="text-center py-8">
                       <Coins className="mx-auto h-12 w-12 text-slate-300" />
-                      <p className="mt-4 text-sm text-slate-600">Chưa có giao dịch nào</p>
+                      <p className="mt-4 text-sm text-slate-600 dark:text-slate-400">Chưa có giao dịch nào</p>
                     </div>
                   )}
                 </div>
@@ -545,16 +545,16 @@ export default function UserRequestDetailPageNew() {
           <aside className="space-y-5 lg:sticky lg:top-24 lg:self-start">
             {/* Mentor Card (if accepted) */}
             {acceptedProposal && (
-              <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-                <div className="border-b border-slate-100 bg-gradient-to-br from-emerald-50 to-white px-4 py-5 sm:px-6">
+              <div className="overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 shadow-sm">
+                <div className="border-b border-slate-100 dark:border-slate-800 bg-gradient-to-br from-emerald-50 to-white px-4 py-5 sm:px-6">
                   <div className="flex items-start gap-4">
                     <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 text-lg font-bold text-white shadow-lg">
                       {acceptedProposal.mentorName?.charAt(0) || 'M'}
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Mentor đang đồng hành</p>
-                      <h3 className="mt-1 break-words text-lg font-bold text-slate-950">{acceptedProposal.mentorName}</h3>
-                      <span className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700">
+                      <h3 className="mt-1 break-words text-lg font-bold text-slate-950 dark:text-slate-100">{acceptedProposal.mentorName}</h3>
+                      <span className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-emerald-50 dark:bg-emerald-900/30 px-2.5 py-1 text-xs font-bold text-emerald-700 dark:text-emerald-400">
                         <CheckCircle2 className="h-3.5 w-3.5" />
                         Đã chọn
                       </span>
@@ -563,8 +563,8 @@ export default function UserRequestDetailPageNew() {
                 </div>
                 
                 <div className="px-4 py-4 sm:px-6">
-                  <div className="text-sm text-slate-600 mb-4">
-                    <p className="font-bold text-slate-900">Đã chốt giá: {formatCurrency(acceptedProposal.proposedAmount || 0)}</p>
+                  <div className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                    <p className="font-bold text-slate-900 dark:text-slate-100">Đã chốt giá: {formatCurrency(acceptedProposal.proposedAmount || 0)}</p>
                   </div>
                   <button
                     onClick={() => setChatDrawer({
@@ -583,24 +583,24 @@ export default function UserRequestDetailPageNew() {
             )}
 
             {/* Guide Card */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-5 shadow-sm">
               <h3 className="text-sm font-semibold uppercase tracking-widerr text-slate-400 mb-4">Hướng dẫn</h3>
               <div className="space-y-3 text-sm">
                 <div className="flex gap-3">
-                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-600">1</div>
-                  <p className="text-slate-700">Xem xét đề xuất từ mentor.</p>
+                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/50 text-xs font-bold text-emerald-600 dark:text-emerald-500">1</div>
+                  <p className="text-slate-700 dark:text-slate-300">Xem xét đề xuất từ mentor.</p>
                 </div>
                 <div className="flex gap-3">
-                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-600">2</div>
-                  <p className="text-slate-700">Chat để làm rõ phạm vi, deadline và kỳ vọng.</p>
+                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/50 text-xs font-bold text-emerald-600 dark:text-emerald-500">2</div>
+                  <p className="text-slate-700 dark:text-slate-300">Chat để làm rõ phạm vi, deadline và kỳ vọng.</p>
                 </div>
                 <div className="flex gap-3">
-                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-600">3</div>
-                  <p className="text-slate-700">Chấp nhận mentor phù hợp nhất.</p>
+                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/50 text-xs font-bold text-emerald-600 dark:text-emerald-500">3</div>
+                  <p className="text-slate-700 dark:text-slate-300">Chấp nhận mentor phù hợp nhất.</p>
                 </div>
                 <div className="flex gap-3">
-                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-600">4</div>
-                  <p className="text-slate-700">Theo dõi escrow và xác nhận hoàn thành khi công việc xong.</p>
+                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/50 text-xs font-bold text-emerald-600 dark:text-emerald-500">4</div>
+                  <p className="text-slate-700 dark:text-slate-300">Theo dõi escrow và xác nhận hoàn thành khi công việc xong.</p>
                 </div>
               </div>
             </div>
@@ -611,18 +611,18 @@ export default function UserRequestDetailPageNew() {
       {/* Complete Confirmation Modal */}
       {showCompleteConfirm && contract && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
-            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100">
-              <CheckCircle2 className="h-6 w-6 text-emerald-600" />
+          <div className="w-full max-w-md rounded-2xl bg-white dark:bg-slate-950 p-6 shadow-2xl">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/50">
+              <CheckCircle2 className="h-6 w-6 text-emerald-600 dark:text-emerald-500" />
             </div>
-            <h3 className="text-lg font-bold text-slate-900 text-center mb-2">Xác nhận hoàn thành?</h3>
-            <p className="text-sm text-slate-600 text-center mb-6">
+            <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 text-center mb-2">Xác nhận hoàn thành?</h3>
+            <p className="text-sm text-slate-600 dark:text-slate-400 text-center mb-6">
               Khi xác nhận, {formatCurrency(contract.amountInEscrow || 0)} sẽ được giải ngân cho mentor.
             </p>
             <div className="flex gap-3">
               <button
                 onClick={() => setShowCompleteConfirm(false)}
-                className="flex-1 px-4 py-2.5 border border-slate-300 text-slate-700 rounded-xl font-bold hover:bg-slate-50"
+                className="flex-1 px-4 py-2.5 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded-xl font-bold hover:bg-slate-50 dark:bg-slate-900/50"
               >
                 Hủy
               </button>

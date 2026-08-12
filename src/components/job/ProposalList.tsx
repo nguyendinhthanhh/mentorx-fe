@@ -371,7 +371,7 @@ export default function ProposalList({ jobId }: Props) {
     return (
       <div className="space-y-4">
         {Array.from({ length: 3 }).map((_, index) => (
-          <div key={index} className="h-48 animate-pulse rounded-2xl bg-slate-50" />
+          <div key={index} className="h-48 animate-pulse rounded-2xl bg-slate-50 dark:bg-slate-900/50" />
         ))}
       </div>
     )
@@ -379,10 +379,10 @@ export default function ProposalList({ jobId }: Props) {
 
   if (!data?.content.length) {
     return (
-      <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-6 py-12 text-center">
+      <div className="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 px-6 py-12 text-center">
         <User className="mx-auto h-12 w-12 text-slate-300" />
-        <h3 className="mt-3 text-lg font-bold text-slate-950">Chưa có proposals</h3>
-        <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-600">
+        <h3 className="mt-3 text-lg font-bold text-slate-950 dark:text-slate-100">Chưa có proposals</h3>
+        <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-600 dark:text-slate-400">
           Khi có mentor apply vào job này, proposals của họ sẽ hiển thị ở đây. Bạn có thể xem, thương lượng và chọn mentor phù hợp.
         </p>
       </div>
@@ -417,13 +417,13 @@ export default function ProposalList({ jobId }: Props) {
 
       {/* Accepted Banner */}
       {acceptedProposal && (
-        <div className="flex flex-col gap-4 rounded-2xl border border-emerald-200 bg-emerald-50 p-5 sm:flex-row sm:items-start">
-          <CheckCircle className="w-6 h-6 text-emerald-600 flex-shrink-0 mt-0.5" />
+        <div className="flex flex-col gap-4 rounded-2xl border border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-900/30 p-5 sm:flex-row sm:items-start">
+          <CheckCircle className="w-6 h-6 text-emerald-600 dark:text-emerald-500 flex-shrink-0 mt-0.5" />
           <div className="flex-1">
-            <p className="text-sm font-bold text-emerald-900">
+            <p className="text-sm font-bold text-emerald-900 dark:text-emerald-100">
               Đã chọn mentor: <span className="font-bold">{acceptedProposal.mentorName}</span>
             </p>
-            <p className="mt-1 text-xs text-emerald-700">
+            <p className="mt-1 text-xs text-emerald-700 dark:text-emerald-400">
               Final amount: {formatCurrency(acceptedLatestNegotiation?.proposedAmount || acceptedProposal.proposedAmount)} | Deadline:{' '}
               {(acceptedLatestNegotiation?.deadlineAt || acceptedProposal.deadlineAt)
                 ? formatDeadline(acceptedLatestNegotiation?.deadlineAt || acceptedProposal.deadlineAt!)
@@ -441,16 +441,16 @@ export default function ProposalList({ jobId }: Props) {
 
       {/* Filter Info */}
       {statusFilter !== 'ALL' && (
-        <div className="flex flex-col gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 rounded-xl border border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-900/30 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-2 text-sm">
-            <Filter className="w-4 h-4 text-emerald-600" />
-            <span className="font-bold text-emerald-900">
+            <Filter className="w-4 h-4 text-emerald-600 dark:text-emerald-500" />
+            <span className="font-bold text-emerald-900 dark:text-emerald-100">
               Hiển thị {filteredProposals.length} proposals với status: {statusFilter}
             </span>
           </div>
           <button
             onClick={() => setStatusFilter('ALL')}
-            className="text-xs font-bold text-emerald-600 hover:text-emerald-700"
+            className="text-xs font-bold text-emerald-600 dark:text-emerald-500 hover:text-emerald-700 dark:text-emerald-400"
           >
             Xóa bộ lọc
           </button>
@@ -459,9 +459,9 @@ export default function ProposalList({ jobId }: Props) {
 
       {/* Proposals List */}
       {filteredProposals.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-6 py-8 text-center">
+        <div className="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 px-6 py-8 text-center">
           <AlertCircle className="mx-auto h-10 w-10 text-slate-300" />
-          <p className="mt-3 text-sm font-bold text-slate-600">
+          <p className="mt-3 text-sm font-bold text-slate-600 dark:text-slate-400">
             Không có proposals với status này
           </p>
         </div>
@@ -480,7 +480,7 @@ export default function ProposalList({ jobId }: Props) {
 
       {/* Results Count */}
       {filteredProposals.length > 0 && (
-        <div className="text-center text-sm text-slate-500">
+        <div className="text-center text-sm text-slate-500 dark:text-slate-400">
           Hiển thị {filteredProposals.length} / {proposals.length} proposals
         </div>
       )}
@@ -502,48 +502,48 @@ export default function ProposalList({ jobId }: Props) {
 
       {acceptCandidate && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/45 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl">
+          <div className="w-full max-w-md rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-6 shadow-2xl">
             <div className="flex items-start gap-4">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-400">
                 <CheckCircle className="h-6 w-6" />
               </div>
               <div className="min-w-0">
-                <h3 className="text-lg font-bold text-slate-950">Chấp nhận đề xuất này?</h3>
-                <p className="mt-2 text-sm leading-6 text-slate-600">
-                  Bạn sắp chọn <span className="font-bold text-slate-900">{acceptCandidate.mentorName}</span> cho công việc này.
+                <h3 className="text-lg font-bold text-slate-950 dark:text-slate-100">Chấp nhận đề xuất này?</h3>
+                <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400">
+                  Bạn sắp chọn <span className="font-bold text-slate-900 dark:text-slate-100">{acceptCandidate.mentorName}</span> cho công việc này.
                 </p>
               </div>
             </div>
 
-            <div className="mt-5 grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm">
+            <div className="mt-5 grid gap-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 p-4 text-sm">
               <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-                <span className="font-bold text-slate-500">Mentor</span>
-                <span className="break-words text-left font-bold text-slate-950 sm:text-right">{acceptCandidate.mentorName}</span>
+                <span className="font-bold text-slate-500 dark:text-slate-400">Mentor</span>
+                <span className="break-words text-left font-bold text-slate-950 dark:text-slate-100 sm:text-right">{acceptCandidate.mentorName}</span>
               </div>
               <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-                <span className="font-bold text-slate-500">Giá đề xuất</span>
-                <span className="text-left font-bold text-slate-950 sm:text-right">
+                <span className="font-bold text-slate-500 dark:text-slate-400">Giá đề xuất</span>
+                <span className="text-left font-bold text-slate-950 dark:text-slate-100 sm:text-right">
                   {formatCurrency(acceptCandidate.acceptedAmount || 0)}
                 </span>
               </div>
               <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-                <span className="font-bold text-slate-500">Deadline</span>
-                <span className="text-left font-bold text-slate-950 sm:text-right">
+                <span className="font-bold text-slate-500 dark:text-slate-400">Deadline</span>
+                <span className="text-left font-bold text-slate-950 dark:text-slate-100 sm:text-right">
                   {acceptCandidate.acceptedDeadlineAt ? formatDeadline(acceptCandidate.acceptedDeadlineAt) : 'Chưa xác định'}
                 </span>
               </div>
             </div>
 
             {acceptAdditionalAmount > 0 && (
-              <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+              <div className="mt-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 p-4">
                 <div className="grid gap-3 text-sm sm:grid-cols-2">
-                  <div className="rounded-2xl bg-white p-4">
+                  <div className="rounded-2xl bg-white dark:bg-slate-950 p-4">
                     <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400">Phải bù thêm</p>
-                    <p className="mt-1 font-bold text-slate-950">{formatCurrency(acceptAdditionalAmount)}</p>
+                    <p className="mt-1 font-bold text-slate-950 dark:text-slate-100">{formatCurrency(acceptAdditionalAmount)}</p>
                   </div>
-                  <div className="rounded-2xl bg-white p-4">
+                  <div className="rounded-2xl bg-white dark:bg-slate-950 p-4">
                     <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400">Đã giữ khi đăng bài</p>
-                    <p className="mt-1 font-bold text-slate-950">{formatCurrency(reservedBudgetAmount)}</p>
+                    <p className="mt-1 font-bold text-slate-950 dark:text-slate-100">{formatCurrency(reservedBudgetAmount)}</p>
                   </div>
                 </div>
               </div>
@@ -556,14 +556,14 @@ export default function ProposalList({ jobId }: Props) {
             )}
 
             {escrowMissingAmount > 0 && (
-              <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4">
+              <div className="mt-4 rounded-2xl border border-amber-200 dark:border-amber-800/50 bg-amber-50 dark:bg-amber-900/30 p-4">
                 <div className="flex items-start gap-3">
-                  <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-amber-700 shadow-sm">
+                  <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white dark:bg-slate-950 text-amber-700 dark:text-amber-400 shadow-sm">
                     <AlertCircle className="h-5 w-5" />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-sm font-bold text-amber-900">Thiếu số dư để mở escrow</p>
-                    <p className="mt-1 text-sm leading-6 text-amber-800">
+                    <p className="text-sm font-bold text-amber-900 dark:text-amber-100">Thiếu số dư để mở escrow</p>
+                    <p className="mt-1 text-sm leading-6 text-amber-800 dark:text-amber-200">
                       Bạn còn thiếu <span className="font-bold">{formatCurrency(escrowMissingAmount)}</span>, tương đương{' '}
                       <span className="font-bold">
                         {formatFiatCurrency(escrowMissingVnd, 'VND')}
@@ -587,39 +587,39 @@ export default function ProposalList({ jobId }: Props) {
                 )}
 
                 {topUpPayment ? (
-                  <div className="mt-4 grid gap-4 rounded-2xl border border-amber-100 bg-white p-4 sm:grid-cols-[160px_1fr]">
-                    <div className="flex items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                  <div className="mt-4 grid gap-4 rounded-2xl border border-amber-100 bg-white dark:bg-slate-950 p-4 sm:grid-cols-[160px_1fr]">
+                    <div className="flex items-center justify-center rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 p-3">
                       {topUpPayment.qrCode ? (
                         <QRCodeCanvas value={topUpPayment.qrCode} size={160} includeMargin className="h-36 w-36 rounded-xl" />
                       ) : (
-                        <div className="flex h-36 w-36 items-center justify-center rounded-xl border border-dashed border-slate-300 text-xs text-slate-500">
+                        <div className="flex h-36 w-36 items-center justify-center rounded-xl border border-dashed border-slate-300 dark:border-slate-700 text-xs text-slate-500 dark:text-slate-400">
                           QR unavailable
                         </div>
                       )}
                     </div>
                     <div className="space-y-3 text-sm">
-                      <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                      <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 p-3">
                         <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400">Nạp tiền thực tế</p>
-                        <p className="mt-1 font-bold text-slate-950">{formatFiatCurrency(topUpPayment.amount ?? 0, 'VND')}</p>
-                        <p className="mt-1 text-slate-600">Order code: {topUpPayment.orderCode}</p>
+                        <p className="mt-1 font-bold text-slate-950 dark:text-slate-100">{formatFiatCurrency(topUpPayment.amount ?? 0, 'VND')}</p>
+                        <p className="mt-1 text-slate-600 dark:text-slate-400">Order code: {topUpPayment.orderCode}</p>
                       </div>
                       {topUpPayment.checkoutUrl && (
                         <a
                           href={topUpPayment.checkoutUrl}
                           target="_blank"
                           rel="noreferrer"
-                          className="inline-flex h-10 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-700 transition hover:bg-slate-50"
+                          className="inline-flex h-10 items-center justify-center rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 text-sm font-bold text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:bg-slate-900/50"
                         >
                           Mở trang thanh toán
                         </a>
                       )}
                       {topUpPayment.paymentLinkId && (
-                        <p className="break-all text-xs text-slate-500">Payment link: {topUpPayment.paymentLinkId}</p>
+                        <p className="break-all text-xs text-slate-500 dark:text-slate-400">Payment link: {topUpPayment.paymentLinkId}</p>
                       )}
                     </div>
                   </div>
                 ) : (
-                  <div className="mt-4 rounded-2xl border border-dashed border-amber-300 bg-white/70 px-4 py-4 text-sm text-amber-900">
+                  <div className="mt-4 rounded-2xl border border-dashed border-amber-300 bg-white dark:bg-slate-950/70 px-4 py-4 text-sm text-amber-900 dark:text-amber-100">
                     Chọn nút <span className="font-bold">Nạp đủ bằng QR</span> để tạo mã thanh toán PayOS ngay trong màn hình này.
                   </div>
                 )}
@@ -631,7 +631,7 @@ export default function ProposalList({ jobId }: Props) {
                 type="button"
                 onClick={resetAcceptFlow}
                 disabled={actionLoading === acceptCandidate.id || topUpLoading}
-                className="flex-1 inline-flex h-11 items-center justify-center rounded-xl border border-slate-200 bg-white text-sm font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+                className="flex-1 inline-flex h-11 items-center justify-center rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:bg-slate-900/50 disabled:opacity-50"
               >
                 Hủy
               </button>
@@ -672,11 +672,11 @@ interface FilterChipProps {
 
 function FilterChip({ label, count, color, active, onClick }: FilterChipProps) {
   const baseColors = {
-    slate: 'hover:bg-slate-100 text-slate-600 border-slate-200',
+    slate: 'hover:bg-slate-100 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800',
     blue: 'hover:bg-blue-50 text-blue-600 border-blue-200',
-    amber: 'hover:bg-amber-50 text-amber-600 border-amber-200',
-    purple: 'hover:bg-emerald-50 text-emerald-600 border-emerald-200',
-    emerald: 'hover:bg-emerald-50 text-emerald-600 border-emerald-200',
+    amber: 'hover:bg-amber-50 dark:bg-amber-900/30 text-amber-600 border-amber-200 dark:border-amber-800/50',
+    purple: 'hover:bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-500 border-emerald-200 dark:border-emerald-800/50',
+    emerald: 'hover:bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-500 border-emerald-200 dark:border-emerald-800/50',
     rose: 'hover:bg-rose-50 text-rose-600 border-rose-200',
   }
   const activeColors = {
@@ -692,12 +692,12 @@ function FilterChip({ label, count, color, active, onClick }: FilterChipProps) {
     <button
       onClick={onClick}
       className={`whitespace-nowrap flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-bold transition-all ${
-        active ? activeColors[color] : `bg-white ${baseColors[color]}`
+        active ? activeColors[color] : `bg-white dark:bg-slate-950 ${baseColors[color]}`
       }`}
     >
       <span>{label}</span>
       <span className={`inline-flex items-center justify-center rounded-full px-2 py-0.5 text-[10px] font-bold ${
-        active ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'
+        active ? 'bg-white dark:bg-slate-950/20 text-white' : 'bg-slate-100 text-slate-500 dark:text-slate-400'
       }`}>
         {count}
       </span>
@@ -737,25 +737,25 @@ function CompactProposalCard({
   return (
     <div
       onClick={onClick}
-      className={`group cursor-pointer rounded-2xl border bg-white p-4 shadow-sm transition-all duration-300 hover:shadow-md ${
-        isAccepted ? 'border-emerald-200 bg-emerald-50/30' :
-        isRejected ? 'border-slate-200 opacity-70' :
-        isNegotiating ? 'border-amber-200 hover:border-amber-300' :
-        'border-slate-200 hover:border-emerald-300'
+      className={`group cursor-pointer rounded-2xl border bg-white dark:bg-slate-950 p-4 shadow-sm transition-all duration-300 hover:shadow-md ${
+        isAccepted ? 'border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 ' :
+        isRejected ? 'border-slate-200 dark:border-slate-800 opacity-70' :
+        isNegotiating ? 'border-amber-200 dark:border-amber-800/50 hover:border-amber-300' :
+        'border-slate-200 dark:border-slate-800 hover:border-emerald-300'
       }`}
     >
       <div className="flex items-start gap-3 sm:gap-4">
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-sm font-bold text-emerald-700">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-50 dark:bg-emerald-900/30 text-sm font-bold text-emerald-700 dark:text-emerald-400">
           {getInitials(proposal.mentorName)}
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-            <h4 className="break-words text-base font-bold text-slate-950 transition-colors group-hover:text-emerald-600">
+            <h4 className="break-words text-base font-bold text-slate-950 dark:text-slate-100 transition-colors group-hover:text-emerald-600 dark:text-emerald-500">
               {proposal.mentorName}
             </h4>
             <StatusBadge status={proposal.status} />
           </div>
-          <div className="mt-1.5 flex flex-wrap items-center gap-3 text-xs font-bold text-slate-500">
+          <div className="mt-1.5 flex flex-wrap items-center gap-3 text-xs font-bold text-slate-500 dark:text-slate-400">
             <span className="flex items-center gap-1"><Clock3 className="w-3.5 h-3.5"/> {formatRelativeTime(proposal.submittedAt || proposal.createdAt)}</span>
             <span className="hidden sm:inline-block w-1 h-1 rounded-full bg-slate-300"></span>
             <span className="flex items-center gap-1"><DollarSign className="w-3.5 h-3.5 text-slate-400"/> {currentTerms.amount ? formatCurrency(currentTerms.amount) : 'N/A'}</span>
@@ -768,7 +768,7 @@ function CompactProposalCard({
           {hasTermChange && (
             <div className="mt-3 flex flex-wrap gap-2 text-[11px] font-bold">
               {(budgetDelta?.type === 'higher' || budgetDelta?.type === 'lower') && (
-                <span className="rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-amber-800">
+                <span className="rounded-full border border-amber-200 dark:border-amber-800/50 bg-amber-50 dark:bg-amber-900/30 px-2.5 py-1 text-amber-800 dark:text-amber-200">
                   {budgetDelta.type === 'higher'
                     ? t('jobs.proposalList.terms.priceHigher', { amount: formatCurrency(budgetDelta.amount) })
                     : t('jobs.proposalList.terms.priceLower', { amount: formatCurrency(budgetDelta.amount) })}
@@ -784,7 +784,7 @@ function CompactProposalCard({
             </div>
           )}
         </div>
-        <div className="hidden h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-50 text-slate-400 transition-colors group-hover:bg-emerald-50 group-hover:text-emerald-600 sm:flex">
+        <div className="hidden h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-50 dark:bg-slate-900/50 text-slate-400 transition-colors group-hover:bg-emerald-50 dark:bg-emerald-900/30 group-hover:text-emerald-600 dark:text-emerald-500 sm:flex">
           <ChevronRight className="w-5 h-5" />
         </div>
       </div>
@@ -847,57 +847,57 @@ function ProposalDetailDrawer({
         className="absolute inset-0 cursor-pointer"
         onClick={onClose}
       ></div>
-      <div className="relative flex h-full w-full max-w-xl flex-col overflow-hidden bg-slate-50 shadow-2xl animate-in slide-in-from-right duration-300">
+      <div className="relative flex h-full w-full max-w-xl flex-col overflow-hidden bg-slate-50 dark:bg-slate-900/50 shadow-2xl animate-in slide-in-from-right duration-300">
         {/* Header */}
-        <div className="flex items-start justify-between gap-3 border-b border-slate-200 bg-white px-4 py-4 sm:px-6">
+        <div className="flex items-start justify-between gap-3 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 py-4 sm:px-6">
           <div className="flex min-w-0 items-center gap-3 sm:gap-4">
-             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-sm font-bold text-emerald-700">
+             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 dark:bg-emerald-900/30 text-sm font-bold text-emerald-700 dark:text-emerald-400">
                {getInitials(proposal.mentorName)}
              </div>
              <div className="min-w-0">
-               <h3 className="max-w-[180px] truncate text-lg font-bold text-slate-950 sm:max-w-[300px]">{proposal.mentorName}</h3>
-               <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs font-bold text-slate-500">
+               <h3 className="max-w-[180px] truncate text-lg font-bold text-slate-950 dark:text-slate-100 sm:max-w-[300px]">{proposal.mentorName}</h3>
+               <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs font-bold text-slate-500 dark:text-slate-400">
                  <span>{formatRelativeTime(proposal.submittedAt || proposal.createdAt)}</span>
                  <span className="w-1 h-1 rounded-full bg-slate-300"></span>
                  <StatusBadge status={proposal.status} />
                </div>
              </div>
           </div>
-          <button onClick={onClose} className="p-2 rounded-full hover:bg-slate-100 text-slate-500 transition-colors">
+          <button onClick={onClose} className="p-2 rounded-full hover:bg-slate-100 text-slate-500 dark:text-slate-400 transition-colors">
             <X className="w-5 h-5" />
           </button>
         </div>
         
         {/* Thread Timeline */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-6">
-          <div className="mb-5 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+          <div className="mb-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-4 shadow-sm">
             <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <p className="text-sm font-bold text-slate-950">{t('jobs.proposalList.terms.title')}</p>
-                <p className="mt-0.5 text-xs font-medium text-slate-500">{t('jobs.proposalList.terms.subtitle')}</p>
+                <p className="text-sm font-bold text-slate-950 dark:text-slate-100">{t('jobs.proposalList.terms.title')}</p>
+                <p className="mt-0.5 text-xs font-medium text-slate-500 dark:text-slate-400">{t('jobs.proposalList.terms.subtitle')}</p>
               </div>
               {(budgetDelta?.type === 'higher' || deadlineDeltaType === 'later') && (
-                <span className="inline-flex w-fit rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-[11px] font-bold text-amber-800">
+                <span className="inline-flex w-fit rounded-full border border-amber-200 dark:border-amber-800/50 bg-amber-50 dark:bg-amber-900/30 px-2.5 py-1 text-[11px] font-bold text-amber-800 dark:text-amber-200">
                   {t('jobs.proposalList.terms.needsReview')}
                 </span>
               )}
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2">
-              <div className="rounded-xl border border-slate-100 bg-slate-50 px-3 py-3">
-                <p className="mb-1 text-[10px] font-bold uppercase tracking-wide text-slate-500">
+              <div className="rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 px-3 py-3">
+                <p className="mb-1 text-[10px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                   {t('jobs.proposalList.terms.price')}
                 </p>
-                <p className="text-base font-black text-slate-950">
+                <p className="text-base font-black text-slate-950 dark:text-slate-100">
                   {currentTerms.amount ? formatCurrency(currentTerms.amount) : 'N/A'}
                 </p>
                 {jobBudgetLabel && (
-                  <p className="mt-1 text-xs font-medium text-slate-500">
+                  <p className="mt-1 text-xs font-medium text-slate-500 dark:text-slate-400">
                     {t('jobs.proposalList.terms.jobBudget')}: {jobBudgetLabel}
                   </p>
                 )}
                 {(budgetDelta?.type === 'higher' || budgetDelta?.type === 'lower') && (
-                  <p className={`mt-2 text-xs font-bold ${budgetDelta.type === 'higher' ? 'text-amber-700' : 'text-emerald-700'}`}>
+                  <p className={`mt-2 text-xs font-bold ${budgetDelta.type === 'higher' ? 'text-amber-700 dark:text-amber-400' : 'text-emerald-700 dark:text-emerald-400'}`}>
                     {budgetDelta.type === 'higher'
                       ? t('jobs.proposalList.terms.priceHigher', { amount: formatCurrency(budgetDelta.amount) })
                       : t('jobs.proposalList.terms.priceLower', { amount: formatCurrency(budgetDelta.amount) })}
@@ -905,20 +905,20 @@ function ProposalDetailDrawer({
                 )}
               </div>
 
-              <div className="rounded-xl border border-slate-100 bg-slate-50 px-3 py-3">
-                <p className="mb-1 text-[10px] font-bold uppercase tracking-wide text-slate-500">
+              <div className="rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 px-3 py-3">
+                <p className="mb-1 text-[10px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                   {t('jobs.proposalList.terms.deadline')}
                 </p>
-                <p className="text-base font-black text-slate-950">
+                <p className="text-base font-black text-slate-950 dark:text-slate-100">
                   {formatTermDeadline(currentTerms, 'N/A', t('jobs.proposalForm.fields.days'))}
                 </p>
                 {job?.deadlineAt && (
-                  <p className="mt-1 text-xs font-medium text-slate-500">
+                  <p className="mt-1 text-xs font-medium text-slate-500 dark:text-slate-400">
                     {t('jobs.proposalList.terms.jobDeadline')}: {formatDeadline(job.deadlineAt)}
                   </p>
                 )}
                 {(deadlineDeltaType === 'earlier' || deadlineDeltaType === 'later' || deadlineDeltaType === 'match') && (
-                  <p className={`mt-2 text-xs font-bold ${deadlineDeltaType === 'later' ? 'text-amber-700' : 'text-emerald-700'}`}>
+                  <p className={`mt-2 text-xs font-bold ${deadlineDeltaType === 'later' ? 'text-amber-700 dark:text-amber-400' : 'text-emerald-700 dark:text-emerald-400'}`}>
                     {deadlineDeltaType === 'earlier'
                       ? t('jobs.proposalList.terms.deadlineEarlier')
                       : deadlineDeltaType === 'later'
@@ -933,34 +933,34 @@ function ProposalDetailDrawer({
           {/* First Message (Original Proposal) */}
           <div className="flex gap-3 sm:gap-4">
              <div className="flex-shrink-0 flex flex-col items-center">
-               <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
+               <div className="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center text-emerald-600 dark:text-emerald-500">
                  <FileText className="w-4 h-4" />
                </div>
                <div className="w-0.5 flex-1 bg-slate-200 my-2"></div>
              </div>
              <div className="flex-1 pb-6">
-               <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+               <div className="bg-white dark:bg-slate-950 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm">
                  <div className="mb-3 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-                   <span className="text-sm font-bold text-slate-900">Original Proposal</span>
-                   <span className="text-[10px] text-slate-500 font-bold">{formatRelativeTime(proposal.submittedAt || proposal.createdAt)}</span>
+                   <span className="text-sm font-bold text-slate-900 dark:text-slate-100">Original Proposal</span>
+                   <span className="text-[10px] text-slate-500 dark:text-slate-400 font-bold">{formatRelativeTime(proposal.submittedAt || proposal.createdAt)}</span>
                  </div>
                  
-                 <div className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap mb-4">
+                 <div className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap mb-4">
                    {proposal.coverLetter}
                  </div>
                  {proposal.relevantExperience && (
-                   <div className="bg-emerald-50/50 rounded-xl p-3 border border-emerald-100 mb-4">
+                   <div className="bg-emerald-50 dark:bg-emerald-900/30 rounded-xl p-3 border border-emerald-100 dark:border-emerald-900/50 mb-4">
                      <p className="text-[10px] font-bold text-emerald-500 uppercase mb-1">Kinh nghiệm liên quan</p>
-                     <p className="text-sm text-slate-700">{proposal.relevantExperience}</p>
+                     <p className="text-sm text-slate-700 dark:text-slate-300">{proposal.relevantExperience}</p>
                    </div>
                  )}
 
                  <div className="flex flex-wrap gap-2 text-xs font-bold">
-                   <div className="bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100 flex items-center gap-1.5">
+                   <div className="bg-slate-50 dark:bg-slate-900/50 px-3 py-1.5 rounded-lg border border-slate-100 dark:border-slate-800 flex items-center gap-1.5">
                      <DollarSign className="w-3.5 h-3.5 text-slate-400" />
                      {originalTerms.amount ? formatCurrency(originalTerms.amount) : (proposal.proposedHourlyRate ? `${formatCurrency(proposal.proposedHourlyRate)}/hr` : 'N/A')}
                    </div>
-                   <div className="bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100 flex items-center gap-1.5">
+                   <div className="bg-slate-50 dark:bg-slate-900/50 px-3 py-1.5 rounded-lg border border-slate-100 dark:border-slate-800 flex items-center gap-1.5">
                      <Timer className="w-3.5 h-3.5 text-slate-400" />
                      {formatTermDeadline(originalTerms, 'N/A', t('jobs.proposalForm.fields.days'))}
                    </div>
@@ -975,27 +975,27 @@ function ProposalDetailDrawer({
             return (
               <div className="flex gap-3 sm:gap-4" key={neg.id}>
                 <div className="flex-shrink-0 flex flex-col items-center">
-                   <div className={`w-8 h-8 rounded-full flex items-center justify-center ${neg.senderType === 'CLIENT' ? 'bg-amber-100 text-amber-600' : 'bg-slate-200 text-slate-600'}`}>
+                   <div className={`w-8 h-8 rounded-full flex items-center justify-center ${neg.senderType === 'CLIENT' ? 'bg-amber-100 dark:bg-amber-900/50 text-amber-600' : 'bg-slate-200 text-slate-600 dark:text-slate-400'}`}>
                      {neg.senderType === 'CLIENT' ? <MessageCircle className="w-4 h-4" /> : <MessageSquare className="w-4 h-4" />}
                    </div>
                    {!isLast && <div className="w-0.5 flex-1 bg-slate-200 my-2"></div>}
                 </div>
                 <div className={`flex-1 ${!isLast ? 'pb-6' : ''}`}>
-                   <div className={`rounded-2xl p-4 border shadow-sm ${neg.senderType === 'CLIENT' ? 'bg-amber-50 border-amber-200' : 'bg-white border-slate-200'}`}>
+                   <div className={`rounded-2xl p-4 border shadow-sm ${neg.senderType === 'CLIENT' ? 'bg-amber-50 dark:bg-amber-900/30 border-amber-200 dark:border-amber-800/50' : 'bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800'}`}>
                      <div className="mb-2 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-                       <span className="text-sm font-bold text-slate-900">{neg.senderType === 'CLIENT' ? 'Bạn' : neg.senderName || 'Mentor'}</span>
-                       <span className="text-[10px] text-slate-500 font-bold">{formatRelativeTime(neg.createdAt)}</span>
+                       <span className="text-sm font-bold text-slate-900 dark:text-slate-100">{neg.senderType === 'CLIENT' ? 'Bạn' : neg.senderName || 'Mentor'}</span>
+                       <span className="text-[10px] text-slate-500 dark:text-slate-400 font-bold">{formatRelativeTime(neg.createdAt)}</span>
                      </div>
-                     <p className="text-sm text-slate-700 italic mb-3">"{neg.message}"</p>
+                     <p className="text-sm text-slate-700 dark:text-slate-300 italic mb-3">"{neg.message}"</p>
                      <div className="flex flex-wrap gap-2 text-xs font-bold">
                        {neg.proposedAmount && (
-                         <div className="bg-white px-2.5 py-1 rounded-md border border-slate-100 text-slate-700">
-                           Giá mới: <span className="font-bold text-amber-700">{formatCurrency(neg.proposedAmount)}</span>
+                         <div className="bg-white dark:bg-slate-950 px-2.5 py-1 rounded-md border border-slate-100 dark:border-slate-800 text-slate-700 dark:text-slate-300">
+                           Giá mới: <span className="font-bold text-amber-700 dark:text-amber-400">{formatCurrency(neg.proposedAmount)}</span>
                          </div>
                        )}
                        {(neg.deadlineAt || neg.estimatedDurationDays) && (
-                         <div className="bg-white px-2.5 py-1 rounded-md border border-slate-100 text-slate-700">
-                           Thời gian mới: <span className="font-bold text-amber-700">
+                         <div className="bg-white dark:bg-slate-950 px-2.5 py-1 rounded-md border border-slate-100 dark:border-slate-800 text-slate-700 dark:text-slate-300">
+                           Thời gian mới: <span className="font-bold text-amber-700 dark:text-amber-400">
                              {neg.deadlineAt
                                ? `${formatDeadlineWithSeconds(neg.deadlineAt)} (${formatTimeRemaining(neg.deadlineAt)})`
                                : formatTermDeadline(neg, 'N/A', t('jobs.proposalForm.fields.days'))}
@@ -1030,19 +1030,19 @@ function ProposalDetailDrawer({
           {(isAccepted || isOfferAccepted) && (
             <div className="mt-6 flex gap-3 sm:gap-4">
                <div className="flex-shrink-0 flex flex-col items-center">
-                 <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
+                 <div className="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center text-emerald-600 dark:text-emerald-500">
                    <CheckCircle2 className="w-4 h-4" />
                  </div>
                </div>
                <div className="flex-1">
-                  <div className="flex flex-col gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex flex-col gap-3 rounded-2xl border border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-900/30 p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
                      <div className="min-w-0">
-                       <span className="text-[10px] font-bold uppercase text-emerald-600 block mb-1.5">Kết quả chốt deal</span>
+                       <span className="text-[10px] font-bold uppercase text-emerald-600 dark:text-emerald-500 block mb-1.5">Kết quả chốt deal</span>
                        <div className="flex flex-wrap items-center gap-3 text-sm font-bold">
-                         <span className="bg-white px-3 py-1 rounded-lg text-emerald-900 border border-emerald-100">
+                         <span className="bg-white dark:bg-slate-950 px-3 py-1 rounded-lg text-emerald-900 dark:text-emerald-100 border border-emerald-100 dark:border-emerald-900/50">
                            {formatCurrency(latestNegotiation?.proposedAmount || proposal.proposedAmount || 0)}
                          </span>
-                         <span className="bg-white px-3 py-1 rounded-lg text-emerald-900 border border-emerald-100">
+                         <span className="bg-white dark:bg-slate-950 px-3 py-1 rounded-lg text-emerald-900 dark:text-emerald-100 border border-emerald-100 dark:border-emerald-900/50">
                            {formatTermDeadline(currentTerms, 'N/A', t('jobs.proposalForm.fields.days'))}
                          </span>
                        </div>
@@ -1054,7 +1054,7 @@ function ProposalDetailDrawer({
         </div>
 
         {/* Action Bottom Bar */}
-        <div className="border-t border-slate-200 bg-white p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+        <div className="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
            <ProposalActions
             proposal={proposal}
             latestNegotiation={latestNegotiation || undefined}
@@ -1084,30 +1084,30 @@ function ProposalFact({
   value: string
 }) {
   return (
-    <div className="rounded-xl bg-slate-50 p-3">
+    <div className="rounded-xl bg-slate-50 dark:bg-slate-900/50 p-3">
       <div className="flex items-center gap-2 text-xs font-bold uppercase text-slate-400 mb-1">
         <Icon className="h-3.5 w-3.5" />
         {label}
       </div>
-      <p className="text-sm font-bold text-slate-950 break-words">{value}</p>
+      <p className="text-sm font-bold text-slate-950 dark:text-slate-100 break-words">{value}</p>
     </div>
   )
 }
 
 function StatusBadge({ status }: { status: string }) {
   const config: Record<string, { label: string; className: string }> = {
-    DRAFT: { label: 'Nháp', className: 'border-slate-200 bg-slate-50 text-slate-700' },
+    DRAFT: { label: 'Nháp', className: 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 text-slate-700 dark:text-slate-300' },
     SUBMITTED: { label: 'Đã gửi', className: 'border-blue-200 bg-blue-50 text-blue-700' },
-    UNDER_REVIEW: { label: 'Đang xem xét', className: 'border-amber-200 bg-amber-50 text-amber-700' },
-    NEGOTIATING: { label: 'Đang thương lượng', className: 'border-amber-200 bg-amber-50 text-amber-700' },
-    SHORTLISTED: { label: 'Được chọn', className: 'border-emerald-200 bg-emerald-50 text-emerald-700' },
-    ACCEPTED: { label: 'Chấp nhận', className: 'border-emerald-200 bg-emerald-50 text-emerald-700' },
-    OFFER_ACCEPTED: { label: 'Đã chốt giá', className: 'border-emerald-200 bg-emerald-50 text-emerald-700' },
+    UNDER_REVIEW: { label: 'Đang xem xét', className: 'border-amber-200 dark:border-amber-800/50 bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400' },
+    NEGOTIATING: { label: 'Đang thương lượng', className: 'border-amber-200 dark:border-amber-800/50 bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400' },
+    SHORTLISTED: { label: 'Được chọn', className: 'border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' },
+    ACCEPTED: { label: 'Chấp nhận', className: 'border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' },
+    OFFER_ACCEPTED: { label: 'Đã chốt giá', className: 'border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' },
     REJECTED: { label: 'Từ chối', className: 'border-rose-200 bg-rose-50 text-rose-700' },
-    WITHDRAWN: { label: 'Đã thu hồi', className: 'border-gray-200 bg-gray-50 text-gray-700' },
+    WITHDRAWN: { label: 'Đã thu hồi', className: 'border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50 text-gray-700 dark:text-gray-300' },
   }
 
-  const { label, className } = config[status] || { label: status, className: 'border-slate-200 bg-slate-50 text-slate-600' }
+  const { label, className } = config[status] || { label: status, className: 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 text-slate-600 dark:text-slate-400' }
 
   return (
     <span className={`inline-flex shrink-0 rounded-full border px-3 py-1 text-xs font-bold ${className}`}>
@@ -1287,27 +1287,27 @@ function ProposalActions({
   }
 
   return (
-    <div className="space-y-3 pt-2 border-t border-slate-100">
+    <div className="space-y-3 pt-2 border-t border-slate-100 dark:border-slate-800">
       {/* Negotiation Form */}
       {showNegotiateForm && (
-        <div className="rounded-[24px] border border-emerald-200/80 bg-[linear-gradient(180deg,rgba(245,247,255,0.95),rgba(255,255,255,1))] p-5 shadow-sm">
-          <div className="flex flex-col gap-2 border-b border-emerald-100 pb-3 lg:flex-row lg:items-center lg:justify-between">
+        <div className="rounded-[24px] border border-emerald-200 bg-[linear-gradient(180deg,rgba(245,247,255,0.95),rgba(255,255,255,1))] p-5 shadow-sm">
+          <div className="flex flex-col gap-2 border-b border-emerald-100 dark:border-emerald-900/50 pb-3 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <div className="flex items-center gap-2">
                 <p className="text-[10px] font-semibold uppercase tracking-wider text-emerald-500">Respond</p>
-                <h2 className="text-base font-bold tracking-tight text-slate-950">Shape the next offer</h2>
+                <h2 className="text-base font-bold tracking-tight text-slate-950 dark:text-slate-100">Shape the next offer</h2>
               </div>
-              <p className="mt-0.5 text-[13px] text-slate-500">Update price, deadline, and work details before sending.</p>
+              <p className="mt-0.5 text-[13px] text-slate-500 dark:text-slate-400">Update price, deadline, and work details before sending.</p>
             </div>
             {latestNegotiation && (
-              <span className="rounded-full bg-white px-2.5 py-1 text-[10px] font-bold text-slate-600 ring-1 ring-slate-200">
+              <span className="rounded-full bg-white dark:bg-slate-950 px-2.5 py-1 text-[10px] font-bold text-slate-600 dark:text-slate-400 ring-1 ring-slate-200">
                 Last message {formatRelativeTime(latestNegotiation.createdAt)}
               </span>
             )}
           </div>
           <div className="mt-4 grid gap-3 md:grid-cols-2">
             <label className="space-y-1.5">
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Price (MXC)</span>
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Price (MXC)</span>
               <input
                 type="number"
                 min="1"
@@ -1317,47 +1317,47 @@ function ProposalActions({
                   setCounterTopUpPayment(null)
                   setCounterTopUpError('')
                 }}
-                className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-800 outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+                className="h-10 w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3 text-sm font-semibold text-slate-800 dark:text-slate-200 outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
               />
             </label>
             <label className="space-y-1.5">
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Deadline date/time</span>
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Deadline date/time</span>
               <input
                 type="datetime-local"
                 step={1}
                 value={negotiateDeadline}
                 onChange={(event) => setNegotiateDeadline(event.target.value)}
-                className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-800 outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+                className="h-10 w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3 text-sm font-semibold text-slate-800 dark:text-slate-200 outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
               />
-              <p className="text-[11px] font-medium text-slate-500">
+              <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
                 Choose the latest time this offer should be completed by.
               </p>
               {negotiateDeadline ? (
-                <p className={`text-[11px] font-bold ${new Date(negotiateDeadline).getTime() <= Date.now() ? 'text-rose-500' : 'text-emerald-600'}`}>
+                <p className={`text-[11px] font-bold ${new Date(negotiateDeadline).getTime() <= Date.now() ? 'text-rose-500' : 'text-emerald-600 dark:text-emerald-500'}`}>
                   {formatTimeRemaining(negotiateDeadline)}
                 </p>
               ) : null}
             </label>
           </div>
           <label className="mt-3 block space-y-1.5">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Message / Work details</span>
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Message / Work details</span>
             <textarea
               value={negotiateMessage}
               onChange={(event) => setNegotiateMessage(event.target.value)}
               placeholder="Describe what you will do, what is included, and what you need from the client."
-              className="min-h-[80px] w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm leading-5 text-slate-700 outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+              className="min-h-[80px] w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3 py-2 text-sm leading-5 text-slate-700 dark:text-slate-300 outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
             />
-            <p className="text-[11px] font-medium text-slate-500">{negotiateMessage.trim().length}/1000 characters, minimum 10</p>
+            <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400">{negotiateMessage.trim().length}/1000 characters, minimum 10</p>
           </label>
           {negotiateRequiresTopUp && (
-            <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4">
+            <div className="mt-4 rounded-2xl border border-amber-200 dark:border-amber-800/50 bg-amber-50 dark:bg-amber-900/30 p-4">
               <div className="flex items-start gap-3">
-                <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-amber-700 shadow-sm">
+                <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white dark:bg-slate-950 text-amber-700 dark:text-amber-400 shadow-sm">
                   <AlertCircle className="h-5 w-5" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-sm font-bold text-amber-900">Thieu so du de gui de xuat nay</p>
-                  <p className="mt-1 text-sm leading-6 text-amber-800">
+                  <p className="text-sm font-bold text-amber-900 dark:text-amber-100">Thieu so du de gui de xuat nay</p>
+                  <p className="mt-1 text-sm leading-6 text-amber-800 dark:text-amber-200">
                     Ban con thieu <span className="font-bold">{formatCurrency(negotiateMissingAmount)}</span>, tuong duong{' '}
                     <span className="font-bold">{formatFiatCurrency(negotiateMissingVnd, 'VND')}</span>.
                     Nạp xong ngay tai day, khong can roi khoi trang nay.
@@ -1379,39 +1379,39 @@ function ProposalActions({
               )}
 
               {counterTopUpPayment ? (
-                <div className="mt-4 grid gap-4 rounded-2xl border border-amber-100 bg-white p-4 sm:grid-cols-[160px_1fr]">
-                  <div className="flex items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                <div className="mt-4 grid gap-4 rounded-2xl border border-amber-100 bg-white dark:bg-slate-950 p-4 sm:grid-cols-[160px_1fr]">
+                  <div className="flex items-center justify-center rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 p-3">
                     {counterTopUpPayment.qrCode ? (
                       <QRCodeCanvas value={counterTopUpPayment.qrCode} size={160} includeMargin className="h-36 w-36 rounded-xl" />
                     ) : (
-                      <div className="flex h-36 w-36 items-center justify-center rounded-xl border border-dashed border-slate-300 text-xs text-slate-500">
+                      <div className="flex h-36 w-36 items-center justify-center rounded-xl border border-dashed border-slate-300 dark:border-slate-700 text-xs text-slate-500 dark:text-slate-400">
                         QR unavailable
                       </div>
                     )}
                   </div>
                   <div className="space-y-3 text-sm">
-                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                    <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 p-3">
                       <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400">Nap tien thuc te</p>
-                      <p className="mt-1 font-bold text-slate-950">{formatFiatCurrency(counterTopUpPayment.amount ?? 0, 'VND')}</p>
-                      <p className="mt-1 text-slate-600">Order code: {counterTopUpPayment.orderCode}</p>
+                      <p className="mt-1 font-bold text-slate-950 dark:text-slate-100">{formatFiatCurrency(counterTopUpPayment.amount ?? 0, 'VND')}</p>
+                      <p className="mt-1 text-slate-600 dark:text-slate-400">Order code: {counterTopUpPayment.orderCode}</p>
                     </div>
                     {counterTopUpPayment.checkoutUrl && (
                       <a
                         href={counterTopUpPayment.checkoutUrl}
                         target="_blank"
                         rel="noreferrer"
-                        className="inline-flex h-10 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-700 transition hover:bg-slate-50"
+                        className="inline-flex h-10 items-center justify-center rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 text-sm font-bold text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:bg-slate-900/50"
                       >
                         Mo trang thanh toan
                       </a>
                     )}
                     {counterTopUpPayment.paymentLinkId && (
-                      <p className="break-all text-xs text-slate-500">Payment link: {counterTopUpPayment.paymentLinkId}</p>
+                      <p className="break-all text-xs text-slate-500 dark:text-slate-400">Payment link: {counterTopUpPayment.paymentLinkId}</p>
                     )}
                   </div>
                 </div>
               ) : (
-                <div className="mt-4 rounded-2xl border border-dashed border-amber-300 bg-white/70 px-4 py-4 text-sm text-amber-900">
+                <div className="mt-4 rounded-2xl border border-dashed border-amber-300 bg-white dark:bg-slate-950/70 px-4 py-4 text-sm text-amber-900 dark:text-amber-100">
                   Chon nut <span className="font-bold">Nap du bang QR</span> de tao ma thanh toan PayOS ngay trong man hinh nay.
                 </div>
               )}
@@ -1432,7 +1432,7 @@ function ProposalActions({
                 type="button"
                 disabled={counterTopUpLoading}
                 onClick={createCounterTopUpQr}
-                className="inline-flex h-10 items-center justify-center rounded-xl border border-amber-200 bg-white px-4 text-sm font-bold text-amber-700 transition hover:bg-amber-50 disabled:opacity-60"
+                className="inline-flex h-10 items-center justify-center rounded-xl border border-amber-200 dark:border-amber-800/50 bg-white dark:bg-slate-950 px-4 text-sm font-bold text-amber-700 dark:text-amber-400 transition hover:bg-amber-50 dark:bg-amber-900/30 disabled:opacity-60"
               >
                 {counterTopUpLoading ? 'Creating QR...' : 'Nap du bang QR'}
               </button>
@@ -1441,7 +1441,7 @@ function ProposalActions({
               type="button"
               disabled={negotiating}
               onClick={closeNegotiateForm}
-              className="inline-flex h-10 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-600 transition hover:bg-slate-50 disabled:opacity-60"
+              className="inline-flex h-10 items-center justify-center rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 text-sm font-bold text-slate-600 dark:text-slate-400 transition hover:bg-slate-50 dark:bg-slate-900/50 disabled:opacity-60"
             >
               Cancel
             </button>
@@ -1479,7 +1479,7 @@ function ProposalActions({
               type="button"
               onClick={() => onReject(proposal.id)}
               disabled={Boolean(actionLoading)}
-              className="flex-1 sm:flex-none inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 text-sm font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-50 transition-all"
+              className="flex-1 sm:flex-none inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-5 text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:bg-slate-900/50 disabled:opacity-50 transition-all"
             >
               <XCircle className="h-4 w-4" />
               Từ chối
@@ -1512,7 +1512,7 @@ function ProposalActions({
                   type="button"
                   onClick={() => onReject(proposal.id)}
                   disabled={Boolean(actionLoading)}
-                  className="flex-1 sm:flex-none inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-6 text-sm font-bold text-slate-700 hover:bg-slate-50 transition-all hover:border-rose-200 hover:text-rose-600"
+                  className="flex-1 sm:flex-none inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-6 text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:bg-slate-900/50 transition-all hover:border-rose-200 hover:text-rose-600"
                 >
                   <XCircle className="h-4 w-4" />
                   Từ chối
@@ -1520,8 +1520,8 @@ function ProposalActions({
               </div>
             ) : (
               <div className="flex flex-wrap gap-3 w-full">
-                <div className="flex-1 bg-amber-50/80 border border-dashed border-amber-300 rounded-xl px-5 py-3 text-xs font-bold text-amber-800 flex items-center gap-3">
-                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-100">
+                <div className="flex-1 bg-amber-50 dark:bg-amber-900/30 border border-dashed border-amber-300 rounded-xl px-5 py-3 text-xs font-bold text-amber-800 dark:text-amber-200 flex items-center gap-3">
+                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/50">
                     <Clock className="w-3.5 h-3.5 animate-pulse text-amber-600" />
                   </div>
                   <span>Đang chờ mentor phản hồi đề xuất của bạn...</span>
@@ -1529,7 +1529,7 @@ function ProposalActions({
                 <button
                   type="button"
                   onClick={() => openNegotiateForm({ preserveClientMessage: true })}
-                  className="flex-1 sm:flex-none inline-flex h-11 items-center justify-center gap-2 rounded-xl border-2 border-amber-200 bg-white px-6 text-sm font-bold text-amber-700 hover:bg-amber-50 transition-all hover:border-amber-400"
+                  className="flex-1 sm:flex-none inline-flex h-11 items-center justify-center gap-2 rounded-xl border-2 border-amber-200 dark:border-amber-800/50 bg-white dark:bg-slate-950 px-6 text-sm font-bold text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:bg-amber-900/30 transition-all hover:border-amber-400"
                 >
                   <Edit className="h-4 w-4" />
                   Chỉnh sửa
@@ -1541,7 +1541,7 @@ function ProposalActions({
         
         <button
           type="button"
-          className="flex-1 sm:flex-none inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 text-sm font-bold text-slate-700 hover:bg-slate-50 transition-all"
+          className="flex-1 sm:flex-none inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-5 text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:bg-slate-900/50 transition-all"
         >
           <MessageSquare className="h-4 w-4" />
           Chat

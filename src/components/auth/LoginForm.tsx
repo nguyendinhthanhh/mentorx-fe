@@ -85,7 +85,7 @@ export default function LoginForm({ onVerificationPendingChange }: LoginFormProp
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <div className="space-y-2">
-          <label htmlFor="email" className="block text-sm font-semibold text-slate-700">
+          <label htmlFor="email" className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
             Email address
           </label>
           <div className="relative">
@@ -93,7 +93,7 @@ export default function LoginForm({ onVerificationPendingChange }: LoginFormProp
               id="email"
               type="email"
               {...register('email')}
-              className="block w-full rounded-2xl border-0 py-3.5 px-4 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-200 transition-all placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6 hover:ring-slate-300"
+              className="block w-full rounded-2xl border-0 py-3.5 px-4 text-slate-900 dark:text-slate-100 shadow-sm ring-1 ring-inset ring-slate-200 transition-all placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6 hover:ring-slate-300"
               placeholder="name@example.com"
             />
           </div>
@@ -102,7 +102,7 @@ export default function LoginForm({ onVerificationPendingChange }: LoginFormProp
 
         <div className="space-y-2">
           <div className="flex justify-between items-center">
-            <label htmlFor="password" className="block text-sm font-semibold text-slate-700">
+            <label htmlFor="password" className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
               Password
             </label>
             <Link to="/forgot-password" className="text-sm font-semibold text-primary-600 hover:text-primary-700 transition-colors">
@@ -114,7 +114,7 @@ export default function LoginForm({ onVerificationPendingChange }: LoginFormProp
               id="password"
               type={showPassword ? 'text' : 'password'}
               {...register('password')}
-              className="block w-full rounded-2xl border-0 py-3.5 pl-4 pr-11 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-200 transition-all placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6 hover:ring-slate-300"
+              className="block w-full rounded-2xl border-0 py-3.5 pl-4 pr-11 text-slate-900 dark:text-slate-100 shadow-sm ring-1 ring-inset ring-slate-200 transition-all placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6 hover:ring-slate-300"
               placeholder="••••••••"
             />
             <button
@@ -130,7 +130,7 @@ export default function LoginForm({ onVerificationPendingChange }: LoginFormProp
 
         {showTotpCode && (
           <div className="space-y-2">
-            <label htmlFor="totpCode" className="block text-sm font-semibold text-slate-700">
+            <label htmlFor="totpCode" className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
               Authenticator code
             </label>
             <input
@@ -140,7 +140,7 @@ export default function LoginForm({ onVerificationPendingChange }: LoginFormProp
               autoComplete="one-time-code"
               maxLength={6}
               {...register('totpCode')}
-              className="block w-full rounded-2xl border-0 px-4 py-3.5 tracking-[0.35em] text-slate-900 shadow-sm ring-1 ring-inset ring-slate-200 focus:ring-2 focus:ring-inset focus:ring-primary-600"
+              className="block w-full rounded-2xl border-0 px-4 py-3.5 tracking-[0.35em] text-slate-900 dark:text-slate-100 shadow-sm ring-1 ring-inset ring-slate-200 focus:ring-2 focus:ring-inset focus:ring-primary-600"
               placeholder="000000"
             />
             {errors.totpCode && <p className="text-xs font-medium text-red-500">{errors.totpCode.message}</p>}
@@ -173,10 +173,10 @@ export default function LoginForm({ onVerificationPendingChange }: LoginFormProp
 
         <div className="relative mt-8 mb-6">
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-slate-200"></div>
+            <div className="w-full border-t border-slate-200 dark:border-slate-800"></div>
           </div>
           <div className="relative flex justify-center text-sm">
-            <span className="px-4 bg-white text-slate-400 font-medium">Or continue with</span>
+            <span className="px-4 bg-white dark:bg-slate-950 text-slate-400 font-medium">Or continue with</span>
           </div>
         </div>
 

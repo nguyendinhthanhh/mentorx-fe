@@ -16,10 +16,10 @@ interface DashboardStatCardProps {
 }
 
 const colorMap: Record<IconColor, { bg: string; text: string; spark: string }> = {
-  teal:   { bg: 'bg-emerald-50 dark:bg-emerald-500/10', text: 'text-emerald-600 dark:text-emerald-400', spark: 'bg-emerald-500' },
+  teal:   { bg: 'bg-emerald-50 dark:bg-emerald-900/30 dark:bg-emerald-500/10', text: 'text-emerald-600 dark:text-emerald-500 dark:text-emerald-400', spark: 'bg-emerald-500' },
   blue:   { bg: 'bg-blue-50 dark:bg-blue-500/10', text: 'text-blue-600 dark:text-blue-400', spark: 'bg-blue-500' },
   green:  { bg: 'bg-green-50 dark:bg-green-500/10', text: 'text-green-600 dark:text-green-400', spark: 'bg-green-500' },
-  yellow: { bg: 'bg-amber-50 dark:bg-amber-500/10', text: 'text-amber-600 dark:text-amber-400', spark: 'bg-amber-500' },
+  yellow: { bg: 'bg-amber-50 dark:bg-amber-900/30 dark:bg-amber-500/10', text: 'text-amber-600 dark:text-amber-400', spark: 'bg-amber-500' },
   red:    { bg: 'bg-rose-50 dark:bg-rose-500/10', text: 'text-rose-600 dark:text-rose-400', spark: 'bg-rose-500' },
   purple: { bg: 'bg-purple-50 dark:bg-purple-500/10', text: 'text-purple-600 dark:text-purple-400', spark: 'bg-purple-500' },
 }
@@ -39,7 +39,7 @@ export default function DashboardStatCard({
 
   if (isLoading) {
     return (
-      <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
         <div className="flex items-center gap-3.5 animate-pulse">
           <div className="h-10 w-10 shrink-0 rounded-lg bg-slate-100 dark:bg-slate-800" />
           <div className="flex-1 space-y-2">
@@ -74,7 +74,7 @@ export default function DashboardStatCard({
             </span>
           )}
         </div>
-        {subtext && <p className="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400">{subtext}</p>}
+        {subtext && <p className="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400 dark:text-slate-400">{subtext}</p>}
       </div>
       {sparkValues && sparkValues.length > 0 && (
         <div className="flex items-end gap-0.5 h-7 shrink-0">
@@ -93,7 +93,7 @@ export default function DashboardStatCard({
     </div>
   )
 
-  const className = 'block rounded-xl border border-slate-200 bg-white shadow-sm transition hover:shadow-md dark:border-slate-800 dark:bg-slate-900'
+  const className = 'block rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 shadow-sm transition hover:shadow-md dark:border-slate-800 dark:bg-slate-900'
 
   if (href) {
     return <Link to={href} className={className}>{content}</Link>

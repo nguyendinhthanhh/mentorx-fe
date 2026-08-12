@@ -24,14 +24,14 @@ export function Breadcrumbs({ items, className = '' }: BreadcrumbsProps) {
         return (
           <div key={index} className="flex items-center gap-1 sm:gap-2">
             {isLast ? (
-              <span className="flex items-center gap-1.5 text-gray-900 font-bold max-w-[200px] sm:max-w-xs truncate" aria-current="page">
+              <span className="flex items-center gap-1.5 text-gray-900 dark:text-gray-100 font-bold max-w-[200px] sm:max-w-xs truncate" aria-current="page">
                 {item.icon}
                 <span className="truncate">{item.label}</span>
               </span>
             ) : (
               <Link
                 to={item.to || '#'}
-                className="flex items-center gap-1.5 text-gray-500 hover:text-emerald-600 transition-colors"
+                className="flex items-center gap-1.5 text-gray-500 hover:text-emerald-600 dark:text-emerald-500 transition-colors"
               >
                 {item.icon && index === 0 ? (
                   item.icon

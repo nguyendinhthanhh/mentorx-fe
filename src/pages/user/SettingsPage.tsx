@@ -32,7 +32,7 @@ export default function SettingsPage() {
 
 
       {/* Tab Navigation */}
-      <nav className="flex flex-wrap gap-2 rounded-[20px] border border-slate-200/60 bg-white/70 p-2 shadow-sm backdrop-blur-md dark:border-slate-800 dark:bg-slate-900/70">
+      <nav className="flex flex-wrap gap-2 rounded-[20px] border border-slate-200 dark:border-slate-800/60 bg-white dark:bg-slate-950/70 p-2 shadow-sm backdrop-blur-md dark:border-slate-800 dark:bg-slate-900/70">
         {tabs.map((tab) => {
           const active = activeTab === tab.id
           return (
@@ -42,7 +42,7 @@ export default function SettingsPage() {
               className={`group flex items-center gap-2.5 rounded-xl px-4 py-2.5 text-sm font-bold transition-all duration-200 ease-out whitespace-nowrap ${
                 active
                   ? 'bg-[#059669] text-white shadow-[0_4px_12px_rgba(5,150,105,0.25)]'
-                  : 'text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800'
+                  : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800'
               }`}
             >
               <tab.icon className={`h-4.5 w-4.5 transition-colors ${active ? 'text-white' : 'text-slate-400 group-hover:text-[#059669]'}`} />
@@ -56,7 +56,7 @@ export default function SettingsPage() {
       {isMentorTab ? (
         <MentorProfileSetupPage />
       ) : (
-        <div className="rounded-[28px] border border-slate-200/60 bg-white p-6 shadow-[0_18px_40px_rgba(15,23,42,0.05)] dark:border-slate-800 dark:bg-slate-900 lg:p-10">
+        <div className="rounded-[28px] border border-slate-200 dark:border-slate-800/60 bg-white dark:bg-slate-950 p-6 shadow-[0_18px_40px_rgba(15,23,42,0.05)] dark:border-slate-800 dark:bg-slate-900 lg:p-10">
           {activeTab === 'profile' ? (
             <UserUpdateForm
               userId={user.userId}

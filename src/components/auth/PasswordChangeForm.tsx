@@ -46,8 +46,8 @@ export default function PasswordChangeForm() {
   }
 
   const inputClass =
-    'w-full rounded-[14px] border-0 bg-slate-50/50 py-3 px-4 text-slate-900 shadow-[inset_0_1px_2px_rgba(0,0,0,0.02)] ring-1 ring-inset ring-slate-200/60 transition-all placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-inset focus:ring-[#059669] hover:bg-slate-50 hover:ring-slate-300 sm:text-sm sm:leading-6 dark:bg-slate-900/50 dark:text-white dark:ring-slate-800 dark:focus:bg-slate-900'
-  const labelClass = 'mb-1.5 block text-[13px] font-bold text-slate-700 uppercase tracking-wide dark:text-slate-300'
+    'w-full rounded-[14px] border-0 bg-slate-50  py-3 px-4 text-slate-900 dark:text-slate-100 shadow-[inset_0_1px_2px_rgba(0,0,0,0.02)] ring-1 ring-inset ring-slate-200/60 transition-all placeholder:text-slate-400 focus:bg-white dark:bg-slate-950 focus:ring-2 focus:ring-inset focus:ring-[#059669] hover:bg-slate-50 dark:bg-slate-900/50 hover:ring-slate-300 sm:text-sm sm:leading-6 dark:bg-slate-900/50 dark:text-white dark:ring-slate-800 dark:focus:bg-slate-900'
+  const labelClass = 'mb-1.5 block text-[13px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide dark:text-slate-300'
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
@@ -66,7 +66,7 @@ export default function PasswordChangeForm() {
           <button
             type="button"
             onClick={() => setShowCurrent(!showCurrent)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:text-gray-400"
           >
             {showCurrent ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
           </button>
@@ -88,7 +88,7 @@ export default function PasswordChangeForm() {
           <button
             type="button"
             onClick={() => setShowNew(!showNew)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:text-gray-400"
           >
             {showNew ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
           </button>
@@ -110,7 +110,7 @@ export default function PasswordChangeForm() {
           <button
             type="button"
             onClick={() => setShowConfirm(!showConfirm)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:text-gray-400"
           >
             {showConfirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
           </button>

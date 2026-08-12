@@ -49,7 +49,7 @@ import {
   X,
 } from 'lucide-react'
 
-const editorInputClass = 'w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm text-slate-900 outline-none transition focus:border-emerald-400 focus:ring-4 focus:ring-emerald-500/10'
+const editorInputClass = 'w-full rounded-xl border border-slate-200 dark:border-slate-800 px-4 py-2.5 text-sm text-slate-900 dark:text-slate-100 outline-none transition focus:border-emerald-400 focus:ring-4 focus:ring-emerald-500/10'
 
 type DraftLesson = {
   clientId: string
@@ -901,19 +901,19 @@ export default function MentorCourseManagePage() {
 
   return (
     <div className="min-h-[calc(100vh-8rem)] space-y-4">
-      <Link to="/mentor/courses" className="inline-flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-slate-900">
+      <Link to="/mentor/courses" className="inline-flex items-center gap-2 text-sm font-bold text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:text-slate-100">
         <ArrowLeft className="h-4 w-4" />
         Quay lại
       </Link>
 
-      <div className="flex flex-col gap-4 border-b border-slate-200 pb-4 md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-col gap-4 border-b border-slate-200 dark:border-slate-800 pb-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <p className="text-xs font-black uppercase tracking-widest text-emerald-600">{course?.status || 'ĐANG MỞ'}</p>
-          <h1 className="text-2xl font-black text-slate-900">{course?.title || 'Quản lý Khóa học'}</h1>
+          <p className="text-xs font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-500">{course?.status || 'ĐANG MỞ'}</p>
+          <h1 className="text-2xl font-black text-slate-900 dark:text-slate-100">{course?.title || 'Quản lý Khóa học'}</h1>
         </div>
         <div className="flex flex-wrap gap-2">
-          {activeTab === 'content' && dirty && <span className="rounded-full bg-amber-50 px-3 py-2 text-xs font-black text-amber-700">Chưa lưu</span>}
-          {(activeTab === 'info' || activeTab === 'sale') && (detailsDirty || (isDocumentProduct && dirty)) && <span className="rounded-full bg-amber-50 px-3 py-2 text-xs font-black text-amber-700">Chưa lưu</span>}
+          {activeTab === 'content' && dirty && <span className="rounded-full bg-amber-50 dark:bg-amber-900/30 px-3 py-2 text-xs font-black text-amber-700 dark:text-amber-400">Chưa lưu</span>}
+          {(activeTab === 'info' || activeTab === 'sale') && (detailsDirty || (isDocumentProduct && dirty)) && <span className="rounded-full bg-amber-50 dark:bg-amber-900/30 px-3 py-2 text-xs font-black text-amber-700 dark:text-amber-400">Chưa lưu</span>}
           {courseId && (
             <Link
               to={`/courses/${courseId}`}
@@ -927,7 +927,7 @@ export default function MentorCourseManagePage() {
               type="button"
               onClick={() => setConfirmAction('archive')}
               disabled={actionLoading}
-              className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-60"
+              className="inline-flex items-center gap-2 rounded-xl border border-slate-200 dark:border-slate-800 px-4 py-2 text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:bg-slate-900/50 disabled:opacity-60"
             >
               <Archive className="h-4 w-4" />
               Lưu trữ
@@ -938,7 +938,7 @@ export default function MentorCourseManagePage() {
             onClick={() => setConfirmAction('delete')}
             disabled={!course || totalEnrollments > 0 || actionLoading}
             title={totalEnrollments > 0 ? 'Không thể xóa khi đã có lượt đăng ký. Vui lòng chọn Lưu trữ.' : 'Xóa'}
-            className="inline-flex items-center gap-2 rounded-xl border border-rose-200 px-4 py-2 text-sm font-bold text-rose-600 hover:bg-rose-50 disabled:cursor-not-allowed disabled:border-slate-200 disabled:text-slate-300"
+            className="inline-flex items-center gap-2 rounded-xl border border-rose-200 px-4 py-2 text-sm font-bold text-rose-600 hover:bg-rose-50 disabled:cursor-not-allowed disabled:border-slate-200 dark:border-slate-800 disabled:text-slate-300"
           >
             <Trash2 className="h-4 w-4" />
             Xóa
@@ -947,7 +947,7 @@ export default function MentorCourseManagePage() {
       </div>
 
       {course?.rejectionReason && (
-        <div className="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-900">
+        <div className="flex items-start gap-3 rounded-xl border border-amber-200 dark:border-amber-800/50 bg-amber-50 dark:bg-amber-900/30 px-4 py-3 text-sm font-semibold text-amber-900 dark:text-amber-100">
           <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" />
           <div>
             <p className="font-black">Lưu ý từ Admin</p>
@@ -956,36 +956,36 @@ export default function MentorCourseManagePage() {
         </div>
       )}
 
-      <div className="scrollbar-hide flex gap-1 overflow-x-auto rounded-2xl border border-slate-200 bg-white p-1">
+      <div className="scrollbar-hide flex gap-1 overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-1">
         <button
           type="button"
           onClick={() => setActiveTab('info')}
-          className={`shrink-0 rounded-xl px-4 py-2 text-sm font-black ${activeTab === 'info' ? 'bg-emerald-600 text-white' : 'text-slate-600 hover:bg-slate-50'}`}
+          className={`shrink-0 rounded-xl px-4 py-2 text-sm font-black ${activeTab === 'info' ? 'bg-emerald-600 text-white' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:bg-slate-900/50'}`}
         >
           {isDocumentProduct ? 'Thông tin Tài liệu' : 'Thông tin Khóa học'}
         </button>
         {!isDocumentProduct && <button
           type="button"
           onClick={() => setActiveTab('content')}
-          className={`shrink-0 rounded-xl px-4 py-2 text-sm font-black ${activeTab === 'content' ? 'bg-emerald-600 text-white' : 'text-slate-600 hover:bg-slate-50'}`}
+          className={`shrink-0 rounded-xl px-4 py-2 text-sm font-black ${activeTab === 'content' ? 'bg-emerald-600 text-white' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:bg-slate-900/50'}`}
         >
           Nội dung Khóa học
         </button>}
         <button
           type="button"
           onClick={() => setActiveTab('sale')}
-          className={`shrink-0 rounded-xl px-4 py-2 text-sm font-black ${activeTab === 'sale' ? 'bg-emerald-600 text-white' : 'text-slate-600 hover:bg-slate-50'}`}
+          className={`shrink-0 rounded-xl px-4 py-2 text-sm font-black ${activeTab === 'sale' ? 'bg-emerald-600 text-white' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:bg-slate-900/50'}`}
         >
           Doanh thu
         </button>
         <button
           type="button"
           onClick={() => setActiveTab('qa')}
-          className={`shrink-0 rounded-xl px-4 py-2 text-sm font-black ${activeTab === 'qa' ? 'bg-emerald-600 text-white' : 'text-slate-600 hover:bg-slate-50'}`}
+          className={`shrink-0 rounded-xl px-4 py-2 text-sm font-black ${activeTab === 'qa' ? 'bg-emerald-600 text-white' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:bg-slate-900/50'}`}
         >
           Hỏi đáp
           {(qaSummary?.unansweredLearners || 0) > 0 && (
-            <span className={`ml-2 rounded-full px-2 py-0.5 text-[10px] ${activeTab === 'qa' ? 'bg-white/20 text-white' : 'bg-rose-50 text-rose-700'}`}>
+            <span className={`ml-2 rounded-full px-2 py-0.5 text-[10px] ${activeTab === 'qa' ? 'bg-white dark:bg-slate-950/20 text-white' : 'bg-rose-50 text-rose-700'}`}>
               {qaSummary?.unansweredLearners}
             </span>
           )}
@@ -994,7 +994,7 @@ export default function MentorCourseManagePage() {
           <button
             type="button"
             onClick={() => setActiveTab('reviews')}
-            className={`shrink-0 rounded-xl px-4 py-2 text-sm font-black ${activeTab === 'reviews' ? 'bg-emerald-600 text-white' : 'text-slate-600 hover:bg-slate-50'}`}
+            className={`shrink-0 rounded-xl px-4 py-2 text-sm font-black ${activeTab === 'reviews' ? 'bg-emerald-600 text-white' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:bg-slate-900/50'}`}
           >
             Đánh giá
           </button>
@@ -1002,10 +1002,10 @@ export default function MentorCourseManagePage() {
       </div>
 
       {activeTab === 'info' && (
-        <section className="rounded-2xl border border-slate-200 bg-white p-5">
+        <section className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-5">
           <div className="mb-5">
-            <h2 className="text-base font-black text-slate-900">{isDocumentProduct ? 'Thông tin tài liệu' : 'Thông tin khóa học'}</h2>
-            <p className="text-sm font-medium text-slate-500">
+            <h2 className="text-base font-black text-slate-900 dark:text-slate-100">{isDocumentProduct ? 'Thông tin tài liệu' : 'Thông tin khóa học'}</h2>
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
               {isDocumentProduct
                 ? 'Quản lý danh sách, ảnh bìa và file tải xuống của tài liệu.'
                 : 'Tiêu đề, giá, lĩnh vực, kỹ năng, cấp độ, ngôn ngữ và ảnh/video xem trước.'}
@@ -1027,7 +1027,7 @@ export default function MentorCourseManagePage() {
                     disabled={!!course?.publishedAt}
                   />
                   {!!course?.publishedAt && (
-                    <p className="mt-1 text-xs font-semibold text-slate-500">Giá không thể thay đổi sau khi đã xuất bản.</p>
+                    <p className="mt-1 text-xs font-semibold text-slate-500 dark:text-slate-400">Giá không thể thay đổi sau khi đã xuất bản.</p>
                   )}
                 </Field>
               </div>
@@ -1062,7 +1062,7 @@ export default function MentorCourseManagePage() {
               )}
               <div className="grid gap-4 md:grid-cols-3">
                 <Field label="Lĩnh vực">
-                  <div className="rounded-xl border border-slate-200 p-3">
+                  <div className="rounded-xl border border-slate-200 dark:border-slate-800 p-3">
                     <div className="relative">
                       <input
                         value={courseDetails.domain.label}
@@ -1077,7 +1077,7 @@ export default function MentorCourseManagePage() {
                         autoComplete="off"
                       />
                       {isCategoryMenuOpen && (
-                        <div className="absolute z-20 mt-2 max-h-72 w-full overflow-auto rounded-xl border border-slate-200 bg-white p-2 shadow-lg">
+                        <div className="absolute z-20 mt-2 max-h-72 w-full overflow-auto rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-2 shadow-lg">
                           {suggestedCategories.length > 0 ? (
                             suggestedCategories.map((category: CategoryResponse) => (
                               <button
@@ -1085,14 +1085,14 @@ export default function MentorCourseManagePage() {
                                 type="button"
                                 onMouseDown={(event) => event.preventDefault()}
                                 onClick={() => selectCourseCategory(category)}
-                                className="flex w-full flex-col rounded-lg px-3 py-2 text-left hover:bg-emerald-50"
+                                className="flex w-full flex-col rounded-lg px-3 py-2 text-left hover:bg-emerald-50 dark:bg-emerald-900/30"
                               >
-                                <span className="text-sm font-semibold text-slate-900">{categoryLabel(category)}</span>
-                                <span className="text-xs text-slate-500">{category.slug}</span>
+                                <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">{categoryLabel(category)}</span>
+                                <span className="text-xs text-slate-500 dark:text-slate-400">{category.slug}</span>
                               </button>
                             ))
                           ) : (
-                            <div className="px-3 py-2 text-sm text-slate-500">Không có lĩnh vực nào phù hợp.</div>
+                            <div className="px-3 py-2 text-sm text-slate-500 dark:text-slate-400">Không có lĩnh vực nào phù hợp.</div>
                           )}
                         </div>
                       )}
@@ -1117,7 +1117,7 @@ export default function MentorCourseManagePage() {
                 </Field>
               </div>
               <Field label="Kỹ năng">
-                <div className="rounded-xl border border-slate-200 p-3">
+                <div className="rounded-xl border border-slate-200 dark:border-slate-800 p-3">
                   <div className="relative">
                     <input
                       value={skillQuery}
@@ -1141,7 +1141,7 @@ export default function MentorCourseManagePage() {
                       autoComplete="off"
                     />
                     {isSkillMenuOpen && (
-                      <div className="absolute z-20 mt-2 max-h-72 w-full overflow-auto rounded-xl border border-slate-200 bg-white p-2 shadow-lg">
+                      <div className="absolute z-20 mt-2 max-h-72 w-full overflow-auto rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-2 shadow-lg">
                         {suggestedCourseSkills.length > 0 ? (
                           <>
                             {normalizeLabel(skillQuery).length > 0 && !findExistingSkill(skillQuery, skills) && (
@@ -1149,7 +1149,7 @@ export default function MentorCourseManagePage() {
                                 type="button"
                                 onMouseDown={(event) => event.preventDefault()}
                                 onClick={commitCourseSkillQuery}
-                                className="flex w-full flex-col rounded-lg px-3 py-2 text-left text-emerald-700 hover:bg-emerald-50"
+                                className="flex w-full flex-col rounded-lg px-3 py-2 text-left text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:bg-emerald-900/30"
                               >
                                 <span className="text-sm font-black">Thêm "{normalizeLabel(skillQuery)}"</span>
                                 <span className="text-xs">Sử dụng kỹ năng này cho khóa học</span>
@@ -1161,10 +1161,10 @@ export default function MentorCourseManagePage() {
                                 type="button"
                                 onMouseDown={(event) => event.preventDefault()}
                                 onClick={() => addCourseSkill({ id: skill.id, label: skillLabel(skill) })}
-                                className="flex w-full flex-col rounded-lg px-3 py-2 text-left hover:bg-emerald-50"
+                                className="flex w-full flex-col rounded-lg px-3 py-2 text-left hover:bg-emerald-50 dark:bg-emerald-900/30"
                               >
-                                <span className="text-sm font-semibold text-slate-900">{skill.labelEn}</span>
-                                <span className="text-xs text-slate-500">{skill.slug}</span>
+                                <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">{skill.labelEn}</span>
+                                <span className="text-xs text-slate-500 dark:text-slate-400">{skill.slug}</span>
                               </button>
                             ))}
                           </>
@@ -1174,7 +1174,7 @@ export default function MentorCourseManagePage() {
                             onMouseDown={(event) => event.preventDefault()}
                             onClick={commitCourseSkillQuery}
                             disabled={!normalizeLabel(skillQuery)}
-                            className="flex w-full flex-col rounded-lg px-3 py-2 text-left text-emerald-700 hover:bg-emerald-50 disabled:cursor-not-allowed disabled:text-slate-400"
+                            className="flex w-full flex-col rounded-lg px-3 py-2 text-left text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:bg-emerald-900/30 disabled:cursor-not-allowed disabled:text-slate-400"
                           >
                             <span className="text-sm font-black">{normalizeLabel(skillQuery) ? `Thêm "${normalizeLabel(skillQuery)}"` : 'Không có kỹ năng nào phù hợp.'}</span>
                             {normalizeLabel(skillQuery) && <span className="text-xs">Sử dụng kỹ năng này cho khóa học</span>}
@@ -1185,9 +1185,9 @@ export default function MentorCourseManagePage() {
                   </div>
                   <div className="mt-3 flex flex-wrap gap-2">
                     {selectedCourseSkills.map((skill: SkillChip) => (
-                      <span key={skill.label.toLowerCase()} className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-sm font-semibold text-emerald-700">
+                      <span key={skill.label.toLowerCase()} className="inline-flex items-center gap-2 rounded-full bg-emerald-50 dark:bg-emerald-900/30 px-3 py-1 text-sm font-semibold text-emerald-700 dark:text-emerald-400">
                         {skill.label}
-                        <button type="button" onClick={() => removeCourseSkill(skill.label)} className="text-emerald-400 hover:text-emerald-700" title="Xóa kỹ năng">
+                        <button type="button" onClick={() => removeCourseSkill(skill.label)} className="text-emerald-400 hover:text-emerald-700 dark:text-emerald-400" title="Xóa kỹ năng">
                           <X className="h-3.5 w-3.5" />
                         </button>
                       </span>
@@ -1198,7 +1198,7 @@ export default function MentorCourseManagePage() {
               </Field>
               <div className="space-y-3">
                 {!isDocumentProduct && (
-                <div className="rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-700">
+                <div className="rounded-xl border border-emerald-100 dark:border-emerald-900/50 bg-emerald-50 dark:bg-emerald-900/30 px-4 py-3 text-sm font-bold text-emerald-700 dark:text-emerald-400">
                   Cấp chứng chỉ khi hoàn thành
                 </div>
                 )}
@@ -1219,16 +1219,16 @@ export default function MentorCourseManagePage() {
       )}
 
       {activeTab === 'sale' && (
-        <section className="space-y-5 rounded-2xl border border-slate-200 bg-white p-5">
+        <section className="space-y-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-5">
           <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
             <div>
-              <h2 className="text-base font-black text-slate-900">Doanh thu</h2>
-              <p className="text-sm font-medium text-slate-500">Theo dõi doanh thu khóa học và quản lý giảm giá.</p>
+              <h2 className="text-base font-black text-slate-900 dark:text-slate-100">Doanh thu</h2>
+              <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Theo dõi doanh thu khóa học và quản lý giảm giá.</p>
             </div>
             {course?.activeDiscount ? (
-              <span className="rounded-full bg-emerald-50 px-3 py-2 text-xs font-black text-emerald-700">Đang giảm giá</span>
+              <span className="rounded-full bg-emerald-50 dark:bg-emerald-900/30 px-3 py-2 text-xs font-black text-emerald-700 dark:text-emerald-400">Đang giảm giá</span>
             ) : (
-              <span className="rounded-full bg-slate-100 px-3 py-2 text-xs font-black text-slate-600">Không có giảm giá</span>
+              <span className="rounded-full bg-slate-100 px-3 py-2 text-xs font-black text-slate-600 dark:text-slate-400">Không có giảm giá</span>
             )}
           </div>
 
@@ -1240,7 +1240,7 @@ export default function MentorCourseManagePage() {
           </div>
 
           <div className="grid gap-4 lg:grid-cols-[1fr_1.3fr]">
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 p-4">
               <p className="text-xs font-black uppercase tracking-widest text-slate-400">Giá hiện tại</p>
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
                 <PriceStat label="Giá gốc" value={formatCurrency(saleStats.basePrice)} />
@@ -1250,11 +1250,11 @@ export default function MentorCourseManagePage() {
               </div>
             </div>
 
-            <div className="rounded-2xl border border-slate-200 p-4">
+            <div className="rounded-2xl border border-slate-200 dark:border-slate-800 p-4">
               <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
-                  <p className="text-sm font-black text-slate-900">Lịch giảm giá</p>
-                  <p className="text-xs font-semibold text-slate-500">Cài đặt hoặc xóa lịch giảm giá.</p>
+                  <p className="text-sm font-black text-slate-900 dark:text-slate-100">Lịch giảm giá</p>
+                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">Cài đặt hoặc xóa lịch giảm giá.</p>
                 </div>
                 {(courseDetails.discountPriceMxc || courseDetails.discountStartAt || courseDetails.discountEndAt || course?.discountPriceMxc) && (
                   <button
@@ -1265,7 +1265,7 @@ export default function MentorCourseManagePage() {
                       discountEndAt: '',
                       clearDiscount: true,
                     })}
-                    className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-black text-slate-600 hover:bg-rose-50 hover:text-rose-600"
+                    className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 py-2 text-sm font-black text-slate-600 dark:text-slate-400 hover:bg-rose-50 hover:text-rose-600"
                   >
                     Xóa giảm giá
                   </button>
@@ -1303,7 +1303,7 @@ export default function MentorCourseManagePage() {
               </div>
 
               {courseDetails.clearDiscount && (
-                <p className="mt-3 rounded-xl bg-amber-50 px-4 py-3 text-xs font-bold text-amber-700">Lưu lịch giảm giá để xóa giảm giá hiện tại.</p>
+                <p className="mt-3 rounded-xl bg-amber-50 dark:bg-amber-900/30 px-4 py-3 text-xs font-bold text-amber-700 dark:text-amber-400">Lưu lịch giảm giá để xóa giảm giá hiện tại.</p>
               )}
 
               <button
@@ -1322,26 +1322,26 @@ export default function MentorCourseManagePage() {
 
       {error && <p className="rounded-xl bg-rose-50 px-4 py-3 text-sm font-semibold text-rose-600">{error}</p>}
 
-      {activeTab === 'content' && !isDocumentProduct && <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+      {activeTab === 'content' && !isDocumentProduct && <section className="overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950">
         <div className="grid h-[calc(100vh-15rem)] min-h-[520px] overflow-hidden lg:grid-cols-[320px_1fr]">
-          <aside className="min-h-0 overflow-y-auto border-r border-slate-200 bg-slate-50">
-          <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-slate-50 p-4">
-            <h2 className="text-sm font-black uppercase tracking-widest text-slate-500">{isDocumentProduct ? 'Tài liệu' : 'Phần'}</h2>
-            {!isDocumentProduct && <button onClick={addSection} className="rounded-lg p-2 text-slate-500 hover:bg-white hover:text-emerald-600" title="Thêm phần">
+          <aside className="min-h-0 overflow-y-auto border-r border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50">
+          <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 p-4">
+            <h2 className="text-sm font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">{isDocumentProduct ? 'Tài liệu' : 'Phần'}</h2>
+            {!isDocumentProduct && <button onClick={addSection} className="rounded-lg p-2 text-slate-500 dark:text-slate-400 hover:bg-white dark:bg-slate-950 hover:text-emerald-600 dark:text-emerald-500" title="Thêm phần">
               <Plus className="h-5 w-5" />
             </button>}
           </div>
           <div className="space-y-2 p-3">
             {sections.map((section, sectionIndex) => (
-              <div key={section.clientId} className="rounded-xl border border-slate-200 bg-white">
+              <div key={section.clientId} className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950">
                 <div
                   className={`flex items-center gap-1 px-2 py-2 ${
-                    selection?.type === 'section' && selection.sectionClientId === section.clientId ? 'text-emerald-700' : 'text-slate-800'
+                    selection?.type === 'section' && selection.sectionClientId === section.clientId ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-800 dark:text-slate-200'
                   }`}
                 >
                   <button
                     onClick={() => setSelection({ type: 'section', sectionClientId: section.clientId })}
-                    className="min-w-0 flex-1 rounded-lg px-1 py-1 text-left hover:bg-slate-50"
+                    className="min-w-0 flex-1 rounded-lg px-1 py-1 text-left hover:bg-slate-50 dark:bg-slate-900/50"
                   >
                     <span className="block truncate text-sm font-black">{sectionIndex + 1}. {section.title || 'Phần chưa có tiêu đề'}</span>
                   </button>
@@ -1354,14 +1354,14 @@ export default function MentorCourseManagePage() {
                     <Trash2 className="h-4 w-4" />
                   </button>}
                 </div>
-                <div className="space-y-1 border-t border-slate-100 p-2">
+                <div className="space-y-1 border-t border-slate-100 dark:border-slate-800 p-2">
                   {section.lessons.map((lesson, lessonIndex) => (
                     <div
                       key={lesson.clientId}
                       className={`flex items-center gap-1 rounded-lg px-1 py-1 text-sm font-semibold ${
                         selection?.type === 'lesson' && selection.lessonClientId === lesson.clientId
-                          ? 'bg-emerald-50 text-emerald-700'
-                          : 'text-slate-600 hover:bg-slate-50'
+                          ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'
+                          : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:bg-slate-900/50'
                       }`}
                     >
                       <button
@@ -1382,17 +1382,17 @@ export default function MentorCourseManagePage() {
                     </div>
                   ))}
                   {!isDocumentProduct && <div className="grid grid-cols-2 gap-1 pt-1">
-                    <button onClick={() => addLesson(section.clientId, LessonType.LESSON)} className="rounded-lg border border-slate-200 px-2 py-1.5 text-xs font-bold text-slate-600 hover:border-emerald-200 hover:text-emerald-600">
+                    <button onClick={() => addLesson(section.clientId, LessonType.LESSON)} className="rounded-lg border border-slate-200 dark:border-slate-800 px-2 py-1.5 text-xs font-bold text-slate-600 dark:text-slate-400 hover:border-emerald-200 dark:border-emerald-800/50 hover:text-emerald-600 dark:text-emerald-500">
                       + Bài học
                     </button>
-                    <button onClick={() => addLesson(section.clientId, LessonType.QUIZ)} className="rounded-lg border border-slate-200 px-2 py-1.5 text-xs font-bold text-slate-600 hover:border-emerald-200 hover:text-emerald-600">
+                    <button onClick={() => addLesson(section.clientId, LessonType.QUIZ)} className="rounded-lg border border-slate-200 dark:border-slate-800 px-2 py-1.5 text-xs font-bold text-slate-600 dark:text-slate-400 hover:border-emerald-200 dark:border-emerald-800/50 hover:text-emerald-600 dark:text-emerald-500">
                       + Trắc nghiệm
                     </button>
                   </div>}
                 </div>
               </div>
             ))}
-            {sections.length === 0 && <p className="rounded-xl border border-dashed border-slate-300 p-4 text-sm font-semibold text-slate-500">Sử dụng nút cộng để thêm phần đầu tiên.</p>}
+            {sections.length === 0 && <p className="rounded-xl border border-dashed border-slate-300 dark:border-slate-700 p-4 text-sm font-semibold text-slate-500 dark:text-slate-400">Sử dụng nút cộng để thêm phần đầu tiên.</p>}
           </div>
           </aside>
 
@@ -1417,8 +1417,8 @@ export default function MentorCourseManagePage() {
           )}
           </main>
         </div>
-        <div className="flex items-center justify-between gap-3 border-t border-slate-200 bg-slate-50 px-5 py-4">
-          <p className="text-xs font-bold text-slate-500">{dirty ? 'Bạn có thay đổi nội dung khóa học chưa lưu.' : 'Nội dung khóa học đã được cập nhật.'}</p>
+        <div className="flex items-center justify-between gap-3 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 px-5 py-4">
+          <p className="text-xs font-bold text-slate-500 dark:text-slate-400">{dirty ? 'Bạn có thay đổi nội dung khóa học chưa lưu.' : 'Nội dung khóa học đã được cập nhật.'}</p>
           <button
             onClick={() => saveMutation.mutate()}
             disabled={saveMutation.isLoading}
@@ -1431,50 +1431,50 @@ export default function MentorCourseManagePage() {
       </section>}
 
       {activeTab === 'qa' && (
-        <section className="space-y-5 rounded-2xl border border-slate-200 bg-white p-5">
+        <section className="space-y-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-5">
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div>
-              <h2 className="flex items-center gap-2 text-base font-black text-slate-900">
-                <MessageSquare className="h-5 w-5 text-emerald-600" />
+              <h2 className="flex items-center gap-2 text-base font-black text-slate-900 dark:text-slate-100">
+                <MessageSquare className="h-5 w-5 text-emerald-600 dark:text-emerald-500" />
                 Hỏi đáp khóa học
               </h2>
-              <p className="text-sm font-medium text-slate-500">Trả lời câu hỏi của học viên cho sản phẩm này.</p>
+              <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Trả lời câu hỏi của học viên cho sản phẩm này.</p>
             </div>
-            <span className={`rounded-full px-3 py-2 text-xs font-black ${qaSummary?.unansweredLearners ? 'bg-rose-50 text-rose-700' : 'bg-emerald-50 text-emerald-700'}`}>
+            <span className={`rounded-full px-3 py-2 text-xs font-black ${qaSummary?.unansweredLearners ? 'bg-rose-50 text-rose-700' : 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'}`}>
               {qaSummary?.unansweredLearners || 0} chưa trả lời
             </span>
           </div>
 
           {qaLoading ? (
             <div className="flex min-h-48 items-center justify-center">
-              <Loader2 className="h-7 w-7 animate-spin text-emerald-600" />
+              <Loader2 className="h-7 w-7 animate-spin text-emerald-600 dark:text-emerald-500" />
             </div>
           ) : qaThreads.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-slate-200 p-8 text-center">
+            <div className="rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 p-8 text-center">
               <MessageSquare className="mx-auto mb-3 h-8 w-8 text-slate-300" />
-              <p className="text-sm font-bold text-slate-600">Chưa có câu hỏi nào từ học viên.</p>
+              <p className="text-sm font-bold text-slate-600 dark:text-slate-400">Chưa có câu hỏi nào từ học viên.</p>
             </div>
           ) : (
             <div className="space-y-4">
               {qaThreads.map((thread) => {
                 const draft = qaReplyDrafts[thread.learnerId] || ''
                 return (
-                  <article key={thread.learnerId} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                  <article key={thread.learnerId} className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 p-4">
                     <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
                       <div>
-                        <p className="text-sm font-black text-slate-900">{thread.learnerName}</p>
-                        <p className="text-xs font-semibold text-slate-500">{thread.messages.length} tin nhắn</p>
+                        <p className="text-sm font-black text-slate-900 dark:text-slate-100">{thread.learnerName}</p>
+                        <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">{thread.messages.length} tin nhắn</p>
                       </div>
                       {thread.unanswered && <span className="rounded-full bg-rose-100 px-3 py-1 text-xs font-black text-rose-700">Cần trả lời</span>}
                     </div>
 
-                    <div className="max-h-96 space-y-3 overflow-auto rounded-xl border border-slate-200 bg-white p-3">
+                    <div className="max-h-96 space-y-3 overflow-auto rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-3">
                       {thread.messages.map((message) => {
                         const fromMentor = message.senderId === course?.instructorId
                         return (
                           <div key={message.id} className={`flex ${fromMentor ? 'justify-end' : 'justify-start'}`}>
-                            <div className={`max-w-[82%] rounded-xl px-3 py-2 ${fromMentor ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-800'}`}>
-                              <p className={`text-[11px] font-black ${fromMentor ? 'text-emerald-100' : 'text-slate-500'}`}>{message.senderName}</p>
+                            <div className={`max-w-[82%] rounded-xl px-3 py-2 ${fromMentor ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-800 dark:text-slate-200'}`}>
+                              <p className={`text-[11px] font-black ${fromMentor ? 'text-emerald-100' : 'text-slate-500 dark:text-slate-400'}`}>{message.senderName}</p>
                               <p className="mt-1 whitespace-pre-wrap text-sm leading-6">{message.content}</p>
                               <p className={`mt-2 text-[11px] font-semibold ${fromMentor ? 'text-emerald-100' : 'text-slate-400'}`}>{new Date(message.createdAt).toLocaleString()}</p>
                             </div>
@@ -1488,7 +1488,7 @@ export default function MentorCourseManagePage() {
                       <textarea
                         value={draft}
                         onChange={(event) => setQaReplyDrafts((current) => ({ ...current, [thread.learnerId]: event.target.value }))}
-                        className="min-h-24 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-emerald-400 focus:ring-4 focus:ring-emerald-500/10"
+                        className="min-h-24 w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 py-3 text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-emerald-400 focus:ring-4 focus:ring-emerald-500/10"
                         placeholder={`Trả lời ${thread.learnerName}`}
                       />
                       <button
@@ -1510,14 +1510,14 @@ export default function MentorCourseManagePage() {
       )}
 
       {activeTab === 'reviews' && coursePublished && (
-        <section className="space-y-5 rounded-2xl border border-slate-200 bg-white p-5">
+        <section className="space-y-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-5">
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div>
-              <h2 className="flex items-center gap-2 text-base font-black text-slate-900">
+              <h2 className="flex items-center gap-2 text-base font-black text-slate-900 dark:text-slate-100">
                 <Star className="h-5 w-5 fill-amber-400 text-amber-400" />
                 Đánh giá khóa học
               </h2>
-              <p className="text-sm font-medium text-slate-500">Theo dõi mức độ hài lòng của học viên và phản hồi công khai các đánh giá.</p>
+              <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Theo dõi mức độ hài lòng của học viên và phản hồi công khai các đánh giá.</p>
             </div>
           </div>
 
@@ -1530,46 +1530,46 @@ export default function MentorCourseManagePage() {
 
           {reviewsLoading ? (
             <div className="flex min-h-48 items-center justify-center">
-              <Loader2 className="h-7 w-7 animate-spin text-emerald-600" />
+              <Loader2 className="h-7 w-7 animate-spin text-emerald-600 dark:text-emerald-500" />
             </div>
           ) : courseReviews.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-slate-200 p-8 text-center">
+            <div className="rounded-xl border border-dashed border-slate-200 dark:border-slate-800 p-8 text-center">
               <Star className="mx-auto mb-3 h-8 w-8 text-slate-300" />
-              <p className="text-sm font-black text-slate-700">Chưa có đánh giá nào</p>
-              <p className="mt-1 text-sm font-medium text-slate-500">Học viên hoàn thành khóa học có thể để lại đánh giá từ thư viện khóa học của họ.</p>
+              <p className="text-sm font-black text-slate-700 dark:text-slate-300">Chưa có đánh giá nào</p>
+              <p className="mt-1 text-sm font-medium text-slate-500 dark:text-slate-400">Học viên hoàn thành khóa học có thể để lại đánh giá từ thư viện khóa học của họ.</p>
             </div>
           ) : (
             <div className="space-y-4">
               {courseReviews.map((review) => {
                 const draft = reviewResponseDrafts[review.id] ?? review.responseText ?? ''
                 return (
-                  <article key={review.id} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                  <article key={review.id} className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 p-4">
                     <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
                       <div>
-                        <p className="text-sm font-black text-slate-900">{review.isAnonymous ? 'Học viên ẩn danh' : review.reviewerName}</p>
+                        <p className="text-sm font-black text-slate-900 dark:text-slate-100">{review.isAnonymous ? 'Học viên ẩn danh' : review.reviewerName}</p>
                         <div className="mt-1 flex items-center gap-2">
                           <div className="flex">
                             {[1, 2, 3, 4, 5].map((star) => (
                               <Star key={star} className={`h-4 w-4 ${star <= Math.round(review.overallRating) ? 'fill-amber-400 text-amber-400' : 'text-slate-300'}`} />
                             ))}
                           </div>
-                          <span className="text-xs font-bold text-slate-500">{new Date(review.createdAt).toLocaleDateString()}</span>
+                          <span className="text-xs font-bold text-slate-500 dark:text-slate-400">{new Date(review.createdAt).toLocaleDateString()}</span>
                         </div>
                       </div>
                       {review.responseText ? (
-                        <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-black text-emerald-700">Đã phản hồi</span>
+                        <span className="rounded-full bg-emerald-100 dark:bg-emerald-900/50 px-3 py-1 text-xs font-black text-emerald-700 dark:text-emerald-400">Đã phản hồi</span>
                       ) : (
-                        <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-black text-amber-700">Cần phản hồi</span>
+                        <span className="rounded-full bg-amber-100 dark:bg-amber-900/50 px-3 py-1 text-xs font-black text-amber-700 dark:text-amber-400">Cần phản hồi</span>
                       )}
                     </div>
-                    {review.reviewTitle && <h3 className="mb-2 text-sm font-black text-slate-900">{review.reviewTitle}</h3>}
-                    <p className="whitespace-pre-wrap text-sm font-medium leading-6 text-slate-700">{review.reviewText}</p>
+                    {review.reviewTitle && <h3 className="mb-2 text-sm font-black text-slate-900 dark:text-slate-100">{review.reviewTitle}</h3>}
+                    <p className="whitespace-pre-wrap text-sm font-medium leading-6 text-slate-700 dark:text-slate-300">{review.reviewText}</p>
                     <div className="mt-4 space-y-2">
                       <label className="text-xs font-black uppercase tracking-widest text-slate-400">Phản hồi của Mentor</label>
                       <textarea
                         value={draft}
                         onChange={(event) => setReviewResponseDrafts((current) => ({ ...current, [review.id]: event.target.value }))}
-                        className="min-h-24 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-emerald-400 focus:ring-4 focus:ring-emerald-500/10"
+                        className="min-h-24 w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 py-3 text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-emerald-400 focus:ring-4 focus:ring-emerald-500/10"
                         placeholder="Viết phản hồi công khai cho đánh giá này"
                       />
                       <button
@@ -1617,28 +1617,28 @@ function SaleMetricCard({ label, value, helper, icon, tone = 'indigo' }: {
   tone?: 'indigo' | 'emerald' | 'rose' | 'slate'
 }) {
   const toneClass = {
-    indigo: 'bg-emerald-50 text-emerald-600',
-    emerald: 'bg-emerald-50 text-emerald-600',
+    indigo: 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-500',
+    emerald: 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-500',
     rose: 'bg-rose-50 text-rose-600',
-    slate: 'bg-slate-100 text-slate-600',
+    slate: 'bg-slate-100 text-slate-600 dark:text-slate-400',
   }[tone]
   return (
-    <div className="rounded-2xl border border-slate-200 p-4">
+    <div className="rounded-2xl border border-slate-200 dark:border-slate-800 p-4">
       <div className={`mb-3 flex h-10 w-10 items-center justify-center rounded-xl ${toneClass}`}>
         {icon}
       </div>
       <p className="text-xs font-black uppercase tracking-widest text-slate-400">{label}</p>
-      <p className="mt-2 text-xl font-black text-slate-900">{value}</p>
-      <p className="mt-1 text-xs font-semibold text-slate-500">{helper}</p>
+      <p className="mt-2 text-xl font-black text-slate-900 dark:text-slate-100">{value}</p>
+      <p className="mt-1 text-xs font-semibold text-slate-500 dark:text-slate-400">{helper}</p>
     </div>
   )
 }
 
 function PriceStat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl bg-white p-3">
+    <div className="rounded-xl bg-white dark:bg-slate-950 p-3">
       <p className="text-[11px] font-black uppercase tracking-widest text-slate-400">{label}</p>
-      <p className="mt-1 text-sm font-black text-slate-900">{value}</p>
+      <p className="mt-1 text-sm font-black text-slate-900 dark:text-slate-100">{value}</p>
     </div>
   )
 }
@@ -1646,11 +1646,11 @@ function PriceStat({ label, value }: { label: string; value: string }) {
 function EmptyEditor({ onAddSection }: { onAddSection: () => void }) {
   return (
     <div className="flex h-full min-h-[560px] flex-col items-center justify-center text-center">
-      <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
+      <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-500">
         <Plus className="h-7 w-7" />
       </div>
-      <h2 className="text-xl font-black text-slate-900">Bắt đầu chương trình học</h2>
-      <p className="mt-1 max-w-sm text-sm font-medium text-slate-500">Thêm phần học ở bên trái, sau đó thêm bài học hoặc bài trắc nghiệm vào mỗi phần.</p>
+      <h2 className="text-xl font-black text-slate-900 dark:text-slate-100">Bắt đầu chương trình học</h2>
+      <p className="mt-1 max-w-sm text-sm font-medium text-slate-500 dark:text-slate-400">Thêm phần học ở bên trái, sau đó thêm bài học hoặc bài trắc nghiệm vào mỗi phần.</p>
       <button onClick={onAddSection} className="mt-5 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white">Thêm Phần</button>
     </div>
   )
@@ -1670,7 +1670,7 @@ function SectionEditor({ section, onChange, onDelete }: {
       <Field label="Mô tả">
         <textarea value={section.description} onChange={(event) => onChange({ description: event.target.value })} className={`${editorInputClass} min-h-32`} />
       </Field>
-      <label className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+      <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300">
         <input type="checkbox" checked={section.isPublished} onChange={(event) => onChange({ isPublished: event.target.checked })} />
         Hiển thị khi khóa học được xuất bản
       </label>
@@ -1761,15 +1761,15 @@ function LessonEditor({ lesson, uploadingField, onChange, onDelete, onUpload, on
       )}
 
       <div className="flex flex-wrap gap-5">
-        <label className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+        <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300">
           <input type="checkbox" checked={lesson.isFreePreview} onChange={(event) => onChange({ isFreePreview: event.target.checked })} />
           Xem trước miễn phí
         </label>
-        <label className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+        <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300">
           <input type="checkbox" checked={lesson.isMandatory} onChange={(event) => onChange({ isMandatory: event.target.checked })} />
           Bắt buộc
         </label>
-        <label className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+        <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300">
           <input type="checkbox" checked={lesson.isPublished} onChange={(event) => onChange({ isPublished: event.target.checked })} />
           Hiển thị
         </label>
@@ -1780,8 +1780,8 @@ function LessonEditor({ lesson, uploadingField, onChange, onDelete, onUpload, on
 
 function EditorHeader({ title, onDelete }: { title: string; onDelete: () => void }) {
   return (
-    <div className="flex items-center justify-between border-b border-slate-200 pb-4">
-      <h2 className="text-xl font-black text-slate-900">{title}</h2>
+    <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4">
+      <h2 className="text-xl font-black text-slate-900 dark:text-slate-100">{title}</h2>
       <button onClick={onDelete} className="inline-flex items-center gap-2 rounded-xl border border-rose-200 px-3 py-2 text-sm font-bold text-rose-600 hover:bg-rose-50">
         <Trash2 className="h-4 w-4" />
         Xóa
@@ -1793,7 +1793,7 @@ function EditorHeader({ title, onDelete }: { title: string; onDelete: () => void
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block">
-      <span className="mb-1.5 block text-sm font-bold text-slate-700">{label}</span>
+      <span className="mb-1.5 block text-sm font-bold text-slate-700 dark:text-slate-300">{label}</span>
       {children}
     </label>
   )
@@ -1801,10 +1801,10 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 
 function ReviewMetric({ label, value, helper }: { label: string; value: string; helper: string }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-4">
+    <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-4">
       <p className="text-xs font-black uppercase tracking-widest text-slate-400">{label}</p>
-      <p className="mt-2 text-2xl font-black text-slate-900">{value}</p>
-      <p className="mt-1 text-xs font-semibold text-slate-500">{helper}</p>
+      <p className="mt-2 text-2xl font-black text-slate-900 dark:text-slate-100">{value}</p>
+      <p className="mt-1 text-xs font-semibold text-slate-500 dark:text-slate-400">{helper}</p>
     </div>
   )
 }
@@ -1836,7 +1836,7 @@ function UploadField({
 
   return (
     <Field label={label}>
-      <div className="rounded-xl border border-slate-200 p-3">
+      <div className="rounded-xl border border-slate-200 dark:border-slate-800 p-3">
         <div className="mb-3 flex flex-wrap gap-2">
           <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white">
             {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
@@ -1863,22 +1863,22 @@ function UploadField({
           <input value={value} onChange={(event) => onChange(event.target.value)} className={editorInputClass} placeholder="URL tải lên hoặc bên ngoài" />
         )}
         {value && mediaKind === 'video' && (
-          <div className="mt-3 overflow-hidden rounded-xl border border-slate-200 bg-white">
-            <div className="flex items-center justify-between border-b border-slate-200 px-3 py-2">
-              <p className="truncate text-sm font-bold text-slate-700">{displayName}</p>
+          <div className="mt-3 overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950">
+            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 px-3 py-2">
+              <p className="truncate text-sm font-bold text-slate-700 dark:text-slate-300">{displayName}</p>
             </div>
             <video src={value} controls className="aspect-video w-full bg-black" />
           </div>
         )}
         {value && mediaKind === 'resource' && (
-          <div className="mt-3 flex flex-col gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="mt-3 flex flex-col gap-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 p-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex min-w-0 items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-500">
                 <FileText className="h-5 w-5" />
               </div>
               <div className="min-w-0">
                 <p className="text-xs font-black uppercase tracking-widest text-slate-400">Tài liệu tải xuống</p>
-                <p className="truncate text-sm font-black text-slate-900">{displayName}</p>
+                <p className="truncate text-sm font-black text-slate-900 dark:text-slate-100">{displayName}</p>
               </div>
             </div>
             <a
@@ -1918,17 +1918,17 @@ function DocumentResourceManager({ resourceUrl, pendingFileName, onFile, onClear
           event.preventDefault()
           handleFiles(event.dataTransfer.files)
         }}
-        className="rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 p-3 transition hover:border-emerald-300"
+        className="rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 p-3 transition hover:border-emerald-300"
       >
         {resourceUrl ? (
-          <div className="flex flex-col gap-3 rounded-lg bg-white p-4 md:flex-row md:items-center md:justify-between">
+          <div className="flex flex-col gap-3 rounded-lg bg-white dark:bg-slate-950 p-4 md:flex-row md:items-center md:justify-between">
             <div className="flex min-w-0 items-center gap-3">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-500">
                 <FileText className="h-5 w-5" />
               </div>
               <div className="min-w-0">
-                <p className="truncate text-sm font-black text-slate-900">{displayName || 'File tài liệu'}</p>
-                <p className="text-xs font-semibold text-slate-500">{pendingFileName ? 'Chờ tải lên. Lưu thông tin tài liệu để xuất bản file này.' : 'Tài liệu tải xuống hiện tại.'}</p>
+                <p className="truncate text-sm font-black text-slate-900 dark:text-slate-100">{displayName || 'File tài liệu'}</p>
+                <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">{pendingFileName ? 'Chờ tải lên. Lưu thông tin tài liệu để xuất bản file này.' : 'Tài liệu tải xuống hiện tại.'}</p>
               </div>
             </div>
             <div className="flex shrink-0 flex-wrap gap-2">
@@ -1938,7 +1938,7 @@ function DocumentResourceManager({ resourceUrl, pendingFileName, onFile, onClear
                   Tải xuống
                 </a>
               )}
-              <label htmlFor={inputId} className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50">
+              <label htmlFor={inputId} className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 dark:border-slate-800 px-3 py-2 text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:bg-slate-900/50">
                 <Upload className="h-4 w-4" />
                 Thay thế
               </label>
@@ -1949,11 +1949,11 @@ function DocumentResourceManager({ resourceUrl, pendingFileName, onFile, onClear
             </div>
           </div>
         ) : (
-          <label htmlFor={inputId} className="flex min-h-40 cursor-pointer flex-col items-center justify-center rounded-lg bg-white px-4 py-6 text-center">
+          <label htmlFor={inputId} className="flex min-h-40 cursor-pointer flex-col items-center justify-center rounded-lg bg-white dark:bg-slate-950 px-4 py-6 text-center">
             <Download className="mb-3 h-8 w-8 text-emerald-500" />
-            <span className="text-sm font-semibold text-slate-900">Kéo thả tài liệu vào đây hoặc nhấp để tìm</span>
-            <span className="mt-1 text-xs text-slate-500">PDF, Word, PowerPoint, hoặc ZIP tối đa 100 MB</span>
-            <span className="mt-3 inline-flex items-center gap-2 rounded-lg bg-emerald-50 px-3 py-2 text-xs font-bold text-emerald-700">
+            <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">Kéo thả tài liệu vào đây hoặc nhấp để tìm</span>
+            <span className="mt-1 text-xs text-slate-500 dark:text-slate-400">PDF, Word, PowerPoint, hoặc ZIP tối đa 100 MB</span>
+            <span className="mt-3 inline-flex items-center gap-2 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 px-3 py-2 text-xs font-bold text-emerald-700 dark:text-emerald-400">
               <Upload className="h-3.5 w-3.5" />
               Chọn file
             </span>
@@ -2025,14 +2025,14 @@ function RichTextEditor({ label, value, onChange, onImageChange, onImageInsert }
 
   return (
     <div>
-      <span className="mb-1.5 block text-sm font-bold text-slate-700">{label}</span>
-      <div className="overflow-hidden rounded-xl border border-slate-200">
-        <div className="flex flex-wrap gap-1 border-b border-slate-200 bg-slate-50 p-2">
+      <span className="mb-1.5 block text-sm font-bold text-slate-700 dark:text-slate-300">{label}</span>
+      <div className="overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800">
+        <div className="flex flex-wrap gap-1 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 p-2">
           <ToolbarButton title="In đậm" onClick={() => runCommand('bold')}><Bold className="h-4 w-4" /></ToolbarButton>
           <ToolbarButton title="In nghiêng" onClick={() => runCommand('italic')}><Italic className="h-4 w-4" /></ToolbarButton>
           <ToolbarButton title="Danh sách dấu chấm" onClick={() => runCommand('insertUnorderedList')}><List className="h-4 w-4" /></ToolbarButton>
           <ToolbarButton title="Danh sách số" onClick={() => runCommand('insertOrderedList')}><ListOrdered className="h-4 w-4" /></ToolbarButton>
-          <label className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg text-slate-600 hover:bg-white hover:text-emerald-600" title="Tải ảnh lên">
+          <label className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg text-slate-600 dark:text-slate-400 hover:bg-white dark:bg-slate-950 hover:text-emerald-600 dark:text-emerald-500" title="Tải ảnh lên">
             <Image className="h-4 w-4" />
             <input
               type="file"
@@ -2049,7 +2049,7 @@ function RichTextEditor({ label, value, onChange, onImageChange, onImageInsert }
         <div
           ref={(node) => { editorRef.current = node }}
           contentEditable
-          className="min-h-64 px-4 py-3 text-sm leading-6 text-slate-900 outline-none [&_img]:max-w-full [&_ol]:list-decimal [&_ol]:pl-6 [&_ul]:list-disc [&_ul]:pl-6"
+          className="min-h-64 px-4 py-3 text-sm leading-6 text-slate-900 dark:text-slate-100 outline-none [&_img]:max-w-full [&_ol]:list-decimal [&_ol]:pl-6 [&_ul]:list-disc [&_ul]:pl-6"
           onInput={(event) => {
             saveSelection()
             onChange(event.currentTarget.innerHTML)
@@ -2070,7 +2070,7 @@ function ToolbarButton({ title, onClick, children }: {
   children: React.ReactNode
 }) {
   return (
-    <button type="button" onMouseDown={(event) => event.preventDefault()} onClick={onClick} className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-slate-600 hover:bg-white hover:text-emerald-600" title={title}>
+    <button type="button" onMouseDown={(event) => event.preventDefault()} onClick={onClick} className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-slate-600 dark:text-slate-400 hover:bg-white dark:bg-slate-950 hover:text-emerald-600 dark:text-emerald-500" title={title}>
       {children}
     </button>
   )
@@ -2101,8 +2101,8 @@ function QuizEditor({ questions, onChange, onImageInsert }: {
 
   return (
     <div className="space-y-4">
-      <div className="border-b border-slate-200 pb-3">
-        <h3 className="text-sm font-black uppercase tracking-widest text-slate-500">Câu hỏi</h3>
+      <div className="border-b border-slate-200 dark:border-slate-800 pb-3">
+        <h3 className="text-sm font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Câu hỏi</h3>
       </div>
 
       {questions.map((question, index) => (
@@ -2117,16 +2117,16 @@ function QuizEditor({ questions, onChange, onImageInsert }: {
       ))}
 
       {questions.length === 0 && (
-        <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4 text-sm font-semibold text-slate-600">
+        <div className="rounded-xl border border-dashed border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 p-4 text-sm font-semibold text-slate-600 dark:text-slate-400">
           Thêm ít nhất một câu hỏi trước khi xuất bản bài trắc nghiệm này.
         </div>
       )}
 
-      <div className="flex flex-wrap gap-2 border-t border-slate-200 pt-4">
-        <button type="button" onClick={() => addQuestion(QuizQuestionType.SINGLE_CHOICE)} className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-bold text-slate-600 hover:border-emerald-200 hover:text-emerald-600">+ Nhiều lựa chọn</button>
-        <button type="button" onClick={() => addQuestion(QuizQuestionType.MULTIPLE_CHOICE)} className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-bold text-slate-600 hover:border-emerald-200 hover:text-emerald-600">+ Hộp kiểm</button>
-        <button type="button" onClick={() => addQuestion(QuizQuestionType.TRUE_FALSE)} className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-bold text-slate-600 hover:border-emerald-200 hover:text-emerald-600">+ Đúng / Sai</button>
-        <button type="button" onClick={() => addQuestion(QuizQuestionType.TEXT_ANSWER)} className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-bold text-slate-600 hover:border-emerald-200 hover:text-emerald-600">+ Văn bản</button>
+      <div className="flex flex-wrap gap-2 border-t border-slate-200 dark:border-slate-800 pt-4">
+        <button type="button" onClick={() => addQuestion(QuizQuestionType.SINGLE_CHOICE)} className="rounded-lg border border-slate-200 dark:border-slate-800 px-3 py-2 text-xs font-bold text-slate-600 dark:text-slate-400 hover:border-emerald-200 dark:border-emerald-800/50 hover:text-emerald-600 dark:text-emerald-500">+ Nhiều lựa chọn</button>
+        <button type="button" onClick={() => addQuestion(QuizQuestionType.MULTIPLE_CHOICE)} className="rounded-lg border border-slate-200 dark:border-slate-800 px-3 py-2 text-xs font-bold text-slate-600 dark:text-slate-400 hover:border-emerald-200 dark:border-emerald-800/50 hover:text-emerald-600 dark:text-emerald-500">+ Hộp kiểm</button>
+        <button type="button" onClick={() => addQuestion(QuizQuestionType.TRUE_FALSE)} className="rounded-lg border border-slate-200 dark:border-slate-800 px-3 py-2 text-xs font-bold text-slate-600 dark:text-slate-400 hover:border-emerald-200 dark:border-emerald-800/50 hover:text-emerald-600 dark:text-emerald-500">+ Đúng / Sai</button>
+        <button type="button" onClick={() => addQuestion(QuizQuestionType.TEXT_ANSWER)} className="rounded-lg border border-slate-200 dark:border-slate-800 px-3 py-2 text-xs font-bold text-slate-600 dark:text-slate-400 hover:border-emerald-200 dark:border-emerald-800/50 hover:text-emerald-600 dark:text-emerald-500">+ Văn bản</button>
       </div>
     </div>
   )
@@ -2140,11 +2140,11 @@ function QuizQuestionEditor({ index, question, onChange, onDelete, onImageInsert
   onImageInsert: (file: File) => Promise<PendingImage>
 }) {
   return (
-    <div className="space-y-4 rounded-xl border border-slate-200 bg-white p-4">
+    <div className="space-y-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="text-xs font-black uppercase tracking-widest text-emerald-600">Câu hỏi {index + 1}</p>
-          <p className="text-sm font-bold text-slate-700">{questionTypeLabel(question.questionType)}</p>
+          <p className="text-xs font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-500">Câu hỏi {index + 1}</p>
+          <p className="text-sm font-bold text-slate-700 dark:text-slate-300">{questionTypeLabel(question.questionType)}</p>
         </div>
         <button type="button" onClick={onDelete} className="inline-flex items-center gap-2 rounded-xl border border-rose-200 px-3 py-2 text-sm font-bold text-rose-600 hover:bg-rose-50">
           <Trash2 className="h-4 w-4" />
@@ -2226,7 +2226,7 @@ function QuizOptionsEditor({ question, onChange }: {
 
   return (
     <div className="space-y-2">
-      <p className="text-sm font-bold text-slate-700">Lựa chọn</p>
+      <p className="text-sm font-bold text-slate-700 dark:text-slate-300">Lựa chọn</p>
       {options.map((option, index) => (
         <div key={`${option}-${index}`} className="flex items-center gap-2">
           <input
@@ -2236,7 +2236,7 @@ function QuizOptionsEditor({ question, onChange }: {
             className="h-4 w-4"
           />
           {question.questionType === QuizQuestionType.TRUE_FALSE ? (
-            <span className="flex-1 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700">{option}</span>
+            <span className="flex-1 rounded-xl border border-slate-200 dark:border-slate-800 px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-300">{option}</span>
           ) : (
             <input value={option} onChange={(event) => updateOption(index, event.target.value)} className={editorInputClass} />
           )}
@@ -2248,7 +2248,7 @@ function QuizOptionsEditor({ question, onChange }: {
         </div>
       ))}
       {question.questionType !== QuizQuestionType.TRUE_FALSE && (
-        <button type="button" onClick={addOption} className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-bold text-slate-600 hover:border-emerald-200 hover:text-emerald-600">
+        <button type="button" onClick={addOption} className="rounded-lg border border-slate-200 dark:border-slate-800 px-3 py-2 text-xs font-bold text-slate-600 dark:text-slate-400 hover:border-emerald-200 dark:border-emerald-800/50 hover:text-emerald-600 dark:text-emerald-500">
           + Lựa chọn
         </button>
       )}

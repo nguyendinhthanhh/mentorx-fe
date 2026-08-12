@@ -61,7 +61,7 @@ export default function VerifyEmailPage() {
   const iconShellClass = isError
     ? 'border-rose-200 bg-rose-50 text-rose-700'
     : isSuccess
-      ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+      ? 'border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'
       : 'border-primary-200 bg-primary-50 text-primary-700'
 
   const title = isVerifying
@@ -91,8 +91,8 @@ export default function VerifyEmailPage() {
 
   return (
     <section className="relative z-10">
-      <div className="overflow-hidden rounded-3xl border border-slate-200 bg-slate-50/80 shadow-sm shadow-slate-900/5">
-        <div className="border-b border-slate-200 bg-white px-5 py-4 sm:px-6">
+      <div className="overflow-hidden rounded-3xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/30 shadow-sm shadow-slate-900/5">
+        <div className="border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-5 py-4 sm:px-6">
           <div className="flex items-center gap-3 text-left">
             <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border ${iconShellClass}`}>
               {isVerifying ? (
@@ -109,20 +109,20 @@ export default function VerifyEmailPage() {
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary-700">
                 {t('auth.verifyEmail.eyebrow')}
               </p>
-              <h2 className="mt-1 text-2xl font-extrabold tracking-tight text-slate-950">{title}</h2>
+              <h2 className="mt-1 text-2xl font-extrabold tracking-tight text-slate-950 dark:text-slate-100">{title}</h2>
             </div>
           </div>
         </div>
 
         <div className="space-y-5 px-5 py-6 text-left sm:px-6 sm:py-7">
-          <p className="text-sm leading-6 text-slate-600">{description}</p>
+          <p className="text-sm leading-6 text-slate-600 dark:text-slate-400">{description}</p>
 
           {user?.email && !isError && (
-            <div className="rounded-2xl border border-primary-100 bg-white px-4 py-3">
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+            <div className="rounded-2xl border border-primary-100 bg-white dark:bg-slate-950 px-4 py-3">
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
                 {t('auth.verifyEmail.accountEmail')}
               </p>
-              <p className="mt-1 break-words text-sm font-bold text-slate-950">{user.email}</p>
+              <p className="mt-1 break-words text-sm font-bold text-slate-950 dark:text-slate-100">{user.email}</p>
             </div>
           )}
 

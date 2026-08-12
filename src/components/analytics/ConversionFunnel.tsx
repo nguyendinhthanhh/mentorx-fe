@@ -15,9 +15,9 @@ export default function ConversionFunnel() {
   const { data: conversion, isLoading } = useConversion(activeFunnel)
 
   return (
-    <section className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm">
-      <h2 className="text-lg font-black text-slate-950">Conversion Rates</h2>
-      <p className="mt-1 text-xs font-medium text-slate-500">
+    <section className="rounded-[28px] border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-5 shadow-sm">
+      <h2 className="text-lg font-black text-slate-950 dark:text-slate-100">Conversion Rates</h2>
+      <p className="mt-1 text-xs font-medium text-slate-500 dark:text-slate-400">
         Rates will populate once event emitters are instrumented (M12.1).
       </p>
 
@@ -29,8 +29,8 @@ export default function ConversionFunnel() {
             onClick={() => setActiveFunnel(tab.type)}
             className={`whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-bold transition ${
               activeFunnel === tab.type
-                ? 'bg-white text-emerald-700 shadow-sm'
-                : 'text-slate-500 hover:text-slate-900'
+                ? 'bg-white dark:bg-slate-950 text-emerald-700 dark:text-emerald-400 shadow-sm'
+                : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:text-slate-100'
             }`}
           >
             {tab.label}
@@ -43,10 +43,10 @@ export default function ConversionFunnel() {
       ) : conversion ? (
         <div className="mt-5">
           <div className="flex items-baseline gap-3">
-            <span className="text-3xl font-black text-slate-950">
+            <span className="text-3xl font-black text-slate-950 dark:text-slate-100">
               {(conversion.rate * 100).toFixed(1)}%
             </span>
-            <span className="text-sm font-medium text-slate-500">
+            <span className="text-sm font-medium text-slate-500 dark:text-slate-400">
               {conversion.numerator} / {conversion.denominator}
             </span>
           </div>

@@ -9,8 +9,8 @@ interface EarningsChartProps {
 export default function EarningsChart({ data, height = 280 }: EarningsChartProps) {
   if (!data || data.length === 0) {
     return (
-      <div className="flex items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-8 text-center">
-        <p className="text-sm font-medium text-slate-500">
+      <div className="flex items-center justify-center rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 p-8 text-center">
+        <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
           Data available after nightly aggregation runs (around 02:30 UTC).
         </p>
       </div>
@@ -23,7 +23,7 @@ export default function EarningsChart({ data, height = 280 }: EarningsChartProps
   }))
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+    <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-4 shadow-sm">
       <ResponsiveContainer width="100%" height={height}>
         <LineChart data={chartData} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />

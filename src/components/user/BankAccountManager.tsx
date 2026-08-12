@@ -156,19 +156,19 @@ export default function BankAccountManager() {
       )}
 
       {!isEditing && accounts.length === 0 && (
-        <div className="rounded-2xl border-2 border-dashed border-slate-200 p-10 text-center dark:border-slate-800">
+        <div className="rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-800 p-10 text-center dark:border-slate-800">
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800">
-            <CreditCard className="h-6 w-6 text-slate-500 dark:text-slate-400" />
+            <CreditCard className="h-6 w-6 text-slate-500 dark:text-slate-400 dark:text-slate-400" />
           </div>
           <h3 className="mt-4 text-sm font-bold text-slate-900 dark:text-white">Chưa có tài khoản ngân hàng</h3>
-          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Hãy thêm tài khoản ngân hàng để thực hiện thanh toán hoặc rút tiền dễ dàng hơn.</p>
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400 dark:text-slate-400">Hãy thêm tài khoản ngân hàng để thực hiện thanh toán hoặc rút tiền dễ dàng hơn.</p>
         </div>
       )}
 
       {!isEditing && accounts.length > 0 && (
         <div className="grid gap-4 md:grid-cols-2">
           {accounts.map(acc => (
-            <div key={acc.id} className={`relative flex flex-col justify-between overflow-hidden rounded-2xl border p-5 transition-all ${acc.isDefault ? 'border-primary-500 bg-primary-50/50 dark:border-primary-800 dark:bg-primary-950/20' : 'border-slate-200 bg-white hover:border-slate-300 dark:border-slate-800 dark:bg-slate-900'}`}>
+            <div key={acc.id} className={`relative flex flex-col justify-between overflow-hidden rounded-2xl border p-5 transition-all ${acc.isDefault ? 'border-primary-500 bg-primary-50/50 dark:border-primary-800 dark:bg-primary-950/20' : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 hover:border-slate-300 dark:border-slate-700 dark:border-slate-800 dark:bg-slate-900'}`}>
               <div>
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-2">
@@ -182,18 +182,18 @@ export default function BankAccountManager() {
                   )}
                 </div>
                 <div className="mt-4 space-y-1">
-                  <p className="text-sm font-medium text-slate-600 dark:text-slate-300">Tên: <span className="font-bold">{acc.accountHolderName}</span></p>
-                  <p className="text-sm font-medium text-slate-600 dark:text-slate-300">STK: <span className="font-bold">{maskAccount(acc.accountNumber)}</span></p>
-                  {acc.branchName && <p className="text-xs text-slate-500">Chi nhánh: {acc.branchName}</p>}
+                  <p className="text-sm font-medium text-slate-600 dark:text-slate-400 dark:text-slate-300">Tên: <span className="font-bold">{acc.accountHolderName}</span></p>
+                  <p className="text-sm font-medium text-slate-600 dark:text-slate-400 dark:text-slate-300">STK: <span className="font-bold">{maskAccount(acc.accountNumber)}</span></p>
+                  {acc.branchName && <p className="text-xs text-slate-500 dark:text-slate-400">Chi nhánh: {acc.branchName}</p>}
                 </div>
               </div>
 
-              <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-4 dark:border-slate-800">
+              <div className="mt-5 flex items-center justify-between border-t border-slate-100 dark:border-slate-800 pt-4 dark:border-slate-800">
                 <div className="flex gap-2">
-                  <button onClick={() => handleEdit(acc)} className="inline-flex items-center gap-1.5 rounded-lg text-xs font-bold text-slate-600 transition hover:text-primary-600 dark:text-slate-400">
+                  <button onClick={() => handleEdit(acc)} className="inline-flex items-center gap-1.5 rounded-lg text-xs font-bold text-slate-600 dark:text-slate-400 transition hover:text-primary-600 dark:text-slate-400">
                     <Edit2 className="h-3.5 w-3.5" /> Sửa
                   </button>
-                  <button onClick={() => handleDelete(acc.id)} className="inline-flex items-center gap-1.5 rounded-lg text-xs font-bold text-slate-600 transition hover:text-red-600 dark:text-slate-400">
+                  <button onClick={() => handleDelete(acc.id)} className="inline-flex items-center gap-1.5 rounded-lg text-xs font-bold text-slate-600 dark:text-slate-400 transition hover:text-red-600 dark:text-slate-400">
                     <Trash2 className="h-3.5 w-3.5" /> Xóa
                   </button>
                 </div>
@@ -209,21 +209,21 @@ export default function BankAccountManager() {
       )}
 
       {isEditing && (
-        <form onSubmit={saveAccount} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <div className="mb-6 flex items-center justify-between border-b border-slate-100 pb-4 dark:border-slate-800">
+        <form onSubmit={saveAccount} className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <div className="mb-6 flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4 dark:border-slate-800">
             <div>
               <h2 className="text-xl font-bold text-slate-950 dark:text-white">{form.id ? 'Sửa tài khoản ngân hàng' : 'Thêm tài khoản ngân hàng'}</h2>
-              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Nhập chính xác thông tin để quá trình giao dịch không bị gián đoạn.</p>
+              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400 dark:text-slate-400">Nhập chính xác thông tin để quá trình giao dịch không bị gián đoạn.</p>
             </div>
           </div>
 
           <div className="grid gap-5 md:grid-cols-2">
             <label className="block md:col-span-2">
-              <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Ngân hàng thụ hưởng</span>
-              <input required type="text" placeholder="VD: Vietcombank, Techcombank..." value={form.bankName} onChange={(e) => setForm({ ...form, bankName: e.target.value })} className="mt-2 block w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500" />
+              <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Ngân hàng thụ hưởng</span>
+              <input required type="text" placeholder="VD: Vietcombank, Techcombank..." value={form.bankName} onChange={(e) => setForm({ ...form, bankName: e.target.value })} className="mt-2 block w-full rounded-xl border border-slate-300 dark:border-slate-700 dark:border-slate-700 bg-white dark:bg-slate-950 dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500" />
             </label>
             <label className="block">
-              <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Tên chủ tài khoản</span>
+              <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Tên chủ tài khoản</span>
               <input 
                 required 
                 type="text" 
@@ -236,11 +236,11 @@ export default function BankAccountManager() {
                   val = val.toUpperCase().replace(/[^A-Z\s]/g, "");
                   setForm({ ...form, accountHolderName: val });
                 }} 
-                className="mt-2 block w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500" 
+                className="mt-2 block w-full rounded-xl border border-slate-300 dark:border-slate-700 dark:border-slate-700 bg-white dark:bg-slate-950 dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500" 
               />
             </label>
             <label className="block">
-              <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Số tài khoản</span>
+              <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Số tài khoản</span>
               <input 
                 required 
                 type="text" 
@@ -250,21 +250,21 @@ export default function BankAccountManager() {
                   const val = e.target.value.replace(/[^0-9]/g, "");
                   setForm({ ...form, accountNumber: val });
                 }} 
-                className="mt-2 block w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500" 
+                className="mt-2 block w-full rounded-xl border border-slate-300 dark:border-slate-700 dark:border-slate-700 bg-white dark:bg-slate-950 dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500" 
               />
             </label>
             <label className="block">
-              <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Quốc gia</span>
-              <input required type="text" value={form.payoutCountry} onChange={(e) => setForm({ ...form, payoutCountry: e.target.value })} className="mt-2 block w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500" />
+              <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Quốc gia</span>
+              <input required type="text" value={form.payoutCountry} onChange={(e) => setForm({ ...form, payoutCountry: e.target.value })} className="mt-2 block w-full rounded-xl border border-slate-300 dark:border-slate-700 dark:border-slate-700 bg-white dark:bg-slate-950 dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500" />
             </label>
             <label className="block">
-              <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Chi nhánh (Tùy chọn)</span>
-              <input type="text" placeholder="VD: Chi nhánh Tân Bình" value={form.branchName} onChange={(e) => setForm({ ...form, branchName: e.target.value })} className="mt-2 block w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500" />
+              <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Chi nhánh (Tùy chọn)</span>
+              <input type="text" placeholder="VD: Chi nhánh Tân Bình" value={form.branchName} onChange={(e) => setForm({ ...form, branchName: e.target.value })} className="mt-2 block w-full rounded-xl border border-slate-300 dark:border-slate-700 dark:border-slate-700 bg-white dark:bg-slate-950 dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500" />
             </label>
           </div>
 
-          <div className="mt-8 flex items-center justify-end gap-3 border-t border-slate-100 pt-5 dark:border-slate-800">
-            <button type="button" onClick={handleCancel} disabled={saving} className="rounded-xl px-5 py-2.5 text-sm font-bold text-slate-600 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800">
+          <div className="mt-8 flex items-center justify-end gap-3 border-t border-slate-100 dark:border-slate-800 pt-5 dark:border-slate-800">
+            <button type="button" onClick={handleCancel} disabled={saving} className="rounded-xl px-5 py-2.5 text-sm font-bold text-slate-600 dark:text-slate-400 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800">
               Hủy
             </button>
             <button type="submit" disabled={saving} className="inline-flex items-center gap-2 rounded-xl bg-primary-600 px-5 py-2.5 text-sm font-bold text-white transition hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-60 shadow-sm">

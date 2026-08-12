@@ -149,22 +149,22 @@ export default function MentorEarningsPage() {
     <div className="mx-auto max-w-[1400px] space-y-6 pb-12">
       <header>
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wider text-emerald-700">MentorHub</p>
-          <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-950 md:text-3xl">Doanh thu & rút tiền</h1>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">
+          <p className="text-xs font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">MentorHub</p>
+          <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-950 dark:text-slate-100 md:text-3xl">Doanh thu & rút tiền</h1>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500 dark:text-slate-400">
             Quản lý số dư MXC, khoản chờ giải ngân, escrow hợp đồng và lịch sử giao dịch trong một màn hình.
           </p>
         </div>
       </header>
 
       <section className="grid gap-5 xl:grid-cols-[minmax(0,1.35fr)_minmax(340px,0.65fr)]">
-        <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-          <div className="border-b border-slate-100 p-5">
+        <div className="overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 shadow-sm">
+          <div className="border-b border-slate-100 dark:border-slate-800 p-5">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Số dư khả dụng</p>
-                <p className="mt-3 text-4xl font-bold tracking-tight text-slate-950">{formatCurrency(summary.available)}</p>
-                <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
+                <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Số dư khả dụng</p>
+                <p className="mt-3 text-4xl font-bold tracking-tight text-slate-950 dark:text-slate-100">{formatCurrency(summary.available)}</p>
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500 dark:text-slate-400">
                   Đây là khoản mentor có thể rút sau khi tài khoản nhận tiền được duyệt.
                 </p>
               </div>
@@ -174,7 +174,7 @@ export default function MentorEarningsPage() {
               <Link
                 to={canWithdraw ? '/wallet?tab=withdraw' : '/mentor/settings'}
                 className={`inline-flex h-10 items-center justify-center gap-2 rounded-lg px-4 text-sm font-semibold transition focus:outline-none focus:ring-4 focus:ring-emerald-500/10 ${
-                  canWithdraw ? 'bg-emerald-600 text-white hover:bg-emerald-700' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                  canWithdraw ? 'bg-emerald-600 text-white hover:bg-emerald-700' : 'bg-slate-100 text-slate-700 dark:text-slate-300 hover:bg-slate-200'
                 }`}
               >
                 <CreditCard className="h-4 w-4" />
@@ -183,7 +183,7 @@ export default function MentorEarningsPage() {
               <button
                 type="button"
                 onClick={() => setActiveTab('withdrawals')}
-                className="inline-flex h-10 items-center justify-center rounded-lg border border-slate-200 px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                className="inline-flex h-10 items-center justify-center rounded-lg border border-slate-200 dark:border-slate-800 px-4 text-sm font-semibold text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:bg-slate-900/50"
               >
                 Xem lịch sử rút tiền
               </button>
@@ -214,11 +214,11 @@ export default function MentorEarningsPage() {
           </div>
         </div>
 
-        <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <section className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-5 shadow-sm">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Tổng hợp dòng tiền</p>
-              <h2 className="mt-1 text-base font-bold text-slate-950">Sổ cái hiện tại</h2>
+              <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Tổng hợp dòng tiền</p>
+              <h2 className="mt-1 text-base font-bold text-slate-950 dark:text-slate-100">Sổ cái hiện tại</h2>
             </div>
             <ReceiptText className="h-5 w-5 text-slate-400" />
           </div>
@@ -244,7 +244,7 @@ export default function MentorEarningsPage() {
               type="button"
               onClick={() => setActiveTab(key as TabKey)}
               className={`h-10 whitespace-nowrap rounded-md px-4 text-sm font-semibold transition ${
-                activeTab === key ? 'bg-white text-emerald-700 shadow-sm' : 'text-slate-500 hover:text-slate-900'
+                activeTab === key ? 'bg-white dark:bg-slate-950 text-emerald-700 dark:text-emerald-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:text-slate-100'
               }`}
             >
               {label}
@@ -270,11 +270,11 @@ export default function MentorEarningsPage() {
         <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
           <div className="space-y-5 min-w-0">
             {hasTrendData ? (
-              <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+              <section className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-5 shadow-sm">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div>
-                    <h2 className="text-base font-bold text-slate-950">Xu hướng doanh thu</h2>
-                    <p className="mt-1 text-xs leading-5 text-slate-500">Dữ liệu phân tích được tổng hợp hằng đêm, dùng để xem xu hướng doanh thu.</p>
+                    <h2 className="text-base font-bold text-slate-950 dark:text-slate-100">Xu hướng doanh thu</h2>
+                    <p className="mt-1 text-xs leading-5 text-slate-500 dark:text-slate-400">Dữ liệu phân tích được tổng hợp hằng đêm, dùng để xem xu hướng doanh thu.</p>
                   </div>
                   <div className="flex gap-1 rounded-lg bg-slate-100 p-1">
                     {PERIOD_OPTIONS.map((opt) => (
@@ -282,7 +282,7 @@ export default function MentorEarningsPage() {
                         key={opt.value}
                         type="button"
                         onClick={() => setEarningsPeriod(opt.value)}
-                        className={`rounded-md px-3 py-1.5 text-xs font-semibold transition ${earningsPeriod === opt.value ? 'bg-white text-emerald-700 shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}
+                        className={`rounded-md px-3 py-1.5 text-xs font-semibold transition ${earningsPeriod === opt.value ? 'bg-white dark:bg-slate-950 text-emerald-700 dark:text-emerald-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:text-slate-100'}`}
                       >
                         {opt.label}
                       </button>
@@ -292,9 +292,9 @@ export default function MentorEarningsPage() {
                 {sourceBreakdown.length > 0 ? (
                   <div className="mt-4 flex flex-wrap gap-2">
                     {sourceBreakdown.map((source) => (
-                      <span key={source.source} className="inline-flex items-center gap-2 rounded-md bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-700 ring-1 ring-slate-200">
+                      <span key={source.source} className="inline-flex items-center gap-2 rounded-md bg-slate-50 dark:bg-slate-900/50 px-3 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300 ring-1 ring-slate-200">
                         {formatSourceLabel(source.source)}
-                        <span className="text-emerald-700">{formatCurrency(sourceAmount(source))}</span>
+                        <span className="text-emerald-700 dark:text-emerald-400">{formatCurrency(sourceAmount(source))}</span>
                       </span>
                     ))}
                   </div>
@@ -305,10 +305,10 @@ export default function MentorEarningsPage() {
               </section>
             ) : null}
 
-            <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+            <section className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-5 shadow-sm">
               <div className="flex items-center justify-between gap-3">
-                <h2 className="text-base font-bold text-slate-950">Giao dịch gần đây</h2>
-                <button type="button" onClick={() => setActiveTab('transactions')} className="text-sm font-semibold text-emerald-700 hover:text-emerald-800">Xem tất cả</button>
+                <h2 className="text-base font-bold text-slate-950 dark:text-slate-100">Giao dịch gần đây</h2>
+                <button type="button" onClick={() => setActiveTab('transactions')} className="text-sm font-semibold text-emerald-700 dark:text-emerald-400 hover:text-emerald-800 dark:text-emerald-200">Xem tất cả</button>
               </div>
               <TransactionList
                 transactions={recentTransactions}
@@ -327,32 +327,32 @@ export default function MentorEarningsPage() {
           </div>
 
           <aside className="space-y-5">
-            <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-              <h2 className="text-base font-bold text-slate-950">Điều kiện rút tiền</h2>
+            <section className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-5 shadow-sm">
+              <h2 className="text-base font-bold text-slate-950 dark:text-slate-100">Điều kiện rút tiền</h2>
               <div className="mt-4 space-y-3">
                 <ReadinessItem label="Mentor được duyệt" passed={user?.mentorStatus === 'APPROVED'} />
                 <ReadinessItem label="Tài khoản nhận tiền được duyệt" passed={payoutStatus === 'APPROVED'} />
                 <ReadinessItem label="Có số dư khả dụng" passed={summary.available > 0} />
               </div>
               {!canWithdraw ? (
-                <div className="mt-4 rounded-lg bg-amber-50 p-4 text-sm font-medium leading-6 text-amber-800">
+                <div className="mt-4 rounded-lg bg-amber-50 dark:bg-amber-900/30 p-4 text-sm font-medium leading-6 text-amber-800 dark:text-amber-200">
                   <AlertTriangle className="mr-2 inline h-4 w-4" />
                   Chỉ có số dư khả dụng mới được tạo yêu cầu rút tiền.
                 </div>
               ) : null}
             </section>
 
-            <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-              <h2 className="text-base font-bold text-slate-950">Tài khoản nhận tiền</h2>
+            <section className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-5 shadow-sm">
+              <h2 className="text-base font-bold text-slate-950 dark:text-slate-100">Tài khoản nhận tiền</h2>
               {defaultPayout ? (
-                <div className="mt-4 space-y-2 text-sm font-medium text-slate-600">
-                  <p className="font-semibold text-slate-900">{defaultPayout.accountHolderName}</p>
+                <div className="mt-4 space-y-2 text-sm font-medium text-slate-600 dark:text-slate-400">
+                  <p className="font-semibold text-slate-900 dark:text-slate-100">{defaultPayout.accountHolderName}</p>
                   <p>{defaultPayout.bankName}</p>
                   <p>{maskAccount(defaultPayout.accountNumber)}</p>
                   <StatusPill label={formatPayoutStatus(payoutStatus)} tone={payoutStatus === 'APPROVED' ? 'emerald' : payoutStatus === 'REJECTED' ? 'rose' : 'amber'} />
                 </div>
               ) : (
-                <p className="mt-3 text-sm leading-6 text-slate-500">Bạn chưa thêm tài khoản nhận tiền.</p>
+                <p className="mt-3 text-sm leading-6 text-slate-500 dark:text-slate-400">Bạn chưa thêm tài khoản nhận tiền.</p>
               )}
             </section>
           </aside>
@@ -361,7 +361,7 @@ export default function MentorEarningsPage() {
         filteredTransactions.length === 0 ? (
           <StateCard title="Không có giao dịch" message="Các khoản doanh thu, rút tiền và hoàn tiền sẽ hiển thị tại đây." />
         ) : (
-          <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+          <section className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-5 shadow-sm">
             <TransactionList
               transactions={pagedFilteredTransactions}
               pagination={fullTransactionTotalPages > 1 ? {
@@ -382,11 +382,11 @@ export default function MentorEarningsPage() {
         ) : (
           <div className="grid gap-4 xl:grid-cols-2">
             {contracts.map((contract) => (
-              <article key={contract.id} className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+              <article key={contract.id} className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-5 shadow-sm">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <h2 className="truncate text-base font-bold text-slate-950">{contract.jobTitle || contract.title}</h2>
-                    <p className="mt-1 text-sm font-medium text-slate-500">Khách hàng: {contract.clientName}</p>
+                    <h2 className="truncate text-base font-bold text-slate-950 dark:text-slate-100">{contract.jobTitle || contract.title}</h2>
+                    <p className="mt-1 text-sm font-medium text-slate-500 dark:text-slate-400">Khách hàng: {contract.clientName}</p>
                   </div>
                   <StatusPill label={formatContractStatus(contract.status)} tone={contract.status === ContractStatus.COMPLETED ? 'emerald' : contract.status === ContractStatus.IN_DISPUTE ? 'rose' : contract.status === ContractStatus.CANCELLED ? 'slate' : 'indigo'} />
                 </div>
@@ -396,7 +396,7 @@ export default function MentorEarningsPage() {
                   <MiniAmount label="Tổng cộng" value={contract.totalAmount} />
                   <MiniAmount label="Bắt đầu" value={contract.createdAt} isDate />
                 </div>
-                <Link to={`/mentor/proposals/${contract.proposalId || contract.id}`} className="mt-5 inline-flex rounded-lg border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50">
+                <Link to={`/mentor/proposals/${contract.proposalId || contract.id}`} className="mt-5 inline-flex rounded-lg border border-slate-200 dark:border-slate-800 px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:bg-slate-900/50">
                   Xem chi tiết
                 </Link>
               </article>
@@ -406,7 +406,7 @@ export default function MentorEarningsPage() {
       ) : (
         <div className="space-y-4">
           <div className="flex items-center justify-between gap-3">
-            <h2 className="text-base font-bold text-slate-900">Lịch sử rút tiền</h2>
+            <h2 className="text-base font-bold text-slate-900 dark:text-slate-100">Lịch sử rút tiền</h2>
             <Link
               to="/wallet?tab=withdraw"
               className="inline-flex h-9 items-center justify-center rounded-lg bg-emerald-600 px-4 text-xs font-semibold text-white transition hover:bg-emerald-700"
@@ -435,17 +435,17 @@ function SettlementFigure({
   tone: 'emerald' | 'amber' | 'slate'
 }) {
   const toneClass = {
-    emerald: 'bg-emerald-50 text-emerald-700',
-    amber: 'bg-amber-50 text-amber-700',
-    slate: 'bg-slate-100 text-slate-600',
+    emerald: 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400',
+    amber: 'bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400',
+    slate: 'bg-slate-100 text-slate-600 dark:text-slate-400',
   }[tone]
 
   return (
     <div className="p-5">
       <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${toneClass}`}>{icon}</div>
-      <p className="mt-4 text-xs font-semibold uppercase tracking-wider text-slate-500">{label}</p>
-      <p className="mt-1 text-xl font-bold tracking-tight text-slate-950">{formatCurrency(value)}</p>
-      <p className="mt-2 text-xs leading-5 text-slate-500">{helper}</p>
+      <p className="mt-4 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">{label}</p>
+      <p className="mt-1 text-xl font-bold tracking-tight text-slate-950 dark:text-slate-100">{formatCurrency(value)}</p>
+      <p className="mt-2 text-xs leading-5 text-slate-500 dark:text-slate-400">{helper}</p>
     </div>
   )
 }
@@ -459,11 +459,11 @@ function CashflowRow({ label, value, tone }: { label: string; value: number; ton
 
   return (
     <div className="flex items-center justify-between gap-4">
-      <dt className="flex min-w-0 items-center gap-3 text-sm font-semibold text-slate-600">
+      <dt className="flex min-w-0 items-center gap-3 text-sm font-semibold text-slate-600 dark:text-slate-400">
         <span className={`h-2 w-2 shrink-0 rounded-full ${dotClass}`} />
         <span className="truncate">{label}</span>
       </dt>
-      <dd className="shrink-0 text-sm font-bold text-slate-950">{formatCurrency(value)}</dd>
+      <dd className="shrink-0 text-sm font-bold text-slate-950 dark:text-slate-100">{formatCurrency(value)}</dd>
     </div>
   )
 }
@@ -489,8 +489,8 @@ function TransactionList({
 }) {
   if (loading) {
     return (
-      <div className="mt-4 overflow-hidden rounded-lg border border-slate-200">
-        <div className="divide-y divide-slate-100 bg-white">
+      <div className="mt-4 overflow-hidden rounded-lg border border-slate-200 dark:border-slate-800">
+        <div className="divide-y divide-slate-100 bg-white dark:bg-slate-950">
           {Array.from({ length: 3 }).map((_, index) => (
             <div key={index} className="grid gap-3 px-4 py-4 md:grid-cols-[minmax(0,1.4fr)_160px_130px_140px] md:items-center">
               <div className="flex items-start gap-3">
@@ -515,31 +515,31 @@ function TransactionList({
   }
 
   return (
-    <div className="mt-4 overflow-hidden rounded-lg border border-slate-200">
-      <div className="hidden grid-cols-[minmax(0,1.4fr)_160px_130px_140px] gap-4 border-b border-slate-100 bg-slate-50 px-4 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 md:grid">
+    <div className="mt-4 overflow-hidden rounded-lg border border-slate-200 dark:border-slate-800">
+      <div className="hidden grid-cols-[minmax(0,1.4fr)_160px_130px_140px] gap-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 px-4 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 md:grid">
         <span>Giao dịch</span>
         <span>Thời gian</span>
         <span>Trạng thái</span>
         <span className="text-right">Số tiền</span>
       </div>
-      <div className="divide-y divide-slate-100 bg-white">
+      <div className="divide-y divide-slate-100 bg-white dark:bg-slate-950">
         {transactions.map((txn) => (
           <div key={txn.id} className="grid gap-3 px-4 py-4 md:grid-cols-[minmax(0,1.4fr)_160px_130px_140px] md:items-center">
             <div className="flex min-w-0 items-start gap-3">
-              <div className={`mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${txn.direction === 'CREDIT' ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-100 text-slate-600'}`}>
+              <div className={`mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${txn.direction === 'CREDIT' ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-500' : 'bg-slate-100 text-slate-600 dark:text-slate-400'}`}>
                 <ReceiptText className="h-4 w-4" />
               </div>
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-slate-950">{formatTxnType(txn.txnType)}</p>
-                <p className="mt-1 truncate text-xs font-medium text-slate-500">{formatTxnNote(txn.note, txn.referenceType)}</p>
+                <p className="text-sm font-semibold text-slate-950 dark:text-slate-100">{formatTxnType(txn.txnType)}</p>
+                <p className="mt-1 truncate text-xs font-medium text-slate-500 dark:text-slate-400">{formatTxnNote(txn.note, txn.referenceType)}</p>
               </div>
             </div>
-            <p className="text-xs font-medium text-slate-500 md:text-sm">{formatDateTime(txn.createdAt)}</p>
+            <p className="text-xs font-medium text-slate-500 dark:text-slate-400 md:text-sm">{formatDateTime(txn.createdAt)}</p>
             <div>
               <StatusPill label={formatTxnStatus(txn.txnStatus)} tone={txnStatusTone(txn.txnStatus)} />
             </div>
             <div className="shrink-0 text-left md:text-right">
-              <p className={`text-sm font-semibold ${txn.direction === 'CREDIT' ? 'text-emerald-600' : 'text-slate-900'}`}>
+              <p className={`text-sm font-semibold ${txn.direction === 'CREDIT' ? 'text-emerald-600 dark:text-emerald-500' : 'text-slate-900 dark:text-slate-100'}`}>
                 {txn.direction === 'CREDIT' ? '+' : '-'}{formatCurrency(txn.amountMxc)}
               </p>
             </div>
@@ -553,8 +553,8 @@ function TransactionList({
 
 function TransactionPaginationControls({ pagination }: { pagination: TransactionPagination }) {
   return (
-    <div className="flex flex-col gap-3 border-t border-slate-100 bg-slate-50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-      <p className="text-xs font-semibold text-slate-500">
+    <div className="flex flex-col gap-3 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+      <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">
         Trang {pagination.page + 1} / {pagination.totalPages} · {pagination.totalElements} giao dịch
       </p>
       <div className="flex items-center gap-2">
@@ -562,7 +562,7 @@ function TransactionPaginationControls({ pagination }: { pagination: Transaction
           type="button"
           onClick={pagination.onPrevious}
           disabled={pagination.previousDisabled}
-          className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+          className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3 text-xs font-semibold text-slate-700 dark:text-slate-300 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <ChevronLeft className="h-4 w-4" />
           Trước
@@ -571,7 +571,7 @@ function TransactionPaginationControls({ pagination }: { pagination: Transaction
           type="button"
           onClick={pagination.onNext}
           disabled={pagination.nextDisabled}
-          className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+          className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3 text-xs font-semibold text-slate-700 dark:text-slate-300 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
         >
           Sau
           <ChevronRight className="h-4 w-4" />
@@ -583,8 +583,8 @@ function TransactionPaginationControls({ pagination }: { pagination: Transaction
 
 function ReadinessItem({ label, passed }: { label: string; passed: boolean }) {
   return (
-    <div className="flex items-center justify-between rounded-lg bg-slate-50 px-4 py-3">
-      <span className="text-sm font-semibold text-slate-700">{label}</span>
+    <div className="flex items-center justify-between rounded-lg bg-slate-50 dark:bg-slate-900/50 px-4 py-3">
+      <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">{label}</span>
       <StatusPill label={passed ? 'Sẵn sàng' : 'Còn thiếu'} tone={passed ? 'emerald' : 'amber'} />
     </div>
   )
@@ -592,9 +592,9 @@ function ReadinessItem({ label, passed }: { label: string; passed: boolean }) {
 
 function MiniAmount({ label, value, isDate = false }: { label: string; value?: number | string; isDate?: boolean }) {
   return (
-    <div className="rounded-lg bg-slate-50 p-4">
+    <div className="rounded-lg bg-slate-50 dark:bg-slate-900/50 p-4">
       <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">{label}</p>
-      <p className="mt-1 text-sm font-semibold text-slate-900">{isDate && value ? formatDateTime(String(value)) : formatCurrency(value || 0)}</p>
+      <p className="mt-1 text-sm font-semibold text-slate-900 dark:text-slate-100">{isDate && value ? formatDateTime(String(value)) : formatCurrency(value || 0)}</p>
     </div>
   )
 }

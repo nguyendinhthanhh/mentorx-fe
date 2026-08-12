@@ -18,11 +18,11 @@ export default function FilePreviewModal({ isOpen, onClose, fileUrl, fileName, f
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-[60] bg-slate-900/80 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
         <Dialog.Content className="fixed left-[50%] top-[50%] z-[60] w-full max-w-5xl translate-x-[-50%] translate-y-[-50%] p-4 focus:outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]">
-          <div className="relative flex h-[85vh] flex-col overflow-hidden rounded-2xl bg-white shadow-2xl">
+          <div className="relative flex h-[85vh] flex-col overflow-hidden rounded-2xl bg-white dark:bg-slate-950 shadow-2xl">
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50 px-6 py-4">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 px-6 py-4">
               <div className="min-w-0 flex-1">
-                <Dialog.Title className="truncate text-lg font-bold text-slate-900">
+                <Dialog.Title className="truncate text-lg font-bold text-slate-900 dark:text-slate-100">
                   {fileName}
                 </Dialog.Title>
               </div>
@@ -31,7 +31,7 @@ export default function FilePreviewModal({ isOpen, onClose, fileUrl, fileName, f
                   href={fileUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-200 hover:text-slate-900"
+                  className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 transition hover:bg-slate-200 hover:text-slate-900 dark:text-slate-100"
                 >
                   <ExternalLink className="h-4 w-4" />
                   <span className="hidden sm:inline">Mở trong tab mới</span>
@@ -58,15 +58,15 @@ export default function FilePreviewModal({ isOpen, onClose, fileUrl, fileName, f
                 <iframe
                   src={`${fileUrl}#toolbar=0`}
                   title={fileName}
-                  className="h-full w-full rounded-xl border border-slate-200 bg-white shadow-sm"
+                  className="h-full w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 shadow-sm"
                 />
               ) : (
                 <div className="flex flex-col items-center justify-center text-center">
                   <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-2xl bg-indigo-100 text-indigo-500 shadow-inner">
                     <Download className="h-10 w-10" />
                   </div>
-                  <h3 className="text-xl font-bold text-slate-900">Không có bản xem trước</h3>
-                  <p className="mt-2 text-sm text-slate-500 max-w-sm">
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">Không có bản xem trước</h3>
+                  <p className="mt-2 text-sm text-slate-500 dark:text-slate-400 max-w-sm">
                     Không thể xem trước định dạng file này trong trình duyệt. Bạn có thể mở trong tab mới để tải về.
                   </p>
                   <a

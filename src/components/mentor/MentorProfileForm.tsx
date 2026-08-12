@@ -215,10 +215,10 @@ interface Props {
 }
 
 const inputClass =
-  'w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm font-medium text-slate-900 outline-none transition-colors placeholder:text-slate-400 hover:border-slate-400 focus:border-sky-600 focus:ring-4 focus:ring-sky-100 disabled:bg-slate-100 dark:border-slate-700 dark:bg-slate-950 dark:text-white'
+  'w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2.5 text-sm font-medium text-slate-900 dark:text-slate-100 outline-none transition-colors placeholder:text-slate-400 hover:border-slate-400 focus:border-sky-600 focus:ring-4 focus:ring-sky-100 disabled:bg-slate-100 dark:border-slate-700 dark:bg-slate-950 dark:text-white'
 
 const textareaClass = `${inputClass} min-h-[100px] resize-y`
-const sectionClass = 'rounded-2xl border border-slate-200 bg-white p-5 sm:p-7'
+const sectionClass = 'rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-5 sm:p-7'
 
 function isUrlLike(value?: string) {
   if (!value) return false
@@ -645,14 +645,14 @@ export default function MentorProfileForm({
 
   if (success) {
     return (
-      <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-10 text-center">
+      <div className="rounded-2xl border border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-900/30 p-10 text-center">
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-xl bg-emerald-600 text-white">
           <CheckCircle2 className="h-8 w-8" />
         </div>
-        <h3 className="mt-5 text-2xl font-black tracking-tight text-slate-900">
+        <h3 className="mt-5 text-2xl font-black tracking-tight text-slate-900 dark:text-slate-100">
           {successTitle || (isEdit ? 'Đã cập nhật hồ sơ' : 'Đã gửi hồ sơ ứng tuyển')}
         </h3>
-        <p className="mx-auto mt-3 max-w-lg text-sm font-semibold text-slate-600">
+        <p className="mx-auto mt-3 max-w-lg text-sm font-semibold text-slate-600 dark:text-slate-400">
           {successDescription || 'Hồ sơ của bạn đã được gửi. Chúng tôi sẽ phản hồi trong vòng 2-5 ngày làm việc.'}
         </p>
       </div>
@@ -662,7 +662,7 @@ export default function MentorProfileForm({
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-5">
       {isLocked && (
-        <section className="rounded-xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm font-semibold text-amber-900">
+        <section className="rounded-xl border border-amber-200 dark:border-amber-800/50 bg-amber-50 dark:bg-amber-900/30 px-5 py-4 text-sm font-semibold text-amber-900 dark:text-amber-100">
           {lockedMessage || 'Hồ sơ của bạn đang được xét duyệt. Không thể chỉnh sửa lúc này.'}
         </section>
       )}
@@ -673,7 +673,7 @@ export default function MentorProfileForm({
         <section className={sectionClass}>
           <div className="flex flex-col gap-6 md:flex-row md:items-center">
             <div className="flex flex-col items-center shrink-0">
-              <div className="relative flex h-24 w-24 items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-slate-100">
+              <div className="relative flex h-24 w-24 items-center justify-center overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-100">
                 {values.avatarUrl ? (
                   <img src={values.avatarUrl} alt="Mentor avatar" className="h-full w-full object-cover" />
                 ) : (
@@ -697,20 +697,20 @@ export default function MentorProfileForm({
                 <button
                   type="button"
                   onClick={() => setValue('avatarUrl', '', { shouldDirty: true, shouldValidate: true })}
-                  className="mt-2 text-[10px] font-bold text-slate-400 hover:text-slate-600"
+                  className="mt-2 text-[10px] font-bold text-slate-400 hover:text-slate-600 dark:text-slate-400"
                 >
                   Gỡ ảnh
                 </button>
               )}
             </div>
 
-            <div className="md:border-l md:border-slate-200 md:pl-6">
+            <div className="md:border-l md:border-slate-200 dark:border-slate-800 md:pl-6">
               <div className="mb-2 inline-flex items-center gap-1.5 text-xs font-semibold text-sky-700">
                 <CheckCircle2 className="w-3 h-3" />
                 Ấn tượng đầu tiên
               </div>
-              <h3 className="text-xl font-black text-slate-900">Hình ảnh chuyên nghiệp, dễ nhận diện</h3>
-              <p className="mt-2 text-sm font-medium text-slate-500 leading-relaxed max-w-lg">
+              <h3 className="text-xl font-black text-slate-900 dark:text-slate-100">Hình ảnh chuyên nghiệp, dễ nhận diện</h3>
+              <p className="mt-2 text-sm font-medium text-slate-500 dark:text-slate-400 leading-relaxed max-w-lg">
                 Ảnh đại diện rõ nét, khuôn mặt thân thiện sẽ giúp học viên tin tưởng bạn hơn và tăng tỷ lệ booking. File hỗ trợ: JPG, PNG, WEBP (tối đa 10MB).
               </p>
             </div>
@@ -770,18 +770,18 @@ export default function MentorProfileForm({
                 description="Thêm 3 - 15 kỹ năng cốt lõi mà bạn tự tin mentor."
                 error={errors.skills?.message as string | undefined}
               >
-                <div className="rounded-2xl border border-slate-200/80 bg-slate-50/50 p-4">
+                <div className="rounded-2xl border border-slate-200 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-900/30 p-4">
                   <div className="flex flex-wrap gap-2 mb-4">
                     {(values.skills || []).map((skill) => (
                       <button
                         key={skill}
                         type="button"
                         onClick={() => removeSkill(skill)}
-                        className="group flex items-center gap-1.5 rounded-lg bg-emerald-100 px-3 py-1.5 text-xs font-bold text-emerald-700 transition hover:bg-emerald-200"
+                        className="group flex items-center gap-1.5 rounded-lg bg-emerald-100 dark:bg-emerald-900/50 px-3 py-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-400 transition hover:bg-emerald-200"
                       >
-                        <Tag className="h-3 w-3 text-emerald-500 group-hover:text-emerald-600" />
+                        <Tag className="h-3 w-3 text-emerald-500 group-hover:text-emerald-600 dark:text-emerald-500" />
                         {skill}
-                        <span className="text-emerald-400 group-hover:text-emerald-600">&times;</span>
+                        <span className="text-emerald-400 group-hover:text-emerald-600 dark:text-emerald-500">&times;</span>
                       </button>
                     ))}
                   </div>
@@ -815,7 +815,7 @@ export default function MentorProfileForm({
                         key={skill}
                         type="button"
                         onClick={() => addSkill(skill)}
-                        className="inline-flex items-center gap-1 rounded-md border border-slate-200/80 px-2.5 py-1 text-[10px] font-bold text-slate-500 transition hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-600"
+                        className="inline-flex items-center gap-1 rounded-md border border-slate-200 dark:border-slate-800/80 px-2.5 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 transition hover:border-emerald-300 hover:bg-emerald-50 dark:bg-emerald-900/30 hover:text-emerald-600 dark:text-emerald-500"
                       >
                         <Tag className="h-3 w-3" />
                         {skill}
@@ -906,7 +906,7 @@ export default function MentorProfileForm({
                       key={rate}
                       type="button"
                       onClick={() => setValue('hourlyRateMxc', rate, { shouldDirty: true, shouldValidate: true })}
-                      className="rounded-lg border border-slate-200/80 px-3 py-1 text-xs font-bold text-slate-500 transition hover:border-amber-300 hover:bg-amber-50 hover:text-amber-700"
+                      className="rounded-lg border border-slate-200 dark:border-slate-800/80 px-3 py-1 text-xs font-bold text-slate-500 dark:text-slate-400 transition hover:border-amber-300 hover:bg-amber-50 dark:bg-amber-900/30 hover:text-amber-700 dark:text-amber-400"
                     >
                       {rate} MXC
                     </button>
@@ -971,7 +971,7 @@ export default function MentorProfileForm({
                     key={preset.label}
                     type="button"
                     onClick={() => addProofLinkTemplate(preset.label)}
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200/80 bg-white/50 px-3 py-1.5 text-xs font-bold text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 shadow-sm"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 dark:border-slate-800/80 bg-white dark:bg-slate-950/50 px-3 py-1.5 text-xs font-bold text-slate-600 dark:text-slate-400 transition hover:bg-slate-100 hover:text-slate-900 dark:text-slate-100 shadow-sm"
                   >
                     <Icon className="h-3.5 w-3.5" />
                     {preset.label}
@@ -981,20 +981,20 @@ export default function MentorProfileForm({
               <button
                 type="button"
                 onClick={() => addProofLinkTemplate()}
-                className="rounded-lg border border-dashed border-slate-300 px-3 py-1.5 text-xs font-bold text-slate-500 transition hover:border-slate-400 hover:bg-slate-50"
+                className="rounded-lg border border-dashed border-slate-300 dark:border-slate-700 px-3 py-1.5 text-xs font-bold text-slate-500 dark:text-slate-400 transition hover:border-slate-400 hover:bg-slate-50 dark:bg-slate-900/50"
               >
                 + Thêm link tùy chỉnh
               </button>
             </div>
 
             {proofLinkFields.length === 0 ? (
-              <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50/50 px-5 py-6 text-center text-sm font-semibold text-slate-400">
+              <div className="rounded-xl border border-dashed border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/30 px-5 py-6 text-center text-sm font-semibold text-slate-400">
                 Chưa có liên kết nào. Hãy thêm LinkedIn, GitHub, hoặc Portfolio của bạn.
               </div>
             ) : (
               <div className="space-y-3">
                 {proofLinkFields.map((field, index) => (
-                  <div key={field.id} className="flex flex-col sm:flex-row sm:items-start gap-3 rounded-xl border border-slate-200/60 bg-white/60 p-3 shadow-sm">
+                  <div key={field.id} className="flex flex-col sm:flex-row sm:items-start gap-3 rounded-xl border border-slate-200 dark:border-slate-800/60 bg-white dark:bg-slate-950/60 p-3 shadow-sm">
                     <div className="w-full sm:w-1/3">
                       <input
                         {...register(`proofLinks.${index}.label` as const)}
@@ -1033,7 +1033,7 @@ export default function MentorProfileForm({
               <p className="text-sm font-bold text-rose-500">{errors.proofLinks.message}</p>
             )}
 
-            <div className="grid gap-4 sm:grid-cols-2 pt-2 border-t border-slate-100/80">
+            <div className="grid gap-4 sm:grid-cols-2 pt-2 border-t border-slate-100 dark:border-slate-800/80">
               <UploadFieldCard
                 title="Sơ yếu lý lịch (CV)"
                 description="Đề xuất PDF. Tối đa 10MB."
@@ -1055,15 +1055,15 @@ export default function MentorProfileForm({
         </SectionCard>
 
         {/* Cam kết & Submit */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8">
+        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-6 sm:p-8">
           <div className="mb-6 space-y-4">
             <label className="flex items-start gap-3 cursor-pointer group">
               <input
                 type="checkbox"
                 {...register('mentorAgreementAccepted')}
-                className="mt-1 h-5 w-5 shrink-0 rounded border-slate-300 text-sky-700 focus:ring-sky-500"
+                className="mt-1 h-5 w-5 shrink-0 rounded border-slate-300 dark:border-slate-700 text-sky-700 focus:ring-sky-500"
               />
-              <span className="text-sm font-semibold text-slate-700 group-hover:text-slate-900 transition-colors">
+              <span className="text-sm font-semibold text-slate-700 dark:text-slate-300 group-hover:text-slate-900 dark:text-slate-100 transition-colors">
                 Tôi cam kết những thông tin trên là chính xác và phản ánh đúng kinh nghiệm thực tế của bản thân.
               </span>
             </label>
@@ -1073,9 +1073,9 @@ export default function MentorProfileForm({
               <input
                 type="checkbox"
                 {...register('disputePolicyAccepted')}
-                className="mt-1 h-5 w-5 shrink-0 rounded border-slate-300 text-sky-700 focus:ring-sky-500"
+                className="mt-1 h-5 w-5 shrink-0 rounded border-slate-300 dark:border-slate-700 text-sky-700 focus:ring-sky-500"
               />
-              <span className="text-sm font-semibold text-slate-700 group-hover:text-slate-900 transition-colors">
+              <span className="text-sm font-semibold text-slate-700 dark:text-slate-300 group-hover:text-slate-900 dark:text-slate-100 transition-colors">
                 Tôi đồng ý với chính sách của Mentor X về việc kiểm duyệt hồ sơ và đảm bảo chất lượng mentor.
               </span>
             </label>
@@ -1088,9 +1088,9 @@ export default function MentorProfileForm({
             </div>
           )}
 
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-t border-slate-200/60 pt-6">
-            <p className="text-sm font-medium text-slate-500">
-              Thời gian xét duyệt thông thường từ <span className="font-bold text-slate-900">2-5 ngày làm việc</span>.
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-t border-slate-200 dark:border-slate-800/60 pt-6">
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+              Thời gian xét duyệt thông thường từ <span className="font-bold text-slate-900 dark:text-slate-100">2-5 ngày làm việc</span>.
             </p>
             <button
               type="submit"
@@ -1202,14 +1202,14 @@ function Combobox({
           tabIndex={-1}
           disabled={disabled}
           onClick={() => setOpen((prev) => !prev)}
-          className="absolute inset-y-0 right-0 flex w-11 items-center justify-center text-slate-400 transition-colors hover:text-slate-600 disabled:cursor-not-allowed"
+          className="absolute inset-y-0 right-0 flex w-11 items-center justify-center text-slate-400 transition-colors hover:text-slate-600 dark:text-slate-400 disabled:cursor-not-allowed"
         >
           <ChevronDown className={`h-4 w-4 transition-transform ${open ? 'rotate-180' : ''}`} />
         </button>
       </div>
 
       {open && !disabled && (
-        <div className="absolute z-20 mt-2 max-h-64 w-full overflow-y-auto rounded-xl border border-slate-200 bg-white p-1.5 shadow-lg">
+        <div className="absolute z-20 mt-2 max-h-64 w-full overflow-y-auto rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-1.5 shadow-lg">
           {filteredOptions.length === 0 ? (
             <div className="px-3 py-2 text-xs font-semibold text-slate-400">Không tìm thấy kết quả phù hợp.</div>
           ) : (
@@ -1220,7 +1220,7 @@ function Combobox({
                 onMouseDown={(event) => event.preventDefault()}
                 onClick={() => selectOption(option)}
                 className={`block w-full rounded-lg px-3 py-2 text-left text-sm font-semibold transition ${
-                  index === highlightedIndex ? 'bg-sky-50 text-sky-700' : 'text-slate-700 hover:bg-slate-50'
+                  index === highlightedIndex ? 'bg-sky-50 text-sky-700' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:bg-slate-900/50'
                 }`}
               >
                 {option.label}
@@ -1257,14 +1257,14 @@ function SectionCard({
 
   return (
     <section className={sectionClass}>
-      <div className="mb-6 flex flex-col gap-4 border-b border-slate-200 pb-5 sm:flex-row sm:items-start">
+      <div className="mb-6 flex flex-col gap-4 border-b border-slate-200 dark:border-slate-800 pb-5 sm:flex-row sm:items-start">
         <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border ${toneMap[tone]}`}>
           {icon}
         </div>
         <div>
           <p className="text-xs font-semibold text-sky-700">{eyebrow}</p>
-          <h2 className="mt-1 text-xl font-extrabold tracking-tight text-slate-900">{title}</h2>
-          <p className="mt-1.5 text-sm font-semibold text-slate-500">{description}</p>
+          <h2 className="mt-1 text-xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100">{title}</h2>
+          <p className="mt-1.5 text-sm font-semibold text-slate-500 dark:text-slate-400">{description}</p>
         </div>
       </div>
       <div>{children}</div>
@@ -1288,10 +1288,10 @@ function Field({
   return (
     <div className="flex flex-col">
       <div className="mb-2 flex items-center justify-between gap-3">
-        <label className="text-xs font-bold text-slate-700">{label}</label>
+        <label className="text-xs font-bold text-slate-700 dark:text-slate-300">{label}</label>
         {hint && <span className="text-xs font-semibold text-slate-400">{hint}</span>}
       </div>
-      {description && <p className="mb-2 text-[13px] font-medium text-slate-500">{description}</p>}
+      {description && <p className="mb-2 text-[13px] font-medium text-slate-500 dark:text-slate-400">{description}</p>}
       {children}
       {error && <p className="mt-1.5 text-xs font-bold text-rose-500">{error}</p>}
     </div>
@@ -1315,7 +1315,7 @@ function UploadFieldCard({
 }) {
   return (
     <label
-      className={`group flex min-h-[160px] flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 p-5 text-center transition ${disabled ? 'cursor-not-allowed opacity-70' : 'cursor-pointer hover:border-sky-400 hover:bg-sky-50'}`}
+      className={`group flex min-h-[160px] flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 p-5 text-center transition ${disabled ? 'cursor-not-allowed opacity-70' : 'cursor-pointer hover:border-sky-400 hover:bg-sky-50'}`}
     >
       <input
         type="file"
@@ -1327,23 +1327,23 @@ function UploadFieldCard({
       {busy ? (
         <div className="flex flex-col items-center">
           <Loader2 className="h-6 w-6 animate-spin text-sky-700" />
-          <p className="mt-3 text-[13px] font-bold text-emerald-700">Đang tải tệp lên...</p>
+          <p className="mt-3 text-[13px] font-bold text-emerald-700 dark:text-emerald-400">Đang tải tệp lên...</p>
         </div>
       ) : value ? (
         <div className="flex flex-col items-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600 shadow-sm">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-500 shadow-sm">
             <CheckCircle2 className="h-6 w-6" />
           </div>
-          <p className="mt-3 text-sm font-bold text-slate-900">Đã đính kèm {title}</p>
-          <p className="mt-1 break-all text-[11px] font-semibold text-slate-500 line-clamp-1">{value}</p>
+          <p className="mt-3 text-sm font-bold text-slate-900 dark:text-slate-100">Đã đính kèm {title}</p>
+          <p className="mt-1 break-all text-[11px] font-semibold text-slate-500 dark:text-slate-400 line-clamp-1">{value}</p>
         </div>
       ) : (
         <div className="flex flex-col items-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-400 transition-colors group-hover:border-sky-300 group-hover:bg-sky-50 group-hover:text-sky-700">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-400 transition-colors group-hover:border-sky-300 group-hover:bg-sky-50 group-hover:text-sky-700">
             <UploadCloud className="h-5 w-5" />
           </div>
-          <p className="mt-3 text-sm font-bold text-slate-900">{title}</p>
-          <p className="mt-1 text-[11px] font-semibold text-slate-500">{description}</p>
+          <p className="mt-3 text-sm font-bold text-slate-900 dark:text-slate-100">{title}</p>
+          <p className="mt-1 text-[11px] font-semibold text-slate-500 dark:text-slate-400">{description}</p>
           <div className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-slate-950 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-white transition-colors group-hover:bg-slate-800">
             <FileText className="h-3 w-3" />
             Chọn tệp

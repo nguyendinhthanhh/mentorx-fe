@@ -135,20 +135,20 @@ export default function SingleSessionBookingModal({
     <div className="fixed inset-0 z-[120] overflow-y-auto bg-slate-950/55 px-4 py-4 backdrop-blur-sm sm:px-6 sm:py-6">
       <div className="absolute inset-0" onClick={onClose} />
 
-      <div className="relative z-10 mx-auto flex max-h-[calc(100vh-2rem)] w-full max-w-[980px] flex-col overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_30px_80px_-35px_rgba(15,23,42,0.45)] sm:max-h-[calc(100vh-3rem)]">
-        <div className="shrink-0 border-b border-slate-100 px-5 py-4 sm:px-6">
+      <div className="relative z-10 mx-auto flex max-h-[calc(100vh-2rem)] w-full max-w-[980px] flex-col overflow-hidden rounded-[28px] border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 shadow-[0_30px_80px_-35px_rgba(15,23,42,0.45)] sm:max-h-[calc(100vh-3rem)]">
+        <div className="shrink-0 border-b border-slate-100 dark:border-slate-800 px-5 py-4 sm:px-6">
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
               <p className="text-[11px] font-black uppercase tracking-[0.18em] text-emerald-500">Đặt lịch trực tiếp</p>
-              <h2 className="mt-1 text-lg font-black text-slate-950 sm:text-xl">{packageItem.title}</h2>
-              <p className="mt-1 text-sm font-medium text-slate-500">
+              <h2 className="mt-1 text-lg font-black text-slate-950 dark:text-slate-100 sm:text-xl">{packageItem.title}</h2>
+              <p className="mt-1 text-sm font-medium text-slate-500 dark:text-slate-400">
                 {mentorName} • {packageItem.durationHours}h • {formatMxc(packageItem.priceMxc, 'vi')}
               </p>
             </div>
             <button
               type="button"
               onClick={onClose}
-              className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition hover:bg-slate-200 hover:text-slate-700"
+              className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-500 dark:text-slate-400 transition hover:bg-slate-200 hover:text-slate-700 dark:text-slate-300"
               aria-label="Đóng hộp thoại đặt lịch"
             >
               <X className="h-4 w-4" />
@@ -159,9 +159,9 @@ export default function SingleSessionBookingModal({
         <div className="flex-1 overflow-y-auto">
           <div className="grid items-start gap-5 px-5 py-5 sm:px-6 lg:grid-cols-[minmax(0,1fr)_280px]">
             <div className="min-w-0">
-              <div className="rounded-2xl border border-emerald-100 bg-emerald-50/70 p-4">
-                <h3 className="text-sm font-black text-slate-950">Luồng thanh toán</h3>
-                <div className="mt-3 space-y-2 text-sm font-medium leading-6 text-slate-600">
+              <div className="rounded-2xl border border-emerald-100 dark:border-emerald-900/50 bg-emerald-50 dark:bg-emerald-900/30 p-4">
+                <h3 className="text-sm font-black text-slate-950 dark:text-slate-100">Luồng thanh toán</h3>
+                <div className="mt-3 space-y-2 text-sm font-medium leading-6 text-slate-600 dark:text-slate-400">
                   <p>1. Bấm đặt buổi, hệ thống sẽ giữ {formatMxc(packageItem.priceMxc, 'vi')} từ ví MXC của bạn vào escrow.</p>
                   <p>2. Hệ thống tạo lịch hẹn, lưu snapshot gói dịch vụ và khung giờ bạn đã chọn.</p>
                   <p>3. Khi mentor hoàn thành buổi hẹn, tiền mới được chuyển sang ví chờ rút của mentor.</p>
@@ -170,18 +170,18 @@ export default function SingleSessionBookingModal({
               </div>
 
               <div className="mt-5">
-                <div className="mb-3 flex items-center gap-2 text-sm font-black text-slate-950">
-                  <CalendarDays className="h-4 w-4 text-emerald-600" />
+                <div className="mb-3 flex items-center gap-2 text-sm font-black text-slate-950 dark:text-slate-100">
+                  <CalendarDays className="h-4 w-4 text-emerald-600 dark:text-emerald-500" />
                   Chọn khung giờ trống
                 </div>
 
                 {slotsLoading ? (
-                  <div className="flex h-40 items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 text-sm font-semibold text-slate-500">
+                  <div className="flex h-40 items-center justify-center rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 text-sm font-semibold text-slate-500 dark:text-slate-400">
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Đang tải khung giờ có thể đặt...
                   </div>
                 ) : slots.length === 0 ? (
-                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5 text-sm font-medium text-slate-500">
+                  <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 p-5 text-sm font-medium text-slate-500 dark:text-slate-400">
                     Mentor hiện chưa có khung giờ phù hợp cho gói này trong 14 ngày tới.
                   </div>
                 ) : (
@@ -200,7 +200,7 @@ export default function SingleSessionBookingModal({
                                 className={`inline-flex h-10 items-center gap-2 rounded-full border px-4 text-sm font-bold transition ${
                                   active
                                     ? 'border-emerald-600 bg-emerald-600 text-white shadow-lg shadow-emerald-600/20'
-                                    : 'border-slate-200 bg-white text-slate-700 hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700'
+                                    : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 hover:border-emerald-200 dark:border-emerald-800/50 hover:bg-emerald-50 dark:bg-emerald-900/30 hover:text-emerald-700 dark:text-emerald-400'
                                 }`}
                               >
                                 <Clock3 className="h-4 w-4" />
@@ -216,21 +216,21 @@ export default function SingleSessionBookingModal({
               </div>
 
               <label className="mt-5 block">
-                <span className="text-sm font-black text-slate-950">Ghi chú cho mentor</span>
+                <span className="text-sm font-black text-slate-950 dark:text-slate-100">Ghi chú cho mentor</span>
                 <textarea
                   value={notes}
                   onChange={(event) => setNotes(event.target.value)}
                   rows={3}
                   placeholder="Mục tiêu buổi gặp, CV hoặc link repo, chủ đề bạn muốn mentor chuẩn bị..."
-                  className="mt-2 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100"
+                  className="mt-2 w-full rounded-2xl border border-slate-200 dark:border-slate-800 px-4 py-3 text-sm text-slate-700 dark:text-slate-300 outline-none transition placeholder:text-slate-400 focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100"
                 />
               </label>
             </div>
 
             <aside className="space-y-4 lg:sticky lg:top-0">
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <div className="flex items-center gap-2 text-sm font-black text-slate-950">
-                  <Wallet className="h-4 w-4 text-emerald-600" />
+              <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 p-4">
+                <div className="flex items-center gap-2 text-sm font-black text-slate-950 dark:text-slate-100">
+                  <Wallet className="h-4 w-4 text-emerald-600 dark:text-emerald-500" />
                   Ví MXC của bạn
                 </div>
                 <div className="mt-4 space-y-3">
@@ -238,7 +238,7 @@ export default function SingleSessionBookingModal({
                   <Metric label="Giá gói" value={formatMxc(price, 'vi')} />
                 </div>
                 {!hasEnoughBalance && (
-                  <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm font-semibold text-amber-800">
+                  <div className="mt-4 rounded-2xl border border-amber-200 dark:border-amber-800/50 bg-amber-50 dark:bg-amber-900/30 p-4 text-sm font-semibold text-amber-800 dark:text-amber-200">
                     Số dư hiện tại chưa đủ để đặt buổi này.
                     <Link to="/wallet" className="mt-3 inline-flex rounded-xl bg-amber-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-amber-700">
                       Nạp thêm MXC
@@ -247,12 +247,12 @@ export default function SingleSessionBookingModal({
                 )}
               </div>
 
-              <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                <h3 className="text-sm font-black text-slate-950">Xác nhận</h3>
-                <div className="mt-3 space-y-3 text-sm font-medium text-slate-600">
-                  <p>Gói dịch vụ: <span className="font-bold text-slate-900">{packageItem.title}</span></p>
-                  <p>Thời lượng: <span className="font-bold text-slate-900">{packageItem.durationHours} giờ</span></p>
-                  <p>Khung giờ: <span className="font-bold text-slate-900">{selectedStartTime ? formatFullSlot(selectedStartTime) : 'Chưa chọn'}</span></p>
+              <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-4">
+                <h3 className="text-sm font-black text-slate-950 dark:text-slate-100">Xác nhận</h3>
+                <div className="mt-3 space-y-3 text-sm font-medium text-slate-600 dark:text-slate-400">
+                  <p>Gói dịch vụ: <span className="font-bold text-slate-900 dark:text-slate-100">{packageItem.title}</span></p>
+                  <p>Thời lượng: <span className="font-bold text-slate-900 dark:text-slate-100">{packageItem.durationHours} giờ</span></p>
+                  <p>Khung giờ: <span className="font-bold text-slate-900 dark:text-slate-100">{selectedStartTime ? formatFullSlot(selectedStartTime) : 'Chưa chọn'}</span></p>
                 </div>
                 <button
                   type="button"
@@ -274,9 +274,9 @@ export default function SingleSessionBookingModal({
 
 function Metric({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl bg-white px-4 py-3">
+    <div className="rounded-2xl bg-white dark:bg-slate-950 px-4 py-3">
       <p className="text-[11px] font-black uppercase tracking-[0.16em] text-slate-400">{label}</p>
-      <p className="mt-1 text-sm font-black text-slate-950">{value}</p>
+      <p className="mt-1 text-sm font-black text-slate-950 dark:text-slate-100">{value}</p>
     </div>
   )
 }

@@ -7,7 +7,7 @@ import { Outlet } from 'react-router-dom'
  */
 export default function ChatLayout() {
   return (
-    <div className="h-dvh w-full min-w-0 overflow-hidden bg-white">
+    <div className="h-dvh w-full min-w-0 overflow-hidden bg-white dark:bg-slate-950">
       <Outlet />
     </div>
   )

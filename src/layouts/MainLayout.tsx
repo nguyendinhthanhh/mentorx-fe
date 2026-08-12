@@ -6,7 +6,7 @@ function SiteFooter() {
   const { t } = useI18n()
 
   return (
-    <footer className="border-t border-[#e2e6f5] bg-[#101a4a] text-white dark:border-slate-800">
+    <footer className="border-t border-[#e2e6f5] dark:border-slate-800 bg-[#101a4a] text-white dark:border-slate-800">
       <div className="mx-auto max-w-[1600px] px-4 py-10 sm:px-6 lg:px-8">
         <div className="grid gap-8 md:grid-cols-5">
           <div className="md:col-span-2">
@@ -42,7 +42,7 @@ function SiteFooter() {
               <input
                 type="email"
                 placeholder={t('footer.emailPlaceholder')}
-                className="min-h-11 w-full rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-sm text-white placeholder:text-blue-200 outline-none"
+                className="min-h-11 w-full rounded-lg border border-white/20 bg-white dark:bg-slate-950/10 px-3 py-2 text-sm text-white placeholder:text-blue-200 outline-none"
               />
               <button type="button" className="min-h-11 rounded-lg bg-[#4f46e5] px-4 py-2 text-sm font-semibold text-white">
                 {t('footer.subscribe')}
@@ -58,7 +58,7 @@ function SiteFooter() {
 
 export default function MainLayout() {
   return (
-    <div className="flex min-h-screen flex-col bg-[#f8fafc] text-slate-900 dark:bg-slate-950 dark:text-slate-100">
+    <div className="flex min-h-screen flex-col bg-[#f8fafc] dark:bg-slate-950 text-slate-900 dark:text-slate-100 dark:bg-slate-950 dark:text-slate-100">
       <AppHeader />
       <main className="flex-1">
         <Outlet />

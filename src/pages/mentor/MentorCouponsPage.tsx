@@ -176,10 +176,10 @@ export default function MentorCouponsPage() {
           }
         />
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div className="overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full min-w-[900px]">
-              <thead className="border-b border-slate-100 bg-slate-50 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+              <thead className="border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-400">
                 <tr>
                   <th className="px-4 py-3">{t('coupon.tableCode')}</th>
                   <th className="px-4 py-3">{t('coupon.tableDiscount')}</th>
@@ -192,21 +192,21 @@ export default function MentorCouponsPage() {
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {filteredCoupons.map((coupon) => (
-                  <tr key={coupon.id} className="transition hover:bg-emerald-50/40">
+                  <tr key={coupon.id} className="transition hover:bg-emerald-50 ">
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-2">
                         <Ticket className="h-4 w-4 shrink-0 text-emerald-500" />
-                        <span className="font-mono text-sm font-bold text-slate-900">{coupon.code}</span>
+                        <span className="font-mono text-sm font-bold text-slate-900 dark:text-slate-100">{coupon.code}</span>
                         <button
                           type="button"
                           onClick={() => copyCode(coupon.code)}
                           title={t('coupon.copyCode')}
-                          className="rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+                          className="rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:text-slate-300"
                         >
                           <Copy className="h-3.5 w-3.5" />
                         </button>
                         {copiedCode === coupon.code && (
-                          <span className="text-[10px] font-bold uppercase tracking-wide text-emerald-600">
+                          <span className="text-[10px] font-bold uppercase tracking-wide text-emerald-600 dark:text-emerald-500">
                             {t('coupon.codeCopied')}
                           </span>
                         )}
@@ -215,7 +215,7 @@ export default function MentorCouponsPage() {
                         <p className="mt-1 max-w-xs truncate text-xs font-medium text-slate-400">{coupon.description}</p>
                       )}
                     </td>
-                    <td className="px-4 py-4 text-sm font-bold text-slate-900">
+                    <td className="px-4 py-4 text-sm font-bold text-slate-900 dark:text-slate-100">
                       {discountLabel(coupon)}
                       {coupon.discountType === CouponDiscountType.PERCENTAGE && coupon.maxDiscountAmountMxc != null && (
                         <p className="mt-0.5 text-xs font-medium text-slate-400">
@@ -223,13 +223,13 @@ export default function MentorCouponsPage() {
                         </p>
                       )}
                     </td>
-                    <td className="px-4 py-4 text-sm font-semibold text-slate-700">
+                    <td className="px-4 py-4 text-sm font-semibold text-slate-700 dark:text-slate-300">
                       {coupon.appliesToAllCourses ? t('coupon.appliesToAll') : t('coupon.appliesToCount', { count: coupon.courses.length })}
                     </td>
-                    <td className="px-4 py-4 text-sm font-semibold text-slate-700">
+                    <td className="px-4 py-4 text-sm font-semibold text-slate-700 dark:text-slate-300">
                       {coupon.timesUsed} / {coupon.usageLimitTotal ?? t('coupon.usageUnlimited')}
                     </td>
-                    <td className="px-4 py-4 text-sm font-medium text-slate-500">
+                    <td className="px-4 py-4 text-sm font-medium text-slate-500 dark:text-slate-400">
                       {coupon.startsAt || coupon.expiresAt ? (
                         <span>
                           {coupon.startsAt ? formatDate(coupon.startsAt) : '—'} → {coupon.expiresAt ? formatDate(coupon.expiresAt) : '—'}
@@ -246,7 +246,7 @@ export default function MentorCouponsPage() {
                         <Link
                           to={`/mentor/coupons/${coupon.id}`}
                           onClick={(event) => event.stopPropagation()}
-                          className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-200 px-3 text-xs font-bold text-slate-700 hover:bg-white"
+                          className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-200 dark:border-slate-800 px-3 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-white dark:bg-slate-950"
                         >
                           <Pencil className="h-3.5 w-3.5" />
                           {t('coupon.edit')}
@@ -272,15 +272,15 @@ export default function MentorCouponsPage() {
 
       {confirmDelete && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl">
+          <div className="w-full max-w-md rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-6 shadow-2xl">
             <div className="mb-4 flex items-start justify-between gap-4">
               <div className="flex items-start gap-3">
                 <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-rose-50 text-rose-500">
                   <AlertTriangle className="h-4 w-4" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-black text-slate-900">{t('coupon.deleteConfirmTitle')}</h2>
-                  <p className="mt-1 text-sm font-medium leading-6 text-slate-500">
+                  <h2 className="text-lg font-black text-slate-900 dark:text-slate-100">{t('coupon.deleteConfirmTitle')}</h2>
+                  <p className="mt-1 text-sm font-medium leading-6 text-slate-500 dark:text-slate-400">
                     {t('coupon.deleteConfirmMessage', { code: confirmDelete.code })}
                   </p>
                 </div>
@@ -288,7 +288,7 @@ export default function MentorCouponsPage() {
               <button
                 type="button"
                 onClick={() => !deleteMutation.isLoading && setConfirmDelete(null)}
-                className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+                className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:text-slate-300"
                 aria-label="Close dialog"
               >
                 <X className="h-4 w-4" />
@@ -299,7 +299,7 @@ export default function MentorCouponsPage() {
                 type="button"
                 onClick={() => setConfirmDelete(null)}
                 disabled={deleteMutation.isLoading}
-                className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50"
+                className="rounded-xl border border-slate-200 dark:border-slate-800 px-4 py-2 text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:bg-slate-900/50"
               >
                 {t('coupon.cancel')}
               </button>

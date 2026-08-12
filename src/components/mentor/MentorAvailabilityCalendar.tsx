@@ -122,11 +122,11 @@ export default function MentorAvailabilityCalendar({ userId }: Props) {
     <div className="p-8 space-y-6">
       {/* Header */}
       <div>
-        <h2 className="text-2xl font-black text-gray-900 flex items-center gap-2">
+        <h2 className="text-2xl font-black text-gray-900 dark:text-gray-100 flex items-center gap-2">
           <Calendar className="w-6 h-6 text-primary-600" />
           Lịch Trống Hàng Tuần
         </h2>
-        <p className="text-sm text-gray-600 mt-1">
+        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
           Thiết lập lịch trống để học viên có thể đặt lịch mentoring với bạn
         </p>
       </div>
@@ -134,7 +134,7 @@ export default function MentorAvailabilityCalendar({ userId }: Props) {
       <div className="grid lg:grid-cols-[300px_1fr] gap-6">
         {/* Days Sidebar */}
         <div className="space-y-2">
-          <h3 className="font-bold text-gray-900 mb-3">Chọn ngày</h3>
+          <h3 className="font-bold text-gray-900 dark:text-gray-100 mb-3">Chọn ngày</h3>
           {DAYS_OF_WEEK.map(day => {
             const daySlots = getDaySlots(day.value)
             return (
@@ -144,23 +144,23 @@ export default function MentorAvailabilityCalendar({ userId }: Props) {
                 className={`w-full flex items-center justify-between p-4 rounded-xl border-2 transition-all ${
                   selectedDay === day.value
                     ? 'bg-primary-50 border-primary-500 shadow-md'
-                    : 'bg-white border-gray-200 hover:border-primary-300'
+                    : 'bg-white dark:bg-slate-950 border-gray-200 dark:border-gray-800 hover:border-primary-300'
                 }`}
               >
                 <div className="flex items-center gap-3">
                   <div className={`w-10 h-10 rounded-lg flex items-center justify-center font-bold ${
                     selectedDay === day.value
                       ? 'bg-primary-600 text-white'
-                      : 'bg-gray-100 text-gray-600'
+                      : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
                   }`}>
                     {day.short}
                   </div>
-                  <span className="font-bold text-gray-900">{day.label}</span>
+                  <span className="font-bold text-gray-900 dark:text-gray-100">{day.label}</span>
                 </div>
                 <span className={`text-xs font-bold px-2 py-1 rounded-full ${
                   daySlots.length > 0
                     ? 'bg-green-100 text-green-700'
-                    : 'bg-gray-100 text-gray-500'
+                    : 'bg-gray-100 dark:bg-gray-800 text-gray-500'
                 }`}>
                   {daySlots.length} slot
                 </span>
@@ -172,7 +172,7 @@ export default function MentorAvailabilityCalendar({ userId }: Props) {
         {/* Time Slots */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="font-bold text-gray-900">
+            <h3 className="font-bold text-gray-900 dark:text-gray-100">
               Khung giờ - {DAYS_OF_WEEK.find(d => d.value === selectedDay)?.label}
             </h3>
             {!isAdding && (
@@ -189,10 +189,10 @@ export default function MentorAvailabilityCalendar({ userId }: Props) {
           {/* Add Slot Form */}
           {isAdding && (
             <form onSubmit={handleAddSlot} className="bg-primary-50 rounded-2xl p-5 border-2 border-primary-200">
-              <h4 className="font-bold text-gray-900 mb-4">Thêm Khung Giờ Mới</h4>
+              <h4 className="font-bold text-gray-900 dark:text-gray-100 mb-4">Thêm Khung Giờ Mới</h4>
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">
+                  <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
                     Giờ Bắt Đầu
                   </label>
                   <select
@@ -207,7 +207,7 @@ export default function MentorAvailabilityCalendar({ userId }: Props) {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">
+                  <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
                     Giờ Kết Thúc
                   </label>
                   <select
@@ -243,7 +243,7 @@ export default function MentorAvailabilityCalendar({ userId }: Props) {
                 <button
                   type="button"
                   onClick={() => setIsAdding(false)}
-                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-xl font-bold hover:bg-gray-50"
+                  className="px-4 py-2 border border-gray-300 text-gray-700 dark:text-gray-300 rounded-xl font-bold hover:bg-gray-50 dark:bg-gray-900/50"
                 >
                   Hủy
                 </button>
@@ -257,12 +257,12 @@ export default function MentorAvailabilityCalendar({ userId }: Props) {
               selectedDaySlots.map((slot: any) => (
                 <div
                   key={slot.id}
-                  className="flex items-center justify-between p-4 bg-white border-2 border-gray-200 rounded-xl hover:border-primary-300 transition-all"
+                  className="flex items-center justify-between p-4 bg-white dark:bg-slate-950 border-2 border-gray-200 dark:border-gray-800 rounded-xl hover:border-primary-300 transition-all"
                 >
                   <div className="flex items-center gap-3">
                     <Clock className="w-5 h-5 text-primary-600" />
                     <div>
-                      <div className="font-bold text-gray-900">
+                      <div className="font-bold text-gray-900 dark:text-gray-100">
                         {slot.startTime} - {slot.endTime}
                       </div>
                       <div className="text-xs text-gray-500">
@@ -284,9 +284,9 @@ export default function MentorAvailabilityCalendar({ userId }: Props) {
                 </div>
               ))
             ) : (
-              <div className="text-center py-8 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-300">
+              <div className="text-center py-8 bg-gray-50 dark:bg-gray-900/50 rounded-2xl border-2 border-dashed border-gray-300">
                 <Clock className="w-10 h-10 text-gray-300 mx-auto mb-3" />
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-600 dark:text-gray-400">
                   Chưa có khung giờ nào cho ngày này
                 </p>
               </div>
@@ -294,8 +294,8 @@ export default function MentorAvailabilityCalendar({ userId }: Props) {
           </div>
 
           {/* Blocked Dates Section */}
-          <div className="mt-8 pt-6 border-t border-gray-200">
-            <h3 className="font-bold text-gray-900 mb-4">Ngày Nghỉ / Không Nhận Lịch</h3>
+          <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-800">
+            <h3 className="font-bold text-gray-900 dark:text-gray-100 mb-4">Ngày Nghỉ / Không Nhận Lịch</h3>
             
             <form onSubmit={handleBlockDate} className="flex gap-3 mb-4">
               <input

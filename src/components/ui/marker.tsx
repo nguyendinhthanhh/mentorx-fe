@@ -20,7 +20,7 @@ export const MarkerContent = React.forwardRef<HTMLDivElement, React.HTMLAttribut
       <div
         ref={ref}
         className={cn(
-          "text-xs font-medium text-slate-500 rounded-full px-4 py-1.5 bg-slate-50 border border-slate-200",
+          "text-xs font-medium text-slate-500 dark:text-slate-400 rounded-full px-4 py-1.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800",
           className
         )}
         {...props}

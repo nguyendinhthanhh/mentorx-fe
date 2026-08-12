@@ -51,10 +51,10 @@ export default function ForgotPasswordPage() {
             </div>
 
             <div className="space-y-2">
-              <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
+              <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100 sm:text-4xl">
                 Forgot password?
               </h2>
-              <p className="text-sm leading-relaxed text-slate-500 sm:text-base">
+              <p className="text-sm leading-relaxed text-slate-500 dark:text-slate-400 sm:text-base">
                 No worries, we'll send you reset instructions. Please enter the email address associated with your MentorX account.
               </p>
             </div>
@@ -62,7 +62,7 @@ export default function ForgotPasswordPage() {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <label htmlFor="email" className="block text-sm font-medium text-slate-700">
+              <label htmlFor="email" className="block text-sm font-medium text-slate-700 dark:text-slate-300">
                 Email address
               </label>
               <div className="group relative">
@@ -74,7 +74,7 @@ export default function ForgotPasswordPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="block w-full rounded-2xl border-0 py-3.5 pl-11 pr-4 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-200 transition-all placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-primary-500 sm:text-sm sm:leading-6 hover:ring-slate-300"
+                  className="block w-full rounded-2xl border-0 py-3.5 pl-11 pr-4 text-slate-900 dark:text-slate-100 shadow-sm ring-1 ring-inset ring-slate-200 transition-all placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-primary-500 sm:text-sm sm:leading-6 hover:ring-slate-300"
                   placeholder="name@example.com"
                   required
                 />
@@ -110,7 +110,7 @@ export default function ForgotPasswordPage() {
           <div className="text-center">
             <Link 
               to="/login" 
-              className="group inline-flex items-center gap-2 text-sm font-medium text-slate-500 transition-colors hover:text-slate-900"
+              className="group inline-flex items-center gap-2 text-sm font-medium text-slate-500 dark:text-slate-400 transition-colors hover:text-slate-900 dark:text-slate-100"
             >
               <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
               Back to login
@@ -120,30 +120,30 @@ export default function ForgotPasswordPage() {
       ) : (
         <div className="animate-in fade-in zoom-in-95 duration-500 space-y-8">
           <div className="flex flex-col items-center text-center space-y-5">
-            <div className="relative flex h-24 w-24 items-center justify-center rounded-[2rem] bg-emerald-50 shadow-sm">
-              <div className="absolute inset-0 rounded-[2rem] bg-emerald-100 opacity-50 animate-pulse"></div>
-              <CheckCircle2 className="relative h-12 w-12 text-emerald-600" />
+            <div className="relative flex h-24 w-24 items-center justify-center rounded-[2rem] bg-emerald-50 dark:bg-emerald-900/30 shadow-sm">
+              <div className="absolute inset-0 rounded-[2rem] bg-emerald-100 dark:bg-emerald-900/50 opacity-50 animate-pulse"></div>
+              <CheckCircle2 className="relative h-12 w-12 text-emerald-600 dark:text-emerald-500" />
             </div>
             
             <div className="space-y-2">
-              <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
+              <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100 sm:text-4xl">
                 Check your email
               </h2>
-              <p className="text-sm leading-relaxed text-slate-500 sm:text-base">
+              <p className="text-sm leading-relaxed text-slate-500 dark:text-slate-400 sm:text-base">
                 We've sent a password reset link to <br/>
-                <span className="font-semibold text-slate-900">{normalizedEmail}</span>
+                <span className="font-semibold text-slate-900 dark:text-slate-100">{normalizedEmail}</span>
               </p>
             </div>
           </div>
 
-          <div className="rounded-3xl border border-slate-100 bg-slate-50/50 p-6 shadow-inner backdrop-blur-sm">
+          <div className="rounded-3xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/30 p-6 shadow-inner backdrop-blur-sm">
             <div className="flex items-start gap-4">
-              <div className="mt-1 rounded-2xl bg-white p-2.5 shadow-sm">
+              <div className="mt-1 rounded-2xl bg-white dark:bg-slate-950 p-2.5 shadow-sm">
                 <ShieldCheck className="h-5 w-5 text-primary-600" />
               </div>
               <div className="text-sm">
-                <p className="font-semibold text-slate-900 text-base">Secure link expires in 1 hour</p>
-                <p className="mt-1 text-slate-500 leading-relaxed">
+                <p className="font-semibold text-slate-900 dark:text-slate-100 text-base">Secure link expires in 1 hour</p>
+                <p className="mt-1 text-slate-500 dark:text-slate-400 leading-relaxed">
                   If you don't see the email in your inbox, please check your spam folder or try requesting a new link below.
                 </p>
               </div>
@@ -155,12 +155,12 @@ export default function ForgotPasswordPage() {
               type="button"
               disabled={loading}
               onClick={handleSubmit}
-              className="group flex w-full items-center justify-center gap-2 rounded-2xl bg-white px-4 py-3.5 text-sm font-semibold text-slate-700 border border-slate-200 transition-all duration-300 hover:bg-slate-50 hover:border-slate-300 hover:shadow-md active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-70 shadow-sm"
+              className="group flex w-full items-center justify-center gap-2 rounded-2xl bg-white dark:bg-slate-950 px-4 py-3.5 text-sm font-semibold text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 transition-all duration-300 hover:bg-slate-50 dark:bg-slate-900/50 hover:border-slate-300 dark:border-slate-700 hover:shadow-md active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-70 shadow-sm"
             >
               {loading ? (
                 <Loader2 className="h-5 w-5 animate-spin text-slate-400" />
               ) : (
-                <RefreshCw className="h-5 w-5 text-slate-400 group-hover:text-slate-600 group-hover:rotate-180 transition-all duration-500" />
+                <RefreshCw className="h-5 w-5 text-slate-400 group-hover:text-slate-600 dark:text-slate-400 group-hover:rotate-180 transition-all duration-500" />
               )}
               {loading ? 'Resending...' : 'Click to resend'}
             </button>
@@ -168,7 +168,7 @@ export default function ForgotPasswordPage() {
             <div className="text-center">
               <Link 
                 to="/login" 
-                className="group inline-flex items-center gap-2 text-sm font-medium text-slate-500 transition-colors hover:text-slate-900"
+                className="group inline-flex items-center gap-2 text-sm font-medium text-slate-500 dark:text-slate-400 transition-colors hover:text-slate-900 dark:text-slate-100"
               >
                 <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
                 Back to login

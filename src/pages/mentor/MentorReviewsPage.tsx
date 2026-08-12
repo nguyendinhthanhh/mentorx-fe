@@ -144,35 +144,35 @@ export default function MentorReviewsPage() {
       {/* Compact Header */}
       <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between mb-8">
         <div>
-          <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-[11px] uppercase tracking-widest font-black text-emerald-600 mb-3 border border-emerald-100 shadow-sm">
+          <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 dark:bg-emerald-900/30 px-3 py-1 text-[11px] uppercase tracking-widest font-black text-emerald-600 dark:text-emerald-500 mb-3 border border-emerald-100 dark:border-emerald-900/50 shadow-sm">
             <Sparkles className="w-3.5 h-3.5 text-amber-500" />
             Tổng quan Đánh giá
           </div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Đánh giá của học viên</h1>
-          <p className="mt-2 text-sm font-medium text-slate-500">
+          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100">Đánh giá của học viên</h1>
+          <p className="mt-2 text-sm font-medium text-slate-500 dark:text-slate-400">
             Xem xét phản hồi, xếp hạng và uy tín của bạn.
           </p>
         </div>
         
         <div className="flex items-center gap-4">
-          <div className="hidden lg:flex items-center gap-4 rounded-2xl border border-slate-200/60 bg-white/50 py-2.5 shadow-sm backdrop-blur-md">
-            <div className="flex flex-col px-5 border-r border-slate-200/60">
-               <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600/70">Trung bình</span>
-               <span className="text-xl font-black text-emerald-600">{summary.average.toFixed(1)} / 5</span>
+          <div className="hidden lg:flex items-center gap-4 rounded-2xl border border-slate-200 dark:border-slate-800/60 bg-white dark:bg-slate-950/50 py-2.5 shadow-sm backdrop-blur-md">
+            <div className="flex flex-col px-5 border-r border-slate-200 dark:border-slate-800/60">
+               <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-500/70">Trung bình</span>
+               <span className="text-xl font-black text-emerald-600 dark:text-emerald-500">{summary.average.toFixed(1)} / 5</span>
             </div>
-            <div className="flex flex-col px-5 border-r border-slate-200/60">
+            <div className="flex flex-col px-5 border-r border-slate-200 dark:border-slate-800/60">
                <span className="text-[10px] font-black uppercase tracking-widest text-amber-600/70">Tổng đánh giá</span>
                <span className="text-xl font-black text-amber-600">{summary.total}</span>
             </div>
             <div className="flex flex-col px-5">
-               <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600/70">Tỷ lệ phản hồi</span>
-               <span className="text-xl font-black text-emerald-600">{summary.responseRate}%</span>
+               <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-500/70">Tỷ lệ phản hồi</span>
+               <span className="text-xl font-black text-emerald-600 dark:text-emerald-500">{summary.responseRate}%</span>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="rounded-[2.5rem] border border-slate-200/60 bg-white/50 p-6 sm:p-8 shadow-xl shadow-slate-200/40 backdrop-blur-2xl">
+      <div className="rounded-[2.5rem] border border-slate-200 dark:border-slate-800/60 bg-white dark:bg-slate-950/50 p-6 sm:p-8 shadow-xl shadow-slate-200/40 backdrop-blur-2xl">
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <MetricCard label="Đánh giá trung bình" value={`${summary.average.toFixed(1)} / 5`} helper="Chỉ tính các đánh giá công khai." icon={<Star className="h-5 w-5" />} tone="amber" />
         <MetricCard label="Tổng đánh giá" value={summary.total} helper="Các phản hồi công khai hiển thị." icon={<MessageSquareReply className="h-5 w-5" />} />
@@ -181,22 +181,22 @@ export default function MentorReviewsPage() {
       </div>
 
       <div className="grid gap-5 xl:grid-cols-[360px_1fr]">
-        <aside className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 className="text-lg font-bold text-slate-950">Chi tiết số sao</h2>
+        <aside className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-5 shadow-sm">
+          <h2 className="text-lg font-bold text-slate-950 dark:text-slate-100">Chi tiết số sao</h2>
           <div className="mt-5 space-y-4">
             {summary.breakdown.map((item) => (
               <div key={item.rating} className="grid grid-cols-[48px_1fr_32px] items-center gap-3">
-                <span className="text-sm font-bold text-slate-700">{item.rating} sao</span>
+                <span className="text-sm font-bold text-slate-700 dark:text-slate-300">{item.rating} sao</span>
                 <div className="h-2 overflow-hidden rounded-full bg-slate-100">
                   <div className="h-full rounded-full bg-amber-400" style={{ width: `${summary.total > 0 ? (item.count / summary.total) * 100 : 0}%` }} />
                 </div>
-                <span className="text-right text-sm font-bold text-slate-500">{item.count}</span>
+                <span className="text-right text-sm font-bold text-slate-500 dark:text-slate-400">{item.count}</span>
               </div>
             ))}
           </div>
-          <p className="mt-5 rounded-xl bg-slate-50 p-4 text-sm font-medium leading-6 text-slate-500">
+          <p className="mt-5 rounded-xl bg-slate-50 dark:bg-slate-900/50 p-4 text-sm font-medium leading-6 text-slate-500 dark:text-slate-400">
             Bạn có thể phản hồi lại những đánh giá này để giải thích hoặc cảm ơn học viên/khách hàng. 
-            <strong className="block mt-1 text-slate-700">Lưu ý: Mỗi đánh giá chỉ được phản hồi một lần duy nhất.</strong>
+            <strong className="block mt-1 text-slate-700 dark:text-slate-300">Lưu ý: Mỗi đánh giá chỉ được phản hồi một lần duy nhất.</strong>
           </p>
         </aside>
 
@@ -237,20 +237,20 @@ export default function MentorReviewsPage() {
           ) : (
             <div className="space-y-4">
               {filteredReviews.map((review) => (
-                <article key={review.id} className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+                <article key={review.id} className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-5 shadow-sm">
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                     <div className="flex gap-3">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-sm font-bold text-emerald-700">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-900/50 text-sm font-bold text-emerald-700 dark:text-emerald-400">
                         {getInitials(review.reviewerName)}
                       </div>
                       <div>
                         <div className="flex flex-wrap items-center gap-2">
-                          <h2 className="text-base font-bold text-slate-950">{review.isAnonymous ? 'Người dùng ẩn danh' : review.reviewerName}</h2>
-                          <span className="rounded-full bg-slate-100 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-slate-600">{formatTargetType(review.targetType)}</span>
+                          <h2 className="text-base font-bold text-slate-950 dark:text-slate-100">{review.isAnonymous ? 'Người dùng ẩn danh' : review.reviewerName}</h2>
+                          <span className="rounded-full bg-slate-100 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400">{formatTargetType(review.targetType)}</span>
                         </div>
                         {review.targetTitle && review.targetTitle !== 'Unknown Target' && (
-                          <div className="mt-1 text-[13px] font-medium text-slate-500">
-                            Về: <span className="font-semibold text-slate-700">{review.targetTitle}</span>
+                          <div className="mt-1 text-[13px] font-medium text-slate-500 dark:text-slate-400">
+                            Về: <span className="font-semibold text-slate-700 dark:text-slate-300">{review.targetTitle}</span>
                           </div>
                         )}
                         <div className="mt-2 flex items-center gap-1">
@@ -262,7 +262,7 @@ export default function MentorReviewsPage() {
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      {review.isVerified ? <span className="rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-emerald-700">Đã xác thực</span> : null}
+                      {review.isVerified ? <span className="rounded-full bg-emerald-50 dark:bg-emerald-900/30 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">Đã xác thực</span> : null}
                       <button 
                         onClick={() => handleReport(review.id)}
                         className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-600"
@@ -272,26 +272,26 @@ export default function MentorReviewsPage() {
                       </button>
                     </div>
                   </div>
-                  {review.reviewTitle ? <h3 className="mt-5 text-base font-bold text-slate-900">{review.reviewTitle}</h3> : null}
-                  <p className="mt-3 text-sm font-medium leading-6 text-slate-600">{review.reviewText || 'Không có nhận xét bằng chữ.'}</p>
+                  {review.reviewTitle ? <h3 className="mt-5 text-base font-bold text-slate-900 dark:text-slate-100">{review.reviewTitle}</h3> : null}
+                  <p className="mt-3 text-sm font-medium leading-6 text-slate-600 dark:text-slate-400">{review.reviewText || 'Không có nhận xét bằng chữ.'}</p>
                   {review.responseText ? (
-                    <div className="mt-5 rounded-xl bg-emerald-50 p-4">
+                    <div className="mt-5 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 p-4">
                       <p className="text-xs font-semibold uppercase tracking-wider text-emerald-500">Phản hồi của bạn</p>
-                      <p className="mt-2 text-sm font-semibold leading-6 text-emerald-900">{review.responseText}</p>
+                      <p className="mt-2 text-sm font-semibold leading-6 text-emerald-900 dark:text-emerald-100">{review.responseText}</p>
                     </div>
                   ) : replyingToReviewId === review.id ? (
-                    <div className="mt-5 rounded-xl bg-slate-50 p-4">
+                    <div className="mt-5 rounded-xl bg-slate-50 dark:bg-slate-900/50 p-4">
                       <textarea
                         value={replyText}
                         onChange={(e) => setReplyText(e.target.value)}
                         placeholder="Nhập nội dung phản hồi của bạn... (Chỉ được phản hồi 1 lần duy nhất)"
-                        className="h-24 w-full rounded-xl border border-slate-200 bg-white p-3 text-sm text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                        className="h-24 w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-3 text-sm text-slate-900 dark:text-slate-100 outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                       />
                       <div className="mt-3 flex justify-end gap-3">
                         <button
                           disabled={isSubmittingReply}
                           onClick={() => setReplyingToReviewId(null)}
-                          className="rounded-xl px-4 py-2 text-sm font-bold text-slate-600 transition hover:bg-slate-200 dark:text-slate-300 dark:hover:bg-slate-800"
+                          className="rounded-xl px-4 py-2 text-sm font-bold text-slate-600 dark:text-slate-400 transition hover:bg-slate-200 dark:text-slate-300 dark:hover:bg-slate-800"
                         >
                           Hủy
                         </button>
@@ -310,7 +310,7 @@ export default function MentorReviewsPage() {
                         setReplyingToReviewId(review.id)
                         setReplyText('')
                       }}
-                      className="mt-5 flex items-center gap-2 text-sm font-bold text-emerald-600 transition-colors hover:text-emerald-700"
+                      className="mt-5 flex items-center gap-2 text-sm font-bold text-emerald-600 dark:text-emerald-500 transition-colors hover:text-emerald-700 dark:text-emerald-400"
                     >
                       <MessageSquareReply className="h-4 w-4" />
                       Phản hồi đánh giá này
@@ -326,15 +326,15 @@ export default function MentorReviewsPage() {
       {/* Report Modal */}
       {reportModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl dark:bg-slate-900">
+          <div className="w-full max-w-md rounded-2xl bg-white dark:bg-slate-950 p-6 shadow-xl dark:bg-slate-900">
             <h3 className="text-xl font-bold text-slate-900 dark:text-white">Báo cáo vi phạm</h3>
-            <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+            <p className="mt-2 text-sm text-slate-500 dark:text-slate-400 dark:text-slate-400">
               Vui lòng cung cấp chi tiết để giúp quản trị viên xử lý báo cáo này.
             </p>
 
             <div className="mt-5 space-y-4">
               <label className="block">
-                <span className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">Phân loại</span>
+                <span className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300">Phân loại</span>
                 <SelectInput 
                   value={reportCategory} 
                   onChange={(e) => setReportCategory(e.target.value)} 
@@ -349,12 +349,12 @@ export default function MentorReviewsPage() {
               </label>
               
               <label className="block">
-                <span className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">Lý do chi tiết</span>
+                <span className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300">Lý do chi tiết</span>
                 <textarea
                   value={reportReason}
                   onChange={(e) => setReportReason(e.target.value)}
                   placeholder="Mô tả rõ tại sao đánh giá này vi phạm tiêu chuẩn cộng đồng..."
-                  className="h-24 w-full rounded-xl border border-slate-200 bg-white p-3 text-sm text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                  className="h-24 w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-3 text-sm text-slate-900 dark:text-slate-100 outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                 />
               </label>
             </div>
@@ -363,7 +363,7 @@ export default function MentorReviewsPage() {
               <button
                 disabled={isSubmittingReport}
                 onClick={() => setReportModalOpen(false)}
-                className="rounded-xl px-4 py-2 text-sm font-bold text-slate-600 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+                className="rounded-xl px-4 py-2 text-sm font-bold text-slate-600 dark:text-slate-400 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
               >
                 Hủy
               </button>

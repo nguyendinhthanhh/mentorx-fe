@@ -4,7 +4,7 @@ import type { BlogPost } from '../blogData'
 
 export function BlogCard({ post }: { post: BlogPost }) {
   return (
-    <article className="group flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all hover:-translate-y-1 hover:shadow-md">
+    <article className="group flex flex-col overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md">
       <Link to={`/blog/${post.slug}`} className="relative aspect-[16/9] w-full overflow-hidden bg-slate-100">
         <img
           src={post.coverImage}
@@ -17,30 +17,30 @@ export function BlogCard({ post }: { post: BlogPost }) {
       
       <div className="flex flex-1 flex-col p-5">
         <div className="flex items-center gap-3">
-          <span className="inline-flex rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-emerald-700">
+          <span className="inline-flex rounded-full bg-emerald-50 dark:bg-emerald-900/30 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-emerald-700 dark:text-emerald-400">
             {post.category}
           </span>
-          <span className="text-xs font-medium text-slate-500">{post.readTime}</span>
+          <span className="text-xs font-medium text-slate-500 dark:text-slate-400">{post.readTime}</span>
         </div>
         
-        <h3 className="mt-4 text-xl font-bold leading-tight text-slate-900 transition-colors group-hover:text-emerald-600">
+        <h3 className="mt-4 text-xl font-bold leading-tight text-slate-900 dark:text-slate-100 transition-colors group-hover:text-emerald-600 dark:text-emerald-500">
           <Link to={`/blog/${post.slug}`}>
             {post.title}
           </Link>
         </h3>
         
-        <p className="mt-3 line-clamp-2 text-sm leading-relaxed text-slate-600">
+        <p className="mt-3 line-clamp-2 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
           {post.excerpt}
         </p>
         
-        <div className="mt-auto flex items-center justify-between border-t border-slate-100 pt-6">
+        <div className="mt-auto flex items-center justify-between border-t border-slate-100 dark:border-slate-800 pt-6">
           <div className="flex items-center gap-2.5">
             <img src={post.authorAvatar} alt={post.author} loading="lazy" decoding="async" className="h-8 w-8 rounded-full bg-slate-100 object-cover" />
             <div className="text-sm">
-              <p className="font-semibold text-slate-900">{post.author}</p>
+              <p className="font-semibold text-slate-900 dark:text-slate-100">{post.author}</p>
             </div>
           </div>
-          <Link to={`/blog/${post.slug}`} className="text-emerald-600" aria-label={`Read ${post.title}`}>
+          <Link to={`/blog/${post.slug}`} className="text-emerald-600 dark:text-emerald-500" aria-label={`Read ${post.title}`}>
             <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
           </Link>
         </div>

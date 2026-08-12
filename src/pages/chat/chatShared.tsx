@@ -44,7 +44,7 @@ export type SharedLink = {
 
 export function EmptySharedState({ label }: { label: string }) {
   return (
-    <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-5 text-sm text-slate-400">
+    <div className="rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 px-4 py-5 text-sm text-slate-400">
       {label}
     </div>
   )
@@ -54,7 +54,7 @@ export function MessageText({ content, mine }: { content?: string; mine: boolean
   if (!content) return null
 
   return (
-    <p className={`whitespace-pre-wrap break-words text-[14px] leading-6 ${mine ? 'text-white' : 'text-slate-700'}`}>
+    <p className={`whitespace-pre-wrap break-words text-[14px] leading-6 ${mine ? 'text-white' : 'text-slate-700 dark:text-slate-300'}`}>
       {splitContentByUrls(content).map((part, index) => {
         if (part.type === 'text') {
           return <Fragment key={`${part.value}-${index}`}>{part.value}</Fragment>
@@ -67,7 +67,7 @@ export function MessageText({ content, mine }: { content?: string; mine: boolean
             target="_blank"
             rel="noreferrer"
             className={`inline-flex max-w-full break-all font-semibold underline underline-offset-4 ${
-              mine ? 'text-white/95' : 'text-emerald-600'
+              mine ? 'text-white/95' : 'text-emerald-600 dark:text-emerald-500'
             }`}
           >
             {shortenUrl(part.value)}
@@ -105,13 +105,13 @@ export function MessageAttachment({ message, mine }: { message: MessageResponse;
       rel="noreferrer"
       className={`mt-2 flex items-center gap-3 rounded-2xl border px-3 py-3 transition-colors ${
         mine
-          ? 'border-white/20 bg-white/10 text-white hover:bg-white/15'
-          : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100'
+          ? 'border-white/20 bg-white dark:bg-slate-950/10 text-white hover:bg-white dark:bg-slate-950/15'
+          : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 text-slate-700 dark:text-slate-300 hover:bg-slate-100'
       }`}
     >
       <span
         className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ${
-          mine ? 'bg-white/15' : 'bg-white'
+          mine ? 'bg-white dark:bg-slate-950/15' : 'bg-white dark:bg-slate-950'
         }`}
       >
         {message.attachmentMimeType?.startsWith('image/') ? (
@@ -175,19 +175,27 @@ export function formatRoomType(roomType: string) {
 
 export function formatRoomTime(value?: string) {
   if (!value) return ''
-  return new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: '2-digit' }).format(new Date(value))
+  const date = new Date(value)
+  if (isNaN(date.getTime())) return ''
+  return new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: '2-digit' }).format(date)
 }
 
-export function formatMessageTime(value: string) {
-  return new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: '2-digit' }).format(new Date(value))
+export function formatMessageTime(value?: string) {
+  if (!value) return ''
+  const date = new Date(value)
+  if (isNaN(date.getTime())) return ''
+  return new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: '2-digit' }).format(date)
 }
 
-export function formatMessageDate(value: string) {
+export function formatMessageDate(value?: string) {
+  if (!value) return ''
+  const date = new Date(value)
+  if (isNaN(date.getTime())) return ''
   return new Intl.DateTimeFormat('en-US', {
     month: 'short',
     day: 'numeric',
     year: 'numeric',
-  }).format(new Date(value))
+  }).format(date)
 }
 
 export function shouldShowDateSeparator(previousMessage: MessageResponse | undefined, currentMessage: MessageResponse) {

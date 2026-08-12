@@ -52,13 +52,13 @@ export default function ProfileLayout() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f7f8fc] text-slate-950 dark:bg-slate-950 dark:text-white">
+    <div className="min-h-screen bg-[#f7f8fc] dark:bg-slate-950 text-slate-950 dark:bg-slate-950 dark:text-white">
       <AppHeader />
 
       <main className="mx-auto max-w-screen-2xl px-3 py-4 min-[360px]:px-4 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
         {!isFullWidthPage && (
-          <div className="sticky top-16 z-30 -mx-3 mb-4 border-b border-slate-200/70 bg-[#f7f8fc]/95 px-3 py-2 backdrop-blur lg:hidden dark:border-slate-800 dark:bg-slate-950/95 min-[360px]:-mx-4 min-[360px]:px-4">
-            <div className="rounded-2xl border border-slate-200/70 bg-white/95 p-3 shadow-sm dark:border-slate-800/60 dark:bg-slate-900/95">
+          <div className="sticky top-16 z-30 -mx-3 mb-4 border-b border-slate-200 dark:border-slate-800/70 bg-[#f7f8fc] dark:bg-slate-950/95 px-3 py-2 backdrop-blur lg:hidden dark:border-slate-800 dark:bg-slate-950/95 min-[360px]:-mx-4 min-[360px]:px-4">
+            <div className="rounded-2xl border border-slate-200 dark:border-slate-800/70 bg-white dark:bg-slate-950/95 p-3 shadow-sm dark:border-slate-800/60 dark:bg-slate-900/95">
               <div className="flex items-center gap-3">
                 <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 shadow-lg shadow-emerald-200 dark:shadow-none">
                   {user.avatarUrl ? (
@@ -86,7 +86,7 @@ export default function ProfileLayout() {
                         'inline-flex min-h-11 shrink-0 snap-start items-center gap-2 rounded-full border px-3 py-2 text-sm font-bold transition-all',
                         active
                           ? 'border-emerald-600 bg-emerald-600 text-white shadow-lg shadow-emerald-200 dark:shadow-emerald-900/20'
-                          : 'border-slate-200 bg-white text-slate-600 hover:border-emerald-200 hover:text-emerald-600 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300'
+                          : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-600 dark:text-slate-400 hover:border-emerald-200 hover:text-emerald-600 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300'
                       )}
                     >
                       <item.icon className="h-4 w-4" />
@@ -102,7 +102,7 @@ export default function ProfileLayout() {
         <div className="flex min-w-0 flex-col gap-5 lg:flex-row lg:gap-8">
           {!isFullWidthPage && (
             <aside className="hidden w-full flex-none space-y-6 lg:sticky lg:top-24 lg:block lg:w-[290px] lg:self-start">
-              <div className="overflow-hidden rounded-[2rem] border border-slate-200/70 bg-white/90 p-4 shadow-[0_28px_70px_rgba(15,23,42,0.08)] backdrop-blur-xl dark:border-slate-800/60 dark:bg-slate-900/80 dark:shadow-none">
+              <div className="overflow-hidden rounded-[2rem] border border-slate-200 dark:border-slate-800/70 bg-white dark:bg-slate-950/90 p-4 shadow-[0_28px_70px_rgba(15,23,42,0.08)] backdrop-blur-xl dark:border-slate-800/60 dark:bg-slate-900/80 dark:shadow-none">
                 <div className="mb-6 rounded-[1.6rem] bg-[radial-gradient(circle_at_top_left,rgba(108,77,255,0.18),transparent_46%),linear-gradient(135deg,#ffffff,#f8f7ff)] px-3 py-4 dark:bg-slate-900">
                   <div className="flex items-center gap-4 px-2 py-1">
                     <div className="relative shrink-0">
@@ -138,20 +138,20 @@ export default function ProfileLayout() {
                         className={`group relative flex items-center gap-3.5 rounded-2xl px-4 py-3 text-sm font-bold transition-all duration-300 ${
                           active
                             ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-200 dark:shadow-emerald-900/20'
-                            : 'text-slate-600 hover:bg-slate-50 hover:text-emerald-600 dark:text-slate-400 dark:hover:bg-slate-800/50 dark:hover:text-white'
+                            : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:bg-slate-900/50 hover:text-emerald-600 dark:text-slate-400 dark:hover:bg-slate-800/50 dark:hover:text-white'
                         }`}
                       >
                         <div
                           className={`flex h-8 w-8 items-center justify-center rounded-xl transition-colors duration-300 ${
                             active
-                              ? 'bg-white/20 text-white'
-                              : 'bg-slate-50 text-slate-400 group-hover:bg-emerald-50 group-hover:text-emerald-600 dark:bg-slate-800/50'
+                              ? 'bg-white dark:bg-slate-950/20 text-white'
+                              : 'bg-slate-50 dark:bg-slate-900/50 text-slate-400 group-hover:bg-emerald-50 group-hover:text-emerald-600 dark:bg-slate-800/50'
                           }`}
                         >
                           <item.icon className="h-4 w-4" />
                         </div>
                         <span className="flex-1">{item.label}</span>
-                        {active && <div className="h-1.5 w-1.5 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.8)]" />}
+                        {active && <div className="h-1.5 w-1.5 rounded-full bg-white dark:bg-slate-950 shadow-[0_0_8px_rgba(255,255,255,0.8)]" />}
                       </Link>
                     )
                   })}

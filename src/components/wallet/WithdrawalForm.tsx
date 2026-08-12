@@ -109,17 +109,17 @@ export default function WithdrawalForm({ userId, onSuccess, onOpenPayoutSetup }:
 
   return (
     <div className="space-y-4">
-      <div className="rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-sm">
+      <div className="rounded-[1.5rem] border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-5 shadow-sm">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <h3 className="text-base font-black text-slate-950">Điều kiện rút tiền</h3>
-            <p className="mt-1 text-sm leading-6 text-slate-500">
+            <h3 className="text-base font-black text-slate-950 dark:text-slate-100">Điều kiện rút tiền</h3>
+            <p className="mt-1 text-sm leading-6 text-slate-500 dark:text-slate-400">
               Chức năng rút tiền bị khóa cho đến khi tài khoản nhận tiền của bạn được duyệt.
             </p>
           </div>
           <div
             className={`inline-flex rounded-full px-3 py-1.5 text-xs font-semibold ${
-              guard.blocked ? 'bg-amber-50 text-amber-700' : 'bg-emerald-50 text-emerald-700'
+              guard.blocked ? 'bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400' : 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'
             }`}
           >
             {guard.blocked ? 'Bị khóa' : 'Sẵn sàng'}
@@ -127,7 +127,7 @@ export default function WithdrawalForm({ userId, onSuccess, onOpenPayoutSetup }:
         </div>
 
         {guard.blocked ? (
-          <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          <div className="mt-4 rounded-2xl border border-amber-200 dark:border-amber-800/50 bg-amber-50 dark:bg-amber-900/30 px-4 py-3 text-sm text-amber-900 dark:text-amber-100">
             <p className="font-semibold">Cần thao tác</p>
             <p className="mt-1 leading-6">{guard.message}</p>
             {guard.action === 'payout' && onOpenPayoutSetup && (
@@ -142,7 +142,7 @@ export default function WithdrawalForm({ userId, onSuccess, onOpenPayoutSetup }:
             )}
           </div>
         ) : (
-          <div className="mt-4 flex items-start gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
+          <div className="mt-4 flex items-start gap-3 rounded-2xl border border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-900/30 px-4 py-3 text-sm text-emerald-900 dark:text-emerald-100">
             <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0" />
             <p>Tài khoản nhận tiền của bạn đã đáp ứng đủ điều kiện rút tiền.</p>
           </div>
@@ -152,7 +152,7 @@ export default function WithdrawalForm({ userId, onSuccess, onOpenPayoutSetup }:
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
-            <label htmlFor="mxcAmount" className="mb-1 block text-sm font-semibold text-gray-700">
+            <label htmlFor="mxcAmount" className="mb-1 block text-sm font-semibold text-gray-700 dark:text-gray-300">
               Số tiền rút (MXC)
             </label>
             <div className="relative">
@@ -170,7 +170,7 @@ export default function WithdrawalForm({ userId, onSuccess, onOpenPayoutSetup }:
                       const rawValue = e.target.value.replace(/\D/g, '')
                       onChange(rawValue ? Number(rawValue) : 0)
                     }}
-                    className="block w-full rounded-xl border border-gray-200 pl-4 pr-14 py-3 transition-all focus:border-transparent focus:ring-2 focus:ring-primary-500"
+                    className="block w-full rounded-xl border border-gray-200 dark:border-gray-800 pl-4 pr-14 py-3 transition-all focus:border-transparent focus:ring-2 focus:ring-primary-500"
                     placeholder="10"
                     disabled={guard.blocked}
                   />
@@ -181,8 +181,8 @@ export default function WithdrawalForm({ userId, onSuccess, onOpenPayoutSetup }:
             {errors.mxcAmount && <p className="mt-1 text-xs text-red-500">{errors.mxcAmount.message}</p>}
           </div>
 
-          <div className="flex flex-col justify-center rounded-xl border border-gray-100 bg-gray-50 p-3">
-            <div className="flex justify-between text-xs font-bold text-gray-900">
+          <div className="flex flex-col justify-center rounded-xl border border-gray-100 bg-gray-50 dark:bg-gray-900/50 p-3">
+            <div className="flex justify-between text-xs font-bold text-gray-900 dark:text-gray-100">
               <span>Số tiền thực nhận</span>
               <span className="text-green-600">{formatMxc(netMxc)}</span>
             </div>
@@ -204,14 +204,14 @@ export default function WithdrawalForm({ userId, onSuccess, onOpenPayoutSetup }:
                 <button
                   type="button"
                   onClick={() => setShowAccountList(!showAccountList)}
-                  className="flex items-center gap-1 rounded-lg border border-primary-100 bg-white px-2 py-1 text-[10px] font-bold text-primary-600 shadow-sm transition-colors hover:bg-primary-50"
+                  className="flex items-center gap-1 rounded-lg border border-primary-100 bg-white dark:bg-slate-950 px-2 py-1 text-[10px] font-bold text-primary-600 shadow-sm transition-colors hover:bg-primary-50"
                 >
                   Phương thức nhận tiền đã lưu
                   <ChevronDown className="h-3 w-3" />
                 </button>
 
                 {showAccountList && (
-                  <div className="absolute right-0 z-20 mt-1 w-72 overflow-hidden rounded-xl border border-gray-100 bg-white py-2 shadow-xl">
+                  <div className="absolute right-0 z-20 mt-1 w-72 overflow-hidden rounded-xl border border-gray-100 bg-white dark:bg-slate-950 py-2 shadow-xl">
                     <div className="mb-1 border-b border-gray-50 px-3 py-1.5">
                       <p className="text-[10px] font-bold uppercase text-gray-400">Chọn phương thức nhận tiền</p>
                     </div>
@@ -220,10 +220,10 @@ export default function WithdrawalForm({ userId, onSuccess, onOpenPayoutSetup }:
                         key={account.id}
                         type="button"
                         onClick={() => selectAccount(account)}
-                        className="flex w-full flex-col gap-0.5 px-3 py-2 text-left transition-colors hover:bg-gray-50"
+                        className="flex w-full flex-col gap-0.5 px-3 py-2 text-left transition-colors hover:bg-gray-50 dark:bg-gray-900/50"
                       >
                         <div className="flex items-center justify-between">
-                          <span className="text-[11px] font-bold text-gray-900">{account.bankName}</span>
+                          <span className="text-[11px] font-bold text-gray-900 dark:text-gray-100">{account.bankName}</span>
                           {account.isDefault && <CheckCircle2 className="h-3 w-3 text-primary-500" />}
                         </div>
                         <span className="text-[10px] text-gray-500">{account.accountNumber}</span>
@@ -244,7 +244,7 @@ export default function WithdrawalForm({ userId, onSuccess, onOpenPayoutSetup }:
                 id="bankName"
                 type="text"
                 {...register('bankName')}
-                className="block w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
+                className="block w-full rounded-lg border border-gray-200 dark:border-gray-800 px-3 py-2 text-sm"
                 readOnly
               />
               {errors.bankName && <p className="mt-1 text-[10px] text-red-500">{errors.bankName.message}</p>}
@@ -258,7 +258,7 @@ export default function WithdrawalForm({ userId, onSuccess, onOpenPayoutSetup }:
                 id="bankAccountNo"
                 type="text"
                 {...register('bankAccountNo')}
-                className="block w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
+                className="block w-full rounded-lg border border-gray-200 dark:border-gray-800 px-3 py-2 text-sm"
                 readOnly
               />
               {errors.bankAccountNo && <p className="mt-1 text-[10px] text-red-500">{errors.bankAccountNo.message}</p>}
@@ -273,7 +273,7 @@ export default function WithdrawalForm({ userId, onSuccess, onOpenPayoutSetup }:
               id="bankAccountName"
               type="text"
               {...register('bankAccountName')}
-              className="block w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
+              className="block w-full rounded-lg border border-gray-200 dark:border-gray-800 px-3 py-2 text-sm"
               readOnly
             />
             {errors.bankAccountName && (
@@ -282,7 +282,7 @@ export default function WithdrawalForm({ userId, onSuccess, onOpenPayoutSetup }:
           </div>
         </div>
 
-        <div className="flex gap-2 rounded-lg border border-amber-100 bg-amber-50 p-3 text-[10px] text-amber-600">
+        <div className="flex gap-2 rounded-lg border border-amber-100 bg-amber-50 dark:bg-amber-900/30 p-3 text-[10px] text-amber-600">
           <AlertCircle className="h-3.5 w-3.5 shrink-0" />
           <p>
             Các yêu cầu rút tiền sẽ được Admin xét duyệt. Số tiền VND hiển thị ở trên chỉ là ước tính dựa trên tỷ lệ quy đổi của hệ thống: 1 MXC = 1.000 VND.

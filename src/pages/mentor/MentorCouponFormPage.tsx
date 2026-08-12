@@ -207,14 +207,14 @@ export default function MentorCouponFormPage() {
         <button
           type="button"
           onClick={() => navigate('/mentor/coupons')}
-          className="inline-flex h-10 items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-700 hover:bg-slate-50"
+          className="inline-flex h-10 items-center gap-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:bg-slate-900/50"
         >
           <ArrowLeft className="h-4 w-4" />
           {t('coupon.backButton')}
         </button>
       }
     >
-      <form onSubmit={handleSubmit} className="space-y-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <form onSubmit={handleSubmit} className="space-y-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-6 shadow-sm">
         <p className="text-xs font-medium text-slate-400">
           <span className="text-rose-500">*</span> {t('coupon.requiredFieldLegend')}
         </p>
@@ -236,18 +236,18 @@ export default function MentorCouponFormPage() {
             </p>
           </Field>
           <Field label={t('coupon.fieldDiscountType')} required>
-            <div className="flex h-10 items-center gap-1 rounded-lg border border-slate-200 bg-white p-1">
+            <div className="flex h-10 items-center gap-1 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-1">
               <button
                 type="button"
                 onClick={() => setDiscountType(CouponDiscountType.PERCENTAGE)}
-                className={`flex-1 rounded-md px-3 py-1.5 text-sm font-bold transition ${discountType === CouponDiscountType.PERCENTAGE ? 'bg-emerald-600 text-white' : 'text-slate-500 hover:bg-slate-50'}`}
+                className={`flex-1 rounded-md px-3 py-1.5 text-sm font-bold transition ${discountType === CouponDiscountType.PERCENTAGE ? 'bg-emerald-600 text-white' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:bg-slate-900/50'}`}
               >
                 {t('coupon.discountTypePercentage')}
               </button>
               <button
                 type="button"
                 onClick={() => setDiscountType(CouponDiscountType.FIXED)}
-                className={`flex-1 rounded-md px-3 py-1.5 text-sm font-bold transition ${discountType === CouponDiscountType.FIXED ? 'bg-emerald-600 text-white' : 'text-slate-500 hover:bg-slate-50'}`}
+                className={`flex-1 rounded-md px-3 py-1.5 text-sm font-bold transition ${discountType === CouponDiscountType.FIXED ? 'bg-emerald-600 text-white' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:bg-slate-900/50'}`}
               >
                 {t('coupon.discountTypeFixed')}
               </button>
@@ -261,7 +261,7 @@ export default function MentorCouponFormPage() {
             onChange={(e) => setDescription(e.target.value)}
             placeholder={t('coupon.fieldDescriptionPlaceholder')}
             rows={2}
-            className="w-full rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+            className="w-full rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 py-2 text-sm text-slate-900 dark:text-slate-100 outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
           />
         </Field>
 
@@ -360,28 +360,28 @@ export default function MentorCouponFormPage() {
           </Field>
         </div>
 
-        <label className="flex w-fit items-center gap-2 text-sm font-bold text-slate-700">
-          <input type="checkbox" checked={active} onChange={(e) => setActive(e.target.checked)} className="h-4 w-4 rounded border-slate-300 text-emerald-600" />
+        <label className="flex w-fit items-center gap-2 text-sm font-bold text-slate-700 dark:text-slate-300">
+          <input type="checkbox" checked={active} onChange={(e) => setActive(e.target.checked)} className="h-4 w-4 rounded border-slate-300 dark:border-slate-700 text-emerald-600 dark:text-emerald-500" />
           {t('coupon.fieldActive')}
         </label>
 
-        <div className="rounded-2xl border border-slate-200 p-4">
-          <p className="mb-3 text-sm font-black text-slate-900">
+        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 p-4">
+          <p className="mb-3 text-sm font-black text-slate-900 dark:text-slate-100">
             {t('coupon.sectionAppliesTo')}
             <span className="ml-0.5 text-rose-500">*</span>
           </p>
-          <div className="mb-4 flex h-10 items-center gap-1 rounded-lg border border-slate-200 bg-white p-1 md:w-fit">
+          <div className="mb-4 flex h-10 items-center gap-1 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-1 md:w-fit">
             <button
               type="button"
               onClick={() => setAppliesToAllCourses(true)}
-              className={`rounded-md px-3 py-1.5 text-sm font-bold transition ${appliesToAllCourses ? 'bg-emerald-600 text-white' : 'text-slate-500 hover:bg-slate-50'}`}
+              className={`rounded-md px-3 py-1.5 text-sm font-bold transition ${appliesToAllCourses ? 'bg-emerald-600 text-white' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:bg-slate-900/50'}`}
             >
               {t('coupon.appliesToAllToggle')}
             </button>
             <button
               type="button"
               onClick={() => setAppliesToAllCourses(false)}
-              className={`rounded-md px-3 py-1.5 text-sm font-bold transition ${!appliesToAllCourses ? 'bg-emerald-600 text-white' : 'text-slate-500 hover:bg-slate-50'}`}
+              className={`rounded-md px-3 py-1.5 text-sm font-bold transition ${!appliesToAllCourses ? 'bg-emerald-600 text-white' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:bg-slate-900/50'}`}
             >
               {t('coupon.appliesToSpecificToggle')}
             </button>
@@ -394,17 +394,17 @@ export default function MentorCouponFormPage() {
                   {selectedCourses.map((course) => (
                     <span
                       key={getCourseId(course)}
-                      className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700"
+                      className="inline-flex items-center gap-2 rounded-full bg-emerald-50 dark:bg-emerald-900/30 px-3 py-1 text-xs font-bold text-emerald-700 dark:text-emerald-400"
                     >
                       {course.title}
-                      <button type="button" onClick={() => toggleCourse(getCourseId(course))} className="text-emerald-400 hover:text-emerald-700">
+                      <button type="button" onClick={() => toggleCourse(getCourseId(course))} className="text-emerald-400 hover:text-emerald-700 dark:text-emerald-400">
                         <X className="h-3 w-3" />
                       </button>
                     </span>
                   ))}
                 </div>
               )}
-              <p className="text-xs font-semibold text-slate-500">{t('coupon.selectedCount', { count: selectedCourseIds.size })}</p>
+              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">{t('coupon.selectedCount', { count: selectedCourseIds.size })}</p>
 
               <div className="relative">
                 <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
@@ -416,9 +416,9 @@ export default function MentorCouponFormPage() {
                 />
               </div>
 
-              <div className="max-h-80 overflow-y-auto rounded-xl border border-slate-200">
+              <div className="max-h-80 overflow-y-auto rounded-xl border border-slate-200 dark:border-slate-800">
                 <table className="w-full text-sm">
-                  <thead className="sticky top-0 border-b border-slate-100 bg-slate-50 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                  <thead className="sticky top-0 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-400">
                     <tr>
                       <th className="w-10 px-3 py-2">
                         <input
@@ -427,7 +427,7 @@ export default function MentorCouponFormPage() {
                           checked={allFilteredSelected}
                           onChange={toggleSelectAll}
                           title={t('coupon.selectAll')}
-                          className="h-4 w-4 rounded border-slate-300 text-emerald-600"
+                          className="h-4 w-4 rounded border-slate-300 dark:border-slate-700 text-emerald-600 dark:text-emerald-500"
                         />
                       </th>
                       <th className="px-3 py-2">{t('coupon.tableItemTitle')}</th>
@@ -446,13 +446,13 @@ export default function MentorCouponFormPage() {
                       filteredCourses.map((course) => {
                         const id = getCourseId(course)
                         return (
-                          <tr key={id} className="hover:bg-emerald-50/40">
+                          <tr key={id} className="hover:bg-emerald-50 ">
                             <td className="px-3 py-2">
                               <input
                                 type="checkbox"
                                 checked={selectedCourseIds.has(id)}
                                 onChange={() => toggleCourse(id)}
-                                className="h-4 w-4 rounded border-slate-300 text-emerald-600"
+                                className="h-4 w-4 rounded border-slate-300 dark:border-slate-700 text-emerald-600 dark:text-emerald-500"
                               />
                             </td>
                             <td className="px-3 py-2">
@@ -460,13 +460,13 @@ export default function MentorCouponFormPage() {
                                 <div className="h-8 w-12 shrink-0 overflow-hidden rounded bg-slate-100">
                                   {course.thumbnailUrl && <img src={course.thumbnailUrl} alt={course.title} className="h-full w-full object-cover" />}
                                 </div>
-                                <span className="truncate font-semibold text-slate-900">{course.title}</span>
+                                <span className="truncate font-semibold text-slate-900 dark:text-slate-100">{course.title}</span>
                               </div>
                             </td>
-                            <td className="px-3 py-2 text-xs font-bold text-slate-500">
+                            <td className="px-3 py-2 text-xs font-bold text-slate-500 dark:text-slate-400">
                               {course.productType === CourseProductType.DOCUMENT ? t('coupon.typeDocument') : t('coupon.typeCourse')}
                             </td>
-                            <td className="px-3 py-2 font-semibold text-slate-700">{formatCurrency(course.priceMxc || 0)}</td>
+                            <td className="px-3 py-2 font-semibold text-slate-700 dark:text-slate-300">{formatCurrency(course.priceMxc || 0)}</td>
                           </tr>
                         )
                       })
@@ -486,7 +486,7 @@ export default function MentorCouponFormPage() {
           <button
             type="button"
             onClick={() => navigate('/mentor/coupons')}
-            className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50"
+            className="rounded-xl border border-slate-200 dark:border-slate-800 px-4 py-2 text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:bg-slate-900/50"
           >
             {t('coupon.cancel')}
           </button>

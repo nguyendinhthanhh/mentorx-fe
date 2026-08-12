@@ -41,10 +41,10 @@ export default function UserReviewsPage() {
 
   return (
     <section className="space-y-6">
-      <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-slate-950">
+      <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-slate-950 p-6 dark:border-gray-800 dark:bg-slate-950">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-black uppercase tracking-wide text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-300">
+            <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 dark:bg-emerald-900/30 px-3 py-1 text-xs font-black uppercase tracking-wide text-emerald-700 dark:text-emerald-400 dark:bg-emerald-950/30 dark:text-emerald-300">
               <Star className="h-3.5 w-3.5 fill-current" />
               Đánh giá
             </div>
@@ -55,20 +55,20 @@ export default function UserReviewsPage() {
           </div>
           <Link
             to="/mentors"
-            className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 text-sm font-black text-emerald-700 transition hover:bg-emerald-100 dark:border-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-300"
+            className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-900/30 px-4 text-sm font-black text-emerald-700 dark:text-emerald-400 transition hover:bg-emerald-100 dark:bg-emerald-900/50 dark:border-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-300"
           >
             Tìm mentor
             <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
         
-        <div className="mt-6 flex border-b border-gray-200 dark:border-gray-800">
+        <div className="mt-6 flex border-b border-gray-200 dark:border-gray-800 dark:border-gray-800">
           <button
             onClick={() => setActiveTab('HISTORY')}
             className={`flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-bold transition-colors ${
               activeTab === 'HISTORY'
-                ? 'border-emerald-600 text-emerald-600 dark:border-emerald-400 dark:text-emerald-400'
-                : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
+                ? 'border-emerald-600 text-emerald-600 dark:text-emerald-500 dark:border-emerald-400 dark:text-emerald-400'
+                : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:text-gray-400 dark:hover:text-gray-200'
             }`}
           >
             <History className="h-4 w-4" />
@@ -78,8 +78,8 @@ export default function UserReviewsPage() {
             onClick={() => setActiveTab('PENDING')}
             className={`flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-bold transition-colors ${
               activeTab === 'PENDING'
-                ? 'border-emerald-600 text-emerald-600 dark:border-emerald-400 dark:text-emerald-400'
-                : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
+                ? 'border-emerald-600 text-emerald-600 dark:text-emerald-500 dark:border-emerald-400 dark:text-emerald-400'
+                : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:text-gray-400 dark:hover:text-gray-200'
             }`}
           >
             <Users className="h-4 w-4" />
@@ -111,19 +111,19 @@ export default function UserReviewsPage() {
           ) : pendingMentors.length > 0 ? (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {pendingMentors.map((mentor) => (
-                <div key={mentor.id} className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-slate-950">
+                <div key={mentor.id} className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-slate-950 p-5 shadow-sm dark:border-gray-800 dark:bg-slate-950">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-100 text-lg font-black text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/50 text-lg font-black text-emerald-700 dark:text-emerald-400 dark:bg-emerald-900/50 dark:text-emerald-300">
                       {mentor.name.charAt(0).toUpperCase()}
                     </div>
                     <div>
-                      <h3 className="font-bold text-gray-900 dark:text-white">{mentor.name}</h3>
+                      <h3 className="font-bold text-gray-900 dark:text-gray-100 dark:text-white">{mentor.name}</h3>
                       <p className="text-xs text-gray-500 dark:text-gray-400">Đã hoàn thành lịch hẹn</p>
                     </div>
                   </div>
                   <button
                     onClick={() => setReviewingMentor(mentor)}
-                    className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-50 px-4 py-2.5 text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-100 dark:bg-emerald-950/30 dark:text-emerald-300 dark:hover:bg-emerald-900/50"
+                    className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 px-4 py-2.5 text-sm font-bold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-100 dark:bg-emerald-900/50 dark:bg-emerald-950/30 dark:text-emerald-300 dark:hover:bg-emerald-900/50"
                   >
                     <Edit3 className="h-4 w-4" />
                     Viết đánh giá
@@ -132,7 +132,7 @@ export default function UserReviewsPage() {
               ))}
             </div>
           ) : (
-            <div className="rounded-2xl border border-dashed border-gray-300 bg-white px-6 py-16 text-center dark:border-gray-800 dark:bg-slate-950">
+            <div className="rounded-2xl border border-dashed border-gray-300 bg-white dark:bg-slate-950 px-6 py-16 text-center dark:border-gray-800 dark:bg-slate-950">
               <Users className="mx-auto h-14 w-14 text-gray-300 dark:text-gray-700" />
               <h2 className="mt-4 text-xl font-black text-gray-950 dark:text-white">Chưa có mentor nào</h2>
               <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-gray-500 dark:text-gray-400">
@@ -148,7 +148,7 @@ export default function UserReviewsPage() {
         <div className="relative z-50">
           <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" onClick={() => setReviewingMentor(null)} />
           <div className="fixed inset-0 z-10 flex items-center justify-center p-4">
-            <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl bg-white shadow-2xl dark:bg-slate-950">
+            <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl bg-white dark:bg-slate-950 shadow-2xl dark:bg-slate-950">
               <ReviewForm
                 targetType={ReviewTargetType.MENTOR}
                 targetId={reviewingMentor.id}
@@ -177,14 +177,14 @@ function ReviewCard({ review }: { review: ReviewResponse }) {
   }
   
   return (
-    <article className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-emerald-200 hover:shadow-lg dark:border-gray-800 dark:bg-slate-950">
+    <article className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-slate-950 p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-emerald-200 dark:border-emerald-800/50 hover:shadow-lg dark:border-gray-800 dark:bg-slate-950">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <div className="flex flex-wrap items-center gap-2">
             <h2 className="text-lg font-black text-gray-950 dark:text-white">
               Đánh giá cho {getTargetName()}
             </h2>
-            <span className="rounded-full bg-slate-100 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+            <span className="rounded-full bg-slate-100 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 dark:bg-slate-800 dark:text-slate-300">
               {review.targetType}
             </span>
           </div>
@@ -203,26 +203,26 @@ function ReviewCard({ review }: { review: ReviewResponse }) {
           </div>
         </div>
         {review.isVerified && (
-          <span className="rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-black uppercase tracking-wider text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400">
+          <span className="rounded-full bg-emerald-50 dark:bg-emerald-900/30 px-3 py-1 text-[11px] font-black uppercase tracking-wider text-emerald-700 dark:text-emerald-400 dark:bg-emerald-950/30 dark:text-emerald-400">
             Đã xác thực
           </span>
         )}
       </div>
       
       {review.reviewTitle && (
-        <h3 className="mt-4 text-base font-bold text-gray-900 dark:text-white">{review.reviewTitle}</h3>
+        <h3 className="mt-4 text-base font-bold text-gray-900 dark:text-gray-100 dark:text-white">{review.reviewTitle}</h3>
       )}
       
-      <p className="mt-3 text-sm font-medium leading-6 text-gray-600 dark:text-gray-300">
+      <p className="mt-3 text-sm font-medium leading-6 text-gray-600 dark:text-gray-400 dark:text-gray-300">
         {review.reviewText || 'Không có bình luận chi tiết.'}
       </p>
       
       {(review.pros || review.cons) && (
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           {review.pros && (
-            <div className="rounded-xl bg-emerald-50 p-3 dark:bg-emerald-950/20">
-              <p className="text-xs font-bold uppercase tracking-wide text-emerald-600 dark:text-emerald-400">Ưu điểm</p>
-              <p className="mt-1 text-sm text-emerald-900 dark:text-emerald-200">{review.pros}</p>
+            <div className="rounded-xl bg-emerald-50 dark:bg-emerald-900/30 p-3 dark:bg-emerald-950/20">
+              <p className="text-xs font-bold uppercase tracking-wide text-emerald-600 dark:text-emerald-500 dark:text-emerald-400">Ưu điểm</p>
+              <p className="mt-1 text-sm text-emerald-900 dark:text-emerald-100 dark:text-emerald-200">{review.pros}</p>
             </div>
           )}
           {review.cons && (
@@ -235,14 +235,14 @@ function ReviewCard({ review }: { review: ReviewResponse }) {
       )}
 
       {review.responseText && (
-        <div className="mt-5 rounded-xl border border-emerald-100 bg-emerald-50 p-4 dark:border-emerald-900/50 dark:bg-emerald-950/20">
+        <div className="mt-5 rounded-xl border border-emerald-100 dark:border-emerald-900/50 bg-emerald-50 dark:bg-emerald-900/30 p-4 dark:border-emerald-900/50 dark:bg-emerald-950/20">
           <div className="flex items-center gap-2">
-            <MessageSquareReply className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-            <p className="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+            <MessageSquareReply className="h-4 w-4 text-emerald-600 dark:text-emerald-500 dark:text-emerald-400" />
+            <p className="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-500 dark:text-emerald-400">
               Phản hồi
             </p>
           </div>
-          <p className="mt-2 text-sm font-medium leading-6 text-emerald-900 dark:text-emerald-200">
+          <p className="mt-2 text-sm font-medium leading-6 text-emerald-900 dark:text-emerald-100 dark:text-emerald-200">
             {review.responseText}
           </p>
         </div>
@@ -255,7 +255,7 @@ function ReviewSkeleton() {
   return (
     <div className="space-y-4">
       {Array.from({ length: 3 }).map((_, index) => (
-        <div key={index} className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-slate-950">
+        <div key={index} className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-slate-950 p-5 shadow-sm dark:border-gray-800 dark:bg-slate-950">
           <div className="flex flex-col gap-3">
             <div className="h-6 w-1/3 animate-pulse rounded bg-gray-200 dark:bg-slate-800" />
             <div className="h-4 w-1/4 animate-pulse rounded bg-gray-200 dark:bg-slate-800" />
@@ -270,7 +270,7 @@ function ReviewSkeleton() {
 
 function EmptyReviews() {
   return (
-    <div className="rounded-2xl border border-dashed border-gray-300 bg-white px-6 py-16 text-center dark:border-gray-800 dark:bg-slate-950">
+    <div className="rounded-2xl border border-dashed border-gray-300 bg-white dark:bg-slate-950 px-6 py-16 text-center dark:border-gray-800 dark:bg-slate-950">
       <Star className="mx-auto h-14 w-14 text-gray-300 dark:text-gray-700" />
       <h2 className="mt-4 text-xl font-black text-gray-950 dark:text-white">Bạn chưa viết đánh giá nào</h2>
       <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-gray-500 dark:text-gray-400">

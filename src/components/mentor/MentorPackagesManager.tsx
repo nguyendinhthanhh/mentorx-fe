@@ -133,11 +133,11 @@ export default function MentorPackagesManager({ userId }: Props) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-black text-gray-900 flex items-center gap-2">
+          <h2 className="text-2xl font-black text-gray-900 dark:text-gray-100 flex items-center gap-2">
             <Package className="w-6 h-6 text-primary-600" />
             Gói Mentoring 1-1
           </h2>
-          <p className="text-sm text-gray-600 mt-1">
+          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
             Tạo các gói dịch vụ mentoring với giá và thời lượng khác nhau
           </p>
         </div>
@@ -155,14 +155,14 @@ export default function MentorPackagesManager({ userId }: Props) {
 
       {/* Create/Edit Form */}
       {isCreating && (
-        <form onSubmit={handleSubmit} className="bg-gray-50 rounded-2xl p-6 border-2 border-primary-200 space-y-4">
-          <h3 className="font-black text-gray-900">
+        <form onSubmit={handleSubmit} className="bg-gray-50 dark:bg-gray-900/50 rounded-2xl p-6 border-2 border-primary-200 space-y-4">
+          <h3 className="font-black text-gray-900 dark:text-gray-100">
             {editingId ? 'Chỉnh Sửa Gói' : 'Tạo Gói Mới'}
           </h3>
 
           <div className="grid md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">
+              <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
                 Loại Gói
               </label>
               <select
@@ -188,7 +188,7 @@ export default function MentorPackagesManager({ userId }: Props) {
             </div>
 
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">
+              <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
                 Tên Gói
               </label>
               <input
@@ -202,7 +202,7 @@ export default function MentorPackagesManager({ userId }: Props) {
             </div>
 
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">
+              <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
                 <Clock className="w-4 h-4 inline mr-1" />
                 Thời Lượng (giờ)
               </label>
@@ -218,7 +218,7 @@ export default function MentorPackagesManager({ userId }: Props) {
             </div>
 
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">
+              <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
                 <DollarSign className="w-4 h-4 inline mr-1" />
                 Giá (MXC)
               </label>
@@ -235,7 +235,7 @@ export default function MentorPackagesManager({ userId }: Props) {
           </div>
 
           <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2">
+            <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
               Mô Tả
             </label>
             <textarea
@@ -250,7 +250,7 @@ export default function MentorPackagesManager({ userId }: Props) {
 
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="block text-sm font-bold text-gray-700">
+              <label className="block text-sm font-bold text-gray-700 dark:text-gray-300">
                 Tính Năng Bao Gồm
               </label>
               <button
@@ -291,7 +291,7 @@ export default function MentorPackagesManager({ userId }: Props) {
               onChange={(e) => setFormData(prev => ({ ...prev, isActive: e.target.checked }))}
               className="w-4 h-4 text-primary-600 rounded focus:ring-primary-500"
             />
-            <label htmlFor="isActive" className="text-sm font-medium text-gray-700">
+            <label htmlFor="isActive" className="text-sm font-medium text-gray-700 dark:text-gray-300">
               Hiển thị gói này trên profile công khai
             </label>
           </div>
@@ -317,7 +317,7 @@ export default function MentorPackagesManager({ userId }: Props) {
             <button
               type="button"
               onClick={handleCancel}
-              className="px-6 py-3 border border-gray-300 text-gray-700 rounded-xl font-bold hover:bg-gray-50"
+              className="px-6 py-3 border border-gray-300 text-gray-700 dark:text-gray-300 rounded-xl font-bold hover:bg-gray-50 dark:bg-gray-900/50"
             >
               Hủy
             </button>
@@ -343,10 +343,10 @@ export default function MentorPackagesManager({ userId }: Props) {
       </div>
 
       {packages.length === 0 && !isCreating && (
-        <div className="text-center py-12 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-300">
+        <div className="text-center py-12 bg-gray-50 dark:bg-gray-900/50 rounded-2xl border-2 border-dashed border-gray-300">
           <Package className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-          <h3 className="font-bold text-gray-900 mb-2">Chưa có gói nào</h3>
-          <p className="text-sm text-gray-600 mb-4">
+          <h3 className="font-bold text-gray-900 dark:text-gray-100 mb-2">Chưa có gói nào</h3>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
             Tạo gói mentoring đầu tiên để bắt đầu nhận booking
           </p>
           <button
@@ -364,22 +364,22 @@ export default function MentorPackagesManager({ userId }: Props) {
 
 function PackageCard({ package: pkg, onEdit, onDelete, isDeleting }: any) {
   return (
-    <div className="bg-white border-2 border-gray-200 rounded-2xl p-5 hover:shadow-lg transition-all">
+    <div className="bg-white dark:bg-slate-950 border-2 border-gray-200 dark:border-gray-800 rounded-2xl p-5 hover:shadow-lg transition-all">
       <div className="flex items-start justify-between mb-3">
         <div className="flex-1">
-          <h3 className="font-black text-gray-900">{pkg.title}</h3>
+          <h3 className="font-black text-gray-900 dark:text-gray-100">{pkg.title}</h3>
           <p className="text-xs text-gray-500 mt-1">
             {pkg.durationHours}h • {pkg.packageType}
           </p>
         </div>
         {!pkg.isActive && (
-          <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs font-bold rounded-full">
+          <span className="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 text-xs font-bold rounded-full">
             Ẩn
           </span>
         )}
       </div>
 
-      <p className="text-sm text-gray-600 mb-4 line-clamp-2">
+      <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">
         {pkg.description}
       </p>
 
@@ -390,7 +390,7 @@ function PackageCard({ package: pkg, onEdit, onDelete, isDeleting }: any) {
       {pkg.features && pkg.features.length > 0 && (
         <ul className="space-y-1 mb-4">
           {pkg.features.slice(0, 3).map((feature: string, index: number) => (
-            <li key={index} className="flex items-start gap-2 text-xs text-gray-600">
+            <li key={index} className="flex items-start gap-2 text-xs text-gray-600 dark:text-gray-400">
               <Check className="w-3 h-3 text-green-500 mt-0.5 flex-shrink-0" />
               <span>{feature}</span>
             </li>
@@ -401,7 +401,7 @@ function PackageCard({ package: pkg, onEdit, onDelete, isDeleting }: any) {
       <div className="flex gap-2">
         <button
           onClick={onEdit}
-          className="flex-1 flex items-center justify-center gap-1 px-3 py-2 border border-gray-300 text-gray-700 rounded-xl text-sm font-bold hover:bg-gray-50"
+          className="flex-1 flex items-center justify-center gap-1 px-3 py-2 border border-gray-300 text-gray-700 dark:text-gray-300 rounded-xl text-sm font-bold hover:bg-gray-50 dark:bg-gray-900/50"
         >
           <Edit2 className="w-4 h-4" />
           Sửa

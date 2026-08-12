@@ -102,7 +102,7 @@ export default function MyCoursesPage() {
   if (isLoading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-emerald-600 dark:text-emerald-500" />
       </div>
     )
   }
@@ -112,7 +112,7 @@ export default function MyCoursesPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="text-2xl font-black text-slate-900 dark:text-white">Học tập của tôi</h1>
-          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+          <p className="text-sm font-medium text-slate-500 dark:text-slate-400 dark:text-slate-400">
             Tất cả các khóa học và tài liệu bạn đã đăng ký đều có ở đây, bao gồm cả tài nguyên đã lưu trữ.
           </p>
         </div>
@@ -138,17 +138,17 @@ export default function MyCoursesPage() {
       )}
 
       {enrollments.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-200 bg-white p-12 text-center dark:border-slate-800 dark:bg-slate-950">
-          <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30">
+        <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-12 text-center dark:border-slate-800 dark:bg-slate-950">
+          <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-500 dark:bg-emerald-900/30">
             <BookOpen className="h-8 w-8" />
           </div>
           <h3 className="text-lg font-black text-slate-900 dark:text-white">Chưa có tài nguyên nào</h3>
-          <p className="mb-6 max-w-sm text-sm font-medium text-slate-500">
+          <p className="mb-6 max-w-sm text-sm font-medium text-slate-500 dark:text-slate-400">
             Hãy khám phá thị trường và đăng ký một khóa học hoặc tài liệu để bắt đầu học.
           </p>
           <Link
             to="/courses"
-            className="rounded-xl border border-slate-200 bg-white px-6 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:text-white"
+            className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-6 py-2 text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:bg-slate-900/50 dark:border-slate-800 dark:bg-slate-900 dark:text-white"
           >
             Xem thị trường
           </Link>
@@ -171,9 +171,9 @@ export default function MyCoursesPage() {
             return (
               <div
                 key={enrollment.id}
-                className="group relative flex min-h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white transition hover:border-emerald-200 hover:shadow-lg hover:shadow-emerald-500/10 dark:border-slate-800 dark:bg-slate-950 dark:hover:border-emerald-900"
+                className="group relative flex min-h-full flex-col overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 transition hover:border-emerald-200 dark:border-emerald-800/50 hover:shadow-lg hover:shadow-emerald-500/10 dark:border-slate-800 dark:bg-slate-950 dark:hover:border-emerald-900"
               >
-                <div className={`relative aspect-[16/9] ${isDocumentProduct ? 'bg-amber-50' : 'bg-emerald-50'} dark:bg-slate-900`}>
+                <div className={`relative aspect-[16/9] ${isDocumentProduct ? 'bg-amber-50 dark:bg-amber-900/30' : 'bg-emerald-50 dark:bg-emerald-900/30'} dark:bg-slate-900`}>
                   {course?.thumbnailUrl ? (
                     <img src={course.thumbnailUrl} alt={course.title} loading="lazy" decoding="async" className="h-full w-full object-cover" />
                   ) : (
@@ -195,18 +195,18 @@ export default function MyCoursesPage() {
 
                 <div className="flex flex-1 flex-col p-4">
                   <div className="mb-3 min-w-0">
-                    <h3 className="line-clamp-2 text-base font-black leading-5 text-slate-900 group-hover:text-emerald-600 dark:text-white dark:group-hover:text-emerald-400">
+                    <h3 className="line-clamp-2 text-base font-black leading-5 text-slate-900 dark:text-slate-100 group-hover:text-emerald-600 dark:text-emerald-500 dark:text-white dark:group-hover:text-emerald-400">
                       {course?.title || enrollment.courseTitle}
                     </h3>
                     <InstructorProfileLink course={course} />
                     <CourseMetadata domainName={domainName} skills={course?.skills || []} />
-                    <div className="mt-2 flex flex-wrap items-center gap-2 text-xs font-bold text-slate-500">
+                    <div className="mt-2 flex flex-wrap items-center gap-2 text-xs font-bold text-slate-500 dark:text-slate-400">
                       <div className="flex items-center gap-1">
                         <Clock className="h-3.5 w-3.5 text-slate-400" />
                         <span>Đã đăng ký {new Date(enrollment.enrolledAt).toLocaleDateString('vi-VN')}</span>
                       </div>
                       {enrollment.isCompleted && (
-                        <div className="flex items-center gap-1 text-emerald-600">
+                        <div className="flex items-center gap-1 text-emerald-600 dark:text-emerald-500">
                           <Award className="h-3.5 w-3.5" />
                           <span>Đã hoàn thành</span>
                         </div>
@@ -215,15 +215,15 @@ export default function MyCoursesPage() {
                   </div>
 
                     {archived && (
-                    <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800">
+                    <div className="mb-4 rounded-xl border border-amber-200 dark:border-amber-800/50 bg-amber-50 dark:bg-amber-900/30 px-3 py-2 text-xs font-semibold text-amber-800 dark:text-amber-200">
                       {isDocumentProduct ? 'Tài liệu' : 'Khóa học'} này đã bị lưu trữ. Bạn vẫn có thể truy cập từ thư viện của mình.
                     </div>
                     )}
 
                   <div className="mt-auto space-y-3">
                     <div className="flex items-center justify-between text-xs font-bold">
-                      <span className="text-slate-600 dark:text-slate-400">Tiến độ học</span>
-                      <span className="text-emerald-600">{Math.round(progress)}%</span>
+                      <span className="text-slate-600 dark:text-slate-400 dark:text-slate-400">Tiến độ học</span>
+                      <span className="text-emerald-600 dark:text-emerald-500">{Math.round(progress)}%</span>
                     </div>
                     <div className="h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-900">
                       <div
@@ -244,7 +244,7 @@ export default function MyCoursesPage() {
                           type="button"
                           onClick={() => viewCertificate(enrollment.id)}
                           disabled={viewingCertificateId === enrollment.id}
-                          className="flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 py-2 text-xs font-bold text-emerald-700 transition hover:bg-emerald-100 disabled:opacity-60 dark:border-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-300"
+                          className="flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-900/30 py-2 text-xs font-bold text-emerald-700 dark:text-emerald-400 transition hover:bg-emerald-100 dark:bg-emerald-900/50 disabled:opacity-60 dark:border-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-300"
                         >
                           {viewingCertificateId === enrollment.id ? (
                             <Loader2 className="h-4 w-4 animate-spin" />
@@ -261,7 +261,7 @@ export default function MyCoursesPage() {
                             setReviewingMentorId(null)
                             setReviewingCourseId(enrollment.courseId)
                           }}
-                          className="flex w-full items-center justify-center gap-2 rounded-xl border border-amber-200 bg-amber-50 py-2 text-xs font-bold text-amber-700 transition hover:bg-amber-100"
+                          className="flex w-full items-center justify-center gap-2 rounded-xl border border-amber-200 dark:border-amber-800/50 bg-amber-50 dark:bg-amber-900/30 py-2 text-xs font-bold text-amber-700 dark:text-amber-400 transition hover:bg-amber-100 dark:bg-amber-900/50"
                         >
                           <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
                           {existingReview ? 'Sửa đánh giá' : `Đánh giá ${isDocumentProduct ? 'tài liệu' : 'khóa học'}`}
@@ -274,7 +274,7 @@ export default function MyCoursesPage() {
                             setReviewingCourseId(null)
                             setReviewingMentorId(course.instructorId!)
                           }}
-                          className="flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-white py-2 text-xs font-bold text-emerald-700 transition hover:bg-emerald-50 dark:border-emerald-900 dark:bg-slate-950 dark:text-emerald-300"
+                          className="flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-200 dark:border-emerald-800/50 bg-white dark:bg-slate-950 py-2 text-xs font-bold text-emerald-700 dark:text-emerald-400 transition hover:bg-emerald-50 dark:bg-emerald-900/30 dark:border-emerald-900 dark:bg-slate-950 dark:text-emerald-300"
                         >
                           <Star className="h-4 w-4 fill-emerald-400 text-emerald-500" />
                           {existingMentorReview ? 'Sửa đánh giá mentor' : 'Đánh giá mentor'}
@@ -291,14 +291,14 @@ export default function MyCoursesPage() {
 
       {(reviewingCourseId || reviewingMentorId) && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4 backdrop-blur-sm">
-          <div className="max-h-[90vh] w-full max-w-3xl overflow-auto rounded-3xl bg-white p-2 shadow-2xl dark:bg-slate-950">
+          <div className="max-h-[90vh] w-full max-w-3xl overflow-auto rounded-3xl bg-white dark:bg-slate-950 p-2 shadow-2xl dark:bg-slate-950">
             <div className="mb-2 flex justify-end">
               <button
                 onClick={() => {
                   setReviewingCourseId(null)
                   setReviewingMentorId(null)
                 }}
-                className="rounded-xl p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+                className="rounded-xl p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:text-slate-300"
                 aria-label="Close review form"
               >
                 <X className="h-5 w-5" />
@@ -326,7 +326,7 @@ export default function MyCoursesPage() {
 
 function StatCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-950">
+    <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-4 dark:border-slate-800 dark:bg-slate-950">
       <p className="text-xs font-black uppercase tracking-widest text-slate-400">{label}</p>
       <p className="mt-1 text-2xl font-black text-slate-900 dark:text-white">{value}</p>
     </div>
@@ -340,14 +340,14 @@ function InstructorProfileLink({ course }: { course?: CourseEnrollmentCourseSumm
     return (
       <Link
         to={`/mentors/${course.instructorId}`}
-        className="mt-1 inline-flex w-fit text-xs font-bold text-slate-500 transition hover:text-emerald-700 hover:underline hover:underline-offset-2"
+        className="mt-1 inline-flex w-fit text-xs font-bold text-slate-500 dark:text-slate-400 transition hover:text-emerald-700 dark:text-emerald-400 hover:underline hover:underline-offset-2"
       >
         Bởi {course.instructorName}
       </Link>
     )
   }
 
-  return <p className="mt-1 text-xs font-bold text-slate-500">Bởi {course.instructorName}</p>
+  return <p className="mt-1 text-xs font-bold text-slate-500 dark:text-slate-400">Bởi {course.instructorName}</p>
 }
 
 function CourseRow({
@@ -372,7 +372,7 @@ function CourseRow({
   return (
     <section>
       <div className="mb-3 flex items-center justify-between">
-        <h2 className="text-sm font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">{title}</h2>
+        <h2 className="text-sm font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 dark:text-slate-400">{title}</h2>
       </div>
       <div className="scrollbar-hide flex gap-3 overflow-x-auto pb-2">
         {enrollments.map((enrollment) => (
@@ -411,9 +411,9 @@ function CompactCourseCard({
   return (
     <Link
       to={`/courses/${enrollment.courseId}/learn`}
-      className="group w-56 shrink-0 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:border-emerald-200 hover:shadow-md dark:border-slate-800 dark:bg-slate-950"
+      className="group w-56 shrink-0 overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 shadow-sm transition hover:border-emerald-200 dark:border-emerald-800/50 hover:shadow-md dark:border-slate-800 dark:bg-slate-950"
     >
-      <div className={`relative aspect-[16/9] ${isDocumentProduct ? 'bg-amber-50' : 'bg-emerald-50'} dark:bg-slate-900`}>
+      <div className={`relative aspect-[16/9] ${isDocumentProduct ? 'bg-amber-50 dark:bg-amber-900/30' : 'bg-emerald-50 dark:bg-emerald-900/30'} dark:bg-slate-900`}>
         {course?.thumbnailUrl ? (
           <img src={course.thumbnailUrl} alt={title} loading="lazy" decoding="async" className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
         ) : (
@@ -425,20 +425,20 @@ function CompactCourseCard({
             )}
           </div>
         )}
-        <span className={`absolute right-2 top-2 rounded-lg px-2 py-1 text-[10px] font-black ${isDocumentProduct ? 'bg-amber-100 text-amber-800' : 'bg-emerald-50 text-emerald-700'}`}>
+        <span className={`absolute right-2 top-2 rounded-lg px-2 py-1 text-[10px] font-black ${isDocumentProduct ? 'bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-200' : 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'}`}>
           {isDocumentProduct ? 'Tài liệu' : 'Khóa học'}
         </span>
       </div>
       <div className="p-3">
-        <h3 className="line-clamp-2 min-h-10 text-sm font-black leading-5 text-slate-900 group-hover:text-emerald-700 dark:text-white">
+        <h3 className="line-clamp-2 min-h-10 text-sm font-black leading-5 text-slate-900 dark:text-slate-100 group-hover:text-emerald-700 dark:text-emerald-400 dark:text-white">
           {title}
         </h3>
-        <p className="mt-1 text-[11px] font-semibold text-slate-500">
+        <p className="mt-1 text-[11px] font-semibold text-slate-500 dark:text-slate-400">
           {enrollment.lastAccessedAt ? `Học lần cuối ${new Date(enrollment.lastAccessedAt).toLocaleDateString('vi-VN')}` : `Đã đăng ký ${new Date(enrollment.enrolledAt).toLocaleDateString('vi-VN')}`}
         </p>
         <CourseMetadata domainName={domainName} skills={course?.skills || []} compact />
         <div className="mt-3">
-          <div className="mb-1 flex justify-between text-[11px] font-bold text-slate-500">
+          <div className="mb-1 flex justify-between text-[11px] font-bold text-slate-500 dark:text-slate-400">
             <span>Tiến độ</span>
             <span>{Math.round(progress)}%</span>
           </div>
@@ -456,7 +456,7 @@ function CourseMetadata({ domainName, skills, compact = false }: { domainName?: 
   return (
     <div className={compact ? 'mt-2 space-y-1.5' : 'mt-2 space-y-2'}>
       {domainName && (
-        <div className="inline-flex max-w-full items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-bold text-slate-600 dark:bg-slate-900 dark:text-slate-300">
+        <div className="inline-flex max-w-full items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-bold text-slate-600 dark:text-slate-400 dark:bg-slate-900 dark:text-slate-300">
           <Tag className="h-3 w-3 shrink-0 text-slate-400" />
           <span className="truncate">{domainName}</span>
         </div>
@@ -464,12 +464,12 @@ function CourseMetadata({ domainName, skills, compact = false }: { domainName?: 
       {skills.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
           {skills.slice(0, compact ? 2 : 3).map((skill) => (
-            <span key={skill} className="rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-bold text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
+            <span key={skill} className="rounded-full bg-emerald-50 dark:bg-emerald-900/30 px-2.5 py-1 text-[11px] font-bold text-emerald-700 dark:text-emerald-400 dark:bg-emerald-950/40 dark:text-emerald-300">
               {skill}
             </span>
           ))}
           {skills.length > (compact ? 2 : 3) && (
-            <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-bold text-slate-500 dark:bg-slate-900">
+            <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-bold text-slate-500 dark:text-slate-400 dark:bg-slate-900">
               +{skills.length - (compact ? 2 : 3)}
             </span>
           )}

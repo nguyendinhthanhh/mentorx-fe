@@ -74,7 +74,7 @@ export default function TransferForm({ userId, onSuccess }: TransferFormProps) {
               id="toUserId"
               type="text"
               {...register('toUserId')}
-              className="block w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all text-sm"
+              className="block w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 dark:border-gray-800 focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all text-sm"
               placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
             />
             <UserIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -91,7 +91,7 @@ export default function TransferForm({ userId, onSuccess }: TransferFormProps) {
             type="number"
             step="0.1"
             {...register('amount', { valueAsNumber: true })}
-            className="block w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all text-sm font-bold"
+            className="block w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-800 focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all text-sm font-bold"
             placeholder="0.00"
           />
           {errors.amount && <p className="mt-1 text-[10px] text-red-500">{errors.amount.message}</p>}
@@ -104,7 +104,7 @@ export default function TransferForm({ userId, onSuccess }: TransferFormProps) {
           <textarea
             id="description"
             {...register('description')}
-            className="block w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all text-sm"
+            className="block w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-800 focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all text-sm"
             rows={2}
             placeholder="Chuyển tiền vì lý do gì?"
           />

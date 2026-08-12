@@ -95,16 +95,16 @@ export function AiExplainModal({ open, onOpenChange, taskType, taskId, taskTitle
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4 backdrop-blur-sm">
-      <div className="flex max-h-[85vh] w-full max-w-2xl flex-col rounded-2xl bg-white shadow-2xl">
+      <div className="flex max-h-[85vh] w-full max-w-2xl flex-col rounded-2xl bg-white dark:bg-slate-950 shadow-2xl">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4">
+        <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 px-6 py-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-500">
               <Bot className="h-5 w-5" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-slate-950">AI giải thích</h2>
-              <p className="text-xs text-slate-500">
+              <h2 className="text-base font-bold text-slate-950 dark:text-slate-100">AI giải thích</h2>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 {typeLabel}: {taskTitle ? taskTitle.slice(0, 60) : taskId.slice(0, 8)}
                 {taskTitle && taskTitle.length > 60 ? '...' : ''}
               </p>
@@ -113,7 +113,7 @@ export function AiExplainModal({ open, onOpenChange, taskType, taskId, taskTitle
           <button
             type="button"
             onClick={handleClose}
-            className="flex h-9 w-9 items-center justify-center rounded-xl text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+            className="flex h-9 w-9 items-center justify-center rounded-xl text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 dark:text-slate-300"
           >
             <X className="h-4 w-4" />
           </button>
@@ -124,8 +124,8 @@ export function AiExplainModal({ open, onOpenChange, taskType, taskId, taskTitle
           {/* Initial loading state */}
           {isInitialLoading && (
             <div className="flex flex-col items-center justify-center py-12">
-              <Loader2 className="mb-4 h-8 w-8 animate-spin text-emerald-600" />
-              <p className="text-sm font-medium text-slate-500">Đang phân tích công việc...</p>
+              <Loader2 className="mb-4 h-8 w-8 animate-spin text-emerald-600 dark:text-emerald-500" />
+              <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Đang phân tích công việc...</p>
               <p className="mt-1 text-xs text-slate-400">AI đang đọc yêu cầu và chuẩn bị giải thích</p>
             </div>
           )}
@@ -147,14 +147,14 @@ export function AiExplainModal({ open, onOpenChange, taskType, taskId, taskTitle
                   </div>
                 </div>
               )}
-              <div className="rounded-2xl border border-emerald-100 bg-gradient-to-br from-emerald-50 to-white p-5">
+              <div className="rounded-2xl border border-emerald-100 dark:border-emerald-900/50 bg-gradient-to-br from-emerald-50 to-white p-5">
                 <div className="mb-3 flex items-center gap-2">
                   <Sparkles className="h-4 w-4 text-emerald-500" />
-                  <span className="text-xs font-semibold uppercase tracking-widerr text-emerald-600">
+                  <span className="text-xs font-semibold uppercase tracking-widerr text-emerald-600 dark:text-emerald-500">
                     {i === 0 ? 'Giải thích từ AI' : 'AI trả lời'}
                   </span>
                 </div>
-                <p className="whitespace-pre-wrap text-sm leading-7 text-slate-700">{item.a}</p>
+                <p className="whitespace-pre-wrap text-sm leading-7 text-slate-700 dark:text-slate-300">{item.a}</p>
               </div>
             </div>
           ))}
@@ -162,8 +162,8 @@ export function AiExplainModal({ open, onOpenChange, taskType, taskId, taskTitle
           {/* Follow-up loading */}
           {followUpMutation.isLoading && (
             <div className="flex items-center gap-2 py-4">
-              <Loader2 className="h-4 w-4 animate-spin text-emerald-600" />
-              <span className="text-sm text-slate-500">AI đang trả lời...</span>
+              <Loader2 className="h-4 w-4 animate-spin text-emerald-600 dark:text-emerald-500" />
+              <span className="text-sm text-slate-500 dark:text-slate-400">AI đang trả lời...</span>
             </div>
           )}
 
@@ -181,14 +181,14 @@ export function AiExplainModal({ open, onOpenChange, taskType, taskId, taskTitle
 
         {/* Footer / Input */}
         {answers.length > 0 && (
-          <div className="border-t border-slate-200 px-6 py-4">
+          <div className="border-t border-slate-200 dark:border-slate-800 px-6 py-4">
             <div className="flex items-end gap-2">
               <textarea
                 value={question}
                 onChange={(e) => setQuestion(e.target.value)}
                 placeholder="Hỏi thêm về công việc này..."
                 rows={1}
-                className="flex-1 resize-none rounded-xl border border-slate-200 px-4 py-2.5 text-sm leading-relaxed outline-none transition focus:border-emerald-400 focus:ring-4 focus:ring-emerald-500/10"
+                className="flex-1 resize-none rounded-xl border border-slate-200 dark:border-slate-800 px-4 py-2.5 text-sm leading-relaxed outline-none transition focus:border-emerald-400 focus:ring-4 focus:ring-emerald-500/10"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault()

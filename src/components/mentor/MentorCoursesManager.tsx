@@ -144,8 +144,8 @@ export default function MentorCoursesManager({ userId }: Props) {
     <section className="space-y-5">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h2 className="text-lg font-black text-slate-950">{copy.title}</h2>
-          <p className="mt-1 text-sm font-medium text-slate-500">{copy.subtitle}</p>
+          <h2 className="text-lg font-black text-slate-950 dark:text-slate-100">{copy.title}</h2>
+          <p className="mt-1 text-sm font-medium text-slate-500 dark:text-slate-400">{copy.subtitle}</p>
         </div>
         {!isCreating && (
           <button
@@ -160,10 +160,10 @@ export default function MentorCoursesManager({ userId }: Props) {
       </div>
 
       {isCreating && (
-        <form onSubmit={saveCourse} className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
+        <form onSubmit={saveCourse} className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 p-5">
           <div className="mb-4 flex items-center justify-between gap-3">
-            <h3 className="text-base font-black text-slate-950">{editingId ? copy.edit : copy.create}</h3>
-            <button type="button" onClick={resetForm} className="rounded-xl border border-slate-200 p-2 text-slate-500 hover:bg-white">
+            <h3 className="text-base font-black text-slate-950 dark:text-slate-100">{editingId ? copy.edit : copy.create}</h3>
+            <button type="button" onClick={resetForm} className="rounded-xl border border-slate-200 dark:border-slate-800 p-2 text-slate-500 dark:text-slate-400 hover:bg-white dark:bg-slate-950">
               <X className="h-4 w-4" />
             </button>
           </div>
@@ -249,7 +249,7 @@ export default function MentorCoursesManager({ userId }: Props) {
               {createMutation.isLoading || updateMutation.isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
               {copy.save}
             </button>
-            <button type="button" onClick={resetForm} className="inline-flex h-11 items-center justify-center rounded-xl border border-slate-200 px-4 text-sm font-bold text-slate-700 hover:bg-white">
+            <button type="button" onClick={resetForm} className="inline-flex h-11 items-center justify-center rounded-xl border border-slate-200 dark:border-slate-800 px-4 text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-white dark:bg-slate-950">
               {copy.cancel}
             </button>
           </div>
@@ -257,11 +257,11 @@ export default function MentorCoursesManager({ userId }: Props) {
       )}
 
       {isLoading ? (
-        <div className="flex items-center justify-center rounded-3xl border border-slate-200 bg-white p-12">
+        <div className="flex items-center justify-center rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-12">
           <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
         </div>
       ) : courses.length === 0 ? (
-        <div className="rounded-3xl border border-dashed border-slate-200 bg-slate-50 p-10 text-center text-sm font-medium text-slate-500">
+        <div className="rounded-3xl border border-dashed border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 p-10 text-center text-sm font-medium text-slate-500 dark:text-slate-400">
           {copy.empty}
         </div>
       ) : (
@@ -269,7 +269,7 @@ export default function MentorCoursesManager({ userId }: Props) {
           {courses.map((course) => {
             const isPublished = course.status === CourseStatus.PUBLISHED
             return (
-              <article key={course.id} className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+              <article key={course.id} className="overflow-hidden rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 shadow-sm">
                 <div className="flex gap-4 p-5">
                   <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-slate-100">
                     {course.thumbnailUrl ? (
@@ -285,20 +285,20 @@ export default function MentorCoursesManager({ userId }: Props) {
                         {formatLevel(course.level, copy)}
                       </span>
                     </div>
-                    <h3 className="mt-3 line-clamp-2 text-lg font-black text-slate-950">{course.title}</h3>
-                    <p className="mt-2 line-clamp-2 text-sm font-medium text-slate-500">{course.description}</p>
+                    <h3 className="mt-3 line-clamp-2 text-lg font-black text-slate-950 dark:text-slate-100">{course.title}</h3>
+                    <p className="mt-2 line-clamp-2 text-sm font-medium text-slate-500 dark:text-slate-400">{course.description}</p>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-3 border-t border-slate-100 px-5 py-4 text-sm">
+                <div className="grid grid-cols-3 gap-3 border-t border-slate-100 dark:border-slate-800 px-5 py-4 text-sm">
                   <MiniStat label="Price" value={formatMxc(course.priceMxc, language)} />
                   <MiniStat label="Duration" value={`${course.durationHours} ${copy.duration}`} />
                   <MiniStat label="Lessons" value={`${course.lessonsCount} ${copy.lessons}`} />
                 </div>
 
-                <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 px-5 py-4">
+                <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 dark:border-slate-800 px-5 py-4">
                   <div className="flex gap-2">
-                    <button type="button" onClick={() => beginEdit(course)} className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-xs font-black text-slate-700 hover:bg-slate-50">
+                    <button type="button" onClick={() => beginEdit(course)} className="inline-flex items-center gap-2 rounded-xl border border-slate-200 dark:border-slate-800 px-3 py-2 text-xs font-black text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:bg-slate-900/50">
                       <Pencil className="h-3.5 w-3.5" />
                       {copy.edit}
                     </button>
@@ -306,7 +306,7 @@ export default function MentorCoursesManager({ userId }: Props) {
                       <button
                         type="button"
                         onClick={() => archiveMutation.mutate(course.id)}
-                        className="inline-flex items-center gap-2 rounded-xl border border-amber-200 px-3 py-2 text-xs font-black text-amber-700 hover:bg-amber-50"
+                        className="inline-flex items-center gap-2 rounded-xl border border-amber-200 dark:border-amber-800/50 px-3 py-2 text-xs font-black text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:bg-amber-900/30"
                       >
                         <Archive className="h-3.5 w-3.5" />
                         {copy.archive}
@@ -315,7 +315,7 @@ export default function MentorCoursesManager({ userId }: Props) {
                       <button
                         type="button"
                         onClick={() => publishMutation.mutate(course.id)}
-                        className="inline-flex items-center gap-2 rounded-xl border border-emerald-200 px-3 py-2 text-xs font-black text-emerald-700 hover:bg-emerald-50"
+                        className="inline-flex items-center gap-2 rounded-xl border border-emerald-200 dark:border-emerald-800/50 px-3 py-2 text-xs font-black text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:bg-emerald-900/30"
                       >
                         <Send className="h-3.5 w-3.5" />
                         {copy.publish}
@@ -344,7 +344,7 @@ export default function MentorCoursesManager({ userId }: Props) {
 function Field({ label, children, className = '' }: { label: string; children: React.ReactNode; className?: string }) {
   return (
     <label className={className}>
-      <span className="mb-2 block text-[11px] font-black uppercase tracking-[0.16em] text-slate-500">{label}</span>
+      <span className="mb-2 block text-[11px] font-black uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">{label}</span>
       {children}
     </label>
   )
@@ -354,14 +354,14 @@ function MiniStat({ label, value }: { label: string; value: string }) {
   return (
     <div>
       <p className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400">{label}</p>
-      <p className="mt-1 text-sm font-black text-slate-950">{value}</p>
+      <p className="mt-1 text-sm font-black text-slate-950 dark:text-slate-100">{value}</p>
     </div>
   )
 }
 
 function StatusBadge({ published }: { published: boolean }) {
   return (
-    <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-black ${published ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}`}>
+    <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-black ${published ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : 'bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'}`}>
       {published ? <Eye className="h-3.5 w-3.5" /> : <BookOpen className="h-3.5 w-3.5" />}
       {published ? 'Published' : 'Draft'}
     </span>
@@ -378,4 +378,4 @@ function formatLevel(
 }
 
 const inputClass =
-  'w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm font-medium text-slate-900 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10'
+  'w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3.5 py-2.5 text-sm font-medium text-slate-900 dark:text-slate-100 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10'

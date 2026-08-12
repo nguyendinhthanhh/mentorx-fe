@@ -324,7 +324,7 @@ export default function ProposalCreateForm({
     return (
       <div className="py-8 text-center">
         <Loader2 className="mx-auto mb-3 h-8 w-8 animate-spin text-[#4f46e5]" />
-        <p className="text-sm text-slate-600">{t('jobs.proposalForm.checkingExisting')}</p>
+        <p className="text-sm text-slate-600 dark:text-slate-400">{t('jobs.proposalForm.checkingExisting')}</p>
       </div>
     )
   }
@@ -344,36 +344,36 @@ export default function ProposalCreateForm({
 
     return (
       <div className="space-y-6">
-        <div className="overflow-hidden rounded-[24px] border border-slate-200/80 bg-white shadow-xl shadow-slate-200/40 ring-1 ring-slate-900/5 dark:border-slate-800 dark:bg-slate-900 dark:shadow-none">
+        <div className="overflow-hidden rounded-[24px] border border-slate-200 dark:border-slate-800/80 bg-white dark:bg-slate-950 shadow-xl shadow-slate-200/40 ring-1 ring-slate-900/5 dark:border-slate-800 dark:bg-slate-900 dark:shadow-none">
           {/* Header Area */}
-          <div className="relative border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white p-6 sm:px-8 sm:py-7 dark:border-slate-800/60 dark:from-slate-900/80 dark:to-slate-900/40">
+          <div className="relative border-b border-slate-100 dark:border-slate-800 bg-gradient-to-r from-slate-50 to-white p-6 sm:px-8 sm:py-7 dark:border-slate-800/60 dark:from-slate-900/80 dark:to-slate-900/40">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div className="flex items-start gap-4">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 ring-1 ring-indigo-100 dark:bg-indigo-500/10 dark:text-indigo-400 dark:ring-indigo-500/20">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-500 ring-1 ring-indigo-100 dark:bg-indigo-500/10 dark:text-indigo-400 dark:ring-indigo-500/20">
                   <FileText className="h-6 w-6" />
                 </div>
                 <div>
                   <h3 className="text-lg font-black tracking-tight text-slate-900 dark:text-white">
                     {t('jobs.proposalForm.existing.title')}
                   </h3>
-                  <div className="mt-1.5 flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
-                    <span className="font-medium text-slate-600 dark:text-slate-300">
+                  <div className="mt-1.5 flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 dark:text-slate-400">
+                    <span className="font-medium text-slate-600 dark:text-slate-400 dark:text-slate-300">
                       {t('jobs.proposalForm.existing.status')}: 
                     </span>
-                    <span className="inline-flex items-center rounded-md bg-emerald-50 px-2 py-0.5 text-xs font-bold text-emerald-700 ring-1 ring-emerald-600/20 dark:bg-emerald-500/10 dark:text-emerald-400">
+                    <span className="inline-flex items-center rounded-md bg-emerald-50 dark:bg-emerald-900/30 px-2 py-0.5 text-xs font-bold text-emerald-700 dark:text-emerald-400 ring-1 ring-emerald-600/20 dark:bg-emerald-500/10 dark:text-emerald-400">
                       {statusLabel}
                     </span>
                   </div>
                 </div>
               </div>
               <div className="flex flex-col items-start gap-1 sm:items-end">
-                <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
+                <p className="text-xs font-medium text-slate-500 dark:text-slate-400 dark:text-slate-400">
                   {t('jobs.proposalForm.existing.submittedAt')}:
                 </p>
                 <p className="text-sm font-bold text-slate-900 dark:text-white">
                   {new Date(existingProposal.submittedAt || existingProposal.createdAt).toLocaleString(locale)}
                 </p>
-                <p className="mt-1 inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                <p className="mt-1 inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 dark:bg-slate-800 dark:text-slate-300">
                   {t('jobs.proposalForm.existing.submissionUsage', {
                     count: submissionCount,
                     max: MAX_PROPOSAL_SUBMISSIONS_PER_JOB,
@@ -385,7 +385,7 @@ export default function ProposalCreateForm({
 
           <div className="p-6 sm:p-8">
             {submissionCount >= 3 && hasSubmissionAttemptsLeft && (
-              <div className="mb-6 flex items-start gap-3 rounded-2xl border border-amber-200/80 bg-amber-50/50 p-4 text-sm font-medium text-amber-900 dark:border-amber-900/30 dark:bg-amber-900/10 dark:text-amber-400">
+              <div className="mb-6 flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm font-medium text-amber-900 dark:text-amber-100 dark:border-amber-900/30 dark:bg-amber-900/10 dark:text-amber-400">
                 <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600 dark:text-amber-500" />
                 <p>{t('jobs.proposalForm.existing.resubmissionWarning', { remaining: remainingSubmissions })}</p>
               </div>
@@ -394,22 +394,22 @@ export default function ProposalCreateForm({
             <div className="space-y-6">
               {/* Cover Letter */}
               <div>
-                <h4 className="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                <h4 className="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 dark:text-slate-400">
                   <FileText className="h-4 w-4" />
                   {t('jobs.proposalForm.existing.coverLetter')}
                 </h4>
-                <div className="whitespace-pre-wrap rounded-2xl border border-slate-100 bg-slate-50/50 p-5 text-sm leading-relaxed text-slate-700 shadow-inner dark:border-slate-800 dark:bg-slate-900/50 dark:text-slate-300">
+                <div className="whitespace-pre-wrap rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50 p-5 text-sm leading-relaxed text-slate-700 dark:text-slate-300 shadow-inner dark:border-slate-800 dark:bg-slate-900/50 dark:text-slate-300">
                   {existingProposal.coverLetter}
                 </div>
               </div>
 
               {/* Stats Grid */}
               <div className="grid gap-4 sm:grid-cols-2">
-                <div className="flex flex-col justify-center rounded-2xl border border-slate-100 bg-white p-5 shadow-sm ring-1 ring-slate-900/5 transition hover:border-emerald-200 dark:border-slate-800 dark:bg-slate-900 dark:ring-white/5 dark:hover:border-emerald-900/50">
-                  <p className="mb-1 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                <div className="flex flex-col justify-center rounded-2xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 p-5 shadow-sm ring-1 ring-slate-900/5 transition hover:border-emerald-200 dark:border-emerald-800/50 dark:border-slate-800 dark:bg-slate-900 dark:ring-white/5 dark:hover:border-emerald-900/50">
+                  <p className="mb-1 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 dark:text-slate-400">
                     {t('jobs.proposalForm.existing.proposedAmount')}
                   </p>
-                  <p className="text-2xl font-black tracking-tight text-emerald-600 dark:text-emerald-400">
+                  <p className="text-2xl font-black tracking-tight text-emerald-600 dark:text-emerald-500 dark:text-emerald-400">
                     {existingProposal.proposedAmount != null
                       ? `${existingProposal.proposedAmount.toLocaleString(locale)} MXC`
                       : t('jobs.budgetTbd')}
@@ -417,13 +417,13 @@ export default function ProposalCreateForm({
                 </div>
 
                 {(existingProposal.estimatedDurationDays || existingProposal.deadlineAt) && (
-                  <div className="flex flex-col justify-center rounded-2xl border border-slate-100 bg-white p-5 shadow-sm ring-1 ring-slate-900/5 transition hover:border-indigo-200 dark:border-slate-800 dark:bg-slate-900 dark:ring-white/5 dark:hover:border-indigo-900/50">
-                    <p className="mb-1 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                  <div className="flex flex-col justify-center rounded-2xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 p-5 shadow-sm ring-1 ring-slate-900/5 transition hover:border-indigo-200 dark:border-slate-800 dark:bg-slate-900 dark:ring-white/5 dark:hover:border-indigo-900/50">
+                    <p className="mb-1 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 dark:text-slate-400">
                       {existingProposal.deadlineAt
                         ? t('jobs.proposalForm.existing.deadline')
                         : t('jobs.proposalForm.existing.durationFallback')}
                     </p>
-                    <p className="text-xl font-bold tracking-tight text-indigo-600 dark:text-indigo-400">
+                    <p className="text-xl font-bold tracking-tight text-indigo-600 dark:text-indigo-500 dark:text-indigo-400">
                       {existingProposal.deadlineAt
                         ? new Date(existingProposal.deadlineAt).toLocaleString(locale)
                         : `${existingProposal.estimatedDurationDays} ${t('jobs.proposalForm.fields.days')}`}
@@ -434,7 +434,7 @@ export default function ProposalCreateForm({
             </div>
 
             {!canEditProposal && (
-              <div className="mt-8 flex items-start gap-3 rounded-2xl border border-amber-200/80 bg-amber-50/50 p-4 text-sm font-medium text-amber-900 dark:border-amber-900/30 dark:bg-amber-900/10 dark:text-amber-400">
+              <div className="mt-8 flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm font-medium text-amber-900 dark:text-amber-100 dark:border-amber-900/30 dark:bg-amber-900/10 dark:text-amber-400">
                 <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600 dark:text-amber-500" />
                 <p>{lockedCopy}</p>
               </div>
@@ -442,7 +442,7 @@ export default function ProposalCreateForm({
 
             {/* Actions */}
             {(canEditProposal || canWithdraw) && (
-              <div className="mt-8 flex flex-col gap-3 border-t border-slate-100 pt-6 sm:flex-row dark:border-slate-800">
+              <div className="mt-8 flex flex-col gap-3 border-t border-slate-100 dark:border-slate-800 pt-6 sm:flex-row dark:border-slate-800">
                 {canEditProposal && (
                   <button
                     onClick={() => setIsEditing(true)}
@@ -455,7 +455,7 @@ export default function ProposalCreateForm({
                 {canWithdraw && (
                   <button
                     onClick={() => setShowWithdrawConfirm(true)}
-                    className="flex h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-rose-200 bg-white px-6 text-sm font-bold text-rose-700 shadow-sm transition hover:bg-rose-50 dark:border-rose-900/50 dark:bg-transparent dark:text-rose-400 dark:hover:bg-rose-900/20"
+                    className="flex h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-rose-200 bg-white dark:bg-slate-950 px-6 text-sm font-bold text-rose-700 shadow-sm transition hover:bg-rose-50 dark:border-rose-900/50 dark:bg-transparent dark:text-rose-400 dark:hover:bg-rose-900/20"
                   >
                     <Trash2 className="h-4 w-4" />
                     {t('jobs.proposalForm.action.withdraw')}
@@ -468,20 +468,20 @@ export default function ProposalCreateForm({
 
         {showWithdrawConfirm && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-            <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+            <div className="w-full max-w-md rounded-2xl bg-white dark:bg-slate-950 p-6 shadow-2xl">
               <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-rose-100">
                 <AlertCircle className="h-6 w-6 text-rose-600" />
               </div>
-              <h3 className="mb-2 text-center text-lg font-bold text-slate-900">{t('jobs.proposalForm.withdraw.title')}</h3>
-              <p className="mb-4 text-center text-sm text-slate-600">{t('jobs.proposalForm.withdraw.body')}</p>
-              <label className="mb-2 block text-sm font-bold text-slate-700">
+              <h3 className="mb-2 text-center text-lg font-bold text-slate-900 dark:text-slate-100">{t('jobs.proposalForm.withdraw.title')}</h3>
+              <p className="mb-4 text-center text-sm text-slate-600 dark:text-slate-400">{t('jobs.proposalForm.withdraw.body')}</p>
+              <label className="mb-2 block text-sm font-bold text-slate-700 dark:text-slate-300">
                 {t('jobs.proposalForm.withdraw.reasonLabel')}
               </label>
               <textarea
                 value={withdrawReason}
                 onChange={(event) => setWithdrawReason(event.target.value)}
                 rows={3}
-                className="mb-4 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none transition focus:border-rose-400 focus:ring-4 focus:ring-rose-100"
+                className="mb-4 w-full rounded-xl border border-slate-200 dark:border-slate-800 px-3 py-2 text-sm outline-none transition focus:border-rose-400 focus:ring-4 focus:ring-rose-100"
                 placeholder={t('jobs.proposalForm.withdraw.reasonPlaceholder')}
               />
               {error && (
@@ -496,7 +496,7 @@ export default function ProposalCreateForm({
                     setWithdrawReason('')
                   }}
                   disabled={withdrawing}
-                  className="flex-1 rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-bold text-slate-700 transition-all hover:bg-slate-50 disabled:opacity-50"
+                  className="flex-1 rounded-lg border border-slate-300 dark:border-slate-700 px-4 py-2.5 text-sm font-bold text-slate-700 dark:text-slate-300 transition-all hover:bg-slate-50 dark:bg-slate-900/50 disabled:opacity-50"
                 >
                   {t('common.cancel')}
                 </button>
@@ -523,8 +523,8 @@ export default function ProposalCreateForm({
   }
 
   const inputClass =
-    'w-full rounded-xl border border-[#e2e6f5] px-4 py-3 text-sm font-medium transition-all focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#c7d2fe]/40'
-  const labelClass = 'mb-2 block text-sm font-bold text-slate-700'
+    'w-full rounded-xl border border-[#e2e6f5] dark:border-slate-800 px-4 py-3 text-sm font-medium transition-all focus:border-[#4f46e5] focus:outline-none focus:ring-4 focus:ring-[#c7d2fe]/40'
+  const labelClass = 'mb-2 block text-sm font-bold text-slate-700 dark:text-slate-300'
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -535,9 +535,9 @@ export default function ProposalCreateForm({
             <span className="text-rose-500">*</span>
           </label>
           {clientBudget && (
-            <p className="mb-2 mt-[-4px] text-[13px] text-slate-500">
+            <p className="mb-2 mt-[-4px] text-[13px] text-slate-500 dark:text-slate-400">
               {t('jobs.proposalForm.fields.clientBudget')}:{' '}
-              <span className="font-bold text-emerald-600">{clientBudget.toLocaleString(locale)} MXC</span>
+              <span className="font-bold text-emerald-600 dark:text-emerald-500">{clientBudget.toLocaleString(locale)} MXC</span>
             </p>
           )}
           <div className="relative">
@@ -556,14 +556,14 @@ export default function ProposalCreateForm({
               {errors.proposedAmount.message}
             </p>
           )}
-          <div className="mt-3 rounded-xl border border-slate-200/60 bg-slate-50/50 p-3 text-[13px]">
-            <div className="mb-2 flex justify-between text-slate-500">
+          <div className="mt-3 rounded-xl border border-slate-200 dark:border-slate-800/60 bg-slate-50 dark:bg-slate-900/30 p-3 text-[13px]">
+            <div className="mb-2 flex justify-between text-slate-500 dark:text-slate-400">
               <span>{feeInfo.label}</span>
               <span className="font-medium">- {platformFee.toLocaleString(locale)} MXC</span>
             </div>
-            <div className="flex justify-between border-t border-slate-200/60 pt-2 font-bold text-slate-900">
+            <div className="flex justify-between border-t border-slate-200 dark:border-slate-800/60 pt-2 font-bold text-slate-900 dark:text-slate-100">
               <span>{t('jobs.proposalForm.summary.netAmount')}</span>
-              <span className="text-emerald-600">{netAmount.toLocaleString(locale)} MXC</span>
+              <span className="text-emerald-600 dark:text-emerald-500">{netAmount.toLocaleString(locale)} MXC</span>
             </div>
           </div>
         </div>
@@ -573,7 +573,7 @@ export default function ProposalCreateForm({
             {t('jobs.proposalForm.fields.deadline')} <span className="text-rose-500">*</span>
           </label>
           {clientDeadline && (
-            <p className="mb-2 mt-[-4px] text-[13px] text-slate-500">
+            <p className="mb-2 mt-[-4px] text-[13px] text-slate-500 dark:text-slate-400">
               {t('jobs.proposalForm.fields.clientDeadline')}:{' '}
               <span className="font-bold text-blue-600">{new Date(clientDeadline).toLocaleString(locale)}</span>
             </p>
@@ -587,7 +587,7 @@ export default function ProposalCreateForm({
               {...register('deadlineAt')}
               className={inputClass}
             />
-            <p className="mt-2 text-[13px] text-slate-500">
+            <p className="mt-2 text-[13px] text-slate-500 dark:text-slate-400">
               {selectedDeadlineAt
                 ? `${t('jobs.proposalForm.fields.deadlinePreview')}: ${new Date(normalizeDateTimeLocalValue(selectedDeadlineAt) || selectedDeadlineAt).toLocaleString(locale)}`
                 : t('jobs.proposalForm.fields.deadlineHelp')}
@@ -610,14 +610,14 @@ export default function ProposalCreateForm({
 
       <div>
         <div className="mb-2 flex items-center justify-between">
-          <label className="text-sm font-bold text-slate-700">
+          <label className="text-sm font-bold text-slate-700 dark:text-slate-300">
             {t('jobs.proposalForm.fields.coverLetter')} <span className="text-rose-500">*</span>
           </label>
           <div className="flex gap-3">
             <button
               type="button"
               onClick={handleUseSuggestedTemplate}
-              className="flex items-center gap-1 text-xs font-bold text-emerald-600 transition hover:text-emerald-700"
+              className="flex items-center gap-1 text-xs font-bold text-emerald-600 dark:text-emerald-500 transition hover:text-emerald-700 dark:text-emerald-400"
             >
               <FileText className="h-3.5 w-3.5" /> {t('jobs.proposalForm.action.useSuggested')}
             </button>
@@ -649,11 +649,11 @@ export default function ProposalCreateForm({
           </p>
         )}
         <div className="mt-2 flex items-center justify-between">
-          <p className="text-xs text-slate-500">{t('jobs.proposalForm.fields.minimumChars')}</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">{t('jobs.proposalForm.fields.minimumChars')}</p>
           <button
             type="button"
             onClick={handleSaveMyTemplate}
-            className="flex items-center gap-1 text-xs font-medium text-slate-500 transition hover:text-slate-800"
+            className="flex items-center gap-1 text-xs font-medium text-slate-500 dark:text-slate-400 transition hover:text-slate-800 dark:text-slate-200"
           >
             <Save className="h-3 w-3" /> {t('jobs.proposalForm.action.saveTemplate')}
           </button>
@@ -706,7 +706,7 @@ export default function ProposalCreateForm({
               })
             }
           }}
-          className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-200 py-3 text-sm font-bold text-slate-700 transition-all hover:bg-slate-300"
+          className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-200 py-3 text-sm font-bold text-slate-700 dark:text-slate-300 transition-all hover:bg-slate-300"
         >
           {t('jobs.proposalForm.action.cancelEdit')}
         </button>

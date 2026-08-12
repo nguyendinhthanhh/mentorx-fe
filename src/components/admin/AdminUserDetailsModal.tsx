@@ -40,9 +40,9 @@ export default function AdminUserDetailsModal({ isOpen, onClose, user }: AdminUs
 
   const getStatusColor = (status: UserStatus) => {
     switch (status) {
-      case UserStatus.ACTIVE: return 'text-emerald-600 bg-emerald-50 border-emerald-100'
+      case UserStatus.ACTIVE: return 'text-emerald-600 dark:text-emerald-500 bg-emerald-50 dark:bg-emerald-900/30 border-emerald-100 dark:border-emerald-900/50'
       case UserStatus.SUSPENDED: return 'text-rose-600 bg-rose-50 border-rose-100'
-      default: return 'text-gray-600 bg-gray-50 border-gray-100'
+      default: return 'text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-900/50 border-gray-100'
     }
   }
 
@@ -121,19 +121,19 @@ export default function AdminUserDetailsModal({ isOpen, onClose, user }: AdminUs
         role="dialog"
         aria-modal="true"
         aria-label="User details"
-        className="flex h-dvh max-h-none w-full max-w-none flex-col overflow-hidden border border-gray-200 bg-white shadow-2xl animate-in fade-in zoom-in-95 duration-300 dark:border-gray-800 dark:bg-gray-900 sm:h-[calc(100dvh-2rem)] sm:max-w-5xl sm:rounded-3xl lg:h-[85dvh] md:flex-row"
+        className="flex h-dvh max-h-none w-full max-w-none flex-col overflow-hidden border border-gray-200 dark:border-gray-800 bg-white dark:bg-slate-950 shadow-2xl animate-in fade-in zoom-in-95 duration-300 dark:border-gray-800 dark:bg-gray-900 sm:h-[calc(100dvh-2rem)] sm:max-w-5xl sm:rounded-3xl lg:h-[85dvh] md:flex-row"
         onClick={e => e.stopPropagation()}
       >
         {/* LEFT SIDEBAR */}
-        <div className="flex w-full shrink-0 flex-col border-b border-gray-100 bg-gray-50/50 dark:border-gray-800 dark:bg-gray-900 md:w-72 md:border-b-0 md:border-r">
+        <div className="flex w-full shrink-0 flex-col border-b border-gray-100 bg-gray-50 dark:border-gray-800 dark:bg-gray-900 md:w-72 md:border-b-0 md:border-r">
            {/* Profile Summary */}
            <div className="flex items-center gap-3 border-b border-gray-100 p-3 text-left dark:border-gray-800 sm:p-4 md:block md:space-y-4 md:p-8 md:text-center">
               <div className="relative inline-block group">
-                 <div className="mx-auto h-14 w-14 overflow-hidden rounded-2xl border border-gray-200 bg-white p-1 shadow-sm dark:border-gray-700 dark:bg-gray-800 md:h-24 md:w-24">
+                 <div className="mx-auto h-14 w-14 overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-slate-950 p-1 shadow-sm dark:border-gray-700 dark:bg-gray-800 md:h-24 md:w-24">
                     {user.avatarUrl ? (
                        <img src={user.avatarUrl} alt={user.fullName} className="w-full h-full object-cover rounded-[0.9rem]" />
                     ) : (
-                       <div className="w-full h-full flex items-center justify-center bg-emerald-50 text-emerald-600 text-3xl font-bold rounded-[0.9rem]">
+                       <div className="w-full h-full flex items-center justify-center bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-500 text-3xl font-bold rounded-[0.9rem]">
                           {user.fullName.charAt(0).toUpperCase()}
                        </div>
                     )}
@@ -143,7 +143,7 @@ export default function AdminUserDetailsModal({ isOpen, onClose, user }: AdminUs
                  </div>
               </div>
               <div>
-                 <h2 className="text-lg font-bold text-gray-900 dark:text-white tracking-tight">{user.fullName}</h2>
+                 <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 dark:text-white tracking-tight">{user.fullName}</h2>
                  <p className="text-xs font-medium text-gray-500 mt-1">{user.role?.toString() || 'Platform Member'}</p>
               </div>
            </div>
@@ -156,11 +156,11 @@ export default function AdminUserDetailsModal({ isOpen, onClose, user }: AdminUs
                   onClick={() => setActiveTab(item.id as TabType)}
                   className={`group flex min-h-11 shrink-0 items-center gap-3 rounded-xl px-3 py-2.5 transition-all md:w-full ${
                     activeTab === item.id 
-                      ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' 
-                      : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+                      ? 'bg-emerald-50 dark:bg-emerald-900/30 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-500 dark:text-emerald-400' 
+                      : 'text-gray-600 dark:text-gray-400 dark:text-gray-400 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-800'
                   }`}
                 >
-                   <item.icon className={`w-5 h-5 flex-shrink-0 ${activeTab === item.id ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400'}`} />
+                   <item.icon className={`w-5 h-5 flex-shrink-0 ${activeTab === item.id ? 'text-emerald-600 dark:text-emerald-500 dark:text-emerald-400' : 'text-gray-400'}`} />
                    <div className="text-left flex-1 min-w-0">
                       <p className="text-sm font-medium leading-none truncate">{item.label}</p>
                    </div>
@@ -181,7 +181,7 @@ export default function AdminUserDetailsModal({ isOpen, onClose, user }: AdminUs
         </div>
 
         {/* RIGHT CONTENT AREA */}
-        <div className="flex min-h-0 min-w-0 flex-1 flex-col bg-white dark:bg-gray-900">
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col bg-white dark:bg-slate-950 dark:bg-gray-900">
            {/* Top Info Bar */}
            <div className="flex min-h-16 flex-shrink-0 items-center justify-between gap-2 border-b border-gray-100 px-3 py-2 dark:border-gray-800 sm:px-5 lg:h-20 lg:px-8">
               <div className="flex min-w-0 items-center gap-2 sm:gap-4">
@@ -201,7 +201,7 @@ export default function AdminUserDetailsModal({ isOpen, onClose, user }: AdminUs
                     <span className="hidden sm:inline">Send Notification</span>
                     <span className="sm:hidden">Notify</span>
                  </button>
-                 <button className="hidden min-h-11 min-w-11 items-center justify-center rounded-xl border border-gray-200 text-gray-500 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800 sm:flex">
+                 <button className="hidden min-h-11 min-w-11 items-center justify-center rounded-xl border border-gray-200 dark:border-gray-800 text-gray-500 transition-colors hover:bg-gray-50 dark:bg-gray-900/50 dark:border-gray-700 dark:hover:bg-gray-800 sm:flex">
                     <ExternalLink className="w-4 h-4" />
                  </button>
                  <div className="ml-1 hidden h-6 w-px bg-gray-200 dark:bg-gray-700 sm:block"></div>
@@ -223,38 +223,38 @@ export default function AdminUserDetailsModal({ isOpen, onClose, user }: AdminUs
                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                       <div className="md:col-span-2 space-y-8">
                          <section className="space-y-3">
-                            <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Biography</h3>
-                            <div className="p-6 rounded-2xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800 leading-relaxed text-gray-600 dark:text-gray-400 italic text-sm">
+                            <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 dark:text-white">Biography</h3>
+                            <div className="p-6 rounded-2xl bg-gray-50 dark:bg-gray-900/50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800 leading-relaxed text-gray-600 dark:text-gray-400 dark:text-gray-400 italic text-sm">
                                "{user.bio || 'This user has not set a biography yet.'}"
                             </div>
                          </section>
 
                          <section className="grid gap-6 sm:grid-cols-2 lg:gap-8">
                             <div className="space-y-4">
-                               <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Contact Details</h3>
+                               <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 dark:text-white">Contact Details</h3>
                                <div className="space-y-4">
                                   <div className="flex items-center gap-3">
-                                     <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center flex-shrink-0">
+                                     <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-500 dark:text-emerald-400 flex items-center justify-center flex-shrink-0">
                                         <Mail className="w-5 h-5" />
                                      </div>
                                      <div className="min-w-0 flex-1">
                                         <p className="text-xs text-gray-500 uppercase tracking-wider font-medium">Email</p>
-                                        <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{user.email}</p>
+                                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100 dark:text-white truncate">{user.email}</p>
                                      </div>
                                   </div>
                                   <div className="flex items-center gap-3">
-                                     <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center flex-shrink-0">
+                                     <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-500 dark:text-emerald-400 flex items-center justify-center flex-shrink-0">
                                         <Phone className="w-5 h-5" />
                                      </div>
                                      <div>
                                         <p className="text-xs text-gray-500 uppercase tracking-wider font-medium">Phone</p>
-                                        <p className="text-sm font-medium text-gray-900 dark:text-white">{user.phone || 'N/A'}</p>
+                                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100 dark:text-white">{user.phone || 'N/A'}</p>
                                      </div>
                                   </div>
                                </div>
                             </div>
                             <div className="space-y-4">
-                               <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Account Info</h3>
+                               <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 dark:text-white">Account Info</h3>
                                <div className="space-y-4">
                                   <div className="flex items-center gap-3">
                                      <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 flex items-center justify-center flex-shrink-0">
@@ -262,16 +262,16 @@ export default function AdminUserDetailsModal({ isOpen, onClose, user }: AdminUs
                                      </div>
                                      <div>
                                         <p className="text-xs text-gray-500 uppercase tracking-wider font-medium">Locale</p>
-                                        <p className="text-sm font-medium text-gray-900 dark:text-white">{user.countryCode || 'International'}</p>
+                                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100 dark:text-white">{user.countryCode || 'International'}</p>
                                      </div>
                                   </div>
                                   <div className="flex items-center gap-3">
-                                     <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center flex-shrink-0">
+                                     <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-500 dark:text-emerald-400 flex items-center justify-center flex-shrink-0">
                                         <Award className="w-5 h-5" />
                                      </div>
                                      <div>
                                         <p className="text-xs text-gray-500 uppercase tracking-wider font-medium">Status</p>
-                                        <p className="text-sm font-medium text-gray-900 dark:text-white">{user.mentorStatus === 'APPROVED' ? 'Mentor' : 'Member'}</p>
+                                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100 dark:text-white">{user.mentorStatus === 'APPROVED' ? 'Mentor' : 'Member'}</p>
                                      </div>
                                   </div>
                                </div>
@@ -292,12 +292,12 @@ export default function AdminUserDetailsModal({ isOpen, onClose, user }: AdminUs
                             <p className="mt-4 text-xs font-medium text-gray-400 leading-relaxed">Top 5% of trusted community members.</p>
                          </div>
                          
-                         <div className="p-6 rounded-3xl border border-gray-200 dark:border-gray-800 shadow-sm space-y-4 bg-white dark:bg-gray-900">
+                         <div className="p-6 rounded-3xl border border-gray-200 dark:border-gray-800 dark:border-gray-800 shadow-sm space-y-4 bg-white dark:bg-slate-950 dark:bg-gray-900">
                             <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-500">System Badges</h4>
                             <div className="flex flex-wrap gap-3">
-                               <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center" title="Verified Member"><ShieldCheck className="w-5 h-5" /></div>
-                               <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center" title="2FA Enabled"><Lock className="w-5 h-5" /></div>
-                               <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center" title="Course Grad"><BookOpen className="w-5 h-5" /></div>
+                               <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-500 flex items-center justify-center" title="Verified Member"><ShieldCheck className="w-5 h-5" /></div>
+                               <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-900/30 text-amber-600 flex items-center justify-center" title="2FA Enabled"><Lock className="w-5 h-5" /></div>
+                               <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-500 flex items-center justify-center" title="Course Grad"><BookOpen className="w-5 h-5" /></div>
                             </div>
                          </div>
                       </div>
@@ -309,17 +309,17 @@ export default function AdminUserDetailsModal({ isOpen, onClose, user }: AdminUs
                 <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-300">
                    <div className="grid gap-6 sm:grid-cols-2">
                       <div className="p-6 rounded-3xl bg-emerald-600 text-white shadow-md relative overflow-hidden group">
-                         <div className="absolute -right-4 -bottom-4 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700" />
+                         <div className="absolute -right-4 -bottom-4 w-32 h-32 bg-white dark:bg-slate-950/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700" />
                          <p className="text-xs font-medium uppercase tracking-wider opacity-80">Available Credits</p>
                          <h3 className="text-3xl font-bold mt-2">{formatCurrency(user.balance || 1250000)}</h3>
                          <div className="mt-6 flex gap-2">
-                            <button className="px-3 py-1.5 rounded-lg bg-white/20 hover:bg-white/30 text-xs font-medium transition-colors backdrop-blur-sm">Add Funds</button>
-                            <button className="px-3 py-1.5 rounded-lg bg-white/20 hover:bg-white/30 text-xs font-medium transition-colors backdrop-blur-sm">Lock Balance</button>
+                            <button className="px-3 py-1.5 rounded-lg bg-white dark:bg-slate-950/20 hover:bg-white dark:bg-slate-950/30 text-xs font-medium transition-colors backdrop-blur-sm">Add Funds</button>
+                            <button className="px-3 py-1.5 rounded-lg bg-white dark:bg-slate-950/20 hover:bg-white dark:bg-slate-950/30 text-xs font-medium transition-colors backdrop-blur-sm">Lock Balance</button>
                          </div>
                       </div>
-                      <div className="p-6 rounded-3xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm">
+                      <div className="p-6 rounded-3xl bg-white dark:bg-slate-950 dark:bg-gray-800 border border-gray-200 dark:border-gray-800 dark:border-gray-700 shadow-sm">
                          <p className="text-xs font-medium uppercase tracking-wider text-gray-500">Total Spent</p>
-                         <h3 className="text-3xl font-bold mt-2 text-gray-900 dark:text-white">{formatCurrency(450000)}</h3>
+                         <h3 className="text-3xl font-bold mt-2 text-gray-900 dark:text-gray-100 dark:text-white">{formatCurrency(450000)}</h3>
                          <div className="mt-6 flex items-center gap-1.5 text-rose-500 font-medium text-sm">
                             <TrendingUp className="w-4 h-4" /> +12.4% from last month
                          </div>
@@ -328,28 +328,28 @@ export default function AdminUserDetailsModal({ isOpen, onClose, user }: AdminUs
 
                    <section className="space-y-4">
                       <div className="flex items-center justify-between">
-                         <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Transaction Ledger</h3>
-                         <button className="text-sm font-medium text-emerald-600 hover:underline">View All</button>
+                         <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 dark:text-white">Transaction Ledger</h3>
+                         <button className="text-sm font-medium text-emerald-600 dark:text-emerald-500 hover:underline">View All</button>
                       </div>
-                      <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden">
+                      <div className="bg-white dark:bg-slate-950 dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 dark:border-gray-800 overflow-hidden">
                          {[
                            { id: 'TX-1', type: 'DEPOSIT', amount: '+500,000', method: 'PAYOS', status: 'MATCHED', time: '2h ago' },
                            { id: 'TX-2', type: 'PAYOUT', amount: '-120,000', method: 'BANK', status: 'COMPLETED', time: '1d ago' },
                            { id: 'TX-3', type: 'PURCHASE', amount: '-350,000', method: 'WALLET', status: 'COMPLETED', time: '3d ago' },
                          ].map((tx, i) => (
-                           <div key={i} className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-800 last:border-0 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                           <div key={i} className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-800 last:border-0 hover:bg-gray-50 dark:bg-gray-900/50 dark:hover:bg-gray-800/50 transition-colors">
                               <div className="flex items-center gap-4">
-                                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${tx.amount.startsWith('+') ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400' : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400'}`}>
+                                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${tx.amount.startsWith('+') ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-500 dark:bg-emerald-500/10 dark:text-emerald-400' : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:bg-gray-800 dark:text-gray-400'}`}>
                                     <History className="w-5 h-5" />
                                  </div>
                                  <div>
-                                    <p className="text-sm font-semibold text-gray-900 dark:text-white">{tx.type}</p>
+                                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 dark:text-white">{tx.type}</p>
                                     <p className="text-xs font-medium text-gray-500">{tx.id} • {tx.time}</p>
                                  </div>
                               </div>
                               <div className="text-right">
-                                 <p className={`text-sm font-bold ${tx.amount.startsWith('+') ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-900 dark:text-white'}`}>{tx.amount} MXC</p>
-                                 <span className="text-xs font-medium text-gray-500 border border-gray-200 dark:border-gray-700 px-2 py-0.5 rounded-md mt-1 inline-block">{tx.status}</span>
+                                 <p className={`text-sm font-bold ${tx.amount.startsWith('+') ? 'text-emerald-600 dark:text-emerald-500 dark:text-emerald-400' : 'text-gray-900 dark:text-gray-100 dark:text-white'}`}>{tx.amount} MXC</p>
+                                 <span className="text-xs font-medium text-gray-500 border border-gray-200 dark:border-gray-800 dark:border-gray-700 px-2 py-0.5 rounded-md mt-1 inline-block">{tx.status}</span>
                               </div>
                            </div>
                          ))}
@@ -363,14 +363,14 @@ export default function AdminUserDetailsModal({ isOpen, onClose, user }: AdminUs
                     <div className="grid gap-6 sm:grid-cols-2 lg:gap-8">
                        <section className="space-y-4">
                           <div className="flex items-center justify-between">
-                             <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Active Jobs</h3>
-                             <span className="px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400 text-xs font-semibold">12 Posted</span>
+                             <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 dark:text-white">Active Jobs</h3>
+                             <span className="px-2.5 py-1 rounded-md bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-500 dark:bg-emerald-500/10 dark:text-emerald-400 text-xs font-semibold">12 Posted</span>
                           </div>
                           <div className="space-y-3">
                              {[1,2,3].map(i => (
-                               <div key={i} className="p-4 rounded-2xl bg-gray-50 dark:bg-gray-800/50 border border-transparent hover:border-gray-200 dark:hover:border-gray-700 transition-colors cursor-pointer group">
+                               <div key={i} className="p-4 rounded-2xl bg-gray-50 dark:bg-gray-900/50 dark:bg-gray-800/50 border border-transparent hover:border-gray-200 dark:border-gray-800 dark:hover:border-gray-700 transition-colors cursor-pointer group">
                                   <div className="flex justify-between items-start">
-                                     <p className="text-sm font-semibold text-gray-900 dark:text-white group-hover:text-emerald-600 transition-colors">Backend Architect Needed</p>
+                                     <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 dark:text-white group-hover:text-emerald-600 dark:text-emerald-500 transition-colors">Backend Architect Needed</p>
                                      <ExternalLink className="w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-all" />
                                   </div>
                                   <p className="text-xs font-medium text-gray-500 mt-1">Budget: $450 • 2 weeks ago</p>
@@ -380,17 +380,17 @@ export default function AdminUserDetailsModal({ isOpen, onClose, user }: AdminUs
                        </section>
                        <section className="space-y-4">
                           <div className="flex items-center justify-between">
-                             <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Learning History</h3>
-                             <span className="px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400 text-xs font-semibold">5 Enrolled</span>
+                             <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 dark:text-white">Learning History</h3>
+                             <span className="px-2.5 py-1 rounded-md bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-500 dark:bg-emerald-500/10 dark:text-emerald-400 text-xs font-semibold">5 Enrolled</span>
                           </div>
                           <div className="space-y-3">
                              {[1,2].map(i => (
-                               <div key={i} className="p-4 rounded-2xl bg-gray-50 dark:bg-gray-800/50 border border-transparent hover:border-gray-200 dark:hover:border-gray-700 transition-colors flex gap-4">
-                                  <div className="w-10 h-10 rounded-xl bg-white dark:bg-gray-900 flex items-center justify-center shadow-sm">
-                                     <BookOpen className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                               <div key={i} className="p-4 rounded-2xl bg-gray-50 dark:bg-gray-900/50 dark:bg-gray-800/50 border border-transparent hover:border-gray-200 dark:border-gray-800 dark:hover:border-gray-700 transition-colors flex gap-4">
+                                  <div className="w-10 h-10 rounded-xl bg-white dark:bg-slate-950 dark:bg-gray-900 flex items-center justify-center shadow-sm">
+                                     <BookOpen className="w-5 h-5 text-emerald-600 dark:text-emerald-500 dark:text-emerald-400" />
                                   </div>
                                   <div className="min-w-0 flex-1">
-                                     <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">Advanced System Design</p>
+                                     <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 dark:text-white truncate">Advanced System Design</p>
                                      <div className="mt-2 h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                                         <div className="h-full bg-emerald-600 dark:bg-emerald-500 w-[85%]" />
                                      </div>
@@ -407,22 +407,22 @@ export default function AdminUserDetailsModal({ isOpen, onClose, user }: AdminUs
               {activeTab === 'security' && (
                  <div className="max-w-3xl mx-auto space-y-8 animate-in fade-in slide-in-from-right-4 duration-300">
                     <div className="grid gap-6 sm:grid-cols-2">
-                       <div className="p-6 rounded-3xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm flex items-center gap-4">
-                          <div className={`p-3 rounded-xl ${user.isEmailVerified ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400' : 'bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400'}`}>
+                       <div className="p-6 rounded-3xl bg-white dark:bg-slate-950 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 dark:border-gray-800 shadow-sm flex items-center gap-4">
+                          <div className={`p-3 rounded-xl ${user.isEmailVerified ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-500 dark:bg-emerald-500/10 dark:text-emerald-400' : 'bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400'}`}>
                              <Mail className="w-5 h-5" />
                           </div>
                           <div>
                              <h4 className="text-xs font-medium text-gray-500 uppercase tracking-wider">Email Identity</h4>
-                             <p className="text-sm font-semibold text-gray-900 dark:text-white">{user.isEmailVerified ? 'Verified' : 'Unverified'}</p>
+                             <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 dark:text-white">{user.isEmailVerified ? 'Verified' : 'Unverified'}</p>
                           </div>
                        </div>
-                       <div className="p-6 rounded-3xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm flex items-center gap-4">
-                          <div className={`p-3 rounded-xl ${user.is2faEnabled ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400' : 'bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400'}`}>
+                       <div className="p-6 rounded-3xl bg-white dark:bg-slate-950 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 dark:border-gray-800 shadow-sm flex items-center gap-4">
+                          <div className={`p-3 rounded-xl ${user.is2faEnabled ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-500 dark:bg-emerald-500/10 dark:text-emerald-400' : 'bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400'}`}>
                              <Fingerprint className="w-5 h-5" />
                           </div>
                           <div>
                              <h4 className="text-xs font-medium text-gray-500 uppercase tracking-wider">Two-Factor</h4>
-                             <p className="text-sm font-semibold text-gray-900 dark:text-white">{user.is2faEnabled ? 'Protected' : 'Disabled'}</p>
+                             <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 dark:text-white">{user.is2faEnabled ? 'Protected' : 'Disabled'}</p>
                           </div>
                        </div>
                     </div>
@@ -455,7 +455,7 @@ export default function AdminUserDetailsModal({ isOpen, onClose, user }: AdminUs
                             type="button"
                             onClick={handleForceLogout}
                             disabled={isForcingLogout || isSendingResetEmail}
-                            className="px-4 py-2 rounded-xl bg-white/10 text-white text-sm font-medium hover:bg-white/20 transition-colors border border-white/10 disabled:cursor-not-allowed disabled:opacity-60"
+                            className="px-4 py-2 rounded-xl bg-white dark:bg-slate-950/10 text-white text-sm font-medium hover:bg-white dark:bg-slate-950/20 transition-colors border border-white/10 disabled:cursor-not-allowed disabled:opacity-60"
                           >
                             {isForcingLogout ? t('admin.userSecurity.forceLoggingOut') : t('admin.userSecurity.forceLogout')}
                           </button>
@@ -471,39 +471,39 @@ export default function AdminUserDetailsModal({ isOpen, onClose, user }: AdminUs
       {/* Custom Notification Modal */}
       {isNotifModalOpen && (
         <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm animate-in fade-in duration-200" onClick={() => setIsNotifModalOpen(false)}>
-          <div className="bg-white dark:bg-gray-900 w-full max-w-md rounded-2xl shadow-xl border border-gray-200 dark:border-gray-800 overflow-hidden animate-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
+          <div className="bg-white dark:bg-slate-950 dark:bg-gray-900 w-full max-w-md rounded-2xl shadow-xl border border-gray-200 dark:border-gray-800 dark:border-gray-800 overflow-hidden animate-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
             <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center">
-              <h3 className="font-semibold text-gray-900 dark:text-white">Send Notification</h3>
-              <button onClick={() => setIsNotifModalOpen(false)} className="text-gray-400 hover:text-gray-600 transition-colors">
+              <h3 className="font-semibold text-gray-900 dark:text-gray-100 dark:text-white">Send Notification</h3>
+              <button onClick={() => setIsNotifModalOpen(false)} className="text-gray-400 hover:text-gray-600 dark:text-gray-400 transition-colors">
                 <X className="w-5 h-5" />
               </button>
             </div>
             <div className="p-6 space-y-4">
               <div className="space-y-1.5">
-                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Title</label>
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300 dark:text-gray-300">Title</label>
                 <input 
                   type="text" 
                   value={notifTitle}
                   onChange={e => setNotifTitle(e.target.value)}
                   placeholder="Notification Title"
-                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all text-sm outline-none text-gray-900 dark:text-white"
+                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-800 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 dark:bg-gray-800/50 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all text-sm outline-none text-gray-900 dark:text-gray-100 dark:text-white"
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Message</label>
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300 dark:text-gray-300">Message</label>
                 <textarea 
                   value={notifContent}
                   onChange={e => setNotifContent(e.target.value)}
                   placeholder="Enter message..."
                   rows={4}
-                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all text-sm outline-none text-gray-900 dark:text-white resize-none"
+                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-800 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 dark:bg-gray-800/50 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all text-sm outline-none text-gray-900 dark:text-gray-100 dark:text-white resize-none"
                 />
               </div>
             </div>
-            <div className="px-6 py-4 border-t border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/20 flex justify-end gap-3">
+            <div className="px-6 py-4 border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/20 flex justify-end gap-3">
               <button 
                 onClick={() => setIsNotifModalOpen(false)}
-                className="px-4 py-2 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-100 transition-colors"
+                className="px-4 py-2 rounded-xl text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:bg-gray-800 transition-colors"
               >
                 Cancel
               </button>

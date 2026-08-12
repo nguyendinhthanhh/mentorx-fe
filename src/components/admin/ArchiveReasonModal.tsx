@@ -37,20 +37,20 @@ export default function ArchiveReasonModal({
 
   return createPortal((
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-2 backdrop-blur-sm sm:p-4">
-      <div className="max-h-[calc(100dvh-1rem)] w-full max-w-md overflow-y-auto rounded-2xl border border-gray-100 bg-white shadow-2xl dark:border-gray-800 dark:bg-gray-900 sm:rounded-[2.5rem]">
-        <div className="flex items-center justify-between gap-3 border-b border-gray-50 bg-gray-50/30 px-4 py-4 dark:border-gray-800 dark:bg-gray-800/30 sm:px-8 sm:py-6">
+      <div className="max-h-[calc(100dvh-1rem)] w-full max-w-md overflow-y-auto rounded-2xl border border-gray-100 bg-white dark:bg-slate-950 shadow-2xl dark:border-gray-800 dark:bg-gray-900 sm:rounded-[2.5rem]">
+        <div className="flex items-center justify-between gap-3 border-b border-gray-50 bg-gray-50 px-4 py-4 dark:border-gray-800 dark:bg-gray-800/30 sm:px-8 sm:py-6">
           <div className="min-w-0">
-            <h2 className="text-xl font-black text-gray-900 dark:text-white tracking-tight">{title}</h2>
+            <h2 className="text-xl font-black text-gray-900 dark:text-gray-100 dark:text-white tracking-tight">{title}</h2>
             <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mt-1">Reason required for moderation</p>
           </div>
-          <button type="button" onClick={onClose} aria-label="Close" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl transition-colors hover:bg-gray-100 dark:hover:bg-gray-800">
+          <button type="button" onClick={onClose} aria-label="Close" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl transition-colors hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-800">
             <X className="w-6 h-6 text-gray-400" />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6 p-4 sm:p-8">
           <div className="space-y-4">
-            <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800 rounded-2xl flex items-start gap-3 text-amber-700 dark:text-amber-400 text-xs font-bold leading-relaxed">
+            <div className="p-4 bg-amber-50 dark:bg-amber-900/30 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800 rounded-2xl flex items-start gap-3 text-amber-700 dark:text-amber-400 dark:text-amber-400 text-xs font-bold leading-relaxed">
               <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
               {message}
             </div>
@@ -63,7 +63,7 @@ export default function ArchiveReasonModal({
                   setReason(e.target.value)
                   setError('')
                 }}
-                className="w-full px-6 py-4 rounded-2xl bg-gray-50 dark:bg-gray-800 border border-transparent focus:bg-white dark:focus:bg-gray-900 focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500/30 transition-all text-sm font-medium min-h-[120px] resize-none"
+                className="w-full px-6 py-4 rounded-2xl bg-gray-50 dark:bg-gray-900/50 dark:bg-gray-800 border border-transparent focus:bg-white dark:bg-slate-950 dark:focus:bg-gray-900 focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500/30 transition-all text-sm font-medium min-h-[120px] resize-none"
                 placeholder="Please explain why..."
                 autoFocus
               />
@@ -75,7 +75,7 @@ export default function ArchiveReasonModal({
             <button 
               type="button"
               onClick={onClose}
-              className="flex-1 py-4 rounded-2xl text-sm font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest hover:text-gray-900 dark:hover:text-white transition-all"
+              className="flex-1 py-4 rounded-2xl text-sm font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest hover:text-gray-900 dark:text-gray-100 dark:hover:text-white transition-all"
             >
               Cancel
             </button>

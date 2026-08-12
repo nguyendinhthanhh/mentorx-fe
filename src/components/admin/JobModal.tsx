@@ -78,18 +78,18 @@ export default function JobModal({ job, isOpen, onClose }: JobModalProps) {
 
   return createPortal((
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-2 backdrop-blur-sm sm:p-4">
-      <div className="flex max-h-[calc(100dvh-1rem)] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-2xl dark:border-gray-800 dark:bg-gray-900 sm:max-h-[90dvh] sm:rounded-[2.5rem]">
+      <div className="flex max-h-[calc(100dvh-1rem)] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white dark:bg-slate-950 shadow-2xl dark:border-gray-800 dark:bg-gray-900 sm:max-h-[90dvh] sm:rounded-[2.5rem]">
         {/* Header */}
-        <div className="flex items-center justify-between gap-3 border-b border-gray-50 bg-gray-50/30 px-4 py-4 dark:border-gray-800 dark:bg-gray-800/30 sm:px-8 sm:py-6">
+        <div className="flex items-center justify-between gap-3 border-b border-gray-50 bg-gray-50 px-4 py-4 dark:border-gray-800 dark:bg-gray-800/30 sm:px-8 sm:py-6">
           <div className="min-w-0">
-            <h2 className="text-xl font-black text-gray-900 dark:text-white tracking-tight">
+            <h2 className="text-xl font-black text-gray-900 dark:text-gray-100 dark:text-white tracking-tight">
               Edit Job Content
             </h2>
             <p className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mt-1">
               Job ID: {job?.jobId}
             </p>
           </div>
-          <button type="button" onClick={onClose} aria-label="Close" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl transition-colors hover:bg-gray-100 dark:hover:bg-gray-800">
+          <button type="button" onClick={onClose} aria-label="Close" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl transition-colors hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-800">
             <X className="w-6 h-6 text-gray-400" />
           </button>
         </div>
@@ -110,7 +110,7 @@ export default function JobModal({ job, isOpen, onClose }: JobModalProps) {
                 <label className="block text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] mb-2 ml-1">Job Title</label>
                 <input 
                   {...register('title', { required: true })}
-                  className="w-full px-6 py-3.5 rounded-2xl bg-gray-50 dark:bg-gray-800 border border-transparent focus:bg-white dark:focus:bg-gray-900 focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500/30 transition-all text-sm font-medium"
+                  className="w-full px-6 py-3.5 rounded-2xl bg-gray-50 dark:bg-gray-900/50 dark:bg-gray-800 border border-transparent focus:bg-white dark:bg-slate-950 dark:focus:bg-gray-900 focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500/30 transition-all text-sm font-medium"
                   placeholder="e.g. Senior Java Developer"
                 />
               </div>
@@ -120,7 +120,7 @@ export default function JobModal({ job, isOpen, onClose }: JobModalProps) {
                 <textarea 
                   {...register('description', { required: true })}
                   rows={4}
-                  className="w-full px-6 py-3.5 rounded-2xl bg-gray-50 dark:bg-gray-800 border border-transparent focus:bg-white dark:focus:bg-gray-900 focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500/30 transition-all text-sm font-medium resize-none"
+                  className="w-full px-6 py-3.5 rounded-2xl bg-gray-50 dark:bg-gray-900/50 dark:bg-gray-800 border border-transparent focus:bg-white dark:bg-slate-950 dark:focus:bg-gray-900 focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500/30 transition-all text-sm font-medium resize-none"
                   placeholder="Detailed job description..."
                 />
               </div>
@@ -131,7 +131,7 @@ export default function JobModal({ job, isOpen, onClose }: JobModalProps) {
                 <label className="block text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] mb-2 ml-1">Category</label>
                 <select 
                   {...register('categoryId')}
-                  className="w-full px-6 py-3.5 rounded-2xl bg-gray-50 dark:bg-gray-800 border border-transparent focus:bg-white dark:focus:bg-gray-900 focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500/30 transition-all text-sm font-bold"
+                  className="w-full px-6 py-3.5 rounded-2xl bg-gray-50 dark:bg-gray-900/50 dark:bg-gray-800 border border-transparent focus:bg-white dark:bg-slate-950 dark:focus:bg-gray-900 focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500/30 transition-all text-sm font-bold"
                 >
                   <option value="">Select Category</option>
                   {categories?.map(c => (
@@ -144,7 +144,7 @@ export default function JobModal({ job, isOpen, onClose }: JobModalProps) {
                 <label className="block text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] mb-2 ml-1">Job Type</label>
                 <select 
                   {...register('jobType')}
-                  className="w-full px-6 py-3.5 rounded-2xl bg-gray-50 dark:bg-gray-800 border border-transparent focus:bg-white dark:focus:bg-gray-900 focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500/30 transition-all text-sm font-bold"
+                  className="w-full px-6 py-3.5 rounded-2xl bg-gray-50 dark:bg-gray-900/50 dark:bg-gray-800 border border-transparent focus:bg-white dark:bg-slate-950 dark:focus:bg-gray-900 focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500/30 transition-all text-sm font-bold"
                 >
                   {Object.values(JobType).map(t => (
                     <option key={t} value={t}>{t.replace(/_/g, ' ')}</option>
@@ -156,7 +156,7 @@ export default function JobModal({ job, isOpen, onClose }: JobModalProps) {
                 <label className="block text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] mb-2 ml-1">Budget Type</label>
                 <select 
                   {...register('budgetType')}
-                  className="w-full px-6 py-3.5 rounded-2xl bg-gray-50 dark:bg-gray-800 border border-transparent focus:bg-white dark:focus:bg-gray-900 focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500/30 transition-all text-sm font-bold"
+                  className="w-full px-6 py-3.5 rounded-2xl bg-gray-50 dark:bg-gray-900/50 dark:bg-gray-800 border border-transparent focus:bg-white dark:bg-slate-950 dark:focus:bg-gray-900 focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500/30 transition-all text-sm font-bold"
                 >
                   {Object.values(BudgetType).map(t => (
                     <option key={t} value={t}>{t.replace(/_/g, ' ')}</option>
@@ -169,13 +169,13 @@ export default function JobModal({ job, isOpen, onClose }: JobModalProps) {
                 <input 
                   type="date"
                   {...register('deadlineAt')}
-                  className="w-full px-6 py-3.5 rounded-2xl bg-gray-50 dark:bg-gray-800 border border-transparent focus:bg-white dark:focus:bg-gray-900 focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500/30 transition-all text-sm font-medium"
+                  className="w-full px-6 py-3.5 rounded-2xl bg-gray-50 dark:bg-gray-900/50 dark:bg-gray-800 border border-transparent focus:bg-white dark:bg-slate-950 dark:focus:bg-gray-900 focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500/30 transition-all text-sm font-medium"
                 />
               </div>
             </div>
 
             {/* Budget Details */}
-            <div className="space-y-6 rounded-2xl border border-gray-100 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-800/50 sm:rounded-[2rem] sm:p-6">
+            <div className="space-y-6 rounded-2xl border border-gray-100 bg-gray-50 dark:bg-gray-900/50 p-4 dark:border-gray-800 dark:bg-gray-800/50 sm:rounded-[2rem] sm:p-6">
               {budgetType === BudgetType.FIXED ? (
                 <div className="grid gap-4 sm:grid-cols-2 sm:gap-6">
                   <div>
@@ -183,7 +183,7 @@ export default function JobModal({ job, isOpen, onClose }: JobModalProps) {
                     <input 
                       type="number"
                       {...register('budgetMinMxc', { valueAsNumber: true })}
-                      className="w-full px-6 py-3.5 rounded-2xl bg-white dark:bg-gray-900 border border-transparent focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500/30 transition-all text-sm font-bold"
+                      className="w-full px-6 py-3.5 rounded-2xl bg-white dark:bg-slate-950 dark:bg-gray-900 border border-transparent focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500/30 transition-all text-sm font-bold"
                     />
                   </div>
                   <div>
@@ -191,7 +191,7 @@ export default function JobModal({ job, isOpen, onClose }: JobModalProps) {
                     <input 
                       type="number"
                       {...register('budgetMaxMxc', { valueAsNumber: true })}
-                      className="w-full px-6 py-3.5 rounded-2xl bg-white dark:bg-gray-900 border border-transparent focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500/30 transition-all text-sm font-bold"
+                      className="w-full px-6 py-3.5 rounded-2xl bg-white dark:bg-slate-950 dark:bg-gray-900 border border-transparent focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500/30 transition-all text-sm font-bold"
                     />
                   </div>
                 </div>
@@ -202,7 +202,7 @@ export default function JobModal({ job, isOpen, onClose }: JobModalProps) {
                     <input 
                       type="number"
                       {...register('hourlyRateMxc', { valueAsNumber: true })}
-                      className="w-full px-6 py-3.5 rounded-2xl bg-white dark:bg-gray-900 border border-transparent focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500/30 transition-all text-sm font-bold"
+                      className="w-full px-6 py-3.5 rounded-2xl bg-white dark:bg-slate-950 dark:bg-gray-900 border border-transparent focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500/30 transition-all text-sm font-bold"
                     />
                   </div>
                   <div>
@@ -210,7 +210,7 @@ export default function JobModal({ job, isOpen, onClose }: JobModalProps) {
                     <input 
                       type="number"
                       {...register('estimatedHours', { valueAsNumber: true })}
-                      className="w-full px-6 py-3.5 rounded-2xl bg-white dark:bg-gray-900 border border-transparent focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500/30 transition-all text-sm font-bold"
+                      className="w-full px-6 py-3.5 rounded-2xl bg-white dark:bg-slate-950 dark:bg-gray-900 border border-transparent focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500/30 transition-all text-sm font-bold"
                     />
                   </div>
                 </div>
@@ -223,7 +223,7 @@ export default function JobModal({ job, isOpen, onClose }: JobModalProps) {
                   <label className="block text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] mb-2 ml-1">Status</label>
                   <select 
                     {...register('status')}
-                    className="w-full px-6 py-3.5 rounded-2xl bg-gray-50 dark:bg-gray-800 border border-transparent focus:bg-white dark:focus:bg-gray-900 focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500/30 transition-all text-sm font-bold"
+                    className="w-full px-6 py-3.5 rounded-2xl bg-gray-50 dark:bg-gray-900/50 dark:bg-gray-800 border border-transparent focus:bg-white dark:bg-slate-950 dark:focus:bg-gray-900 focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500/30 transition-all text-sm font-bold"
                   >
                     {Object.values(JobStatus).map(s => (
                       <option key={s} value={s}>{s}</option>
@@ -235,9 +235,9 @@ export default function JobModal({ job, isOpen, onClose }: JobModalProps) {
                     <input 
                       type="checkbox"
                       {...register('isFeatured')}
-                      className="w-6 h-6 rounded-lg border-gray-200 text-primary-600 focus:ring-primary-500/20 transition-all"
+                      className="w-6 h-6 rounded-lg border-gray-200 dark:border-gray-800 text-primary-600 focus:ring-primary-500/20 transition-all"
                     />
-                    <span className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] group-hover:text-gray-900 dark:group-hover:text-white transition-colors">Featured Job</span>
+                    <span className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] group-hover:text-gray-900 dark:text-gray-100 dark:group-hover:text-white transition-colors">Featured Job</span>
                   </label>
                 </div>
               </div>
@@ -246,10 +246,10 @@ export default function JobModal({ job, isOpen, onClose }: JobModalProps) {
         </div>
 
         {/* Footer */}
-        <div className="flex flex-col-reverse gap-3 border-t border-gray-50 bg-gray-50/30 px-4 py-4 dark:border-gray-800 dark:bg-gray-800/30 min-[420px]:flex-row min-[420px]:justify-end sm:px-8 sm:py-6">
+        <div className="flex flex-col-reverse gap-3 border-t border-gray-50 bg-gray-50 px-4 py-4 dark:border-gray-800 dark:bg-gray-800/30 min-[420px]:flex-row min-[420px]:justify-end sm:px-8 sm:py-6">
           <button 
             onClick={onClose}
-            className="px-8 py-3.5 rounded-2xl text-sm font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest hover:text-gray-900 dark:hover:text-white transition-all"
+            className="px-8 py-3.5 rounded-2xl text-sm font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest hover:text-gray-900 dark:text-gray-100 dark:hover:text-white transition-all"
           >
             Cancel
           </button>

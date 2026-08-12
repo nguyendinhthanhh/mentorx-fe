@@ -63,25 +63,25 @@ import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 const JOB_TYPE_META: Record<JobType, { label: string; className: string }> = {
   [JobType.FREELANCE_PROJECT]: {
     label: 'Freelance project',
-    className: 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/50 dark:bg-emerald-950/30 dark:text-emerald-300',
+    className: 'border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 dark:border-emerald-900/50 dark:bg-emerald-950/30 dark:text-emerald-300',
   },
   [JobType.LONG_TERM_MENTORING]: {
     label: 'Long-term mentoring',
-    className: 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/50 dark:bg-emerald-950/30 dark:text-emerald-300',
+    className: 'border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 dark:border-emerald-900/50 dark:bg-emerald-950/30 dark:text-emerald-300',
   },
   [JobType.QUICK_FIX]: {
     label: 'Quick fix',
-    className: 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/50 dark:bg-emerald-950/30 dark:text-emerald-300',
+    className: 'border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 dark:border-emerald-900/50 dark:bg-emerald-950/30 dark:text-emerald-300',
   },
 }
 
 const STATUS_META: Record<string, { label: string; className: string }> = {
-  [JobStatus.OPEN]: { label: 'Open', className: 'border-[#BBF7D0] bg-[#EAF7EF] text-[#15803D]' },
-  [JobStatus.IN_PROGRESS]: { label: 'In progress', className: 'border-[#F5A623] bg-[#FFF7E6] text-[#D97706]' },
-  [JobStatus.COMPLETED]: { label: 'Completed', className: 'border-[#BBF7D0] bg-[#EAF7EF] text-[#15803D]' },
-  [JobStatus.CANCELLED]: { label: 'Cancelled', className: 'border-[#FECACA] bg-[#FEE2E2] text-[#DC2626]' },
-  [JobStatus.CLOSED]: { label: 'Closed', className: 'border-[#E8E1D8] bg-[#F7F3EC] text-[#64748B]' },
-  [JobStatus.EXPIRED]: { label: 'Expired', className: 'border-[#E8E1D8] bg-[#F7F3EC] text-[#64748B]' },
+  [JobStatus.OPEN]: { label: 'Open', className: 'border-[#BBF7D0] dark:border-emerald-800/50 bg-[#EAF7EF] dark:bg-emerald-900/30 text-[#15803D] dark:text-emerald-400' },
+  [JobStatus.IN_PROGRESS]: { label: 'In progress', className: 'border-[#F5A623] dark:border-amber-800/50 bg-[#FFF7E6] dark:bg-amber-900/30 dark:bg-slate-950 text-[#D97706] dark:text-amber-400' },
+  [JobStatus.COMPLETED]: { label: 'Completed', className: 'border-[#BBF7D0] dark:border-emerald-800/50 bg-[#EAF7EF] dark:bg-emerald-900/30 text-[#15803D] dark:text-emerald-400' },
+  [JobStatus.CANCELLED]: { label: 'Cancelled', className: 'border-[#FECACA] dark:border-rose-800/50 bg-[#FEE2E2] dark:bg-rose-900/30 dark:bg-slate-950 text-[#DC2626] dark:text-rose-400' },
+  [JobStatus.CLOSED]: { label: 'Closed', className: 'border-[#E8E1D8] dark:border-slate-800 bg-[#F7F3EC] dark:bg-slate-900/50 dark:bg-slate-950 text-[#64748B] dark:text-slate-400' },
+  [JobStatus.EXPIRED]: { label: 'Expired', className: 'border-[#E8E1D8] dark:border-slate-800 bg-[#F7F3EC] dark:bg-slate-900/50 dark:bg-slate-950 text-[#64748B] dark:text-slate-400' },
 }
 
 const MAX_PROPOSAL_SUBMISSIONS_PER_JOB = 5
@@ -194,13 +194,13 @@ export default function JobDetailPage() {
 
   if (!job || !derived) {
     return (
-      <div className="min-h-screen bg-[#f3f5f7] px-4 py-12 text-gray-900">
-        <div className="mx-auto max-w-2xl rounded-2xl border border-[#e2e6f5] bg-white p-8 text-center shadow-sm">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50">
-            <Briefcase className="h-8 w-8 text-emerald-600" />
+      <div className="min-h-screen bg-[#f3f5f7] dark:bg-slate-950 px-4 py-12 text-gray-900 dark:text-gray-100">
+        <div className="mx-auto max-w-2xl rounded-2xl border border-[#e2e6f5] dark:border-slate-800 bg-white dark:bg-slate-950 p-8 text-center shadow-sm">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50 dark:bg-emerald-900/30">
+            <Briefcase className="h-8 w-8 text-emerald-600 dark:text-emerald-500" />
           </div>
           <h1 className="mt-4 text-2xl font-black">Không tìm thấy công việc</h1>
-          <p className="mt-2 text-sm text-slate-500">Công việc này có thể đã bị gỡ hoặc không còn khả dụng.</p>
+          <p className="mt-2 text-sm text-slate-500 dark:text-slate-400 dark:text-slate-400">Công việc này có thể đã bị gỡ hoặc không còn khả dụng.</p>
           <Link
             to="/jobs"
             className="mt-6 inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 text-sm font-bold text-white transition hover:bg-emerald-700"
@@ -291,7 +291,7 @@ export default function JobDetailPage() {
   }
 
   return (
-    <div className="relative min-h-screen bg-[#f3f5f7] text-gray-900 pb-24 lg:pb-12 overflow-hidden">
+    <div className="relative min-h-screen bg-[#f3f5f7] dark:bg-slate-950 text-gray-900 dark:text-gray-100 pb-24 lg:pb-12 overflow-hidden">
       {/* Background Meshes */}
       
       
@@ -310,14 +310,14 @@ export default function JobDetailPage() {
 
         <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_380px] xl:grid-cols-[minmax(0,1fr)_400px]">
           {/* Main Column */}
-          <div className="flex flex-col h-max overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900 divide-y divide-slate-100 dark:divide-slate-800">
+          <div className="flex flex-col h-max overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800/80 bg-white dark:bg-slate-950 shadow-sm dark:border-slate-800 dark:bg-slate-900 divide-y divide-slate-100 dark:divide-slate-800">
             {/* TOP HERO CARD (Upwork / Premium Style) */}
             <div className="p-6 sm:p-10">
           <div className="flex flex-col">
             {/* Top Metadata Bar */}
-            <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4 dark:border-slate-800">
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-4 dark:border-slate-800">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="inline-flex items-center rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700 dark:border-emerald-900/50 dark:bg-emerald-950/30 dark:text-emerald-300">
+                <span className="inline-flex items-center rounded-lg border border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-900/30 px-3 py-1 text-xs font-bold text-emerald-700 dark:text-emerald-400 dark:border-emerald-900/50 dark:bg-emerald-950/30 dark:text-emerald-300">
                   {derived.categoryName}
                 </span>
                 <span className={`inline-flex items-center rounded-lg px-3 py-1 text-xs font-bold ${derived.statusClass}`}>
@@ -325,7 +325,7 @@ export default function JobDetailPage() {
                 </span>
               </div>
 
-              <div className="flex items-center gap-4 text-xs font-medium text-slate-500 dark:text-slate-400">
+              <div className="flex items-center gap-4 text-xs font-medium text-slate-500 dark:text-slate-400 dark:text-slate-400 dark:text-slate-400">
                 <span className="flex items-center gap-1.5">
                   <Clock3 className="h-3.5 w-3.5 text-slate-400" />
                   Đăng {formatRelativeTime(job.createdAt)}
@@ -339,7 +339,7 @@ export default function JobDetailPage() {
 
             {/* Title & Utilities */}
             <div className="mb-6 flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-              <h1 className="text-2xl font-black tracking-tight text-slate-900 sm:text-3xl dark:text-white leading-snug">
+              <h1 className="text-2xl font-black tracking-tight text-slate-900 dark:text-slate-100 sm:text-3xl dark:text-white leading-snug">
                 {job.title}
               </h1>
               
@@ -349,18 +349,18 @@ export default function JobDetailPage() {
                     onClick={toggleSaved}
                     className={`flex h-9 w-9 sm:w-auto sm:px-4 shrink-0 items-center justify-center gap-2 rounded-xl border text-sm font-bold transition-all ${
                       saved
-                        ? 'border-emerald-600 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-300'
-                        : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200'
+                        ? 'border-emerald-600 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 dark:bg-emerald-950/30 dark:text-emerald-300'
+                        : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 dark:text-slate-300 hover:border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:bg-slate-900/50 dark:bg-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200'
                     }`}
                     title={saved ? 'Đã lưu' : 'Lưu công việc'}
                   >
-                    {saved ? <BookmarkCheck className="h-4 w-4 text-emerald-600" /> : <Bookmark className="h-4 w-4" />}
+                    {saved ? <BookmarkCheck className="h-4 w-4 text-emerald-600 dark:text-emerald-500" /> : <Bookmark className="h-4 w-4" />}
                     <span className="hidden sm:inline">{saved ? 'Đã lưu' : 'Lưu'}</span>
                   </button>
                 )}
                 <button 
                   onClick={copyLink} 
-                  className="flex h-9 w-9 sm:w-auto sm:px-4 shrink-0 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white text-sm font-bold text-slate-700 transition-all hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+                  className="flex h-9 w-9 sm:w-auto sm:px-4 shrink-0 items-center justify-center gap-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-sm font-bold text-slate-700 dark:text-slate-300 dark:text-slate-300 transition-all hover:bg-slate-50 dark:bg-slate-900/50 dark:bg-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
                   title="Chia sẻ"
                 >
                   <Share2 className="h-4 w-4" />
@@ -371,20 +371,20 @@ export default function JobDetailPage() {
 
             {/* Quick Stats Chips */}
             <div className="flex flex-wrap gap-2.5">
-              <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm dark:border-slate-800 dark:bg-slate-900/50">
-                <DollarSign className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+              <div className="flex items-center gap-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 dark:bg-slate-900 px-3 py-2 text-sm dark:border-slate-800 dark:bg-slate-900/50">
+                <DollarSign className="h-4 w-4 text-emerald-600 dark:text-emerald-500 dark:text-emerald-400" />
                 <span className="font-bold text-slate-900 dark:text-white">{derived.budget}</span>
-                <span className="text-xs text-slate-500">({derived.budgetTypeLabel})</span>
+                <span className="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-400">({derived.budgetTypeLabel})</span>
               </div>
-              <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm dark:border-slate-800 dark:bg-slate-900/50">
+              <div className="flex items-center gap-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 dark:bg-slate-900 px-3 py-2 text-sm dark:border-slate-800 dark:bg-slate-900/50">
                 <Layers3 className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                 <span className="font-bold text-slate-900 dark:text-white">{derived.jobTypeLabel}</span>
               </div>
-              <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm dark:border-slate-800 dark:bg-slate-900/50">
+              <div className="flex items-center gap-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 dark:bg-slate-900 px-3 py-2 text-sm dark:border-slate-800 dark:bg-slate-900/50">
                 <GraduationCap className="h-4 w-4 text-purple-600 dark:text-purple-400" />
                 <span className="font-bold text-slate-900 dark:text-white">{derived.experienceLevelLabel}</span>
               </div>
-              <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm dark:border-slate-800 dark:bg-slate-900/50">
+              <div className="flex items-center gap-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 dark:bg-slate-900 px-3 py-2 text-sm dark:border-slate-800 dark:bg-slate-900/50">
                 <CalendarDays className="h-4 w-4 text-amber-600 dark:text-amber-400" />
                 <span className={`font-bold ${
                   getTimeRemaining(job.deadlineAt) === 'Đã hết hạn'
@@ -393,13 +393,13 @@ export default function JobDetailPage() {
                 }`}>
                   {getTimeRemaining(job.deadlineAt)}
                 </span>
-                <span className="text-xs text-slate-500">({derived.deadline})</span>
+                <span className="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-400">({derived.deadline})</span>
               </div>
             </div>
 
             {/* Actions Bar */}
             {(!isOwner && canOpenProposalFlow) || shouldPromptMentorAccess ? (
-              <div className="mt-6 flex flex-wrap items-center gap-3 border-t border-slate-100 pt-5 dark:border-slate-800">
+              <div className="mt-6 flex flex-wrap items-center gap-3 border-t border-slate-100 dark:border-slate-800 pt-5 dark:border-slate-800">
                 {!isOwner && canOpenProposalFlow ? (
                   <button
                     onClick={() => {
@@ -425,11 +425,11 @@ export default function JobDetailPage() {
 
             
             {job.statusReason && (
-              <div className="p-6 sm:p-8 bg-amber-50/50">
-                <div className="flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-6 py-5 text-sm font-semibold text-amber-700 shadow-sm">
+              <div className="p-6 sm:p-8 bg-amber-50 ">
+                <div className="flex items-start gap-3 rounded-2xl border border-amber-200 dark:border-amber-800/50 bg-amber-50 dark:bg-amber-900/30 px-6 py-5 text-sm font-semibold text-amber-700 dark:text-amber-400 shadow-sm">
                   <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" />
                   <div>
-                    <p className="font-bold text-amber-900 text-[15px]">Ghi chú trạng thái</p>
+                    <p className="font-bold text-amber-900 dark:text-amber-100 text-[15px]">Ghi chú trạng thái</p>
                     <p className="mt-1">{job.statusReason}</p>
                   </div>
                 </div>
@@ -440,7 +440,7 @@ export default function JobDetailPage() {
             <section className="p-6 sm:p-10">
                <h2 className="mb-5 text-xl font-bold tracking-tight text-slate-900 dark:text-white">Chi tiết công việc</h2>
                <div className="max-w-none">
-                 <div className="whitespace-pre-wrap text-sm leading-relaxed text-slate-700 dark:text-slate-300 font-medium sm:text-base">
+                 <div className="whitespace-pre-wrap text-sm leading-relaxed text-slate-700 dark:text-slate-300 dark:text-slate-300 dark:text-slate-300 font-medium sm:text-base">
                    {job.description}
                  </div>
                </div>
@@ -454,14 +454,14 @@ export default function JobDetailPage() {
                   {job.requiredSkills && job.requiredSkills.length > 0 && (
                     <div className="mb-8">
                       <div className="mb-3 flex items-center gap-2 text-sm font-bold text-slate-900 dark:text-white">
-                        <Tags className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                        <Tags className="h-4 w-4 text-emerald-600 dark:text-emerald-500 dark:text-emerald-400" />
                         Kỹ năng bắt buộc
                       </div>
                       <div className="flex flex-wrap gap-2">
                         {job.requiredSkills.map((skill) => (
                           <span 
                             key={skill} 
-                            className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200/80 bg-emerald-50/70 px-4 py-1.5 text-xs font-bold text-emerald-800 transition hover:bg-emerald-100 shadow-sm dark:border-emerald-900/50 dark:bg-emerald-950/40 dark:text-emerald-300"
+                            className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-1.5 text-xs font-bold text-emerald-800 dark:text-emerald-200 transition hover:bg-emerald-100 dark:bg-emerald-900/50 shadow-sm dark:border-emerald-900/50 dark:bg-emerald-950/40 dark:text-emerald-300"
                           >
                             {skill}
                           </span>
@@ -497,7 +497,7 @@ export default function JobDetailPage() {
                        return (
                          <div key={index} className="space-y-2">
                            {isImage ? (
-                             <div className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 transition-all hover:border-emerald-300 dark:border-slate-800 dark:bg-slate-950">
+                             <div className="group relative overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 dark:bg-slate-900 transition-all hover:border-emerald-300 dark:border-slate-800 dark:bg-slate-950">
                                <img 
                                  src={url} 
                                  alt={`Tệp đính kèm ${index + 1}`} 
@@ -508,7 +508,7 @@ export default function JobDetailPage() {
                                    href={url}
                                    target="_blank"
                                    rel="noopener noreferrer"
-                                   className="flex h-10 items-center gap-2 rounded-lg bg-white px-4 text-xs font-bold text-slate-900 shadow-xl transition-transform hover:scale-105"
+                                   className="flex h-10 items-center gap-2 rounded-lg bg-white dark:bg-slate-950 px-4 text-xs font-bold text-slate-900 dark:text-slate-100 shadow-xl transition-transform hover:scale-105"
                                  >
                                    <Eye className="h-4 w-4" />
                                    Xem ảnh
@@ -520,17 +520,17 @@ export default function JobDetailPage() {
                                href={url}
                                target="_blank"
                                rel="noopener noreferrer"
-                               className="group flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4 transition-all hover:border-emerald-300 hover:bg-emerald-50/50 shadow-sm dark:border-slate-800 dark:bg-slate-950 dark:hover:border-emerald-700"
+                               className="group flex items-center gap-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-4 transition-all hover:border-emerald-300 hover:bg-emerald-50 shadow-sm dark:border-slate-800 dark:bg-slate-950 dark:hover:border-emerald-700"
                              >
                                <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-lg shadow-sm transition-transform group-hover:scale-110 ${attachmentMeta.iconClassName}`}>
                                  <attachmentMeta.Icon className="h-5 w-5" />
                                </div>
                                <div className="min-w-0 flex-1">
-                                 <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">{attachmentMeta.badge}</p>
+                                 <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 dark:text-emerald-400">{attachmentMeta.badge}</p>
                                  <p className="mt-0.5 truncate text-sm font-bold text-slate-900 dark:text-white">{attachmentMeta.name}</p>
-                                 <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{attachmentMeta.description}</p>
+                                 <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400 dark:text-slate-400 dark:text-slate-400">{attachmentMeta.description}</p>
                                </div>
-                               <ArrowRight className="h-4 w-4 text-slate-400 transition group-hover:text-emerald-600 group-hover:translate-x-1" />
+                               <ArrowRight className="h-4 w-4 text-slate-400 transition group-hover:text-emerald-600 dark:text-emerald-500 group-hover:translate-x-1" />
                              </a>
                            )}
                          </div>
@@ -546,7 +546,7 @@ export default function JobDetailPage() {
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">Ứng tuyển đã nhận</h2>
                   {proposalCount > 0 && (
-                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 text-sm font-bold text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-sm font-bold text-slate-700 dark:text-slate-300 dark:text-slate-300 dark:bg-slate-800 dark:text-slate-300">
                       {proposalCount}
                     </span>
                   )}
@@ -557,7 +557,7 @@ export default function JobDetailPage() {
             
             {/* Related Jobs */}
             {relatedJobs && relatedJobs.length > 0 && (
-              <section className="p-6 sm:p-10 bg-slate-50/50 dark:bg-slate-900/50">
+              <section className="p-6 sm:p-10 bg-slate-50 dark:bg-slate-900/50">
                 <h2 className="mb-6 text-xl font-bold tracking-tight text-slate-900 dark:text-white">Việc làm tương tự</h2>
                 <div className="grid gap-4 sm:grid-cols-2">
                   {relatedJobs.map((relatedJob) => (
@@ -570,7 +570,7 @@ export default function JobDetailPage() {
           </div>
 
           {/* Sidebar */}
-          <div className="flex flex-col h-max overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900 divide-y divide-slate-100 dark:divide-slate-800 m-0 p-0 lg:sticky lg:top-24">
+          <div className="flex flex-col h-max overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800/80 bg-white dark:bg-slate-950 shadow-sm dark:border-slate-800 dark:bg-slate-900 divide-y divide-slate-100 dark:divide-slate-800 m-0 p-0 lg:sticky lg:top-24">
             
             {/* Management Actions Card */}
             {(isOwner || visibleProposal) && (
@@ -580,15 +580,15 @@ export default function JobDetailPage() {
                   {isOwner ? (
                     <>
                       {needsDeadlineExtension && (
-                        <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-[13px] leading-relaxed text-amber-800">
+                        <div className="rounded-xl border border-amber-200 dark:border-amber-800/50 bg-amber-50 dark:bg-amber-900/30 p-4 text-[13px] leading-relaxed text-amber-800 dark:text-amber-200">
                           Yêu cầu đã hết hạn. Bạn không cần đăng lại; hãy gia hạn hạn chót trong phần chỉnh sửa để mở lại và tiếp tục nhận ứng tuyển.
                         </div>
                       )}
-                      <div className="rounded-xl border border-emerald-100 bg-emerald-50 p-4 text-[13px] leading-relaxed text-emerald-800">
+                      <div className="rounded-xl border border-emerald-100 dark:border-emerald-900/50 bg-emerald-50 dark:bg-emerald-900/30 p-4 text-[13px] leading-relaxed text-emerald-800 dark:text-emerald-200">
                         Bạn đã đăng công việc này. Hãy xem xét các ứng viên và chọn mentor phù hợp nhất.
                       </div>
                       {jobContract?.fundsInEscrow && (
-                        <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-[13px] leading-relaxed text-emerald-900">
+                        <div className="rounded-xl border border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-900/30 p-4 text-[13px] leading-relaxed text-emerald-900 dark:text-emerald-100">
                           <p className="font-black">Quỹ đảm bảo đã khóa</p>
                           <p className="mt-1">
                             {formatCurrency(jobContract.amountInEscrow || 0)} đang được giữ bởi MentorX cho tới khi bạn xác nhận hoàn thành.
@@ -598,19 +598,19 @@ export default function JobDetailPage() {
                       {jobContract && (
                         <Link
                           to={getJobChatRoute(job.jobId, jobContract.mentorId)}
-                          className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 text-sm font-black text-emerald-700 shadow-sm hover:bg-emerald-100 transition"
+                          className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-900/30 px-4 text-sm font-black text-emerald-700 dark:text-emerald-400 shadow-sm hover:bg-emerald-100 dark:bg-emerald-900/50 transition"
                         >
                           <MessageSquare className="h-4 w-4" />
                           Mở trao đổi
                         </Link>
                       )}
                       {jobContract?.status === 'UNDER_REVIEW' && (
-                        <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-[13px] leading-relaxed text-amber-900">
+                        <div className="rounded-xl border border-amber-200 dark:border-amber-800/50 bg-amber-50 dark:bg-amber-900/30 p-4 text-[13px] leading-relaxed text-amber-900 dark:text-amber-100">
                           Mentor đã đánh dấu công việc hoàn thành. Hãy kiểm tra sản phẩm trước khi giải ngân; nếu chưa đạt, hãy yêu cầu chỉnh sửa. Quỹ đảm bảo vẫn được khóa trong thời gian chờ bạn xử lý.
                           {jobContract.mentorSubmittedLate && <p className="mt-2 font-bold">Bàn giao này được gửi sau deadline đã cam kết.</p>}
                           <Link
                             to={`/my-jobs/${job.jobId}`}
-                            className="mt-3 inline-flex font-black text-amber-800 underline underline-offset-2 hover:text-amber-950"
+                            className="mt-3 inline-flex font-black text-amber-800 dark:text-amber-200 underline underline-offset-2 hover:text-amber-950"
                           >
                             Mở màn hình duyệt, yêu cầu chỉnh sửa hoặc dispute
                           </Link>
@@ -629,7 +629,7 @@ export default function JobDetailPage() {
                       )}
                       <Link
                         to={`/jobs/${job.jobId}/edit`}
-                        className="flex h-11 w-full items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 text-sm font-black text-gray-800 shadow-sm hover:bg-slate-50 transition"
+                        className="flex h-11 w-full items-center justify-center gap-2 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 text-sm font-black text-gray-800 dark:text-gray-200 shadow-sm hover:bg-slate-50 dark:bg-slate-900/50 dark:bg-slate-900 transition"
                       >
                         <Edit className="h-4 w-4" />
                         {needsDeadlineExtension ? 'Gia hạn & mở lại' : 'Chỉnh sửa yêu cầu'}
@@ -639,7 +639,7 @@ export default function JobDetailPage() {
                           type="button"
                           onClick={() => ownerStatusMutation.mutate(JobStatus.CLOSED)}
                           disabled={ownerStatusMutation.isLoading}
-                          className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-amber-200 bg-white px-4 text-sm font-black text-amber-700 shadow-sm hover:bg-amber-50 transition disabled:cursor-not-allowed disabled:opacity-70"
+                          className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-amber-200 dark:border-amber-800/50 bg-white dark:bg-slate-950 px-4 text-sm font-black text-amber-700 dark:text-amber-400 shadow-sm hover:bg-amber-50 dark:bg-amber-900/30 transition disabled:cursor-not-allowed disabled:opacity-70"
                         >
                           <X className="h-4 w-4" />
                           {ownerStatusMutation.isLoading ? 'Đang cập nhật...' : 'Đóng yêu cầu'}
@@ -659,40 +659,40 @@ export default function JobDetailPage() {
                     </>
                   ) : visibleProposal ? (
                     <>
-                      <div className={`mb-4 rounded-xl border p-4 ${visibleProposal.status === 'ACCEPTED' ? 'border-emerald-200 bg-emerald-50' : 'border-emerald-100 bg-emerald-50'}`}>
+                      <div className={`mb-4 rounded-xl border p-4 ${visibleProposal.status === 'ACCEPTED' ? 'border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-900/30' : 'border-emerald-100 dark:border-emerald-900/50 bg-emerald-50 dark:bg-emerald-900/30'}`}>
                         <div className="flex items-center justify-between mb-3">
-                          <div className={`flex items-center gap-2 text-sm font-bold ${visibleProposal.status === 'ACCEPTED' ? 'text-emerald-700' : 'text-emerald-700'}`}>
+                          <div className={`flex items-center gap-2 text-sm font-bold ${visibleProposal.status === 'ACCEPTED' ? 'text-emerald-700 dark:text-emerald-400' : 'text-emerald-700 dark:text-emerald-400'}`}>
                             <CheckCircle2 className="w-4 h-4" /> Đã gửi ứng tuyển
                           </div>
                           <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${getProposalStatusColor(visibleProposal.status)}`}>
                             {getProposalStatusLabel(visibleProposal.status)}
                           </span>
                         </div>
-                        <div className="text-xs text-slate-500 mb-4">{formatRelativeTime(visibleProposal.createdAt)}</div>
+                        <div className="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-400 mb-4">{formatRelativeTime(visibleProposal.createdAt)}</div>
                         
                         <div className="grid gap-3 min-[420px]:grid-cols-2">
-                          <div className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
-                            <p className="text-gray-600 font-bold text-[11px] uppercase tracking-wider mb-1">Giá đề xuất</p>
-                            <p className="text-gray-900 font-black">{formatCurrency(visibleProposal.proposedAmount || 0)}</p>
+                          <div className="rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-3 shadow-sm">
+                            <p className="text-gray-600 dark:text-gray-400 font-bold text-[11px] uppercase tracking-wider mb-1">Giá đề xuất</p>
+                            <p className="text-gray-900 dark:text-gray-100 font-black">{formatCurrency(visibleProposal.proposedAmount || 0)}</p>
                           </div>
-                          <div className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
-                            <p className="text-gray-600 font-bold text-[11px] uppercase tracking-wider mb-1">Thời gian</p>
-                            <p className="text-gray-900 font-black">{visibleProposal.estimatedDurationDays} ngày</p>
+                          <div className="rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-3 shadow-sm">
+                            <p className="text-gray-600 dark:text-gray-400 font-bold text-[11px] uppercase tracking-wider mb-1">Thời gian</p>
+                            <p className="text-gray-900 dark:text-gray-100 font-black">{visibleProposal.estimatedDurationDays} ngày</p>
                           </div>
                         </div>
                       </div>
 
                       {visibleProposal.status === 'ACCEPTED' && (
-                        <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 mb-4 text-xs font-medium text-amber-800 flex items-start gap-2">
+                        <div className="rounded-xl border border-amber-200 dark:border-amber-800/50 bg-amber-50 dark:bg-amber-900/30 p-3 mb-4 text-xs font-medium text-amber-800 dark:text-amber-200 flex items-start gap-2">
                           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-amber-600" />
                           <span>Không thể chỉnh sửa ứng tuyển đã được chấp nhận</span>
                         </div>
                       )}
 
                       {latestNegotiation && (
-                        <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 mb-4">
-                          <p className="text-sm font-bold text-amber-900 mb-2">Giá đề xuất mới</p>
-                          <p className="text-[16px] font-black text-amber-700">
+                        <div className="rounded-xl border border-amber-200 dark:border-amber-800/50 bg-amber-50 dark:bg-amber-900/30 p-4 mb-4">
+                          <p className="text-sm font-bold text-amber-900 dark:text-amber-100 mb-2">Giá đề xuất mới</p>
+                          <p className="text-[16px] font-black text-amber-700 dark:text-amber-400">
                             {formatCurrency(latestNegotiation.proposedAmount || 0)}
                           </p>
                           <p className="text-[13px] font-medium text-amber-600 mt-1">
@@ -713,7 +713,7 @@ export default function JobDetailPage() {
                       {jobContract && (
                         <Link
                           to={getJobChatRoute(job.jobId, job.clientId)}
-                          className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 text-sm font-black text-emerald-700 shadow-sm hover:bg-emerald-100 transition mt-3"
+                          className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-900/30 px-4 text-sm font-black text-emerald-700 dark:text-emerald-400 shadow-sm hover:bg-emerald-100 dark:bg-emerald-900/50 transition mt-3"
                         >
                           <MessageSquare className="h-4 w-4" />
                           Mở chat
@@ -723,7 +723,7 @@ export default function JobDetailPage() {
                       {canEditExistingProposal && (
                         <Link
                           to={`/jobs/${job.jobId}/proposals/${visibleProposal.id}/edit`}
-                          className="flex h-11 w-full items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 text-sm font-bold text-gray-800 shadow-sm hover:bg-slate-50 transition mt-3"
+                          className="flex h-11 w-full items-center justify-center gap-2 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 text-sm font-bold text-gray-800 dark:text-gray-200 shadow-sm hover:bg-slate-50 dark:bg-slate-900/50 dark:bg-slate-900 transition mt-3"
                         >
                           <Edit className="h-4 w-4" />
                           Chỉnh sửa
@@ -744,17 +744,17 @@ export default function JobDetailPage() {
             )}
 
             {/* AI Assistant Callout */}
-            <div className="p-6 sm:p-8 bg-slate-50/50 dark:bg-slate-900/50">
+            <div className="p-6 sm:p-8 bg-slate-50 dark:bg-slate-900/50">
               <div className="flex items-center gap-2 mb-2">
-                <Sparkles className="h-4 w-4 text-emerald-600" />
+                <Sparkles className="h-4 w-4 text-emerald-600 dark:text-emerald-500" />
                 <h3 className="text-base font-bold tracking-tight text-slate-900 dark:text-white">Phân tích bằng AI</h3>
               </div>
-              <p className="mt-1.5 text-xs leading-relaxed text-slate-600 dark:text-slate-400">
+              <p className="mt-1.5 text-xs leading-relaxed text-slate-600 dark:text-slate-400 dark:text-slate-400 dark:text-slate-400">
                 Hiểu rõ yêu cầu công việc và nhận gợi ý tiếp cận tối ưu.
               </p>
               <button
                 onClick={() => setShowAiExplain(true)}
-                className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-700 shadow-sm transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+                className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 py-2 text-sm font-bold text-slate-700 dark:text-slate-300 dark:text-slate-300 shadow-sm transition hover:bg-slate-50 dark:bg-slate-900/50 dark:bg-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
               >
                 Tạo bản phân tích
               </button>
@@ -767,28 +767,28 @@ export default function JobDetailPage() {
                   <div className="flex items-start gap-3">
                      <Clock className="mt-0.5 h-4 w-4 text-slate-400 shrink-0" />
                      <div>
-                        <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Thời hạn hoàn thành</p>
+                        <p className="text-xs font-medium text-slate-500 dark:text-slate-400 dark:text-slate-400 dark:text-slate-400">Thời hạn hoàn thành</p>
                         <p className="text-sm font-bold text-slate-900 dark:text-white mt-0.5">{getFullDateTime(job.deadlineAt)}</p>
                      </div>
                   </div>
                   <div className="flex items-start gap-3">
                      <Briefcase className="mt-0.5 h-4 w-4 text-slate-400 shrink-0" />
                      <div>
-                        <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Lĩnh vực</p>
+                        <p className="text-xs font-medium text-slate-500 dark:text-slate-400 dark:text-slate-400 dark:text-slate-400">Lĩnh vực</p>
                         <p className="text-sm font-bold text-slate-900 dark:text-white mt-0.5">{derived.categoryName}</p>
                      </div>
                   </div>
                   <div className="flex items-start gap-3">
                      <MessageSquare className="mt-0.5 h-4 w-4 text-slate-400 shrink-0" />
                      <div>
-                        <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Lượt ứng tuyển</p>
+                        <p className="text-xs font-medium text-slate-500 dark:text-slate-400 dark:text-slate-400 dark:text-slate-400">Lượt ứng tuyển</p>
                         <p className="text-sm font-bold text-slate-900 dark:text-white mt-0.5">{proposalCount} lượt đề xuất</p>
                      </div>
                   </div>
                   <div className="flex items-start gap-3">
                      <Eye className="mt-0.5 h-4 w-4 text-slate-400 shrink-0" />
                      <div>
-                        <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Lượt xem</p>
+                        <p className="text-xs font-medium text-slate-500 dark:text-slate-400 dark:text-slate-400 dark:text-slate-400">Lượt xem</p>
                         <p className="text-sm font-bold text-slate-900 dark:text-white mt-0.5">{job.viewCount || 0} lượt xem</p>
                      </div>
                   </div>
@@ -799,7 +799,7 @@ export default function JobDetailPage() {
             <div className="p-6 sm:p-8">
               <h3 className="mb-5 text-base font-bold tracking-tight text-slate-900 dark:text-white">Thông tin Khách hàng</h3>
               <Link to={`/users/${job.clientId}`} className="group flex items-center gap-4">
-                <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-emerald-100/80 text-xl font-extrabold text-emerald-700 transition-colors group-hover:bg-emerald-600 group-hover:text-white dark:bg-emerald-900/40 dark:text-emerald-300">
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-emerald-100 text-xl font-extrabold text-emerald-700 dark:text-emerald-400 transition-colors group-hover:bg-emerald-600 group-hover:text-white dark:bg-emerald-900/40 dark:text-emerald-300">
                   {job.clientAvatarUrl || job.client?.avatarUrl ? (
                     <img src={job.clientAvatarUrl || job.client?.avatarUrl} alt={clientName} className="h-full w-full object-cover" />
                   ) : (
@@ -807,11 +807,11 @@ export default function JobDetailPage() {
                   )}
                 </div>
                 <div>
-                  <h4 className="text-base font-bold text-slate-900 group-hover:text-emerald-600 transition-colors dark:text-white dark:group-hover:text-emerald-400">{clientName}</h4>
+                  <h4 className="text-base font-bold text-slate-900 dark:text-slate-100 group-hover:text-emerald-600 dark:text-emerald-500 transition-colors dark:text-white dark:group-hover:text-emerald-400">{clientName}</h4>
                 </div>
               </Link>
-              <div className="mt-5 border-t border-slate-100 pt-4 dark:border-slate-800">
-                <div className="flex items-center gap-2 text-xs font-medium text-slate-500 dark:text-slate-400">
+              <div className="mt-5 border-t border-slate-100 dark:border-slate-800 pt-4 dark:border-slate-800">
+                <div className="flex items-center gap-2 text-xs font-medium text-slate-500 dark:text-slate-400 dark:text-slate-400 dark:text-slate-400">
                   <User className="h-4 w-4 text-slate-400" />
                   Thành viên từ {formatRelativeTime(job.createdAt)}
                 </div>
@@ -820,12 +820,12 @@ export default function JobDetailPage() {
 
 
             {/* Trust & Guarantee Card */}
-            <div className="p-6 sm:p-8 bg-slate-50 dark:bg-slate-900/80">
+            <div className="p-6 sm:p-8 bg-slate-50 dark:bg-slate-900/50 dark:bg-slate-900/80">
               <div className="flex items-start gap-3">
-                <ShieldCheck className="h-5 w-5 text-emerald-600 shrink-0 mt-0.5" />
+                <ShieldCheck className="h-5 w-5 text-emerald-600 dark:text-emerald-500 shrink-0 mt-0.5" />
                 <div>
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">Bảo đảm thanh toán</h4>
-                  <p className="mt-1 text-xs leading-relaxed text-slate-500 dark:text-slate-400">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 dark:text-slate-300 dark:text-slate-300">Bảo đảm thanh toán</h4>
+                  <p className="mt-1 text-xs leading-relaxed text-slate-500 dark:text-slate-400 dark:text-slate-400 dark:text-slate-400">
                     Khoản tiền được MentorX giữ an toàn và chỉ giải ngân khi công việc hoàn thành.
                   </p>
                 </div>
@@ -845,13 +845,13 @@ export default function JobDetailPage() {
               setForceEditMode(false)
             }}
           />
-          <div className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl sm:p-10">
+          <div className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-slate-950 p-6 shadow-2xl sm:p-10">
             <button
               onClick={() => {
                 setShowApplyModal(false)
                 setForceEditMode(false)
               }}
-              className="absolute right-6 top-6 flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-gray-600 transition hover:bg-slate-200 hover:text-slate-900 z-10"
+              className="absolute right-6 top-6 flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-gray-600 dark:text-gray-400 transition hover:bg-slate-200 hover:text-slate-900 dark:text-slate-100 z-10"
             >
               <X className="h-4 w-4" />
             </button>
@@ -880,16 +880,16 @@ export default function JobDetailPage() {
       {showProposalDetail && existingProposal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
           <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setShowProposalDetail(false)} />
-          <div className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl sm:p-10">
+          <div className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-slate-950 p-6 shadow-2xl sm:p-10">
             <button
               onClick={() => setShowProposalDetail(false)}
-              className="absolute right-6 top-6 flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-gray-600 transition hover:bg-slate-200 hover:text-slate-900 z-10"
+              className="absolute right-6 top-6 flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-gray-600 dark:text-gray-400 transition hover:bg-slate-200 hover:text-slate-900 dark:text-slate-100 z-10"
             >
               <X className="h-4 w-4" />
             </button>
             <div className="mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">Chi tiết ứng tuyển</h2>
-              <p className="mt-1 text-sm text-gray-600">Ứng tuyển bạn đã gửi cho công việc này</p>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Chi tiết ứng tuyển</h2>
+              <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">Ứng tuyển bạn đã gửi cho công việc này</p>
             </div>
             
             <ProposalCreateForm
@@ -921,22 +921,22 @@ export default function JobDetailPage() {
               setWithdrawReason('')
             }}
           />
-          <div className="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+          <div className="relative w-full max-w-md rounded-2xl bg-white dark:bg-slate-950 p-6 shadow-2xl">
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-rose-50 text-rose-600 mb-5 shadow-inner">
               <AlertCircle className="h-6 w-6" />
             </div>
-            <h3 className="text-center text-xl font-bold text-gray-900 mb-2">Xác nhận thu hồi</h3>
-            <p className="text-center text-sm text-gray-600 mb-6 leading-relaxed">
+            <h3 className="text-center text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">Xác nhận thu hồi</h3>
+            <p className="text-center text-sm text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">
               Bạn có chắc chắn muốn thu hồi ứng tuyển này không? Hành động này không thể hoàn tác và khách sẽ không thể thấy ứng tuyển của bạn nữa.
             </p>
-            <label className="mb-2 block text-sm font-bold text-slate-700">
+            <label className="mb-2 block text-sm font-bold text-slate-700 dark:text-slate-300 dark:text-slate-300">
               {t('jobs.proposalForm.withdraw.reasonLabel')}
             </label>
             <textarea
               value={withdrawReason}
               onChange={(event) => setWithdrawReason(event.target.value)}
               rows={3}
-              className="mb-4 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none transition focus:border-rose-400 focus:ring-4 focus:ring-rose-100"
+              className="mb-4 w-full rounded-xl border border-slate-200 dark:border-slate-800 px-3 py-2 text-sm outline-none transition focus:border-rose-400 focus:ring-4 focus:ring-rose-100"
               placeholder={t('jobs.proposalForm.withdraw.reasonPlaceholder')}
             />
             <div className="flex gap-3">
@@ -946,7 +946,7 @@ export default function JobDetailPage() {
                   setWithdrawReason('')
                 }}
                 disabled={withdrawing}
-                className="flex-1 rounded-xl bg-slate-100 px-4 py-3.5 text-[15px] font-bold text-gray-800 hover:bg-slate-200 transition"
+                className="flex-1 rounded-xl bg-slate-100 dark:bg-slate-800 px-4 py-3.5 text-[15px] font-bold text-gray-800 dark:text-gray-200 hover:bg-slate-200 transition"
               >
                 Hủy bỏ
               </button>
@@ -965,19 +965,19 @@ export default function JobDetailPage() {
       {showCompleteContractConfirm && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
           <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => !completeContractMutation.isLoading && setShowCompleteContractConfirm(false)} />
-          <div className="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 mb-5 shadow-inner">
+          <div className="relative w-full max-w-md rounded-2xl bg-white dark:bg-slate-950 p-6 shadow-2xl">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-500 mb-5 shadow-inner">
               <CheckCircle2 className="h-6 w-6" />
             </div>
-            <h3 className="text-center text-xl font-bold text-gray-900 mb-2">Hoàn thành công việc</h3>
-            <p className="text-center text-sm text-gray-600 mb-6 leading-relaxed">
-              Bạn xác nhận công việc này đã hoàn thành? Số tiền <strong className="text-emerald-600">{formatCurrency(jobContract?.amountInEscrow || 0)}</strong> trong quỹ đảm bảo sẽ được chuyển cho mentor ngay lập tức. Hành động này không thể hoàn tác.
+            <h3 className="text-center text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">Hoàn thành công việc</h3>
+            <p className="text-center text-sm text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">
+              Bạn xác nhận công việc này đã hoàn thành? Số tiền <strong className="text-emerald-600 dark:text-emerald-500">{formatCurrency(jobContract?.amountInEscrow || 0)}</strong> trong quỹ đảm bảo sẽ được chuyển cho mentor ngay lập tức. Hành động này không thể hoàn tác.
             </p>
             <div className="flex gap-3">
               <button
                 onClick={() => setShowCompleteContractConfirm(false)}
                 disabled={completeContractMutation.isLoading}
-                className="flex-1 rounded-xl bg-slate-100 px-4 py-3.5 text-[15px] font-bold text-gray-800 hover:bg-slate-200 transition"
+                className="flex-1 rounded-xl bg-slate-100 dark:bg-slate-800 px-4 py-3.5 text-[15px] font-bold text-gray-800 dark:text-gray-200 hover:bg-slate-200 transition"
               >
                 Chưa xong
               </button>
@@ -1015,12 +1015,12 @@ function SummaryTile({
   value: string
 }) {
   return (
-    <div className="job-soft-section rounded-2xl border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-5 shadow-sm">
+    <div className="job-soft-section rounded-2xl border border-slate-200 dark:border-slate-800 bg-gradient-to-br from-white dark:from-slate-950 to-slate-50 dark:to-slate-900/50 p-5 shadow-sm">
       <div className="flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.14em] text-[#94A3B8]">
         <Icon className="job-section-icon h-4 w-4 text-[#4f46e5]" />
         {label}
       </div>
-      <p className="mt-3 break-words text-lg font-extrabold leading-6 tracking-tight text-[#1F2937]">{value}</p>
+      <p className="mt-3 break-words text-lg font-extrabold leading-6 tracking-tight text-[#1F2937] dark:text-gray-200">{value}</p>
     </div>
   )
 }
@@ -1035,12 +1035,12 @@ function QuickMetaCard({
   value: string
 }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+    <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 dark:bg-slate-900 p-4">
       <div className="flex items-center gap-2 text-[11px] font-black uppercase tracking-wide text-slate-400">
-        <Icon className="h-4 w-4 text-gray-600" />
+        <Icon className="h-4 w-4 text-gray-600 dark:text-gray-400" />
         {label}
       </div>
-      <p className="mt-2 break-words text-sm font-black leading-6 text-slate-950">{value}</p>
+      <p className="mt-2 break-words text-sm font-black leading-6 text-slate-950 dark:text-slate-100">{value}</p>
     </div>
   )
 }
@@ -1055,11 +1055,11 @@ function SideFact({
   value: string
 }) {
   return (
-    <div className="flex items-center gap-3 rounded-xl bg-slate-50 p-3">
+    <div className="flex items-center gap-3 rounded-xl bg-slate-50 dark:bg-slate-900/50 dark:bg-slate-900 p-3">
       <Icon className="h-4 w-4 shrink-0 text-slate-400" />
       <div className="min-w-0">
         <p className="text-xs font-bold uppercase text-slate-400">{label}</p>
-        <p className="truncate text-sm font-black text-slate-950">{value}</p>
+        <p className="truncate text-sm font-black text-slate-950 dark:text-slate-100">{value}</p>
       </div>
     </div>
   )
@@ -1067,9 +1067,9 @@ function SideFact({
 
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-start justify-between gap-4 border-b border-slate-100 pb-3 last:border-0 last:pb-0">
-      <span className="text-gray-600">{label}</span>
-      <span className="max-w-[190px] text-right font-black text-slate-950">{value}</span>
+    <div className="flex items-start justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-3 last:border-0 last:pb-0">
+      <span className="text-gray-600 dark:text-gray-400">{label}</span>
+      <span className="max-w-[190px] text-right font-black text-slate-950 dark:text-slate-100">{value}</span>
     </div>
   )
 }
@@ -1080,10 +1080,10 @@ function Badge({ children, className }: { children: React.ReactNode; className: 
 
 function JobDetailSkeleton() {
   return (
-      <div className="min-h-screen bg-[#f3f5f7] px-4 py-6 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-[#f3f5f7] dark:bg-slate-950 px-4 py-6 sm:px-6 lg:px-8">
       <div className="mx-auto grid max-w-[1600px] gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
         <div className="space-y-6">
-          <div className="rounded-2xl border border-[#E8E1D8] bg-[#FFFFFF] p-7 shadow-sm">
+          <div className="rounded-2xl border border-[#E8E1D8] dark:border-slate-800 bg-[#FFFFFF] dark:bg-slate-950 p-7 shadow-sm">
             <Skeleton className="h-7 w-48 rounded-full" />
             <Skeleton className="mt-5 h-10 w-4/5 rounded-xl" />
             <Skeleton className="mt-4 h-5 w-2/5" />
@@ -1093,7 +1093,7 @@ function JobDetailSkeleton() {
               ))}
             </div>
           </div>
-          <div className="space-y-4 rounded-2xl border border-[#E8E1D8] bg-[#FFFFFF] p-7 shadow-sm">
+          <div className="space-y-4 rounded-2xl border border-[#E8E1D8] dark:border-slate-800 bg-[#FFFFFF] dark:bg-slate-950 p-7 shadow-sm">
             <Skeleton className="h-6 w-32" />
             <SkeletonText lines={6} />
           </div>
@@ -1120,12 +1120,12 @@ function BriefItem({
   wide?: boolean
 }) {
   return (
-    <div className={`job-soft-section rounded-2xl border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-5 shadow-sm transition-all hover:border-emerald-300 ${wide ? 'md:col-span-2' : ''}`}>
-      <div className="mb-2 flex items-center gap-2 text-[12px] font-extrabold uppercase tracking-wide text-[#64748B]">
+    <div className={`job-soft-section rounded-2xl border border-slate-200 dark:border-slate-800 bg-gradient-to-br from-white dark:from-slate-950 to-slate-50 dark:to-slate-900/50 p-5 shadow-sm transition-all hover:border-emerald-300 ${wide ? 'md:col-span-2' : ''}`}>
+      <div className="mb-2 flex items-center gap-2 text-[12px] font-extrabold uppercase tracking-wide text-[#64748B] dark:text-slate-400">
         <Icon className="job-section-icon h-4 w-4 text-[#4f46e5]" />
         {label}
       </div>
-      <p className="whitespace-pre-wrap text-[15px] font-bold leading-relaxed text-[#1F2937]">{value}</p>
+      <p className="whitespace-pre-wrap text-[15px] font-bold leading-relaxed text-[#1F2937] dark:text-gray-200">{value}</p>
     </div>
   )
 }
@@ -1166,7 +1166,7 @@ function getJobDisplayData(job: JobResponse, categories: Array<{ id?: number; ca
   return {
     categoryName,
     statusLabel: STATUS_META[job.status]?.label || job.status.replace(/_/g, ' '),
-    statusClass: STATUS_META[job.status]?.className || 'border-slate-200 bg-slate-50 text-slate-700',
+    statusClass: STATUS_META[job.status]?.className || 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 dark:text-slate-300',
     jobTypeLabel: JOB_TYPE_META[job.jobType]?.label || job.jobType.replace(/_/g, ' '),
     budget: formatBudget(job),
     budgetTypeLabel: job.budgetType === BudgetType.HOURLY ? 'Hourly' : 'Fixed price',
@@ -1277,16 +1277,16 @@ function getProposalStatusLabel(status: string): string {
 
 function getProposalStatusColor(status: string): string {
   const statusColors: Record<string, string> = {
-    DRAFT: 'bg-slate-100 text-gray-800 border border-slate-200',
-    SUBMITTED: 'bg-[#EEF2FF] text-[#4F46E5] border border-[#C7D2FE]',
-    UNDER_REVIEW: 'bg-[#FFF7E6] text-[#D97706] border border-[#FED7AA]',
-    NEGOTIATING: 'bg-[#FFF7E6] text-[#D97706] border border-[#FED7AA]',
-    SHORTLISTED: 'bg-[#FFF7E6] text-[#D97706] border border-[#FED7AA]',
-    ACCEPTED: 'bg-[#EAF7EF] text-[#15803D] border border-[#BBF7D0]',
+    DRAFT: 'bg-slate-100 dark:bg-slate-800 text-gray-800 dark:text-gray-200 border border-slate-200 dark:border-slate-800',
+    SUBMITTED: 'bg-[#EEF2FF] dark:bg-indigo-900/30 text-[#4F46E5] border border-[#C7D2FE] dark:border-indigo-800/50',
+    UNDER_REVIEW: 'bg-[#FFF7E6] dark:bg-amber-900/30 dark:bg-slate-950 text-[#D97706] dark:text-amber-400 border border-[#FED7AA] dark:border-amber-800/50',
+    NEGOTIATING: 'bg-[#FFF7E6] dark:bg-amber-900/30 dark:bg-slate-950 text-[#D97706] dark:text-amber-400 border border-[#FED7AA] dark:border-amber-800/50',
+    SHORTLISTED: 'bg-[#FFF7E6] dark:bg-amber-900/30 dark:bg-slate-950 text-[#D97706] dark:text-amber-400 border border-[#FED7AA] dark:border-amber-800/50',
+    ACCEPTED: 'bg-[#EAF7EF] dark:bg-emerald-900/30 text-[#15803D] dark:text-emerald-400 border border-[#BBF7D0] dark:border-emerald-800/50',
     REJECTED: 'bg-rose-100 text-rose-700 border border-rose-200',
-    WITHDRAWN: 'bg-gray-100 text-gray-700 border border-gray-200',
+    WITHDRAWN: 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-800',
   }
-  return statusColors[status] || 'bg-slate-100 text-gray-800 border border-slate-200'
+  return statusColors[status] || 'bg-slate-100 dark:bg-slate-800 text-gray-800 dark:text-gray-200 border border-slate-200 dark:border-slate-800'
 }
 
 function getAttachmentMeta(url: string, index: number) {
@@ -1299,7 +1299,7 @@ function getAttachmentMeta(url: string, index: number) {
       badge: 'Hình ảnh',
       description: 'Xem trước và mở kích thước đầy đủ',
       Icon: FileImage,
-      iconClassName: 'bg-emerald-50 text-emerald-600',
+      iconClassName: 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-500',
     }
   }
 
@@ -1309,7 +1309,7 @@ function getAttachmentMeta(url: string, index: number) {
       badge: 'Tệp nén',
       description: 'Tệp đính kèm dạng nén',
       Icon: FileArchive,
-      iconClassName: 'bg-amber-50 text-amber-600',
+      iconClassName: 'bg-amber-50 dark:bg-amber-900/30 text-amber-600',
     }
   }
 
@@ -1319,7 +1319,7 @@ function getAttachmentMeta(url: string, index: number) {
       badge: 'Mã nguồn',
       description: 'Tệp mã nguồn hoặc cấu hình',
       Icon: FileCode2,
-      iconClassName: 'bg-[#FFF7E6] text-[#D97706]',
+      iconClassName: 'bg-[#FFF7E6] dark:bg-amber-900/30 dark:bg-slate-950 text-[#D97706] dark:text-amber-400',
     }
   }
 
@@ -1328,7 +1328,7 @@ function getAttachmentMeta(url: string, index: number) {
     badge: extension ? extension.toUpperCase() : 'Tài liệu',
     description: 'Mở tệp đính kèm',
     Icon: FileText,
-    iconClassName: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400',
+    iconClassName: 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-500 dark:bg-emerald-950/40 dark:text-emerald-400',
   }
 }
 
@@ -1340,23 +1340,23 @@ function RelatedJobCard({ job }: { job: JobResponse }) {
   return (
     <Link 
       to={`/jobs/${job.jobId}`} 
-      className="group flex flex-col rounded-2xl border border-slate-200 bg-white p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-emerald-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-emerald-700"
+      className="group flex flex-col rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-emerald-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-emerald-700"
     >
       <div className="flex items-start gap-4">
-        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-100/80 text-base font-extrabold text-emerald-700 transition-colors group-hover:bg-emerald-600 group-hover:text-white dark:bg-emerald-900/40 dark:text-emerald-300">
+        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-base font-extrabold text-emerald-700 dark:text-emerald-400 transition-colors group-hover:bg-emerald-600 group-hover:text-white dark:bg-emerald-900/40 dark:text-emerald-300">
           {initial}
         </div>
         <div className="min-w-0 flex-1">
-          <h3 className="line-clamp-2 text-sm font-bold text-slate-900 leading-snug group-hover:text-emerald-600 dark:text-white dark:group-hover:text-emerald-400">{job.title}</h3>
-          <p className="mt-1 truncate text-xs font-semibold text-slate-500 dark:text-slate-400">{clientName}</p>
+          <h3 className="line-clamp-2 text-sm font-bold text-slate-900 dark:text-slate-100 leading-snug group-hover:text-emerald-600 dark:text-emerald-500 dark:text-white dark:group-hover:text-emerald-400">{job.title}</h3>
+          <p className="mt-1 truncate text-xs font-semibold text-slate-500 dark:text-slate-400 dark:text-slate-400 dark:text-slate-400">{clientName}</p>
         </div>
       </div>
-      <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3.5 dark:border-slate-800">
-        <span className="inline-flex items-center gap-1.5 rounded-lg bg-slate-100 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+      <div className="mt-4 flex items-center justify-between border-t border-slate-100 dark:border-slate-800 pt-3.5 dark:border-slate-800">
+        <span className="inline-flex items-center gap-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 dark:text-slate-400 dark:bg-slate-800 dark:text-slate-300">
           <Briefcase className="h-3 w-3 text-slate-400" />
           {job.jobType.replace(/_/g, ' ')}
         </span>
-        <span className="text-sm font-extrabold text-emerald-700 dark:text-emerald-300">{budget}</span>
+        <span className="text-sm font-extrabold text-emerald-700 dark:text-emerald-400 dark:text-emerald-300">{budget}</span>
       </div>
     </Link>
   )

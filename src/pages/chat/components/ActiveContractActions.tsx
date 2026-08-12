@@ -96,9 +96,9 @@ export default function ActiveContractActions({ contract, currentUserId }: Activ
         {contract.status === 'ACTIVE' && currentUserId === contract.mentorId && (
           <div className="space-y-2">
             {contract.clientReviewNote && (
-              <div className="rounded-xl bg-amber-50 p-3 border border-amber-100 flex items-start gap-2">
+              <div className="rounded-xl bg-amber-50 dark:bg-amber-900/30 p-3 border border-amber-100 flex items-start gap-2">
                 <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-                <div className="text-sm text-amber-800">
+                <div className="text-sm text-amber-800 dark:text-amber-200">
                   <strong>Yêu cầu chỉnh sửa:</strong> {contract.clientReviewNote}
                 </div>
               </div>
@@ -113,9 +113,9 @@ export default function ActiveContractActions({ contract, currentUserId }: Activ
         )}
 
         {contract.status === 'UNDER_REVIEW' && currentUserId === contract.mentorId && (
-          <div className="rounded-xl bg-slate-50 border border-slate-200 p-3 flex items-center gap-2">
-            <Clock className="w-4 h-4 text-slate-500" />
-            <p className="text-[13px] font-medium text-slate-600">Đang chờ người dùng nghiệm thu...</p>
+          <div className="rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 p-3 flex items-center gap-2">
+            <Clock className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+            <p className="text-[13px] font-medium text-slate-600 dark:text-slate-400">Đang chờ người dùng nghiệm thu...</p>
           </div>
         )}
 
@@ -132,7 +132,7 @@ export default function ActiveContractActions({ contract, currentUserId }: Activ
             </button>
             <button
               onClick={() => setIsRevisionModalOpen(true)}
-              className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 text-sm font-semibold text-amber-700 transition hover:bg-amber-100 shadow-sm"
+              className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-amber-200 dark:border-amber-800/50 bg-amber-50 dark:bg-amber-900/30 px-4 text-sm font-semibold text-amber-700 dark:text-amber-400 transition hover:bg-amber-100 dark:bg-amber-900/50 shadow-sm"
             >
               Yêu cầu chỉnh sửa
             </button>
@@ -141,13 +141,13 @@ export default function ActiveContractActions({ contract, currentUserId }: Activ
 
         {contract.status === 'COMPLETED' && currentUserId === contract.clientId && (
           <div className="space-y-2">
-            <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 mb-2 flex items-start gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-              <p className="text-[13px] text-emerald-800">Bạn đã nghiệm thu Job này. Hãy để lại đánh giá cho Mentor nhé!</p>
+            <div className="rounded-xl border border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-900/30 p-3 mb-2 flex items-start gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-500 shrink-0 mt-0.5" />
+              <p className="text-[13px] text-emerald-800 dark:text-emerald-200">Bạn đã nghiệm thu Job này. Hãy để lại đánh giá cho Mentor nhé!</p>
             </div>
             <button
               onClick={() => setIsReviewModalOpen(true)}
-              className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-white px-4 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-50 shadow-sm"
+              className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-emerald-200 dark:border-emerald-800/50 bg-white dark:bg-slate-950 px-4 text-sm font-semibold text-emerald-700 dark:text-emerald-400 transition hover:bg-emerald-50 dark:bg-emerald-900/30 shadow-sm"
             >
               Đánh giá Mentor
             </button>
@@ -156,14 +156,14 @@ export default function ActiveContractActions({ contract, currentUserId }: Activ
 
         {contract.status === 'COMPLETED' && currentUserId === contract.mentorId && (
           <div className="space-y-4">
-            <div className="overflow-hidden rounded-2xl border border-emerald-200/60 bg-gradient-to-br from-emerald-50 to-white p-5 shadow-inner">
+            <div className="overflow-hidden rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-white p-5 shadow-inner">
               <div className="flex items-start gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600 shadow-sm">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-500 shadow-sm">
                   <CheckCircle2 className="h-5 w-5" />
                 </div>
                 <div>
-                  <h4 className="text-sm font-bold text-emerald-900">Job đã hoàn tất!</h4>
-                  <p className="mt-1 text-[13px] leading-relaxed text-emerald-800/90">
+                  <h4 className="text-sm font-bold text-emerald-900 dark:text-emerald-100">Job đã hoàn tất!</h4>
+                  <p className="mt-1 text-[13px] leading-relaxed text-emerald-800 dark:text-emerald-200/90">
                     Tiền đã được giải ngân vào ví của bạn. Cảm ơn bạn đã mang lại giá trị tuyệt vời cho khách hàng.
                   </p>
                 </div>
@@ -178,7 +178,7 @@ export default function ActiveContractActions({ contract, currentUserId }: Activ
               </a>
               <a
                 href={`/mentor/proposals/${contract.proposalId || contract.id}`}
-                className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-700 shadow-sm transition-all hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md"
+                className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 text-sm font-bold text-slate-700 dark:text-slate-300 shadow-sm transition-all hover:-translate-y-0.5 hover:border-slate-300 dark:border-slate-700 hover:shadow-md"
               >
                 Xem chi tiết hợp đồng
               </a>
@@ -189,7 +189,7 @@ export default function ActiveContractActions({ contract, currentUserId }: Activ
                     archiveMutation.mutate(contract.id)
                   }}
                   disabled={isArchiving}
-                  className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-500 shadow-sm transition-all hover:bg-slate-50 hover:text-slate-700 disabled:opacity-50"
+                  className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 text-sm font-bold text-slate-500 dark:text-slate-400 shadow-sm transition-all hover:bg-slate-50 dark:bg-slate-900/50 hover:text-slate-700 dark:text-slate-300 disabled:opacity-50"
                 >
                   {isArchiving ? 'Đang xử lý...' : 'Lưu trữ hợp đồng'}
                 </button>

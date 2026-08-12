@@ -68,7 +68,7 @@ export default function MyComplaintsPage() {
           <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
             {t('mentee.complaints.title')}
           </h1>
-          <p className="mt-1 text-sm font-medium text-slate-500 dark:text-slate-400">
+          <p className="mt-1 text-sm font-medium text-slate-500 dark:text-slate-400 dark:text-slate-400">
             {t('mentee.complaints.subtitle')}
           </p>
         </div>
@@ -82,14 +82,14 @@ export default function MyComplaintsPage() {
       </div>
 
       {showCachedFallback && (
-        <div className="rounded-2xl border border-amber-100 bg-amber-50 px-4 py-2 text-sm font-medium text-amber-700 dark:border-amber-900/30 dark:bg-amber-950/30 dark:text-amber-400">
+        <div className="rounded-2xl border border-amber-100 bg-amber-50 dark:bg-amber-900/30 px-4 py-2 text-sm font-medium text-amber-700 dark:text-amber-400 dark:border-amber-900/30 dark:bg-amber-950/30 dark:text-amber-400">
           Server đang bảo trì. Hiển thị danh sách khiếu nại từ bộ nhớ tạm.
           <button type="button" onClick={() => refetch()} className="ml-2 underline font-bold">Thử lại</button>
         </div>
       )}
 
-      <div className="rounded-3xl border border-slate-200/70 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-        <div className="flex flex-col gap-3 border-b border-slate-100 p-5 dark:border-slate-800 sm:flex-row sm:items-center">
+      <div className="rounded-3xl border border-slate-200 dark:border-slate-800/70 bg-white dark:bg-slate-950 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <div className="flex flex-col gap-3 border-b border-slate-100 dark:border-slate-800 p-5 dark:border-slate-800 sm:flex-row sm:items-center">
           <div className="relative flex-1">
             <Search className="pointer-events-none absolute left-4 top-1/2 w-4 h-4 -translate-y-1/2 text-slate-400" />
             <input
@@ -97,7 +97,7 @@ export default function MyComplaintsPage() {
               value={search}
               onChange={(event) => setSearch(event.target.value)}
               placeholder={t('mentee.complaints.searchPlaceholder')}
-              className="w-full rounded-2xl border border-transparent bg-slate-50 py-2.5 pl-11 pr-4 text-sm font-medium text-slate-700 placeholder:text-slate-400 focus:border-emerald-500/30 focus:bg-white focus:outline-none focus:ring-4 focus:ring-emerald-500/10 dark:bg-slate-800 dark:text-slate-200 dark:placeholder:text-slate-500 dark:focus:bg-slate-900"
+              className="w-full rounded-2xl border border-transparent bg-slate-50 dark:bg-slate-900/50 py-2.5 pl-11 pr-4 text-sm font-medium text-slate-700 dark:text-slate-300 placeholder:text-slate-400 focus:border-emerald-500/30 focus:bg-white dark:bg-slate-950 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 dark:bg-slate-800 dark:text-slate-200 dark:placeholder:text-slate-500 dark:text-slate-400 dark:focus:bg-slate-900"
             />
           </div>
           <select
@@ -106,7 +106,7 @@ export default function MyComplaintsPage() {
               setPage(0)
               setStatusFilter(event.target.value as StatusFilter)
             }}
-            className="rounded-2xl border border-transparent bg-slate-50 px-4 py-2.5 text-sm font-bold text-slate-600 focus:border-emerald-500/30 focus:bg-white focus:outline-none focus:ring-4 focus:ring-emerald-500/10 dark:bg-slate-800 dark:text-slate-300 dark:focus:bg-slate-900"
+            className="rounded-2xl border border-transparent bg-slate-50 dark:bg-slate-900/50 px-4 py-2.5 text-sm font-bold text-slate-600 dark:text-slate-400 focus:border-emerald-500/30 focus:bg-white dark:bg-slate-950 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 dark:bg-slate-800 dark:text-slate-300 dark:focus:bg-slate-900"
           >
             <option value="">{t('mentee.complaints.filter.all')}</option>
             <option value={ComplaintStatus.OPEN}>
@@ -144,13 +144,13 @@ export default function MyComplaintsPage() {
           <Skeleton />
         ) : showEmpty ? (
           <div className="flex flex-col items-center gap-3 px-6 py-16 text-center">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-50 text-slate-400 dark:bg-slate-800 dark:text-slate-500">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-50 dark:bg-slate-900/50 text-slate-400 dark:bg-slate-800 dark:text-slate-500">
               <Inbox className="w-6 h-6" />
             </div>
             <p className="text-sm font-black text-slate-900 dark:text-white">
               {t('mentee.complaints.empty.title')}
             </p>
-            <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
+            <p className="text-xs font-medium text-slate-500 dark:text-slate-400 dark:text-slate-400">
               {t('mentee.complaints.empty.description')}
             </p>
             <Link
@@ -169,7 +169,7 @@ export default function MyComplaintsPage() {
           </ul>
         )}
 
-        <div className="flex items-center justify-between border-t border-slate-100 px-6 py-4 dark:border-slate-800">
+        <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-800 px-6 py-4 dark:border-slate-800">
           <p className="text-xs font-bold text-slate-400">
             {t('mentee.complaints.pagination.summary', {
               from: startIndex,
@@ -182,7 +182,7 @@ export default function MyComplaintsPage() {
               type="button"
               onClick={() => setPage((current) => Math.max(current - 1, 0))}
               disabled={page === 0 || isFetching}
-              className="inline-flex items-center gap-1 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-500 transition hover:text-emerald-600 disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400"
+              className="inline-flex items-center gap-1 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3 py-1.5 text-xs font-bold text-slate-500 dark:text-slate-400 transition hover:text-emerald-600 dark:text-emerald-500 disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400"
             >
               {t('mentee.complaints.pagination.prev')}
             </button>
@@ -190,7 +190,7 @@ export default function MyComplaintsPage() {
               type="button"
               onClick={() => setPage((current) => current + 1)}
               disabled={(data?.last ?? true) || isFetching}
-              className="inline-flex items-center gap-1 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-500 transition hover:text-emerald-600 disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400"
+              className="inline-flex items-center gap-1 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3 py-1.5 text-xs font-bold text-slate-500 dark:text-slate-400 transition hover:text-emerald-600 dark:text-emerald-500 disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400"
             >
               {t('mentee.complaints.pagination.next')}
             </button>
@@ -215,12 +215,12 @@ function ComplaintItem({ complaint }: { complaint: ComplaintResponse }) {
   const bucket = complaintPriorityBucket(complaint.priorityLevel)
 
   return (
-    <li className="flex flex-col gap-3 px-6 py-4 transition hover:bg-slate-50/50 dark:hover:bg-slate-800/40 md:flex-row md:items-start md:justify-between">
+    <li className="flex flex-col gap-3 px-6 py-4 transition hover:bg-slate-50 dark:bg-slate-900/30 dark:hover:bg-slate-800/40 md:flex-row md:items-start md:justify-between">
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-black text-slate-900 dark:text-white">
           {complaint.title}
         </p>
-        <p className="mt-1 line-clamp-2 max-w-2xl text-xs font-medium text-slate-500 dark:text-slate-400">
+        <p className="mt-1 line-clamp-2 max-w-2xl text-xs font-medium text-slate-500 dark:text-slate-400 dark:text-slate-400">
           {complaint.description}
         </p>
         <p className="mt-2 text-[10px] font-black uppercase tracking-widest text-slate-400">
@@ -230,13 +230,13 @@ function ComplaintItem({ complaint }: { complaint: ComplaintResponse }) {
         </p>
       </div>
       <div className="flex flex-wrap gap-2 md:flex-col md:items-end">
-        <span className="inline-flex rounded-xl bg-slate-50 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+        <span className="inline-flex rounded-xl bg-slate-50 dark:bg-slate-900/50 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-slate-600 dark:text-slate-400 dark:bg-slate-800 dark:text-slate-300">
           {complaint.complaintCategory || '—'}
         </span>
-        <span className="inline-flex rounded-xl bg-slate-50 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+        <span className="inline-flex rounded-xl bg-slate-50 dark:bg-slate-900/50 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-slate-600 dark:text-slate-400 dark:bg-slate-800 dark:text-slate-300">
           {t(complaintPriorityKeys[bucket])}
         </span>
-        <span className="inline-flex rounded-xl bg-slate-50 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+        <span className="inline-flex rounded-xl bg-slate-50 dark:bg-slate-900/50 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-slate-600 dark:text-slate-400 dark:bg-slate-800 dark:text-slate-300">
           {t(complaintStatusKeys[complaint.status])}
         </span>
       </div>

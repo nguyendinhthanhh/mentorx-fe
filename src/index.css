@@ -554,6 +554,50 @@ input[type="range"].onb-range::-webkit-slider-thumb:hover {
   animation: heroFloatMentor 7.5s ease-in-out infinite;
 }
 
+/* ─── Blog document reading styles ─── */
+.blog-document {
+  overflow-x: auto;
+}
+
+.blog-document img {
+  max-width: 100%;
+  height: auto;
+}
+
+.blog-document table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.blog-document table th,
+.blog-document table td {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #e2e8f0;
+}
+
+.blog-document table th {
+  background-color: #f8fafc;
+  font-weight: 600;
+  text-align: left;
+}
+
+.blog-document h1,
+.blog-document h2,
+.blog-document h3,
+.blog-document h4 {
+  scroll-margin-top: 6rem;
+}
+
+.blog-document ul,
+.blog-document ol {
+  padding-left: 1.5em;
+}
+
+.blog-document hr {
+  border-color: #e2e8f0;
+  margin: 1.5rem 0;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

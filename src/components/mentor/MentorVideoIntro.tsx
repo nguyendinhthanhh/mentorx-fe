@@ -89,11 +89,11 @@ export default function MentorVideoIntro({ userId, currentVideoUrl }: Props) {
     <div className="p-8 space-y-6">
       {/* Header */}
       <div>
-        <h2 className="text-2xl font-black text-gray-900 flex items-center gap-2">
+        <h2 className="text-2xl font-black text-gray-900 dark:text-gray-100 flex items-center gap-2">
           <Video className="w-6 h-6 text-primary-600" />
           Video Giới Thiệu
         </h2>
-        <p className="text-sm text-gray-600 mt-2">
+        <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
           Upload video giới thiệu bản thân (30-90 giây) để học viên hiểu rõ hơn về bạn
         </p>
       </div>
@@ -148,7 +148,7 @@ export default function MentorVideoIntro({ userId, currentVideoUrl }: Props) {
                 <Upload className="w-8 h-8 text-primary-600" />
               </div>
               <div>
-                <p className="text-lg font-bold text-gray-900">
+                <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
                   Click để upload video
                 </p>
                 <p className="text-sm text-gray-500 mt-1">
@@ -183,7 +183,7 @@ export default function MentorVideoIntro({ userId, currentVideoUrl }: Props) {
             <button
               onClick={handleRemove}
               disabled={uploading}
-              className="px-6 py-3 border border-gray-300 text-gray-700 rounded-xl font-bold hover:bg-gray-50 disabled:opacity-50"
+              className="px-6 py-3 border border-gray-300 text-gray-700 dark:text-gray-300 rounded-xl font-bold hover:bg-gray-50 dark:bg-gray-900/50 disabled:opacity-50"
             >
               Hủy
             </button>
@@ -219,9 +219,9 @@ export default function MentorVideoIntro({ userId, currentVideoUrl }: Props) {
       </div>
 
       {/* Example Script */}
-      <div className="bg-gray-50 rounded-2xl p-6 border border-gray-200">
-        <h3 className="font-black text-gray-900 mb-3">📝 Mẫu script tham khảo</h3>
-        <div className="text-sm text-gray-700 space-y-2 leading-relaxed">
+      <div className="bg-gray-50 dark:bg-gray-900/50 rounded-2xl p-6 border border-gray-200 dark:border-gray-800">
+        <h3 className="font-black text-gray-900 dark:text-gray-100 mb-3">📝 Mẫu script tham khảo</h3>
+        <div className="text-sm text-gray-700 dark:text-gray-300 space-y-2 leading-relaxed">
           <p className="italic">
             "Xin chào, mình là [Tên], hiện đang làm [Vị trí] tại [Công ty]. 
             Mình có [X] năm kinh nghiệm trong lĩnh vực [Lĩnh vực].

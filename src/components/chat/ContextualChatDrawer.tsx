@@ -200,7 +200,7 @@ export default function ContextualChatDrawer({
     contextType === 'CONTRACT'
       ? 'No messages yet. Start the conversation with your client.'
       : 'No messages yet. Start the conversation.'
-  const badgeToneClassName = statusToneClassName || 'border-slate-200 bg-slate-100 text-slate-600'
+  const badgeToneClassName = statusToneClassName || 'border-slate-200 dark:border-slate-800 bg-slate-100 text-slate-600 dark:text-slate-400'
 
   return (
     <div className={`fixed inset-0 z-[70] ${open ? '' : 'pointer-events-none'}`}>
@@ -210,11 +210,11 @@ export default function ContextualChatDrawer({
       />
 
       <aside
-        className={`absolute inset-y-0 right-0 flex w-full max-w-[520px] flex-col bg-white shadow-2xl transition-transform duration-300 ${
+        className={`absolute inset-y-0 right-0 flex w-full max-w-[520px] flex-col bg-white dark:bg-slate-950 shadow-2xl transition-transform duration-300 ${
           open ? 'translate-x-0' : 'translate-x-full'
-        } xl:top-6 xl:bottom-6 xl:right-6 xl:rounded-[28px] xl:border xl:border-slate-200 xl:shadow-[0_30px_80px_rgba(15,23,42,0.18)]`}
+        } xl:top-6 xl:bottom-6 xl:right-6 xl:rounded-[28px] xl:border xl:border-slate-200 dark:border-slate-800 xl:shadow-[0_30px_80px_rgba(15,23,42,0.18)]`}
       >
-        <header className="sticky top-0 z-10 border-b border-slate-200 bg-white px-5 py-4 xl:rounded-t-[28px]">
+        <header className="sticky top-0 z-10 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-5 py-4 xl:rounded-t-[28px]">
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0 flex items-center gap-3">
               {resolveQuery.isLoading ? (
@@ -222,7 +222,7 @@ export default function ContextualChatDrawer({
               ) : otherMember?.avatarUrl ? (
                 <img src={otherMember.avatarUrl} alt={resolvedTitle} className="h-11 w-11 rounded-2xl object-cover" />
               ) : (
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-100 text-sm font-black text-emerald-600">
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/50 text-sm font-black text-emerald-600 dark:text-emerald-500">
                   {resolvedTitle
                     .split(' ')
                     .filter(Boolean)
@@ -233,9 +233,9 @@ export default function ContextualChatDrawer({
               )}
 
               <div className="min-w-0">
-                <h2 className="truncate text-lg font-black tracking-tight text-slate-950">{resolvedTitle}</h2>
+                <h2 className="truncate text-lg font-black tracking-tight text-slate-950 dark:text-slate-100">{resolvedTitle}</h2>
                 <div className="mt-1 flex flex-wrap items-center gap-2">
-                  <span className="inline-flex h-6 items-center rounded-full bg-emerald-50 px-2.5 text-[11px] font-bold text-emerald-700">
+                  <span className="inline-flex h-6 items-center rounded-full bg-emerald-50 dark:bg-emerald-900/30 px-2.5 text-[11px] font-bold text-emerald-700 dark:text-emerald-400">
                     {resolvedSubtitle}
                   </span>
                   {statusLabel ? (
@@ -244,7 +244,7 @@ export default function ContextualChatDrawer({
                     </span>
                   ) : null}
                 </div>
-                {contextTitle ? <p className="mt-2 truncate text-sm font-medium text-slate-500">{contextTitle}</p> : null}
+                {contextTitle ? <p className="mt-2 truncate text-sm font-medium text-slate-500 dark:text-slate-400">{contextTitle}</p> : null}
                 {helperPresence ? <p className="mt-1 text-xs text-slate-400">{helperPresence}</p> : null}
               </div>
             </div>
@@ -254,7 +254,7 @@ export default function ContextualChatDrawer({
                 <button
                   type="button"
                   onClick={handleOpenFullChat}
-                  className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-slate-200 px-3 text-sm font-bold text-slate-700 transition hover:bg-slate-50"
+                  className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-slate-200 dark:border-slate-800 px-3 text-sm font-bold text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:bg-slate-900/50"
                 >
                   Open full chat
                   <ArrowUpRight className="h-4 w-4" />
@@ -263,7 +263,7 @@ export default function ContextualChatDrawer({
               <button
                 type="button"
                 onClick={() => onOpenChange(false)}
-                className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-500 transition hover:bg-slate-50"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 transition hover:bg-slate-50 dark:bg-slate-900/50"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -271,7 +271,7 @@ export default function ContextualChatDrawer({
           </div>
         </header>
 
-        <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto bg-slate-50/50 px-5 py-5">
+        <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-900/30 px-5 py-5">
           {resolveQuery.isLoading ? (
             <DrawerLoadingState />
           ) : resolveQuery.isError ? (
@@ -309,8 +309,8 @@ export default function ContextualChatDrawer({
                         <div
                           className={`rounded-2xl px-4 py-3 shadow-sm ${
                             mine
-                              ? 'border border-emerald-200 bg-[#e9e7ff] text-[#10164a]'
-                              : 'border border-slate-200 bg-white text-[#10164a]'
+                              ? 'border border-emerald-200 dark:border-emerald-800/50 bg-[#e9e7ff] text-[#10164a]'
+                              : 'border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-[#10164a]'
                           }`}
                         >
                           <MessageText content={message.content} mine={mine} />
@@ -328,7 +328,7 @@ export default function ContextualChatDrawer({
           )}
         </div>
 
-        <div className="border-t border-slate-200 bg-white px-5 py-4 xl:rounded-b-[28px]">
+        <div className="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-5 py-4 xl:rounded-b-[28px]">
           <PromptInputBox onSend={(message, files) => void handleSendMessage(message, files || [])} isLoading={isSending} />
           {composerError ? <p className="pt-3 text-sm text-rose-500">{composerError}</p> : null}
         </div>
@@ -356,10 +356,10 @@ function DrawerEmptyState({ title }: { title: string }) {
   return (
     <div className="flex h-full min-h-[280px] items-center justify-center">
       <div className="max-w-xs text-center">
-        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-500">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-500">
           <MessageSquare className="h-5 w-5" />
         </div>
-        <p className="mt-4 text-sm font-bold text-slate-900">{title}</p>
+        <p className="mt-4 text-sm font-bold text-slate-900 dark:text-slate-100">{title}</p>
       </div>
     </div>
   )
@@ -372,11 +372,11 @@ function DrawerErrorState({ title, onRetry }: { title: string; onRetry: () => vo
         <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-rose-50 text-rose-500">
           <X className="h-5 w-5" />
         </div>
-        <p className="mt-4 text-sm font-bold text-slate-900">{title}</p>
+        <p className="mt-4 text-sm font-bold text-slate-900 dark:text-slate-100">{title}</p>
         <button
           type="button"
           onClick={onRetry}
-          className="mt-4 inline-flex h-10 items-center gap-2 rounded-xl border border-slate-200 px-4 text-sm font-bold text-slate-700 transition hover:bg-slate-50"
+          className="mt-4 inline-flex h-10 items-center gap-2 rounded-xl border border-slate-200 dark:border-slate-800 px-4 text-sm font-bold text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:bg-slate-900/50"
         >
           <RefreshCw className="h-4 w-4" />
           Retry

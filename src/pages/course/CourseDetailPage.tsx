@@ -196,15 +196,15 @@ export default function CourseDetailPage() {
 
   const getLessonIcon = (lesson: CourseLessonResponse) => {
     if (lesson.videoUrl) {
-      return <Play className="h-4 w-4 text-emerald-600" />
+      return <Play className="h-4 w-4 text-emerald-600 dark:text-emerald-500" />
     }
     if (lesson.resourceUrl) {
-      return <Download className="h-4 w-4 text-emerald-600" />
+      return <Download className="h-4 w-4 text-emerald-600 dark:text-emerald-500" />
     }
     if (lesson.articleContent) {
-      return <FileText className="h-4 w-4 text-emerald-600" />
+      return <FileText className="h-4 w-4 text-emerald-600 dark:text-emerald-500" />
     }
-    return <BookOpen className="h-4 w-4 text-emerald-600" />
+    return <BookOpen className="h-4 w-4 text-emerald-600 dark:text-emerald-500" />
   }
 
   const isDocumentProduct = course?.productType === CourseProductType.DOCUMENT
@@ -332,14 +332,14 @@ export default function CourseDetailPage() {
   if (isLoading) {
     return (
       <div className="mx-auto max-w-4xl space-y-6 px-4 sm:px-0">
-        <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden animate-pulse">
-          <div className="h-72 bg-gray-100" />
+        <div className="bg-white dark:bg-slate-950 rounded-2xl border border-gray-100 overflow-hidden animate-pulse">
+          <div className="h-72 bg-gray-100 dark:bg-gray-800" />
           <div className="p-8">
-            <div className="h-8 bg-gray-100 rounded-lg w-2/3 mb-4" />
-            <div className="h-4 bg-gray-100 rounded-lg w-1/4 mb-8" />
+            <div className="h-8 bg-gray-100 dark:bg-gray-800 rounded-lg w-2/3 mb-4" />
+            <div className="h-4 bg-gray-100 dark:bg-gray-800 rounded-lg w-1/4 mb-8" />
             <div className="mb-8 grid gap-4 min-[520px]:grid-cols-2 xl:grid-cols-4">
               {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="h-16 bg-gray-50 rounded-xl" />
+                <div key={i} className="h-16 bg-gray-50 dark:bg-gray-900/50 rounded-xl" />
               ))}
             </div>
           </div>
@@ -351,10 +351,10 @@ export default function CourseDetailPage() {
   if (!course) {
     return (
       <div className="max-w-4xl mx-auto text-center py-16">
-        <div className="w-16 h-16 rounded-full bg-gray-50 flex items-center justify-center mx-auto mb-4">
+        <div className="w-16 h-16 rounded-full bg-gray-50 dark:bg-gray-900/50 flex items-center justify-center mx-auto mb-4">
           <BookOpen className="w-8 h-8 text-gray-300" />
         </div>
-        <h2 className="text-xl font-semibold text-gray-900 mb-2">Resource not found</h2>
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Resource not found</h2>
         <p className="text-gray-500 mb-4">This resource may have been removed or doesn't exist.</p>
         <Link to="/courses" className="text-primary-600 font-medium hover:text-primary-700">
           ← Back to courses
@@ -364,7 +364,7 @@ export default function CourseDetailPage() {
   }
 
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className="bg-gray-50 dark:bg-gray-900/50 min-h-screen">
       {showAddCoinsPrompt && (
         <AddCoinsPrompt
           onClose={() => setShowAddCoinsPrompt(false)}
@@ -372,13 +372,13 @@ export default function CourseDetailPage() {
       )}
 
       {/* Breadcrumb */}
-      <div className="bg-white border-b border-gray-100">
+      <div className="bg-white dark:bg-slate-950 border-b border-gray-100">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex flex-col gap-3">
             {mentorOrigin ? (
               <Link
                 to={`/mentors/${mentorOrigin.mentorUserId}`}
-                className="inline-flex w-fit items-center gap-2 text-sm font-semibold text-slate-600 transition-colors hover:text-emerald-700"
+                className="inline-flex w-fit items-center gap-2 text-sm font-semibold text-slate-600 dark:text-slate-400 dark:text-slate-400 transition-colors hover:text-emerald-700 dark:text-emerald-400"
               >
                 <ArrowLeft className="h-4 w-4" aria-hidden="true" />
                 {mentorOrigin.mentorName}
@@ -406,7 +406,7 @@ export default function CourseDetailPage() {
             {/* Left: Product Info */}
             <div className="space-y-6">
               {/* Category Badge */}
-              <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-1.5 text-sm font-medium">
+              <div className="inline-flex items-center gap-2 bg-white dark:bg-slate-950/10 backdrop-blur-sm rounded-full px-4 py-1.5 text-sm font-medium">
                 {isDocumentProduct ? <FileText className="w-4 h-4" /> : <BookOpen className="w-4 h-4" />}
                 {domainName || (isDocumentProduct ? 'Document resource' : course.level || course.language || 'Course')}
               </div>
@@ -431,7 +431,7 @@ export default function CourseDetailPage() {
 
               {/* Meta Info */}
               <div className="flex flex-wrap items-center gap-6 text-sm">
-                <Link to={`/mentors/${course.instructorId}`} className="flex items-center gap-2 rounded-xl transition hover:bg-white/10">
+                <Link to={`/mentors/${course.instructorId}`} className="flex items-center gap-2 rounded-xl transition hover:bg-white dark:bg-slate-950/10">
                   <img
                     src={getInstructorAvatar(course, instructorProfile)}
                     alt={getInstructorName(course, instructorProfile)}
@@ -470,36 +470,36 @@ export default function CourseDetailPage() {
               {/* Key Features */}
               <div className="flex flex-wrap gap-3">
                 {domainName && (
-                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2">
+                  <div className="flex items-center gap-2 bg-white dark:bg-slate-950/10 backdrop-blur-sm rounded-lg px-4 py-2">
                     <Tag className="w-4 h-4" />
                     <span className="text-sm font-medium">{domainName}</span>
                   </div>
                 )}
                 {(course.skills || []).slice(0, 4).map((skill) => (
-                  <div key={skill} className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2">
+                  <div key={skill} className="flex items-center gap-2 bg-white dark:bg-slate-950/10 backdrop-blur-sm rounded-lg px-4 py-2">
                     <span className="text-sm font-medium">{skill}</span>
                   </div>
                 ))}
                 {course.level && (
-                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2">
+                  <div className="flex items-center gap-2 bg-white dark:bg-slate-950/10 backdrop-blur-sm rounded-lg px-4 py-2">
                     <BarChart3 className="w-4 h-4" />
                     <span className="text-sm font-medium">{course.level} Level</span>
                   </div>
                 )}
                 {totalDuration > 0 && (
-                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2">
+                  <div className="flex items-center gap-2 bg-white dark:bg-slate-950/10 backdrop-blur-sm rounded-lg px-4 py-2">
                     <Clock className="w-4 h-4" />
                     <span className="text-sm font-medium">{formatDuration(totalDuration)} total</span>
                   </div>
                 )}
                 {publishedLessons.length > 0 && (
-                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2">
+                  <div className="flex items-center gap-2 bg-white dark:bg-slate-950/10 backdrop-blur-sm rounded-lg px-4 py-2">
                     {isDocumentProduct ? <FileText className="w-4 h-4" /> : <PlayCircle className="w-4 h-4" />}
                     <span className="text-sm font-medium">{isDocumentProduct ? '1 downloadable file' : `${publishedLessons.length} lessons`}</span>
                   </div>
                 )}
                 {!isDocumentProduct && course.isCertificate && (
-                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2">
+                  <div className="flex items-center gap-2 bg-white dark:bg-slate-950/10 backdrop-blur-sm rounded-lg px-4 py-2">
                     <Award className="w-4 h-4" />
                     <span className="text-sm font-medium">Certificate included</span>
                   </div>
@@ -562,7 +562,7 @@ export default function CourseDetailPage() {
         </div>
 
         {/* Tab Navigation */}
-        <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+        <div className="bg-white dark:bg-slate-950 rounded-2xl border border-gray-100 overflow-hidden">
           <div className="border-b border-gray-100">
             <nav className="scrollbar-hide flex overflow-x-auto">
               {[
@@ -576,8 +576,8 @@ export default function CourseDetailPage() {
                   onClick={() => setActiveTab(tab.id as TabType)}
                   className={`flex min-w-[140px] flex-1 items-center justify-center gap-2 px-4 py-4 text-sm font-semibold transition border-b-2 sm:px-6 ${
                     activeTab === tab.id
-                      ? 'border-emerald-600 text-emerald-600 bg-emerald-50/50'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                      ? 'border-emerald-600 text-emerald-600 dark:text-emerald-500 bg-emerald-50 '
+                      : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:bg-gray-900/50'
                   }`}
                 >
                   <tab.icon className="w-4 h-4" />
@@ -593,9 +593,9 @@ export default function CourseDetailPage() {
               <div className="space-y-8">
                 {/* Description */}
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-4">Description</h2>
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">Description</h2>
                   <div className="prose prose-gray max-w-none">
-                    <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
+                    <p className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
                       {course.description || 'No description available.'}
                     </p>
                   </div>
@@ -606,13 +606,13 @@ export default function CourseDetailPage() {
 
                 {/* Requirements */}
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                    <Target className="w-6 h-6 text-emerald-600" />
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
+                    <Target className="w-6 h-6 text-emerald-600 dark:text-emerald-500" />
                     Requirements
                   </h2>
                   <ul className="space-y-2">
                     {requirements.map((req, index) => (
-                      <li key={index} className="flex items-start gap-3 text-gray-700">
+                      <li key={index} className="flex items-start gap-3 text-gray-700 dark:text-gray-300">
                         <div className="w-1.5 h-1.5 rounded-full bg-gray-400 mt-2 shrink-0" />
                         <span>{req}</span>
                       </li>
@@ -621,8 +621,8 @@ export default function CourseDetailPage() {
                 </div>
 
                 {/* This course includes */}
-                <div className="bg-gray-50 rounded-xl p-6">
-                  <h3 className="font-semibold text-gray-900 mb-4">This {isDocumentProduct ? 'document' : 'course'} includes:</h3>
+                <div className="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-6">
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">This {isDocumentProduct ? 'document' : 'course'} includes:</h3>
                   <div className="grid gap-4 sm:grid-cols-2">
                     {[
                       { icon: isDocumentProduct ? FileText : PlayCircle, text: isDocumentProduct ? 'Downloadable document' : `${course.totalLessons || 0} published lessons` },
@@ -637,8 +637,8 @@ export default function CourseDetailPage() {
                       { icon: TrendingUp, text: `${course.totalEnrollments || 0} enrolled learners` },
                     ].map((item, index) => (
                       <div key={index} className="flex items-center gap-3">
-                        <item.icon className="w-5 h-5 text-emerald-600" />
-                        <span className="text-sm text-gray-700">{item.text}</span>
+                        <item.icon className="w-5 h-5 text-emerald-600 dark:text-emerald-500" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">{item.text}</span>
                       </div>
                     ))}
                   </div>
@@ -676,10 +676,10 @@ export default function CourseDetailPage() {
             {/* Reviews Tab */}
             {activeTab === 'reviews' && (
               <div className="space-y-6">
-                <div className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-5 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex flex-col gap-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 dark:bg-slate-900 p-5 sm:flex-row sm:items-center sm:justify-between">
                   <div>
-                    <h2 className="text-lg font-bold text-slate-950">Đánh giá {courseProductLabel}</h2>
-                    <p className="mt-1 text-sm leading-6 text-slate-600">
+                    <h2 className="text-lg font-bold text-slate-950 dark:text-slate-100">Đánh giá {courseProductLabel}</h2>
+                    <p className="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-400 dark:text-slate-400">
                       {canReviewCourse || currentUserCourseReview
                         ? `Bạn đã mua ${courseProductLabel} này nên có thể chia sẻ trải nghiệm học.`
                         : user
@@ -691,7 +691,7 @@ export default function CourseDetailPage() {
                     <button
                       type="button"
                       onClick={() => setShowReviewForm((value) => !value)}
-                      className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl border border-amber-200 bg-white px-4 text-sm font-semibold text-amber-700 transition hover:bg-amber-50"
+                      className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl border border-amber-200 dark:border-amber-800/50 bg-white dark:bg-slate-950 px-4 text-sm font-semibold text-amber-700 dark:text-amber-400 transition hover:bg-amber-50 dark:bg-amber-900/30"
                     >
                       <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
                       {currentUserCourseReview ? 'Sửa đánh giá' : 'Viết đánh giá'}
@@ -717,11 +717,11 @@ export default function CourseDetailPage() {
       </div>
 
       {/* Mobile: Fixed Bottom CTA */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-gray-200 bg-white/95 p-4 shadow-lg backdrop-blur lg:hidden">
+      <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-slate-950/95 p-4 shadow-lg backdrop-blur lg:hidden">
         <div className="flex items-center justify-between gap-4">
           <div>
             <p className="text-sm text-gray-500">Price</p>
-            <p className="text-2xl font-bold text-emerald-600">
+            <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-500">
               {displayPrice ? formatCurrency(displayPrice) : 'Free'}
             </p>
           </div>
@@ -776,14 +776,14 @@ function formatDurationText(minutes: number) {
 function CourseTaxonomyPanel({ domainName, skills }: { domainName?: string; skills: string[] }) {
   if (!domainName && skills.length === 0) return null
   return (
-    <div className="rounded-xl border border-emerald-100 bg-emerald-50/60 p-5">
-      <h2 className="mb-3 flex items-center gap-2 text-lg font-bold text-gray-900">
-        <Tag className="h-5 w-5 text-emerald-600" />
+    <div className="rounded-xl border border-emerald-100 dark:border-emerald-900/50 bg-emerald-50 dark:bg-emerald-900/30 p-5">
+      <h2 className="mb-3 flex items-center gap-2 text-lg font-bold text-gray-900 dark:text-gray-100">
+        <Tag className="h-5 w-5 text-emerald-600 dark:text-emerald-500" />
         Domain and skills
       </h2>
       <div className="flex flex-wrap gap-2">
         {domainName && (
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-sm font-bold text-slate-700">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-white dark:bg-slate-950 px-3 py-1.5 text-sm font-bold text-slate-700 dark:text-slate-300 dark:text-slate-300">
             <Tag className="h-3.5 w-3.5 text-slate-400" />
             {domainName}
           </span>
@@ -822,15 +822,15 @@ function getInstructorBio(instructor: any, mentorProfile?: MentorProfileResponse
 function AddCoinsPrompt({ onClose }: { onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 px-4">
-      <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+      <div className="w-full max-w-md rounded-2xl bg-white dark:bg-slate-950 p-6 shadow-2xl">
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="rounded-xl bg-emerald-50 p-3 text-emerald-600">
+            <div className="rounded-xl bg-emerald-50 dark:bg-emerald-900/30 p-3 text-emerald-600 dark:text-emerald-500">
               <Wallet className="h-6 w-6" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-slate-900">Add more MXC</h2>
-              <p className="mt-1 text-sm text-slate-600">
+              <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">Add more MXC</h2>
+              <p className="mt-1 text-sm text-slate-600 dark:text-slate-400 dark:text-slate-400">
                 You do not have enough MXC to buy this resource.
               </p>
             </div>
@@ -838,7 +838,7 @@ function AddCoinsPrompt({ onClose }: { onClose: () => void }) {
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+            className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-100 dark:bg-slate-800 hover:text-slate-700 dark:text-slate-300 dark:text-slate-300"
             aria-label="Close"
           >
             <X className="h-5 w-5" />
@@ -856,7 +856,7 @@ function AddCoinsPrompt({ onClose }: { onClose: () => void }) {
           <button
             type="button"
             onClick={onClose}
-            className="rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+            className="rounded-xl border border-slate-200 dark:border-slate-800 px-4 py-3 text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300 transition hover:bg-slate-50 dark:bg-slate-900/50 dark:bg-slate-900"
           >
             Not now
           </button>
@@ -907,7 +907,7 @@ function CoursePreviewCard({
       : 'Enrolling...'
 
   return (
-    <div className={`bg-white rounded-2xl border overflow-hidden shadow-lg ${isDocumentProduct ? 'border-amber-200' : 'border-gray-200'}`}>
+    <div className={`bg-white dark:bg-slate-950 rounded-2xl border overflow-hidden shadow-lg ${isDocumentProduct ? 'border-amber-200 dark:border-amber-800/50' : 'border-gray-200 dark:border-gray-800'}`}>
       {/* Thumbnail */}
       <div className="relative aspect-video bg-gradient-to-br from-emerald-500 to-emerald-600">
         {course.previewVideoUrl ? (
@@ -945,7 +945,7 @@ function CoursePreviewCard({
       <div className="p-6 space-y-4">
         {/* Price */}
         <div>
-          <p className="text-3xl font-bold text-gray-900">
+          <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">
             {finalPrice ? formatCurrency(finalPrice) : 'Free'}
           </p>
           {appliedCoupon ? (
@@ -960,10 +960,10 @@ function CoursePreviewCard({
 
         {/* Coupon code */}
         {!isEnrolled && isPaid && (
-          <div className="rounded-xl border border-gray-100 bg-gray-50 p-3">
+          <div className="rounded-xl border border-gray-100 bg-gray-50 dark:bg-gray-900/50 p-3">
             {appliedCoupon ? (
               <div className="flex items-center justify-between gap-2">
-                <p className="text-sm font-semibold text-emerald-700">
+                <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">
                   {t('coupon.appliedSuccess', { code: appliedCoupon.coupon.code })}
                 </p>
                 <button
@@ -982,7 +982,7 @@ function CoursePreviewCard({
                     value={couponCode}
                     onChange={(event) => onCouponCodeChange(event.target.value.toUpperCase())}
                     placeholder={t('coupon.codeInputPlaceholder')}
-                    className="min-w-0 flex-1 rounded-lg border border-gray-200 px-3 py-2 text-sm font-mono font-semibold text-gray-900 outline-none focus:border-emerald-400"
+                    className="min-w-0 flex-1 rounded-lg border border-gray-200 dark:border-gray-800 px-3 py-2 text-sm font-mono font-semibold text-gray-900 dark:text-gray-100 outline-none focus:border-emerald-400"
                   />
                   <button
                     type="button"
@@ -1012,7 +1012,7 @@ function CoursePreviewCard({
                 <button
                   type="button"
                   onClick={onPreview}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-200 px-6 py-3 font-semibold text-emerald-700 transition-colors hover:bg-emerald-50"
+                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-200 dark:border-emerald-800/50 px-6 py-3 font-semibold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-50 dark:bg-emerald-900/30"
                 >
                   <PlayCircle className="h-5 w-5" />
                   Preview course
@@ -1036,15 +1036,15 @@ function CoursePreviewCard({
 
         {/* Features */}
         <div className="pt-4 border-t border-gray-100 space-y-3 text-sm">
-          <div className="flex items-center gap-3 text-gray-700">
+          <div className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
             {isDocumentProduct ? <FileText className="w-5 h-5 text-amber-500" /> : <PlayCircle className="w-5 h-5 text-gray-400" />}
             <span>{isDocumentProduct ? 'Downloadable document' : `${lessonCount} published lessons`}</span>
           </div>
-          <div className="flex items-center gap-3 text-gray-700">
+          <div className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
             {isDocumentProduct ? <Download className="w-5 h-5 text-amber-500" /> : <Clock className="w-5 h-5 text-gray-400" />}
             <span>{isDocumentProduct ? 'Instant access after enrollment' : totalDuration > 0 ? `${formatDurationText(totalDuration)} content` : 'Self-paced content'}</span>
           </div>
-          <div className="flex items-center gap-3 text-gray-700">
+          <div className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
             <Award className="w-5 h-5 text-gray-400" />
             <span>{isDocumentProduct ? 'Certificate not applicable' : course.isCertificate ? 'Certificate included' : 'Certificate not included'}</span>
           </div>
@@ -1086,12 +1086,12 @@ function CurriculumTab({
         return (
           <div
             key={sectionId}
-            className="border border-gray-200 rounded-xl overflow-hidden"
+            className="border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden"
           >
             {/* Section Header */}
             <button
               onClick={() => toggleSection(sectionId)}
-              className="w-full bg-gray-50 p-5 transition hover:bg-gray-100"
+              className="w-full bg-gray-50 dark:bg-gray-900/50 p-5 transition hover:bg-gray-100 dark:bg-gray-800"
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="flex min-w-0 items-center gap-4">
@@ -1101,7 +1101,7 @@ function CurriculumTab({
                     <ChevronDown className="w-5 h-5 text-gray-400" />
                   )}
                   <div className="min-w-0 text-left">
-                    <h3 className="font-semibold text-gray-900">
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100">
                       {section?.title || `Section ${index + 1}`}
                     </h3>
                     {section?.description && (
@@ -1122,7 +1122,7 @@ function CurriculumTab({
 
             {/* Lessons List */}
             {isExpanded && (
-              <div className="divide-y divide-gray-100 bg-white">
+              <div className="divide-y divide-gray-100 bg-white dark:bg-slate-950">
                 {sectionLessons.map((lesson: CourseLessonResponse) => {
                   const isLocked = isPaidCourse && !isEnrolled && !lesson.isFreePreview
                   const canOpenLearning = !!courseId && (isEnrolled || lesson.isFreePreview)
@@ -1134,11 +1134,11 @@ function CurriculumTab({
                         if (canOpenLearning) window.location.href = lessonPath(courseId, lesson)
                       }}
                       className={`flex flex-col gap-4 p-5 transition sm:flex-row sm:items-center sm:justify-between ${
-                        canOpenLearning ? 'cursor-pointer hover:bg-gray-50' : 'opacity-80'
+                        canOpenLearning ? 'cursor-pointer hover:bg-gray-50 dark:bg-gray-900/50' : 'opacity-80'
                       }`}
                     >
                       <div className="flex flex-1 items-start gap-4">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800">
                           {isLocked ? (
                             <Lock className="h-5 w-5 text-gray-400" />
                           ) : (
@@ -1146,9 +1146,9 @@ function CurriculumTab({
                           )}
                         </div>
                         <div className="flex-1">
-                          <p className="font-medium text-gray-900">{lesson.title}</p>
+                          <p className="font-medium text-gray-900 dark:text-gray-100">{lesson.title}</p>
                           <div className="mt-2 flex flex-wrap items-center gap-2">
-                            <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600">
+                            <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 dark:bg-gray-800 px-2.5 py-1 text-xs font-medium text-gray-600 dark:text-gray-400">
                               {getLessonLabel(lesson)}
                             </span>
                             {lesson.isFreePreview && (
@@ -1175,7 +1175,7 @@ function CurriculumTab({
                               window.location.href = lessonPath(courseId, lesson)
                             }}
                             disabled={previewingLessonId === lesson.id}
-                            className="rounded-lg border border-emerald-200 px-4 py-2 text-sm font-medium text-emerald-600 transition hover:border-emerald-300 hover:bg-emerald-50 disabled:opacity-60"
+                            className="rounded-lg border border-emerald-200 dark:border-emerald-800/50 px-4 py-2 text-sm font-medium text-emerald-600 dark:text-emerald-500 transition hover:border-emerald-300 hover:bg-emerald-50 dark:bg-emerald-900/30 disabled:opacity-60"
                           >
                             {previewingLessonId === lesson.id ? 'Opening...' : lesson.isFreePreview && !isEnrolled ? 'Preview' : 'Open'}
                           </button>
@@ -1189,7 +1189,7 @@ function CurriculumTab({
                               disabled={!canDownload || downloadingLessonId === lesson.id}
                               className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
                                 canDownload
-                                  ? 'border border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50'
+                                  ? 'border border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-300 hover:border-gray-300 hover:bg-gray-50 dark:bg-gray-900/50'
                                   : 'border border-gray-100 text-gray-300 cursor-not-allowed'
                               }`}
                             >
@@ -1236,7 +1236,7 @@ function InstructorTab({ instructor, mentorProfile, course }: { instructor: any;
       {/* Instructor Profile */}
       <Link
         to={`/mentors/${course.instructorId}`}
-        className="flex flex-col gap-6 rounded-2xl border border-gray-100 p-4 transition hover:border-emerald-200 hover:bg-emerald-50/40 sm:flex-row sm:items-start"
+        className="flex flex-col gap-6 rounded-2xl border border-gray-100 p-4 transition hover:border-emerald-200 dark:border-emerald-800/50 hover:bg-emerald-50 dark:bg-emerald-900/30 sm:flex-row sm:items-start"
       >
         <img
           src={instructorAvatar}
@@ -1244,8 +1244,8 @@ function InstructorTab({ instructor, mentorProfile, course }: { instructor: any;
           className="w-24 h-24 rounded-full border-4 border-gray-100"
         />
         <div className="flex-1">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">{instructorName}</h2>
-          <p className="text-gray-600 mb-4">{headline}</p>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">{instructorName}</h2>
+          <p className="text-gray-600 dark:text-gray-400 mb-4">{headline}</p>
           
           <div className="flex flex-wrap gap-4 text-sm">
             {course.averageRating != null && (
@@ -1270,9 +1270,9 @@ function InstructorTab({ instructor, mentorProfile, course }: { instructor: any;
 
       {/* About */}
       <div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-3">About the Instructor</h3>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">About the Instructor</h3>
         <div className="prose prose-gray max-w-none">
-          <p className="text-gray-700 leading-relaxed">
+          <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
             {bio}
           </p>
         </div>
@@ -1280,12 +1280,12 @@ function InstructorTab({ instructor, mentorProfile, course }: { instructor: any;
 
       {(mentorSkills?.length || 0) > 0 && (
         <div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-3">{mentorProfile?.skills?.length ? 'Mentor skills' : 'Course skills'}</h3>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">{mentorProfile?.skills?.length ? 'Mentor skills' : 'Course skills'}</h3>
           <div className="flex flex-wrap gap-2">
             {mentorSkills?.map((skill) => (
               <span
                 key={skill}
-                className="px-4 py-2 bg-emerald-50 text-emerald-700 rounded-lg text-sm font-medium"
+                className="px-4 py-2 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 rounded-lg text-sm font-medium"
               >
                 {skill}
               </span>

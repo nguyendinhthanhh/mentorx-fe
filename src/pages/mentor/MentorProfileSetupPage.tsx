@@ -38,8 +38,8 @@ import {
 type SetupTab = 'overview' | 'profile' | 'packages' | 'courses' | 'availability' | 'documents'
 
 const inputClass =
-  'w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm font-medium text-slate-900 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10'
-const labelClass = 'mb-1.5 block text-xs font-bold uppercase tracking-wide text-slate-500'
+  'w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3.5 py-2.5 text-sm font-medium text-slate-900 dark:text-slate-100 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10'
+const labelClass = 'mb-1.5 block text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400'
 
 interface Props {
   onCancelEdit?: () => void
@@ -122,12 +122,12 @@ export default function MentorProfileSetupPage({ onCancelEdit, initialTab = 'pro
   const documents = assets.filter((asset) => asset.type === MentorProfileAssetType.DOCUMENT)
 
   return (
-    <div className="text-slate-950">
+    <div className="text-slate-950 dark:text-slate-100">
       <div className="w-full">
 
 
-        <div className="rounded-3xl border border-slate-200 bg-white shadow-sm">
-          <nav className="flex flex-wrap gap-x-2 gap-y-1 border-b border-slate-200 px-4 sm:flex-nowrap sm:overflow-x-auto">
+        <div className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 shadow-sm">
+          <nav className="flex flex-wrap gap-x-2 gap-y-1 border-b border-slate-200 dark:border-slate-800 px-4 sm:flex-nowrap sm:overflow-x-auto">
             {tabs.map((tab) => {
               const Icon = tab.icon
               const active = activeTab === tab.id
@@ -137,7 +137,7 @@ export default function MentorProfileSetupPage({ onCancelEdit, initialTab = 'pro
                   type="button"
                   onClick={() => setActiveTab(tab.id)}
                   className={`inline-flex h-12 min-w-max items-center gap-2 border-b-2 px-4 text-sm font-black transition sm:h-14 ${
-                    active ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-900'
+                    active ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:text-slate-100'
                   }`}
                 >
                   <Icon className="h-4 w-4" />
@@ -291,11 +291,11 @@ function OverviewPanel({
           const Icon = card.icon
           const content = (
             <>
-              <Icon className={card.done ? 'h-6 w-6 text-emerald-600' : 'h-6 w-6 text-blue-600'} />
-              <h3 className="mt-4 text-base font-black text-slate-950">{card.title}</h3>
-              <p className="mt-1 text-sm font-medium text-slate-600">{card.description}</p>
+              <Icon className={card.done ? 'h-6 w-6 text-emerald-600 dark:text-emerald-500' : 'h-6 w-6 text-blue-600'} />
+              <h3 className="mt-4 text-base font-black text-slate-950 dark:text-slate-100">{card.title}</h3>
+              <p className="mt-1 text-sm font-medium text-slate-600 dark:text-slate-400">{card.description}</p>
               <div className="mt-4 flex items-center justify-between">
-                <span className={card.done ? 'text-xs font-bold text-emerald-600' : 'text-xs font-bold text-amber-600'}>
+                <span className={card.done ? 'text-xs font-bold text-emerald-600 dark:text-emerald-500' : 'text-xs font-bold text-amber-600'}>
                   {card.done ? t('common.configured') : t('common.needsAttention')}
                 </span>
                 <span className="text-sm font-black text-blue-700">{card.cta}</span>
@@ -309,7 +309,7 @@ function OverviewPanel({
                 key={card.title}
                 to={card.link}
                 className={`rounded-2xl border p-5 text-left transition hover:shadow-sm ${
-                  card.done ? 'border-emerald-200 bg-emerald-50' : 'border-blue-200 bg-blue-50'
+                  card.done ? 'border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-900/30' : 'border-blue-200 bg-blue-50'
                 }`}
               >
                 {content}
@@ -323,7 +323,7 @@ function OverviewPanel({
               type="button"
               onClick={() => card.tab && setActiveTab(card.tab)}
               className={`rounded-2xl border p-5 text-left transition hover:shadow-sm ${
-                card.done ? 'border-emerald-200 bg-emerald-50' : 'border-blue-200 bg-blue-50'
+                card.done ? 'border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-900/30' : 'border-blue-200 bg-blue-50'
               }`}
             >
               {content}
@@ -342,9 +342,9 @@ function PreviewCard({ user, mentorProfile }: { user: any; mentorProfile: any })
     mentorProfile?.headline || mentorProfile?.currentTitle || mentorProfile?.primaryDomain || t('mentor.profile.publicProfile')
 
   return (
-    <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-5 shadow-sm">
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-sm font-black text-slate-950">{t('mentor.profile.preview')}</h2>
+        <h2 className="text-sm font-black text-slate-950 dark:text-slate-100">{t('mentor.profile.preview')}</h2>
         <Eye className="h-4 w-4 text-slate-400" />
       </div>
 
@@ -352,8 +352,8 @@ function PreviewCard({ user, mentorProfile }: { user: any; mentorProfile: any })
         <div className="mx-auto h-28 w-28 overflow-hidden rounded-full bg-slate-100">
           {user.avatarUrl ? <img src={user.avatarUrl} alt={displayName} className="h-full w-full object-cover" /> : null}
         </div>
-        <h3 className="mt-4 text-xl font-black text-slate-950">{displayName}</h3>
-        <p className="mt-1 text-sm font-bold text-slate-600">{professionalTitle}</p>
+        <h3 className="mt-4 text-xl font-black text-slate-950 dark:text-slate-100">{displayName}</h3>
+        <p className="mt-1 text-sm font-bold text-slate-600 dark:text-slate-400">{professionalTitle}</p>
         <p className="mt-1 text-xs font-medium text-slate-400">{user.email}</p>
         <div className="mt-4 inline-flex items-center gap-1 rounded-full bg-blue-50 px-3 py-1 text-xs font-black text-blue-700">
           <ShieldCheck className="h-4 w-4" />
@@ -378,7 +378,7 @@ function PreviewCard({ user, mentorProfile }: { user: any; mentorProfile: any })
       </Link>
       <Link
         to="/profile"
-        className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-black text-slate-700 hover:bg-slate-50"
+        className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 py-3 text-sm font-black text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:bg-slate-900/50"
       >
         {t('mentor.profile.openAccountSettings')}
       </Link>
@@ -398,9 +398,9 @@ function CompletionPanel({ progress }: { progress: ReturnType<typeof calculatePr
     availability: t('mentor.profile.setup.progress.availability'),
   }
   return (
-    <div className="mt-5 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div className="mt-5 rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-5 shadow-sm">
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-sm font-black text-slate-950">{t('mentor.profile.completion')}</h2>
+        <h2 className="text-sm font-black text-slate-950 dark:text-slate-100">{t('mentor.profile.completion')}</h2>
         <span className="text-xs font-black text-blue-600">{progress.percent}%</span>
       </div>
       <div className="mb-4 h-2 overflow-hidden rounded-full bg-slate-100">
@@ -409,11 +409,11 @@ function CompletionPanel({ progress }: { progress: ReturnType<typeof calculatePr
       <div className="space-y-3">
         {progress.items.map((item) => (
           <div key={item.label} className="flex items-center justify-between gap-3 text-sm">
-            <span className="flex items-center gap-2 font-semibold text-slate-600">
-              <CheckCircle2 className={`h-4 w-4 ${item.done ? 'text-emerald-600' : 'text-amber-500'}`} />
+            <span className="flex items-center gap-2 font-semibold text-slate-600 dark:text-slate-400">
+              <CheckCircle2 className={`h-4 w-4 ${item.done ? 'text-emerald-600 dark:text-emerald-500' : 'text-amber-500'}`} />
               {progressLabels[item.key] || item.label}
             </span>
-            <span className={item.done ? 'text-xs font-bold text-emerald-600' : 'text-xs font-bold text-amber-600'}>
+            <span className={item.done ? 'text-xs font-bold text-emerald-600 dark:text-emerald-500' : 'text-xs font-bold text-amber-600'}>
               {item.done ? t('common.done') : t('common.missing')}
             </span>
           </div>
@@ -512,11 +512,11 @@ function AssetSection({
     <Section title={title} icon={<FileText className="h-5 w-5" />}>
       <div className="grid gap-3 md:grid-cols-2">
         {assets.map((asset) => (
-          <div key={asset.id} className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white p-4">
+          <div key={asset.id} className="flex items-start gap-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-4">
             <AssetThumb asset={asset} />
             <div className="min-w-0 flex-1">
-              <h4 className="truncate text-sm font-black text-slate-950">{asset.title}</h4>
-              <p className="mt-1 truncate text-xs font-semibold text-slate-500">{asset.issuer || asset.description || t('mentor.profile.publicProfile')}</p>
+              <h4 className="truncate text-sm font-black text-slate-950 dark:text-slate-100">{asset.title}</h4>
+              <p className="mt-1 truncate text-xs font-semibold text-slate-500 dark:text-slate-400">{asset.issuer || asset.description || t('mentor.profile.publicProfile')}</p>
               {asset.fileUrl && (
                 <a href={asset.fileUrl} target="_blank" rel="noreferrer" className="mt-2 inline-flex text-xs font-bold text-blue-600">
                   {t('common.openFile')}
@@ -547,7 +547,7 @@ function AssetSection({
             event.preventDefault()
             createMutation.mutate(form)
           }}
-          className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4"
+          className="mt-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 p-4"
         >
           <div className="grid gap-3 md:grid-cols-2">
             <Field label="Title">
@@ -574,13 +574,13 @@ function AssetSection({
               />
             </Field>
             <Field label="File or image">
-              <label className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-slate-300 bg-white px-4 py-3 text-sm font-bold text-slate-600 hover:bg-slate-50">
+              <label className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-4 py-3 text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:bg-slate-900/50">
                 <input type="file" className="hidden" onChange={(e) => uploadAssetFile(e.target.files?.[0])} />
                 {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
                 {form.fileUrl ? 'Uploaded' : 'Upload file'}
               </label>
             </Field>
-            <label className="flex items-center gap-2 self-end text-sm font-bold text-slate-600">
+            <label className="flex items-center gap-2 self-end text-sm font-bold text-slate-600 dark:text-slate-400">
               <input
                 type="checkbox"
                 checked={Boolean(form.isFeatured)}
@@ -590,7 +590,7 @@ function AssetSection({
             </label>
           </div>
           <div className="mt-4 flex justify-end gap-2">
-            <button type="button" onClick={() => setOpen(false)} className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-bold">
+            <button type="button" onClick={() => setOpen(false)} className="rounded-xl border border-slate-200 dark:border-slate-800 px-4 py-2 text-sm font-bold">
               Cancel
             </button>
             <button type="submit" disabled={createMutation.isLoading} className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-black text-white">
@@ -605,10 +605,10 @@ function AssetSection({
 
 function Section({ title, icon, children }: { title: string; icon: React.ReactNode; children: React.ReactNode }) {
   return (
-    <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+    <section className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-5 shadow-sm">
       <div className="mb-4 flex items-center gap-2">
         <span className="text-blue-600">{icon}</span>
-        <h2 className="text-lg font-black text-slate-950">{title}</h2>
+        <h2 className="text-lg font-black text-slate-950 dark:text-slate-100">{title}</h2>
       </div>
       {children}
     </section>
@@ -639,7 +639,7 @@ function AssetThumb({ asset }: { asset: MentorProfileAssetResponse }) {
 
 function StatusPill({ done, label }: { done: boolean; label: string }) {
   return (
-    <div className={`flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-black ${done ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}`}>
+    <div className={`flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-black ${done ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : 'bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'}`}>
       <CheckCircle2 className="h-4 w-4" />
       {label}
     </div>
@@ -648,9 +648,9 @@ function StatusPill({ done, label }: { done: boolean; label: string }) {
 
 function MiniStat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl bg-slate-50 p-3">
+    <div className="rounded-2xl bg-slate-50 dark:bg-slate-900/50 p-3">
       <p className="text-[11px] font-semibold text-slate-400">{label}</p>
-      <p className="mt-1 text-sm font-black text-slate-950">{value}</p>
+      <p className="mt-1 text-sm font-black text-slate-950 dark:text-slate-100">{value}</p>
     </div>
   )
 }

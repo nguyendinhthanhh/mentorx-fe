@@ -39,10 +39,10 @@ export default function GithubCallback() {
   }, [])
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50">
+    <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900/50">
       <div className="text-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary-600 mx-auto mb-4" />
-        <p className="text-gray-600 text-sm">Signing in with GitHub...</p>
+        <p className="text-gray-600 dark:text-gray-400 text-sm">Signing in with GitHub...</p>
       </div>
     </div>
   )

@@ -185,13 +185,13 @@ export default function MentorSchedulePage() {
               key={key}
               type="button"
               onClick={() => setActiveTab(key as typeof activeTab)}
-              className={`h-10 whitespace-nowrap rounded-xl px-4 text-sm font-bold transition ${activeTab === key ? 'bg-white text-emerald-700 shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}
+              className={`h-10 whitespace-nowrap rounded-xl px-4 text-sm font-bold transition ${activeTab === key ? 'bg-white dark:bg-slate-950 text-emerald-700 dark:text-emerald-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:text-slate-100'}`}
             >
               {label}
             </button>
           ))}
         </div>
-        <p className="text-sm font-semibold text-slate-500 lg:ml-auto">
+        <p className="text-sm font-semibold text-slate-500 dark:text-slate-400 lg:ml-auto">
           Múi giờ: {Intl.DateTimeFormat().resolvedOptions().timeZone || 'Múi giờ trình duyệt'}
         </p>
       </Toolbar>
@@ -202,26 +202,26 @@ export default function MentorSchedulePage() {
         <StateCard tone="error" title="Không thể tải lịch trình" message={error} action={<button onClick={loadSchedule} className="rounded-2xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white">Thử lại</button>} />
       ) : activeTab === 'availability' ? (
         <div className="grid gap-5 xl:grid-cols-[1fr_380px]">
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-5 shadow-sm">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <h2 className="text-lg font-bold text-slate-950">Lịch làm việc hàng tuần</h2>
-                <p className="mt-1 text-sm font-medium text-slate-500">Các buổi đã được đặt không hiển thị ở đây. Trang này chỉ quản lý các khung giờ trống cố định.</p>
+                <h2 className="text-lg font-bold text-slate-950 dark:text-slate-100">Lịch làm việc hàng tuần</h2>
+                <p className="mt-1 text-sm font-medium text-slate-500 dark:text-slate-400">Các buổi đã được đặt không hiển thị ở đây. Trang này chỉ quản lý các khung giờ trống cố định.</p>
               </div>
               <StatusPill label={`${activeSlots.length} khung giờ`} tone="indigo" />
             </div>
-            <div className="mt-5 divide-y divide-slate-100 rounded-2xl border border-slate-200">
+            <div className="mt-5 divide-y divide-slate-100 rounded-2xl border border-slate-200 dark:border-slate-800">
               {slotsByDay.map((day) => (
-                <div key={day.value} className="flex flex-col gap-3 sm:flex-row sm:items-center p-4 transition-colors hover:bg-slate-50/50">
+                <div key={day.value} className="flex flex-col gap-3 sm:flex-row sm:items-center p-4 transition-colors hover:bg-slate-50 ">
                   <div className="w-32 shrink-0">
-                    <p className="text-sm font-bold text-slate-900">{day.label}</p>
+                    <p className="text-sm font-bold text-slate-900 dark:text-slate-100">{day.label}</p>
                   </div>
                   {day.slots.length === 0 ? (
                     <p className="text-sm font-medium text-slate-400 italic">Không có lịch</p>
                   ) : (
                     <div className="flex flex-1 flex-wrap gap-2">
                       {day.slots.map((slot, index) => (
-                        <span key={slot.id || `${day.value}-${index}`} className="group inline-flex items-center gap-2 rounded-lg bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-700 ring-1 ring-inset ring-emerald-700/10">
+                        <span key={slot.id || `${day.value}-${index}`} className="group inline-flex items-center gap-2 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 px-3 py-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-400 ring-1 ring-inset ring-emerald-700/10">
                           {slot.startTime} - {slot.endTime}
                           {slot.id ? (
                             <button disabled={saving} onClick={() => deleteSlot(slot)} className="text-emerald-400 opacity-0 transition-opacity hover:text-rose-600 group-hover:opacity-100" aria-label="Remove slot">
@@ -237,9 +237,9 @@ export default function MentorSchedulePage() {
             </div>
           </div>
 
-          <form onSubmit={addSlot} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-            <h2 className="text-lg font-bold text-slate-950">Thêm khung giờ</h2>
-            <p className="mt-1 text-sm font-medium leading-6 text-slate-500">Quản lý thời gian rảnh của bạn trong tuần.</p>
+          <form onSubmit={addSlot} className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-5 shadow-sm">
+            <h2 className="text-lg font-bold text-slate-950 dark:text-slate-100">Thêm khung giờ</h2>
+            <p className="mt-1 text-sm font-medium leading-6 text-slate-500 dark:text-slate-400">Quản lý thời gian rảnh của bạn trong tuần.</p>
             <div className="mt-5 space-y-4">
               <label className="block">
                 <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Ngày</span>
@@ -267,17 +267,17 @@ export default function MentorSchedulePage() {
           </form>
         </div>
       ) : activeTab === 'calendar' ? (
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-5 shadow-sm">
           <div className="grid gap-3 lg:grid-cols-7">
             {slotsByDay.map((day) => (
-              <div key={day.value} className="min-h-[160px] rounded-2xl border border-slate-100 bg-slate-50 p-4">
-                <p className="text-sm font-bold text-slate-950">{day.label}</p>
+              <div key={day.value} className="min-h-[160px] rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 p-4">
+                <p className="text-sm font-bold text-slate-950 dark:text-slate-100">{day.label}</p>
                 <div className="mt-4 space-y-2">
                   {day.slots.length === 0 ? (
                     <p className="text-xs font-semibold text-slate-400">Trống</p>
                   ) : (
                     day.slots.map((slot, index) => (
-                      <div key={slot.id || index} className="rounded-xl bg-white px-3 py-2 text-xs font-bold text-emerald-700 shadow-sm">
+                      <div key={slot.id || index} className="rounded-xl bg-white dark:bg-slate-950 px-3 py-2 text-xs font-bold text-emerald-700 dark:text-emerald-400 shadow-sm">
                         {slot.startTime} - {slot.endTime}
                       </div>
                     ))
@@ -288,44 +288,44 @@ export default function MentorSchedulePage() {
           </div>
         </div>
       ) : activeTab === 'upcoming' || activeTab === 'past' ? (
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 className="text-lg font-bold text-slate-950 mb-4">{activeTab === 'upcoming' ? 'Sắp tới' : 'Đã qua'}</h2>
+        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-5 shadow-sm">
+          <h2 className="text-lg font-bold text-slate-950 dark:text-slate-100 mb-4">{activeTab === 'upcoming' ? 'Sắp tới' : 'Đã qua'}</h2>
           <div className="space-y-4">
             {(appointments || [])
               .filter(a => activeTab === 'upcoming' ? a.status === 'SCHEDULED' : a.status !== 'SCHEDULED')
               .map(apt => (
-                <div key={apt.id} className="rounded-2xl border border-slate-100 bg-slate-50 p-4 flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
+                <div key={apt.id} className="rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 p-4 flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
                   <div>
-                    <h3 className="font-bold text-slate-900">User: {apt.userName}</h3>
+                    <h3 className="font-bold text-slate-900 dark:text-slate-100">User: {apt.userName}</h3>
                     {apt.packageTitle && (
-                      <p className="mt-1 text-sm font-semibold text-emerald-600">
+                      <p className="mt-1 text-sm font-semibold text-emerald-600 dark:text-emerald-500">
                         {apt.packageTitle}
                         {apt.priceMxc != null ? ` • ${formatMxc(apt.priceMxc, 'vi')}` : ''}
                       </p>
                     )}
-                    <p className="text-sm text-slate-500 font-medium mt-1">
+                    <p className="text-sm text-slate-500 dark:text-slate-400 font-medium mt-1">
                       {new Date(apt.startTime).toLocaleString('vi-VN')} — {new Date(apt.endTime).toLocaleTimeString('vi-VN')}
                       {apt.status === 'CANCELLED' && apt.updatedAt && <p className="text-xs font-medium text-slate-400 ml-2">Đã hủy vào {new Date(apt.updatedAt).toLocaleDateString('vi-VN')}</p>}
                     </p>
-                    {apt.notes && <p className="text-sm text-slate-600 mt-2 bg-white p-3 rounded-xl border border-slate-200">Ghi chú: {apt.notes}</p>}
-                    {apt.meetingUrl && <p className="text-sm font-semibold text-emerald-600 mt-2 hover:underline"><a href={apt.meetingUrl} target="_blank" rel="noreferrer">Link Meeting</a></p>}
+                    {apt.notes && <p className="text-sm text-slate-600 dark:text-slate-400 mt-2 bg-white dark:bg-slate-950 p-3 rounded-xl border border-slate-200 dark:border-slate-800">Ghi chú: {apt.notes}</p>}
+                    {apt.meetingUrl && <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-500 mt-2 hover:underline"><a href={apt.meetingUrl} target="_blank" rel="noreferrer">Link Meeting</a></p>}
                   </div>
                   <div className="flex gap-2">
                     {apt.status === 'SCHEDULED' && (
                       <>
-                        <button onClick={() => handleUpdateMeetingUrl(apt.id)} className="px-3 py-1.5 bg-emerald-100 text-emerald-700 font-bold text-xs rounded-lg hover:bg-emerald-200 transition">Sửa Link</button>
-                        <button onClick={() => handleComplete(apt.id)} className="px-3 py-1.5 bg-emerald-100 text-emerald-700 font-bold text-xs rounded-lg hover:bg-emerald-200 transition">Hoàn Thành</button>
-                        <button onClick={() => handleCancel(apt.id)} className="px-4 py-2 bg-slate-100 text-slate-600 font-bold text-xs rounded-xl hover:bg-rose-100 hover:text-rose-700 transition ring-1 ring-inset ring-slate-200 hover:ring-rose-200">Hủy</button>
+                        <button onClick={() => handleUpdateMeetingUrl(apt.id)} className="px-3 py-1.5 bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-400 font-bold text-xs rounded-lg hover:bg-emerald-200 transition">Sửa Link</button>
+                        <button onClick={() => handleComplete(apt.id)} className="px-3 py-1.5 bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-400 font-bold text-xs rounded-lg hover:bg-emerald-200 transition">Hoàn Thành</button>
+                        <button onClick={() => handleCancel(apt.id)} className="px-4 py-2 bg-slate-100 text-slate-600 dark:text-slate-400 font-bold text-xs rounded-xl hover:bg-rose-100 hover:text-rose-700 transition ring-1 ring-inset ring-slate-200 hover:ring-rose-200">Hủy</button>
                       </>
                     )}
                     {apt.status !== 'SCHEDULED' && (
-                      <span className="px-3 py-1.5 bg-slate-200 text-slate-700 font-bold text-xs rounded-lg uppercase">{apt.status}</span>
+                      <span className="px-3 py-1.5 bg-slate-200 text-slate-700 dark:text-slate-300 font-bold text-xs rounded-lg uppercase">{apt.status}</span>
                     )}
                   </div>
                 </div>
               ))}
               {(appointments || []).filter(a => activeTab === 'upcoming' ? a.status === 'SCHEDULED' : a.status !== 'SCHEDULED').length === 0 && (
-                <p className="text-sm text-slate-500">Không có lịch hẹn nào.</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400">Không có lịch hẹn nào.</p>
               )}
           </div>
         </div>

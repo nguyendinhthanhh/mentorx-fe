@@ -73,11 +73,11 @@ const contractStatusLabel: Record<string, string> = {
 }
 
 const contractStatusTone: Record<string, string> = {
-  ACTIVE: 'border-emerald-200 bg-emerald-50 text-emerald-700',
+  ACTIVE: 'border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400',
   PENDING_PAYMENT: 'border-sky-200 bg-sky-50 text-sky-700',
-  UNDER_REVIEW: 'border-emerald-200 bg-emerald-50 text-emerald-700',
-  IN_DISPUTE: 'border-orange-200 bg-orange-50 text-orange-700',
-  COMPLETED: 'border-emerald-200 bg-emerald-50 text-emerald-700',
+  UNDER_REVIEW: 'border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400',
+  IN_DISPUTE: 'border-orange-200 bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400',
+  COMPLETED: 'border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400',
   CANCELLED: 'border-rose-200 bg-rose-50 text-rose-700',
   TERMINATED: 'border-rose-200 bg-rose-50 text-rose-700',
 }
@@ -99,18 +99,18 @@ const proposalStatusLabel: Record<ProposalStatus, string> = {
 }
 
 const proposalStatusTone: Record<ProposalStatus, string> = {
-  DRAFT: 'border-slate-200 bg-slate-100 text-slate-600',
+  DRAFT: 'border-slate-200 dark:border-slate-800 bg-slate-100 text-slate-600 dark:text-slate-400',
   SUBMITTED: 'border-sky-200 bg-sky-50 text-sky-700',
-  UNDER_REVIEW: 'border-emerald-200 bg-emerald-50 text-emerald-700',
-  SHORTLISTED: 'border-emerald-200 bg-emerald-50 text-emerald-700',
+  UNDER_REVIEW: 'border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400',
+  SHORTLISTED: 'border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400',
   INTERVIEW_REQUESTED: 'border-cyan-200 bg-cyan-50 text-cyan-700',
-  NEGOTIATING: 'border-amber-200 bg-amber-50 text-amber-700',
-  OFFER_ACCEPTED: 'border-emerald-200 bg-emerald-50 text-emerald-700',
-  ACCEPTED: 'border-emerald-200 bg-emerald-50 text-emerald-700',
+  NEGOTIATING: 'border-amber-200 dark:border-amber-800/50 bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400',
+  OFFER_ACCEPTED: 'border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400',
+  ACCEPTED: 'border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400',
   REJECTED: 'border-rose-200 bg-rose-50 text-rose-700',
-  WITHDRAWN: 'border-slate-200 bg-slate-100 text-slate-600',
-  EXPIRED: 'border-slate-200 bg-slate-100 text-slate-600',
-  AUTO_CLOSED: 'border-slate-200 bg-slate-100 text-slate-600',
+  WITHDRAWN: 'border-slate-200 dark:border-slate-800 bg-slate-100 text-slate-600 dark:text-slate-400',
+  EXPIRED: 'border-slate-200 dark:border-slate-800 bg-slate-100 text-slate-600 dark:text-slate-400',
+  AUTO_CLOSED: 'border-slate-200 dark:border-slate-800 bg-slate-100 text-slate-600 dark:text-slate-400',
   CONTRACT_CANCELLED: 'border-rose-200 bg-rose-50 text-rose-700',
 }
 
@@ -645,12 +645,12 @@ export default function MentorMessagesPage() {
 
   if (visibleRooms.length === 0) {
     return (
-      <div className="rounded-[28px] border border-slate-200 bg-white px-6 py-16 text-center shadow-sm">
-        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-500">
+      <div className="rounded-[28px] border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-6 py-16 text-center shadow-sm">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-500">
           <MessageCircle className="h-6 w-6" />
         </div>
-        <h2 className="mt-5 text-2xl font-black tracking-tight text-slate-950">Chưa có tin nhắn</h2>
-        <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-slate-500">
+        <h2 className="mt-5 text-2xl font-black tracking-tight text-slate-950 dark:text-slate-100">Chưa có tin nhắn</h2>
+        <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-slate-500 dark:text-slate-400">
           Các cuộc hội thoại với khách hàng từ các dự án sẽ hiển thị tại đây.
         </p>
         <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
@@ -662,7 +662,7 @@ export default function MentorMessagesPage() {
           </Link>
           <Link
             to="/mentor/projects?tab=proposals"
-            className="inline-flex h-11 items-center justify-center rounded-2xl border border-slate-200 bg-white px-5 text-sm font-bold text-slate-700 transition hover:bg-slate-50"
+            className="inline-flex h-11 items-center justify-center rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-5 text-sm font-bold text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:bg-slate-900/50"
           >
             Xem đề xuất
           </Link>
@@ -672,7 +672,7 @@ export default function MentorMessagesPage() {
   }
 
   return (
-    <div className="relative h-[calc(100vh-104px)] w-full overflow-hidden rounded-[24px] border border-slate-200 bg-white shadow-sm">
+    <div className="relative h-[calc(100vh-104px)] w-full overflow-hidden rounded-[24px] border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 shadow-sm">
       {selectionError ? (
         <div className="absolute top-4 left-1/2 z-10 -translate-x-1/2 rounded-[24px] border border-rose-200 bg-rose-50 px-5 py-4 text-sm font-medium text-rose-700 shadow-sm">
           {selectionError}
@@ -681,12 +681,12 @@ export default function MentorMessagesPage() {
 
       <section className="h-full w-full">
         <div className={`grid h-full lg:grid-cols-[340px_minmax(0,1fr)] ${showContextPanel ? '2xl:grid-cols-[340px_minmax(0,1fr)_300px]' : '2xl:grid-cols-[340px_minmax(0,1fr)]'}`}>
-          <aside className="flex min-h-0 flex-col border-b border-slate-200 xl:border-b-0 xl:border-r">
-            <div className="shrink-0 border-b border-slate-100 px-5 py-5">
+          <aside className="flex min-h-0 flex-col border-b border-slate-200 dark:border-slate-800 xl:border-b-0 xl:border-r">
+            <div className="shrink-0 border-b border-slate-100 dark:border-slate-800 px-5 py-5">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <h1 className="text-[18px] font-bold tracking-[-0.02em] text-slate-950">Tin nhắn</h1>
-                  <p className="mt-1 text-[13px] font-medium text-slate-500">
+                  <h1 className="text-[18px] font-bold tracking-[-0.02em] text-slate-950 dark:text-slate-100">Tin nhắn</h1>
+                  <p className="mt-1 text-[13px] font-medium text-slate-500 dark:text-slate-400">
                     {counts.UNREAD > 0 ? `${counts.UNREAD} cuộc trò chuyện chưa đọc` : 'Đã xem tất cả'}
                   </p>
                 </div>
@@ -699,7 +699,7 @@ export default function MentorMessagesPage() {
                   value={searchTerm}
                   onChange={(event) => setSearchTerm(event.target.value)}
                   placeholder="Tìm kiếm tin nhắn"
-                  className="h-11 w-full rounded-2xl border border-slate-200 bg-slate-50 pl-11 pr-3 text-sm text-slate-700 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10"
+                  className="h-11 w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 pl-11 pr-3 text-sm text-slate-700 dark:text-slate-300 outline-none transition focus:border-emerald-500 focus:bg-white dark:bg-slate-950 focus:ring-4 focus:ring-emerald-500/10"
                 />
               </div>
 
@@ -714,8 +714,8 @@ export default function MentorMessagesPage() {
                         onClick={() => setActiveFilter(filter.key)}
                         className={`group relative flex items-center gap-2 rounded-full px-3 py-1.5 text-[12px] font-semibold transition-all duration-300 ${
                           active
-                            ? 'bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:ring-emerald-500/20 shadow-sm'
-                            : 'bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900 ring-1 ring-inset ring-slate-200 dark:bg-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200 dark:ring-slate-700'
+                            ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 ring-1 ring-inset ring-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:ring-emerald-500/20 shadow-sm'
+                            : 'bg-white dark:bg-slate-950 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:bg-slate-900/50 hover:text-slate-900 dark:text-slate-100 ring-1 ring-inset ring-slate-200 dark:bg-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200 dark:ring-slate-700'
                         }`}
                       >
                         <span>{filter.label}</span>
@@ -724,7 +724,7 @@ export default function MentorMessagesPage() {
                             className={`flex h-4.5 min-w-[18px] items-center justify-center rounded-full px-1.5 text-[10px] font-black transition-colors ${
                               active
                                 ? 'bg-emerald-600 text-white dark:bg-emerald-500'
-                                : 'bg-slate-100 text-slate-500 group-hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400'
+                                : 'bg-slate-100 text-slate-500 dark:text-slate-400 group-hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400'
                             }`}
                           >
                             {count}
@@ -740,8 +740,8 @@ export default function MentorMessagesPage() {
             <div className="flex-1 overflow-y-auto">
               {filteredRooms.length === 0 ? (
                 <div className="px-6 py-16 text-center">
-                  <p className="text-base font-black text-slate-950">Không tìm thấy cuộc trò chuyện nào</p>
-                  <p className="mt-2 text-sm leading-6 text-slate-500">Thử từ khóa khác hoặc xóa bộ lọc.</p>
+                  <p className="text-base font-black text-slate-950 dark:text-slate-100">Không tìm thấy cuộc trò chuyện nào</p>
+                  <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">Thử từ khóa khác hoặc xóa bộ lọc.</p>
                 </div>
               ) : (
                 filteredRooms.map((room) => (
@@ -758,10 +758,10 @@ export default function MentorMessagesPage() {
             </div>
           </aside>
 
-          <section className={`flex min-h-0 flex-col border-b border-slate-200 xl:border-b-0 ${showContextPanel ? '2xl:border-r' : ''}`}>
+          <section className={`flex min-h-0 flex-col border-b border-slate-200 dark:border-slate-800 xl:border-b-0 ${showContextPanel ? '2xl:border-r' : ''}`}>
             {effectiveRoom ? (
               <div className="flex h-full flex-col">
-                <div className="border-b border-slate-100 px-5 py-4">
+                <div className="border-b border-slate-100 dark:border-slate-800 px-5 py-4">
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex min-w-0 items-center gap-3">
                       <AvatarBadge
@@ -770,11 +770,11 @@ export default function MentorMessagesPage() {
                       />
                       <div className="min-w-0">
                         <div className="flex items-center gap-2">
-                          <h2 className="truncate text-[18px] font-bold tracking-[-0.02em] text-slate-950">
+                          <h2 className="truncate text-[18px] font-bold tracking-[-0.02em] text-slate-950 dark:text-slate-100">
                             {otherMember?.displayName || otherMember?.fullName || getRoomDisplayName(effectiveRoom, user.userId)}
                           </h2>
                         </div>
-                        <p className="mt-0.5 text-[13px] font-medium text-emerald-600">
+                        <p className="mt-0.5 text-[13px] font-medium text-emerald-600 dark:text-emerald-500">
                           {otherMember?.isOnline ? 'Đang hoạt động' : getPresenceLabel(otherMember)}
                         </p>
                       </div>
@@ -789,7 +789,7 @@ export default function MentorMessagesPage() {
                         type="button"
                         title="Thông tin"
                         onClick={() => setShowContextPanel(true)}
-                        className="inline-flex h-9 w-9 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-500 transition hover:border-emerald-200 hover:text-emerald-700"
+                        className="inline-flex h-9 w-9 items-center justify-center rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-500 dark:text-slate-400 transition hover:border-emerald-200 dark:border-emerald-800/50 hover:text-emerald-700 dark:text-emerald-400"
                       >
                         <Info className="h-4 w-4" />
                       </button>
@@ -797,17 +797,17 @@ export default function MentorMessagesPage() {
                   </div>
                 </div>
 
-                <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto bg-slate-50/50 px-5 py-5">
+                <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-900/30 px-5 py-5">
                   {selectedMessagesQuery.isLoading ? (
                     <MessageThreadLoading />
                   ) : selectedMessages.length === 0 ? (
                     <div className="flex min-h-[360px] items-center justify-center">
                       <div className="max-w-sm text-center">
-                        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50 text-emerald-500">
+                        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50 dark:bg-emerald-900/30 text-emerald-500">
                           <Send className="h-6 w-6" />
                         </div>
-                        <h3 className="mt-4 text-base font-bold text-slate-950">Chưa có tin nhắn</h3>
-                        <p className="mt-2 text-sm leading-6 text-slate-500">{contextMeta.noMessagesDescription}</p>
+                        <h3 className="mt-4 text-base font-bold text-slate-950 dark:text-slate-100">Chưa có tin nhắn</h3>
+                        <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">{contextMeta.noMessagesDescription}</p>
                       </div>
                     </div>
                   ) : (
@@ -825,8 +825,8 @@ export default function MentorMessagesPage() {
                   )}
                 </div>
 
-                <div className="border-t border-slate-100 bg-slate-50/50 px-5 py-4">
-                  <div className="rounded-[24px] border border-slate-200 bg-white p-1 shadow-sm ring-1 ring-inset ring-slate-200/50 transition-shadow focus-within:border-emerald-500 focus-within:ring-4 focus-within:ring-emerald-500/10 hover:shadow-md">
+                <div className="border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/30 px-5 py-4">
+                  <div className="rounded-[24px] border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-1 shadow-sm ring-1 ring-inset ring-slate-200/50 transition-shadow focus-within:border-emerald-500 focus-within:ring-4 focus-within:ring-emerald-500/10 hover:shadow-md">
                     <PromptInputBox
                       onSend={(msg, files) => handleSendMessage(msg, files || [])}
                       isLoading={isSending}
@@ -840,25 +840,25 @@ export default function MentorMessagesPage() {
             ) : (
               <div className="flex h-full items-center justify-center px-6 py-16">
                 <div className="max-w-sm text-center">
-                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50 text-emerald-500">
+                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50 dark:bg-emerald-900/30 text-emerald-500">
                     <MessageCircle className="h-6 w-6" />
                   </div>
-                  <h2 className="mt-5 text-base font-bold text-slate-950">Chọn một cuộc trò chuyện</h2>
-                  <p className="mt-2 text-sm text-slate-500">Chọn một cuộc trò chuyện từ hộp thư để xem tin nhắn.</p>
+                  <h2 className="mt-5 text-base font-bold text-slate-950 dark:text-slate-100">Chọn một cuộc trò chuyện</h2>
+                  <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">Chọn một cuộc trò chuyện từ hộp thư để xem tin nhắn.</p>
                 </div>
               </div>
             )}
           </section>
 
           {showContextPanel ? (
-          <aside className="hidden min-h-0 flex-col bg-white 2xl:flex">
-            <div className="shrink-0 border-b border-slate-100 px-6 py-5">
+          <aside className="hidden min-h-0 flex-col bg-white dark:bg-slate-950 2xl:flex">
+            <div className="shrink-0 border-b border-slate-100 dark:border-slate-800 px-6 py-5">
               <div className="flex items-center justify-between gap-3">
-                <p className="text-[12px] font-bold uppercase tracking-[0.16em] text-slate-900">Thông tin dự án</p>
+                <p className="text-[12px] font-bold uppercase tracking-[0.16em] text-slate-900 dark:text-slate-100">Thông tin dự án</p>
                 <button
                   type="button"
                   onClick={() => setShowContextPanel(false)}
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-400 transition hover:border-slate-300 hover:text-slate-700"
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-400 transition hover:border-slate-300 dark:border-slate-700 hover:text-slate-700 dark:text-slate-300"
                   aria-label="Đóng thông tin"
                 >
                   <X className="h-4 w-4" />
@@ -868,13 +868,13 @@ export default function MentorMessagesPage() {
 
             <div className="space-y-5 px-6 py-5">
               {contextCard ? (
-                <div className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-[0_4px_24px_rgba(0,0,0,0.02)] ring-1 ring-inset ring-slate-200/50 transition hover:shadow-md">
-                  <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-emerald-600">{formatContextLabel(effectiveRoom?.referenceType)}</p>
-                  <h3 className="mt-2 text-[15px] font-bold leading-6 text-slate-950">{contextCard.title}</h3>
-                  <p className="mt-2 text-[13px] leading-6 text-slate-500">{truncateText(contextCard.description, 180)}</p>
+                <div className="rounded-[24px] border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-5 shadow-[0_4px_24px_rgba(0,0,0,0.02)] ring-1 ring-inset ring-slate-200/50 transition hover:shadow-md">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-emerald-600 dark:text-emerald-500">{formatContextLabel(effectiveRoom?.referenceType)}</p>
+                  <h3 className="mt-2 text-[15px] font-bold leading-6 text-slate-950 dark:text-slate-100">{contextCard.title}</h3>
+                  <p className="mt-2 text-[13px] leading-6 text-slate-500 dark:text-slate-400">{truncateText(contextCard.description, 180)}</p>
                 </div>
               ) : (
-                <div className="rounded-[24px] border border-slate-200 bg-white p-5 text-sm text-slate-500 shadow-[0_4px_24px_rgba(0,0,0,0.02)] ring-1 ring-inset ring-slate-200/50">
+                <div className="rounded-[24px] border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-5 text-sm text-slate-500 dark:text-slate-400 shadow-[0_4px_24px_rgba(0,0,0,0.02)] ring-1 ring-inset ring-slate-200/50">
                   Đang tải thông tin cuộc trò chuyện...
                 </div>
               )}
@@ -882,12 +882,12 @@ export default function MentorMessagesPage() {
               <div className="space-y-4">
                 {contextCard?.metrics.map((metric) => (
                   <div key={metric.label} className="flex items-start gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-500">
                       <metric.icon className="h-4 w-4" />
                     </div>
                     <div>
                       <p className="text-[13px] font-medium text-slate-400">{metric.label}</p>
-                      <p className="mt-1 text-[15px] font-bold text-slate-950">{metric.value}</p>
+                      <p className="mt-1 text-[15px] font-bold text-slate-950 dark:text-slate-100">{metric.value}</p>
                     </div>
                   </div>
                 ))}
@@ -918,18 +918,18 @@ export default function MentorMessagesPage() {
                 {contextCard?.secondaryAction ? (
                   <Link
                     to={contextCard.secondaryAction.href}
-                    className="inline-flex h-11 w-full items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                    className="inline-flex h-11 w-full items-center justify-center rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 text-sm font-semibold text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:bg-slate-900/50"
                   >
                     {contextCard.secondaryAction.label}
                   </Link>
                 ) : null}
               </div>
 
-              <div className="border-t border-slate-100 pt-6">
+              <div className="border-t border-slate-100 dark:border-slate-800 pt-6">
                 <div className="mb-4 flex items-center justify-between">
                   <p className="text-[12px] font-black uppercase tracking-[0.16em] text-slate-400">Tệp đính kèm</p>
                   {contextMeta.actionHref ? (
-                    <Link to={contextMeta.actionHref} className="text-sm font-black text-emerald-600">
+                    <Link to={contextMeta.actionHref} className="text-sm font-black text-emerald-600 dark:text-emerald-500">
                       Xem tất cả
                     </Link>
                   ) : null}
@@ -937,7 +937,7 @@ export default function MentorMessagesPage() {
 
                 <div className="space-y-3">
                   {sharedFiles.length === 0 && sharedLinks.length === 0 ? (
-                    <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-5 text-sm text-slate-400">
+                    <div className="rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 px-4 py-5 text-sm text-slate-400">
                       Chưa có tệp đính kèm nào.
                     </div>
                   ) : (
@@ -948,13 +948,13 @@ export default function MentorMessagesPage() {
                           href={file.url}
                           target="_blank"
                           rel="noreferrer"
-                          className="flex items-start gap-3 rounded-2xl px-2 py-2 transition hover:bg-slate-50"
+                          className="flex items-start gap-3 rounded-2xl px-2 py-2 transition hover:bg-slate-50 dark:bg-slate-900/50"
                         >
                           <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-rose-50 text-rose-500">
                             <FileText className="h-4 w-4" />
                           </div>
                           <div className="min-w-0">
-                            <p className="truncate text-[14px] font-semibold text-slate-950">{file.name}</p>
+                            <p className="truncate text-[14px] font-semibold text-slate-950 dark:text-slate-100">{file.name}</p>
                             <p className="mt-1 text-[13px] text-slate-400">{file.meta}</p>
                           </div>
                         </a>
@@ -965,13 +965,13 @@ export default function MentorMessagesPage() {
                           href={link.url}
                           target="_blank"
                           rel="noreferrer"
-                          className="flex items-start gap-3 rounded-2xl px-2 py-2 transition hover:bg-slate-50"
+                          className="flex items-start gap-3 rounded-2xl px-2 py-2 transition hover:bg-slate-50 dark:bg-slate-900/50"
                         >
                           <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-sky-50 text-sky-600">
                             <Link2 className="h-4 w-4" />
                           </div>
                           <div className="min-w-0">
-                            <p className="truncate text-[14px] font-semibold text-slate-950">{shortenUrl(link.url)}</p>
+                            <p className="truncate text-[14px] font-semibold text-slate-950 dark:text-slate-100">{shortenUrl(link.url)}</p>
                             <p className="mt-1 text-[13px] text-slate-400">{link.host}</p>
                           </div>
                         </a>
@@ -993,14 +993,14 @@ export default function MentorMessagesPage() {
             onClick={() => setShowContextPanel(false)}
             aria-hidden="true"
           />
-          <aside className="absolute right-0 top-0 h-full w-full max-w-[380px] overflow-y-auto border-l border-slate-200 bg-white shadow-2xl">
-            <div className="border-b border-slate-100 px-6 py-5">
+          <aside className="absolute right-0 top-0 h-full w-full max-w-[380px] overflow-y-auto border-l border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 shadow-2xl">
+            <div className="border-b border-slate-100 dark:border-slate-800 px-6 py-5">
               <div className="flex items-center justify-between gap-3">
-                <p className="text-[12px] font-bold uppercase tracking-[0.16em] text-slate-900">Thông tin dự án</p>
+                <p className="text-[12px] font-bold uppercase tracking-[0.16em] text-slate-900 dark:text-slate-100">Thông tin dự án</p>
                 <button
                   type="button"
                   onClick={() => setShowContextPanel(false)}
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-400 transition hover:border-slate-300 hover:text-slate-700"
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-400 transition hover:border-slate-300 dark:border-slate-700 hover:text-slate-700 dark:text-slate-300"
                   aria-label="Đóng thông tin"
                 >
                   <X className="h-4 w-4" />
@@ -1010,13 +1010,13 @@ export default function MentorMessagesPage() {
 
             <div className="space-y-5 px-6 py-5">
               {contextCard ? (
-                <div className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-[0_4px_24px_rgba(0,0,0,0.02)] ring-1 ring-inset ring-slate-200/50 transition hover:shadow-md">
-                  <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-emerald-600">{formatContextLabel(effectiveRoom?.referenceType)}</p>
-                  <h3 className="mt-2 text-[15px] font-bold leading-6 text-slate-950">{contextCard.title}</h3>
-                  <p className="mt-2 text-[13px] leading-6 text-slate-500">{truncateText(contextCard.description, 180)}</p>
+                <div className="rounded-[24px] border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-5 shadow-[0_4px_24px_rgba(0,0,0,0.02)] ring-1 ring-inset ring-slate-200/50 transition hover:shadow-md">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-emerald-600 dark:text-emerald-500">{formatContextLabel(effectiveRoom?.referenceType)}</p>
+                  <h3 className="mt-2 text-[15px] font-bold leading-6 text-slate-950 dark:text-slate-100">{contextCard.title}</h3>
+                  <p className="mt-2 text-[13px] leading-6 text-slate-500 dark:text-slate-400">{truncateText(contextCard.description, 180)}</p>
                 </div>
               ) : (
-                <div className="rounded-[24px] border border-slate-200 bg-white p-5 text-sm text-slate-500 shadow-[0_4px_24px_rgba(0,0,0,0.02)] ring-1 ring-inset ring-slate-200/50">
+                <div className="rounded-[24px] border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-5 text-sm text-slate-500 dark:text-slate-400 shadow-[0_4px_24px_rgba(0,0,0,0.02)] ring-1 ring-inset ring-slate-200/50">
                   Đang tải thông tin cuộc trò chuyện...
                 </div>
               )}
@@ -1024,12 +1024,12 @@ export default function MentorMessagesPage() {
               <div className="space-y-4">
                 {contextCard?.metrics.map((metric) => (
                   <div key={metric.label} className="flex items-start gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-500">
                       <metric.icon className="h-4 w-4" />
                     </div>
                     <div>
                       <p className="text-[13px] font-medium text-slate-400">{metric.label}</p>
-                      <p className="mt-1 text-[15px] font-bold text-slate-950">{metric.value}</p>
+                      <p className="mt-1 text-[15px] font-bold text-slate-950 dark:text-slate-100">{metric.value}</p>
                     </div>
                   </div>
                 ))}
@@ -1060,7 +1060,7 @@ export default function MentorMessagesPage() {
                 {contextCard?.secondaryAction ? (
                   <Link
                     to={contextCard.secondaryAction.href}
-                    className="inline-flex h-11 w-full items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                    className="inline-flex h-11 w-full items-center justify-center rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 text-sm font-semibold text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:bg-slate-900/50"
                   >
                     {contextCard.secondaryAction.label}
                   </Link>
@@ -1099,8 +1099,8 @@ function WorkspaceConversationRow({
     <button
       type="button"
       onClick={() => onSelect(room.id)}
-      className={`w-full border-b border-slate-100 px-5 py-4 text-left transition ${
-        isActive ? 'bg-emerald-50/50 shadow-[inset_-3px_0_0_0_#059669]' : 'hover:bg-slate-50'
+      className={`w-full border-b border-slate-100 dark:border-slate-800 px-5 py-4 text-left transition ${
+        isActive ? 'bg-emerald-50  shadow-[inset_-3px_0_0_0_#059669]' : 'hover:bg-slate-50 dark:bg-slate-900/50'
       }`}
     >
       <div className="flex items-start gap-3">
@@ -1112,10 +1112,10 @@ function WorkspaceConversationRow({
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <p className={`truncate text-[15px] ${isUnread ? 'font-bold text-slate-950' : 'font-semibold text-slate-900'}`}>{roomName}</p>
+              <p className={`truncate text-[15px] ${isUnread ? 'font-bold text-slate-950 dark:text-slate-100' : 'font-semibold text-slate-900 dark:text-slate-100'}`}>{roomName}</p>
             </div>
             <div className="flex shrink-0 flex-col items-end gap-1 text-right">
-              <p className={`text-xs font-medium ${isUnread ? 'text-emerald-600' : 'text-slate-400'}`}>{formatRoomTime(room.lastMessageAt || room.updatedAt)}</p>
+              <p className={`text-xs font-medium ${isUnread ? 'text-emerald-600 dark:text-emerald-500' : 'text-slate-400'}`}>{formatRoomTime(room.lastMessageAt || room.updatedAt)}</p>
               {isUnread ? (
                 <span className="inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-emerald-600 px-1.5 text-[10px] font-black text-white">
                   {room.unreadCount}
@@ -1124,8 +1124,8 @@ function WorkspaceConversationRow({
             </div>
           </div>
 
-          <div className="mt-0.5 flex items-center text-[13px] text-slate-500">
-            <span className={`truncate ${isUnread ? 'font-medium text-slate-700' : ''}`}>{getRoomPreview(room)}</span>
+          <div className="mt-0.5 flex items-center text-[13px] text-slate-500 dark:text-slate-400">
+            <span className={`truncate ${isUnread ? 'font-medium text-slate-700 dark:text-slate-300' : ''}`}>{getRoomPreview(room)}</span>
           </div>
 
           <div className="mt-2.5 flex flex-wrap items-center gap-2">
@@ -1187,7 +1187,7 @@ function WorkspaceMessageBubble({
             className={`px-4 py-3.5 shadow-sm ${
               mine
                 ? 'bg-gradient-to-br from-emerald-500 to-emerald-600 text-white ring-1 ring-inset ring-emerald-400/20'
-                : 'bg-slate-50 text-slate-900 ring-1 ring-inset ring-slate-200/50'
+                : 'bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-slate-100 ring-1 ring-inset ring-slate-200/50'
             } ${
               mine
                 ? `rounded-l-[22px] ${isFirstInGroup ? 'rounded-tr-[22px]' : 'rounded-tr-[8px]'} ${isLastInGroup ? 'rounded-br-[22px]' : 'rounded-br-[2px]'}`
@@ -1228,7 +1228,7 @@ function AvatarBadge({
   }
 
   return (
-    <div className={`flex ${sizeClasses} items-center justify-center rounded-full bg-[radial-gradient(circle_at_top,_#dbeafe,_#c7d2fe_55%,_#e2e8f0)] font-black text-emerald-700`}>
+    <div className={`flex ${sizeClasses} items-center justify-center rounded-full bg-[radial-gradient(circle_at_top,_#dbeafe,_#c7d2fe_55%,_#e2e8f0)] font-black text-emerald-700 dark:text-emerald-400`}>
       {name
         .split(' ')
         .filter(Boolean)
@@ -1250,7 +1250,7 @@ function HeaderActionButton({
 }) {
   if (!href) {
     return (
-      <span className="inline-flex h-9 w-9 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-400">
+      <span className="inline-flex h-9 w-9 items-center justify-center rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-400">
         {icon}
       </span>
     )
@@ -1260,7 +1260,7 @@ function HeaderActionButton({
     <Link
       to={href}
       title={label}
-      className="inline-flex h-9 w-9 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-500 transition hover:border-emerald-200 hover:text-emerald-700"
+      className="inline-flex h-9 w-9 items-center justify-center rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-500 dark:text-slate-400 transition hover:border-emerald-200 dark:border-emerald-800/50 hover:text-emerald-700 dark:text-emerald-400"
     >
       {icon}
     </Link>
@@ -1284,9 +1284,9 @@ function MessageThreadLoading() {
 
 function MentorMessagesWorkspaceLoading() {
   return (
-    <div className="overflow-hidden rounded-[24px] border border-slate-200 bg-white shadow-sm">
+    <div className="overflow-hidden rounded-[24px] border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 shadow-sm">
       <div className="grid h-[calc(100vh-104px)] xl:grid-cols-[360px_minmax(0,1fr)_320px]">
-        <div className="border-r border-slate-100 p-5">
+        <div className="border-r border-slate-100 dark:border-slate-800 p-5">
           <div className="h-10 w-40 animate-pulse rounded-full bg-slate-100" />
           <div className="mt-4 h-11 w-full animate-pulse rounded-2xl bg-slate-100" />
           <div className="mt-4 flex gap-2">
@@ -1307,7 +1307,7 @@ function MentorMessagesWorkspaceLoading() {
           </div>
         </div>
 
-        <div className="border-r border-slate-100 p-5">
+        <div className="border-r border-slate-100 dark:border-slate-800 p-5">
           <div className="h-14 w-72 animate-pulse rounded-2xl bg-slate-100" />
           <div className="mt-8 space-y-6">
             {Array.from({ length: 4 }).map((_, index) => (
@@ -1355,11 +1355,11 @@ function formatJobStatus(status?: string) {
 }
 
 function getJobStatusTone(status?: string) {
-  if (status === 'OPEN') return 'border-emerald-200 bg-emerald-50 text-emerald-700'
-  if (status === 'IN_PROGRESS') return 'border-amber-200 bg-amber-50 text-amber-700'
-  if (status === 'COMPLETED') return 'border-emerald-200 bg-emerald-50 text-emerald-700'
-  if (status === 'CLOSED' || status === 'CANCELLED') return 'border-slate-200 bg-slate-100 text-slate-600'
-  return 'border-slate-200 bg-slate-100 text-slate-600'
+  if (status === 'OPEN') return 'border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'
+  if (status === 'IN_PROGRESS') return 'border-amber-200 dark:border-amber-800/50 bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'
+  if (status === 'COMPLETED') return 'border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'
+  if (status === 'CLOSED' || status === 'CANCELLED') return 'border-slate-200 dark:border-slate-800 bg-slate-100 text-slate-600 dark:text-slate-400'
+  return 'border-slate-200 dark:border-slate-800 bg-slate-100 text-slate-600 dark:text-slate-400'
 }
 
 function getParticipantRoleLabel(room: ChatRoomResponse, currentUserId?: string) {
@@ -1395,19 +1395,19 @@ function getContextStatusLabel(room: ChatRoomResponse, contextMaps: Conversation
 function getContextStatusTone(room: ChatRoomResponse, contextMaps: ConversationContextMaps) {
   if (room.referenceType === 'CONTRACT' && room.referenceId) {
     const contract = contextMaps.contractMap[room.referenceId]
-    if (!contract) return 'border-slate-200 bg-slate-100 text-slate-600'
+    if (!contract) return 'border-slate-200 dark:border-slate-800 bg-slate-100 text-slate-600 dark:text-slate-400'
     if (contract.status === 'ACTIVE' && contract.fundsInEscrow) return 'border-sky-200 bg-sky-50 text-sky-700'
-    return contractStatusTone[contract.status] || 'border-slate-200 bg-slate-100 text-slate-600'
+    return contractStatusTone[contract.status] || 'border-slate-200 dark:border-slate-800 bg-slate-100 text-slate-600 dark:text-slate-400'
   }
   if (room.referenceType === 'PROPOSAL' && room.referenceId) {
     const proposal = contextMaps.proposalMap[room.referenceId]
-    return proposal ? proposalStatusTone[proposal.status] || 'border-slate-200 bg-slate-100 text-slate-600' : 'border-slate-200 bg-slate-100 text-slate-600'
+    return proposal ? proposalStatusTone[proposal.status] || 'border-slate-200 dark:border-slate-800 bg-slate-100 text-slate-600 dark:text-slate-400' : 'border-slate-200 dark:border-slate-800 bg-slate-100 text-slate-600 dark:text-slate-400'
   }
   if (room.referenceType === 'JOB' && room.referenceId) {
     const job = contextMaps.jobMap[room.referenceId]
-    return job ? getJobStatusTone(job.status) : 'border-slate-200 bg-slate-100 text-slate-600'
+    return job ? getJobStatusTone(job.status) : 'border-slate-200 dark:border-slate-800 bg-slate-100 text-slate-600 dark:text-slate-400'
   }
-  return 'border-slate-200 bg-slate-100 text-slate-600'
+  return 'border-slate-200 dark:border-slate-800 bg-slate-100 text-slate-600 dark:text-slate-400'
 }
 
 function getConversationStateLabel(room: ChatRoomResponse, currentUserId: string) {
@@ -1419,10 +1419,10 @@ function getConversationStateLabel(room: ChatRoomResponse, currentUserId: string
 
 function getConversationStateTone(room: ChatRoomResponse, currentUserId: string) {
   const state = getConversationStateLabel(room, currentUserId)
-  if (state === 'Chưa đọc') return 'border-emerald-200 bg-emerald-50 text-emerald-700'
-  if (state === 'Đang đợi khách hàng') return 'border-amber-200 bg-amber-50 text-amber-700'
+  if (state === 'Chưa đọc') return 'border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'
+  if (state === 'Đang đợi khách hàng') return 'border-amber-200 dark:border-amber-800/50 bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'
   if (state === 'Đang đợi bạn') return 'border-rose-200 bg-rose-50 text-rose-700'
-  return 'border-slate-200 bg-slate-100 text-slate-600'
+  return 'border-slate-200 dark:border-slate-800 bg-slate-100 text-slate-600 dark:text-slate-400'
 }
 
 function formatJobBudget(job: JobResponse) {
@@ -1434,8 +1434,11 @@ function formatJobBudget(job: JobResponse) {
   return 'Ngân sách linh hoạt'
 }
 
-function formatRoomDate(value: string) {
-  return new Intl.DateTimeFormat('vi-VN', { month: 'short', day: 'numeric' }).format(new Date(value))
+function formatRoomDate(value?: string) {
+  if (!value) return ''
+  const date = new Date(value)
+  if (isNaN(date.getTime())) return ''
+  return new Intl.DateTimeFormat('vi-VN', { month: 'short', day: 'numeric' }).format(date)
 }
 
 function truncateText(value?: string, limit = 120) {

@@ -175,8 +175,8 @@ function ProgressRail({
                 index < currentStep
                   ? 'border-[#059669] bg-[#059669]'
                   : index === currentStep
-                  ? 'border-[#059669] bg-white ring-4 ring-[#a7f3d0]'
-                  : 'border-[#D6D3D1] bg-white'
+                  ? 'border-[#059669] bg-white dark:bg-slate-950 ring-4 ring-[#a7f3d0]'
+                  : 'border-[#D6D3D1] bg-white dark:bg-slate-950'
               }`}
             />
             {index < STEP_META.length - 1 ? (
@@ -192,10 +192,10 @@ function ProgressRail({
 
       <div className="flex items-end justify-between gap-4">
         <div>
-          <p className="text-sm font-semibold text-slate-900">{t(STEP_META[currentStep].stepLabelKey as TranslationKey)}</p>
-          <p className="mt-1 text-sm text-slate-500">{t(STEP_META[currentStep].progressLabelKey as TranslationKey)}</p>
+          <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{t(STEP_META[currentStep].stepLabelKey as TranslationKey)}</p>
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{t(STEP_META[currentStep].progressLabelKey as TranslationKey)}</p>
         </div>
-        <p className="text-sm text-slate-500">Khoảng 30 giây</p>
+        <p className="text-sm text-slate-500 dark:text-slate-400">Khoảng 30 giây</p>
       </div>
     </div>
   )
@@ -218,14 +218,14 @@ function OptionCard({
       aria-pressed={selected}
       className={`group w-full rounded-2xl border px-4 py-2 text-left transition-all duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#059669]/40 focus-visible:ring-offset-2 hover:-translate-y-0.5 hover:shadow-[0_12px_24px_rgba(15,23,42,0.06)] ${
         selected
-          ? 'border-[#059669] bg-[#ecfdf5] shadow-[0_12px_24px_rgba(5,150,105,0.10)]'
-          : 'border-[#E8E8E8] bg-white hover:bg-[#FAFAFA]'
+          ? 'border-[#059669] bg-[#ecfdf5] dark:bg-emerald-900/30 shadow-[0_12px_24px_rgba(5,150,105,0.10)]'
+          : 'border-[#E8E8E8] dark:border-slate-800 bg-white dark:bg-slate-950 hover:bg-[#FAFAFA] dark:bg-slate-900/50 dark:bg-slate-950'
       }`}
     >
       <div className="flex items-center gap-3">
         <div
           className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-colors ${
-            selected ? 'bg-[#a7f3d0] text-[#047857]' : 'bg-[#F7F7F5] text-slate-500'
+            selected ? 'bg-[#a7f3d0] text-[#047857] dark:text-emerald-400' : 'bg-[#F7F7F5] dark:bg-slate-900/50 dark:bg-slate-950 text-slate-500 dark:text-slate-400'
           }`}
         >
           <option.icon className="h-4.5 w-4.5" />
@@ -233,14 +233,14 @@ function OptionCard({
 
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <p className="text-sm font-semibold text-slate-900">{option.label}</p>
+            <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{option.label}</p>
           </div>
-          <p className="mt-1 text-sm leading-5 text-slate-500">{option.description}</p>
+          <p className="mt-1 text-sm leading-5 text-slate-500 dark:text-slate-400">{option.description}</p>
         </div>
 
         <div
           className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition-colors ${
-            selected ? 'border-[#059669] bg-[#059669] text-slate-900' : 'border-[#D1D5DB] bg-white text-transparent'
+            selected ? 'border-[#059669] bg-[#059669] text-slate-900 dark:text-slate-100' : 'border-[#D1D5DB] bg-white dark:bg-slate-950 text-transparent'
           }`}
         >
           <Check className="h-3.5 w-3.5" />
@@ -258,8 +258,8 @@ function FloatingCard({
   children: React.ReactNode
 }) {
   return (
-    <div className="rounded-2xl border border-[#E8E8E8] bg-white/95 p-4 shadow-[0_12px_30px_rgba(15,23,42,0.05)] backdrop-blur">
-      <h3 className="text-sm font-semibold text-slate-900">{title}</h3>
+    <div className="rounded-2xl border border-[#E8E8E8] dark:border-slate-800 bg-white dark:bg-slate-950/95 p-4 shadow-[0_12px_30px_rgba(15,23,42,0.05)] backdrop-blur">
+      <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">{title}</h3>
       <div className="mt-3">{children}</div>
     </div>
   )
@@ -277,9 +277,9 @@ function SummaryRow({
   }
 
   return (
-    <div className="flex items-start justify-between gap-4 border-t border-[#F1F5F9] py-2 first:border-t-0 first:pt-0 last:pb-0">
-      <span className="text-xs font-medium text-slate-500">{label}</span>
-      <span className="text-right text-sm font-semibold text-slate-900">{value}</span>
+    <div className="flex items-start justify-between gap-4 border-t border-[#F1F5F9] dark:border-slate-800 py-2 first:border-t-0 first:pt-0 last:pb-0">
+      <span className="text-xs font-medium text-slate-500 dark:text-slate-400">{label}</span>
+      <span className="text-right text-sm font-semibold text-slate-900 dark:text-slate-100">{value}</span>
     </div>
   )
 }
@@ -607,15 +607,15 @@ export default function OnboardingPage() {
       return (
         <div className="space-y-4">
           <div className="flex items-center justify-between gap-4">
-            <p className="text-sm text-slate-500">Bạn đã chọn {selectedFieldIds.length + customFieldTags.length}/3 lĩnh vực.</p>
-            <p className="text-sm text-slate-500">Bạn có thể chọn sẵn hoặc thêm ngành riêng.</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">Bạn đã chọn {selectedFieldIds.length + customFieldTags.length}/3 lĩnh vực.</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">Bạn có thể chọn sẵn hoặc thêm ngành riêng.</p>
           </div>
 
-          <div className="rounded-2xl border border-dashed border-[#E8E8E8] bg-[#FCFCFB] p-4">
+          <div className="rounded-2xl border border-dashed border-[#E8E8E8] dark:border-slate-800 bg-[#FCFCFB] dark:bg-slate-950 p-4">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <p className="text-sm font-semibold text-slate-900">{t("onboarding.step.fields.customTitle")}</p>
-                <p className="mt-1 text-sm text-slate-500">{t("onboarding.step.fields.customHelper")}</p>
+                <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{t("onboarding.step.fields.customTitle")}</p>
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{t("onboarding.step.fields.customHelper")}</p>
               </div>
               <div className="flex w-full gap-2 sm:max-w-[360px]">
                 <input
@@ -629,13 +629,13 @@ export default function OnboardingPage() {
                   }}
                   maxLength={40}
                   placeholder={t("onboarding.step.fields.placeholder")}
-                  className="h-10 flex-1 rounded-xl border border-[#E8E8E8] bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-[#059669] focus:ring-2 focus:ring-[#a7f3d0]"
+                  className="h-10 flex-1 rounded-xl border border-[#E8E8E8] dark:border-slate-800 bg-white dark:bg-slate-950 px-3 text-sm text-slate-900 dark:text-slate-100 outline-none transition focus:border-[#059669] focus:ring-2 focus:ring-[#a7f3d0]"
                 />
                 <button
                   type="button"
                   onClick={addCustomField}
                   disabled={selectedFieldIds.length + customFieldTags.length >= MAX_FIELDS}
-                  className="inline-flex h-10 shrink-0 items-center justify-center rounded-xl border border-[#E8E8E8] bg-white px-4 text-sm font-medium text-slate-900 transition hover:bg-[#FAFAFA] disabled:cursor-not-allowed disabled:opacity-50"
+                  className="inline-flex h-10 shrink-0 items-center justify-center rounded-xl border border-[#E8E8E8] dark:border-slate-800 bg-white dark:bg-slate-950 px-4 text-sm font-medium text-slate-900 dark:text-slate-100 transition hover:bg-[#FAFAFA] dark:bg-slate-900/50 dark:bg-slate-950 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   Thêm
                 </button>
@@ -649,10 +649,10 @@ export default function OnboardingPage() {
                     key={tag}
                     type="button"
                     onClick={() => removeCustomField(tag)}
-                    className="inline-flex items-center gap-2 rounded-full border border-[#059669] bg-[#ecfdf5] px-3 py-1.5 text-sm font-medium text-slate-900"
+                    className="inline-flex items-center gap-2 rounded-full border border-[#059669] bg-[#ecfdf5] dark:bg-emerald-900/30 px-3 py-1.5 text-sm font-medium text-slate-900 dark:text-slate-100"
                   >
                     <span>{tag}</span>
-                    <span className="text-[#047857]">×</span>
+                    <span className="text-[#047857] dark:text-emerald-400">×</span>
                   </button>
                 ))}
               </div>
@@ -703,17 +703,17 @@ export default function OnboardingPage() {
   }
 
   return (
-    <div className="min-h-[100dvh] bg-[#F7F7F5] px-4 py-6 sm:px-6 sm:py-8">
+    <div className="min-h-[100dvh] bg-[#F7F7F5] dark:bg-slate-900/50 dark:bg-slate-950 px-4 py-6 sm:px-6 sm:py-8">
       <div className="mx-auto max-w-[1080px] xl:grid xl:grid-cols-[minmax(0,760px)_256px] xl:items-start xl:justify-center xl:gap-6">
-        <section className="w-full overflow-hidden rounded-[28px] border border-[#E8E8E8] bg-white shadow-[0_18px_40px_rgba(15,23,42,0.05)]">
-          <div className="border-b border-[#E8E8E8] px-5 py-4 sm:px-6 sm:py-5">
+        <section className="w-full overflow-hidden rounded-[28px] border border-[#E8E8E8] dark:border-slate-800 bg-white dark:bg-slate-950 shadow-[0_18px_40px_rgba(15,23,42,0.05)]">
+          <div className="border-b border-[#E8E8E8] dark:border-slate-800 px-5 py-4 sm:px-6 sm:py-5">
             <div className="flex items-start justify-between gap-4">
               <div className="flex items-start gap-4">
                 <BrandMark />
                 <div>
-                  <p className="text-[13px] font-bold uppercase tracking-wider text-slate-500">{t("onboarding.profile")}</p>
-                  <h1 className="mt-2 text-[24px] font-bold text-slate-900 sm:text-[28px]">{t("onboarding.title")}</h1>
-                  <p className="mt-3 text-[15px] leading-relaxed text-slate-500">{t("onboarding.subtitle")}</p>
+                  <p className="text-[13px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">{t("onboarding.profile")}</p>
+                  <h1 className="mt-2 text-[24px] font-bold text-slate-900 dark:text-slate-100 sm:text-[28px]">{t("onboarding.title")}</h1>
+                  <p className="mt-3 text-[15px] leading-relaxed text-slate-500 dark:text-slate-400">{t("onboarding.subtitle")}</p>
                 </div>
               </div>
             </div>
@@ -737,10 +737,10 @@ export default function OnboardingPage() {
             ) : (
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <h2 className="text-[22px] font-bold text-slate-900 sm:text-[26px]">
+                  <h2 className="text-[22px] font-bold text-slate-900 dark:text-slate-100 sm:text-[26px]">
                     {t(STEP_META[currentStep].questionKey as TranslationKey)}
                   </h2>
-                  <p className="max-w-[620px] text-sm leading-6 text-slate-500">{t(STEP_META[currentStep].helperKey as TranslationKey)}</p>
+                  <p className="max-w-[620px] text-sm leading-6 text-slate-500 dark:text-slate-400">{t(STEP_META[currentStep].helperKey as TranslationKey)}</p>
                 </div>
 
                 <div className="min-h-[320px]">{renderStepContent()}</div>
@@ -754,19 +754,19 @@ export default function OnboardingPage() {
 
                   <FloatingCard title={t("onboarding.whyAsk")}>
                     <div className="space-y-2">
-                      <div className="flex items-start gap-3 text-sm text-slate-500">
+                      <div className="flex items-start gap-3 text-sm text-slate-500 dark:text-slate-400">
                         <Users className="mt-0.5 h-4 w-4 text-[#059669]" />
                         <span>{t("onboarding.whyAsk.reason1")}</span>
                       </div>
-                      <div className="flex items-start gap-3 text-sm text-slate-500">
+                      <div className="flex items-start gap-3 text-sm text-slate-500 dark:text-slate-400">
                         <BookOpen className="mt-0.5 h-4 w-4 text-[#059669]" />
                         <span>{t("onboarding.whyAsk.reason2")}</span>
                       </div>
-                      <div className="flex items-start gap-3 text-sm text-slate-500">
+                      <div className="flex items-start gap-3 text-sm text-slate-500 dark:text-slate-400">
                         <Briefcase className="mt-0.5 h-4 w-4 text-[#059669]" />
                         <span>{t("onboarding.whyAsk.reason3")}</span>
                       </div>
-                      <div className="flex items-start gap-3 text-sm text-slate-500">
+                      <div className="flex items-start gap-3 text-sm text-slate-500 dark:text-slate-400">
                         <CheckCircle2 className="mt-0.5 h-4 w-4 text-[#16A34A]" />
                         <span>{t("onboarding.whyAsk.reason4")}</span>
                       </div>
@@ -777,13 +777,13 @@ export default function OnboardingPage() {
             )}
           </div>
 
-          <div className="sticky bottom-0 border-t border-[#E8E8E8] bg-white/95 px-5 py-4 backdrop-blur sm:px-8 sm:py-5">
+          <div className="sticky bottom-0 border-t border-[#E8E8E8] dark:border-slate-800 bg-white dark:bg-slate-950/95 px-5 py-4 backdrop-blur sm:px-8 sm:py-5">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <button
                 type="button"
                 onClick={() => setCurrentStep((prev) => Math.max(prev - 1, 0))}
                 disabled={currentStep === 0 || isBusy}
-                className="inline-flex items-center gap-2 self-start text-sm font-medium text-slate-500 transition hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-50"
+                className="inline-flex items-center gap-2 self-start text-sm font-medium text-slate-500 dark:text-slate-400 transition hover:text-slate-900 dark:text-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <ArrowLeft className="h-4 w-4" />
                 Previous
@@ -814,19 +814,19 @@ export default function OnboardingPage() {
 
           <FloatingCard title={t("onboarding.whyAsk")}>
             <div className="space-y-2">
-              <div className="flex items-start gap-3 text-sm text-slate-500">
+              <div className="flex items-start gap-3 text-sm text-slate-500 dark:text-slate-400">
                 <Users className="mt-0.5 h-4 w-4 text-[#059669]" />
                 <span>{t("onboarding.whyAsk.reason1")}</span>
               </div>
-              <div className="flex items-start gap-3 text-sm text-slate-500">
+              <div className="flex items-start gap-3 text-sm text-slate-500 dark:text-slate-400">
                 <BookOpen className="mt-0.5 h-4 w-4 text-[#059669]" />
                 <span>{t("onboarding.whyAsk.reason2")}</span>
               </div>
-              <div className="flex items-start gap-3 text-sm text-slate-500">
+              <div className="flex items-start gap-3 text-sm text-slate-500 dark:text-slate-400">
                 <Briefcase className="mt-0.5 h-4 w-4 text-[#059669]" />
                 <span>{t("onboarding.whyAsk.reason3")}</span>
               </div>
-              <div className="flex items-start gap-3 text-sm text-slate-500">
+              <div className="flex items-start gap-3 text-sm text-slate-500 dark:text-slate-400">
                 <CheckCircle2 className="mt-0.5 h-4 w-4 text-[#16A34A]" />
                 <span>{t("onboarding.whyAsk.reason4")}</span>
               </div>

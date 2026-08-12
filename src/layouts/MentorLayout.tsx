@@ -106,7 +106,7 @@ export default function MentorLayout() {
         <aside 
           className={`${
             isSidebarCollapsed ? 'w-[80px]' : 'w-[280px]'
-          } hidden bg-white dark:bg-[#09090b] border-r border-slate-100 dark:border-slate-800/60 shrink-0 xl:flex flex-col transition-all duration-300 ease-in-out sticky top-0 h-screen z-50`}
+          } hidden bg-white dark:bg-slate-950 dark:bg-[#09090b] border-r border-slate-100 dark:border-slate-800/60 shrink-0 xl:flex flex-col transition-all duration-300 ease-in-out sticky top-0 h-screen z-50`}
         >
           <div className="h-[80px] shrink-0 flex items-center px-5 border-b border-slate-100 dark:border-slate-800/60">
             <Link to="/" className="group flex items-center gap-3 w-full">
@@ -114,7 +114,7 @@ export default function MentorLayout() {
               {!isSidebarCollapsed && (
                 <div className="min-w-0 flex flex-col opacity-100 transition-opacity duration-300 delay-100">
                   <p className="text-[19px] font-bold leading-none tracking-tight text-slate-900 dark:text-white">MentorX</p>
-                  <p className="mt-1 text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{t('mentorHub.workspace')}</p>
+                  <p className="mt-1 text-[10px] font-semibold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-widest">{t('mentorHub.workspace')}</p>
                 </div>
               )}
             </Link>
@@ -137,7 +137,7 @@ export default function MentorLayout() {
                   className={`group flex items-center gap-3.5 px-3.5 py-3 rounded-2xl font-semibold transition-all duration-300 ${
                     active
                       ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-200/50 dark:bg-emerald-500/20 dark:text-emerald-400 dark:shadow-none translate-x-1'
-                      : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800'
+                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:text-slate-100 hover:bg-slate-50 dark:bg-slate-900/50 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800'
                   } ${isSidebarCollapsed ? 'justify-center' : ''}`}
                 >
                   <item.icon className={`w-5 h-5 flex-shrink-0 transition-transform duration-300 ${
@@ -147,7 +147,7 @@ export default function MentorLayout() {
                   {!isSidebarCollapsed && badge ? (
                     <span className={`ml-auto flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-[11px] font-bold ${
                       active 
-                        ? 'bg-white/20 text-white dark:bg-slate-900/20 dark:text-slate-900' 
+                        ? 'bg-white dark:bg-slate-950/20 text-white dark:bg-slate-900/20 dark:text-slate-900' 
                         : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400 group-hover:bg-emerald-200 dark:group-hover:bg-emerald-500/30'
                     }`}>
                       {badge}
@@ -160,9 +160,9 @@ export default function MentorLayout() {
             })}
           </nav>
 
-          <div className="border-t border-slate-100 p-4 dark:border-slate-800/60">
-            <div className={`flex items-center gap-3 rounded-xl p-2 transition hover:bg-slate-50 dark:hover:bg-slate-800/50 ${isSidebarCollapsed ? 'justify-center' : ''}`}>
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300 overflow-hidden border border-slate-200 dark:border-slate-700">
+          <div className="border-t border-slate-100 dark:border-slate-800 p-4 dark:border-slate-800/60">
+            <div className={`flex items-center gap-3 rounded-xl p-2 transition hover:bg-slate-50 dark:bg-slate-900/50 dark:hover:bg-slate-800/50 ${isSidebarCollapsed ? 'justify-center' : ''}`}>
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-600 dark:text-slate-400 dark:bg-slate-800 dark:text-slate-300 overflow-hidden border border-slate-200 dark:border-slate-800 dark:border-slate-700">
                 {user?.avatarUrl ? (
                   <img src={user.avatarUrl} alt="Avatar" className="h-full w-full object-cover" />
                 ) : (
@@ -173,7 +173,7 @@ export default function MentorLayout() {
                 <>
                   <div className="flex-1 min-w-0">
                     <p className="truncate text-[13px] font-bold text-slate-900 dark:text-white">{user?.fullName || 'Mentor'}</p>
-                    <p className="truncate text-[11px] font-medium text-slate-500 dark:text-slate-400">{user?.email || 'mentor@mentorx.com'}</p>
+                    <p className="truncate text-[11px] font-medium text-slate-500 dark:text-slate-400 dark:text-slate-400">{user?.email || 'mentor@mentorx.com'}</p>
                   </div>
                   <button
                     type="button"
@@ -190,7 +190,7 @@ export default function MentorLayout() {
 
           <button 
             onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-            className="absolute -right-3.5 top-24 hidden h-7 w-7 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 shadow-sm transition-all z-50 hover:border-gray-300 hover:text-gray-900 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:text-white xl:flex"
+            className="absolute -right-3.5 top-24 hidden h-7 w-7 items-center justify-center rounded-full border border-gray-200 bg-white dark:bg-slate-950 text-gray-500 shadow-sm transition-all z-50 hover:border-gray-300 hover:text-gray-900 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:text-white xl:flex"
           >
             <ChevronRight className={`w-4 h-4 transition-transform duration-300 ${isSidebarCollapsed ? '' : 'rotate-180'}`} />
           </button>
@@ -204,19 +204,19 @@ export default function MentorLayout() {
               className="absolute inset-0 bg-slate-950/40"
               onClick={() => setMobileNavOpen(false)}
             />
-            <div className="relative flex h-full w-[min(84vw,320px)] flex-col bg-white shadow-2xl dark:bg-[#09090b]">
+            <div className="relative flex h-full w-[min(84vw,320px)] flex-col bg-white dark:bg-slate-950 shadow-2xl dark:bg-[#09090b]">
               <div className="flex h-[80px] shrink-0 items-center justify-between px-5">
                 <Link to="/" className="flex items-center gap-3" onClick={() => setMobileNavOpen(false)}>
                   <img src="/logo.png" alt="MentorX Logo" className="h-8 w-auto object-contain" />
                   <div className="min-w-0 flex flex-col">
                     <p className="text-[19px] font-bold leading-none tracking-tight text-slate-900 dark:text-white">MentorX</p>
-                  <p className="mt-1 text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{t('mentorHub.workspace')}</p>
+                  <p className="mt-1 text-[10px] font-semibold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-widest">{t('mentorHub.workspace')}</p>
                   </div>
                 </Link>
                 <button
                   type="button"
                   onClick={() => setMobileNavOpen(false)}
-                  className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400"
+                  className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-100 text-slate-500 dark:text-slate-400 dark:bg-slate-800 dark:text-slate-400"
                   aria-label={t('mentorHub.closeNavigation')}
                 >
                   <X className="h-5 w-5" />
@@ -240,7 +240,7 @@ export default function MentorLayout() {
                       className={`group flex items-center gap-3.5 px-3.5 py-3 rounded-2xl font-semibold transition-all duration-300 ${
                         active
                           ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-200/50 dark:bg-emerald-500/20 dark:text-emerald-400 dark:shadow-none translate-x-1'
-                          : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800'
+                          : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:text-slate-100 hover:bg-slate-50 dark:bg-slate-900/50 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800'
                       }`}
                     >
                       <item.icon className={`w-5 h-5 transition-transform duration-300 ${
@@ -250,7 +250,7 @@ export default function MentorLayout() {
                       {badge ? (
                         <span className={`ml-auto flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-[11px] font-bold ${
                           active 
-                            ? 'bg-white/20 text-white dark:bg-slate-900/20 dark:text-slate-900' 
+                            ? 'bg-white dark:bg-slate-950/20 text-white dark:bg-slate-900/20 dark:text-slate-900' 
                             : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400 group-hover:bg-emerald-200 dark:group-hover:bg-emerald-500/30'
                         }`}>
                           {badge}
@@ -263,13 +263,13 @@ export default function MentorLayout() {
                 })}
               </nav>
 
-              <div className="border-t border-slate-100 px-4 pt-4 dark:border-slate-800/60">
+              <div className="border-t border-slate-100 dark:border-slate-800 px-4 pt-4 dark:border-slate-800/60">
                 <ModeSwitcher className="w-full" />
               </div>
 
               <div className="p-4">
-                <div className="flex items-center gap-3 rounded-xl p-2 transition hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300 overflow-hidden border border-slate-200 dark:border-slate-700">
+                <div className="flex items-center gap-3 rounded-xl p-2 transition hover:bg-slate-50 dark:bg-slate-900/50 dark:hover:bg-slate-800/50">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-600 dark:text-slate-400 dark:bg-slate-800 dark:text-slate-300 overflow-hidden border border-slate-200 dark:border-slate-800 dark:border-slate-700">
                     {user?.avatarUrl ? (
                       <img src={user.avatarUrl} alt="Avatar" className="h-full w-full object-cover" />
                     ) : (
@@ -278,7 +278,7 @@ export default function MentorLayout() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="truncate text-[13px] font-bold text-slate-900 dark:text-white">{user?.fullName || 'Mentor'}</p>
-                    <p className="truncate text-[11px] font-medium text-slate-500 dark:text-slate-400">{user?.email || 'mentor@mentorx.com'}</p>
+                    <p className="truncate text-[11px] font-medium text-slate-500 dark:text-slate-400 dark:text-slate-400">{user?.email || 'mentor@mentorx.com'}</p>
                   </div>
                   <button
                     type="button"
@@ -298,13 +298,13 @@ export default function MentorLayout() {
         )}
 
         <div className="min-w-0 max-h-dvh flex-1 overflow-y-auto">
-          <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/95 backdrop-blur">
+          <header className="sticky top-0 z-40 border-b border-slate-200 dark:border-slate-800/80 bg-white dark:bg-slate-950/95 backdrop-blur">
             <div className="flex h-16 items-center justify-between gap-2 px-3 min-[360px]:px-4 sm:h-20 sm:gap-3 sm:px-6 lg:px-8">
               <div className="flex min-w-0 flex-1 items-center gap-4">
                 <button
                   type="button"
                   onClick={() => setMobileNavOpen(true)}
-                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50 xl:hidden"
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-600 dark:text-slate-400 transition hover:bg-slate-50 dark:bg-slate-900/50 xl:hidden"
                   aria-label={t('mentorHub.openNavigation')}
                   aria-expanded={mobileNavOpen}
                 >
@@ -316,9 +316,9 @@ export default function MentorLayout() {
                   <input
                     type="text"
                     placeholder={t('mentorHub.searchPlaceholder')}
-                    className="h-11 w-full rounded-2xl border border-slate-200 bg-slate-50 pl-11 pr-14 text-sm text-slate-700 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10"
+                    className="h-11 w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 pl-11 pr-14 text-sm text-slate-700 dark:text-slate-300 outline-none transition focus:border-emerald-500 focus:bg-white dark:bg-slate-950 focus:ring-4 focus:ring-emerald-500/10"
                   />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg border border-slate-200 bg-white px-2 py-1 text-[11px] font-bold text-slate-400">
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-2 py-1 text-[11px] font-bold text-slate-400">
                     K
                   </span>
                 </div>
@@ -328,7 +328,7 @@ export default function MentorLayout() {
                 <button
                   type="button"
                   onClick={toggleTheme}
-                  className="flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-500 transition hover:bg-slate-50 hover:text-slate-900"
+                  className="flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-500 dark:text-slate-400 transition hover:bg-slate-50 dark:bg-slate-900/50 hover:text-slate-900 dark:text-slate-100"
                   aria-label={t('mentorHub.toggleTheme')}
                 >
                   {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
@@ -336,7 +336,7 @@ export default function MentorLayout() {
 
                 <button
                   type="button"
-                  className="hidden h-11 items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-700 2xl:inline-flex"
+                  className="hidden h-11 items-center gap-2 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 text-sm font-bold text-slate-700 dark:text-slate-300 2xl:inline-flex"
                 >
                   <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
                   {t('mentorHub.availability.available')}
@@ -347,7 +347,7 @@ export default function MentorLayout() {
 
                 <Link
                   to="/mentor/messages"
-                  className="relative hidden h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-500 transition hover:bg-slate-50 hover:text-slate-900 sm:flex"
+                  className="relative hidden h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-500 dark:text-slate-400 transition hover:bg-slate-50 dark:bg-slate-900/50 hover:text-slate-900 dark:text-slate-100 sm:flex"
                   aria-label={t('mentorHub.openMessages')}
                 >
                   <MessageCircle className="h-4 w-4" />
@@ -363,7 +363,7 @@ export default function MentorLayout() {
                 <div className="relative">
                   <button
                     onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                    className="flex items-center gap-3 rounded-2xl bg-white pl-2 pr-1 border border-slate-200 transition hover:border-emerald-200"
+                    className="flex items-center gap-3 rounded-2xl bg-white dark:bg-slate-950 pl-2 pr-1 border border-slate-200 dark:border-slate-800 transition hover:border-emerald-200"
                   >
                     <div className="h-10 w-10 overflow-hidden rounded-2xl bg-slate-100">
                       {user?.avatarUrl ? (
@@ -376,7 +376,7 @@ export default function MentorLayout() {
                     </div>
                     <div className="hidden text-left 2xl:block">
                       <p className="text-sm font-black text-slate-950">{user?.fullName || 'Mentor'}</p>
-                      <p className="mt-0.5 text-xs font-medium text-slate-500">{t('mentorHub.role.expertMentor')}</p>
+                      <p className="mt-0.5 text-xs font-medium text-slate-500 dark:text-slate-400">{t('mentorHub.role.expertMentor')}</p>
                     </div>
                     <ChevronDown className={`h-4 w-4 text-slate-400 transition-transform duration-300 ${userDropdownOpen ? 'rotate-180 text-emerald-600' : ''}`} />
                   </button>
@@ -384,17 +384,17 @@ export default function MentorLayout() {
                   {userDropdownOpen && (
                     <>
                       <div className="fixed inset-0 z-10" onClick={() => setUserDropdownOpen(false)} />
-                      <div className="absolute right-0 z-20 mt-2 w-64 origin-top-right rounded-2xl border border-slate-200 bg-white p-2 shadow-xl ring-1 ring-black ring-opacity-5 focus:outline-none">
-                        <div className="mb-1 border-b border-slate-100 px-3 py-2">
+                      <div className="absolute right-0 z-20 mt-2 w-64 origin-top-right rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-2 shadow-xl ring-1 ring-black ring-opacity-5 focus:outline-none">
+                        <div className="mb-1 border-b border-slate-100 dark:border-slate-800 px-3 py-2">
                           <p className="text-xs font-bold uppercase tracking-wider text-slate-400">{t('common.account')}</p>
                           <p className="truncate text-sm font-black text-slate-950">{user?.fullName || 'Mentor'}</p>
-                          <p className="truncate text-[11px] font-medium text-slate-500">{t('mentorHub.role.expertMentor')}</p>
+                          <p className="truncate text-[11px] font-medium text-slate-500 dark:text-slate-400">{t('mentorHub.role.expertMentor')}</p>
                         </div>
 
                         <Link
                           to="/profile"
                           onClick={() => setUserDropdownOpen(false)}
-                          className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50 hover:text-blue-600"
+                          className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:bg-slate-900/50 hover:text-blue-600"
                         >
                           <User className="h-4 w-4" />
                           {t('common.viewProfile')}
@@ -402,13 +402,13 @@ export default function MentorLayout() {
                         <Link
                           to="/mentor/profile-setup"
                           onClick={() => setUserDropdownOpen(false)}
-                          className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50 hover:text-blue-600"
+                          className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:bg-slate-900/50 hover:text-blue-600"
                         >
                           <Star className="h-4 w-4" />
                           {t('nav.editMentorProfile')}
                         </Link>
 
-                        <div className="my-1 border-t border-slate-100" />
+                        <div className="my-1 border-t border-slate-100 dark:border-slate-800" />
                         <button
                           type="button"
                           onClick={() => {

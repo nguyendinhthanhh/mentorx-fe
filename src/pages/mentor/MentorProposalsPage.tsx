@@ -215,7 +215,7 @@ export default function MentorProposalsPage() {
               <Skeleton className="h-10 w-40" />
             </div>
             <Skeleton className="h-16 w-full rounded-2xl" />
-            <div className="space-y-5 rounded-3xl bg-white p-6 shadow-sm">
+            <div className="space-y-5 rounded-3xl bg-white dark:bg-slate-950 p-6 shadow-sm">
               {Array.from({ length: 3 }).map((_, i) => (
                 <ProposalCardSkeleton key={i} />
               ))}
@@ -231,29 +231,29 @@ export default function MentorProposalsPage() {
       {/* Compact Header */}
       <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between mb-8">
         <div>
-          <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-[11px] uppercase tracking-widest font-black text-emerald-600 mb-3 border border-emerald-100 shadow-sm">
+          <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 dark:bg-emerald-900/30 px-3 py-1 text-[11px] uppercase tracking-widest font-black text-emerald-600 dark:text-emerald-500 mb-3 border border-emerald-100 dark:border-emerald-900/50 shadow-sm">
             <Sparkles className="w-3.5 h-3.5 text-amber-500" />
             Pipeline Overview
           </div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Quản lý Proposals</h1>
-          <p className="mt-2 text-sm font-medium text-slate-500">
-            Bạn có tổng cộng <span className="font-bold text-slate-700">{stats.total}</span> đề xuất. {pendingNegotiationItems.length > 0 ? <span className="font-bold text-amber-600">Bạn có {pendingNegotiationItems.length} đề xuất cần xử lý ngay.</span> : "Tất cả đều đang tiến hành tốt."}
+          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100">Quản lý Proposals</h1>
+          <p className="mt-2 text-sm font-medium text-slate-500 dark:text-slate-400">
+            Bạn có tổng cộng <span className="font-bold text-slate-700 dark:text-slate-300">{stats.total}</span> đề xuất. {pendingNegotiationItems.length > 0 ? <span className="font-bold text-amber-600">Bạn có {pendingNegotiationItems.length} đề xuất cần xử lý ngay.</span> : "Tất cả đều đang tiến hành tốt."}
           </p>
         </div>
         
         <div className="flex items-center gap-4">
-          <div className="hidden lg:flex items-center gap-4 rounded-2xl border border-slate-200/60 bg-white/50 py-2.5 shadow-sm backdrop-blur-md">
-            <div className="flex flex-col px-5 border-r border-slate-200/60">
+          <div className="hidden lg:flex items-center gap-4 rounded-2xl border border-slate-200 dark:border-slate-800/60 bg-white dark:bg-slate-950/50 py-2.5 shadow-sm backdrop-blur-md">
+            <div className="flex flex-col px-5 border-r border-slate-200 dark:border-slate-800/60">
                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Chờ phản hồi</span>
-               <span className="text-xl font-black text-slate-900">{stats.awaitingResponse}</span>
+               <span className="text-xl font-black text-slate-900 dark:text-slate-100">{stats.awaitingResponse}</span>
             </div>
-            <div className="flex flex-col px-5 border-r border-slate-200/60">
+            <div className="flex flex-col px-5 border-r border-slate-200 dark:border-slate-800/60">
                <span className="text-[10px] font-black uppercase tracking-widest text-amber-600/70">Đang đàm phán</span>
                <span className="text-xl font-black text-amber-600">{stats.negotiating}</span>
             </div>
             <div className="flex flex-col px-5">
-               <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600/70">Đã chốt</span>
-               <span className="text-xl font-black text-emerald-600">{stats.accepted}</span>
+               <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-500/70">Đã chốt</span>
+               <span className="text-xl font-black text-emerald-600 dark:text-emerald-500">{stats.accepted}</span>
             </div>
           </div>
 
@@ -265,7 +265,7 @@ export default function MentorProposalsPage() {
       </div>
 
       {/* Content Area */}
-      <div className="rounded-[2.5rem] border border-slate-200/60 bg-white/50 p-6 sm:p-8 shadow-xl shadow-slate-200/40 backdrop-blur-2xl">
+      <div className="rounded-[2.5rem] border border-slate-200 dark:border-slate-800/60 bg-white dark:bg-slate-950/50 p-6 sm:p-8 shadow-xl shadow-slate-200/40 backdrop-blur-2xl">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between mb-8">
           {/* Tabs */}
           <div className="scrollbar-hide flex w-full flex-wrap items-center gap-2 overflow-x-auto rounded-2xl bg-slate-100/80 p-1.5 lg:w-auto">
@@ -279,13 +279,13 @@ export default function MentorProposalsPage() {
                   onClick={() => setActiveTab(tab.key)}
                   className={`whitespace-nowrap inline-flex h-10 items-center gap-2 rounded-xl px-4 text-sm font-bold transition-all ${
                     isActive
-                      ? 'bg-white text-emerald-700 shadow-sm ring-1 ring-slate-200/50'
-                      : 'text-slate-500 hover:text-slate-900 hover:bg-slate-200/50'
+                      ? 'bg-white dark:bg-slate-950 text-emerald-700 dark:text-emerald-400 shadow-sm ring-1 ring-slate-200/50'
+                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:text-slate-100 hover:bg-slate-200/50'
                   }`}
                 >
                   {tab.label}
                   {count > 0 && (
-                    <span className={`rounded-lg px-2 py-0.5 text-[10px] font-black uppercase tracking-widest ${isActive ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-200/80 text-slate-500'}`}>
+                    <span className={`rounded-lg px-2 py-0.5 text-[10px] font-black uppercase tracking-widest ${isActive ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-500' : 'bg-slate-200/80 text-slate-500 dark:text-slate-400'}`}>
                       {count}
                     </span>
                   )}
@@ -301,7 +301,7 @@ export default function MentorProposalsPage() {
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
               placeholder="Tìm kiếm proposals..."
-              className="h-11 w-full rounded-2xl border border-slate-200 bg-white/80 pl-11 pr-4 text-sm font-medium text-slate-900 outline-none transition-all focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 placeholder:text-slate-400"
+              className="h-11 w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950/80 pl-11 pr-4 text-sm font-medium text-slate-900 dark:text-slate-100 outline-none transition-all focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 placeholder:text-slate-400"
             />
           </div>
         </div>
@@ -335,7 +335,7 @@ export default function MentorProposalsPage() {
                 setCategoryFilter('ALL')
                 setSearchQuery('')
               }}
-              className="inline-flex h-10 items-center gap-2 rounded-xl px-4 text-sm font-bold text-slate-500 transition-all hover:bg-slate-100 hover:text-slate-900"
+              className="inline-flex h-10 items-center gap-2 rounded-xl px-4 text-sm font-bold text-slate-500 dark:text-slate-400 transition-all hover:bg-slate-100 hover:text-slate-900 dark:text-slate-100"
             >
               <RefreshCw className="h-4 w-4" />
               Xóa bộ lọc
@@ -373,7 +373,7 @@ export default function MentorProposalsPage() {
               return (
                 <article
                   key={proposal.id}
-                  className="group relative flex flex-col gap-5 rounded-[1.75rem] border border-slate-200/80 bg-white/70 p-6 shadow-sm backdrop-blur-md transition-all hover:-translate-y-1 hover:border-emerald-100 hover:shadow-xl hover:shadow-slate-200/50"
+                  className="group relative flex flex-col gap-5 rounded-[1.75rem] border border-slate-200 dark:border-slate-800/80 bg-white dark:bg-slate-950/70 p-6 shadow-sm backdrop-blur-md transition-all hover:-translate-y-1 hover:border-emerald-100 dark:border-emerald-900/50 hover:shadow-xl hover:shadow-slate-200/50"
                 >
                   <div className="flex flex-col justify-between gap-6 md:flex-row md:items-start">
                     <div className="flex items-start gap-4">
@@ -385,13 +385,13 @@ export default function MentorProposalsPage() {
                         )}
                       </div>
                       <div className="min-w-0 pt-0.5">
-                        <Link to={`/mentor/proposals/${proposal.id}`} className="hover:text-emerald-600 transition-colors">
-                           <h2 className="truncate text-lg font-extrabold tracking-tight text-slate-900">
+                        <Link to={`/mentor/proposals/${proposal.id}`} className="hover:text-emerald-600 dark:text-emerald-500 transition-colors">
+                           <h2 className="truncate text-lg font-extrabold tracking-tight text-slate-900 dark:text-slate-100">
                              {proposal.jobTitle}
                            </h2>
                         </Link>
-                        <p className="mt-1.5 flex flex-wrap items-center gap-2 text-xs font-semibold text-slate-500">
-                          <span className="text-slate-700">{clientName}</span>
+                        <p className="mt-1.5 flex flex-wrap items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400">
+                          <span className="text-slate-700 dark:text-slate-300">{clientName}</span>
                           <span className="h-1 w-1 rounded-full bg-slate-300" />
                           <span>{categoryName}</span>
                           <span className="h-1 w-1 rounded-full bg-slate-300" />
@@ -400,13 +400,13 @@ export default function MentorProposalsPage() {
                       </div>
                     </div>
 
-                    <div className="flex flex-col items-start md:items-end shrink-0 md:pl-6 md:border-l md:border-slate-100">
-                      <p className="text-2xl font-black text-slate-900">{currentOffer.primary}</p>
+                    <div className="flex flex-col items-start md:items-end shrink-0 md:pl-6 md:border-l md:border-slate-100 dark:border-slate-800">
+                      <p className="text-2xl font-black text-slate-900 dark:text-slate-100">{currentOffer.primary}</p>
                       <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-slate-400">{currentOffer.label}</p>
                     </div>
                   </div>
 
-                  <div className="flex flex-col justify-between gap-4 border-t border-slate-100/80 pt-5 sm:flex-row sm:items-center">
+                  <div className="flex flex-col justify-between gap-4 border-t border-slate-100 dark:border-slate-800/80 pt-5 sm:flex-row sm:items-center">
                     <div className="flex flex-wrap items-center gap-3">
                       <span className={`inline-flex items-center rounded-xl px-3 py-1.5 text-[11px] font-black uppercase tracking-widest shadow-sm ${rowTone.badge}`}>
                         {getStatusLabel(proposal.status)}
@@ -421,7 +421,7 @@ export default function MentorProposalsPage() {
                       {job?.clientId && (
                         <Link
                           to={`/mentor/messages?targetUserId=${encodeURIComponent(job.clientId)}&jobId=${encodeURIComponent(job.jobId)}`}
-                          className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 text-sm font-bold text-slate-700 shadow-sm transition-all hover:bg-slate-50 hover:text-emerald-600 sm:flex-none"
+                          className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-5 text-sm font-bold text-slate-700 dark:text-slate-300 shadow-sm transition-all hover:bg-slate-50 dark:bg-slate-900/50 hover:text-emerald-600 dark:text-emerald-500 sm:flex-none"
                         >
                           <MessageCircleMore className="w-4 h-4" />
                           Nhắn tin
@@ -470,7 +470,7 @@ function MiniSelect({
     <select
       value={value}
       onChange={(event) => onChange(event.target.value)}
-      className="h-10 cursor-pointer appearance-none rounded-xl border border-slate-200/80 bg-white/80 px-4 pr-10 text-sm font-bold text-slate-700 shadow-sm outline-none transition-all hover:border-slate-300 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 backdrop-blur-md"
+      className="h-10 cursor-pointer appearance-none rounded-xl border border-slate-200 dark:border-slate-800/80 bg-white dark:bg-slate-950/80 px-4 pr-10 text-sm font-bold text-slate-700 dark:text-slate-300 shadow-sm outline-none transition-all hover:border-slate-300 dark:border-slate-700 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 backdrop-blur-md"
       style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: 'right 0.75rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.25em 1.25em' }}
     >
       {options.map(([optionValue, label]) => (
@@ -498,22 +498,22 @@ function DashboardMetricCard({
   helper: string
 }) {
   const toneClass = {
-    indigo: 'bg-emerald-50/80 text-emerald-600 border-emerald-100/50 shadow-emerald-100/50',
-    emerald: 'bg-emerald-50/80 text-emerald-600 border-emerald-100/50 shadow-emerald-100/50',
-    amber: 'bg-amber-50/80 text-amber-600 border-amber-100/50 shadow-amber-100/50',
+    indigo: 'bg-emerald-50  text-emerald-600 dark:text-emerald-500 border-emerald-100  shadow-emerald-100/50',
+    emerald: 'bg-emerald-50  text-emerald-600 dark:text-emerald-500 border-emerald-100  shadow-emerald-100/50',
+    amber: 'bg-amber-50  text-amber-600 border-amber-100/50 shadow-amber-100/50',
     sky: 'bg-sky-50/80 text-sky-600 border-sky-100/50 shadow-sky-100/50',
   }[iconTone]
 
   return (
-    <div className="group flex flex-col justify-between rounded-[1.75rem] border border-white/60 bg-white/70 p-5 sm:p-6 shadow-xl shadow-slate-200/40 backdrop-blur-xl transition-all hover:-translate-y-1 hover:shadow-2xl hover:shadow-slate-200/50">
+    <div className="group flex flex-col justify-between rounded-[1.75rem] border border-white/60 bg-white dark:bg-slate-950/70 p-5 sm:p-6 shadow-xl shadow-slate-200/40 backdrop-blur-xl transition-all hover:-translate-y-1 hover:shadow-2xl hover:shadow-slate-200/50">
       <div>
         <div className="flex items-center justify-between">
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{label}</p>
           <div className={`flex h-12 w-12 items-center justify-center rounded-[1.25rem] border shadow-sm ${toneClass} transition-transform group-hover:scale-110`}>{icon}</div>
         </div>
         <div className="mt-3 flex flex-col gap-1">
-          <div className="text-3xl font-extrabold tracking-tight text-slate-900">{value}</div>
-          <span className="text-[11px] font-bold text-emerald-600">{eyebrow}</span>
+          <div className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100">{value}</div>
+          <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-500">{eyebrow}</span>
         </div>
       </div>
       <p className="mt-4 text-xs font-semibold text-slate-400">{helper}</p>
@@ -533,12 +533,12 @@ function EmptyPremiumState({
   actionLabel: string
 }) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-[1.75rem] border border-slate-100/50 bg-gradient-to-b from-slate-50/50 to-white/30 px-6 py-10 text-center backdrop-blur-md">
-      <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-[1.25rem] bg-emerald-50 text-emerald-500 shadow-inner">
+    <div className="flex flex-col items-center justify-center rounded-[1.75rem] border border-slate-100 dark:border-slate-800/50 bg-gradient-to-b from-slate-50/50 to-white/30 px-6 py-10 text-center backdrop-blur-md">
+      <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-[1.25rem] bg-emerald-50 dark:bg-emerald-900/30 text-emerald-500 shadow-inner">
         <Sparkles className="h-7 w-7" />
       </div>
-      <h3 className="text-lg font-extrabold text-slate-900">{title}</h3>
-      <p className="mt-2 max-w-sm text-sm font-semibold leading-relaxed text-slate-500">{message}</p>
+      <h3 className="text-lg font-extrabold text-slate-900 dark:text-slate-100">{title}</h3>
+      <p className="mt-2 max-w-sm text-sm font-semibold leading-relaxed text-slate-500 dark:text-slate-400">{message}</p>
       <Link to={actionHref} className="mt-6 rounded-2xl bg-emerald-600 shadow-md hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 hover:bg-emerald-700 px-6 py-3 text-sm font-bold text-white transition-all hover:-translate-y-0.5 hover:bg-emerald-600 hover:shadow-lg hover:shadow-emerald-500/30">
         {actionLabel}
       </Link>
@@ -616,36 +616,36 @@ function getRowTone(status: string, latestSender?: 'CLIENT' | 'MENTOR') {
     case 'NEGOTIATING':
       if (latestSender === 'CLIENT') {
         return {
-          badge: 'bg-amber-100 text-amber-800 ring-1 ring-amber-200/80',
+          badge: 'bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-200 ring-1 ring-amber-200/80',
           message: 'text-amber-600',
         }
       }
       return {
-        badge: 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/80',
-        message: 'text-emerald-600',
+        badge: 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 ring-1 ring-emerald-200/80',
+        message: 'text-emerald-600 dark:text-emerald-500',
       }
     case 'OFFER_ACCEPTED':
       return {
-        badge: 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/80',
-        message: 'text-emerald-600',
+        badge: 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 ring-1 ring-emerald-200/80',
+        message: 'text-emerald-600 dark:text-emerald-500',
       }
     case 'ACCEPTED':
       return {
-        badge: 'bg-emerald-100 text-emerald-800 ring-1 ring-emerald-300/80',
-        message: 'text-emerald-700',
+        badge: 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-200 ring-1 ring-emerald-300/80',
+        message: 'text-emerald-700 dark:text-emerald-400',
       }
     case 'REJECTED':
     case 'AUTO_CLOSED':
     case 'CONTRACT_CANCELLED':
     case 'WITHDRAWN':
       return {
-        badge: 'bg-slate-100 text-slate-600 ring-1 ring-slate-200/80',
-        message: 'text-slate-500',
+        badge: 'bg-slate-100 text-slate-600 dark:text-slate-400 ring-1 ring-slate-200/80',
+        message: 'text-slate-500 dark:text-slate-400',
       }
     default:
       return {
         badge: 'bg-blue-50 text-blue-700 ring-1 ring-blue-200/80',
-        message: 'text-slate-500',
+        message: 'text-slate-500 dark:text-slate-400',
       }
   }
 }
@@ -699,7 +699,7 @@ function normalizeProposalValue(proposal: ProposalResponse) {
 
 function ProposalCardSkeleton() {
   return (
-    <div className="rounded-[1.75rem] border border-slate-100/80 bg-white/70 p-6 shadow-sm">
+    <div className="rounded-[1.75rem] border border-slate-100 dark:border-slate-800/80 bg-white dark:bg-slate-950/70 p-6 shadow-sm">
       <div className="flex items-start gap-4">
         <SkeletonCircle size="h-14 w-14 rounded-[1.25rem]" />
         <div className="flex-1 space-y-3 pt-1">
@@ -707,7 +707,7 @@ function ProposalCardSkeleton() {
           <Skeleton className="h-4 w-1/4 rounded-md" />
         </div>
       </div>
-      <div className="mt-6 border-t border-slate-100 pt-5">
+      <div className="mt-6 border-t border-slate-100 dark:border-slate-800 pt-5">
         <Skeleton className="h-10 w-full rounded-xl" />
       </div>
     </div>

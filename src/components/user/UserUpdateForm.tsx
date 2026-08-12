@@ -124,16 +124,16 @@ export default function UserUpdateForm({ userId, initialData }: Props) {
   }
 
   const inputClass =
-    'w-full rounded-[14px] border-0 bg-slate-50/50 py-3 px-4 text-slate-900 shadow-[inset_0_1px_2px_rgba(0,0,0,0.02)] ring-1 ring-inset ring-slate-200/60 transition-all placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-inset focus:ring-[#059669] hover:bg-slate-50 hover:ring-slate-300 sm:text-sm sm:leading-6 dark:bg-slate-900/50 dark:text-white dark:ring-slate-800 dark:focus:bg-slate-900'
-  const labelClass = 'mb-1.5 block text-[13px] font-bold text-slate-700 uppercase tracking-wide dark:text-slate-300'
+    'w-full rounded-[14px] border-0 bg-slate-50  py-3 px-4 text-slate-900 dark:text-slate-100 shadow-[inset_0_1px_2px_rgba(0,0,0,0.02)] ring-1 ring-inset ring-slate-200/60 transition-all placeholder:text-slate-400 focus:bg-white dark:bg-slate-950 focus:ring-2 focus:ring-inset focus:ring-[#059669] hover:bg-slate-50 dark:bg-slate-900/50 hover:ring-slate-300 sm:text-sm sm:leading-6 dark:bg-slate-900/50 dark:text-white dark:ring-slate-800 dark:focus:bg-slate-900'
+  const labelClass = 'mb-1.5 block text-[13px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide dark:text-slate-300'
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {/* Avatar Section */}
-      <div className="flex flex-col items-center gap-4 pb-8 border-b border-slate-100/60 dark:border-slate-800/60">
+      <div className="flex flex-col items-center gap-4 pb-8 border-b border-slate-100 dark:border-slate-800/60 dark:border-slate-800/60">
         <div className="relative group cursor-pointer" onClick={() => !uploading && fileInputRef.current?.click()}>
           <div className="relative flex h-28 w-28 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-[#059669] to-[#10B981] p-[3px] shadow-xl transition-transform duration-300 group-hover:scale-105">
-            <div className="h-full w-full overflow-hidden rounded-full border-[3px] border-white bg-white dark:border-slate-900 dark:bg-slate-900">
+            <div className="h-full w-full overflow-hidden rounded-full border-[3px] border-white bg-white dark:bg-slate-950 dark:border-slate-900 dark:bg-slate-900">
               {uploading ? (
                 <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40 backdrop-blur-sm">
                   <Loader2 className="h-8 w-8 animate-spin text-white" />
@@ -166,7 +166,7 @@ export default function UserUpdateForm({ userId, initialData }: Props) {
         </div>
         
         <div className="text-center">
-          <h3 className="font-bold text-gray-900">{watch('fullName')}</h3>
+          <h3 className="font-bold text-gray-900 dark:text-gray-100">{watch('fullName')}</h3>
           <p className="text-xs text-gray-500 font-medium">{t('profile.avatarHint')}</p>
           {avatarUrl && (
             <button 
@@ -235,9 +235,9 @@ export default function UserUpdateForm({ userId, initialData }: Props) {
                 {...register('profileIsPublic')}
                 className="peer sr-only"
               />
-              <div className="h-6 w-11 rounded-full bg-slate-200 transition-all after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-slate-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-[#059669] peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[#059669]/20 dark:border-slate-600 dark:bg-slate-700"></div>
+              <div className="h-6 w-11 rounded-full bg-slate-200 transition-all after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-slate-300 dark:border-slate-700 after:bg-white dark:bg-slate-950 after:transition-all after:content-[''] peer-checked:bg-[#059669] peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[#059669]/20 dark:border-slate-600 dark:bg-slate-700"></div>
             </div>
-            <span className="text-[14px] font-bold text-slate-700 transition-colors group-hover:text-[#059669] dark:text-slate-300">{t('profile.fields.profileIsPublic')}</span>
+            <span className="text-[14px] font-bold text-slate-700 dark:text-slate-300 transition-colors group-hover:text-[#059669] dark:text-slate-300">{t('profile.fields.profileIsPublic')}</span>
           </label>
         </div>
       </div>

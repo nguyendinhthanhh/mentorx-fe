@@ -265,8 +265,8 @@ export default function CourseCreateForm({ instructorId, productType = CoursePro
     }
   }
 
-  const inputClass = 'w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm text-slate-900 outline-none transition focus:border-emerald-400 focus:ring-4 focus:ring-emerald-500/10'
-  const labelClass = 'mb-1.5 block text-sm font-bold text-slate-700'
+  const inputClass = 'w-full rounded-xl border border-slate-200 dark:border-slate-800 px-4 py-2.5 text-sm text-slate-900 dark:text-slate-100 outline-none transition focus:border-emerald-400 focus:ring-4 focus:ring-emerald-500/10'
+  const labelClass = 'mb-1.5 block text-sm font-bold text-slate-700 dark:text-slate-300'
 
   const selectCategory = (category: CategoryResponse) => {
     setDomain({ id: category.id, label: categoryLabel(category) })
@@ -491,7 +491,7 @@ export default function CourseCreateForm({ instructorId, productType = CoursePro
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-      {!isDocumentProduct && <div className="scrollbar-hide flex gap-1 overflow-x-auto rounded-2xl border border-slate-200 bg-white p-1">
+      {!isDocumentProduct && <div className="scrollbar-hide flex gap-1 overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-1">
         {[
           { key: 'info' as const, label: 'Course info' },
           { key: 'content' as const, label: 'Course content' },
@@ -503,7 +503,7 @@ export default function CourseCreateForm({ instructorId, productType = CoursePro
             className={`shrink-0 rounded-xl px-4 py-2 text-sm font-black transition ${
               activeTab === tab.key
                 ? 'bg-emerald-600 text-white'
-                : 'text-slate-600 hover:bg-slate-50'
+                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:bg-slate-900/50'
             }`}
           >
             {tab.label}
@@ -511,7 +511,7 @@ export default function CourseCreateForm({ instructorId, productType = CoursePro
         ))}
       </div>}
 
-      <div className={activeTab === 'info' ? 'space-y-5 rounded-2xl border border-slate-200 bg-white p-5' : 'hidden'}>
+      <div className={activeTab === 'info' ? 'space-y-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-5' : 'hidden'}>
       <div>
         <label className={labelClass}>{isDocumentProduct ? 'Document title' : 'Course Title'}</label>
         <input
@@ -524,7 +524,7 @@ export default function CourseCreateForm({ instructorId, productType = CoursePro
 
       <div>
         <label className={labelClass}>Domain</label>
-        <div className="rounded-xl border border-slate-200 p-3">
+        <div className="rounded-xl border border-slate-200 dark:border-slate-800 p-3">
           <div className="relative">
             <input
               value={domain.label}
@@ -539,7 +539,7 @@ export default function CourseCreateForm({ instructorId, productType = CoursePro
               autoComplete="off"
             />
             {isCategoryMenuOpen && (
-              <div className="absolute z-20 mt-2 max-h-72 w-full overflow-auto rounded-xl border border-slate-200 bg-white p-2 shadow-lg">
+              <div className="absolute z-20 mt-2 max-h-72 w-full overflow-auto rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-2 shadow-lg">
                 {suggestedCategories.length > 0 ? (
                   suggestedCategories.map((category) => (
                     <button
@@ -547,14 +547,14 @@ export default function CourseCreateForm({ instructorId, productType = CoursePro
                       type="button"
                       onMouseDown={(event) => event.preventDefault()}
                       onClick={() => selectCategory(category)}
-                      className="flex w-full flex-col rounded-lg px-3 py-2 text-left hover:bg-emerald-50"
+                      className="flex w-full flex-col rounded-lg px-3 py-2 text-left hover:bg-emerald-50 dark:bg-emerald-900/30"
                     >
-                      <span className="text-sm font-semibold text-slate-900">{categoryLabel(category)}</span>
-                      <span className="text-xs text-slate-500">{category.slug}</span>
+                      <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">{categoryLabel(category)}</span>
+                      <span className="text-xs text-slate-500 dark:text-slate-400">{category.slug}</span>
                     </button>
                   ))
                 ) : (
-                  <div className="px-3 py-2 text-sm text-slate-500">No matching active domains.</div>
+                  <div className="px-3 py-2 text-sm text-slate-500 dark:text-slate-400">No matching active domains.</div>
                 )}
               </div>
             )}
@@ -565,7 +565,7 @@ export default function CourseCreateForm({ instructorId, productType = CoursePro
 
       <div>
         <label className={labelClass}>Skills</label>
-        <div className="rounded-xl border border-slate-200 p-3">
+        <div className="rounded-xl border border-slate-200 dark:border-slate-800 p-3">
           <div className="relative">
             <input
               value={skillQuery}
@@ -589,7 +589,7 @@ export default function CourseCreateForm({ instructorId, productType = CoursePro
               autoComplete="off"
             />
             {isSkillMenuOpen && (
-              <div className="absolute z-20 mt-2 max-h-72 w-full overflow-auto rounded-xl border border-slate-200 bg-white p-2 shadow-lg">
+              <div className="absolute z-20 mt-2 max-h-72 w-full overflow-auto rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-2 shadow-lg">
                 {suggestedSkills.length > 0 ? (
                   <>
                     {normalizeLabel(skillQuery).length > 0 && !findExistingSkill(skillQuery, skills) && (
@@ -597,7 +597,7 @@ export default function CourseCreateForm({ instructorId, productType = CoursePro
                         type="button"
                         onMouseDown={(event) => event.preventDefault()}
                         onClick={commitSkillQuery}
-                        className="flex w-full flex-col rounded-lg px-3 py-2 text-left text-emerald-700 hover:bg-emerald-50"
+                        className="flex w-full flex-col rounded-lg px-3 py-2 text-left text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:bg-emerald-900/30"
                       >
                         <span className="text-sm font-black">Add "{normalizeLabel(skillQuery)}"</span>
                         <span className="text-xs">Use this skill for the {isDocumentProduct ? 'document' : 'course'}</span>
@@ -609,10 +609,10 @@ export default function CourseCreateForm({ instructorId, productType = CoursePro
                         type="button"
                         onMouseDown={(event) => event.preventDefault()}
                         onClick={() => addSkillChip({ id: skill.id, label: skillLabel(skill) })}
-                        className="flex w-full flex-col rounded-lg px-3 py-2 text-left hover:bg-emerald-50"
+                        className="flex w-full flex-col rounded-lg px-3 py-2 text-left hover:bg-emerald-50 dark:bg-emerald-900/30"
                       >
-                        <span className="text-sm font-semibold text-slate-900">{skill.labelEn}</span>
-                        <span className="text-xs text-slate-500">{skill.slug}</span>
+                        <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">{skill.labelEn}</span>
+                        <span className="text-xs text-slate-500 dark:text-slate-400">{skill.slug}</span>
                       </button>
                     ))}
                   </>
@@ -622,7 +622,7 @@ export default function CourseCreateForm({ instructorId, productType = CoursePro
                     onMouseDown={(event) => event.preventDefault()}
                     onClick={commitSkillQuery}
                     disabled={!normalizeLabel(skillQuery)}
-                    className="flex w-full flex-col rounded-lg px-3 py-2 text-left text-emerald-700 hover:bg-emerald-50 disabled:cursor-not-allowed disabled:text-slate-400"
+                    className="flex w-full flex-col rounded-lg px-3 py-2 text-left text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:bg-emerald-900/30 disabled:cursor-not-allowed disabled:text-slate-400"
                   >
                     <span className="text-sm font-black">{normalizeLabel(skillQuery) ? `Add "${normalizeLabel(skillQuery)}"` : 'No matching active skills.'}</span>
                     {normalizeLabel(skillQuery) && <span className="text-xs">Use this skill for the {isDocumentProduct ? 'document' : 'course'}</span>}
@@ -633,9 +633,9 @@ export default function CourseCreateForm({ instructorId, productType = CoursePro
           </div>
           <div className="mt-3 flex flex-wrap gap-2">
             {skillChips.map((skill) => (
-              <span key={skill.label.toLowerCase()} className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-sm font-semibold text-emerald-700">
+              <span key={skill.label.toLowerCase()} className="inline-flex items-center gap-2 rounded-full bg-emerald-50 dark:bg-emerald-900/30 px-3 py-1 text-sm font-semibold text-emerald-700 dark:text-emerald-400">
                 {skill.label}
-                <button type="button" onClick={() => removeSkillChip(skill.label)} className="text-emerald-400 hover:text-emerald-700">
+                <button type="button" onClick={() => removeSkillChip(skill.label)} className="text-emerald-400 hover:text-emerald-700 dark:text-emerald-400">
                   <X className="h-3.5 w-3.5" />
                 </button>
               </span>
@@ -701,7 +701,7 @@ export default function CourseCreateForm({ instructorId, productType = CoursePro
             className={inputClass}
             placeholder="0 = Free"
           />
-          <p className="mt-1 text-xs font-semibold text-slate-500">
+          <p className="mt-1 text-xs font-semibold text-slate-500 dark:text-slate-400">
             Set 0 to publish this {isDocumentProduct ? 'document' : 'course'} for free.
           </p>
           {errors.priceMxc && <p className="text-xs text-red-500 mt-1">{errors.priceMxc.message}</p>}
@@ -729,28 +729,28 @@ export default function CourseCreateForm({ instructorId, productType = CoursePro
       </div>
 
       {activeTab === 'content' && !isDocumentProduct && (
-        <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+        <section className="overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950">
           <div className="grid h-[calc(100vh-15rem)] min-h-[520px] overflow-hidden lg:grid-cols-[320px_1fr]">
-            <aside className="min-h-0 overflow-y-auto border-r border-slate-200 bg-slate-50">
-              <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-slate-50 p-4">
-                <h2 className="text-sm font-black uppercase tracking-widest text-slate-500">Sections</h2>
-                <button type="button" onClick={addSection} className="rounded-lg p-2 text-slate-500 hover:bg-white hover:text-emerald-600" title="Add section">
+            <aside className="min-h-0 overflow-y-auto border-r border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50">
+              <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 p-4">
+                <h2 className="text-sm font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Sections</h2>
+                <button type="button" onClick={addSection} className="rounded-lg p-2 text-slate-500 dark:text-slate-400 hover:bg-white dark:bg-slate-950 hover:text-emerald-600 dark:text-emerald-500" title="Add section">
                   <Plus className="h-5 w-5" />
                 </button>
               </div>
               <div className="space-y-2 p-3">
                 {sections.length === 0 && (
-                  <p className="rounded-xl border border-dashed border-slate-300 p-4 text-sm font-semibold text-slate-500">Use the plus button to add your first section.</p>
+                  <p className="rounded-xl border border-dashed border-slate-300 dark:border-slate-700 p-4 text-sm font-semibold text-slate-500 dark:text-slate-400">Use the plus button to add your first section.</p>
                 )}
                 {sections.map((section, sectionIndex) => (
-                  <div key={section.clientId} className="rounded-xl border border-slate-200 bg-white">
+                  <div key={section.clientId} className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950">
                     <div className={`flex items-center gap-1 px-2 py-2 ${
-                      selection?.type === 'section' && selection.sectionClientId === section.clientId ? 'text-emerald-700' : 'text-slate-800'
+                      selection?.type === 'section' && selection.sectionClientId === section.clientId ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-800 dark:text-slate-200'
                     }`}>
                       <button
                         type="button"
                         onClick={() => setSelection({ type: 'section', sectionClientId: section.clientId })}
-                        className="min-w-0 flex-1 rounded-lg px-1 py-1 text-left hover:bg-slate-50"
+                        className="min-w-0 flex-1 rounded-lg px-1 py-1 text-left hover:bg-slate-50 dark:bg-slate-900/50"
                       >
                         <span className="block truncate text-sm font-black">{sectionIndex + 1}. {section.title || 'Untitled section'}</span>
                       </button>
@@ -763,14 +763,14 @@ export default function CourseCreateForm({ instructorId, productType = CoursePro
                         <Trash2 className="h-4 w-4" />
                       </button>
                     </div>
-                    <div className="space-y-1 border-t border-slate-100 p-2">
+                    <div className="space-y-1 border-t border-slate-100 dark:border-slate-800 p-2">
                       {section.lessons.map((lesson, lessonIndex) => (
                         <div
                           key={lesson.clientId}
                           className={`flex items-center gap-1 rounded-lg px-1 py-1 text-sm font-semibold ${
                             selection?.type === 'lesson' && selection.lessonClientId === lesson.clientId
-                              ? 'bg-emerald-50 text-emerald-700'
-                              : 'text-slate-600 hover:bg-slate-50'
+                              ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'
+                              : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:bg-slate-900/50'
                           }`}
                         >
                           <button
@@ -792,10 +792,10 @@ export default function CourseCreateForm({ instructorId, productType = CoursePro
                         </div>
                       ))}
                       <div className="grid grid-cols-2 gap-1 pt-1">
-                        <button type="button" onClick={() => addLesson(section.clientId, LessonType.LESSON)} className="rounded-lg border border-slate-200 px-2 py-1.5 text-xs font-bold text-slate-600 hover:border-emerald-200 hover:text-emerald-600">
+                        <button type="button" onClick={() => addLesson(section.clientId, LessonType.LESSON)} className="rounded-lg border border-slate-200 dark:border-slate-800 px-2 py-1.5 text-xs font-bold text-slate-600 dark:text-slate-400 hover:border-emerald-200 dark:border-emerald-800/50 hover:text-emerald-600 dark:text-emerald-500">
                           + Lesson
                         </button>
-                        <button type="button" onClick={() => addLesson(section.clientId, LessonType.QUIZ)} className="rounded-lg border border-slate-200 px-2 py-1.5 text-xs font-bold text-slate-600 hover:border-emerald-200 hover:text-emerald-600">
+                        <button type="button" onClick={() => addLesson(section.clientId, LessonType.QUIZ)} className="rounded-lg border border-slate-200 dark:border-slate-800 px-2 py-1.5 text-xs font-bold text-slate-600 dark:text-slate-400 hover:border-emerald-200 dark:border-emerald-800/50 hover:text-emerald-600 dark:text-emerald-500">
                           + Quiz
                         </button>
                       </div>
@@ -808,11 +808,11 @@ export default function CourseCreateForm({ instructorId, productType = CoursePro
             <main className="min-h-0 overflow-y-auto p-6">
               {!selection && (
                 <div className="flex h-full min-h-[460px] flex-col items-center justify-center text-center">
-                  <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
+                  <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-500">
                     <Plus className="h-7 w-7" />
                   </div>
-                  <h2 className="text-xl font-black text-slate-900">Start your curriculum</h2>
-                  <p className="mt-1 max-w-sm text-sm font-medium text-slate-500">Add sections on the left, then add lessons or quizzes inside each section.</p>
+                  <h2 className="text-xl font-black text-slate-900 dark:text-slate-100">Start your curriculum</h2>
+                  <p className="mt-1 max-w-sm text-sm font-medium text-slate-500 dark:text-slate-400">Add sections on the left, then add lessons or quizzes inside each section.</p>
                   <button type="button" onClick={addSection} className="mt-5 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white">Add Section</button>
                 </div>
               )}
@@ -826,7 +826,7 @@ export default function CourseCreateForm({ instructorId, productType = CoursePro
                   <CreateField label="Description">
                     <textarea value={selectedSection.description} onChange={(event) => updateSection(selectedSection.clientId, { description: event.target.value })} className={`${inputClass} min-h-32`} />
                   </CreateField>
-                  <label className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300">
                     <input type="checkbox" checked={selectedSection.isPublished} onChange={(event) => updateSection(selectedSection.clientId, { isPublished: event.target.checked })} />
                     Visible when course is published
                   </label>
@@ -876,8 +876,8 @@ export default function CourseCreateForm({ instructorId, productType = CoursePro
 
 function CreateEditorHeader({ title, onDelete }: { title: string; onDelete: () => void }) {
   return (
-    <div className="flex items-center justify-between border-b border-slate-200 pb-4">
-      <h2 className="text-xl font-black text-slate-900">{title}</h2>
+    <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4">
+      <h2 className="text-xl font-black text-slate-900 dark:text-slate-100">{title}</h2>
       <button type="button" onClick={onDelete} className="inline-flex items-center gap-2 rounded-xl border border-rose-200 px-3 py-2 text-sm font-bold text-rose-600 hover:bg-rose-50">
         <Trash2 className="h-4 w-4" />
         Delete
@@ -889,7 +889,7 @@ function CreateEditorHeader({ title, onDelete }: { title: string; onDelete: () =
 function CreateField({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block">
-      <span className="mb-1.5 block text-sm font-bold text-slate-700">{label}</span>
+      <span className="mb-1.5 block text-sm font-bold text-slate-700 dark:text-slate-300">{label}</span>
       {children}
     </label>
   )
@@ -1013,15 +1013,15 @@ function CreateLessonEditor({ lesson, inputClass, onChange, onDelete, onFileErro
       )}
 
       <div className="flex flex-wrap gap-5">
-        <label className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+        <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300">
           <input type="checkbox" checked={lesson.isFreePreview} onChange={(event) => onChange({ isFreePreview: event.target.checked })} />
           Free preview
         </label>
-        <label className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+        <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300">
           <input type="checkbox" checked={lesson.isMandatory} onChange={(event) => onChange({ isMandatory: event.target.checked })} />
           Required
         </label>
-        <label className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+        <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300">
           <input type="checkbox" checked={lesson.isPublished} onChange={(event) => onChange({ isPublished: event.target.checked })} />
           Visible
         </label>
@@ -1055,18 +1055,18 @@ function CreateFileDropZone({ label, accept, file, kind, helper, previewUrl, onF
           event.preventDefault()
           handleFiles(event.dataTransfer.files)
         }}
-        className="rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 p-3 transition hover:border-emerald-300"
+        className="rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 p-3 transition hover:border-emerald-300"
       >
         {file ? (
-          <div className="rounded-lg bg-white p-4">
+          <div className="rounded-lg bg-white dark:bg-slate-950 p-4">
             <div className="flex items-center justify-between gap-3">
               <div className="flex min-w-0 items-center gap-3">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-500">
                   {kind === 'video' ? <Video className="h-5 w-5" /> : <FileText className="h-5 w-5" />}
                 </div>
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-black text-slate-900">{file.name}</p>
-                  <p className="text-xs font-semibold text-slate-500">{formatFileSize(file.size)}</p>
+                  <p className="truncate text-sm font-black text-slate-900 dark:text-slate-100">{file.name}</p>
+                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">{formatFileSize(file.size)}</p>
                 </div>
               </div>
               <button type="button" onClick={onClear} className="rounded-lg p-2 text-slate-400 hover:bg-rose-50 hover:text-rose-600" title="Remove file">
@@ -1078,11 +1078,11 @@ function CreateFileDropZone({ label, accept, file, kind, helper, previewUrl, onF
             )}
           </div>
         ) : (
-          <label htmlFor={inputId} className="flex min-h-40 cursor-pointer flex-col items-center justify-center rounded-lg bg-white px-4 py-6 text-center">
+          <label htmlFor={inputId} className="flex min-h-40 cursor-pointer flex-col items-center justify-center rounded-lg bg-white dark:bg-slate-950 px-4 py-6 text-center">
             {kind === 'video' ? <Video className="mb-3 h-8 w-8 text-emerald-500" /> : <Download className="mb-3 h-8 w-8 text-emerald-500" />}
-            <span className="text-sm font-semibold text-slate-900">Drop a file here or click to browse</span>
-            <span className="mt-1 text-xs text-slate-500">{helper}</span>
-            <span className="mt-3 inline-flex items-center gap-2 rounded-lg bg-emerald-50 px-3 py-2 text-xs font-bold text-emerald-700">
+            <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">Drop a file here or click to browse</span>
+            <span className="mt-1 text-xs text-slate-500 dark:text-slate-400">{helper}</span>
+            <span className="mt-3 inline-flex items-center gap-2 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 px-3 py-2 text-xs font-bold text-emerald-700 dark:text-emerald-400">
               <Upload className="h-3.5 w-3.5" />
               Choose file
             </span>
@@ -1160,14 +1160,14 @@ function CreateRichTextEditor({ label, value, onChange, onImageChange }: {
 
   return (
     <div>
-      <span className="mb-1.5 block text-sm font-bold text-slate-700">{label}</span>
-      <div className="overflow-hidden rounded-xl border border-slate-200">
-        <div className="flex flex-wrap gap-1 border-b border-slate-200 bg-slate-50 p-2">
+      <span className="mb-1.5 block text-sm font-bold text-slate-700 dark:text-slate-300">{label}</span>
+      <div className="overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800">
+        <div className="flex flex-wrap gap-1 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 p-2">
           <CreateToolbarButton title="Bold" onClick={() => runCommand('bold')}><Bold className="h-4 w-4" /></CreateToolbarButton>
           <CreateToolbarButton title="Italic" onClick={() => runCommand('italic')}><Italic className="h-4 w-4" /></CreateToolbarButton>
           <CreateToolbarButton title="Bulleted list" onClick={() => runCommand('insertUnorderedList')}><List className="h-4 w-4" /></CreateToolbarButton>
           <CreateToolbarButton title="Numbered list" onClick={() => runCommand('insertOrderedList')}><ListOrdered className="h-4 w-4" /></CreateToolbarButton>
-          <label className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg text-slate-600 hover:bg-white hover:text-emerald-600" title="Upload image">
+          <label className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg text-slate-600 dark:text-slate-400 hover:bg-white dark:bg-slate-950 hover:text-emerald-600 dark:text-emerald-500" title="Upload image">
             <Image className="h-4 w-4" />
             <input
               type="file"
@@ -1184,7 +1184,7 @@ function CreateRichTextEditor({ label, value, onChange, onImageChange }: {
         <div
           ref={(node) => { editorRef.current = node }}
           contentEditable
-          className="min-h-64 px-4 py-3 text-sm leading-6 text-slate-900 outline-none [&_img]:max-w-full [&_ol]:list-decimal [&_ol]:pl-6 [&_ul]:list-disc [&_ul]:pl-6"
+          className="min-h-64 px-4 py-3 text-sm leading-6 text-slate-900 dark:text-slate-100 outline-none [&_img]:max-w-full [&_ol]:list-decimal [&_ol]:pl-6 [&_ul]:list-disc [&_ul]:pl-6"
           onInput={(event) => {
             saveSelection()
             onChange(event.currentTarget.innerHTML)
@@ -1205,7 +1205,7 @@ function CreateToolbarButton({ title, onClick, children }: {
   children: React.ReactNode
 }) {
   return (
-    <button type="button" onMouseDown={(event) => event.preventDefault()} onClick={onClick} className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-slate-600 hover:bg-white hover:text-emerald-600" title={title}>
+    <button type="button" onMouseDown={(event) => event.preventDefault()} onClick={onClick} className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-slate-600 dark:text-slate-400 hover:bg-white dark:bg-slate-950 hover:text-emerald-600 dark:text-emerald-500" title={title}>
       {children}
     </button>
   )
@@ -1240,7 +1240,7 @@ function QuizDraftEditor({ lesson, inputClass, onChange }: {
 
   return (
     <div className="mt-3 space-y-4">
-      <div className="grid gap-4 rounded-xl border border-slate-200 bg-white p-4 md:grid-cols-[180px_1fr]">
+      <div className="grid gap-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-4 md:grid-cols-[180px_1fr]">
         <CreateField label="Passing score">
           <input
             type="number"
@@ -1254,13 +1254,13 @@ function QuizDraftEditor({ lesson, inputClass, onChange }: {
           />
         </CreateField>
         <div className="flex items-end">
-          <p className="text-sm font-semibold text-slate-500">Learners must meet this score to complete the quiz.</p>
+          <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">Learners must meet this score to complete the quiz.</p>
         </div>
       </div>
 
       <div className="space-y-4">
-        <div className="border-b border-slate-200 pb-3">
-          <h3 className="text-sm font-black uppercase tracking-widest text-slate-500">Questions</h3>
+        <div className="border-b border-slate-200 dark:border-slate-800 pb-3">
+          <h3 className="text-sm font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Questions</h3>
         </div>
 
         {lesson.quizQuestions.map((question, questionIndex) => (
@@ -1275,16 +1275,16 @@ function QuizDraftEditor({ lesson, inputClass, onChange }: {
         ))}
 
         {lesson.quizQuestions.length === 0 && (
-          <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4 text-sm font-semibold text-slate-600">
+          <div className="rounded-xl border border-dashed border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 p-4 text-sm font-semibold text-slate-600 dark:text-slate-400">
             Add at least one question before creating this quiz.
           </div>
         )}
 
-        <div className="flex flex-wrap gap-2 border-t border-slate-200 pt-4">
-          <button type="button" onClick={() => addQuestion(QuizQuestionType.SINGLE_CHOICE)} className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-bold text-slate-600 hover:border-emerald-200 hover:text-emerald-600">+ Multiple Choice</button>
-          <button type="button" onClick={() => addQuestion(QuizQuestionType.MULTIPLE_CHOICE)} className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-bold text-slate-600 hover:border-emerald-200 hover:text-emerald-600">+ Checkboxes</button>
-          <button type="button" onClick={() => addQuestion(QuizQuestionType.TRUE_FALSE)} className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-bold text-slate-600 hover:border-emerald-200 hover:text-emerald-600">+ T/F</button>
-          <button type="button" onClick={() => addQuestion(QuizQuestionType.TEXT_ANSWER)} className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-bold text-slate-600 hover:border-emerald-200 hover:text-emerald-600">+ Text</button>
+        <div className="flex flex-wrap gap-2 border-t border-slate-200 dark:border-slate-800 pt-4">
+          <button type="button" onClick={() => addQuestion(QuizQuestionType.SINGLE_CHOICE)} className="rounded-lg border border-slate-200 dark:border-slate-800 px-3 py-2 text-xs font-bold text-slate-600 dark:text-slate-400 hover:border-emerald-200 dark:border-emerald-800/50 hover:text-emerald-600 dark:text-emerald-500">+ Multiple Choice</button>
+          <button type="button" onClick={() => addQuestion(QuizQuestionType.MULTIPLE_CHOICE)} className="rounded-lg border border-slate-200 dark:border-slate-800 px-3 py-2 text-xs font-bold text-slate-600 dark:text-slate-400 hover:border-emerald-200 dark:border-emerald-800/50 hover:text-emerald-600 dark:text-emerald-500">+ Checkboxes</button>
+          <button type="button" onClick={() => addQuestion(QuizQuestionType.TRUE_FALSE)} className="rounded-lg border border-slate-200 dark:border-slate-800 px-3 py-2 text-xs font-bold text-slate-600 dark:text-slate-400 hover:border-emerald-200 dark:border-emerald-800/50 hover:text-emerald-600 dark:text-emerald-500">+ T/F</button>
+          <button type="button" onClick={() => addQuestion(QuizQuestionType.TEXT_ANSWER)} className="rounded-lg border border-slate-200 dark:border-slate-800 px-3 py-2 text-xs font-bold text-slate-600 dark:text-slate-400 hover:border-emerald-200 dark:border-emerald-800/50 hover:text-emerald-600 dark:text-emerald-500">+ Text</button>
         </div>
       </div>
     </div>
@@ -1299,11 +1299,11 @@ function CreateQuizQuestionEditor({ index, question, inputClass, onChange, onDel
   onDelete: () => void
 }) {
   return (
-    <div className="space-y-4 rounded-xl border border-slate-200 bg-white p-4">
+    <div className="space-y-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="text-xs font-black uppercase tracking-widest text-emerald-600">Question {index + 1}</p>
-          <p className="text-sm font-bold text-slate-700">{questionTypeLabel(question.questionType)}</p>
+          <p className="text-xs font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-500">Question {index + 1}</p>
+          <p className="text-sm font-bold text-slate-700 dark:text-slate-300">{questionTypeLabel(question.questionType)}</p>
         </div>
         <button type="button" onClick={onDelete} className="inline-flex items-center gap-2 rounded-xl border border-rose-200 px-3 py-2 text-sm font-bold text-rose-600 hover:bg-rose-50">
           <Trash2 className="h-4 w-4" />
@@ -1385,7 +1385,7 @@ function CreateQuizOptionsEditor({ question, inputClass, onChange }: {
 
   return (
     <div className="space-y-2">
-      <p className="text-sm font-bold text-slate-700">Choices</p>
+      <p className="text-sm font-bold text-slate-700 dark:text-slate-300">Choices</p>
       {options.map((option, index) => (
         <div key={`${question.clientId}-${index}`} className="flex items-center gap-2">
           <input
@@ -1396,7 +1396,7 @@ function CreateQuizOptionsEditor({ question, inputClass, onChange }: {
             className="h-4 w-4"
           />
           {question.questionType === QuizQuestionType.TRUE_FALSE ? (
-            <span className="flex-1 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700">{option}</span>
+            <span className="flex-1 rounded-xl border border-slate-200 dark:border-slate-800 px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-300">{option}</span>
           ) : (
             <input value={option} onChange={(event) => updateOption(index, event.target.value)} className={inputClass} />
           )}
@@ -1408,7 +1408,7 @@ function CreateQuizOptionsEditor({ question, inputClass, onChange }: {
         </div>
       ))}
       {question.questionType !== QuizQuestionType.TRUE_FALSE && (
-        <button type="button" onClick={addOption} className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-bold text-slate-600 hover:border-emerald-200 hover:text-emerald-600">
+        <button type="button" onClick={addOption} className="rounded-lg border border-slate-200 dark:border-slate-800 px-3 py-2 text-xs font-bold text-slate-600 dark:text-slate-400 hover:border-emerald-200 dark:border-emerald-800/50 hover:text-emerald-600 dark:text-emerald-500">
           + Choice
         </button>
       )}

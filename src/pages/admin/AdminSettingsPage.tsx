@@ -13,7 +13,7 @@ import {
 } from '@/api/platformSettingApi'
 import { useAuthStore } from '@/store/authStore'
 
-const panelClass = 'rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900'
+const panelClass = 'rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 shadow-sm dark:border-slate-800 dark:bg-slate-900'
 const hiddenSettingPrefixes = ['mentor_badges.']
 
 const emptyDraft: PlatformSettingRequest = {
@@ -157,8 +157,8 @@ export default function AdminSettingsPage() {
     <div className="space-y-6 pb-16">
       <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-950 dark:text-slate-50">Cài đặt nền tảng</h1>
-          <p className="mt-1 max-w-2xl text-sm text-slate-600 dark:text-slate-400">
+          <h1 className="text-2xl font-bold tracking-tight text-slate-950 dark:text-slate-100 dark:text-slate-50">Cài đặt nền tảng</h1>
+          <p className="mt-1 max-w-2xl text-sm text-slate-600 dark:text-slate-400 dark:text-slate-400">
             Quản lý các cài đặt vận hành dạng khóa và giá trị. Thông tin bí mật phải nằm trong biến môi trường, không lưu tại đây.
           </p>
         </div>
@@ -166,7 +166,7 @@ export default function AdminSettingsPage() {
           <button
             type="button"
             onClick={() => settingsQuery.refetch()}
-            className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+            className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-4 text-sm font-semibold text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:bg-slate-900/50 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
           >
             <RefreshCw className={`h-4 w-4 ${settingsQuery.isFetching ? 'animate-spin' : ''}`} />
             Làm mới
@@ -183,10 +183,10 @@ export default function AdminSettingsPage() {
       </header>
 
       <section className={`${panelClass} overflow-hidden`}>
-        <div className="flex flex-col gap-3 border-b border-slate-200 p-4 sm:flex-row sm:items-center sm:justify-between dark:border-slate-800">
+        <div className="flex flex-col gap-3 border-b border-slate-200 dark:border-slate-800 p-4 sm:flex-row sm:items-center sm:justify-between dark:border-slate-800">
           <div>
-            <h2 className="font-semibold text-slate-950 dark:text-slate-50">Quy tắc huy hiệu mentor</h2>
-            <p className="mt-0.5 max-w-3xl text-sm text-slate-600 dark:text-slate-400">
+            <h2 className="font-semibold text-slate-950 dark:text-slate-100 dark:text-slate-50">Quy tắc huy hiệu mentor</h2>
+            <p className="mt-0.5 max-w-3xl text-sm text-slate-600 dark:text-slate-400 dark:text-slate-400">
               Cấu hình huy hiệu mentor hiển thị trên thẻ công khai, hồ sơ công khai và các ngưỡng để mở khóa huy hiệu.
             </p>
           </div>
@@ -194,7 +194,7 @@ export default function AdminSettingsPage() {
             <button
               type="button"
               onClick={() => mentorBadgeSettingsQuery.refetch()}
-              className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+              className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-4 text-sm font-semibold text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:bg-slate-900/50 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
             >
               <RefreshCw className={`h-4 w-4 ${mentorBadgeSettingsQuery.isFetching ? 'animate-spin' : ''}`} />
               Làm mới quy tắc
@@ -220,7 +220,7 @@ export default function AdminSettingsPage() {
             <div className="space-y-5">
               <div>
                 <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Huy hiệu hiển thị</h3>
-                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400 dark:text-slate-400">
                   Bật hoặc tắt từng loại huy hiệu mà không cần triển khai lại marketplace mentor.
                 </p>
               </div>
@@ -279,7 +279,7 @@ export default function AdminSettingsPage() {
             <div className="space-y-5">
               <div>
                 <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Ngưỡng và giới hạn</h3>
-                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400 dark:text-slate-400">
                   Các giá trị này kiểm soát khi nào huy hiệu xuất hiện và số huy hiệu hiển thị trong từng layout.
                 </p>
               </div>
@@ -342,7 +342,7 @@ export default function AdminSettingsPage() {
                   }
                 />
               </div>
-              <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300">
+              <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 p-4 text-sm text-slate-600 dark:text-slate-400 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300">
                 <p className="font-semibold text-slate-900 dark:text-slate-100">Cách áp dụng hiện tại</p>
                 <p className="mt-1">
                   Các trang mentor công khai đọc trực tiếp những quy tắc này từ backend. Lưu tại đây sẽ cập nhật cả thẻ mentor và header hồ sơ mentor.
@@ -355,10 +355,10 @@ export default function AdminSettingsPage() {
 
       <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_420px]">
         <section className={panelClass}>
-          <div className="flex flex-col gap-3 border-b border-slate-200 p-4 sm:flex-row sm:items-center sm:justify-between dark:border-slate-800">
+          <div className="flex flex-col gap-3 border-b border-slate-200 dark:border-slate-800 p-4 sm:flex-row sm:items-center sm:justify-between dark:border-slate-800">
             <div>
-              <h2 className="font-semibold text-slate-950 dark:text-slate-50">Danh sách cài đặt</h2>
-              <p className="mt-0.5 text-xs text-slate-500">{visibleSettings.length} cài đặt</p>
+              <h2 className="font-semibold text-slate-950 dark:text-slate-100 dark:text-slate-50">Danh sách cài đặt</h2>
+              <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{visibleSettings.length} cài đặt</p>
             </div>
             <label className="relative block">
               <span className="sr-only">Tìm cài đặt</span>
@@ -367,7 +367,7 @@ export default function AdminSettingsPage() {
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder="Tìm theo khóa, giá trị, mô tả"
-                className="h-10 w-full rounded-lg border border-slate-300 bg-white pl-9 pr-3 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 dark:border-slate-700 dark:bg-slate-950 sm:w-72"
+                className="h-10 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 pl-9 pr-3 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 dark:border-slate-700 dark:bg-slate-950 sm:w-72"
               />
             </label>
           </div>
@@ -381,7 +381,7 @@ export default function AdminSettingsPage() {
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full min-w-[760px] text-left text-sm">
-                <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500 dark:bg-slate-950/50">
+                <thead className="bg-slate-50 dark:bg-slate-900/50 text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400 dark:bg-slate-950/50">
                   <tr>
                     <th className="px-4 py-3">Khóa</th>
                     <th className="px-4 py-3">Giá trị</th>
@@ -396,25 +396,25 @@ export default function AdminSettingsPage() {
                       key={setting.key}
                       className={
                         selectedKey === setting.key
-                          ? 'bg-emerald-50/70 dark:bg-emerald-950/20'
-                          : 'hover:bg-slate-50 dark:hover:bg-slate-800/40'
+                          ? 'bg-emerald-50  dark:bg-emerald-950/20'
+                          : 'hover:bg-slate-50 dark:bg-slate-900/50 dark:hover:bg-slate-800/40'
                       }
                     >
                       <td className="px-4 py-3 font-mono text-xs font-semibold text-slate-900 dark:text-slate-100">
                         {setting.key}
                       </td>
-                      <td className="max-w-[260px] truncate px-4 py-3 font-mono text-xs text-slate-700 dark:text-slate-300">
+                      <td className="max-w-[260px] truncate px-4 py-3 font-mono text-xs text-slate-700 dark:text-slate-300 dark:text-slate-300">
                         {maskSensitiveValue(setting.key, setting.value)}
                       </td>
-                      <td className="max-w-[320px] truncate px-4 py-3 text-slate-600 dark:text-slate-400">
+                      <td className="max-w-[320px] truncate px-4 py-3 text-slate-600 dark:text-slate-400 dark:text-slate-400">
                         {setting.description || '-'}
                       </td>
-                      <td className="px-4 py-3 text-xs text-slate-500">{setting.updatedAt || '-'}</td>
+                      <td className="px-4 py-3 text-xs text-slate-500 dark:text-slate-400">{setting.updatedAt || '-'}</td>
                       <td className="px-4 py-3 text-right">
                         <button
                           type="button"
                           onClick={() => selectSetting(setting)}
-                          className="rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:border-slate-700 dark:hover:bg-slate-800"
+                          className="rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-2 text-xs font-semibold hover:bg-slate-50 dark:bg-slate-900/50 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:border-slate-700 dark:hover:bg-slate-800"
                         >
                           Sửa
                         </button>
@@ -428,9 +428,9 @@ export default function AdminSettingsPage() {
         </section>
 
         <aside className={`${panelClass} h-fit xl:sticky xl:top-6`}>
-          <div className="flex items-center gap-2 border-b border-slate-200 p-4 dark:border-slate-800">
-            <Settings className="h-5 w-5 text-emerald-600" />
-            <h2 className="font-semibold text-slate-950 dark:text-slate-50">
+          <div className="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 p-4 dark:border-slate-800">
+            <Settings className="h-5 w-5 text-emerald-600 dark:text-emerald-500" />
+            <h2 className="font-semibold text-slate-950 dark:text-slate-100 dark:text-slate-50">
               {selectedSetting ? 'Sửa cài đặt' : 'Tạo cài đặt'}
             </h2>
           </div>
@@ -441,7 +441,7 @@ export default function AdminSettingsPage() {
                 onChange={(event) => setDraft((value) => ({ ...value, key: event.target.value }))}
                 disabled={Boolean(selectedKey)}
                 maxLength={100}
-                className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 font-mono text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 disabled:bg-slate-100 disabled:text-slate-500 dark:border-slate-700 dark:bg-slate-950 dark:disabled:bg-slate-900"
+                className="h-10 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 font-mono text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 disabled:bg-slate-100 disabled:text-slate-500 dark:text-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:disabled:bg-slate-900"
                 placeholder="wallet.cooling_off_hours"
               />
             </Field>
@@ -449,7 +449,7 @@ export default function AdminSettingsPage() {
               <textarea
                 value={draft.value}
                 onChange={(event) => setDraft((value) => ({ ...value, value: event.target.value }))}
-                className="min-h-28 w-full rounded-lg border border-slate-300 bg-white p-3 font-mono text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 dark:border-slate-700 dark:bg-slate-950"
+                className="min-h-28 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 p-3 font-mono text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 dark:border-slate-700 dark:bg-slate-950"
                 placeholder="72"
               />
             </Field>
@@ -457,7 +457,7 @@ export default function AdminSettingsPage() {
               <textarea
                 value={draft.description || ''}
                 onChange={(event) => setDraft((value) => ({ ...value, description: event.target.value }))}
-                className="min-h-24 w-full rounded-lg border border-slate-300 bg-white p-3 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 dark:border-slate-700 dark:bg-slate-950"
+                className="min-h-24 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 p-3 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 dark:border-slate-700 dark:bg-slate-950"
                 placeholder="Giải thích cài đặt này kiểm soát điều gì và ai nên thay đổi."
               />
             </Field>
@@ -506,16 +506,16 @@ function ToggleCard({
   onChange: (checked: boolean) => void
 }) {
   return (
-    <label className="flex items-start justify-between gap-4 rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950">
+    <label className="flex items-start justify-between gap-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 p-4 dark:border-slate-800 dark:bg-slate-950">
       <div className="min-w-0">
         <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">{title}</div>
-        <p className="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-400">{description}</p>
+        <p className="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-400 dark:text-slate-400">{description}</p>
       </div>
       <input
         type="checkbox"
         checked={checked}
         onChange={(event) => onChange(event.target.checked)}
-        className="mt-1 h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+        className="mt-1 h-4 w-4 rounded border-slate-300 dark:border-slate-700 text-emerald-600 dark:text-emerald-500 focus:ring-emerald-500"
       />
     </label>
   )
@@ -535,23 +535,23 @@ function NumberField({
   step?: string
 }) {
   return (
-    <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200">
+    <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-200">
       {label}
       <input
         type="number"
         value={value}
         step={step}
         onChange={(event) => onChange(toNumberValue(event.target.value, value))}
-        className="mt-2 h-11 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm font-medium focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 dark:border-slate-700 dark:bg-slate-950"
+        className="mt-2 h-11 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 text-sm font-medium focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 dark:border-slate-700 dark:bg-slate-950"
       />
-      <p className="mt-1 text-xs font-normal text-slate-500 dark:text-slate-400">{hint}</p>
+      <p className="mt-1 text-xs font-normal text-slate-500 dark:text-slate-400 dark:text-slate-400">{hint}</p>
     </label>
   )
 }
 
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200">
+    <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-200">
       {label}
       <div className="mt-2">{children}</div>
     </label>
@@ -582,7 +582,7 @@ function LoadingRows() {
 
 function EmptyState() {
   return (
-    <div className="flex min-h-40 items-center justify-center p-6 text-center text-sm text-slate-500">
+    <div className="flex min-h-40 items-center justify-center p-6 text-center text-sm text-slate-500 dark:text-slate-400">
       Không có cài đặt nền tảng nào khớp với bộ lọc hiện tại.
     </div>
   )

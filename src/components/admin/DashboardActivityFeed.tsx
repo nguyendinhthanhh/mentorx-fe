@@ -24,10 +24,10 @@ export default function DashboardActivityFeed({
   emptyLabel,
 }: DashboardActivityFeedProps) {
   return (
-    <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-      <div className="border-b border-slate-100 px-4 py-3 dark:border-slate-800">
+    <section className="overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <div className="border-b border-slate-100 dark:border-slate-800 px-4 py-3 dark:border-slate-800">
         <h2 className="text-[13px] font-bold text-slate-900 dark:text-white">{title}</h2>
-        {subtitle && <p className="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400">{subtitle}</p>}
+        {subtitle && <p className="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400 dark:text-slate-400">{subtitle}</p>}
       </div>
 
       {isLoading ? (
@@ -43,7 +43,7 @@ export default function DashboardActivityFeed({
           ))}
         </div>
       ) : items.length === 0 ? (
-        <div className="px-4 py-8 text-center text-sm text-slate-500 dark:text-slate-400">
+        <div className="px-4 py-8 text-center text-sm text-slate-500 dark:text-slate-400 dark:text-slate-400">
           {emptyLabel || 'No recent activity'}
         </div>
       ) : (
@@ -57,7 +57,7 @@ export default function DashboardActivityFeed({
                 {item.avatar}
               </div>
               <div className="min-w-0 flex-1">
-                <div className="text-[12.5px] leading-relaxed text-slate-600 dark:text-slate-400">{item.body}</div>
+                <div className="text-[12.5px] leading-relaxed text-slate-600 dark:text-slate-400 dark:text-slate-400">{item.body}</div>
                 <p className="mt-0.5 text-[11px] text-slate-400 dark:text-slate-500">{item.time}</p>
               </div>
             </li>

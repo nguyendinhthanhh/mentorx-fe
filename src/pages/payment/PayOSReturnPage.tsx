@@ -77,32 +77,32 @@ export default function PayOSReturnPage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50 p-4">
-        <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 text-center shadow-sm">
+      <div className="flex min-h-screen items-center justify-center bg-slate-50 dark:bg-slate-900/50 p-4">
+        <div className="w-full max-w-md rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-8 text-center shadow-sm">
           <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-cyan-50">
             <Loader2 className="h-10 w-10 animate-spin text-cyan-600" />
           </div>
-          <h2 className="text-2xl font-bold text-slate-900">Verifying your payment</h2>
-          <p className="mt-2 text-sm text-slate-600">Please wait while Mentor X confirms the PayOS callback.</p>
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Verifying your payment</h2>
+          <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">Please wait while Mentor X confirms the PayOS callback.</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50 p-4">
-      <div className="w-full max-w-lg rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
+    <div className="flex min-h-screen items-center justify-center bg-slate-50 dark:bg-slate-900/50 p-4">
+      <div className="w-full max-w-lg rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-8 shadow-sm">
         {result?.success ? (
           <>
             <div className="text-center">
-              <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-emerald-50">
-                <CheckCircle className="h-12 w-12 text-emerald-600" />
+              <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-emerald-50 dark:bg-emerald-900/30">
+                <CheckCircle className="h-12 w-12 text-emerald-600 dark:text-emerald-500" />
               </div>
-              <h2 className="text-2xl font-bold text-slate-900">Deposit confirmed</h2>
-              <p className="mt-2 text-sm text-slate-600">{result.message}</p>
+              <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Deposit confirmed</h2>
+              <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">{result.message}</p>
             </div>
 
-            <div className="mt-6 space-y-3 rounded-2xl bg-slate-50 p-4">
+            <div className="mt-6 space-y-3 rounded-2xl bg-slate-50 dark:bg-slate-900/50 p-4">
               {result.orderCode && <ReturnRow label="Order code" value={String(result.orderCode)} />}
               {result.paymentLinkId && <ReturnRow label="Payment link" value={result.paymentLinkId} />}
               {result.transactionId && <ReturnRow label="Transaction" value={result.transactionId} />}
@@ -124,7 +124,7 @@ export default function PayOSReturnPage() {
               </button>
               <button
                 onClick={() => navigate('/profile')}
-                className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                className="w-full rounded-2xl border border-slate-200 dark:border-slate-800 px-4 py-3 text-sm font-semibold text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:bg-slate-900/50"
               >
                 Back to dashboard
               </button>
@@ -136,11 +136,11 @@ export default function PayOSReturnPage() {
               <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-rose-50">
                 <XCircle className="h-12 w-12 text-rose-600" />
               </div>
-              <h2 className="text-2xl font-bold text-slate-900">Deposit failed</h2>
-              <p className="mt-2 text-sm text-slate-600">{result?.message}</p>
+              <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Deposit failed</h2>
+              <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">{result?.message}</p>
             </div>
 
-            <div className="mt-6 space-y-3 rounded-2xl bg-slate-50 p-4">
+            <div className="mt-6 space-y-3 rounded-2xl bg-slate-50 dark:bg-slate-900/50 p-4">
               {result?.orderCode && <ReturnRow label="Order code" value={String(result.orderCode)} />}
               {result?.amount && <ReturnRow label="Attempted amount" value={formatFiatCurrency(result.amount, 'VND')} />}
             </div>
@@ -154,7 +154,7 @@ export default function PayOSReturnPage() {
               </button>
               <button
                 onClick={() => navigate('/profile')}
-                className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                className="w-full rounded-2xl border border-slate-200 dark:border-slate-800 px-4 py-3 text-sm font-semibold text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:bg-slate-900/50"
               >
                 Back to dashboard
               </button>
@@ -169,8 +169,8 @@ export default function PayOSReturnPage() {
 function ReturnRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-center justify-between gap-4 text-sm">
-      <span className="text-slate-500">{label}</span>
-      <span className="text-right font-semibold text-slate-900">{value}</span>
+      <span className="text-slate-500 dark:text-slate-400">{label}</span>
+      <span className="text-right font-semibold text-slate-900 dark:text-slate-100">{value}</span>
     </div>
   )
 }

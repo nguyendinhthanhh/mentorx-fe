@@ -72,7 +72,7 @@ export default function NotificationDropdown({ userId, allHref = '/profile/notif
       <button
         type="button"
         onClick={() => setIsOpen((value) => !value)}
-        className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-slate-50 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white"
+        className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white"
         aria-label="Notifications"
         aria-expanded={isOpen}
       >
@@ -87,11 +87,11 @@ export default function NotificationDropdown({ userId, allHref = '/profile/notif
       {isOpen ? (
         <>
           <div className="fixed inset-0 z-10" onClick={() => setIsOpen(false)} />
-          <div className="absolute right-0 z-20 mt-2 w-[360px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl shadow-slate-900/10 dark:border-slate-800 dark:bg-slate-950">
-            <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3 dark:border-slate-800">
+          <div className="absolute right-0 z-20 mt-2 w-[360px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 shadow-2xl shadow-slate-900/10 dark:border-slate-800 dark:bg-slate-950">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 px-4 py-3 dark:border-slate-800">
               <div>
                 <h3 className="text-sm font-black text-slate-950 dark:text-white">Notifications</h3>
-                <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
+                <p className="text-xs font-medium text-slate-500 dark:text-slate-400 dark:text-slate-400">
                   {unreadCount > 0 ? `${unreadCount} unread` : 'No unread notifications'}
                 </p>
               </div>
@@ -99,7 +99,7 @@ export default function NotificationDropdown({ userId, allHref = '/profile/notif
                 type="button"
                 onClick={handleMarkAllRead}
                 disabled={!unreadCount}
-                className="rounded-lg px-2.5 py-1.5 text-xs font-bold text-emerald-600 transition hover:bg-emerald-50 disabled:cursor-not-allowed disabled:text-slate-300 disabled:hover:bg-transparent dark:text-emerald-300 dark:hover:bg-emerald-950/30 dark:disabled:text-slate-700"
+                className="rounded-lg px-2.5 py-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-500 transition hover:bg-emerald-50 dark:bg-emerald-900/30 disabled:cursor-not-allowed disabled:text-slate-300 disabled:hover:bg-transparent dark:text-emerald-300 dark:hover:bg-emerald-950/30 dark:disabled:text-slate-700 dark:text-slate-300"
               >
                 Mark all read
               </button>
@@ -115,12 +115,12 @@ export default function NotificationDropdown({ userId, allHref = '/profile/notif
                   <button
                     type="button"
                     key={notification.id}
-                    className={`flex w-full gap-3 border-b border-slate-100 px-4 py-3 text-left transition-colors last:border-0 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-emerald-500 dark:border-slate-800 dark:hover:bg-slate-900 ${
-                      !notification.isRead ? 'bg-emerald-50/50 dark:bg-emerald-950/20' : ''
+                    className={`flex w-full gap-3 border-b border-slate-100 dark:border-slate-800 px-4 py-3 text-left transition-colors last:border-0 hover:bg-slate-50 dark:bg-slate-900/50 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-emerald-500 dark:border-slate-800 dark:hover:bg-slate-900 ${
+                      !notification.isRead ? 'bg-emerald-50  dark:bg-emerald-950/20' : ''
                     }`}
                     onClick={() => handleOpenNotification(notification.id, notification.actionUrl)}
                   >
-                    <div className="mt-1 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl bg-white shadow-sm ring-1 ring-slate-100 dark:bg-slate-950 dark:ring-slate-800">
+                    <div className="mt-1 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl bg-white dark:bg-slate-950 shadow-sm ring-1 ring-slate-100 dark:bg-slate-950 dark:ring-slate-800">
                       {getIcon(notification.notificationType)}
                     </div>
                     <div className="min-w-0 flex-1">
@@ -128,12 +128,12 @@ export default function NotificationDropdown({ userId, allHref = '/profile/notif
                         className={`text-sm leading-tight ${
                           !notification.isRead
                             ? 'font-black text-slate-950 dark:text-white'
-                            : 'font-semibold text-slate-700 dark:text-slate-300'
+                            : 'font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300'
                         }`}
                       >
                         {notification.title}
                       </p>
-                      <p className="mt-1 line-clamp-2 text-xs leading-5 text-slate-500 dark:text-slate-400">
+                      <p className="mt-1 line-clamp-2 text-xs leading-5 text-slate-500 dark:text-slate-400 dark:text-slate-400">
                         {notification.message}
                       </p>
                       <p className="mt-1 text-[10px] font-bold uppercase tracking-wide text-slate-400">
@@ -146,8 +146,8 @@ export default function NotificationDropdown({ userId, allHref = '/profile/notif
               ) : (
                 <div className="p-8 text-center">
                   <Bell className="mx-auto mb-2 h-8 w-8 text-slate-300 dark:text-slate-700" />
-                  <p className="text-sm font-bold text-slate-700 dark:text-slate-300">No notifications yet</p>
-                  <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                  <p className="text-sm font-bold text-slate-700 dark:text-slate-300 dark:text-slate-300">No notifications yet</p>
+                  <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 dark:text-slate-400">
                     Important account and workflow updates will appear here.
                   </p>
                 </div>
@@ -164,11 +164,11 @@ function NotificationLoadError({ onRetry }: { onRetry: () => void }) {
   return (
     <div className="p-8 text-center">
       <AlertTriangle className="mx-auto mb-2 h-8 w-8 text-amber-400" />
-      <p className="text-sm font-bold text-slate-700 dark:text-slate-300">Could not load notifications</p>
+      <p className="text-sm font-bold text-slate-700 dark:text-slate-300 dark:text-slate-300">Could not load notifications</p>
       <button
         type="button"
         onClick={onRetry}
-        className="mt-3 rounded-lg border border-slate-300 px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-900"
+        className="mt-3 rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-2 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:bg-slate-900/50 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-900"
       >
         Retry
       </button>
@@ -205,6 +205,6 @@ function getIcon(type: NotificationType) {
     case NotificationType.MESSAGE_RECEIVED:
       return <MessageSquare className="h-4 w-4 text-emerald-500" />
     default:
-      return <Info className="h-4 w-4 text-slate-500" />
+      return <Info className="h-4 w-4 text-slate-500 dark:text-slate-400" />
   }
 }

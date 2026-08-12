@@ -96,40 +96,40 @@ export default function EmailVerificationPending({ email }: EmailVerificationPen
     <div className="animate-in fade-in slide-in-from-bottom-3 duration-500">
       <div className="rounded-3xl border border-primary-100 bg-primary-50/40 p-4 shadow-sm shadow-primary-900/5 sm:p-5">
         <div className="flex items-start gap-4">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-primary-200 bg-white text-primary-700 shadow-sm shadow-primary-900/5">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-primary-200 bg-white dark:bg-slate-950 text-primary-700 shadow-sm shadow-primary-900/5">
             <Mail className="h-5 w-5" />
           </div>
           <div className="min-w-0 flex-1 text-left">
-            <div className="mb-2 inline-flex items-center gap-1.5 rounded-full border border-primary-200 bg-white px-2.5 py-1 text-xs font-semibold text-primary-700 shadow-sm shadow-primary-900/5">
+            <div className="mb-2 inline-flex items-center gap-1.5 rounded-full border border-primary-200 bg-white dark:bg-slate-950 px-2.5 py-1 text-xs font-semibold text-primary-700 shadow-sm shadow-primary-900/5">
               <CheckCircle2 className="h-3.5 w-3.5" />
               {sending ? t('auth.verification.sending') : sent ? t('auth.verification.emailQueued') : t('auth.verification.ready')}
             </div>
-            <p className="text-sm leading-6 text-slate-600">
+            <p className="text-sm leading-6 text-slate-600 dark:text-slate-400">
               {sending && !sent ? t('auth.verification.sendingDescription') : t('auth.verification.description')}
             </p>
           </div>
         </div>
 
-        <div className="mt-5 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-left">
+        <div className="mt-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 py-3 text-left">
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">
             {t('auth.verification.sentTo')}
           </p>
-          <p className="mt-1 break-all text-sm font-semibold text-slate-950">{email}</p>
+          <p className="mt-1 break-all text-sm font-semibold text-slate-950 dark:text-slate-100">{email}</p>
         </div>
 
         <div className="mt-5 space-y-3 text-left">
-          <div className="flex gap-3 text-sm leading-6 text-slate-600">
+          <div className="flex gap-3 text-sm leading-6 text-slate-600 dark:text-slate-400">
             <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary-600" />
             <span>{t('auth.verification.instructions')}</span>
           </div>
-          <div className="flex gap-3 text-sm leading-6 text-slate-600">
+          <div className="flex gap-3 text-sm leading-6 text-slate-600 dark:text-slate-400">
             <Clock3 className="mt-0.5 h-4 w-4 shrink-0 text-primary-600" />
             <span>{t('auth.verification.limitPolicy')}</span>
           </div>
         </div>
 
         {statusMessage && (
-          <p aria-live="polite" className="mt-5 rounded-2xl border border-primary-100 bg-white px-4 py-3 text-sm font-medium text-slate-700">
+          <p aria-live="polite" className="mt-5 rounded-2xl border border-primary-100 bg-white dark:bg-slate-950 px-4 py-3 text-sm font-medium text-slate-700 dark:text-slate-300">
             {statusMessage}
           </p>
         )}

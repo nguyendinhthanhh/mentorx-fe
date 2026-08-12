@@ -100,11 +100,11 @@ export default function MentorAchievementsManager({ userId }: Props) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-black text-gray-900 flex items-center gap-2">
+          <h2 className="text-2xl font-black text-gray-900 dark:text-gray-100 flex items-center gap-2">
             <Trophy className="w-6 h-6 text-primary-600" />
             Thành Tựu & Chứng Chỉ
           </h2>
-          <p className="text-sm text-gray-600 mt-1">
+          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
             Thêm badges, awards, certificates để tăng độ tin cậy với học viên
           </p>
         </div>
@@ -122,12 +122,12 @@ export default function MentorAchievementsManager({ userId }: Props) {
 
       {/* Add Form */}
       {isAdding && (
-        <form onSubmit={handleSubmit} className="bg-gradient-to-br from-amber-50 to-yellow-50 rounded-2xl p-6 border-2 border-amber-200 space-y-4">
-          <h3 className="font-black text-gray-900">Thêm Thành Tựu Mới</h3>
+        <form onSubmit={handleSubmit} className="bg-gradient-to-br from-amber-50 to-yellow-50 rounded-2xl p-6 border-2 border-amber-200 dark:border-amber-800/50 space-y-4">
+          <h3 className="font-black text-gray-900 dark:text-gray-100">Thêm Thành Tựu Mới</h3>
 
           <div className="grid md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">
+              <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
                 Loại
               </label>
               <select
@@ -146,7 +146,7 @@ export default function MentorAchievementsManager({ userId }: Props) {
             </div>
 
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">
+              <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
                 Tên Thành Tựu
               </label>
               <input
@@ -161,7 +161,7 @@ export default function MentorAchievementsManager({ userId }: Props) {
           </div>
 
           <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2">
+            <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
               Mô Tả
             </label>
             <textarea
@@ -175,7 +175,7 @@ export default function MentorAchievementsManager({ userId }: Props) {
           </div>
 
           <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2">
+            <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
               Icon / Chứng Chỉ
             </label>
             <div className="flex gap-4">
@@ -184,7 +184,7 @@ export default function MentorAchievementsManager({ userId }: Props) {
                   <img
                     src={formData.iconUrl}
                     alt="Badge icon"
-                    className="w-24 h-24 object-cover rounded-xl border-2 border-gray-200"
+                    className="w-24 h-24 object-cover rounded-xl border-2 border-gray-200 dark:border-gray-800"
                   />
                   <button
                     type="button"
@@ -209,7 +209,7 @@ export default function MentorAchievementsManager({ userId }: Props) {
                   )}
                 </label>
               )}
-              <div className="flex-1 text-sm text-gray-600">
+              <div className="flex-1 text-sm text-gray-600 dark:text-gray-400">
                 <p className="font-bold mb-1">Upload icon hoặc ảnh chứng chỉ</p>
                 <p>PNG, JPG (khuyến nghị 200x200px)</p>
               </div>
@@ -224,7 +224,7 @@ export default function MentorAchievementsManager({ userId }: Props) {
               onChange={(e) => setFormData(prev => ({ ...prev, isFeatured: e.target.checked }))}
               className="w-4 h-4 text-primary-600 rounded focus:ring-primary-500"
             />
-            <label htmlFor="isFeatured" className="text-sm font-medium text-gray-700">
+            <label htmlFor="isFeatured" className="text-sm font-medium text-gray-700 dark:text-gray-300">
               Hiển thị nổi bật trên profile
             </label>
           </div>
@@ -253,7 +253,7 @@ export default function MentorAchievementsManager({ userId }: Props) {
                 setIsAdding(false)
                 setFormData(getEmptyForm())
               }}
-              className="px-6 py-3 border border-gray-300 text-gray-700 rounded-xl font-bold hover:bg-gray-50"
+              className="px-6 py-3 border border-gray-300 text-gray-700 dark:text-gray-300 rounded-xl font-bold hover:bg-gray-50 dark:bg-gray-900/50"
             >
               Hủy
             </button>
@@ -264,7 +264,7 @@ export default function MentorAchievementsManager({ userId }: Props) {
       {/* Featured Badges */}
       {featuredBadges.length > 0 && (
         <div>
-          <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
+          <h3 className="font-bold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
             <Star className="w-5 h-5 text-amber-500" />
             Thành Tựu Nổi Bật
           </h3>
@@ -292,7 +292,7 @@ export default function MentorAchievementsManager({ userId }: Props) {
       {/* Other Badges */}
       {otherBadges.length > 0 && (
         <div>
-          <h3 className="font-bold text-gray-900 mb-4">Thành Tựu Khác</h3>
+          <h3 className="font-bold text-gray-900 dark:text-gray-100 mb-4">Thành Tựu Khác</h3>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
             {otherBadges.map((badge: any) => (
               <BadgeCard
@@ -316,10 +316,10 @@ export default function MentorAchievementsManager({ userId }: Props) {
       )}
 
       {badges.length === 0 && !isAdding && (
-        <div className="text-center py-12 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-300">
+        <div className="text-center py-12 bg-gray-50 dark:bg-gray-900/50 rounded-2xl border-2 border-dashed border-gray-300">
           <Trophy className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-          <h3 className="font-bold text-gray-900 mb-2">Chưa có thành tựu nào</h3>
-          <p className="text-sm text-gray-600 mb-4">
+          <h3 className="font-bold text-gray-900 dark:text-gray-100 mb-2">Chưa có thành tựu nào</h3>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
             Thêm chứng chỉ, giải thưởng để tăng độ tin cậy
           </p>
           <button
@@ -333,9 +333,9 @@ export default function MentorAchievementsManager({ userId }: Props) {
       )}
 
       {/* Tips */}
-      <div className="bg-emerald-50 rounded-2xl p-6 border border-emerald-100">
-        <h3 className="font-black text-emerald-900 mb-3">💡 Tips về thành tựu</h3>
-        <ul className="space-y-2 text-sm text-emerald-800">
+      <div className="bg-emerald-50 dark:bg-emerald-900/30 rounded-2xl p-6 border border-emerald-100 dark:border-emerald-900/50">
+        <h3 className="font-black text-emerald-900 dark:text-emerald-100 mb-3">💡 Tips về thành tựu</h3>
+        <ul className="space-y-2 text-sm text-emerald-800 dark:text-emerald-200">
           <li className="flex items-start gap-2">
             <CheckCircle2 className="w-4 h-4 mt-0.5 flex-shrink-0" />
             <span>Thêm ít nhất 3-5 thành tựu để profile nổi bật</span>
@@ -363,7 +363,7 @@ function BadgeCard({ badge, compact, onToggleFeatured, onDelete, isDeleting }: a
 
   if (compact) {
     return (
-      <div className="bg-white border-2 border-gray-200 rounded-2xl p-4 hover:shadow-md transition-all group">
+      <div className="bg-white dark:bg-slate-950 border-2 border-gray-200 dark:border-gray-800 rounded-2xl p-4 hover:shadow-md transition-all group">
         <div className="flex items-start justify-between mb-3">
           {badge.iconUrl ? (
             <img
@@ -372,7 +372,7 @@ function BadgeCard({ badge, compact, onToggleFeatured, onDelete, isDeleting }: a
               className="w-12 h-12 object-cover rounded-lg"
             />
           ) : (
-            <div className="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center text-amber-600">
+            <div className="w-12 h-12 bg-amber-100 dark:bg-amber-900/50 rounded-lg flex items-center justify-center text-amber-600">
               {typeIcon}
             </div>
           )}
@@ -380,8 +380,8 @@ function BadgeCard({ badge, compact, onToggleFeatured, onDelete, isDeleting }: a
             onClick={onToggleFeatured}
             className={`p-1.5 rounded-lg transition-colors ${
               badge.isFeatured
-                ? 'bg-amber-100 text-amber-600'
-                : 'bg-gray-100 text-gray-400 hover:bg-amber-50 hover:text-amber-500'
+                ? 'bg-amber-100 dark:bg-amber-900/50 text-amber-600'
+                : 'bg-gray-100 dark:bg-gray-800 text-gray-400 hover:bg-amber-50 dark:bg-amber-900/30 hover:text-amber-500'
             }`}
             title={badge.isFeatured ? 'Bỏ nổi bật' : 'Đánh dấu nổi bật'}
           >
@@ -389,7 +389,7 @@ function BadgeCard({ badge, compact, onToggleFeatured, onDelete, isDeleting }: a
           </button>
         </div>
         
-        <h4 className="font-bold text-gray-900 text-sm mb-1 line-clamp-2">
+        <h4 className="font-bold text-gray-900 dark:text-gray-100 text-sm mb-1 line-clamp-2">
           {badge.badgeName}
         </h4>
         <p className="text-xs text-gray-500 mb-3 line-clamp-2">
@@ -408,7 +408,7 @@ function BadgeCard({ badge, compact, onToggleFeatured, onDelete, isDeleting }: a
   }
 
   return (
-    <div className="bg-gradient-to-br from-amber-50 to-yellow-50 border-2 border-amber-200 rounded-2xl p-6 hover:shadow-lg transition-all">
+    <div className="bg-gradient-to-br from-amber-50 to-yellow-50 border-2 border-amber-200 dark:border-amber-800/50 rounded-2xl p-6 hover:shadow-lg transition-all">
       <div className="flex items-start gap-4 mb-4">
         {badge.iconUrl ? (
           <img
@@ -417,7 +417,7 @@ function BadgeCard({ badge, compact, onToggleFeatured, onDelete, isDeleting }: a
             className="w-16 h-16 object-cover rounded-xl border-2 border-white shadow-md"
           />
         ) : (
-          <div className="w-16 h-16 bg-amber-100 rounded-xl flex items-center justify-center text-amber-600 border-2 border-white shadow-md">
+          <div className="w-16 h-16 bg-amber-100 dark:bg-amber-900/50 rounded-xl flex items-center justify-center text-amber-600 border-2 border-white shadow-md">
             <Trophy className="w-8 h-8" />
           </div>
         )}
@@ -425,8 +425,8 @@ function BadgeCard({ badge, compact, onToggleFeatured, onDelete, isDeleting }: a
         <div className="flex-1">
           <div className="flex items-start justify-between">
             <div>
-              <h4 className="font-black text-gray-900">{badge.badgeName}</h4>
-              <p className="text-xs text-amber-700 font-bold mt-1">
+              <h4 className="font-black text-gray-900 dark:text-gray-100">{badge.badgeName}</h4>
+              <p className="text-xs text-amber-700 dark:text-amber-400 font-bold mt-1">
                 {BADGE_TYPES.find(t => t.value === badge.badgeType)?.label}
               </p>
             </div>
@@ -434,8 +434,8 @@ function BadgeCard({ badge, compact, onToggleFeatured, onDelete, isDeleting }: a
               onClick={onToggleFeatured}
               className={`p-2 rounded-lg transition-colors ${
                 badge.isFeatured
-                  ? 'bg-amber-200 text-amber-700'
-                  : 'bg-white text-gray-400 hover:bg-amber-100 hover:text-amber-600'
+                  ? 'bg-amber-200 text-amber-700 dark:text-amber-400'
+                  : 'bg-white dark:bg-slate-950 text-gray-400 hover:bg-amber-100 dark:bg-amber-900/50 hover:text-amber-600'
               }`}
             >
               <Star className={`w-5 h-5 ${badge.isFeatured ? 'fill-current' : ''}`} />
@@ -444,7 +444,7 @@ function BadgeCard({ badge, compact, onToggleFeatured, onDelete, isDeleting }: a
         </div>
       </div>
 
-      <p className="text-sm text-gray-700 mb-4">
+      <p className="text-sm text-gray-700 dark:text-gray-300 mb-4">
         {badge.description}
       </p>
 
