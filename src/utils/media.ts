@@ -1,18 +1,7 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api'
+import { getBackendBaseUrl } from '@/api/baseUrl'
+
 const ABSOLUTE_URL_REGEX = /^https?:\/\//i
 const LEGACY_UPLOAD_PATH_REGEX = /^\/?uploads\//i
-
-function getBackendBaseUrl() {
-  if (ABSOLUTE_URL_REGEX.test(API_BASE_URL)) {
-    return API_BASE_URL.replace(/\/api\/?$/i, '')
-  }
-
-  if (typeof window !== 'undefined') {
-    return window.location.origin
-  }
-
-  return ''
-}
 
 export function resolveUploadedFileUrl(value?: string | null) {
   const normalized = value?.trim()

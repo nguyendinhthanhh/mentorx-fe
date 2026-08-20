@@ -4,6 +4,7 @@ import { authApi } from '@/api/authApi'
 import { UserMode, UserResponse } from '@/types'
 import { canSwitchToMentorMode, getAvailableModes } from '@/utils/roleRedirect'
 import { toast } from 'react-hot-toast'
+import { API_BASE_URL } from '@/api/baseUrl'
 
 const ONBOARDING_SKIP_SESSION_KEY = 'mentorx-onboarding-skipped-session'
 
@@ -119,8 +120,7 @@ export const useAuthStore = create<AuthState>()(
 
       logout: () =>
         set(() => {
-          const apiBase = import.meta.env.VITE_API_BASE_URL || '/api'
-          void fetch(`${apiBase}/auth/logout`, {
+          void fetch(`${API_BASE_URL}/auth/logout`, {
             method: 'POST',
             credentials: 'include',
           }).catch(() => undefined)

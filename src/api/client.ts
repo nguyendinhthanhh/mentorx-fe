@@ -1,8 +1,8 @@
 import axios, { AxiosError, AxiosInstance, InternalAxiosRequestConfig } from 'axios'
 import { useAuthStore } from '@/store/authStore'
 import { resolveUploadedFileUrl, resolveUploadedFileUrls } from '@/utils/media'
+import { API_BASE_URL } from './baseUrl'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api'
 const URL_FIELD_KEYS = new Set([
   'attachmentUrl',
   'avatarUrl',
