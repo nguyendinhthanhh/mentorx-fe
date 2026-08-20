@@ -406,7 +406,7 @@ export default function CourseDetailPage() {
             {/* Left: Product Info */}
             <div className="space-y-6">
               {/* Category Badge */}
-              <div className="inline-flex items-center gap-2 bg-white dark:bg-slate-950/10 backdrop-blur-sm rounded-full px-4 py-1.5 text-sm font-medium">
+              <div className="inline-flex items-center gap-2 bg-white/10 dark:bg-slate-950/10 backdrop-blur-sm rounded-full px-4 py-1.5 text-sm font-medium">
                 {isDocumentProduct ? <FileText className="w-4 h-4" /> : <BookOpen className="w-4 h-4" />}
                 {domainName || (isDocumentProduct ? 'Document resource' : course.level || course.language || 'Course')}
               </div>
@@ -431,7 +431,7 @@ export default function CourseDetailPage() {
 
               {/* Meta Info */}
               <div className="flex flex-wrap items-center gap-6 text-sm">
-                <Link to={`/mentors/${course.instructorId}`} className="flex items-center gap-2 rounded-xl transition hover:bg-white dark:bg-slate-950/10">
+                <Link to={`/mentors/${course.instructorId}`} className="flex items-center gap-2 rounded-xl transition hover:bg-white/10 dark:bg-slate-950/10">
                   <img
                     src={getInstructorAvatar(course, instructorProfile)}
                     alt={getInstructorName(course, instructorProfile)}
@@ -470,36 +470,36 @@ export default function CourseDetailPage() {
               {/* Key Features */}
               <div className="flex flex-wrap gap-3">
                 {domainName && (
-                  <div className="flex items-center gap-2 bg-white dark:bg-slate-950/10 backdrop-blur-sm rounded-lg px-4 py-2">
+                  <div className="flex items-center gap-2 bg-white/10 dark:bg-slate-950/10 backdrop-blur-sm rounded-lg px-4 py-2">
                     <Tag className="w-4 h-4" />
                     <span className="text-sm font-medium">{domainName}</span>
                   </div>
                 )}
                 {(course.skills || []).slice(0, 4).map((skill) => (
-                  <div key={skill} className="flex items-center gap-2 bg-white dark:bg-slate-950/10 backdrop-blur-sm rounded-lg px-4 py-2">
+                  <div key={skill} className="flex items-center gap-2 bg-white/10 dark:bg-slate-950/10 backdrop-blur-sm rounded-lg px-4 py-2">
                     <span className="text-sm font-medium">{skill}</span>
                   </div>
                 ))}
                 {course.level && (
-                  <div className="flex items-center gap-2 bg-white dark:bg-slate-950/10 backdrop-blur-sm rounded-lg px-4 py-2">
+                  <div className="flex items-center gap-2 bg-white/10 dark:bg-slate-950/10 backdrop-blur-sm rounded-lg px-4 py-2">
                     <BarChart3 className="w-4 h-4" />
                     <span className="text-sm font-medium">{course.level} Level</span>
                   </div>
                 )}
                 {totalDuration > 0 && (
-                  <div className="flex items-center gap-2 bg-white dark:bg-slate-950/10 backdrop-blur-sm rounded-lg px-4 py-2">
+                  <div className="flex items-center gap-2 bg-white/10 dark:bg-slate-950/10 backdrop-blur-sm rounded-lg px-4 py-2">
                     <Clock className="w-4 h-4" />
                     <span className="text-sm font-medium">{formatDuration(totalDuration)} total</span>
                   </div>
                 )}
                 {publishedLessons.length > 0 && (
-                  <div className="flex items-center gap-2 bg-white dark:bg-slate-950/10 backdrop-blur-sm rounded-lg px-4 py-2">
+                  <div className="flex items-center gap-2 bg-white/10 dark:bg-slate-950/10 backdrop-blur-sm rounded-lg px-4 py-2">
                     {isDocumentProduct ? <FileText className="w-4 h-4" /> : <PlayCircle className="w-4 h-4" />}
                     <span className="text-sm font-medium">{isDocumentProduct ? '1 downloadable file' : `${publishedLessons.length} lessons`}</span>
                   </div>
                 )}
                 {!isDocumentProduct && course.isCertificate && (
-                  <div className="flex items-center gap-2 bg-white dark:bg-slate-950/10 backdrop-blur-sm rounded-lg px-4 py-2">
+                  <div className="flex items-center gap-2 bg-white/10 dark:bg-slate-950/10 backdrop-blur-sm rounded-lg px-4 py-2">
                     <Award className="w-4 h-4" />
                     <span className="text-sm font-medium">Certificate included</span>
                   </div>
